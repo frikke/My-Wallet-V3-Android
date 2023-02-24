@@ -18,11 +18,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
@@ -114,7 +116,10 @@ fun HomeScreen(
     val earnViewModel: EarnViewModel = getViewModel(scope = payloadScope)
     val earnViewState: EarnViewState by earnViewModel.viewState.collectAsStateLifecycleAware()
 
-    val quickActionsViewModel: QuickActionsViewModel = getViewModel(scope = payloadScope)
+    val quickActionsViewModel: QuickActionsViewModel = getViewModel(
+        viewModelStoreOwner = LocalContext.current as ViewModelStoreOwner,
+        scope = payloadScope
+    )
     val quickActionsState: QuickActionsViewState by quickActionsViewModel.viewState.collectAsStateLifecycleAware()
 
     val announcementsViewModel: AnnouncementsViewModel = getViewModel(scope = payloadScope)

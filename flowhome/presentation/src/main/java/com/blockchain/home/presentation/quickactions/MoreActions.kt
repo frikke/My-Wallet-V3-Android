@@ -9,17 +9,18 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.basic.ImageResource
@@ -33,21 +34,18 @@ import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun MoreActions(
-    viewModel: QuickActionsViewModel = getViewModel(scope = payloadScope),
+    viewModel: QuickActionsViewModel = getViewModel(
+        viewModelStoreOwner = LocalContext.current as ViewModelStoreOwner,
+        scope = payloadScope
+    ),
     assetActionsNavigation: AssetActionsNavigation,
     dismiss: () -> Unit
 ) {
-    val maxQuickActions = maxQuickActionsOnScreen
-
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
     val viewState: QuickActionsViewState? by stateFlowLifecycleAware.collectAsState(null)
-    DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(QuickActionsIntent.LoadActions(maxQuickActions))
-        onDispose { }
-    }
 
     viewState?.moreActions?.let { actions ->
         MoreActionsScreen(

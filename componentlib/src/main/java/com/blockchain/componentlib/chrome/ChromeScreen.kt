@@ -1,47 +1,126 @@
 package com.blockchain.componentlib.chrome
 
+import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.PullRefreshState
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.blockchain.componentlib.basic.ImageResource.None.shape
-import com.blockchain.componentlib.swiperefresh.SwipeRefreshWithoutOverscroll
 import com.blockchain.componentlib.theme.AppTheme
-import com.google.accompanist.swiperefresh.SwipeRefreshState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun ChromeScreen(
+fun ChromeListScreen(
     modifier: Modifier,
     isPullToRefreshEnabled: Boolean,
-    isRefreshing: Boolean,
-    swipeRefreshState: SwipeRefreshState,
-    content: @Composable (shouldTriggerRefresh: Boolean) -> Unit,
     refreshStarted: () -> Unit,
     refreshComplete: () -> Unit,
+    getStatesInfo: (ListStateInfo) -> Unit,
+    content: @Composable (listState: LazyListState, shouldTriggerRefresh: Boolean) -> Unit
 ) {
+    val listState = rememberLazyListState()
+
+    ChromeScreen(
+        modifier = modifier,
+        state = listState,
+        isPullToRefreshEnabled = isPullToRefreshEnabled,
+        refreshStarted = refreshStarted,
+        refreshComplete = refreshComplete,
+        getStatesInfo = getStatesInfo,
+        contentList = content
+    )
+}
+
+@Composable
+fun ChromeGridScreen(
+    modifier: Modifier,
+    isPullToRefreshEnabled: Boolean,
+    refreshStarted: () -> Unit,
+    refreshComplete: () -> Unit,
+    getStatesInfo: (ListStateInfo) -> Unit,
+    content: @Composable (listState: LazyGridState, shouldTriggerRefresh: Boolean) -> Unit
+) {
+    val gridState = rememberLazyGridState()
+
+    ChromeScreen(
+        modifier = modifier,
+        state = gridState,
+        isPullToRefreshEnabled = isPullToRefreshEnabled,
+        refreshStarted = refreshStarted,
+        refreshComplete = refreshComplete,
+        getStatesInfo = getStatesInfo,
+        contentGrid = content
+    )
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+private fun ChromeScreen(
+    modifier: Modifier,
+    state: ScrollableState,
+    isPullToRefreshEnabled: Boolean,
+    refreshStarted: () -> Unit,
+    refreshComplete: () -> Unit,
+    getStatesInfo: (ListStateInfo) -> Unit,
+    contentList: @Composable ((listState: LazyListState, shouldTriggerRefresh: Boolean) -> Unit)? = null,
+    contentGrid: @Composable ((listState: LazyGridState, shouldTriggerRefresh: Boolean) -> Unit)? = null
+) {
+    when (state) {
+        is LazyListState -> {
+            check(contentList != null)
+        }
+        is LazyGridState -> {
+            check(contentGrid != null)
+        }
+        else -> {
+            error("ScrollableState ${state::class.java} unsupported")
+        }
+    }
 
     val scope = rememberCoroutineScope()
 
-    SwipeRefreshWithoutOverscroll(
-        state = swipeRefreshState,
-        swipeEnabled = isPullToRefreshEnabled,
+    var isRefreshing by remember { mutableStateOf(false) }
+
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = isRefreshing,
         onRefresh = {
             scope.launch {
+                isRefreshing = true
                 refreshStarted()
+
                 delay(2000)
+
                 refreshComplete()
+                isRefreshing = false
             }
-        },
+        }
+    )
+
+    getStatesInfo(extractStatesInfo(state, pullRefreshState))
+
+    Box(
+        Modifier.pullRefresh(
+            state = pullRefreshState,
+            enabled = isPullToRefreshEnabled
+        )
     ) {
         Surface(
             modifier = modifier,
@@ -51,8 +130,22 @@ fun ChromeScreen(
                 topEnd = AppTheme.dimensions.standardSpacing
             )
         ) {
-            content(isRefreshing)
+            when (state) {
+                is LazyListState -> {
+                    check(contentList != null)
+                    contentList(state, isRefreshing)
+                }
+                is LazyGridState -> {
+                    check(contentGrid != null)
+                    contentGrid(state, isRefreshing)
+                }
+                else -> {
+                    error("ScrollableState ${state::class.java} unsupported")
+                }
+            }
         }
+
+        PullRefreshIndicator(isRefreshing, pullRefreshState, Modifier.align(Alignment.TopCenter))
     }
 }
 
@@ -62,27 +155,54 @@ data class ListStateInfo(
     val isSwipeInProgress: Boolean
 )
 
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun extractStatesInfo(
+    state: ScrollableState,
+    pullRefreshState: PullRefreshState
+): ListStateInfo {
+    return when (state) {
+        is LazyListState -> {
+            extractStatesInfo(
+                listState = state,
+                pullRefreshState = pullRefreshState
+            )
+        }
+        is LazyGridState -> {
+            extractStatesInfo(
+                lazyGridState = state,
+                pullRefreshState = pullRefreshState
+            )
+        }
+        else -> {
+            error("ScrollableState ${state::class.java} unsupported")
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun extractStatesInfo(
     listState: LazyListState,
-    swipeRefreshState: SwipeRefreshState
+    pullRefreshState: PullRefreshState
 ): ListStateInfo {
     return extractStatesInfo(
         isFirstItemVisibleProvider = { listState.firstVisibleItemIndex == 0 },
         isFirstVisibleItemOffsetZeroProvider = { listState.firstVisibleItemScrollOffset == 0 },
-        isSwipeInProgressProvider = { swipeRefreshState.isSwipeInProgress }
+        isPullRefreshInProgressProvider = { pullRefreshState.progress > 0 }
     )
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun extractStatesInfo(
     lazyGridState: LazyGridState,
-    swipeRefreshState: SwipeRefreshState
+    pullRefreshState: PullRefreshState
 ): ListStateInfo {
     return extractStatesInfo(
         isFirstItemVisibleProvider = { lazyGridState.firstVisibleItemIndex == 0 },
         isFirstVisibleItemOffsetZeroProvider = { lazyGridState.firstVisibleItemScrollOffset == 0 },
-        isSwipeInProgressProvider = { swipeRefreshState.isSwipeInProgress }
+        isPullRefreshInProgressProvider = { pullRefreshState.progress > 0 }
     )
 }
 
@@ -90,7 +210,7 @@ fun extractStatesInfo(
 private fun extractStatesInfo(
     isFirstItemVisibleProvider: () -> Boolean,
     isFirstVisibleItemOffsetZeroProvider: () -> Boolean,
-    isSwipeInProgressProvider: () -> Boolean,
+    isPullRefreshInProgressProvider: () -> Boolean,
 ): ListStateInfo {
     val isFirstItemVisible by remember {
         derivedStateOf {
@@ -104,7 +224,7 @@ private fun extractStatesInfo(
     }
     val isSwipeInProgress by remember {
         derivedStateOf {
-            isSwipeInProgressProvider()
+            isPullRefreshInProgressProvider()
         }
     }
 

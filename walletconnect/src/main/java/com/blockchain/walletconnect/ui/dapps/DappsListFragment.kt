@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rxjava3.subscribeAsState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -49,8 +50,12 @@ import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.walletconnect.R
+import com.blockchain.walletconnect.domain.ClientMeta
+import com.blockchain.walletconnect.domain.DAppInfo
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectSession
+import com.blockchain.walletconnect.domain.WalletInfo
+import kotlinx.coroutines.launch
 
 class DappsListFragment :
     MviComposeFragment<DappsListModel, DappsListIntent, DappsListState>() {
@@ -103,6 +108,8 @@ class DappsListFragment :
     private fun Dapps(model: DappsListModel) {
         val state by model.state.subscribeAsState(null)
 
+        val scope = rememberCoroutineScope()
+
         var currentBottomSheet: SessionBottomSheet? by remember {
             mutableStateOf(null)
         }
@@ -111,28 +118,51 @@ class DappsListFragment :
             ModalBottomSheetValue.Hidden
         )
 
-        var bottomSheetState by remember { mutableStateOf(ModalBottomSheetValue.Hidden) }
+        fun hideSheet() {
+            scope.launch { modalBottomSheetState.hide() }
+        }
+
+        fun showSheet() {
+            scope.launch { modalBottomSheetState.show() }
+        }
 
         BottomSheetHostLayout(
             modalBottomSheetState = modalBottomSheetState,
-            onBackAction = { bottomSheetState = ModalBottomSheetValue.Hidden },
-            stateFlow = bottomSheetState,
+            onBackAction = { hideSheet() },
             sheetContent = {
                 Spacer(modifier = Modifier.height(1.dp))
                 currentBottomSheet?.let {
                     SheetLayout(
                         closeSheet = {
-                            bottomSheetState = ModalBottomSheetValue.Hidden
+                            hideSheet()
                         },
                         bottomSheet = it
                     )
                 }
-            }, content = {
+            },
+            content = {
+                val dapps = listOf(
+                    WalletConnectSession(
+                        url = "url",
+                        dAppInfo = DAppInfo(
+                            peerId = "",
+                            peerMeta = ClientMeta(
+                                description = "dzkdz",
+                                url = "dzklkdz",
+                                icons = listOf(),
+                                name = "dzdzdzdz"
+                            ),
+                            chainId = 0
+                        ),
+                        walletInfo = WalletInfo(clientId = "feo", sourcePlatform = "fzkpa")
+
+                    )
+                )
                 state?.let {
-                    if (it.connectedSessions.isEmpty()) {
+                    if (dapps.isEmpty()) {
                         NoDapps()
                     } else {
-                        DappsList(it.connectedSessions) { session ->
+                        DappsList(dapps) { session ->
                             currentBottomSheet = SessionBottomSheet.Disconnect(
                                 session = session,
                                 onDisconnectClick = {
@@ -140,7 +170,7 @@ class DappsListFragment :
                                         session,
                                         onConfirmClick = {
                                             model.process(DappsListIntent.Disconnect(session))
-                                            bottomSheetState = ModalBottomSheetValue.Hidden
+                                            hideSheet()
                                             analytics.logEvent(
                                                 WalletConnectAnalytics.ConnectedDappActioned(
                                                     dappName = session.dAppInfo.peerMeta.name,
@@ -150,8 +180,7 @@ class DappsListFragment :
                                             )
                                         }
                                     )
-                                    bottomSheetState = ModalBottomSheetValue.Hidden
-                                    bottomSheetState = ModalBottomSheetValue.Expanded
+                                    showSheet()
 
                                     analytics.logEvent(
                                         WalletConnectAnalytics.ConnectedDappActioned(
@@ -161,7 +190,8 @@ class DappsListFragment :
                                     )
                                 }
                             )
-                            bottomSheetState = ModalBottomSheetValue.Expanded
+
+                            showSheet()
 
                             analytics.logEvent(
                                 WalletConnectAnalytics.ConnectedDappClicked(
@@ -171,9 +201,6 @@ class DappsListFragment :
                         }
                     }
                 }
-            },
-            onCollapse = {
-                bottomSheetState = ModalBottomSheetValue.Hidden
             }
         )
     }

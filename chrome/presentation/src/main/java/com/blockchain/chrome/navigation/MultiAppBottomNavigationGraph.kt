@@ -1,22 +1,18 @@
 package com.blockchain.chrome.navigation
 
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.blockchain.chrome.ChromeBottomNavigationItem
 import com.blockchain.chrome.composable.bottomNavigationItems
-import com.blockchain.componentlib.chrome.ChromeScreen
+import com.blockchain.componentlib.chrome.ChromeGridScreen
+import com.blockchain.componentlib.chrome.ChromeListScreen
 import com.blockchain.componentlib.chrome.ListStateInfo
-import com.blockchain.componentlib.chrome.extractStatesInfo
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.earn.dashboard.EarnDashboardScreen
 import com.blockchain.earn.navigation.EarnNavigation
@@ -33,7 +29,6 @@ import com.blockchain.prices.prices.composable.Prices
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.dex.presentation.DexEnterAmountScreen
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import org.koin.androidx.compose.get
 
 @Composable
@@ -93,23 +88,20 @@ fun MultiAppBottomNavigationHost(
 
     NavHost(navControllerProvider(), startDestination = ChromeBottomNavigationItem.Home.route) {
         composable(ChromeBottomNavigationItem.Home.route) {
-            val listState = rememberLazyListState()
-            var isRefreshing by remember { mutableStateOf(false) }
-            val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
-
-            updateScrollInfo(
-                Pair(
-                    ChromeBottomNavigationItem.Home,
-                    extractStatesInfo(listState, swipeRefreshState)
-                )
-            )
-
-            ChromeScreen(
+            ChromeListScreen(
                 modifier = modifier,
                 isPullToRefreshEnabled = enableRefresh,
-                isRefreshing = isRefreshing,
-                swipeRefreshState = swipeRefreshState,
-                content = { shouldTriggerRefresh ->
+                refreshStarted = refreshStarted,
+                refreshComplete = refreshComplete,
+                getStatesInfo = { listStateInfo ->
+                    updateScrollInfo(
+                        Pair(
+                            ChromeBottomNavigationItem.Home,
+                            listStateInfo
+                        )
+                    )
+                },
+                content = { listState, shouldTriggerRefresh ->
                     HomeScreen(
                         listState = listState,
                         isSwipingToRefresh = shouldTriggerRefresh &&
@@ -128,67 +120,45 @@ fun MultiAppBottomNavigationHost(
                         startPhraseRecovery = startPhraseRecovery,
                         openEarnDashboard = openEarnDashboard,
                     )
-                },
-                refreshStarted = {
-                    isRefreshing = true
-                    refreshStarted()
-                },
-                refreshComplete = {
-                    refreshComplete()
-                    isRefreshing = false
                 }
             )
         }
 
         composable(ChromeBottomNavigationItem.Dex.route) {
-            val listState = rememberLazyListState()
-            var isRefreshing by remember { mutableStateOf(false) }
-            val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
-
-            updateScrollInfo(
-                Pair(
-                    ChromeBottomNavigationItem.Dex,
-                    extractStatesInfo(listState, swipeRefreshState)
-                )
-            )
-
-            ChromeScreen(
+            ChromeListScreen(
                 modifier = modifier,
                 isPullToRefreshEnabled = enableRefresh,
-                isRefreshing = isRefreshing,
-                swipeRefreshState = swipeRefreshState,
-                content = {
+                refreshStarted = refreshStarted,
+                refreshComplete = refreshComplete,
+                getStatesInfo = { listStateInfo ->
+                    updateScrollInfo(
+                        Pair(
+                            ChromeBottomNavigationItem.Dex,
+                            listStateInfo
+                        )
+                    )
+                },
+                content = { listState, shouldTriggerRefresh ->
                     DexEnterAmountScreen(listState)
-                },
-                refreshStarted = {
-                    isRefreshing = true
-                    refreshStarted()
-                },
-                refreshComplete = {
-                    refreshComplete()
-                    isRefreshing = false
                 }
             )
         }
 
         composable(ChromeBottomNavigationItem.Prices.route) {
-            val listState = rememberLazyListState()
-            var isRefreshing by remember { mutableStateOf(false) }
-            val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
-
-            updateScrollInfo(
-                Pair(
-                    ChromeBottomNavigationItem.Home,
-                    extractStatesInfo(listState, swipeRefreshState)
-                )
-            )
-
-            ChromeScreen(
+            ChromeListScreen(
                 modifier = modifier,
                 isPullToRefreshEnabled = enableRefresh,
-                isRefreshing = isRefreshing,
-                swipeRefreshState = swipeRefreshState,
-                content = { shouldTriggerRefresh ->
+                refreshStarted = refreshStarted,
+                refreshComplete = refreshComplete,
+                getStatesInfo = { listStateInfo ->
+                    updateScrollInfo(
+                        Pair(
+                            ChromeBottomNavigationItem.Prices,
+                            listStateInfo
+                        )
+                    )
+                },
+                content = { listState, shouldTriggerRefresh ->
                     Prices(
                         listState = listState,
                         shouldTriggerRefresh = shouldTriggerRefresh &&
@@ -197,35 +167,25 @@ fun MultiAppBottomNavigationHost(
                         openSettings = openSettings,
                         launchQrScanner = launchQrScanner,
                     )
-                },
-                refreshStarted = {
-                    isRefreshing = true
-                    refreshStarted()
-                },
-                refreshComplete = {
-                    refreshComplete()
-                    isRefreshing = false
                 }
             )
         }
+
         composable(ChromeBottomNavigationItem.Nft.route) {
-            val gridState = rememberLazyGridState()
-            var isRefreshing by remember { mutableStateOf(false) }
-            val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
-
-            updateScrollInfo(
-                Pair(
-                    ChromeBottomNavigationItem.Home,
-                    extractStatesInfo(gridState, swipeRefreshState)
-                )
-            )
-
-            ChromeScreen(
+            ChromeGridScreen(
                 modifier = modifier,
                 isPullToRefreshEnabled = enableRefresh,
-                isRefreshing = isRefreshing,
-                swipeRefreshState = swipeRefreshState,
-                content = { shouldTriggerRefresh ->
+                refreshStarted = refreshStarted,
+                refreshComplete = refreshComplete,
+                getStatesInfo = { listStateInfo ->
+                    updateScrollInfo(
+                        Pair(
+                            ChromeBottomNavigationItem.Nft,
+                            listStateInfo
+                        )
+                    )
+                },
+                content = { gridState, shouldTriggerRefresh ->
                     NftCollection(
                         gridState = gridState,
                         shouldTriggerRefresh = shouldTriggerRefresh &&
@@ -237,45 +197,27 @@ fun MultiAppBottomNavigationHost(
                         openNftDetail = openNftDetail,
                         nftNavigation = nftNavigation
                     )
-                },
-                refreshStarted = {
-                    isRefreshing = true
-                    refreshStarted()
-                },
-                refreshComplete = {
-                    refreshComplete()
-                    isRefreshing = false
                 }
             )
         }
 
         composable(ChromeBottomNavigationItem.Earn.route) {
-            val listState = rememberLazyListState()
-            var isRefreshing by remember { mutableStateOf(false) }
-            val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
-
-            updateScrollInfo(
-                Pair(
-                    ChromeBottomNavigationItem.Earn,
-                    extractStatesInfo(listState, swipeRefreshState)
-                )
-            )
-
-            ChromeScreen(
+            ChromeListScreen(
                 modifier = modifier,
                 isPullToRefreshEnabled = enableRefresh,
-                isRefreshing = isRefreshing,
-                swipeRefreshState = swipeRefreshState,
-                content = { shouldTriggerRefresh ->
+                refreshStarted = refreshStarted,
+                refreshComplete = refreshComplete,
+                getStatesInfo = { listStateInfo ->
+                    updateScrollInfo(
+                        Pair(
+                            ChromeBottomNavigationItem.Home,
+                            listStateInfo
+                        )
+                    )
+                },
+                content = { listState, shouldTriggerRefresh ->
+                    // todo change the layout so EarnDashboardScreen is rooted with a lazylist to pass listState
                     EarnDashboardScreen(earnNavigation = earnNavigation)
-                },
-                refreshStarted = {
-                    isRefreshing = true
-                    refreshStarted()
-                },
-                refreshComplete = {
-                    refreshComplete()
-                    isRefreshing = false
                 }
             )
         }

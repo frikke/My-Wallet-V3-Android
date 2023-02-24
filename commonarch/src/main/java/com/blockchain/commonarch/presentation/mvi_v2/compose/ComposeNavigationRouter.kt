@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.fragment.app.Fragment
@@ -229,30 +228,10 @@ fun rememberBottomSheetNavigator(
     skipHalfExpanded: Boolean = true,
 ): BottomSheetNavigator {
     val sheetState = rememberModalBottomSheetState(
-        ModalBottomSheetValue.Hidden,
-        animationSpec
+        initialValue = ModalBottomSheetValue.Hidden,
+        animationSpec = animationSpec,
+        skipHalfExpanded = skipHalfExpanded
     )
-
-    if (skipHalfExpanded) {
-        LaunchedEffect(sheetState) {
-            snapshotFlow { sheetState.isAnimationRunning }
-                .collectLatest {
-                    with(sheetState) {
-                        val isOpening =
-                            currentValue == ModalBottomSheetValue.Hidden &&
-                                targetValue == ModalBottomSheetValue.HalfExpanded
-
-                        val isClosing = currentValue == ModalBottomSheetValue.Expanded &&
-                            targetValue == ModalBottomSheetValue.HalfExpanded
-
-                        when {
-                            isOpening -> animateTo(ModalBottomSheetValue.Expanded)
-                            isClosing -> animateTo(ModalBottomSheetValue.Hidden)
-                        }
-                    }
-                }
-        }
-    }
 
     return remember(sheetState) {
         BottomSheetNavigator(sheetState = sheetState)

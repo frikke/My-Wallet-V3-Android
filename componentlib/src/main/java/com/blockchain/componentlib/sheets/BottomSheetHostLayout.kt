@@ -7,47 +7,22 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppTheme
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun BottomSheetHostLayout(
     content: @Composable () -> Unit,
-    stateFlow: ModalBottomSheetValue,
     onBackAction: () -> Unit,
-    modalBottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(stateFlow),
+    modalBottomSheetState: ModalBottomSheetState,
     sheetContent: @Composable ColumnScope.() -> Unit,
-    onCollapse: () -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
-
-    val openSheet = {
-        scope.launch { modalBottomSheetState.show() }
-    }
-
-    val closeSheet = {
-        scope.launch { modalBottomSheetState.hide() }
-    }
-
     BackHandler(modalBottomSheetState.isVisible) {
         onBackAction()
-    }
-
-    LaunchedEffect(stateFlow) {
-        if (stateFlow == ModalBottomSheetValue.Hidden) {
-            closeSheet()
-        } else if (stateFlow == ModalBottomSheetValue.Expanded) {
-            openSheet()
-        }
     }
 
     ModalBottomSheetLayout(
@@ -61,18 +36,5 @@ fun BottomSheetHostLayout(
         scrimColor = AppTheme.colors.overlay
     ) {
         content()
-
-        // detect collapse
-        val collapseFraction = modalBottomSheetState.progress.fraction
-        val targetValue = modalBottomSheetState.targetValue
-        val currentValue = modalBottomSheetState.currentValue
-
-        if (currentValue == ModalBottomSheetValue.Expanded &&
-            targetValue == ModalBottomSheetValue.Hidden &&
-            collapseFraction < 1.0 &&
-            collapseFraction > 0.9F
-        ) {
-            onCollapse()
-        }
     }
 }
