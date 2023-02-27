@@ -27,7 +27,9 @@ internal fun LazyListScope.homeTopMovers(
         ) {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
             TableRowHeader(
-                title = stringResource(R.string.prices_top_movers)
+                title = stringResource(R.string.prices_top_movers),
+                actionTitle = stringResource(R.string.see_all),
+                actionOnClick = { }
             )
             Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
         }
