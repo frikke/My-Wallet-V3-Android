@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.Analytics
-import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
@@ -239,6 +238,7 @@ fun ColumnScope.PricesScreenData(
                     networkTag = cryptoAsset.network,
                     value = cryptoAsset.currentPrice,
                     valueChange = cryptoAsset.delta,
+                    showRisingFastTag = cryptoAsset.showRisingFastTag,
                     imageResource = ImageResource.Remote(cryptoAsset.logo),
                     onClick = { onAssetClick(cryptoAsset.asset) }
                 )
