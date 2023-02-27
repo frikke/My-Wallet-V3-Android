@@ -50,11 +50,8 @@ import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.walletconnect.R
-import com.blockchain.walletconnect.domain.ClientMeta
-import com.blockchain.walletconnect.domain.DAppInfo
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectSession
-import com.blockchain.walletconnect.domain.WalletInfo
 import kotlinx.coroutines.launch
 
 class DappsListFragment :
