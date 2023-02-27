@@ -120,7 +120,7 @@ fun ClickableTag() {
                 defaultBackgroundColor = Dark600,
                 defaultTextColor = Blue400,
                 borders = true,
-                onClick = null,
+                onClick = { },
             )
         }
     }
@@ -137,7 +137,7 @@ fun NonClickableTag() {
                 defaultBackgroundColor = Dark600,
                 defaultTextColor = Blue400,
                 borders = true,
-                onClick = { },
+                onClick = null,
             )
         }
     }

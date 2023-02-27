@@ -133,7 +133,7 @@ class PricesViewModel(
             ticker = assetInfo.displayTicker,
             network = assetInfo.takeIf { it.isLayer2Token }?.coinNetwork?.shortName,
             logo = assetInfo.logo,
-            delta = price.map { ValueChange.fromValue(value = it.delta24h) },
+            delta = price.map { ValueChange.fromValue(it.delta24h) },
             currentPrice = price.map {
                 it.currentRate.price.format(currencyPrefs.selectedFiatCurrency)
             },
