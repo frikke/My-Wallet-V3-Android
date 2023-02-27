@@ -54,6 +54,7 @@ import com.blockchain.prices.prices.PricesOutputGroup
 import com.blockchain.prices.prices.PricesViewModel
 import com.blockchain.prices.prices.PricesViewState
 import com.blockchain.prices.prices.composable.TopMoversScreen
+import com.blockchain.prices.prices.percentAndPositionOf
 import info.blockchain.balance.AssetInfo
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -62,6 +63,7 @@ import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
+import piuk.blockchain.android.ui.brokerage.buy.BuyAnalyticsEvents
 import piuk.blockchain.android.ui.brokerage.buy.BuySelectAssetIntent
 import piuk.blockchain.android.ui.brokerage.buy.BuySelectAssetViewModel
 import piuk.blockchain.android.ui.brokerage.buy.BuySelectAssetViewState
@@ -194,6 +196,7 @@ private fun Assets(
 
 @Composable
 private fun AssetsData(
+    analytics: Analytics = get(),
     topMovers: DataResource<ImmutableList<PriceItemViewState>>,
     mostPopular: ImmutableList<PriceItemViewState>,
     others: List<PriceItemViewState>,
@@ -231,6 +234,16 @@ private fun AssetsData(
                     data = topMovers,
                     assetOnClick = { asset ->
                         onAssetClick(asset)
+
+                        topMovers.percentAndPositionOf(asset)?.let { (percentageMove, position) ->
+                            analytics.logEvent(
+                                BuyAnalyticsEvents.TopMoverAssetClicked(
+                                    ticker = asset.networkTicker,
+                                    percentageMove = percentageMove,
+                                    position = position
+                                )
+                            )
+                        }
                     }
                 )
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))

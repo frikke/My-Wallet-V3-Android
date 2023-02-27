@@ -9,6 +9,7 @@ val pricesPresentationModule = module {
     scope(payloadScopeQualifier) {
         viewModel {
             PricesViewModel(
+                walletModeService = get(),
                 currencyPrefs = get(),
                 userFeaturePermissionService = get(),
                 pricesService = get(),
