@@ -104,7 +104,7 @@ class PricesViewModel(
                         else PricesOutputGroup.Others
                     }
                 },
-            topMovers = if (state.walletMode?.isTopMoversSupported() == true) {
+            topMovers = if (isTopMoversSupported(walletMode = state.walletMode, filter = state.filterBy)) {
                 state.data.map { list ->
                     list.filter { it.price is DataResource.Data && it.isTradable }
                         .sortedWith(
@@ -141,7 +141,13 @@ class PricesViewModel(
         when (intent) {
             is PricesIntents.LoadData -> {
                 updateState {
-                    it.copy(loadStrategy = intent.strategy)
+                    it.copy(
+                        loadStrategy = intent.strategy,
+                        filterBy = when (intent.strategy) {
+                            PricesLoadStrategy.All -> PricesFilter.All
+                            PricesLoadStrategy.TradableOnly -> PricesFilter.Tradable
+                        }
+                    )
                 }
 
                 loadWalletMode()
@@ -245,10 +251,13 @@ class PricesViewModel(
                 }
         }
     }
-}
 
-private fun WalletMode.isTopMoversSupported(): Boolean {
-    return this == WalletMode.CUSTODIAL
+    private fun isTopMoversSupported(
+        walletMode: WalletMode?,
+        filter: PricesFilter
+    ): Boolean {
+        return walletMode == WalletMode.CUSTODIAL && filter == PricesFilter.Tradable
+    }
 }
 
 private fun Money?.format(cryptoCurrency: Currency) =

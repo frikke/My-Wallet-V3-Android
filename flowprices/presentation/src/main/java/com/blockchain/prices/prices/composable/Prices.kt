@@ -15,6 +15,7 @@ import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -51,6 +52,7 @@ import com.blockchain.prices.prices.percentAndPositionOf
 import info.blockchain.balance.AssetInfo
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
@@ -178,6 +180,12 @@ fun ColumnScope.PricesScreenData(
     }
 
     Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+
+    val scope = rememberCoroutineScope()
+    DisposableEffect(key1 = selectedFilter) {
+        scope.launch { listState.scrollToItem(index = 0) }
+        onDispose { }
+    }
 
     LazyColumn(
         state = listState,
