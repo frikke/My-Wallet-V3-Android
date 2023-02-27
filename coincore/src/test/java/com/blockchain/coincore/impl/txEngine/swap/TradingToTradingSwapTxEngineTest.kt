@@ -10,7 +10,6 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
-import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.xlm.XlmCryptoWalletAccount
@@ -18,13 +17,13 @@ import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.domain.trade.model.QuotePrice
+import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferLimits
-import com.blockchain.nabu.datamanagers.TransferQuote
 import com.blockchain.nabu.datamanagers.repositories.swap.SwapTransactionsStore
 import com.blockchain.testutils.bitcoin
 import com.nhaarman.mockitokotlin2.any
@@ -223,18 +222,15 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
             on { currency }.thenReturn(TGT_ASSET)
         }
 
-        val txQuote: TransferQuote = mock {
-            on { sampleDepositAddress }.thenReturn(SAMPLE_DEPOSIT_ADDRESS)
+        val txPrice = mock<QuotePrice> {
+            on { rawPrice }.thenReturn(INITIAL_QUOTE_PRICE)
             on { networkFee }.thenReturn(NETWORK_FEE)
         }
 
-        val pricedQuote: PricedQuote = mock {
-            on { transferQuote }.thenReturn(txQuote)
-            on { price }.thenReturn(INITIAL_QUOTE_PRICE)
-        }
+        whenever(quotesEngine.getPriceQuote()).thenReturn(Observable.just(txPrice))
+        whenever(quotesEngine.getSampleDepositAddress()).thenReturn(Single.just(SAMPLE_DEPOSIT_ADDRESS))
 
-        whenever(quotesEngine.getPricedQuote()).thenReturn(Observable.just(pricedQuote))
-        whenever(quotesEngine.getLatestQuote()).thenReturn(pricedQuote)
+        whenever(quotesEngine.getLatestPrice()).thenReturn(txPrice)
 
         subject.start(
             sourceAccount,
@@ -267,8 +263,8 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
         verify(currencyPrefs).selectedFiatCurrency
         verifyQuotesEngineStarted()
         verifyLimitsFetched()
-        verify(quotesEngine).getPricedQuote()
-        verify(quotesEngine, atLeastOnce()).getLatestQuote()
+        verify(quotesEngine).getPriceQuote()
+        verify(quotesEngine, atLeastOnce()).getLatestPrice()
 
         noMoreInteractions(txTarget)
     }
@@ -289,7 +285,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
             on { getErrorCode() }.thenReturn(NabuErrorCodes.PendingOrdersLimitReached)
         }
 
-        whenever(quotesEngine.getPricedQuote()).thenReturn(Observable.error(error))
+        whenever(quotesEngine.getPriceQuote()).thenReturn(Observable.error(error))
 
         subject.start(
             sourceAccount,
@@ -320,7 +316,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
         verify(txTarget, atLeastOnce()).currency
         verify(currencyPrefs).selectedFiatCurrency
         verifyQuotesEngineStarted()
-        verify(quotesEngine).getPricedQuote()
+        verify(quotesEngine).getPriceQuote()
 
         noMoreInteractions(txTarget)
     }
@@ -590,6 +586,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
 
     private fun verifyQuotesEngineStarted() {
         verify(quotesEngine).start(
+            Product.TRADE,
             TransferDirection.INTERNAL,
             CurrencyPair(SRC_ASSET, TGT_ASSET)
         )

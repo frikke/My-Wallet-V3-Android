@@ -532,7 +532,7 @@ class TransactionFlowCustomiserImpl(
                 R.string.send_progress_sending_title, amount
             )
             AssetAction.Swap -> {
-                val receivingAmount = state.targetRate?.convert(state.amount) ?: Money.zero(
+                val receivingAmount = state.confirmationRate?.convert(state.amount) ?: Money.zero(
                     (state.selectedTarget as CryptoAccount).currency
                 )
                 resources.getString(

@@ -52,7 +52,7 @@ class SimpleInfoHeaderView @JvmOverloads constructor(
                 val previousFiatAmount = headerSubtitle.text
                 var newFiatAmount = ""
                 if (shouldShowExchange) {
-                    state.fiatRate?.let {
+                    state.confirmationRate?.let {
                         newFiatAmount = it.convert(amount, false).toStringWithSymbol()
                         headerSubtitle.text = newFiatAmount
                     }

@@ -49,7 +49,7 @@ class UniqueAnalyticsWalletReporter(
     override fun reportWalletGuid(walletGuid: String) {
         val reportedKey = prefs.analyticsReportedWalletKey.take(UserProperty.MAX_VALUE_LEN)
         if (reportedKey != walletGuid) {
-            walletReporter.reportWalletGuid(UserAnalytics.WALLET_ID)
+            walletReporter.reportWalletGuid(walletGuid)
             prefs.analyticsReportedWalletKey = walletGuid
         }
     }

@@ -17,11 +17,12 @@ import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.domain.trade.model.QuotePrice
+import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.datamanagers.TransferDirection
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
@@ -46,7 +47,7 @@ abstract class SellTxEngineBase(
     override fun onLimitsForTierFetched(
         limits: TxLimits,
         pendingTx: PendingTx,
-        pricedQuote: PricedQuote
+        quotePrice: QuotePrice,
     ): PendingTx = pendingTx.copy(
         limits = limits
     )
@@ -110,7 +111,7 @@ abstract class SellTxEngineBase(
                     pricedQuote
                 ),
                 TxConfirmationValue.ExchangePriceConfirmation(
-                    money = pricedQuote.price,
+                    money = pricedQuote.transferQuote.price,
                     asset = sourceAsset,
                     isNewQuote = false
                 ),
@@ -139,22 +140,19 @@ abstract class SellTxEngineBase(
         )
 
     override fun targetExchangeRate(): Observable<ExchangeRate> =
-        quotesEngine.getPricedQuote().map {
-            ExchangeRate(
-                from = sourceAsset,
-                to = target.currency,
-                rate = it.price.toBigDecimal()
-            )
-        }
+        quotesEngine.getPriceExchangeRate()
+
+    override fun confirmationExchangeRate(): Observable<ExchangeRate> =
+        quotesEngine.getQuoteExchangeRate()
 
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> =
-        quotesEngine.getPricedQuote()
+        quotesEngine.getQuote()
             .firstOrError()
             .map { pricedQuote ->
                 val latestQuoteExchangeRate = ExchangeRate(
                     from = sourceAsset,
                     to = target.currency,
-                    rate = pricedQuote.price.toBigDecimal()
+                    rate = pricedQuote.transferQuote.price.toBigDecimal()
                 )
                 buildConfirmation(pendingTx, latestQuoteExchangeRate, pricedQuote)
             }
@@ -171,7 +169,7 @@ abstract class SellTxEngineBase(
             )
         ).addOrReplaceOption(
             TxConfirmationValue.ExchangePriceConfirmation(
-                money = pricedQuote.price,
+                money = pricedQuote.transferQuote.price,
                 asset = sourceAsset,
                 isNewQuote = isNewQuote,
             )
@@ -199,7 +197,7 @@ abstract class SellTxEngineBase(
         val latestQuoteExchangeRate = ExchangeRate(
             from = sourceAsset,
             to = target.currency,
-            rate = quote.price.toBigDecimal()
+            rate = quote.transferQuote.price.toBigDecimal()
         )
         val isNewQuote = pendingTx.quoteId != quote.transferQuote.id
         val ptx = if (isNewQuote) {
@@ -236,11 +234,5 @@ abstract class SellTxEngineBase(
         validateAmount(pendingTx).updateTxValidity(pendingTx)
 
     override fun userExchangeRate(): Observable<ExchangeRate> =
-        quotesEngine.getPricedQuote().map {
-            ExchangeRate(
-                from = sourceAsset,
-                to = target.currency,
-                rate = it.price.toBigDecimal()
-            )
-        }
+        quotesEngine.getPriceExchangeRate()
 }

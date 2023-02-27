@@ -19,10 +19,10 @@ import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressRequest
 import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressResponse
 import com.blockchain.nabu.models.responses.nabu.SupportedDocumentsResponse
 import com.blockchain.nabu.models.responses.nabu.VeriffToken
-import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse
 import com.blockchain.nabu.models.responses.simplebuy.BuyOrderListResponse
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
 import com.blockchain.nabu.models.responses.simplebuy.ConfirmOrderRequestBody
+import com.blockchain.nabu.models.responses.simplebuy.CustodialAccountResponse
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.DepositRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.FeesResponse
@@ -194,10 +194,11 @@ internal interface Nabu {
         @Query("type") type: String?
     ): Single<TransactionsResponse>
 
-    @PUT(NABU_SIMPLE_BUY_ACCOUNT_DETAILS)
-    fun getSimpleBuyBankAccountDetails(
+    @PUT("payments/accounts/{product}")
+    fun getCustodialAccountDetails(
+        @Path("product") product: String,
         @Body currency: SimpleBuyCurrency
-    ): Single<BankAccountResponse>
+    ): Single<CustodialAccountResponse>
 
     @GET(NABU_SIMPLE_BUY_ELIGIBILITY)
     fun isEligibleForSimpleBuy(
@@ -298,7 +299,7 @@ internal interface Nabu {
         @Query("localisedError") localisedError: String?
     ): Single<CustodialOrderResponse>
 
-    @GET(NABU_LIMITS)
+    @GET("trades/limits")
     fun fetchLimits(
         @Query("currency") currency: String,
         @Query("product") product: String,

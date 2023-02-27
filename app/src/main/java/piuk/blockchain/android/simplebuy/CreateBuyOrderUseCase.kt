@@ -113,12 +113,11 @@ class CreateBuyOrderUseCase(
         paymentMethod: PaymentMethodType,
         recurringBuyFrequency: RecurringBuyFrequency?,
     ): Single<BuyOrderAndQuote> =
-        brokerageDataManager.quoteForTransaction(
+        brokerageDataManager.getBuyQuote(
             pair = CurrencyPair(amount.currency, cryptoAsset),
             amount = amount,
             paymentMethodType = getPaymentMethodType(paymentMethod),
             paymentMethodId = getPaymentMethodId(paymentMethodId, paymentMethod),
-            product = Product.BUY
         ).flatMap { quote ->
             custodialWalletManager.createOrder(
                 custodialWalletOrder = CustodialWalletOrder(

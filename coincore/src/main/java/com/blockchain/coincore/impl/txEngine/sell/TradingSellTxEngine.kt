@@ -10,10 +10,10 @@ import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.core.TransactionsStore
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialSwapActivityStore
 import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.CryptoValue
@@ -53,7 +53,7 @@ class TradingSellTxEngine(
     }
 
     override fun doInitialiseTx(): Single<PendingTx> =
-        quotesEngine.getPricedQuote().firstOrError()
+        quotesEngine.getPriceQuote().firstOrError()
             .zipWith(availableBalance)
             .flatMap { (quote, balance) ->
                 Single.just(

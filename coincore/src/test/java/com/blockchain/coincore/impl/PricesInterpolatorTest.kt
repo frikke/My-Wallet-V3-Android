@@ -3,6 +3,9 @@ package com.blockchain.coincore.impl
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.testutil.USD
 import com.blockchain.nabu.datamanagers.PriceTier
+import com.blockchain.nabu.datamanagers.repositories.Interpolator
+import com.blockchain.nabu.datamanagers.repositories.LinearInterpolator
+import com.blockchain.nabu.datamanagers.repositories.PricesInterpolator
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.Money

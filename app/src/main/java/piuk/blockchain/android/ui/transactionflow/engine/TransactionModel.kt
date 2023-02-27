@@ -129,6 +129,7 @@ data class TransactionState(
     val sendingAccount: SingleAccount = NullCryptoAccount(),
     val selectedTarget: TransactionTarget = NullAddress,
     override val fiatRate: ExchangeRate? = null,
+    val confirmationRate: ExchangeRate? = null,
     val targetRate: ExchangeRate? = null,
     val passwordRequired: Boolean = false,
     val secondPassword: String = "",
@@ -327,6 +328,7 @@ class TransactionModel(
             is TransactionIntent.ModifyTxOption -> processModifyTxOptionRequest(intent.confirmation)
             is TransactionIntent.FetchFiatRates -> processGetFiatRate()
             is TransactionIntent.FetchTargetRates -> processGetTargetRate()
+            is TransactionIntent.FetchConfirmationRates -> processGetConfirmationRate()
             is TransactionIntent.ValidateTransaction -> processValidateTransaction()
             is TransactionIntent.SetFeeLevel -> processSetFeeLevel(intent)
             is TransactionIntent.InvalidateTransaction -> processInvalidateTransaction()
@@ -415,6 +417,7 @@ class TransactionModel(
             is TransactionIntent.ReturnToPreviousStep,
             is TransactionIntent.FiatRateUpdated,
             is TransactionIntent.CryptoRateUpdated,
+            is TransactionIntent.ConfirmationRateUpdated,
             is TransactionIntent.EnteredAddressReset,
             is TransactionIntent.AvailableAccountsListUpdated,
             is TransactionIntent.UpdateTransactionCancelled,
@@ -875,6 +878,14 @@ class TransactionModel(
                 onNext = { process(TransactionIntent.CryptoRateUpdated(it)) },
                 onComplete = { Timber.d("Target exchange Rate completed") },
                 onError = { Timber.e("Failed getting target exchange rate") }
+            )
+
+    private fun processGetConfirmationRate(): Disposable =
+        interactor.startConfirmationRateFetch()
+            .subscribeBy(
+                onNext = { process(TransactionIntent.ConfirmationRateUpdated(it)) },
+                onComplete = { Timber.d("Confirmation exchange Rate completed") },
+                onError = { process(TransactionIntent.FatalTransactionError(it)) }
             )
 
     private fun processValidateTransaction(): Disposable? =

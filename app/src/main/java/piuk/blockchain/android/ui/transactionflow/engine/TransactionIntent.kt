@@ -309,6 +309,10 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
         override fun reduce(oldState: TransactionState): TransactionState = oldState
     }
 
+    object FetchConfirmationRates : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState = oldState
+    }
+
     class FiatRateUpdated(
         private val fiatRate: ExchangeRate
     ) : TransactionIntent() {
@@ -324,6 +328,15 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
         override fun reduce(oldState: TransactionState): TransactionState =
             oldState.copy(
                 targetRate = targetRate
+            ).updateBackstack(oldState)
+    }
+
+    class ConfirmationRateUpdated(
+        private val confirmationRate: ExchangeRate
+    ) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                confirmationRate = confirmationRate
             ).updateBackstack(oldState)
     }
 
@@ -439,16 +452,15 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
     }
 
     class FatalTransactionError(
-        private val _error: Throwable
+        private val error: Throwable
     ) : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState {
-
             val error = when {
-                _error is TransactionError -> _error
-                _error is NabuApiException -> TransactionError.HttpError(_error)
-                _error is HttpException -> TransactionError.HttpError(NabuApiExceptionFactory.fromResponseBody(_error))
-                _error.isInternetConnectionError() -> TransactionError.InternetConnectionError
-                else -> throw _error
+                error is TransactionError -> error
+                error is NabuApiException -> TransactionError.HttpError(error)
+                error is HttpException -> TransactionError.HttpError(NabuApiExceptionFactory.fromResponseBody(error))
+                error.isInternetConnectionError() -> TransactionError.InternetConnectionError
+                else -> throw error
             }
             return oldState.copy(
                 nextEnabled = true,

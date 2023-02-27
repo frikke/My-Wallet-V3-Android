@@ -87,6 +87,7 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
             itemAnimator = null
         }
         model.process(TransactionIntent.ValidateTransaction)
+        model.process(TransactionIntent.FetchConfirmationRates)
         model.process(TransactionIntent.LoadImprovedPaymentUxFeatureFlag)
         model.process(TransactionIntent.LoadDepositTerms)
     }

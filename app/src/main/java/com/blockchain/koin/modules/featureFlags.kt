@@ -25,6 +25,7 @@ import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.proveFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.rbFrequencyFeatureFlag
+import com.blockchain.koin.sellSwapBrokerageQuoteFeatureFlag
 import com.blockchain.koin.superAppMvpFeatureFlag
 import com.blockchain.koin.superappFeatureFlag
 import com.blockchain.koin.vgsFeatureFlag
@@ -256,6 +257,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "exchange_wa_prompt",
                 "Exchange WA prompt"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(sellSwapBrokerageQuoteFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_sell_swap_brokerage_quote",
+                "Sell/Swap Brokerage Quote"
             )
         )
     }.bind(FeatureFlag::class)
