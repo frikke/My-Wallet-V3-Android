@@ -3,7 +3,6 @@ package com.blockchain.componentlib.tag
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark900
@@ -12,12 +11,7 @@ import com.blockchain.componentlib.theme.Green400
 import com.blockchain.componentlib.theme.Green800
 
 @Composable
-fun SuccessTag(
-    text: String,
-    size: TagSize = TagSize.Primary,
-    startImageResource: ImageResource = ImageResource.None,
-    onClick: (() -> Unit)? = null
-) {
+fun SuccessTag(text: String, size: TagSize = TagSize.Primary, onClick: (() -> Unit)? = null) {
 
     val defaultBackgroundColor = if (!isSystemInDarkTheme()) {
         Green000
@@ -34,7 +28,6 @@ fun SuccessTag(
     Tag(
         text = text,
         size = size,
-        startImageResource = startImageResource,
         defaultBackgroundColor = defaultBackgroundColor,
         defaultTextColor = defaultTextColor,
         onClick = onClick

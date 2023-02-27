@@ -30,13 +30,15 @@ import com.blockchain.componentlib.theme.Grey000
 
 @Composable
 fun Tag(
-    modifier: Modifier = Modifier,
     text: String,
     size: TagSize,
     defaultBackgroundColor: Color,
     defaultTextColor: Color,
     borders: Boolean = false,
-    startImageResource: ImageResource = ImageResource.None,
+    startImageResource: ImageResource = ImageResource.Local(
+        id = R.drawable.ic_info_outline,
+        colorFilter = ColorFilter.tint(defaultTextColor, blendMode = BlendMode.SrcAtop)
+    ),
     endImageResource: ImageResource = ImageResource.Local(
         id = R.drawable.ic_chevron_end_small,
         colorFilter = ColorFilter.tint(defaultTextColor, blendMode = BlendMode.SrcAtop)
@@ -59,40 +61,51 @@ fun Tag(
         TagSize.Large -> AppTheme.typography.paragraph2
     }
 
-    Row(
-        modifier = modifier
-            .then(
-                Modifier
-                    .border(
-                        width = 1.dp,
-                        color = Grey000,
-                        shape = RoundedCornerShape(size = dimensionResource(R.dimen.smallest_spacing)),
-                    )
-                    .takeIf { borders } ?: Modifier
-            )
-            .clip(RoundedCornerShape(size = dimensionResource(R.dimen.smallest_spacing)))
-            .background(defaultBackgroundColor)
-            .padding(horizontal = paddingHorizontal, vertical = paddingVertical)
-            .then(
-                onClick?.let { Modifier.clickable(onClick = onClick) } ?: Modifier
-            ),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        if (startImageResource != ImageResource.None) {
-            Image(imageResource = startImageResource)
-            Spacer(modifier = Modifier.width(width = AppTheme.dimensions.smallestSpacing))
-        }
+    onClick?.let { action ->
+        Row(
+            modifier = Modifier
+                .border(
+                    width = if (borders) 1.dp else 0.dp,
+                    color = Grey000,
+                    shape = RoundedCornerShape(size = dimensionResource(R.dimen.smallest_spacing)),
+                )
+                .clip(RoundedCornerShape(size = dimensionResource(R.dimen.smallest_spacing)))
+                .background(defaultBackgroundColor)
+                .padding(horizontal = paddingHorizontal, vertical = paddingVertical)
+                .clickable(onClick = action),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (startImageResource != ImageResource.None) {
+                Image(imageResource = startImageResource)
+                Spacer(modifier = Modifier.width(width = dimensionResource(R.dimen.minuscule_spacing)))
+            }
 
+            Text(
+                text = text,
+                style = textStyle,
+                color = defaultTextColor
+            )
+
+            if (endImageResource != ImageResource.None) {
+                Spacer(modifier = Modifier.width(width = dimensionResource(R.dimen.tiny_spacing)))
+                Image(imageResource = endImageResource)
+            }
+        }
+    } ?: run {
         Text(
             text = text,
             style = textStyle,
-            color = defaultTextColor
+            color = defaultTextColor,
+            modifier = Modifier
+                .border(
+                    width = if (borders) 1.dp else 0.dp,
+                    color = Grey000,
+                    shape = RoundedCornerShape(size = dimensionResource(R.dimen.smallest_spacing)),
+                )
+                .clip(RoundedCornerShape(size = dimensionResource(R.dimen.smallest_spacing)))
+                .background(defaultBackgroundColor)
+                .padding(horizontal = paddingHorizontal, vertical = paddingVertical)
         )
-
-        if (endImageResource != ImageResource.None && onClick != null) {
-            Spacer(modifier = Modifier.width(width = dimensionResource(R.dimen.tiny_spacing)))
-            Image(imageResource = endImageResource)
-        }
     }
 }
 
@@ -106,11 +119,7 @@ fun ClickableTag() {
                 size = TagSize.Primary,
                 defaultBackgroundColor = Dark600,
                 defaultTextColor = Blue400,
-                borders = false,
-                startImageResource = ImageResource.Local(
-                    id = R.drawable.ic_info_outline,
-                    colorFilter = ColorFilter.tint(Blue400, blendMode = BlendMode.SrcAtop)
-                ),
+                borders = true,
                 onClick = null,
             )
         }

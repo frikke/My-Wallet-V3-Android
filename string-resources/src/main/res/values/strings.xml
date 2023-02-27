@@ -2483,7 +2483,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="prices_filter_all">All</string>
     <string name="prices_filter_favorites">Favorites</string>
     <string name="prices_filter_tradable">Tradable</string>
-    <string name="rising_fast">Rising fast</string>
 
     <!-- Receive Screen -->
     <string name="search_wallets_hint">Search Wallets and Cryptos</string>
