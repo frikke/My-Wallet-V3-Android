@@ -1,12 +1,12 @@
 package com.blockchain.core.custodial.models
 
+import com.blockchain.domain.common.model.Millis
 import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.nabu.datamanagers.BuySellOrder
+import com.blockchain.utils.CurrentTimeProvider
 import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.Money
-import java.time.Duration
-import java.time.ZonedDateTime
 
 data class BrokerageQuote(
     val id: String,
@@ -21,15 +21,12 @@ data class BrokerageQuote(
     val networkFee: Money,
     val staticFee: Money,
     val feeDetails: QuoteFee,
-    val createdAt: ZonedDateTime,
-    val expiresAt: ZonedDateTime,
+    val createdAt: Millis,
+    val expiresAt: Millis,
     val depositTerms: DepositTerms?
 ) {
-    fun millisToExpire(): Long {
-        return Duration.between(
-            ZonedDateTime.now(expiresAt.zone),
-            expiresAt
-        ).toMillis()
+    fun millisToExpire(): Millis {
+        return expiresAt - CurrentTimeProvider.currentTimeMillis()
     }
 
     val secondsToExpire: Float

@@ -14,6 +14,7 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.domain.paymentmethods.model.SettlementType
 import com.blockchain.domain.transactions.TransferDirection
+import com.blockchain.utils.CurrentTimeProvider
 import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
@@ -82,6 +83,12 @@ class BrokerageDataManager(
 }
 
 private fun BrokerageQuoteResponse.toDomainModel(pair: CurrencyPair, inputAmount: Money): BrokerageQuote {
+    val serverCreatedAt = ZonedDateTime.parse(quoteCreatedAt).toInstant().toEpochMilli()
+    val serverExpiresAt = ZonedDateTime.parse(quoteExpiresAt).toInstant().toEpochMilli()
+    val quoteTtl = serverExpiresAt - serverCreatedAt
+    // We're manually "overriding" the serverCreatedAt because the user's phone clock might have been changed
+    val createdAt = CurrentTimeProvider.currentTimeMillis()
+    val expiresAt = createdAt + quoteTtl
     return BrokerageQuote(
         id = quoteId,
         currencyPair = pair,
@@ -97,8 +104,8 @@ private fun BrokerageQuoteResponse.toDomainModel(pair: CurrencyPair, inputAmount
             value = price.toBigInteger(),
         ),
         resultAmount = Money.fromMinor(pair.destination, resultAmount.toBigInteger()),
-        createdAt = ZonedDateTime.parse(quoteCreatedAt),
-        expiresAt = ZonedDateTime.parse(quoteExpiresAt),
+        createdAt = createdAt,
+        expiresAt = expiresAt,
         quoteMargin = quoteMarginPercent,
         settlementReason = settlementDetails?.reason?.toSettlementReason() ?: SettlementReason.NONE,
         availability = settlementDetails?.availability?.toAvailability() ?: Availability.UNAVAILABLE,

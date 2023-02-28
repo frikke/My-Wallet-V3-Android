@@ -423,6 +423,7 @@ class TransactionModel(
             is TransactionIntent.UpdateTransactionCancelled,
             is TransactionIntent.ShowMoreAccounts,
             is TransactionIntent.UseMaxSpendable,
+            is TransactionIntent.ResetUseMaxSpendable,
             is TransactionIntent.UpdatePasswordIsValidated,
             is TransactionIntent.UpdatePasswordNotValidated,
             is TransactionIntent.PrepareTransaction,

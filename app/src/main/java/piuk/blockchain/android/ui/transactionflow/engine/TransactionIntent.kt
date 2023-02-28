@@ -399,6 +399,11 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
             oldState.copy(setMax = true)
     }
 
+    object ResetUseMaxSpendable : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(setMax = false)
+    }
+
     class ModifyTxOption(
         val confirmation: TxConfirmationValue
     ) : TransactionIntent() {

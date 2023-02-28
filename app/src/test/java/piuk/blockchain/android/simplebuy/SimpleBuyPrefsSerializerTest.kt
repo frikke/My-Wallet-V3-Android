@@ -29,7 +29,6 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import java.math.BigInteger
-import java.time.ZonedDateTime
 import kotlin.test.assertEquals
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
@@ -84,8 +83,8 @@ class SimpleBuyPrefsSerializerTest {
             ),
             remainingTime = 119,
             chunksTimeCounter = mutableListOf(30, 30, 30, 29),
-            createdAt = ZonedDateTime.parse("2022-08-18T14:27:15.103+02"),
-            expiresAt = ZonedDateTime.parse("2022-08-18T14:29:15.103+02"),
+            createdAt = 1000,
+            expiresAt = 1200,
             depositTerms = DepositTerms(
                 creditCurrency = "USD",
                 availableToTradeDisplayMode = DepositTerms.DisplayMode.MAX_DAY,
@@ -122,7 +121,7 @@ class SimpleBuyPrefsSerializerTest {
     )
 
     private val simpleBuyStateKtxString =
-        """{"id":"id_SimpleBuyState","fiatCurrency":{"currencyCode":"EUR"},"amount":{"currency":{"currencyCode":"EUR"},"amount":"10.00"},"selectedCryptoAsset":"BTC","orderState":"AWAITING_FUNDS","kycStartedButNotCompleted":true,"kycVerificationState":"PENDING","currentScreen":"KYC","selectedPaymentMethod":{"id":"id_SelectedPaymentMethod","partner":"CARDPROVIDER","label":"label_SelectedPaymentMethod","paymentMethodType":"BANK_ACCOUNT","isEligible":true},"quote":{"id":"id_BuyQuote","price":{"currency":{"currencyCode":"EUR"},"amount":"20.00"},"availability":"REGULAR","quoteMargin":2000.0,"feeDetails":{"feeBeforePromo":{"currency":{"currencyCode":"EUR"},"amount":"20.01"},"fee":{"currency":{"currencyCode":"EUR"},"amount":"20.02"},"promo":"NEW_USER"},"createdAt":"2022-08-18T14:27:15.103+02:00","expiresAt":"2022-08-18T14:29:15.103+02:00","remainingTime":119,"chunksTimeCounter":[30,30,30,29],"depositTerms":{"creditCurrency":"USD","availableToTradeMinutesMin":1,"availableToTradeMinutesMax":2,"availableToTradeDisplayMode":"MAX_DAY","availableToWithdrawMinutesMin":1,"availableToWithdrawMinutesMax":2,"availableToWithdrawDisplayMode":"IMMEDIATELY","settlementType":"INSTANT","settlementReason":"GENERIC"}},"orderValue":{"currency":"BTC","amount":"10"},"paymentSucceeded":true,"withdrawalLockPeriod":"1","recurringBuyFrequency":"DAILY","recurringBuyState":"ACTIVE","googlePayDetails":{"tokenizationInfo":{"1":"2"},"beneficiaryId":"id_googlePayBeneficiaryId","merchantBankCountryCode":"cc_googlePayMerchantBankCountryCode","allowPrepaidCards":false,"allowedAuthMethods":["PAN_ONLY","CRYPTOGRAM_3DS"],"allowedCardNetworks":["AMEX","MASTERCARD","VISA"],"billingAddressRequired":true,"billingAddressParameters":{}}}"""
+        """{"id":"id_SimpleBuyState","fiatCurrency":{"currencyCode":"EUR"},"amount":{"currency":{"currencyCode":"EUR"},"amount":"10.00"},"selectedCryptoAsset":"BTC","orderState":"AWAITING_FUNDS","kycStartedButNotCompleted":true,"kycVerificationState":"PENDING","currentScreen":"KYC","selectedPaymentMethod":{"id":"id_SelectedPaymentMethod","partner":"CARDPROVIDER","label":"label_SelectedPaymentMethod","paymentMethodType":"BANK_ACCOUNT","isEligible":true},"quote":{"id":"id_BuyQuote","price":{"currency":{"currencyCode":"EUR"},"amount":"20.00"},"availability":"REGULAR","quoteMargin":2000.0,"feeDetails":{"feeBeforePromo":{"currency":{"currencyCode":"EUR"},"amount":"20.01"},"fee":{"currency":{"currencyCode":"EUR"},"amount":"20.02"},"promo":"NEW_USER"},"createdAt":1000,"expiresAt":1200,"remainingTime":119,"chunksTimeCounter":[30,30,30,29],"depositTerms":{"creditCurrency":"USD","availableToTradeMinutesMin":1,"availableToTradeMinutesMax":2,"availableToTradeDisplayMode":"MAX_DAY","availableToWithdrawMinutesMin":1,"availableToWithdrawMinutesMax":2,"availableToWithdrawDisplayMode":"IMMEDIATELY","settlementType":"INSTANT","settlementReason":"GENERIC"}},"orderValue":{"currency":"BTC","amount":"10"},"paymentSucceeded":true,"withdrawalLockPeriod":"1","recurringBuyFrequency":"DAILY","recurringBuyState":"ACTIVE","googlePayDetails":{"tokenizationInfo":{"1":"2"},"beneficiaryId":"id_googlePayBeneficiaryId","merchantBankCountryCode":"cc_googlePayMerchantBankCountryCode","allowPrepaidCards":false,"allowedAuthMethods":["PAN_ONLY","CRYPTOGRAM_3DS"],"allowedCardNetworks":["AMEX","MASTERCARD","VISA"],"billingAddressRequired":true,"billingAddressParameters":{}}}"""
 
     @Before
     fun setUp() {

@@ -96,10 +96,14 @@ class QuotesProvider(
                 ),
                 createdAt = (it.createdAt.fromIso8601ToUtc()?.toLocalTime() ?: Date())
                     .toInstant()
-                    .atZone(ZoneId.systemDefault()),
+                    .atZone(ZoneId.systemDefault())
+                    .toInstant()
+                    .toEpochMilli(),
                 expiresAt = (it.expiresAt.fromIso8601ToUtc()?.toLocalTime() ?: Date())
                     .toInstant()
-                    .atZone(ZoneId.systemDefault()),
+                    .atZone(ZoneId.systemDefault())
+                    .toInstant()
+                    .toEpochMilli(),
                 depositTerms = null
             )
         }

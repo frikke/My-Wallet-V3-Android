@@ -111,7 +111,7 @@ abstract class SellTxEngineBase(
                     pricedQuote
                 ),
                 TxConfirmationValue.ExchangePriceConfirmation(
-                    money = pricedQuote.transferQuote.price,
+                    money = pricedQuote.transferQuote.rawPrice,
                     asset = sourceAsset,
                     isNewQuote = false
                 ),
