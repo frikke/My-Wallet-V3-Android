@@ -89,6 +89,11 @@ class BchDataManager(
         return updateBchPayload(payload)
     }
 
+    fun updateAccountsLabel(updatedAccounts: Map<GenericMetadataAccount, String>): Completable {
+        val payload = bchDataStore.bchMetadata!!.updatedAccounts(updatedAccounts)
+        return updateBchPayload(payload)
+    }
+
     fun updateDefaultAccount(internalAccount: GenericMetadataAccount): Completable {
         val newIndex = bchDataStore.bchMetadata!!.accounts.indexOf(internalAccount)
         val payload = bchDataStore.bchMetadata!!.updateDefaultIndex(newIndex)

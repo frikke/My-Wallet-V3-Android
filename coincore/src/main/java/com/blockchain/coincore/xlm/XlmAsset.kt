@@ -14,6 +14,7 @@ import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.sunriver.XlmFeesFetcher
 import com.blockchain.sunriver.fromStellarUri
 import com.blockchain.sunriver.isValidXlmQr
+import com.blockchain.utils.thenSingle
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -36,23 +37,34 @@ internal class XlmAsset(
     override val currency: AssetInfo
         get() = CryptoCurrency.XLM
 
-    override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
-        xlmDataManager.defaultAccount()
-            .map {
-                XlmCryptoWalletAccount(
-                    payloadManager = payloadManager,
-                    xlmAccountReference = it,
-                    xlmManager = xlmDataManager,
-                    exchangeRates = exchangeRates,
-                    xlmFeesFetcher = xlmFeesFetcher,
-                    walletOptionsDataManager = walletOptionsDataManager,
-                    walletPreferences = walletPreferences,
-                    custodialWalletManager = custodialManager,
-                    addressResolver = addressResolver
+    override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> {
+        val renamedAccount = xlmDataManager.defaultAccount().flatMapCompletable {
+            if (it.labelNeedsUpdate()) {
+                xlmDataManager.updateAccountLabel(it.label.updatedLabel()).onErrorComplete()
+            } else
+                Completable.complete()
+        }
+
+        return renamedAccount.thenSingle {
+            xlmDataManager.defaultAccount().map {
+                listOf(
+                    XlmCryptoWalletAccount(
+                        payloadManager = payloadManager,
+                        xlmAccountReference = it,
+                        xlmManager = xlmDataManager,
+                        exchangeRates = exchangeRates,
+                        xlmFeesFetcher = xlmFeesFetcher,
+                        walletOptionsDataManager = walletOptionsDataManager,
+                        walletPreferences = walletPreferences,
+                        custodialWalletManager = custodialManager,
+                        addressResolver = addressResolver
+                    )
                 )
-            }.map {
-                listOf(it)
             }
+        }.map {
+            it as SingleAccountList
+        }
+    }
 
     override fun parseAddress(address: String, label: String?, isDomainAddress: Boolean): Maybe<ReceiveAddress> =
         Maybe.fromCallable {

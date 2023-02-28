@@ -1,6 +1,7 @@
 package info.blockchain.wallet.ethereum
 
 import com.blockchain.serialization.JsonSerializableAccount
+import info.blockchain.wallet.LabeledAccount
 import info.blockchain.wallet.ethereum.util.HashUtil
 import info.blockchain.wallet.keys.MasterKey
 import info.blockchain.wallet.keys.SigningKey
@@ -16,7 +17,7 @@ import org.web3j.crypto.Sign
 import org.web3j.crypto.StructuredDataEncoder
 import org.web3j.crypto.TransactionEncoder
 
-class EthereumAccount(val ethAccountDto: EthAccountDto) : JsonSerializableAccount {
+class EthereumAccount(val ethAccountDto: EthAccountDto) : JsonSerializableAccount, LabeledAccount {
 
     constructor(addressKey: ECKey, label: String) : this(
         EthAccountDto.fromCheckSumAddress(

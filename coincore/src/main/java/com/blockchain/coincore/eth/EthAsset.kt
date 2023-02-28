@@ -13,6 +13,8 @@ import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.utils.then
+import com.blockchain.utils.thenSingle
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -41,28 +43,35 @@ internal class EthAsset(
             labels.getDefaultNonCustodialWalletLabel()
         )
 
-    override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
+    override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> {
 
-        Single.just(
-            EthCryptoWalletAccount(
-                ethDataManager = ethDataManager,
-                fees = feeDataManager,
-                jsonAccount = ethDataManager.ehtAccount,
-                walletPreferences = walletPrefs,
-                exchangeRates = exchangeRates,
-                assetCatalogue = assetCatalogue.value,
-                addressResolver = addressResolver,
+        val renamedAccount = ethDataManager.ehtAccount.takeIf { it.labelNeedsUpdate() }?.let {
+            ethDataManager.updateAccountLabel(it.label.updatedLabel()).onErrorComplete()
+        } ?: Completable.complete()
+
+        return renamedAccount.then {
+            updateBackendNotificationAddresses(ethDataManager.ehtAccount.address)
+        }.thenSingle {
+            Single.just(
+                listOf(
+                    EthCryptoWalletAccount(
+                        ethDataManager = ethDataManager,
+                        fees = feeDataManager,
+                        jsonAccount = ethDataManager.ehtAccount,
+                        walletPreferences = walletPrefs,
+                        exchangeRates = exchangeRates,
+                        assetCatalogue = assetCatalogue.value,
+                        addressResolver = addressResolver,
+                    )
+                )
             )
-        ).doOnSuccess { ethAccount ->
-            updateBackendNotificationAddresses(ethAccount)
-        }.map {
-            listOf(it)
         }
+    }
 
-    private fun updateBackendNotificationAddresses(account: EthCryptoWalletAccount) {
+    private fun updateBackendNotificationAddresses(address: String): Completable {
         val notify = NotificationAddresses(
             assetTicker = currency.networkTicker,
-            addressList = listOf(account.address)
+            addressList = listOf(address)
         )
         return notificationUpdater.updateNotificationBackend(notify)
     }

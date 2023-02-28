@@ -95,7 +95,7 @@ class XlmDataManagerTest {
                     accounts = listOf(
                         XlmAccount(
                             publicKey = "GABC1234",
-                            label = "",
+                            _label = "",
                             _archived = false
                         )
                     ),
@@ -122,7 +122,7 @@ class XlmDataManagerTest {
                     accounts = listOf(
                         XlmAccount(
                             publicKey = "GABC1234",
-                            label = "",
+                            _label = "",
                             _archived = false
                         )
                     ),
@@ -150,7 +150,7 @@ class XlmDataManagerTest {
                     accounts = listOf(
                         XlmAccount(
                             publicKey = "GABC1234",
-                            label = "",
+                            _label = "",
                             _archived = false
                         )
                     ),
@@ -184,12 +184,12 @@ class XlmDataManagerTest {
                     accounts = listOf(
                         XlmAccount(
                             publicKey = "ADDRESS1",
-                            label = "Account #1",
+                            _label = "Account #1",
                             _archived = false
                         ),
                         XlmAccount(
                             publicKey = "ADDRESS2",
-                            label = "Account #2",
+                            _label = "Account #2",
                             _archived = false
                         )
                     ),
@@ -214,12 +214,12 @@ class XlmDataManagerTest {
                     accounts = listOf(
                         XlmAccount(
                             publicKey = "ADDRESS1",
-                            label = "Account #1",
+                            _label = "Account #1",
                             _archived = false
                         ),
                         XlmAccount(
                             publicKey = "ADDRESS2",
-                            label = "Account #2",
+                            _label = "Account #2",
                             _archived = false
                         )
                     ),
@@ -245,12 +245,12 @@ class XlmDataManagerTest {
                     accounts = listOf(
                         XlmAccount(
                             publicKey = "ADDRESS1",
-                            label = "Account #1",
+                            _label = "Account #1",
                             _archived = false
                         ),
                         XlmAccount(
                             publicKey = "ADDRESS2",
-                            label = "Account #2",
+                            _label = "Account #2",
                             _archived = false
                         )
                     ),
@@ -275,12 +275,12 @@ class XlmDataManagerTest {
                     accounts = listOf(
                         XlmAccount(
                             publicKey = "ADDRESS1",
-                            label = "Account #1",
+                            _label = "Account #1",
                             _archived = false
                         ),
                         XlmAccount(
                             publicKey = "ADDRESS2",
-                            label = "Account #2",
+                            _label = "Account #2",
                             _archived = false
                         )
                     ),
@@ -302,12 +302,12 @@ class XlmDataManagerTest {
                     accounts = listOf(
                         XlmAccount(
                             publicKey = "ADDRESS1",
-                            label = "Account #1",
+                            _label = "Account #1",
                             _archived = false
                         ),
                         XlmAccount(
                             publicKey = "ADDRESS2",
-                            label = "Account #2",
+                            _label = "Account #2",
                             _archived = false
                         )
                     ),
@@ -337,12 +337,12 @@ class XlmDataManagerTest {
                     accounts = listOf(
                         XlmAccount(
                             publicKey = "ADDRESS1",
-                            label = "Account #1",
+                            _label = "Account #1",
                             _archived = false
                         ),
                         XlmAccount(
                             publicKey = "ADDRESS2",
-                            label = "Account #2",
+                            _label = "Account #2",
                             _archived = false
                         )
                     ),
@@ -367,12 +367,12 @@ class XlmDataManagerTest {
                     accounts = listOf(
                         XlmAccount(
                             publicKey = "ADDRESS1",
-                            label = "Account #1",
+                            _label = "Account #1",
                             _archived = false
                         ),
                         XlmAccount(
                             publicKey = "ADDRESS2",
-                            label = "Account #2",
+                            _label = "Account #2",
                             _archived = false
                         )
                     ),
@@ -423,7 +423,7 @@ class XlmDataManagerTransactionListTest {
                     accounts = listOf(
                         XlmAccount(
                             publicKey = "GC24LNYWXIYYB6OGCMAZZ5RX6WPI2F74ZV7HNBV4ADALLXJRT7ZTLHP2",
-                            label = "",
+                            _label = "",
                             _archived = false
                         )
                     ),
@@ -573,7 +573,7 @@ class XlmDataManagerSendTransactionTest {
                     accounts = listOf(
                         XlmAccount(
                             publicKey = "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR",
-                            label = "",
+                            _label = "",
                             _archived = false
                         )
                     ),
@@ -634,7 +634,7 @@ class XlmDataManagerSendTransactionTest {
                     accounts = listOf(
                         XlmAccount(
                             publicKey = "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR",
-                            label = "",
+                            _label = "",
                             _archived = false
                         )
                     ),
@@ -701,7 +701,7 @@ class XlmDataManagerSendTransactionTest {
                     accounts = listOf(
                         XlmAccount(
                             publicKey = "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR",
-                            label = "",
+                            _label = "",
                             _archived = false
                         )
                     ),
@@ -774,7 +774,7 @@ class XlmDataManagerSendTransactionTest {
                     accounts = listOf(
                         XlmAccount(
                             publicKey = "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR",
-                            label = "",
+                            _label = "",
                             _archived = false
                         )
                     ),
@@ -831,7 +831,7 @@ class XlmDataManagerSendTransactionTest {
                     accounts = listOf(
                         XlmAccount(
                             publicKey = "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR",
-                            label = "",
+                            _label = "",
                             _archived = false
                         )
                     ),
@@ -883,7 +883,7 @@ class XlmDataManagerSendTransactionTest {
                     accounts = listOf(
                         XlmAccount(
                             publicKey = "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR",
-                            label = "",
+                            _label = "",
                             _archived = false
                         )
                     ),
@@ -951,12 +951,12 @@ class XlmDataManagerSendTransactionTest {
                     accounts = listOf(
                         XlmAccount(
                             publicKey = "GBVO27UV2OXJFLFNXHMXOR5WRPKETM64XAQHUEKQ67W5LQDPZCDSTUTF",
-                            label = "",
+                            _label = "",
                             _archived = false
                         ),
                         XlmAccount(
                             publicKey = "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR",
-                            label = "",
+                            _label = "",
                             _archived = false
                         )
                     ),
@@ -1031,12 +1031,12 @@ class XlmDataManagerSendTransactionTest {
                     accounts = listOf(
                         XlmAccount(
                             publicKey = "GBVO27UV2OXJFLFNXHMXOR5WRPKETM64XAQHUEKQ67W5LQDPZCDSTUTF",
-                            label = "",
+                            _label = "",
                             _archived = false
                         ),
                         XlmAccount(
                             publicKey = "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR",
-                            label = "",
+                            _label = "",
                             _archived = false
                         )
                     ),

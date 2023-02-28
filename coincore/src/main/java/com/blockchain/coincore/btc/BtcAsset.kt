@@ -1,6 +1,5 @@
 package com.blockchain.coincore.btc
 
-import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.IdentityAddressResolver
 import com.blockchain.coincore.MultipleWalletsAsset
@@ -14,6 +13,7 @@ import com.blockchain.core.chains.bitcoin.SendDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.utils.thenSingle
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -41,26 +41,34 @@ internal class BtcAsset(
     override val currency: AssetInfo
         get() = CryptoCurrency.BTC
 
-    override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
-        Single.fromCallable {
-            with(payloadManager) {
-                val result = mutableListOf<CryptoAccount>()
-                accounts.forEachIndexed { i, account ->
-                    val btcAccount = btcAccountFromPayloadAccount(i, account)
-                    if (btcAccount.isDefault) {
-                        updateBackendNotificationAddresses(btcAccount)
+    override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> {
+        val renameAccounts =
+            payloadManager.accounts.filter { it.labelNeedsUpdate() }.takeIf { it.isNotEmpty() }?.let { accounts ->
+                payloadManager.updateAccountsLabel(
+                    internalAccounts = accounts.associateWith {
+                        it.label.updatedLabel()
                     }
-                    result.add(btcAccount)
-                }
+                ).onErrorComplete()
+            } ?: Completable.complete()
 
-                importedAddresses.forEach { account ->
-                    result.add(btcAccountFromImportedAccount(account))
-                }
-                result
+        return renameAccounts.thenSingle {
+            val btcAccounts = payloadManager.accounts.mapIndexed { i, account ->
+                btcAccountFromPayloadAccount(i, account)
+            } + payloadManager.importedAddresses.map { account ->
+                btcAccountFromImportedAccount(account)
+            }
+
+            val updateNotificationsCompletable = btcAccounts.firstOrNull { it.isDefault }?.let {
+                updateBackendNotificationAddresses(it)
+            } ?: Completable.complete()
+
+            updateNotificationsCompletable.thenSingle {
+                Single.just(btcAccounts)
             }
         }
+    }
 
-    private fun updateBackendNotificationAddresses(account: BtcCryptoWalletAccount) {
+    private fun updateBackendNotificationAddresses(account: BtcCryptoWalletAccount): Completable {
         require(account.isDefault)
         require(!account.isArchived)
 

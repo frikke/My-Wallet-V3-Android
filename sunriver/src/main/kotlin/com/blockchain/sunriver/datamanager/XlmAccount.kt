@@ -1,6 +1,6 @@
 package com.blockchain.sunriver.datamanager
 
-import com.blockchain.serialization.JsonSerializable
+import com.blockchain.serialization.JsonSerializableAccount
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -17,10 +17,17 @@ internal data class XlmAccount(
     @SerialName("pubKey")
     val pubKey: String? = null,
     @SerialName("label")
-    val label: String?,
+    private val _label: String? = null,
     @SerialName("archived")
     private val _archived: Boolean?
-) : JsonSerializable {
-    val archived: Boolean
+) : JsonSerializableAccount {
+    override val isArchived: Boolean
         get() = _archived ?: false
+
+    override val label: String
+        get() = _label.orEmpty()
+
+    override fun updateArchivedState(isArchived: Boolean): JsonSerializableAccount {
+        return copy(_archived = isArchived)
+    }
 }

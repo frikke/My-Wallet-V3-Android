@@ -1,13 +1,14 @@
 package info.blockchain.wallet.payload.data
 
 import com.blockchain.serialization.JsonSerializableAccount
+import info.blockchain.wallet.LabeledAccount
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonContentPolymorphicSerializer
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
 
 @Serializable(with = AccountSerializer::class)
-interface Account : JsonSerializableAccount {
+interface Account : JsonSerializableAccount, LabeledAccount {
     override val label: String
     val xpriv: String
     val xpubs: XPubs

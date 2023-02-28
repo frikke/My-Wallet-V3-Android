@@ -102,7 +102,7 @@ internal class XlmMetaDataInitializer(
                 accounts = listOf(
                     XlmAccount(
                         publicKey = derived.accountId,
-                        label = defaultLabels.getDefaultNonCustodialWalletLabel(),
+                        _label = defaultLabels.getDefaultNonCustodialWalletLabel(),
                         _archived = false,
                         pubKey = String(
                             Hex.encode(derived.toKeyPair().publicKey)
@@ -118,7 +118,7 @@ internal class XlmMetaDataInitializer(
         metadata.copy(
             accounts = listOf(
                 account.copy(
-                    label = newLabel
+                    _label = newLabel
                 )
             )
         )

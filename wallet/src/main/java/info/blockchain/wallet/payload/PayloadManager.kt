@@ -283,6 +283,12 @@ class PayloadManager(
         )
     }
 
+    fun updateAccountsLabels(updatedAccounts: Map<Account, String>): Completable {
+        return saveAndSync(
+            walletBase.withUpdatedAccountsLabel(updatedAccounts), password
+        )
+    }
+
     fun updateArchivedAccountState(account: JsonSerializableAccount, acrhived: Boolean): Completable {
         return saveAndSync(
             walletBase.withUpdatedAccountState(account, acrhived), password

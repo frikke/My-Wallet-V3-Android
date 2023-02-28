@@ -13,6 +13,7 @@ import com.blockchain.utils.toHex
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
+import info.blockchain.wallet.LabeledAccount
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
@@ -22,7 +23,7 @@ import java.lang.IllegalStateException
 import org.stellar.sdk.KeyPair
 
 data class XlmAccountReference(
-    val label: String,
+    override val label: String,
     /**
      * address
      */
@@ -31,7 +32,7 @@ data class XlmAccountReference(
      * pubkey
      */
     val pubKey: String?,
-)
+) : LabeledAccount
 
 data class BalanceAndMin(
     val balance: Money,

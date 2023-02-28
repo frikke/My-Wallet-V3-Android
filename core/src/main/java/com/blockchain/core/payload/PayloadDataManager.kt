@@ -124,7 +124,7 @@ class PayloadDataManager internal constructor(
             null
         }
 
-    val hashedSharedKey: String
+    private val hashedSharedKey: String
         get() = String(Hex.encode(Sha256Hash.hash(sharedKey.toByteArray())))
 
     override val hashedSharedKeyOrNull: String?
@@ -134,7 +134,7 @@ class PayloadDataManager internal constructor(
             null
         }
 
-    val hashedGuid: String
+    private val hashedGuid: String
         get() = String(Hex.encode(Sha256Hash.hash(guid.toByteArray())))
 
     override val hashedGuidOrNull: String?
@@ -771,6 +771,10 @@ class PayloadDataManager internal constructor(
     fun updateAccountLabel(internalAccount: JsonSerializableAccount, newLabel: String): Completable {
         return payloadManager.updateAccountLabel(internalAccount, newLabel)
             .applySchedulers()
+    }
+
+    fun updateAccountsLabel(internalAccounts: Map<Account, String>): Completable {
+        return payloadManager.updateAccountsLabels(internalAccounts)
     }
 
     fun updateAccountArchivedState(internalAccount: JsonSerializableAccount, isArchived: Boolean): Completable {
