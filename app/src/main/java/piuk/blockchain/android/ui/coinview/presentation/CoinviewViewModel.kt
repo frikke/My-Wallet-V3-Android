@@ -39,6 +39,7 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
 import java.text.DecimalFormat
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -624,7 +625,7 @@ class CoinviewViewModel(
                 onIntent(CoinviewIntent.LoadPriceData)
                 onIntent(CoinviewIntent.LoadAccountsData)
                 onIntent(CoinviewIntent.LoadWatchlistData)
-                loadRecurringBuysData(modelState.asset, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
+                loadRecurringBuysData(asset = modelState.asset)
                 onIntent(CoinviewIntent.LoadAssetInfo)
             }
 
@@ -1265,7 +1266,12 @@ class CoinviewViewModel(
 
     // //////////////////////
     // Recurring buys
-    private fun loadRecurringBuysData(asset: CryptoAsset, freshnessStrategy: FreshnessStrategy) {
+    private fun loadRecurringBuysData(
+        asset: CryptoAsset,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
+            RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
+        )
+    ) {
         loadRecurringBuyJob?.cancel()
         loadRecurringBuyJob = viewModelScope.launch {
             loadAssetRecurringBuysUseCase(asset, freshnessStrategy).collectLatest { dataResource ->

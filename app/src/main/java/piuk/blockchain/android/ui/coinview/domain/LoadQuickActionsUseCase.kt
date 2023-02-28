@@ -132,8 +132,8 @@ class LoadQuickActionsUseCase(
 
                             val centerButtons = listOfNotNull(
                                 CoinviewQuickAction.Swap.takeIf { canSwap },
-                                CoinviewQuickAction.Send.takeIf { canSend },
                                 CoinviewQuickAction.Receive.takeIf { canReceive },
+                                CoinviewQuickAction.Send.takeIf { canSend },
                             )
 
                             val bottomButtons = listOfNotNull(
