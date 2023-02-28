@@ -183,7 +183,7 @@ class PayloadManager(
     ): Completable {
         this.password = password
         return walletApi.fetchWalletData(guid, sharedKey, sessionId).doOnSuccess {
-            walletBase = WalletBase.fromJson(it.string()).withDecryptedPayload(this.password)
+            walletBase = WalletBase(it).withDecryptedPayload(this.password)
         }.ignoreElement().onErrorResumeNext {
             if (it is HttpException) {
                 val message = it.response()?.errorBody()?.string() ?: ""

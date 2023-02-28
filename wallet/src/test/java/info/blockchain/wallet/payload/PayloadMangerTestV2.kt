@@ -1,6 +1,8 @@
 package info.blockchain.wallet.payload
 
 import com.blockchain.AppVersion
+import com.blockchain.api.blockchainApiModule
+import com.blockchain.testutils.KoinTestRule
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
@@ -13,16 +15,19 @@ import info.blockchain.wallet.payload.data.AccountV4
 import info.blockchain.wallet.payload.data.AddressCache
 import info.blockchain.wallet.payload.data.Derivation
 import info.blockchain.wallet.payload.data.Options
+import info.blockchain.wallet.payload.data.walletdto.WalletBaseDto
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import java.util.LinkedList
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.ResponseBody.Companion.toResponseBody
+import kotlinx.serialization.json.Json
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.koin.test.KoinTest
+import org.koin.test.inject
 import org.mockito.MockitoAnnotations
 
-class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
+class PayloadMangerTestV2 : WalletApiMockedResponseTest(), KoinTest {
 
     private val balanceManagerBtc: BalanceManagerBtc = mock()
 
@@ -30,6 +35,14 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
     private val walletApi: WalletApi = mock()
 
     private lateinit var payloadManager: PayloadManager
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            blockchainApiModule
+        )
+    }
+    val json: Json by inject()
     @Before fun setup() {
         MockitoAnnotations.openMocks(this)
         doNothing().`when`(balanceManagerBtc).updateAllBalances(any(), any())
@@ -55,7 +68,7 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
     private fun initializeAndDecryptTestWallet(resourse: String, password: String) {
         val walletBase = loadResourceContent(resourse)
         whenever(walletApi.fetchWalletData(any(), any(), any())).thenReturn(
-            Single.just(walletBase.toResponseBody("application/json".toMediaTypeOrNull()))
+            Single.just(json.decodeFromString(WalletBaseDto.serializer(), walletBase))
         )
         payloadManager.initializeAndDecrypt(
             "any",

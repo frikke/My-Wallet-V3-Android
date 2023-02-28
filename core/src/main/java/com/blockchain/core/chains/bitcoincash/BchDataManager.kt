@@ -100,6 +100,20 @@ class BchDataManager(
         return updateBchPayload(payload)
     }
 
+    fun getXpubForIndex(index: Int): String {
+        remoteLogger.logState("Missing bch xpub for index", index.toString())
+        val account = payloadDataManager.accounts.getOrNull(index)
+        if (account == null) {
+            remoteLogger.logState("Request payload index is null", index.toString())
+            throw IllegalStateException("Account not found")
+        }
+        if (account.xpubForDerivation(Derivation.LEGACY_TYPE) == null) {
+            remoteLogger.logState("Legacy xpub for index not found", index.toString())
+            throw IllegalStateException("Account not found")
+        }
+        return account.xpubForDerivation(Derivation.LEGACY_TYPE)!!
+    }
+
     private fun updateBchPayload(payload: GenericMetadataWallet): Completable = metadataRepository.saveRawValue(
         payload.toJson(),
         MetadataEntry.METADATA_BCH
@@ -119,10 +133,8 @@ class BchDataManager(
             .map { walletJson ->
                 // Fetch wallet
                 val metaData = GenericMetadataWallet.fromJson(walletJson)
-
                 // Sanity check (Add missing metadata accounts)
                 val missingBchAccounts = getAccountsAfterIndex(defaultLabel, metaData.accounts.size, accountTotal)
-
                 bchDataStore.bchMetadata = metaData.copy(accounts = metaData.accounts.plus(missingBchAccounts))
                 metaData
             }
