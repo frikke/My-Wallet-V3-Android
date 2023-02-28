@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Unlock
 import com.blockchain.componentlib.swipeable.rememberSwipeableState
@@ -20,17 +21,13 @@ import com.blockchain.componentlib.swipeable.swipeable
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Pink600
+import com.blockchain.home.announcements.Announcement
 import kotlinx.coroutines.launch
 
-data class AnnouncementTbd(
-    val id: Int,
-    val title: String
-)
-
 @Composable
-fun Announcements(
-    announcements: List<AnnouncementTbd>,
-    onSwiped: (Int) -> Unit
+fun StackedAnnouncements(
+    announcements: List<Announcement>,
+    onSwiped: (String) -> Unit
 ) {
     val backCardScale = 0.9F
     val frontCardScale = 1F
@@ -124,9 +121,11 @@ fun Announcements(
                                 onSwiped(announcement.id)
                             }
                         ),
-                    title = announcement.title + announcement.id.toString(),
-                    subtitle = "announcement.subtitle" + announcement.id.toString(),
-                    icon = StackedIcon.SingleIcon(Icons.Filled.Unlock.withTint(Pink600).withSize(40.dp)),
+                    title = announcement.title,
+                    subtitle = announcement.description,
+                    icon = announcement.imageUrl?.let {
+                        StackedIcon.SingleIcon(ImageResource.Remote(it, size = 40.dp))
+                    } ?: StackedIcon.None,
                     elevation = when (index) {
                         announcements.lastIndex,
                         announcements.lastIndex - 1 -> AppTheme.dimensions.mediumElevation

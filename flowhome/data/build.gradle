@@ -11,6 +11,8 @@ dependencies {
     implementation project(':store:core')
     implementation project(':core')
     implementation project(':store:caches:inmemory')
+    implementation project(':store:caches:persistedjsonsqldelight')
+    implementation project(':blockchainApi')
 
     // koin
     implementation Libraries.koin
