@@ -131,6 +131,17 @@ sealed class EarnAnalytics(
         origin = origin
     )
 
+    class ActiveRewardsWithdrawalClicked(
+        currency: String,
+        origin: LaunchOrigin
+    ) : EarnAnalytics(
+        event = AnalyticsNames.ACTIVE_REWARDS_WITHDRAWAL_CLICKED.eventName,
+        mapOf(
+            CURRENCY to currency
+        ),
+        origin = origin
+    )
+
     companion object {
         private const val CURRENCY = "currency"
         private const val SOURCE_ACCOUNT_TYPE = "from_account_type"

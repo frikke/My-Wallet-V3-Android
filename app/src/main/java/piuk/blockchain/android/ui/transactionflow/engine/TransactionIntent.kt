@@ -5,6 +5,7 @@ import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.api.isInternetConnectionError
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.InvoiceTarget
 import com.blockchain.coincore.NonCustodialAccount
@@ -152,6 +153,7 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
                 passwordRequired -> TransactionStep.ENTER_PASSWORD
                 target is InvoiceTarget -> TransactionStep.CONFIRM_DETAIL
                 target is WalletConnectTarget -> TransactionStep.CONFIRM_DETAIL
+                sourceAccount is EarnRewardsAccount.Active -> TransactionStep.CONFIRM_DETAIL
                 else -> TransactionStep.ENTER_AMOUNT
             }
     }

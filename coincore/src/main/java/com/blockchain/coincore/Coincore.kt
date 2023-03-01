@@ -178,6 +178,7 @@ class Coincore internal constructor(
             AssetAction.Swap,
             AssetAction.Sell,
             AssetAction.InterestWithdraw,
+            AssetAction.ActiveRewardsWithdraw,
             AssetAction.Send -> activeWalletsInMode().map {
                 it.accounts
             }

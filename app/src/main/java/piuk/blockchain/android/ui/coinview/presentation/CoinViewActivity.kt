@@ -10,6 +10,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.commonarch.presentation.base.setContent
 import com.blockchain.commonarch.presentation.mvi_v2.MVIActivity
@@ -325,6 +326,17 @@ class CoinViewActivity :
                     )
                 )
             }
+
+            is CoinviewNavigationEvent.NavigateToActiveRewardsWithdraw -> {
+                startActivity(
+                    TransactionFlowActivity.newIntent(
+                        context = this,
+                        action = AssetAction.ActiveRewardsWithdraw,
+                        sourceAccount = navigationEvent.cvSourceActiveRewardsAccount.account,
+                        target = navigationEvent.cvTargetCustodialTradingAccount.account as TransactionTarget
+                    )
+                )
+            }
         }
     }
 
@@ -474,11 +486,14 @@ class CoinViewActivity :
     }
 
     override fun launchActiveRewardsDeposit(account: EarnRewardsAccount.Active) {
-        viewModel.onIntent(CoinviewIntent.LaunchActiveRewardsDepositFlow(account))
+        viewModel.onIntent(CoinviewIntent.LaunchActiveRewardsDepositFlow)
     }
 
-    override fun launchActiveRewardsWithdrawal(account: EarnRewardsAccount.Active) {
-        // TODO(EARN) - Active rewards - not yet implemented
+    override fun launchActiveRewardsWithdrawal(
+        sourceAccount: BlockchainAccount,
+        targetAccount: CustodialTradingAccount
+    ) {
+        viewModel.onIntent(CoinviewIntent.LaunchActiveRewardsWithdrawFlow)
     }
 
     override fun showStakingLoadingError(error: StakingError) =

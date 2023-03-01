@@ -492,7 +492,7 @@ class TransactionModel(
     ): Disposable =
         subscribeBy(
             onSuccess = {
-                if (action == AssetAction.Sell && it.size == 1) {
+                if ((action == AssetAction.Sell || action == AssetAction.ActiveRewardsWithdraw) && it.size == 1) {
                     process(
                         TransactionIntent.InitialiseWithSourceAndTargetAccount(
                             action = action,
@@ -685,8 +685,7 @@ class TransactionModel(
                 when (target) {
                     is EarnRewardsAccount.Interest -> interactor.userAccessForFeature(Feature.DepositInterest)
                     is EarnRewardsAccount.Staking -> interactor.userAccessForFeature(Feature.DepositStaking)
-                    // TODO(EARN):  eligibility
-                    is EarnRewardsAccount.Active -> interactor.userAccessForFeature(Feature.DepositStaking)
+                    is EarnRewardsAccount.Active -> interactor.userAccessForFeature(Feature.DepositActiveRewards)
                 }.toMaybe()
             } else {
                 Maybe.empty()
@@ -705,6 +704,7 @@ class TransactionModel(
         AssetAction.ViewActivity,
         AssetAction.ViewStatement -> throw IllegalStateException("$action is not part of TxFlow")
         AssetAction.InterestWithdraw,
+        AssetAction.ActiveRewardsWithdraw,
         AssetAction.Sign -> Maybe.empty()
     }
 

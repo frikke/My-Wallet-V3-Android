@@ -27,7 +27,9 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.EarnRewardsAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.componentlib.alert.SnackbarAlert
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
@@ -37,7 +39,7 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.sheets.SheetHeader
-import com.blockchain.componentlib.tablerow.custom.TextTableRow
+import com.blockchain.componentlib.tablerow.custom.TextWithTooltipTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.LargeVerticalSpacer
 import com.blockchain.componentlib.theme.TinyHorizontalSpacer
@@ -57,7 +59,7 @@ private sealed class InfoSnackbarState {
 @Composable
 fun ActiveRewardsSummarySheet(
     state: ActiveRewardsSummaryViewState,
-    onWithdrawPressed: (currency: EarnRewardsAccount.Active) -> Unit,
+    onWithdrawPressed: (sourceAccount: BlockchainAccount, targetAccount: CustodialTradingAccount) -> Unit,
     onDepositPressed: (currency: EarnRewardsAccount.Active) -> Unit,
     withdrawDisabledLearnMore: () -> Unit,
     onClosePressed: () -> Unit,
@@ -119,7 +121,7 @@ fun ActiveRewardsSummarySheet(
                             state.balanceCrypto?.currency?.networkTicker,
                             state.assetFiatPrice
                         ) { currencyTicker, assetFiatPrice ->
-                            TextTableRow(
+                            TextWithTooltipTableRow(
                                 startText = stringResource(
                                     id = R.string.quote_price,
                                     currencyTicker
@@ -129,15 +131,19 @@ fun ActiveRewardsSummarySheet(
                         }
 
                         if (state.totalEarnedFiat != null && state.totalEarnedCrypto != null) {
-                            TextTableRow(
+                            TextWithTooltipTableRow(
                                 startText = stringResource(R.string.earn_net_earnings),
                                 endTitle = state.totalEarnedFiat.toStringWithSymbol(),
                                 endSubtitle = state.totalEarnedCrypto.toStringWithSymbol(),
+                                isTappable = true,
+                                tooltipContent = {
+                                    TooltipText(tooltipText = stringResource(R.string.earn_net_earning_explainer))
+                                }
                             )
                         }
 
                         if (state.totalSubscribedFiat != null && state.totalSubscribedCrypto != null) {
-                            TextTableRow(
+                            TextWithTooltipTableRow(
                                 startText = stringResource(R.string.earn_total_subscribed),
                                 endTitle = state.totalSubscribedFiat.toStringWithSymbol(),
                                 endSubtitle = state.totalSubscribedCrypto.toStringWithSymbol(),
@@ -145,10 +151,14 @@ fun ActiveRewardsSummarySheet(
                         }
 
                         if (state.totalOnHoldFiat != null && state.totalOnHoldCrypto != null) {
-                            TextTableRow(
+                            TextWithTooltipTableRow(
                                 startText = stringResource(R.string.earn_on_hold),
                                 endTitle = state.totalOnHoldFiat.toStringWithSymbol(),
                                 endSubtitle = state.totalOnHoldCrypto.toStringWithSymbol(),
+                                isTappable = true,
+                                tooltipContent = {
+                                    TooltipText(tooltipText = stringResource(R.string.earn_on_hold_explainer))
+                                }
                             )
                         }
                         TinyVerticalSpacer()
@@ -165,21 +175,27 @@ fun ActiveRewardsSummarySheet(
                     Column(modifier = Modifier.fillMaxWidth()) {
                         TinyVerticalSpacer()
 
-                        TextTableRow(
+                        TextWithTooltipTableRow(
                             startText = stringResource(R.string.earn_annual_rate),
                             endTitle = "${state.activeRewardsRate}%",
-                            onClick = { snackbarState = InfoSnackbarState.RateInfo }
+                            isTappable = true,
+                            tooltipContent = {
+                                TooltipText(tooltipText = stringResource(R.string.earn_annual_rate_explainer))
+                            }
                         )
 
                         if (state.triggerPrice != null) {
-                            TextTableRow(
+                            TextWithTooltipTableRow(
                                 startText = stringResource(R.string.earn_trigger_price),
                                 endTitle = state.triggerPrice.toStringWithSymbol(),
-                                onClick = { snackbarState = InfoSnackbarState.BondingInfo }
+                                isTappable = true,
+                                tooltipContent = {
+                                    TooltipText(tooltipText = stringResource(R.string.earn_trigger_price_explainer))
+                                }
                             )
                         }
 
-                        TextTableRow(
+                        TextWithTooltipTableRow(
                             startText = stringResource(R.string.earn_payment_frequency),
                             endTitle = when (state.rewardsFrequency) {
                                 EarnRewardsFrequency.Daily ->
@@ -202,7 +218,7 @@ fun ActiveRewardsSummarySheet(
 
                 LargeVerticalSpacer()
 
-                ActiveRewardsWithdrawalNotice()
+                ActiveRewardsWithdrawalNotice(onLearnMorePressed = withdrawDisabledLearnMore)
 
                 LargeVerticalSpacer()
 
@@ -214,8 +230,12 @@ fun ActiveRewardsSummarySheet(
                         modifier = Modifier.weight(1F),
                         text = stringResource(id = R.string.common_withdraw),
                         icon = ImageResource.Local(R.drawable.send_off, colorFilter = ColorFilter.tint(Color.White)),
-                        onClick = { },
-                        state = ButtonState.Disabled // TODO: Enable when we have a way to withdraw
+                        state = if (state.canWithdraw) ButtonState.Enabled else ButtonState.Disabled,
+                        onClick = {
+                            safeLet(state.account, state.tradingAccount) { account, tradingAccount ->
+                                onWithdrawPressed(account, tradingAccount)
+                            }
+                        },
                     )
 
                     TinyHorizontalSpacer()
@@ -224,7 +244,7 @@ fun ActiveRewardsSummarySheet(
                         modifier = Modifier.weight(1F),
                         text = stringResource(id = R.string.common_add),
                         icon = ImageResource.Local(R.drawable.receive_off, colorFilter = ColorFilter.tint(Color.White)),
-                        onClick = { state.account?.let { onDepositPressed(it) } }
+                        onClick = { state.account?.let { onDepositPressed(it as EarnRewardsAccount.Active) } }
                     )
                 }
 
@@ -265,6 +285,7 @@ fun PreviewActiveRewardsSummarySheet() {
         ActiveRewardsSummarySheet(
             state = ActiveRewardsSummaryViewState(
                 account = null, errorState = ActiveRewardsError.None, isLoading = false, balanceCrypto = null,
+                tradingAccount = null,
                 balanceFiat = null,
                 totalEarnedCrypto = null,
                 totalEarnedFiat = null, totalSubscribedCrypto = null, totalSubscribedFiat = null,
@@ -273,12 +294,24 @@ fun PreviewActiveRewardsSummarySheet() {
                 rewardsFrequency = EarnRewardsFrequency.Weekly,
                 isWithdrawable = false,
                 canDeposit = false,
-                assetFiatPrice = null
+                assetFiatPrice = null,
+                canWithdraw = false
             ),
-            onWithdrawPressed = {},
+            onWithdrawPressed = { _, _ -> },
             onDepositPressed = {},
             withdrawDisabledLearnMore = {},
-            onClosePressed = {}
+            onClosePressed = {},
         )
     }
+}
+
+@Composable
+fun TooltipText(tooltipText: String) {
+    SimpleText(
+        text = tooltipText,
+        style = ComposeTypographies.Paragraph1,
+        color = ComposeColors.Body,
+        gravity = ComposeGravities.Start,
+        modifier = Modifier.padding(top = AppTheme.dimensions.smallestSpacing)
+    )
 }

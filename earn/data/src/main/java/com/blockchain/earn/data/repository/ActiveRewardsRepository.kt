@@ -34,6 +34,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import java.util.Date
 import kotlinx.coroutines.flow.Flow
@@ -53,7 +54,7 @@ class ActiveRewardsRepository(
     private val activeRewardsLimitsStore: ActiveRewardsLimitsStore,
     private val currencyPrefs: CurrencyPrefs,
     private val activeRewardsApi: ActiveRewardsApiService,
-    private val historicRateFetcher: HistoricRateFetcher
+    private val historicRateFetcher: HistoricRateFetcher,
 ) : ActiveRewardsService {
 
     // we use the rates endpoint to determine whether the user has access to staking cryptos
@@ -75,7 +76,7 @@ class ActiveRewardsRepository(
                     rate = rateData.rate,
                     commission = rateData.commission,
                     triggerPrice = Money.fromMinor(
-                        currencyPrefs.selectedFiatCurrency,
+                        FiatCurrency.Dollars,
                         rateData.triggerPrice.toBigInteger()
                     )
                 )

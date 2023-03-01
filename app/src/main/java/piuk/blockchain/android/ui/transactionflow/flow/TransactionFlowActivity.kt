@@ -400,6 +400,10 @@ class TransactionFlowActivity :
         // no op
     }
 
+    override fun openExternalUrl(url: String) {
+        openUrl(url)
+    }
+
     companion object {
         private const val SOURCE = "SOURCE_ACCOUNT"
         private const val TARGET = "TARGET_ACCOUNT"

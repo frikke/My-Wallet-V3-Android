@@ -47,6 +47,9 @@ class TransactionFlowIntentMapper(
             AssetAction.ActiveRewardsDeposit -> {
                 handleActiveRewardsDeposit(passwordRequired)
             }
+            AssetAction.ActiveRewardsWithdraw -> {
+                handleActiveRewardsWithdraw(passwordRequired)
+            }
             AssetAction.Receive,
             AssetAction.ViewActivity,
             AssetAction.ViewStatement,
@@ -117,6 +120,20 @@ class TransactionFlowIntentMapper(
             )
             else -> throw IllegalStateException(
                 "Calling active rewards deposit without source and target is not supported"
+            )
+        }
+
+    private fun handleActiveRewardsWithdraw(passwordRequired: Boolean) =
+        when {
+            sourceAccount.isDefinedCryptoAccount() && target.isDefinedTarget() ->
+                TransactionIntent.InitialiseWithSourceAndTargetAccount(
+                    action,
+                    sourceAccount,
+                    target,
+                    passwordRequired
+                )
+            else -> throw IllegalStateException(
+                "Calling active rewards withdraw without source and target is not supported"
             )
         }
 
