@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import com.blockchain.componentlib.R
@@ -22,7 +23,8 @@ fun CustomStackedIcon(
     iconBackground: Color = AppTheme.colors.light,
     borderColor: Color = AppTheme.colors.background,
     size: Dp = AppTheme.dimensions.standardSpacing,
-    iconShape: Shape = CircleShape
+    iconShape: Shape = CircleShape,
+    alphaProvider: () -> Float = { 1F }
 ) {
     when (icon) {
         is StackedIcon.OverlappingPair -> {
@@ -45,6 +47,9 @@ fun CustomStackedIcon(
         is StackedIcon.SingleIcon -> {
             Surface(
                 modifier = Modifier
+                    .graphicsLayer {
+                        alpha = alphaProvider()
+                    }
                     .size(size),
                 shape = iconShape,
                 color = iconBackground

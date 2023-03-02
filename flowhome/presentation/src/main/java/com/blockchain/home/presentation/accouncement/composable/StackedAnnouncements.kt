@@ -39,6 +39,10 @@ fun StackedAnnouncements(
     val frontCardTranslation = 0F
     val animatableTranslation = remember { Animatable(backCardsTranslation) }
 
+    val frontCardFocusedAlpha = 1F
+    val frontCardUnfocusedAlpha = 0.5F
+    val animatableAlpha = remember { Animatable(frontCardFocusedAlpha) }
+
     Box {
         val scope = rememberCoroutineScope()
         Box(
@@ -85,12 +89,15 @@ fun StackedAnnouncements(
 
                                 val scaleTarget: Float
                                 val translationTarget: Float
+                                val alphaTarget: Float
                                 if (hasReachedDismissThreshold) {
                                     scaleTarget = frontCardScale
                                     translationTarget = frontCardTranslation
+                                    alphaTarget = frontCardUnfocusedAlpha
                                 } else {
                                     scaleTarget = backCardScale
                                     translationTarget = backCardsTranslation
+                                    alphaTarget = frontCardFocusedAlpha
                                 }
 
                                 scope.launch {
@@ -98,6 +105,9 @@ fun StackedAnnouncements(
                                 }
                                 scope.launch {
                                     animatableTranslation.animateTo(translationTarget)
+                                }
+                                scope.launch {
+                                    animatableAlpha.animateTo(alphaTarget)
                                 }
                             },
                             onSwipe = {
@@ -118,6 +128,9 @@ fun StackedAnnouncements(
                                 scope.launch {
                                     animatableTranslation.snapTo(backCardsTranslation)
                                 }
+                                scope.launch {
+                                    animatableAlpha.snapTo(frontCardFocusedAlpha)
+                                }
                                 onSwiped(announcement)
                             }
                         ),
@@ -130,6 +143,14 @@ fun StackedAnnouncements(
                         announcements.lastIndex,
                         announcements.lastIndex - 1 -> AppTheme.dimensions.mediumElevation
                         else -> 0.dp
+                    },
+                    contentAlphaProvider = {
+                        when (index) {
+                            // front is animatableAlpha
+                            announcements.lastIndex -> animatableAlpha.value
+                            // all others are 1F
+                            else -> 1F
+                        }
                     },
                     onClick = {}
                 )
