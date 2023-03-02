@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +50,9 @@ import com.blockchain.earn.activeRewards.viewmodel.ActiveRewardsError
 import com.blockchain.earn.activeRewards.viewmodel.ActiveRewardsSummaryViewState
 import com.blockchain.earn.domain.models.EarnRewardsFrequency
 import com.blockchain.extensions.safeLet
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.activeRewardsWithdrawalsFeatureFlag
+import org.koin.androidx.compose.get
 
 private sealed class InfoSnackbarState {
     object Hidden : InfoSnackbarState()
@@ -218,9 +222,17 @@ fun ActiveRewardsSummarySheet(
 
                 LargeVerticalSpacer()
 
-                ActiveRewardsWithdrawalNotice(onLearnMorePressed = withdrawDisabledLearnMore)
+                // TODO(labreu): no point in adding doing this check in the viewmodel since this will all be removed very soon once withdrawals are enabled in prod
+                var activeRewardsWithdrawalsEnabled by remember { mutableStateOf(false) }
+                val activeRewardsWithdrawalsFF = get<FeatureFlag>(activeRewardsWithdrawalsFeatureFlag)
+                LaunchedEffect(activeRewardsWithdrawalsFF) {
+                    activeRewardsWithdrawalsEnabled = activeRewardsWithdrawalsFF.coEnabled()
+                }
 
-                LargeVerticalSpacer()
+                if (activeRewardsWithdrawalsEnabled.not()) {
+                    ActiveRewardsWithdrawalNotice(onLearnMorePressed = withdrawDisabledLearnMore)
+                    LargeVerticalSpacer()
+                }
 
                 Row(
                     modifier = Modifier

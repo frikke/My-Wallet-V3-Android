@@ -94,7 +94,7 @@ class CustodialActiveRewardsAccount(
         ) { balance, rate ->
             AccountBalance(
                 total = balance.totalBalance,
-                withdrawable = balance.availableBalance,
+                withdrawable = balance.earningBalance,
                 pending = balance.pendingDeposit,
                 dashboardDisplay = balance.totalBalance,
                 exchangeRate = rate

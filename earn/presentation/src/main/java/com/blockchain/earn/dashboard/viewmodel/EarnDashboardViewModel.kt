@@ -509,8 +509,8 @@ class EarnDashboardViewModel(
                 hasSeenEarnIntro = walletStatusPrefs.hasSeenEarnProductIntro,
                 filterList = listOf(
                     EarnDashboardListFilter.All,
-                    EarnDashboardListFilter.Staking,
-                    EarnDashboardListFilter.Interest
+                    EarnDashboardListFilter.Interest,
+                    EarnDashboardListFilter.Staking
                 ) + if (activeRewardsEnabled) {
                     listOf(EarnDashboardListFilter.Active)
                 } else {
