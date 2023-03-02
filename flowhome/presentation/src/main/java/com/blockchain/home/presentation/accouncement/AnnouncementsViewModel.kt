@@ -9,6 +9,7 @@ import com.blockchain.componentlib.theme.Pink600
 import com.blockchain.componentlib.utils.ImageValue
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.filter
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
@@ -41,9 +42,21 @@ class AnnouncementsViewModel(
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
+    init {
+        viewModelScope.launch {
+            walletModeService.walletMode.collectLatest { walletMode ->
+                updateState {
+                    it.copy(walletMode = walletMode)
+                }
+            }
+        }
+    }
+
     override fun reduce(state: AnnouncementModelState): AnnouncementsViewState = state.run {
         AnnouncementsViewState(
-            stackedAnnouncements = stackedAnnouncements,
+            stackedAnnouncements = stackedAnnouncements.filter {
+                it.eligibleModes.contains(walletMode)
+            },
             customAnnouncements = customAnnouncements
         )
     }
