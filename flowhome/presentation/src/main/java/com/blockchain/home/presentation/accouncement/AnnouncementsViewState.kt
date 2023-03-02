@@ -6,5 +6,5 @@ import com.blockchain.home.announcements.Announcement
 
 data class AnnouncementsViewState(
     val stackedAnnouncements: DataResource<List<Announcement>>,
-    val customAnnouncements: List<CustomAnnouncement>
+    val localAnnouncements: List<LocalAnnouncement>
 ) : ViewState

@@ -27,12 +27,12 @@ import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Pink600
 import com.blockchain.componentlib.utils.ImageValue
 import com.blockchain.componentlib.utils.value
-import com.blockchain.home.presentation.accouncement.CustomAnnouncement
+import com.blockchain.home.presentation.accouncement.LocalAnnouncement
 
 @Composable
 fun LocalAnnouncements(
-    announcements: List<CustomAnnouncement>,
-    onClick: (CustomAnnouncement) -> Unit
+    announcements: List<LocalAnnouncement>,
+    onClick: (LocalAnnouncement) -> Unit
 ) {
     if (announcements.isNotEmpty()) {
         // todo support multiple announcements

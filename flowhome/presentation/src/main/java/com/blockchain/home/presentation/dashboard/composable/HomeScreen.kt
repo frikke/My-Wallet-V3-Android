@@ -36,7 +36,7 @@ import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.accouncement.AnnouncementsIntent
 import com.blockchain.home.presentation.accouncement.AnnouncementsViewModel
 import com.blockchain.home.presentation.accouncement.AnnouncementsViewState
-import com.blockchain.home.presentation.accouncement.CustomAnnouncementType
+import com.blockchain.home.presentation.accouncement.LocalAnnouncementType
 import com.blockchain.home.presentation.accouncement.composable.LocalAnnouncements
 import com.blockchain.home.presentation.accouncement.composable.StackedAnnouncements
 import com.blockchain.home.presentation.activity.list.ActivityIntent
@@ -290,10 +290,10 @@ fun HomeScreen(
             paddingValues = PaddingValues(horizontal = 16.dp)
         ) {
             LocalAnnouncements(
-                announcements = announcementsState.customAnnouncements,
+                announcements = announcementsState.localAnnouncements,
                 onClick = { announcement ->
                     when (announcement.type) {
-                        CustomAnnouncementType.PHRASE_RECOVERY -> startPhraseRecovery()
+                        LocalAnnouncementType.PHRASE_RECOVERY -> startPhraseRecovery()
                     }
                 }
             )

@@ -14,7 +14,6 @@ import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.extensions.minus
-import com.blockchain.home.announcements.Announcement
 import com.blockchain.home.announcements.AnnouncementsService
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
@@ -38,7 +37,7 @@ class AnnouncementsViewModel(
     AnnouncementModelState()
 ) {
     private var remoteAnnouncementsJob: Job? = null
-    private var customAnnouncementsJob: Job? = null
+    private var localAnnouncementsJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
@@ -57,7 +56,7 @@ class AnnouncementsViewModel(
             stackedAnnouncements = stackedAnnouncements.filter {
                 it.eligibleModes.contains(walletMode)
             },
-            customAnnouncements = customAnnouncements
+            localAnnouncements = localAnnouncements
         )
     }
 
@@ -65,7 +64,7 @@ class AnnouncementsViewModel(
         when (intent) {
             AnnouncementsIntent.LoadAnnouncements -> {
                 loadRemoteAnnouncements(forceRefresh = false)
-                loadCustomAnnouncements()
+                loadLocalAnnouncements()
             }
 
             is AnnouncementsIntent.DeleteAnnouncement -> {
@@ -97,17 +96,17 @@ class AnnouncementsViewModel(
         }
     }
 
-    private fun loadCustomAnnouncements() {
-        customAnnouncementsJob?.cancel()
-        customAnnouncementsJob = viewModelScope.launch {
+    private fun loadLocalAnnouncements() {
+        localAnnouncementsJob?.cancel()
+        localAnnouncementsJob = viewModelScope.launch {
             walletModeService.walletMode.collectLatest { walletMode ->
-                val announcements = mutableListOf<CustomAnnouncement>()
+                val announcements = mutableListOf<LocalAnnouncement>()
 
                 backupPhraseService.shouldBackupPhraseForMode(walletMode).let { shouldBackup ->
                     if (shouldBackup) {
                         announcements.add(
-                            CustomAnnouncement(
-                                type = CustomAnnouncementType.PHRASE_RECOVERY,
+                            LocalAnnouncement(
+                                type = LocalAnnouncementType.PHRASE_RECOVERY,
                                 title = TextValue.IntResValue(R.string.announcement_recovery_title),
                                 subtitle = TextValue.IntResValue(R.string.announcement_recovery_subtitle),
                                 icon = ImageValue.Local(Icons.Filled.Unlock.id, tint = Pink600),
@@ -117,7 +116,7 @@ class AnnouncementsViewModel(
                 }
 
                 updateState {
-                    it.copy(customAnnouncements = announcements)
+                    it.copy(localAnnouncements = announcements)
                 }
             }
         }

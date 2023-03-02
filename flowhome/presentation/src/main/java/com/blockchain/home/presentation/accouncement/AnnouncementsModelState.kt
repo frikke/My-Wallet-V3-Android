@@ -10,17 +10,17 @@ import com.blockchain.walletmode.WalletMode
 data class AnnouncementModelState(
     val walletMode: WalletMode? = null,
     val stackedAnnouncements: DataResource<List<Announcement>> = DataResource.Loading,
-    val customAnnouncements: List<CustomAnnouncement> = emptyList(),
+    val localAnnouncements: List<LocalAnnouncement> = emptyList(),
     val lastFreshDataTime: Long = 0
 ) : ModelState
 
-data class CustomAnnouncement(
-    val type: CustomAnnouncementType,
+data class LocalAnnouncement(
+    val type: LocalAnnouncementType,
     val title: TextValue,
     val subtitle: TextValue,
     val icon: ImageValue
 )
 
-enum class CustomAnnouncementType {
+enum class LocalAnnouncementType {
     PHRASE_RECOVERY
 }
