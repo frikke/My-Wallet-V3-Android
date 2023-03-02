@@ -9,8 +9,11 @@ import com.blockchain.componentlib.theme.Pink600
 import com.blockchain.componentlib.utils.ImageValue
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
+import com.blockchain.extensions.minus
+import com.blockchain.home.announcements.Announcement
 import com.blockchain.home.announcements.AnnouncementsService
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
@@ -50,6 +53,13 @@ class AnnouncementsViewModel(
             AnnouncementsIntent.LoadAnnouncements -> {
                 loadRemoteAnnouncements(forceRefresh = false)
                 loadCustomAnnouncements()
+            }
+
+            is AnnouncementsIntent.DeleteAnnouncement -> {
+                updateState {
+                    it.copy(
+                        stackedAnnouncements = it.stackedAnnouncements.map { it.minus { it == intent.announcement } })
+                }
             }
 
             AnnouncementsIntent.Refresh -> {

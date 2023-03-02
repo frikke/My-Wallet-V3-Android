@@ -279,8 +279,8 @@ fun HomeScreen(
             (announcementsState.stackedAnnouncements as? DataResource.Data)?.data?.let { announcements ->
                 StackedAnnouncements(
                     announcements = announcements,
-                    onSwiped = { targetId ->
-                        //                    announcements.removeIf { it.id == targetId }
+                    onSwiped = { target ->
+                        announcementsViewModel.onIntent(AnnouncementsIntent.DeleteAnnouncement(target))
                     }
                 )
             }

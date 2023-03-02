@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun StackedAnnouncements(
     announcements: List<Announcement>,
-    onSwiped: (String) -> Unit
+    onSwiped: (Announcement) -> Unit
 ) {
     val backCardScale = 0.9F
     val frontCardScale = 1F
@@ -118,7 +118,7 @@ fun StackedAnnouncements(
                                 scope.launch {
                                     animatableTranslation.snapTo(backCardsTranslation)
                                 }
-                                onSwiped(announcement.id)
+                                onSwiped(announcement)
                             }
                         ),
                     title = announcement.title,
