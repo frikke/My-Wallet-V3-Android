@@ -108,7 +108,7 @@ internal fun LazyListScope.homeEarnAssets(
                             (earnState as? EarnViewState.Assets)?.rateForAsset(
                                 asset
                             )?.let {
-                                stringResource(id = R.string.earn_rate_apy, it.withoutTrailingZerosIfWhole())
+                                "${it.withOnlyOneTrailingZeroIfWhole()}%"
                             }.orEmpty()
                         )
                     }
@@ -120,9 +120,9 @@ internal fun LazyListScope.homeEarnAssets(
     }
 }
 
-private fun Double.withoutTrailingZerosIfWhole(): Any {
+private fun Double.withOnlyOneTrailingZeroIfWhole(): String {
     return if (this.compareTo(this.toLong()) == 0)
-        String.format("%d", this.toLong()) else String.format("%s", this)
+        String.format("%.1f", this) else String.format("%s", this)
 }
 
 @Preview

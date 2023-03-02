@@ -1,12 +1,14 @@
 package com.blockchain.earn.activeRewards.viewmodel
 
-import com.blockchain.coincore.EarnRewardsAccount
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.earn.domain.models.EarnRewardsFrequency
 import info.blockchain.balance.Money
 
 data class ActiveRewardsSummaryViewState(
-    val account: EarnRewardsAccount.Active?,
+    val account: BlockchainAccount?,
+    val tradingAccount: CustodialTradingAccount?,
     val errorState: ActiveRewardsError,
     val isLoading: Boolean,
     val assetFiatPrice: Money?,
@@ -22,7 +24,8 @@ data class ActiveRewardsSummaryViewState(
     val triggerPrice: Money?,
     val rewardsFrequency: EarnRewardsFrequency,
     val isWithdrawable: Boolean,
-    val canDeposit: Boolean
+    val canDeposit: Boolean,
+    val canWithdraw: Boolean,
 ) : ViewState
 
 sealed class ActiveRewardsError {

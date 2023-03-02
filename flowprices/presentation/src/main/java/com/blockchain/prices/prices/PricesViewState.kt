@@ -33,7 +33,8 @@ data class PriceItemViewState(
     val network: String?,
     val logo: String,
     val delta: DataResource<ValueChange>,
-    val currentPrice: DataResource<String>
+    val currentPrice: DataResource<String>,
+    val showRisingFastTag: Boolean
 )
 
 @StringRes fun PricesFilter.nameRes() = when (this) {

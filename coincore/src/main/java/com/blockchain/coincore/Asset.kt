@@ -86,7 +86,10 @@ enum class AssetAction(
     StakingDeposit(ActionOrigin.FROM_SOURCE),
 
     // Receive to an ActiveRewards account
-    ActiveRewardsDeposit(ActionOrigin.FROM_SOURCE);
+    ActiveRewardsDeposit(ActionOrigin.FROM_SOURCE),
+
+    // Withdraw from an ActiveRewards account
+    ActiveRewardsWithdraw(ActionOrigin.FROM_SOURCE),
 }
 
 data class StateAwareAction(

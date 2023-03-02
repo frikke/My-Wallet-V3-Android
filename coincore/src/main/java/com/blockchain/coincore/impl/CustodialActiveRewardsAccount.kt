@@ -94,7 +94,7 @@ class CustodialActiveRewardsAccount(
         ) { balance, rate ->
             AccountBalance(
                 total = balance.totalBalance,
-                withdrawable = balance.availableBalance,
+                withdrawable = balance.earningBalance,
                 pending = balance.pendingDeposit,
                 dashboardDisplay = balance.totalBalance,
                 exchangeRate = rate
@@ -163,9 +163,8 @@ class CustodialActiveRewardsAccount(
                         AssetAction.ActiveRewardsDeposit
                     ),
                     StateAwareAction(
-                        // TODO(labreu): withdraw from active rewards is not available yet
-                        ActionState.LockedDueToAvailability,
-                        AssetAction.InterestWithdraw
+                        ActionState.Available, // TODO (labreu): check Feature.WithdrawActiveRewards!!!
+                        AssetAction.ActiveRewardsWithdraw
                     ),
                     StateAwareAction(ActionState.Available, AssetAction.ViewStatement),
                     StateAwareAction(ActionState.Available, AssetAction.ViewActivity)

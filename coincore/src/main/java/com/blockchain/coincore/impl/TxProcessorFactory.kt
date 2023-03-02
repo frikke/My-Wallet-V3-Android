@@ -24,6 +24,7 @@ import com.blockchain.coincore.impl.txEngine.TradingToOnChainTxEngine
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.impl.txEngine.active_rewards.ActiveRewardsDepositOnChainTxEngine
 import com.blockchain.coincore.impl.txEngine.active_rewards.ActiveRewardsDepositTradingEngine
+import com.blockchain.coincore.impl.txEngine.active_rewards.ActiveRewardsWithdrawTradingTxEngine
 import com.blockchain.coincore.impl.txEngine.fiat.FiatDepositTxEngine
 import com.blockchain.coincore.impl.txEngine.fiat.FiatWithdrawalTxEngine
 import com.blockchain.coincore.impl.txEngine.interest.InterestDepositOnChainTxEngine
@@ -93,6 +94,7 @@ class TxProcessorFactory(
             is CryptoNonCustodialAccount -> createOnChainProcessor(source, target, action)
             is CustodialTradingAccount -> createTradingProcessor(source, target)
             is CustodialInterestAccount -> createInterestWithdrawalProcessor(source, target, action)
+            is CustodialActiveRewardsAccount -> createActiveRewardsWithdrawalProcessor(source, target)
             is BankAccount -> createFiatDepositProcessor(source, target, action)
             is FiatAccount -> createFiatWithdrawalProcessor(source, target, action)
             else -> Single.error(NotImplementedError())
@@ -128,6 +130,29 @@ class TxProcessorFactory(
                         engine = InterestWithdrawOnChainTxEngine(
                             interestBalanceStore = interestBalanceStore,
                             interestService = interestService,
+                            walletManager = walletManager
+                        )
+                    )
+                )
+            }
+            else -> Single.error(IllegalStateException("$target is not supported yet"))
+        }
+
+    private fun createActiveRewardsWithdrawalProcessor(
+        source: CustodialActiveRewardsAccount,
+        target: TransactionTarget,
+    ): Single<TransactionProcessor> =
+        when (target) {
+            is CustodialTradingAccount -> {
+                Single.just(
+                    TransactionProcessor(
+                        exchangeRates = exchangeRates,
+                        sourceAccount = source,
+                        txTarget = target,
+                        engine = ActiveRewardsWithdrawTradingTxEngine(
+                            activeRewardsBalanceStore = activeRewardsBalanceStore,
+                            activeRewardsService = activeRewardsService,
+                            tradingStore = tradingStore,
                             walletManager = walletManager
                         )
                     )

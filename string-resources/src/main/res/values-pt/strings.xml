@@ -2807,7 +2807,7 @@
     <string name="show_pkw_accounts">Mostrar carteiras DeFi</string>
     <string name="actions_sheet_percentage_rate">Taxa: %s%%</string>
     <string name="staking_asset">%1s participado</string>
-    <string name="earn_rate_apy">%1$s%% APY</string>
+    <string name="earn_rate">%1$s%% APY</string>
     <string name="activity_details_label_confirmations_single_line">%1$s/%2$s confirmações</string>
     <string name="no_balance_sheet_earn_title">Não tem qualquer %1$s</string>
     <string name="no_balance_sheet_earn_subtitle">Compre ou receba %1$s para começar a ganhar.</string>

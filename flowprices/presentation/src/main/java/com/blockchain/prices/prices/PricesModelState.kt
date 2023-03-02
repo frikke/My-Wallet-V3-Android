@@ -12,6 +12,7 @@ data class PricesModelState(
     val data: DataResource<List<AssetPriceInfo>> = DataResource.Loading,
     val topMoversCount: Int = 4,
     val mostPopularTickers: List<String> = emptyList(),
+    val risingFastPercent: Double = 4.0,
     val filterTerm: String = "",
     val filterBy: PricesFilter = PricesFilter.All,
     val lastFreshDataTime: Long = 0

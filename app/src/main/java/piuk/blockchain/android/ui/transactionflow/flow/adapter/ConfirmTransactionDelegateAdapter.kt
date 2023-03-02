@@ -16,6 +16,7 @@ class ConfirmTransactionDelegateAdapter(
     exchangeRates: ExchangeRates,
     selectedCurrency: FiatCurrency,
     onTooltipClicked: (TxConfirmationValue) -> Unit,
+    activeRewardsWithdrawalsEnabled: Boolean
 ) : DelegationAdapter<TxConfirmationValue>(AdapterDelegatesManager(), emptyList()) {
 
     override var items: List<TxConfirmationValue> = emptyList()
@@ -41,11 +42,13 @@ class ConfirmTransactionDelegateAdapter(
             addAdapterDelegate(ConfirmNoteItemDelegate(model))
             addAdapterDelegate(ConfirmXlmMemoItemDelegate(model))
             addAdapterDelegate(ConfirmAgreementWithTAndCsItemDelegate(model))
-            addAdapterDelegate(
-                ConfirmAgreementToWithdrawalBlockedItemDelegate(
-                    model,
+            if (activeRewardsWithdrawalsEnabled.not()) {
+                addAdapterDelegate(
+                    ConfirmAgreementToWithdrawalBlockedItemDelegate(
+                        model,
+                    )
                 )
-            )
+            }
             addAdapterDelegate(
                 ConfirmAgreementToTransferItemDelegate(
                     model,

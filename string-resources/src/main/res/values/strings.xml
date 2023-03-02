@@ -84,6 +84,7 @@
     <string name="common_general">General</string>
     <string name="common_status">Status</string>
     <string name="common_other">Other</string>
+    <string name="common_important">Important</string>
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>
@@ -2839,7 +2840,7 @@ If you want to know more about our verification process visit our <annotation li
 
     <!-- CoinView -->
     <string name="coinview_interest_with_balance">Earning %1$s%%</string>
-    <string name="coinview_interest_no_balance">Earn %1$s%% APY</string>
+    <string name="coinview_interest_no_balance">Earn %1$s%% rate</string>
     <string name="coinview_nc_desc">Non-custodial</string>
     <string name="coinview_multi_nc_desc">%s Network</string>
     <string name="coinview_c_unavailable_desc">Buy &amp; Sell %1$s</string>
@@ -2938,7 +2939,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="explainer_non_custodial_title" translatable="false">DeFi Wallet</string>
     <string name="explainer_non_custodial_description">Your DeFi Wallet means your funds are owned and controlled by you and you alone. Blockchain.com cannot see or manage your balances in this wallet.</string>
     <string name="explainer_rewards_title">Rewards Account</string>
-    <string name="explainer_rewards_description">Your Rewards Account allows you to earn rewards on your crypto; up to %s%% APY.</string>
+    <string name="explainer_rewards_description">Your Rewards Account allows you to earn rewards on your crypto; up to %s%%.</string>
     <string name="explainer_staking_title">Staking Account</string>
     <string name="explainer_staking_description">Your Staking Account allows you to earn up to %1$s%% annually on your crypto by securing your favourite blockchain networks.</string>
     <string name="explainer_active_rewards_title">Active Rewards Account</string>
@@ -3401,7 +3402,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="assets_filter_title">Filter assets</string>
     <string name="assets_filter_small_balances">Show small balances</string>
 
-    <!-- STAKING -->
+    <!-- EARN -->
     <string name="staking_coming_soon_title">Coming soon to mobile</string>
     <string name="staking_coming_soon_subtitle">In the meantime, you can manage your Staking Account using our web app.</string>
     <string name="staking_coming_soon_cta">Go to Web App</string>
@@ -3446,6 +3447,29 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_access_blocked_region_title">We’re not in your region yet</string>
     <string name="earn_access_blocked_region_paragraph">%1$s are currently unavailable in your region.\n\nWe are working hard so that you get the most of all our products. We’ll let you know as soon as we can!</string>
     <string name="active_rewards_summary_title">%1$s Active Rewards</string>
+    <string name="earn_onboarding_intro_title">Earn</string>
+    <string name="earn_onboarding_intro_subtitle">Get the most out of your crypto.\nDeposit and earn up to 10%.</string>
+    <string name="earn_onboarding_passive_title">Passive Rewards</string>
+    <string name="earn_onboarding_passive_subtitle">Get paid every month, just for holding.</string>
+    <string name="earn_onboarding_staking_title">Staking Rewards</string>
+    <string name="earn_onboarding_staking_subtitle">Earn crypto for securing your favorite blockchain networks.</string>
+    <string name="earn_onboarding_active_title">Active Rewards</string>
+    <string name="earn_onboarding_active_subtitle">Participate on weekly strategies and earn rewards based on crypto performance.</string>
+    <string name="earn_onboarding_cta">Start earning</string>
+    <string name="earn_net_earnings">Net earnings</string>
+    <string name="earn_total_subscribed">Total subscribed</string>
+    <string name="earn_on_hold">On hold</string>
+    <string name="earn_annual_rate">Estimated annual rate</string>
+    <string name="earn_trigger_price">Trigger price</string>
+    <string name="earn_active_rewards_withdrawal_blocked">Withdrawals for Active Rewards are not yet enabled. Weekly withdrawal functionality is being finalized and will be enabled in approximately March 2023. Until then, BTC assets in Active Rewards Accounts will be re-subscribed to each week\'s strategy. \n\nBlockchain.com does not assume liability for any losses incurred from price fluctuations. Please trade with caution.</string>
+    <string name="earn_active_rewards_withdrawal_blocked_warning_title">Active Rewards considerations</string>
+    <string name="earn_active_rewards_withdrawal_blocked_warning_subtitle">Price movements may result in a reduction of your asset’s balance. \n\nOnce subscribed, assets are locked until the following week and subject to market volatility. \n\nBlockchain.com does not assume liability for any losses incurred from price fluctuations. Please trade with caution.</string>
+    <string name="earn_net_earning_explainer">Sum of all rewards and debits of previous strategies</string>
+    <string name="earn_on_hold_explainer">Funds that will be added to the subscribed amount once the current strategy finishes</string>
+    <string name="earn_annual_rate_explainer">Rate perceived by the user if market price is at or lower than the trigger price at the expiration date.</string>
+    <string name="earn_trigger_price_explainer">A price level that results in a debit to your crypto balance if exceeded on the expiration date</string>
+    <string name="earn_active_rewards_withdrawal_pending_title">Withdrawal requested</string>
+    <string name="earn_active_rewards_withdrawal_pending_subtitle">Your withdrawal will be executed once this week\'s strategy is complete.</string>
 
     <!-- Prove.com -->
     <string name="prove_phone_number">Phone number</string>
@@ -3494,11 +3518,10 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_up_to">Earn up to 10%</string>
     <string name="put_your_crypto_to_work">Put your crypto to work</string>
     <string name="staking_asset">Staked %1s</string>
-    <string name="earn_rate_apy">%1$s%% APY</string>
+    <string name="earn_rate">%1$s%% Rate</string>
     <string name="add_cash_from_your_bank_or_card">Add cash from your bank or card</string>
     <string name="cash_out_bank">Cash out to your bank</string>
     <string name="buy_different_crypto">Buy a different crypto</string>
-
     <string name="select_an_option">Select an option</string>
     <string name="choose_how_to_swap">Choose how you\'d like to swap</string>
     <string name="bcdc_swap">Blockchain.com Swap</string>
@@ -3507,27 +3530,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="single_chain_eth_tokens">Single-chain, thousands of tokens on Ethereum</string>
     <string name="announcement_recovery_title">Never lose access to your DeFi Wallet</string>
     <string name="announcement_recovery_subtitle">Backup your DeFi Wallet</string>
-    <string name="earn_onboarding_intro_title">Earn</string>
-    <string name="earn_onboarding_intro_subtitle">Get the most out of your crypto.\nDeposit and earn up to 10%.</string>
-    <string name="earn_onboarding_passive_title">Passive Rewards</string>
-    <string name="earn_onboarding_passive_subtitle">Get paid every month, just for holding.</string>
-    <string name="earn_onboarding_staking_title">Staking Rewards</string>
-    <string name="earn_onboarding_staking_subtitle">Earn crypto for securing your favorite blockchain networks.</string>
-    <string name="earn_onboarding_active_title">Active Rewards</string>
-    <string name="earn_onboarding_active_subtitle">Participate on weekly strategies and earn rewards based on crypto performance.</string>
-    <string name="earn_onboarding_cta">Start earning</string>
-
     <string name="prices_top_movers">Top Movers</string>
     <string name="other_tokens">Other tokens</string>
     <string name="processing_fee">Processing fee</string>
-    <string name="earn_net_earnings">Net earnings</string>
-    <string name="earn_total_subscribed">Total subscribed</string>
-    <string name="earn_on_hold">On hold</string>
-    <string name="earn_annual_rate">Estimated annual rate</string>
-    <string name="earn_trigger_price">Trigger price</string>
-    <string name="common_important">Important</string>
-    <string name="earn_active_rewards_withdrawal_blocked">Withdrawals for Active Rewards are not yet enabled. Weekly withdrawal functionality is being finalized and will be enabled in approximately March 2023. Until then, BTC assets in Active Rewards Accounts will be re-subscribed to each week\'s strategy. Blockchain.com does not assume liability for any losses incurred from price fluctuations. Please trade with caution.</string>
-    <string name="earn_active_rewards_withdrawal_blocked_warning_title">Active Rewards considerations</string>
-    <string name="earn_active_rewards_withdrawal_blocked_warning_subtitle">Price movements may result in a reduction of your asset’s balance. \n\nOnce subscribed, assets are locked until the following week and subject to market volatility. \n\nBlockchain.com does not assume liability for any losses incurred from price fluctuations. Please trade with caution.</string>
 
 </resources>

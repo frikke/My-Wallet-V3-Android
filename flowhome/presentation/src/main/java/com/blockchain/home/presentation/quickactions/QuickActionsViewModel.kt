@@ -168,7 +168,8 @@ class QuickActionsViewModel(
             AssetAction.Sign,
             AssetAction.ViewStatement,
             AssetAction.StakingDeposit,
-            AssetAction.ActiveRewardsDeposit -> throw IllegalStateException("Action not supported")
+            AssetAction.ActiveRewardsDeposit,
+            AssetAction.ActiveRewardsWithdraw -> throw IllegalStateException("Action not supported")
         }
     }
 
@@ -335,6 +336,7 @@ fun StateAwareAction.toMoreActionItem(): MoreActionItem {
         AssetAction.InterestWithdraw,
         AssetAction.Sign,
         AssetAction.StakingDeposit,
+        AssetAction.ActiveRewardsWithdraw,
         AssetAction.ActiveRewardsDeposit -> throw IllegalStateException(
             "Action ${this.action} not supported for more menu"
         )

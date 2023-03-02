@@ -222,6 +222,8 @@ val Icons.Refresh: ImageResource.Local
     get() = ImageResource.Local(R.drawable.refresh_off)
 val Icons.Rewards: ImageResource.Local
     get() = ImageResource.Local(R.drawable.rewards_off)
+val Icons.Rocket: ImageResource.Local
+    get() = ImageResource.Local(R.drawable.rocket_off)
 val Icons.Satoshi: ImageResource.Local
     get() = ImageResource.Local(R.drawable.satoshi_off)
 val Icons.Search: ImageResource.Local

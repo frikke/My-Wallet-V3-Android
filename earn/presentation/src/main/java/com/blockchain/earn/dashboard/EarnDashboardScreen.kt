@@ -428,6 +428,8 @@ private fun DiscoverScreen(
                                 HorizontalDivider(
                                     modifier = Modifier.fillMaxWidth(), dividerColor = AppTheme.colors.backgroundMuted
                                 )
+                            } else {
+                                Spacer(modifier = Modifier.height(100.dp))
                             }
                         }
                     }
@@ -643,6 +645,8 @@ private fun EarningScreen(
                                 HorizontalDivider(
                                     modifier = Modifier.fillMaxWidth(), dividerColor = AppTheme.colors.backgroundMuted
                                 )
+                            } else {
+                                Spacer(modifier = Modifier.height(100.dp))
                             }
                         }
                     }

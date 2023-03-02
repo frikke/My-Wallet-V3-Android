@@ -17,7 +17,9 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.EarnRewardsAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.mvi_v2.MVIBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
@@ -32,6 +34,10 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
 import org.koin.core.scope.Scope
 
+const val WITHDRAWALS_DISABLED_LEARN_MORE_URL =
+    "https://support.blockchain.com/" +
+        "hc/en-us/articles/6868823856540-How-do-I-withdraw-crypto-from-my-Active-Rewards-Account-"
+
 class ActiveRewardsSummaryBottomSheet :
     MVIBottomSheet<ActiveRewardsSummaryViewState>(),
     KoinScopeComponent,
@@ -39,7 +45,7 @@ class ActiveRewardsSummaryBottomSheet :
 
     interface Host : MVIBottomSheet.Host {
         fun openExternalUrl(url: String)
-        fun launchActiveRewardsWithdrawal(account: EarnRewardsAccount.Active)
+        fun launchActiveRewardsWithdrawal(sourceAccount: BlockchainAccount, targetAccount: CustodialTradingAccount)
         fun launchActiveRewardsDeposit(account: EarnRewardsAccount.Active)
         fun showActiveRewardsLoadingError(error: ActiveRewardsError)
     }
@@ -77,16 +83,16 @@ class ActiveRewardsSummaryBottomSheet :
                         dismiss()
                         host.showActiveRewardsLoadingError(error)
                     },
-                    onWithdrawPressed = { account ->
+                    onWithdrawPressed = { sourceAccount, tradingAccount ->
                         dismiss()
-                        host.launchActiveRewardsWithdrawal(account)
+                        host.launchActiveRewardsWithdrawal(sourceAccount, tradingAccount)
                     },
                     onDepositPressed = { account ->
                         dismiss()
                         host.launchActiveRewardsDeposit(account)
                     },
                     withdrawDisabledLearnMore = {
-                        // TODO (labreu): add withdrawal disabled messaging
+                        host.openExternalUrl(WITHDRAWALS_DISABLED_LEARN_MORE_URL)
                     },
                 )
             }
@@ -114,7 +120,7 @@ fun ActiveRewardsSummaryScreen(
     viewModel: ActiveRewardsSummaryViewModel,
     onClosePressed: () -> Unit,
     onLoadError: (ActiveRewardsError) -> Unit,
-    onWithdrawPressed: (currency: EarnRewardsAccount.Active) -> Unit,
+    onWithdrawPressed: (sourceAccount: BlockchainAccount, targetAccount: CustodialTradingAccount) -> Unit,
     onDepositPressed: (currency: EarnRewardsAccount.Active) -> Unit,
     withdrawDisabledLearnMore: () -> Unit,
 ) {

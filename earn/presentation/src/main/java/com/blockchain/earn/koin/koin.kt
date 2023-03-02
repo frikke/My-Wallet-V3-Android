@@ -4,6 +4,7 @@ import com.blockchain.earn.activeRewards.viewmodel.ActiveRewardsSummaryViewModel
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardViewModel
 import com.blockchain.earn.staking.viewmodel.StakingSummaryViewModel
 import com.blockchain.koin.activeRewardsAccountFeatureFlag
+import com.blockchain.koin.activeRewardsWithdrawalsFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -23,6 +24,8 @@ val earnPresentationModule = module {
                 coincore = get(),
                 activeRewardsService = get(),
                 exchangeRatesDataManager = get(),
+                currencyPrefs = get(),
+                activeRewardsWithdrawalsFF = get(activeRewardsWithdrawalsFeatureFlag)
             )
         }
 

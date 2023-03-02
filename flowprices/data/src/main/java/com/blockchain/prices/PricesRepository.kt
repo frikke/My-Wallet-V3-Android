@@ -144,11 +144,22 @@ class PricesRepository(
             }
     }
 
+    override fun risingFastPercentThreshold(): Flow<Double> {
+        return remoteConfigService.getRawJson(KEY_PRICES_RISING_FAST_PERCENT)
+            .toFlowDataResource()
+            .map {
+                it.map { it.toDoubleOrNull() ?: PRICES_RISING_FAST_DEFAULT_PERCENT }
+                    .dataOrElse(PRICES_RISING_FAST_DEFAULT_PERCENT)
+            }
+    }
+
     companion object {
         private val defaultWatchlist = listOf(CryptoCurrency.BTC, CryptoCurrency.ETHER)
         private const val KEY_TOP_MOVERS_COUNT = "prices_top_movers_count"
+        private const val TOP_MOVERS_DEFAULT_COUNT = 4
         private const val KEY_MOST_POPULAR = "prices_most_popular"
         private const val MOST_POPULAR_SEPARATOR = ","
-        private const val TOP_MOVERS_DEFAULT_COUNT = 4
+        private const val KEY_PRICES_RISING_FAST_PERCENT = "prices_rising_fast_percent"
+        private const val PRICES_RISING_FAST_DEFAULT_PERCENT = 4.0
     }
 }

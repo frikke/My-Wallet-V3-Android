@@ -13,6 +13,8 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRates
 import com.blockchain.extensions.enumValueOfOrNull
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.activeRewardsWithdrawalsFeatureFlag
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import com.blockchain.presentation.koin.scopedInject
@@ -42,6 +44,8 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
         enumValueOfOrNull<AssetAction>(arguments?.getString(ACTION).orEmpty())
     }
 
+    private val activeRewardsWithdrawalsFF: FeatureFlag by inject(activeRewardsWithdrawalsFeatureFlag)
+
     private val listAdapter: ConfirmTransactionDelegateAdapter by lazy {
         ConfirmTransactionDelegateAdapter(
             model = model,
@@ -69,6 +73,7 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
                     }
                 }
             },
+            activeRewardsWithdrawalsEnabled = activeRewardsWithdrawalsFF.enabled.blockingGet()
         )
     }
 
