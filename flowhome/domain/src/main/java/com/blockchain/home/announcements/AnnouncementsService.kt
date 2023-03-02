@@ -3,8 +3,8 @@ package com.blockchain.home.announcements
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
-import kotlinx.coroutines.flow.Flow
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.flow.Flow
 
 interface AnnouncementsService {
     fun announcements(

@@ -14,13 +14,10 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.Unlock
 import com.blockchain.componentlib.swipeable.rememberSwipeableState
 import com.blockchain.componentlib.swipeable.swipeable
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Pink600
 import com.blockchain.home.announcements.Announcement
 import kotlinx.coroutines.launch
 
