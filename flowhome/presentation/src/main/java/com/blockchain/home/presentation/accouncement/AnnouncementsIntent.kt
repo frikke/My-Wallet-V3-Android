@@ -10,7 +10,7 @@ sealed interface AnnouncementsIntent : Intent<AnnouncementModelState> {
 
     data class DeleteAnnouncement(val announcement: Announcement) : AnnouncementsIntent {
         override fun isValidFor(modelState: AnnouncementModelState): Boolean {
-            return (modelState.stackedAnnouncements as? DataResource.Data)?.data?.find { it == announcement } != null
+            return (modelState.remoteAnnouncements as? DataResource.Data)?.data?.find { it == announcement } != null
         }
     }
 

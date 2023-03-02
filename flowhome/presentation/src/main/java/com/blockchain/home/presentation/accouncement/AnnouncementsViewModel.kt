@@ -53,7 +53,7 @@ class AnnouncementsViewModel(
 
     override fun reduce(state: AnnouncementModelState): AnnouncementsViewState = state.run {
         AnnouncementsViewState(
-            stackedAnnouncements = stackedAnnouncements.filter {
+            remoteAnnouncements = remoteAnnouncements.filter {
                 it.eligibleModes.contains(walletMode)
             },
             localAnnouncements = localAnnouncements
@@ -70,7 +70,7 @@ class AnnouncementsViewModel(
             is AnnouncementsIntent.DeleteAnnouncement -> {
                 updateState {
                     it.copy(
-                        stackedAnnouncements = it.stackedAnnouncements.map { it.minus { it == intent.announcement } }
+                        remoteAnnouncements = it.remoteAnnouncements.map { it.minus { it == intent.announcement } }
                     )
                 }
             }
@@ -91,7 +91,7 @@ class AnnouncementsViewModel(
                 )
             ).collectLatest { dataResource ->
                 updateState {
-                    it.copy(stackedAnnouncements = it.stackedAnnouncements.updateDataWith(dataResource))
+                    it.copy(remoteAnnouncements = it.remoteAnnouncements.updateDataWith(dataResource))
                 }
             }
         }

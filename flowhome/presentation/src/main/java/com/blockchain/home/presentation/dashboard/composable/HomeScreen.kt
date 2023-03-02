@@ -276,7 +276,7 @@ fun HomeScreen(
         }
 
         item {
-            (announcementsState.stackedAnnouncements as? DataResource.Data)?.data?.let { announcements ->
+            (announcementsState.remoteAnnouncements as? DataResource.Data)?.data?.let { announcements ->
                 StackedAnnouncements(
                     announcements = announcements,
                     onSwiped = { target ->

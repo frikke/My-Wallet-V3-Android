@@ -5,6 +5,6 @@ import com.blockchain.data.DataResource
 import com.blockchain.home.announcements.Announcement
 
 data class AnnouncementsViewState(
-    val stackedAnnouncements: DataResource<List<Announcement>>,
+    val remoteAnnouncements: DataResource<List<Announcement>>,
     val localAnnouncements: List<LocalAnnouncement>
 ) : ViewState
