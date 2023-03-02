@@ -46,6 +46,7 @@ class PricesViewModel(
     private var pricesJob: Job? = null
     private var topMoversCountJob: Job? = null
     private var mostPopularJob: Job? = null
+    private var risingFastJob: Job? = null
     private var filtersJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
@@ -96,7 +97,7 @@ class PricesViewModel(
                     )
                 }
                 .mapList {
-                    it.toPriceItemViewState()
+                    it.toPriceItemViewState(risingFastPercent = state.risingFastPercent)
                 }
                 .map {
                     it.groupBy {
@@ -114,7 +115,7 @@ class PricesViewModel(
                         )
                         .take(state.topMoversCount)
                         .map {
-                            it.toPriceItemViewState()
+                            it.toPriceItemViewState(risingFastPercent = state.risingFastPercent)
                         }
                 }
             } else {
@@ -123,7 +124,9 @@ class PricesViewModel(
         )
     }
 
-    private fun AssetPriceInfo.toPriceItemViewState(): PriceItemViewState {
+    private fun AssetPriceInfo.toPriceItemViewState(
+        risingFastPercent: Double
+    ): PriceItemViewState {
         return PriceItemViewState(
             asset = assetInfo,
             name = assetInfo.name,
@@ -133,7 +136,8 @@ class PricesViewModel(
             delta = price.map { ValueChange.fromValue(it.delta24h) },
             currentPrice = price.map {
                 it.currentRate.price.format(currencyPrefs.selectedFiatCurrency)
-            }
+            },
+            showRisingFastTag = price.map { it.delta24h >= risingFastPercent }.dataOrElse(false)
         )
     }
 
@@ -155,6 +159,7 @@ class PricesViewModel(
                 loadData(intent.strategy)
                 loadTopMoversCount()
                 loadMostPopularTickers()
+                loadRisingFastPercentThreshold()
             }
 
             is PricesIntents.FilterSearch -> {
@@ -246,6 +251,20 @@ class PricesViewModel(
                     updateState {
                         it.copy(
                             mostPopularTickers = mostPopularTickers
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun loadRisingFastPercentThreshold() {
+        risingFastJob?.cancel()
+        risingFastJob = viewModelScope.launch {
+            pricesService.risingFastPercentThreshold()
+                .collectLatest { risingFastPercent ->
+                    updateState {
+                        it.copy(
+                            risingFastPercent = risingFastPercent
                         )
                     }
                 }

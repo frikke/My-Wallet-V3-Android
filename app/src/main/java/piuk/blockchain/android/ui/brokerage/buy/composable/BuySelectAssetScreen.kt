@@ -280,6 +280,7 @@ private fun AssetsData(
                             networkTag = cryptoAsset.network,
                             value = cryptoAsset.currentPrice,
                             valueChange = cryptoAsset.delta,
+                            showRisingFastTag = cryptoAsset.showRisingFastTag,
                             imageResource = ImageResource.Remote(cryptoAsset.logo),
                             onClick = { onAssetClick(cryptoAsset.asset) }
                         )
@@ -312,6 +313,7 @@ private fun AssetsData(
                             networkTag = cryptoAsset.network,
                             value = cryptoAsset.currentPrice,
                             valueChange = cryptoAsset.delta,
+                            showRisingFastTag = cryptoAsset.showRisingFastTag,
                             imageResource = ImageResource.Remote(cryptoAsset.logo),
                             onClick = { onAssetClick(cryptoAsset.asset) }
                         )

@@ -34,6 +34,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.icons.ChevronRight
 import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Rocket
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tag.DefaultTag
 import com.blockchain.componentlib.theme.AppSurface
@@ -52,6 +53,7 @@ fun BalanceChangeTableRow(
     networkTag: String? = null,
     value: DataResource<String>,
     valueChange: DataResource<ValueChange>? = null,
+    showRisingFastTag: Boolean = false,
     imageResource: ImageResource = ImageResource.None,
     defaultIconSize: Dp = AppTheme.dimensions.standardSpacing,
     withChevron: Boolean = false,
@@ -63,6 +65,7 @@ fun BalanceChangeTableRow(
         networkTag = networkTag,
         value = value,
         valueChange = valueChange,
+        showRisingFastTag = showRisingFastTag,
         icon = if (imageResource is ImageResource.None) {
             StackedIcon.None
         } else {
@@ -81,6 +84,7 @@ fun BalanceChangeTableRow(
     networkTag: String? = null,
     value: DataResource<String>,
     valueChange: DataResource<ValueChange>? = null,
+    showRisingFastTag: Boolean = false,
     icon: StackedIcon = StackedIcon.None,
     defaultIconSize: Dp = AppTheme.dimensions.standardSpacing,
     withChevron: Boolean = false,
@@ -93,6 +97,7 @@ fun BalanceChangeTableRow(
             networkTag = networkTag,
             value = value,
             valueChange = valueChange,
+            showRisingFastTag = showRisingFastTag,
             contentStart = {
                 CustomStackedIcon(
                     icon = icon,
@@ -108,6 +113,7 @@ fun BalanceChangeTableRow(
             networkTag = networkTag,
             value = value,
             valueChange = valueChange,
+            showRisingFastTag = showRisingFastTag,
             contentStart = {
                 CustomStackedIcon(
                     icon = icon,
@@ -126,6 +132,7 @@ private fun BalanceChangeTableRow(
     networkTag: String? = null,
     value: DataResource<String>,
     valueChange: DataResource<ValueChange>? = null,
+    showRisingFastTag: Boolean = false,
     contentStart: @Composable (RowScope.() -> Unit)? = null,
     onClick: () -> Unit
 ) {
@@ -139,12 +146,25 @@ private fun BalanceChangeTableRow(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
-                    Text(
-                        text = name,
-                        style = AppTheme.typography.paragraph2,
-                        color = AppTheme.colors.title
-                    )
+                Column(
+                    modifier = Modifier.weight(weight = 1F, fill = true),
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = name,
+                            style = AppTheme.typography.paragraph2,
+                            color = AppTheme.colors.title
+                        )
+
+                        if (showRisingFastTag) {
+                            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+                            Image(
+                                imageResource = Icons.Filled.Rocket
+                                    .withSize(14.dp)
+                                    .withTint(AppTheme.colors.success)
+                            )
+                        }
+                    }
 
                     subtitle?.let {
                         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
@@ -160,14 +180,13 @@ private fun BalanceChangeTableRow(
 
                             networkTag?.let {
                                 Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-                                // todo(othman) tags superapp styling
                                 DefaultTag(text = networkTag)
                             }
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.weight(1F))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
                 Column(
                     verticalArrangement = Arrangement.Center,
@@ -236,6 +255,7 @@ private fun BalanceChangeTableRowWithChevron(
     networkTag: String? = null,
     value: DataResource<String>,
     valueChange: DataResource<ValueChange>? = null,
+    showRisingFastTag: Boolean = false,
     contentStart: @Composable (RowScope.() -> Unit)? = null,
     onClick: () -> Unit
 ) {
@@ -248,11 +268,22 @@ private fun BalanceChangeTableRowWithChevron(
                 modifier = Modifier.weight(1f)
             ) {
                 // name
-                Text(
-                    text = name,
-                    style = AppTheme.typography.body2,
-                    color = AppTheme.colors.title
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = name,
+                        style = AppTheme.typography.body2,
+                        color = AppTheme.colors.title
+                    )
+
+                    if (showRisingFastTag) {
+                        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+                        Image(
+                            imageResource = Icons.Filled.Rocket
+                                .withSize(14.dp)
+                                .withTint(AppTheme.colors.success)
+                        )
+                    }
+                }
 
                 // sub and network tag row
                 subtitle?.let {
@@ -412,6 +443,7 @@ fun PreviewBalanceChangeTableRow() {
                 subtitle = "BTC",
                 networkTag = "Bitcoin",
                 value = DataResource.Data("$1,000.00"),
+                showRisingFastTag = true,
                 imageResource = ImageResource.Local(R.drawable.ic_blockchain),
                 valueChange = DataResource.Data(ValueChange.Up(1.88)),
                 onClick = {}
@@ -430,6 +462,7 @@ fun PreviewBalanceChangeTableRow_Chevron() {
                 value = DataResource.Data("$1,000.00"),
                 imageResource = ImageResource.Local(R.drawable.ic_blockchain),
                 valueChange = DataResource.Data(ValueChange.Up(1.88)),
+                showRisingFastTag = true,
                 withChevron = true,
                 onClick = {}
             )
