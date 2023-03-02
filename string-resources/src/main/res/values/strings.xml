@@ -3468,6 +3468,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_on_hold_explainer">Funds that will be added to the subscribed amount once the current strategy finishes</string>
     <string name="earn_annual_rate_explainer">Rate perceived by the user if market price is at or lower than the trigger price at the expiration date.</string>
     <string name="earn_trigger_price_explainer">A price level that results in a debit to your crypto balance if exceeded on the expiration date</string>
+    <string name="earn_active_rewards_withdrawal_pending_title">Withdrawal requested</string>
+    <string name="earn_active_rewards_withdrawal_pending_subtitle">Your withdrawal will be executed once this week\'s strategy is complete.</string>
 
     <!-- Prove.com -->
     <string name="prove_phone_number">Phone number</string>

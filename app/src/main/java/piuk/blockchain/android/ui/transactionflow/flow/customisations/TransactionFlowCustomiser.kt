@@ -639,6 +639,8 @@ class TransactionFlowCustomiserImpl(
             AssetAction.InterestWithdraw,
             -> resources.getString(R.string.withdraw_confirmation_success_title, amount)
             AssetAction.Sign -> resources.getString(R.string.signed)
+            AssetAction.ActiveRewardsWithdraw ->
+                resources.getString(R.string.earn_active_rewards_withdrawal_pending_title)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
     }
@@ -670,6 +672,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.FiatWithdraw,
             AssetAction.Sign,
             AssetAction.InterestWithdraw -> R.drawable.ic_check_circle
+            AssetAction.ActiveRewardsWithdraw -> R.drawable.ic_pending_clock
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
     }
@@ -754,6 +757,8 @@ class TransactionFlowCustomiserImpl(
                 state.sendingAsset.displayTicker,
                 state.selectedTarget.label
             )
+            AssetAction.ActiveRewardsWithdraw ->
+                resources.getString(R.string.earn_active_rewards_withdrawal_pending_subtitle)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
     }
