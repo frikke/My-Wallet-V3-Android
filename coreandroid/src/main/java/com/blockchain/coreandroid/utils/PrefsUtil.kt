@@ -22,6 +22,7 @@ import com.blockchain.preferences.BrowserIdentityMapping
 import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.preferences.DexPrefs
 import com.blockchain.preferences.ExchangeCampaignPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
@@ -68,6 +69,7 @@ class PrefsUtil(
     WalletModePrefs,
     PricesPrefs,
     SmallBalancesPrefs,
+    DexPrefs,
     SimpleBuyPrefs,
     WalletStatusPrefs,
     TransactionPrefs,
@@ -926,6 +928,7 @@ class PrefsUtil(
         private const val WALLET_MODE_KEY = "WALLET_MODE_UPDATED_KEY"
         private const val USER_DEFAULTED_TO_PKW = "USER_DEFAULTED_TO_PKW"
         private const val SHOULD_SHOW_SMALL_BALANCES = "should_show_small_balances"
+        private const val DEX_INTRO_SHOWN = "dex_intro_shown"
     }
 
     override val legacyWalletMode: String
@@ -947,6 +950,13 @@ class PrefsUtil(
         set(value) {
             setValue(SHOULD_SHOW_SMALL_BALANCES, value)
         }
+
+    override val dexIntroShown: Boolean
+        get() = getValue(DEX_INTRO_SHOWN, false)
+
+    override fun markDexIntroAsSeen() {
+        setValue(DEX_INTRO_SHOWN, true)
+    }
 }
 
 fun BrowserIdentity.pubKeyHash() = Sha256Hash.of(Hex.decode(this.pubkey)).toString()

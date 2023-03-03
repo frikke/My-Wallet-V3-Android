@@ -17,9 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.blockchain.chrome.ChromeBottomNavigationItem
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
@@ -32,7 +29,7 @@ import kotlinx.collections.immutable.toImmutableList
 fun MultiAppBottomNavigation(
     modifier: Modifier = Modifier,
     navigationItems: ImmutableList<ChromeBottomNavigationItem>,
-    navControllerProvider: () -> NavController,
+    selectedNavigationItem: ChromeBottomNavigationItem,
     onSelected: (ChromeBottomNavigationItem) -> Unit
 ) {
     Card(
@@ -42,9 +39,6 @@ fun MultiAppBottomNavigation(
         shape = RoundedCornerShape(100.dp)
     ) {
         Row(modifier = Modifier.padding(horizontal = AppTheme.dimensions.mediumSpacing)) {
-            val navBackStackEntry by navControllerProvider().currentBackStackEntryAsState()
-            val currentRoute = navBackStackEntry?.destination?.route
-
             navigationItems.forEach { item ->
                 Surface(
                     shape = AppTheme.shapes.large
@@ -62,7 +56,7 @@ fun MultiAppBottomNavigation(
                     ) {
                         Image(
                             imageResource = ImageResource.Local(
-                                if (item.route == currentRoute) {
+                                if (item == selectedNavigationItem) {
                                     item.iconSelected
                                 } else {
                                     item.iconDefault
@@ -87,14 +81,13 @@ fun MultiAppBottomNavigation(
 @Preview
 @Composable
 fun PreviewMultiAppBottomNavigation() {
-    val navController = rememberNavController()
     MultiAppBottomNavigation(
         navigationItems = listOf(
             ChromeBottomNavigationItem.Home,
             ChromeBottomNavigationItem.Prices,
             ChromeBottomNavigationItem.Nft
         ).toImmutableList(),
-        navControllerProvider = { navController },
+        selectedNavigationItem = ChromeBottomNavigationItem.Home,
         onSelected = {}
     )
 }

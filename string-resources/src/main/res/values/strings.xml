@@ -3456,14 +3456,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_onboarding_active_title">Active Rewards</string>
     <string name="earn_onboarding_active_subtitle">Participate on weekly strategies and earn rewards based on crypto performance.</string>
     <string name="earn_onboarding_cta">Start earning</string>
-    <string name="earn_net_earnings">Net earnings</string>
-    <string name="earn_total_subscribed">Total subscribed</string>
-    <string name="earn_on_hold">On hold</string>
-    <string name="earn_annual_rate">Estimated annual rate</string>
-    <string name="earn_trigger_price">Trigger price</string>
-    <string name="earn_active_rewards_withdrawal_blocked">Withdrawals for Active Rewards are not yet enabled. Weekly withdrawal functionality is being finalized and will be enabled in approximately March 2023. Until then, BTC assets in Active Rewards Accounts will be re-subscribed to each week\'s strategy. \n\nBlockchain.com does not assume liability for any losses incurred from price fluctuations. Please trade with caution.</string>
-    <string name="earn_active_rewards_withdrawal_blocked_warning_title">Active Rewards considerations</string>
-    <string name="earn_active_rewards_withdrawal_blocked_warning_subtitle">Price movements may result in a reduction of your asset’s balance. \n\nOnce subscribed, assets are locked until the following week and subject to market volatility. \n\nBlockchain.com does not assume liability for any losses incurred from price fluctuations. Please trade with caution.</string>
     <string name="earn_net_earning_explainer">Sum of all rewards and debits of previous strategies</string>
     <string name="earn_on_hold_explainer">Funds that will be added to the subscribed amount once the current strategy finishes</string>
     <string name="earn_annual_rate_explainer">Rate perceived by the user if market price is at or lower than the trigger price at the expiration date.</string>
@@ -3533,5 +3525,20 @@ If you want to know more about our verification process visit our <annotation li
     <string name="prices_top_movers">Top Movers</string>
     <string name="other_tokens">Other tokens</string>
     <string name="processing_fee">Processing fee</string>
+    <string name="earn_net_earnings">Net earnings</string>
+    <string name="earn_total_subscribed">Total subscribed</string>
+    <string name="earn_on_hold">On hold</string>
+    <string name="earn_annual_rate">Estimated annual rate</string>
+    <string name="earn_trigger_price">Trigger price</string>
+    <string name="earn_active_rewards_withdrawal_blocked">Withdrawals for Active Rewards are not yet enabled. Weekly withdrawal functionality is being finalized and will be enabled in approximately March 2023. Until then, BTC assets in Active Rewards Accounts will be re-subscribed to each week\'s strategy. Blockchain.com does not assume liability for any losses incurred from price fluctuations. Please trade with caution.</string>
+    <string name="earn_active_rewards_withdrawal_blocked_warning_title">Active Rewards considerations</string>
+    <string name="earn_active_rewards_withdrawal_blocked_warning_subtitle">Price movements may result in a reduction of your asset’s balance. \n\nOnce subscribed, assets are locked until the following week and subject to market volatility. \n\nBlockchain.com does not assume liability for any losses incurred from price fluctuations. Please trade with caution.</string>
+    <string name="start_trading">Start trading</string>
+    <string name="welcome_to_dex">Welcome to the DEX</string>
+    <string name="welcome_to_dex_subtitle">A decentralized exchange (DEX) is a peer-to-peer marketplace that lets you swap cryptocurrencies.</string>
+    <string name="swap_1000_tokens">Swap 1000+ tokens</string>
+    <string name="swap_1000_tokens_subtitle">Swap ETH, UNI, USDT, DAI, and more.</string>
+    <string name="keep_control_of_funds">Keep control of your funds</string>
+    <string name="keep_control_of_funds_subtitle">When you trade on a DEX, you keep access to your private keys––it\'s \"your keys, your crypto.\" Blockchain.com doesn’t hold these funds.</string>
 
 </resources>

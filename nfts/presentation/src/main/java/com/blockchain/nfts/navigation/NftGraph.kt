@@ -11,10 +11,11 @@ import com.google.accompanist.navigation.material.ExperimentalMaterialNavigation
 
 @OptIn(ExperimentalMaterialNavigationApi::class)
 fun NavGraphBuilder.nftGraph(
-    openExternalUrl: (url: String) -> Unit
+    openExternalUrl: (url: String) -> Unit,
+    onBackPressed: () -> Unit
 ) {
     bottomSheet(navigationEvent = NftDestination.Help) {
-        ChromeBottomSheet {
+        ChromeBottomSheet(onBackPressed) {
             NftHelpScreen(
                 onBuyClick = {
                     openExternalUrl(OPENSEA_URL)
@@ -28,7 +29,7 @@ fun NavGraphBuilder.nftGraph(
         val address = backStackEntry.arguments?.getComposeArgument(ARG_ADDRESS).orEmpty()
         val pageKey = backStackEntry.arguments?.getComposeArgument(ARG_PAGE_KEY)
 
-        ChromeBottomSheet {
+        ChromeBottomSheet(onBackPressed) {
             NftDetail(
                 nftId = nftId,
                 address = address,

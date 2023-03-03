@@ -1,5 +1,6 @@
 package com.blockchain.chrome.composable
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -165,7 +166,9 @@ fun ChromeSingleScreen(
 
 @Composable
 fun ChromeBottomSheet(
+    onClose: () -> Unit,
     content: @Composable () -> Unit
 ) {
+    BackHandler(onBack = onClose)
     ChromeSingleScreen(isBottomSheet = true, content = content)
 }
