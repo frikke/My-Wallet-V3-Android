@@ -19,7 +19,7 @@ import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 import java.time.ZonedDateTime
-import piuk.blockchain.android.data.getRealPrice
+import piuk.blockchain.android.data.calcSourceToOutputRateFromInputAmountAndResultAmount
 
 class BrokerageDataManager(
     private val brokerageService: BrokerageService,
@@ -93,7 +93,7 @@ private fun BrokerageQuoteResponse.toDomainModel(pair: CurrencyPair, inputAmount
         id = quoteId,
         currencyPair = pair,
         inputAmount = inputAmount,
-        price = getRealPrice(
+        sourceToDestinationRate = calcSourceToOutputRateFromInputAmountAndResultAmount(
             pair,
             inputAmount,
             price.toBigInteger(),

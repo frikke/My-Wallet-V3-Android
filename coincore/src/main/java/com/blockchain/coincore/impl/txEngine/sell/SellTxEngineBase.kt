@@ -149,12 +149,7 @@ abstract class SellTxEngineBase(
         quotesEngine.getQuote()
             .firstOrError()
             .map { pricedQuote ->
-                val latestQuoteExchangeRate = ExchangeRate(
-                    from = sourceAsset,
-                    to = target.currency,
-                    rate = pricedQuote.transferQuote.price.toBigDecimal()
-                )
-                buildConfirmation(pendingTx, latestQuoteExchangeRate, pricedQuote)
+                buildConfirmation(pendingTx, pricedQuote.transferQuote.sourceToDestinationRate, pricedQuote)
             }
 
     private fun addOrRefreshConfirmations(
@@ -169,7 +164,7 @@ abstract class SellTxEngineBase(
             )
         ).addOrReplaceOption(
             TxConfirmationValue.ExchangePriceConfirmation(
-                money = pricedQuote.transferQuote.price,
+                money = pricedQuote.transferQuote.rawPrice,
                 asset = sourceAsset,
                 isNewQuote = isNewQuote,
             )
@@ -194,11 +189,6 @@ abstract class SellTxEngineBase(
 
     override fun doRefreshConfirmations(pendingTx: PendingTx): Single<PendingTx> {
         val quote = quotesEngine.getLatestQuote()
-        val latestQuoteExchangeRate = ExchangeRate(
-            from = sourceAsset,
-            to = target.currency,
-            rate = quote.transferQuote.price.toBigDecimal()
-        )
         val isNewQuote = pendingTx.quoteId != quote.transferQuote.id
         val ptx = if (isNewQuote) {
             pendingTx.copy(
@@ -210,7 +200,9 @@ abstract class SellTxEngineBase(
             pendingTx.copy()
         }
 
-        return Single.just(addOrRefreshConfirmations(ptx, quote, latestQuoteExchangeRate, isNewQuote))
+        return Single.just(
+            addOrRefreshConfirmations(ptx, quote, quote.transferQuote.sourceToDestinationRate, isNewQuote)
+        )
     }
 
     protected fun createSellOrder(pendingTx: PendingTx): Single<CustodialOrder> =

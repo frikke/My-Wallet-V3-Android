@@ -204,11 +204,13 @@ class SimpleBuyInteractor(
             INTERVAL_QUOTE_PRICE,
             TimeUnit.MILLISECONDS
         ).flatMapSingle {
-            tradeDataService.getBuyQuotePrice(
-                currencyPair = currencyPair,
-                amount = amount,
-                paymentMethod = paymentMethod,
-            )
+            rxSingleOutcome {
+                tradeDataService.getBuyQuotePrice(
+                    currencyPair = currencyPair,
+                    amount = amount,
+                    paymentMethod = paymentMethod,
+                )
+            }
         }.takeUntil(stopPollingQuotePrices)
     }
 

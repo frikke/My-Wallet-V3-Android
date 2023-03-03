@@ -130,7 +130,7 @@ class SimpleBuyModel(
                             SimpleBuyIntent.UpdateQuotePrice(
                                 amountInCrypto = it.resultAmount as CryptoValue,
                                 dynamicFee = it.dynamicFee,
-                                fiatPrice = it.price.toFiat(it.currencyPair.source)
+                                fiatPrice = it.sourceToDestinationRate.price.toFiat(it.currencyPair.source)
                             )
                         )
                     },

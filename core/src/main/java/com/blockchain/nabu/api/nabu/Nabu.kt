@@ -230,13 +230,13 @@ internal interface Nabu {
         @Body depositRequestBody: DepositRequestBody
     ): Completable
 
-    @POST("$NABU_UPDATE_ORDER/{id}")
+    @POST("custodial/trades/{id}")
     fun updateOrder(
         @Path("id") id: String,
         @Body body: UpdateSwapOrderBody
     ): Completable
 
-    @GET(NABU_SWAP_ORDER)
+    @GET("custodial/trades")
     fun getSwapOrders(): Single<List<CustodialOrderResponse>>
 
     @GET(NABU_SWAP_PAIRS)
@@ -293,7 +293,7 @@ internal interface Nabu {
         @Body quoteRequest: QuoteRequest
     ): Single<QuoteResponse>
 
-    @POST(NABU_SWAP_ORDER)
+    @POST("custodial/trades")
     fun createCustodialOrder(
         @Body order: CreateOrderRequest,
         @Query("localisedError") localisedError: String?

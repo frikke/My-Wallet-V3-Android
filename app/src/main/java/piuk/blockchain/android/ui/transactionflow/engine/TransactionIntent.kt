@@ -334,7 +334,7 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
     }
 
     class ConfirmationRateUpdated(
-        private val confirmationRate: ExchangeRate
+        private val confirmationRate: ExchangeRate?
     ) : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState =
             oldState.copy(

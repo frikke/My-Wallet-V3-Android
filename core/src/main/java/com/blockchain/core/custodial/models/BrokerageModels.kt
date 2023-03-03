@@ -6,13 +6,14 @@ import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.utils.CurrentTimeProvider
 import info.blockchain.balance.CurrencyPair
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 
 data class BrokerageQuote(
     val id: String,
     val currencyPair: CurrencyPair,
     val inputAmount: Money,
-    val price: Money,
+    val sourceToDestinationRate: ExchangeRate,
     val rawPrice: Money,
     val resultAmount: Money,
     val quoteMargin: Double?,

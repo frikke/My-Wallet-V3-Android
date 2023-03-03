@@ -885,7 +885,10 @@ class TransactionModel(
         interactor.startConfirmationRateFetch()
             .subscribeBy(
                 onNext = { process(TransactionIntent.ConfirmationRateUpdated(it)) },
-                onComplete = { Timber.d("Confirmation exchange Rate completed") },
+                // We cleanup the confirmation rate so if the confirmation screen is shown a second time it isn't
+                // rendered with the previous rate, this is also a requirement when the user changes source or target
+                // currencies, the previous rate would have the previous selected source and destination currencies
+                onComplete = { process(TransactionIntent.ConfirmationRateUpdated(null)) },
                 onError = { process(TransactionIntent.FatalTransactionError(it)) }
             )
 

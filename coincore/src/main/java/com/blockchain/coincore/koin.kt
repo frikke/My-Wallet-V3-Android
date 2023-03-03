@@ -173,7 +173,7 @@ val coincoreModule = module {
                 ethMessageSigner = get(),
                 limitsDataManager = get(),
                 walletPrefs = get(),
-                quotesEngine = get(),
+                quotesEngineFactory = get(),
                 analytics = get(),
                 fees = get(),
                 ethDataManager = get(),
@@ -218,7 +218,7 @@ val coincoreModule = module {
         }.bind(Erc20DataManager::class)
 
         factory {
-            TransferQuotesEngine(
+            TransferQuotesEngine.Factory(
                 quotesProvider = get(),
                 custodialWalletManager = get(),
                 brokerageDataManager = get(),

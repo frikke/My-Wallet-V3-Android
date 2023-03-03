@@ -14,6 +14,7 @@ import com.blockchain.nabu.datamanagers.repositories.QuotesProvider
 import com.blockchain.outcome.Outcome
 import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.utils.awaitOutcome
+import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.utils.toObservable
 import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.ExchangeRate
@@ -28,7 +29,7 @@ import kotlin.math.min
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 
-class TransferQuotesEngine(
+class TransferQuotesEngine private constructor(
     private val quotesProvider: QuotesProvider,
     private val custodialWalletManager: CustodialWalletManager,
     private val brokerageDataManager: BrokerageDataManager,
@@ -54,19 +55,11 @@ class TransferQuotesEngine(
     private var quoteObservable: Observable<PricedQuote>? = null
 
     fun getPriceExchangeRate(): Observable<ExchangeRate> = getPriceQuote().map {
-        ExchangeRate(
-            from = pair.source,
-            to = pair.destination,
-            rate = it.price.toBigDecimal()
-        )
+        it.sourceToDestinationRate
     }
 
     private val quoteExchangeRate = latestQuote.map {
-        ExchangeRate(
-            from = pair.source,
-            to = pair.destination,
-            rate = it.transferQuote.price.toBigDecimal()
-        )
+        it.transferQuote.sourceToDestinationRate
     }.replay().refCount()
     fun getQuoteExchangeRate(): Observable<ExchangeRate> = quoteExchangeRate
 
@@ -76,8 +69,12 @@ class TransferQuotesEngine(
                 val getPrice = sellSwapBrokerageQuoteFF.enabled.flatMap { enabled ->
                     if (enabled) {
                         when (product) {
-                            Product.SELL -> tradeDataService.getSellQuotePrice(pair, amount, direction)
-                            Product.TRADE -> tradeDataService.getSwapQuotePrice(pair, amount, direction)
+                            Product.SELL -> rxSingleOutcome {
+                                tradeDataService.getSellQuotePrice(pair, amount, direction)
+                            }
+                            Product.TRADE -> rxSingleOutcome {
+                                tradeDataService.getSwapQuotePrice(pair, amount, direction)
+                            }
                             else -> throw UnsupportedOperationException()
                         }
                     } else {
@@ -88,10 +85,8 @@ class TransferQuotesEngine(
                     0L,
                     PRICE_QUOTE_REFRESH,
                     TimeUnit.MILLISECONDS
-                ).flatMapMaybe {
-                    // ignore errors so we dont kill the stream since we only observe it once,
-                    // we will still fail the on getQuote(), so the view can react to that failure instead
-                    getPrice.onErrorComplete()
+                ).flatMapSingle {
+                    getPrice
                 }
             }.doFinally {
                 priceObservable = null
@@ -206,6 +201,22 @@ class TransferQuotesEngine(
         const val PRICE_QUOTE_REFRESH: Long = 10_000L
         const val MIN_QUOTE_REFRESH: Long = 90000L
         private const val TIMER_DELAY: Long = 1
+    }
+
+    class Factory(
+        private val quotesProvider: QuotesProvider,
+        private val custodialWalletManager: CustodialWalletManager,
+        private val brokerageDataManager: BrokerageDataManager,
+        private val tradeDataService: TradeDataService,
+        private val sellSwapBrokerageQuoteFF: FeatureFlag,
+    ) {
+        fun create(): TransferQuotesEngine = TransferQuotesEngine(
+            quotesProvider,
+            custodialWalletManager,
+            brokerageDataManager,
+            tradeDataService,
+            sellSwapBrokerageQuoteFF,
+        )
     }
 }
 

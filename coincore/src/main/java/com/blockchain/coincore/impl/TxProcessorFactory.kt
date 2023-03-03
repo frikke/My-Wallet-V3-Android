@@ -73,7 +73,7 @@ class TxProcessorFactory(
     private val ethMessageSigner: EthMessageSigner,
     private val ethDataManager: EthDataManager,
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
-    private val quotesEngine: TransferQuotesEngine,
+    private val quotesEngineFactory: TransferQuotesEngine.Factory,
     private val fees: FeeDataManager,
     private val analytics: Analytics,
     private val withdrawLocksRepository: WithdrawLocksRepository,
@@ -327,7 +327,7 @@ class TxProcessorFactory(
                             sourceAccount = source,
                             txTarget = target,
                             engine = OnChainSwapTxEngine(
-                                quotesEngine = quotesEngine,
+                                quotesEngine = quotesEngineFactory.create(),
                                 walletManager = walletManager,
                                 limitsDataManager = limitsDataManager,
                                 userIdentity = userIdentity,
@@ -344,7 +344,7 @@ class TxProcessorFactory(
                     txTarget = target,
                     engine = OnChainSellTxEngine(
                         tradingStore = tradingStore,
-                        quotesEngine = quotesEngine,
+                        quotesEngine = quotesEngineFactory.create(),
                         walletManager = walletManager,
                         limitsDataManager = limitsDataManager,
                         userIdentity = userIdentity,
@@ -426,7 +426,7 @@ class TxProcessorFactory(
                         tradingStore = tradingStore,
                         walletManager = walletManager,
                         limitsDataManager = limitsDataManager,
-                        quotesEngine = quotesEngine,
+                        quotesEngine = quotesEngineFactory.create(),
                         userIdentity = userIdentity
                     )
                 )
@@ -441,7 +441,7 @@ class TxProcessorFactory(
                         tradingStore = tradingStore,
                         walletManager = walletManager,
                         limitsDataManager = limitsDataManager,
-                        quotesEngine = quotesEngine,
+                        quotesEngine = quotesEngineFactory.create(),
                         userIdentity = userIdentity,
                         swapTransactionsStore = swapTransactionsStore
                     )

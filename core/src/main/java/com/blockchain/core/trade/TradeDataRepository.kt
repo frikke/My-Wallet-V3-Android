@@ -11,6 +11,8 @@ import com.blockchain.domain.trade.model.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.domain.trade.model.QuotePrice
 import com.blockchain.domain.trade.model.RecurringBuy
 import com.blockchain.domain.transactions.TransferDirection
+import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.map
 import com.blockchain.store.mapData
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -62,11 +64,11 @@ class TradeDataRepository(
                 getRecurringBuysStore.markAsStale(GetRecurringBuysStore.Key(recurringBuy.asset.networkTicker))
             }
 
-    override fun getBuyQuotePrice(
+    override suspend fun getBuyQuotePrice(
         currencyPair: CurrencyPair,
         amount: Money,
         paymentMethod: PaymentMethodType,
-    ): Single<QuotePrice> =
+    ): Outcome<Exception, QuotePrice> =
         tradeService.getQuotePrice(
             currencyPair = currencyPair.rawValue,
             amount = amount.toBigInteger().toString(),
@@ -76,11 +78,11 @@ class TradeDataRepository(
             response.toDomain(assetCatalogue)
         }
 
-    override fun getSellQuotePrice(
+    override suspend fun getSellQuotePrice(
         currencyPair: CurrencyPair,
         amount: Money,
         direction: TransferDirection,
-    ): Single<QuotePrice> =
+    ): Outcome<Exception, QuotePrice> =
         tradeService.getQuotePrice(
             currencyPair = currencyPair.rawValue,
             amount = amount.toBigInteger().toString(),
@@ -90,11 +92,11 @@ class TradeDataRepository(
             response.toDomain(assetCatalogue)
         }
 
-    override fun getSwapQuotePrice(
+    override suspend fun getSwapQuotePrice(
         currencyPair: CurrencyPair,
         amount: Money,
         direction: TransferDirection,
-    ): Single<QuotePrice> =
+    ): Outcome<Exception, QuotePrice> =
         tradeService.getQuotePrice(
             currencyPair = currencyPair.rawValue,
             amount = amount.toBigInteger().toString(),

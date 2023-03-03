@@ -8,6 +8,7 @@ import com.blockchain.domain.trade.model.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.domain.trade.model.QuotePrice
 import com.blockchain.domain.trade.model.RecurringBuy
 import com.blockchain.domain.transactions.TransferDirection
+import com.blockchain.outcome.Outcome
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.Money
@@ -33,21 +34,21 @@ interface TradeDataService {
 
     fun cancelRecurringBuy(recurringBuy: RecurringBuy): Completable
 
-    fun getBuyQuotePrice(
+    suspend fun getBuyQuotePrice(
         currencyPair: CurrencyPair,
         amount: Money,
         paymentMethod: PaymentMethodType,
-    ): Single<QuotePrice>
+    ): Outcome<Exception, QuotePrice>
 
-    fun getSellQuotePrice(
+    suspend fun getSellQuotePrice(
         currencyPair: CurrencyPair,
         amount: Money,
         direction: TransferDirection,
-    ): Single<QuotePrice>
+    ): Outcome<Exception, QuotePrice>
 
-    fun getSwapQuotePrice(
+    suspend fun getSwapQuotePrice(
         currencyPair: CurrencyPair,
         amount: Money,
         direction: TransferDirection,
-    ): Single<QuotePrice>
+    ): Outcome<Exception, QuotePrice>
 }

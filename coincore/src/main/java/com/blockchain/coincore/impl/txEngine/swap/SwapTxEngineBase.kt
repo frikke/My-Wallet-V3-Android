@@ -132,7 +132,7 @@ abstract class SwapTxEngineBase(
             ),
             engineState = pendingTx.engineState
                 .copyAndPut(LATEST_QUOTE_ID, pricedQuote.transferQuote.id)
-                .copyAndPut(RECEIVE_AMOUNT, pricedQuote.transferQuote.price.toBigDecimal())
+                .copyAndPut(RECEIVE_AMOUNT, pricedQuote.transferQuote.sourceToDestinationRate.price.toBigDecimal())
                 .copyAndPut(OUTGOING_FEE, pricedQuote.transferQuote.networkFee)
         )
     }

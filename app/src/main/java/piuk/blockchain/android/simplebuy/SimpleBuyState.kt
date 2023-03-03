@@ -322,7 +322,7 @@ data class BuyQuote(
             BuyQuote(
                 id = brokerageQuote.id,
                 // we should pass the fiat to the state, otherwise Money interface wont get serialised.
-                price = brokerageQuote.price.toFiat(fiatCurrency),
+                price = brokerageQuote.sourceToDestinationRate.price.toFiat(fiatCurrency),
                 availability = brokerageQuote.availability,
                 settlementReason = brokerageQuote.settlementReason,
                 quoteMargin = brokerageQuote.quoteMargin,
@@ -342,7 +342,7 @@ data class BuyQuote(
             BuyQuote(
                 id = brokerageQuote.id,
                 // we should pass the fiat to the state, otherwise Money interface wont get serialised.
-                price = brokerageQuote.price.toFiat(fiatCurrency),
+                price = brokerageQuote.sourceToDestinationRate.price.toFiat(fiatCurrency),
                 availability = brokerageQuote.availability,
                 settlementReason = brokerageQuote.settlementReason,
                 quoteMargin = brokerageQuote.quoteMargin,

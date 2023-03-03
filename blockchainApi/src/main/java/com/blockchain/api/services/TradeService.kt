@@ -38,7 +38,7 @@ class TradeService internal constructor(
      * Swap NC-C -> DEPOSIT, SWAP_FROM_USERKEY
      * Swap NC-NC -> DEPOSIT, SWAP_ON_CHAIN
      */
-    fun getQuotePrice(
+    suspend fun getQuotePrice(
         currencyPair: String,
         amount: String,
         paymentMethod: String,

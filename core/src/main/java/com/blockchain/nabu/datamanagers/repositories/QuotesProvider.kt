@@ -12,6 +12,7 @@ import com.blockchain.nabu.service.NabuService
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.CurrencyPair
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 import java.math.BigDecimal
@@ -43,7 +44,7 @@ class QuotesProvider(
             QuotePrice(
                 currencyPair = pair,
                 amount = it.inputAmount,
-                price = it.price,
+                sourceToDestinationRate = it.sourceToDestinationRate,
                 rawPrice = it.rawPrice,
                 resultAmount = it.resultAmount,
                 dynamicFee = it.staticFee,
@@ -75,12 +76,17 @@ class QuotesProvider(
                 prices = prices,
                 pair = pair
             ).getRate(amount)
+            val rate = ExchangeRate(
+                rate = price.toBigDecimal(),
+                from = pair.source,
+                to = pair.destination,
+            )
 
             BrokerageQuote(
                 id = it.id,
                 currencyPair = pair,
                 inputAmount = amount,
-                price = price,
+                sourceToDestinationRate = rate,
                 rawPrice = price,
                 // TODO(aromano): TEMP while brokerage/quote FF is on the code, resultAmount not currently being used
                 resultAmount = Money.zero(pair.destination),
