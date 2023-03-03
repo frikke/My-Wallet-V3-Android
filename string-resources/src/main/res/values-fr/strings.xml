@@ -2739,7 +2739,8 @@
     <string name="staking_confirmation_bonding_period_4"> Les fonds sont soumis à une période de cautionnement de</string>
     <plurals name="staking_confirmation_bonding_period_6">
         <item quantity="one" tools:ignore="ImpliedQuantity">jour</item>
-        <item quantity="many">jours</item>
+        <item quantity="many">de jours</item>
+        <item quantity="other">jours</item>
     </plurals>
     <string name="staking_confirmation_bonding_period_7"> avant de produire des récompenses.</string>
     <string name="staking_confirmation_progress_title">Staking de %1$s</string>

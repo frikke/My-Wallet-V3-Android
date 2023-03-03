@@ -1742,7 +1742,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="staking_confirmation_bonding_period_5">&#160;%1$d&#160;</string>
     <plurals name="staking_confirmation_bonding_period_6">
         <item quantity="one">day</item>
-        <item quantity="many">days</item>
+        <item quantity="other">days</item>
     </plurals>
     <string name="staking_confirmation_bonding_period_7">&#160;before generating rewards.</string>
     <string name="active_rewards_confirmation_bonding_period_1">I agree to transfer</string>
