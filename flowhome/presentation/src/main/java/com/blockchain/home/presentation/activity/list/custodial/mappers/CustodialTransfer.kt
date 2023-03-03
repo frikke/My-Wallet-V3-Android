@@ -22,7 +22,7 @@ internal fun CustodialTransferActivitySummaryItem.leadingTitle(): ActivityStackV
         value = TextValue.IntResValue(
             value = when (type) {
                 TransactionType.DEPOSIT -> R.string.tx_title_received
-                TransactionType.WITHDRAWAL -> R.string.tx_title_sent
+                TransactionType.WITHDRAWAL -> R.string.tx_title_withdrawn
             },
             args = listOf(account.currency.displayTicker)
         ),

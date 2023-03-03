@@ -33,7 +33,7 @@ internal fun CustodialTransferActivitySummaryItem.iconDetail(): ImageResource {
 internal fun CustodialTransferActivitySummaryItem.title(): TextValue = TextValue.IntResValue(
     value = when (type) {
         TransactionType.DEPOSIT -> R.string.tx_title_received
-        TransactionType.WITHDRAWAL -> R.string.tx_title_sent
+        TransactionType.WITHDRAWAL -> R.string.tx_title_withdrawn
     },
     args = listOf(account.currency.displayTicker)
 )
