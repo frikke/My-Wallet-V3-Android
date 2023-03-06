@@ -3462,6 +3462,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_trigger_price_explainer">A price level that results in a debit to your crypto balance if exceeded on the expiration date</string>
     <string name="earn_active_rewards_withdrawal_pending_title">Withdrawal requested</string>
     <string name="earn_active_rewards_withdrawal_pending_subtitle">Your withdrawal will be executed once this week\'s strategy is complete.</string>
+    <string name="earn_active_rewards_withdrawal_activity">Withdrew all %1$s</string>
 
     <!-- Prove.com -->
     <string name="prove_phone_number">Phone number</string>
@@ -3540,5 +3541,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="swap_1000_tokens_subtitle">Swap ETH, UNI, USDT, DAI, and more.</string>
     <string name="keep_control_of_funds">Keep control of your funds</string>
     <string name="keep_control_of_funds_subtitle">When you trade on a DEX, you keep access to your private keys––it\'s \"your keys, your crypto.\" Blockchain.com doesn’t hold these funds.</string>
+    <string name="common_requested">Requested</string>
+    <string name="earn_active_rewards_withdrawal_close_date">Next Saturday</string>
 
 </resources>

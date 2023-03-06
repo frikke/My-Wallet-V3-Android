@@ -21,5 +21,6 @@ data class ActiveRewardsSummaryModelState(
     val rewardsFrequency: EarnRewardsFrequency = EarnRewardsFrequency.Unknown,
     val isWithdrawable: Boolean = false,
     val canDeposit: Boolean = false,
-    val canWithdraw: Boolean = false
+    val canWithdraw: Boolean = false,
+    val hasOngoingWithdrawals: Boolean = false
 ) : ModelState

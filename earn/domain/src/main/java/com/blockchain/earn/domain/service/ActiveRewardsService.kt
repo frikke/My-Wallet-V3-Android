@@ -70,4 +70,9 @@ interface ActiveRewardsService {
         asset: AssetInfo,
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<DataResource<ActiveRewardsLimits>>
+
+    suspend fun hasOngoingWithdrawals(
+        currency: Currency,
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+    ): Flow<DataResource<Boolean>>
 }

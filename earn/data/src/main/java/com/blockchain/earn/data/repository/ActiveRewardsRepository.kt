@@ -12,6 +12,7 @@ import com.blockchain.earn.data.dataresources.active.ActiveRewardsBalanceStore
 import com.blockchain.earn.data.dataresources.active.ActiveRewardsEligibilityStore
 import com.blockchain.earn.data.dataresources.active.ActiveRewardsLimitsStore
 import com.blockchain.earn.data.dataresources.active.ActiveRewardsRatesStore
+import com.blockchain.earn.data.dataresources.active.ActiveRewardsWithdrawalsStore
 import com.blockchain.earn.data.mapper.toEarnRewardsActivity
 import com.blockchain.earn.data.mapper.toIneligibilityReason
 import com.blockchain.earn.domain.models.ActiveRewardsRates
@@ -55,6 +56,7 @@ class ActiveRewardsRepository(
     private val currencyPrefs: CurrencyPrefs,
     private val activeRewardsApi: ActiveRewardsApiService,
     private val historicRateFetcher: HistoricRateFetcher,
+    private val activeRewardsWithdrawalStore: ActiveRewardsWithdrawalsStore
 ) : ActiveRewardsService {
 
     // we use the rates endpoint to determine whether the user has access to staking cryptos
@@ -253,6 +255,17 @@ class ActiveRewardsRepository(
         getLimitsForAllAssets(refreshStrategy).mapData { mapAssetWithLimits ->
             mapAssetWithLimits[asset] ?: throw NoSuchElementException("Unable to get limits for ${asset.networkTicker}")
         }
+
+    override suspend fun hasOngoingWithdrawals(
+        currency: Currency,
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<Boolean>> =
+        activeRewardsWithdrawalStore.stream(refreshStrategy)
+            .mapData { withdrawalList ->
+                withdrawalList.any { withdrawal ->
+                    withdrawal.currency == currency.networkTicker
+                }
+            }
 
     private fun ActiveRewardsBalanceDto.toBalance(currency: Currency): ActiveRewardsAccountBalance =
         ActiveRewardsAccountBalance(

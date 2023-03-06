@@ -4,6 +4,7 @@ import com.blockchain.earn.data.dataresources.active.ActiveRewardsBalanceStore
 import com.blockchain.earn.data.dataresources.active.ActiveRewardsEligibilityStore
 import com.blockchain.earn.data.dataresources.active.ActiveRewardsLimitsStore
 import com.blockchain.earn.data.dataresources.active.ActiveRewardsRatesStore
+import com.blockchain.earn.data.dataresources.active.ActiveRewardsWithdrawalsStore
 import com.blockchain.earn.data.dataresources.interest.InterestAvailableAssetsStore
 import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
 import com.blockchain.earn.data.dataresources.interest.InterestEligibilityStore
@@ -66,7 +67,8 @@ val earnDataModule = module {
                 activeRewardsLimitsStore = get(),
                 currencyPrefs = get(),
                 activeRewardsApi = get(),
-                historicRateFetcher = get()
+                historicRateFetcher = get(),
+                activeRewardsWithdrawalStore = get()
             )
         }
 
@@ -159,6 +161,12 @@ val earnDataModule = module {
                 interestApiService = get(),
                 interestAllRatesStore = get(),
                 historicRateFetcher = get()
+            )
+        }
+
+        scoped {
+            ActiveRewardsWithdrawalsStore(
+                activeRewardsApiService = get()
             )
         }
     }

@@ -72,6 +72,7 @@ class ActiveRewardsSummaryViewModel(
             canDeposit = canDeposit,
             canWithdraw = canWithdraw,
             assetFiatPrice = assetFiatPrice,
+            hasOngoingWithdrawals = hasOngoingWithdrawals,
         )
     }
 
@@ -107,8 +108,17 @@ class ActiveRewardsSummaryViewModel(
             activeRewardsService.getRatesForAsset(currency),
             exchangeRatesDataManager.exchangeRate(FiatCurrency.Dollars, currencyPrefs.selectedFiatCurrency),
             activeRewardsService.getEligibilityForAsset(currency),
-            coincore[currency].getPricesWith24hDelta()
-        ) { account, tradingAccount, balance, limits, rate, exchangeRate, eligibility, priceData ->
+            coincore[currency].getPricesWith24hDelta(),
+            activeRewardsService.hasOngoingWithdrawals(currency)
+        ) { account,
+            tradingAccount,
+            balance,
+            limits,
+            rate,
+            exchangeRate,
+            eligibility,
+            priceData,
+            hasOngoingWithdrawals ->
             combineDataResources(
                 DataResource.Data(account),
                 DataResource.Data(tradingAccount),
@@ -117,9 +127,10 @@ class ActiveRewardsSummaryViewModel(
                 rate,
                 exchangeRate,
                 eligibility,
-                priceData
-            ) { a, t, b, l, r, er, e, p ->
-                ActiveRewardsSummaryData(a, t, b, l, r, er, e, p.currentRate.price)
+                priceData,
+                hasOngoingWithdrawals
+            ) { a, t, b, l, r, er, e, p, h ->
+                ActiveRewardsSummaryData(a, t, b, l, r, er, e, p.currentRate.price, h)
             }
         }.collectLatest { summary ->
             when (summary) {
@@ -140,7 +151,10 @@ class ActiveRewardsSummaryViewModel(
                                 .takeIf { currencyPrefs.selectedFiatCurrency == it.currency }
                                 ?: exchangeRate.convert(rates.triggerPrice),
                             rewardsFrequency = limits.rewardsFrequency,
-                            canWithdraw = balance.earningBalance.isPositive && withdrawalsEnabled,
+                            canWithdraw = balance.earningBalance.isPositive &&
+                                withdrawalsEnabled &&
+                                hasOngoingWithdrawals.not(),
+                            hasOngoingWithdrawals = hasOngoingWithdrawals,
                         )
                     }
                 }
@@ -166,5 +180,6 @@ private data class ActiveRewardsSummaryData(
     val rates: ActiveRewardsRates,
     val exchangeRate: ExchangeRate,
     val eligibility: EarnRewardsEligibility,
-    val assetFiatPrice: Money
+    val assetFiatPrice: Money,
+    val hasOngoingWithdrawals: Boolean
 )

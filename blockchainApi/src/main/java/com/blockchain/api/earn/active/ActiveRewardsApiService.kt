@@ -5,6 +5,7 @@ import com.blockchain.api.earn.active.data.ActiveRewardsAddressDto
 import com.blockchain.api.earn.active.data.ActiveRewardsBalanceDto
 import com.blockchain.api.earn.active.data.ActiveRewardsLimitsMapDto
 import com.blockchain.api.earn.active.data.ActiveRewardsRatesDto
+import com.blockchain.api.earn.active.data.ActiveRewardsWithdrawalDto
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMapLeft
 import com.blockchain.outcome.map
@@ -29,6 +30,9 @@ class ActiveRewardsApiService internal constructor(
 
     suspend fun getActiveRewardsLimits(fiatTicker: String): Outcome<Exception, ActiveRewardsLimitsMapDto> =
         activeRewardsApi.getTickerLimits(null, fiatTicker)
+
+    suspend fun getActiveRewardsWithdrawals(): Outcome<Exception, List<ActiveRewardsWithdrawalDto>> =
+        activeRewardsApi.getWithdrawalRequests()
 
     suspend fun getAccountAddress(cryptoTicker: String): Outcome<Exception, ActiveRewardsAddressDto> =
         activeRewardsApi.getAddress(cryptoTicker)

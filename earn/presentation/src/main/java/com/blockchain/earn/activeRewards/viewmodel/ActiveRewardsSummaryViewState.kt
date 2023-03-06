@@ -26,6 +26,7 @@ data class ActiveRewardsSummaryViewState(
     val isWithdrawable: Boolean,
     val canDeposit: Boolean,
     val canWithdraw: Boolean,
+    val hasOngoingWithdrawals: Boolean
 ) : ViewState
 
 sealed class ActiveRewardsError {

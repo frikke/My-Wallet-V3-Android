@@ -8,9 +8,12 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -39,10 +42,16 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.SecondaryButton
+import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.sheets.SheetHeader
+import com.blockchain.componentlib.tablerow.FlexibleTableRow
+import com.blockchain.componentlib.tablerow.TableRowHeader
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tablerow.custom.TextWithTooltipTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.LargeVerticalSpacer
+import com.blockchain.componentlib.theme.SmallHorizontalSpacer
+import com.blockchain.componentlib.theme.SmallestVerticalSpacer
 import com.blockchain.componentlib.theme.TinyHorizontalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.earn.R
@@ -232,6 +241,11 @@ fun ActiveRewardsSummarySheet(
                 if (activeRewardsWithdrawalsEnabled.not()) {
                     ActiveRewardsWithdrawalNotice(onLearnMorePressed = withdrawDisabledLearnMore)
                     LargeVerticalSpacer()
+                } else if (state.hasOngoingWithdrawals) {
+                    state.balanceCrypto?.currency?.networkTicker?.let {
+                        ActiveRewardsPendingWithdrawal(it)
+                        LargeVerticalSpacer()
+                    }
                 }
 
                 Row(
@@ -307,7 +321,8 @@ fun PreviewActiveRewardsSummarySheet() {
                 isWithdrawable = false,
                 canDeposit = false,
                 assetFiatPrice = null,
-                canWithdraw = false
+                canWithdraw = false,
+                hasOngoingWithdrawals = false
             ),
             onWithdrawPressed = { _, _ -> },
             onDepositPressed = {},
@@ -326,4 +341,66 @@ fun TooltipText(tooltipText: String) {
         gravity = ComposeGravities.Start,
         modifier = Modifier.padding(top = AppTheme.dimensions.smallestSpacing)
     )
+}
+
+@Composable
+fun ActiveRewardsPendingWithdrawal(currencyTicker: String) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        TableRowHeader(title = "Recent Activity")
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+            elevation = 0.dp,
+        ) {
+            FlexibleTableRow(
+                paddingValues = PaddingValues(AppTheme.dimensions.smallSpacing),
+                contentStart = {
+                    CustomStackedIcon(icon = StackedIcon.SingleIcon(ImageResource.Local(R.drawable.send_off)))
+                },
+                content = {
+                    SmallHorizontalSpacer()
+
+                    Column {
+                        SimpleText(
+                            text = stringResource(R.string.earn_active_rewards_withdrawal_activity, currencyTicker),
+                            style = ComposeTypographies.Body2,
+                            color = ComposeColors.Title,
+                            gravity = ComposeGravities.Start
+                        )
+
+                        SmallestVerticalSpacer()
+
+                        SimpleText(
+                            text = stringResource(R.string.common_requested),
+                            style = ComposeTypographies.Paragraph1,
+                            color = ComposeColors.Primary,
+                            gravity = ComposeGravities.Start
+                        )
+                    }
+
+                    SimpleText(
+                        text = stringResource(R.string.earn_active_rewards_withdrawal_close_date),
+                        style = ComposeTypographies.Caption1,
+                        color = ComposeColors.Body,
+                        gravity = ComposeGravities.End,
+                        modifier = Modifier.weight(1F)
+                    )
+
+                    SmallHorizontalSpacer()
+                },
+                onContentClicked = {}
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewActiveRewardsPendingWithdrawal() {
+    AppTheme {
+        ActiveRewardsPendingWithdrawal(currencyTicker = "BTC")
+    }
 }
