@@ -17,6 +17,7 @@ import com.blockchain.home.presentation.quickactions.QuickActionsViewModel
 import com.blockchain.home.presentation.referral.ReferralViewModel
 import com.blockchain.koin.activeRewardsAccountFeatureFlag
 import com.blockchain.koin.dexFeatureFlag
+import com.blockchain.koin.iterableAnnouncementsFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import kotlinx.coroutines.CoroutineScope
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -36,7 +37,8 @@ val homePresentationModule = module {
             AnnouncementsViewModel(
                 walletModeService = get(),
                 backupPhraseService = get(),
-                announcementsService = get()
+                announcementsService = get(),
+                iterableAnnouncementsFF = get(iterableAnnouncementsFeatureFlag),
             )
         }
 

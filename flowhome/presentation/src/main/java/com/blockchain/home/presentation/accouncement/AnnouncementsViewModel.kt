@@ -8,12 +8,14 @@ import com.blockchain.componentlib.icons.Unlock
 import com.blockchain.componentlib.theme.Pink600
 import com.blockchain.componentlib.utils.ImageValue
 import com.blockchain.componentlib.utils.TextValue
+import com.blockchain.data.DataResource
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.filter
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.extensions.minus
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.home.announcements.AnnouncementsService
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
@@ -28,6 +30,7 @@ class AnnouncementsViewModel(
     private val walletModeService: WalletModeService,
     private val backupPhraseService: BackupPhraseService,
     private val announcementsService: AnnouncementsService,
+    private val iterableAnnouncementsFF: FeatureFlag,
 ) : MviViewModel<
     AnnouncementsIntent,
     AnnouncementsViewState,
@@ -84,14 +87,20 @@ class AnnouncementsViewModel(
     private fun loadRemoteAnnouncements(forceRefresh: Boolean) {
         remoteAnnouncementsJob?.cancel()
         remoteAnnouncementsJob = viewModelScope.launch {
-            announcementsService.announcements(
-                PullToRefresh.freshnessStrategy(
-                    shouldGetFresh = forceRefresh,
-                    RefreshStrategy.RefreshIfOlderThan(amount = 15, unit = TimeUnit.MINUTES)
-                )
-            ).collectLatest { dataResource ->
+            if (iterableAnnouncementsFF.coEnabled()) {
+                announcementsService.announcements(
+                    PullToRefresh.freshnessStrategy(
+                        shouldGetFresh = forceRefresh,
+                        RefreshStrategy.RefreshIfOlderThan(amount = 15, unit = TimeUnit.MINUTES)
+                    )
+                ).collectLatest { dataResource ->
+                    updateState {
+                        it.copy(remoteAnnouncements = it.remoteAnnouncements.updateDataWith(dataResource))
+                    }
+                }
+            } else {
                 updateState {
-                    it.copy(remoteAnnouncements = it.remoteAnnouncements.updateDataWith(dataResource))
+                    it.copy(remoteAnnouncements = DataResource.Data(emptyList()))
                 }
             }
         }

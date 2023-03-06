@@ -20,6 +20,7 @@ import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.googleWalletFeatureFlag
 import com.blockchain.koin.improvedPaymentUxFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
+import com.blockchain.koin.iterableAnnouncementsFeatureFlag
 import com.blockchain.koin.paymentUxAssetDisplayBalanceFeatureFlag
 import com.blockchain.koin.paymentUxTotalDisplayBalanceFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
@@ -276,6 +277,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_active_rewards_withdrawals",
                 "Active Rewards Withdrawals"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(iterableAnnouncementsFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_iterable_announcements",
+                "Iterable Announcements"
             )
         )
     }.bind(FeatureFlag::class)
