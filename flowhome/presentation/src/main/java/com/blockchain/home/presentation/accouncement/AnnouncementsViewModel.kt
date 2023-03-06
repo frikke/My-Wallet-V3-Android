@@ -42,7 +42,7 @@ class AnnouncementsViewModel(
     AnnouncementModelState()
 ) {
     private var remoteAnnouncementsJob: Job? = null
-    private var remoteConfirmationJob: Job? = null
+    private var remoteAnnouncementsConfirmationJob: Job? = null
     private var localAnnouncementsJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
@@ -114,8 +114,8 @@ class AnnouncementsViewModel(
     }
 
     private fun updateRemoteAnnouncementsConfirmation(withDelay: Boolean) {
-        remoteConfirmationJob?.cancel()
-        remoteConfirmationJob = viewModelScope.launch {
+        remoteAnnouncementsConfirmationJob?.cancel()
+        remoteAnnouncementsConfirmationJob = viewModelScope.launch {
             val shouldHideConfirmation = modelState.remoteAnnouncements
                 .filter { it.eligibleModes.contains(modelState.walletMode) }
                 .map { it.isEmpty() }
