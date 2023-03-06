@@ -50,7 +50,7 @@ interface Fetcher<in K, out T> {
         }
 
         fun <K : Any, T : Any> ofSingle(
-            mapper: (K) -> Single<T>
+            mapper: suspend (K) -> Single<T>
         ): Fetcher<K, T> = object : Fetcher<K, T> {
             override suspend fun fetch(key: K): FetcherResult<T> =
                 mapper(key)

@@ -2,10 +2,13 @@ package com.blockchain.home.data.koin
 
 import com.blockchain.home.actions.QuickActionsService
 import com.blockchain.home.activity.CustodialActivityService
+import com.blockchain.home.announcements.AnnouncementsService
 import com.blockchain.home.data.FiltersStorage
 import com.blockchain.home.data.HomeAccountsRepository
 import com.blockchain.home.data.actions.QuickActionsRepository
 import com.blockchain.home.data.activity.CustodialActivityRepository
+import com.blockchain.home.data.announcements.AnnouncementsRepository
+import com.blockchain.home.data.announcements.AnnouncementsStore
 import com.blockchain.home.data.emptystate.CustodialEmptyCardRepository
 import com.blockchain.home.data.emptystate.EmptyStateBuyAmountsRemoteConfig
 import com.blockchain.home.domain.FiltersService
@@ -45,6 +48,19 @@ val homeDataModule = module {
             EmptyStateBuyAmountsRemoteConfig(
                 remoteConfigService = get(),
                 json = get()
+            )
+        }
+
+        scoped {
+            AnnouncementsRepository(
+                announcementsStore = get()
+            )
+        }.bind(AnnouncementsService::class)
+
+        scoped {
+            AnnouncementsStore(
+                announcementsApi = get(),
+                remoteConfigService = get()
             )
         }
     }

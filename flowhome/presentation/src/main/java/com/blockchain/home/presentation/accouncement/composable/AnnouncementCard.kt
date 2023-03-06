@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -26,12 +27,12 @@ import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Pink600
 import com.blockchain.componentlib.utils.ImageValue
 import com.blockchain.componentlib.utils.value
-import com.blockchain.home.presentation.accouncement.Announcement
+import com.blockchain.home.presentation.accouncement.LocalAnnouncement
 
 @Composable
-fun Announcements(
-    announcements: List<Announcement>,
-    onClick: (Announcement) -> Unit
+fun LocalAnnouncements(
+    announcements: List<LocalAnnouncement>,
+    onClick: (LocalAnnouncement) -> Unit
 ) {
     if (announcements.isNotEmpty()) {
         // todo support multiple announcements
@@ -64,6 +65,7 @@ fun AnnouncementCard(
     subtitle: String,
     icon: StackedIcon,
     elevation: Dp = AppTheme.dimensions.mediumElevation,
+    contentAlphaProvider: () -> Float = { 1F },
     onClick: () -> Unit
 ) {
     Surface(
@@ -82,18 +84,25 @@ fun AnnouncementCard(
             CustomStackedIcon(
                 icon = icon,
                 iconBackground = Color.Transparent,
-                size = AppTheme.dimensions.hugeSpacing
+                size = AppTheme.dimensions.hugeSpacing,
+                alphaProvider = contentAlphaProvider
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
             Column {
                 Text(
+                    modifier = Modifier.graphicsLayer {
+                        alpha = contentAlphaProvider()
+                    },
                     text = title,
                     style = AppTheme.typography.caption1,
                     color = Grey400
                 )
                 Text(
+                    modifier = Modifier.graphicsLayer {
+                        alpha = contentAlphaProvider()
+                    },
                     text = subtitle,
                     style = AppTheme.typography.body2,
                     color = AppTheme.colors.title

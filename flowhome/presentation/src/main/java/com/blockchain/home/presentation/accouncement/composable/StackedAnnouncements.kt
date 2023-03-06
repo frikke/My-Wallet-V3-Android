@@ -13,24 +13,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.Unlock
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.swipeable.rememberSwipeableState
 import com.blockchain.componentlib.swipeable.swipeable
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Pink600
+import com.blockchain.home.announcements.Announcement
 import kotlinx.coroutines.launch
 
-data class AnnouncementTbd(
-    val id: Int,
-    val title: String
-)
-
 @Composable
-fun Announcements(
-    announcements: List<AnnouncementTbd>,
-    onSwiped: (Int) -> Unit
+fun StackedAnnouncements(
+    announcements: List<Announcement>,
+    onSwiped: (Announcement) -> Unit
 ) {
     val backCardScale = 0.9F
     val frontCardScale = 1F
@@ -41,6 +35,10 @@ fun Announcements(
     }.unaryMinus()
     val frontCardTranslation = 0F
     val animatableTranslation = remember { Animatable(backCardsTranslation) }
+
+    val frontCardFocusedAlpha = 1F
+    val frontCardUnfocusedAlpha = 0.5F
+    val animatableAlpha = remember { Animatable(frontCardFocusedAlpha) }
 
     Box {
         val scope = rememberCoroutineScope()
@@ -88,12 +86,15 @@ fun Announcements(
 
                                 val scaleTarget: Float
                                 val translationTarget: Float
+                                val alphaTarget: Float
                                 if (hasReachedDismissThreshold) {
                                     scaleTarget = frontCardScale
                                     translationTarget = frontCardTranslation
+                                    alphaTarget = frontCardUnfocusedAlpha
                                 } else {
                                     scaleTarget = backCardScale
                                     translationTarget = backCardsTranslation
+                                    alphaTarget = frontCardFocusedAlpha
                                 }
 
                                 scope.launch {
@@ -101,6 +102,9 @@ fun Announcements(
                                 }
                                 scope.launch {
                                     animatableTranslation.animateTo(translationTarget)
+                                }
+                                scope.launch {
+                                    animatableAlpha.animateTo(alphaTarget)
                                 }
                             },
                             onSwipe = {
@@ -121,16 +125,29 @@ fun Announcements(
                                 scope.launch {
                                     animatableTranslation.snapTo(backCardsTranslation)
                                 }
-                                onSwiped(announcement.id)
+                                scope.launch {
+                                    animatableAlpha.snapTo(frontCardFocusedAlpha)
+                                }
+                                onSwiped(announcement)
                             }
                         ),
-                    title = announcement.title + announcement.id.toString(),
-                    subtitle = "announcement.subtitle" + announcement.id.toString(),
-                    icon = StackedIcon.SingleIcon(Icons.Filled.Unlock.withTint(Pink600).withSize(40.dp)),
+                    title = announcement.title,
+                    subtitle = announcement.description,
+                    icon = announcement.imageUrl?.let {
+                        StackedIcon.SingleIcon(ImageResource.Remote(it, size = 40.dp))
+                    } ?: StackedIcon.None,
                     elevation = when (index) {
                         announcements.lastIndex,
                         announcements.lastIndex - 1 -> AppTheme.dimensions.mediumElevation
                         else -> 0.dp
+                    },
+                    contentAlphaProvider = {
+                        when (index) {
+                            // front is animatableAlpha
+                            announcements.lastIndex -> animatableAlpha.value
+                            // all others are 1F
+                            else -> 1F
+                        }
                     },
                     onClick = {}
                 )

@@ -15,7 +15,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
@@ -34,12 +33,12 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.toImmutableList
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.home.presentation.SectionSize
-import com.blockchain.home.presentation.accouncement.AnnouncementType
 import com.blockchain.home.presentation.accouncement.AnnouncementsIntent
 import com.blockchain.home.presentation.accouncement.AnnouncementsViewModel
 import com.blockchain.home.presentation.accouncement.AnnouncementsViewState
-import com.blockchain.home.presentation.accouncement.composable.AnnouncementTbd
-import com.blockchain.home.presentation.accouncement.composable.Announcements
+import com.blockchain.home.presentation.accouncement.LocalAnnouncementType
+import com.blockchain.home.presentation.accouncement.composable.LocalAnnouncements
+import com.blockchain.home.presentation.accouncement.composable.StackedAnnouncements
 import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
@@ -203,6 +202,7 @@ fun HomeScreen(
 
     LaunchedEffect(key1 = isSwipingToRefresh) {
         if (isSwipingToRefresh) {
+            announcementsViewModel.onIntent(AnnouncementsIntent.Refresh)
             homeAssetsViewModel.onIntent(AssetsIntent.Refresh)
             pricesViewModel.onIntent(PricesIntents.Refresh)
             earnViewModel.onIntent(EarnIntent.Refresh)
@@ -275,39 +275,26 @@ fun HomeScreen(
             }
         }
 
+        item {
+            (announcementsState.remoteAnnouncements as? DataResource.Data)?.data?.let { announcements ->
+                StackedAnnouncements(
+                    announcements = announcements,
+                    onSwiped = { target ->
+                        announcementsViewModel.onIntent(AnnouncementsIntent.DeleteAnnouncement(target))
+                    }
+                )
+            }
+        }
+
         paddedItem(
             paddingValues = PaddingValues(horizontal = 16.dp)
         ) {
-            Announcements(
-                announcements = announcementsState.announcements,
+            LocalAnnouncements(
+                announcements = announcementsState.localAnnouncements,
                 onClick = { announcement ->
                     when (announcement.type) {
-                        AnnouncementType.PHRASE_RECOVERY -> startPhraseRecovery()
+                        LocalAnnouncementType.PHRASE_RECOVERY -> startPhraseRecovery()
                     }
-                }
-            )
-        }
-
-        item {
-            val allAnnouncements = listOf(
-                AnnouncementTbd(0, "Announcement"),
-                AnnouncementTbd(1, "Announcement"),
-                AnnouncementTbd(2, "Announcement"),
-                AnnouncementTbd(3, "Announcement"),
-                AnnouncementTbd(4, "Announcement"),
-                AnnouncementTbd(5, "Announcement"),
-                AnnouncementTbd(6, "Announcement"),
-                AnnouncementTbd(7, "Announcement"),
-                AnnouncementTbd(8, "Announcement"),
-                AnnouncementTbd(9, "Announcement")
-            )
-
-            val announcements = remember { allAnnouncements.toMutableStateList() }
-
-            Announcements(
-                announcements = announcements,
-                onSwiped = { targetId ->
-                    announcements.removeIf { it.id == targetId }
                 }
             )
         }
