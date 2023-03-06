@@ -449,6 +449,8 @@ private data class DiscoverCarouselItem(
 
 private const val CAROUSEL_STAKING_LINK = "https://support.blockchain.com/hc/en-us/sections/5954708914460-Staking"
 private const val CAROUSEL_REWARDS_LINK = "https://support.blockchain.com/hc/en-us/sections/4416668318740-Rewards"
+private const val CAROUSEL_ACTIVE_LINK =
+    "https://support.blockchain.com/hc/en-us/articles/6868491485724-What-is-Active-Rewards-"
 
 @Composable
 private fun LearningCarousel(
@@ -469,6 +471,13 @@ private fun LearningCarousel(
             description = R.string.earn_rewards_carousel_staking_desc,
             icon = R.drawable.ic_lock,
             learnMoreUrl = CAROUSEL_STAKING_LINK
+        ),
+        DiscoverCarouselItem(
+            type = EarnType.Active,
+            title = R.string.earn_rewards_label_active,
+            description = R.string.earn_rewards_carousel_active_desc,
+            icon = R.drawable.ic_lock,
+            learnMoreUrl = CAROUSEL_ACTIVE_LINK
         )
     )
 
