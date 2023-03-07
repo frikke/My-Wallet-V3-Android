@@ -5,10 +5,12 @@ import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.impl.txEngine.interest.TransferData
+import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
 import com.blockchain.earn.domain.models.active.ActiveRewardsLimits
 import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.activeRewardsWithdrawalsFeatureFlag
+import com.blockchain.koin.scopedInject
 import com.blockchain.store.asSingle
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
@@ -26,6 +28,12 @@ abstract class ActiveRewardsBaseEngine(
 
     protected val sourceAssetInfo: AssetInfo
         get() = sourceAsset.asAssetInfoOrThrow()
+
+    override fun ensureSourceBalanceFreshness() {
+        activeRewardsService.markBalancesAsStale()
+    }
+
+    protected val paymentTransactionHistoryStore: PaymentTransactionHistoryStore by scopedInject()
 
     private val activeRewardsWithdrawalsFF: FeatureFlag by inject(activeRewardsWithdrawalsFeatureFlag)
 

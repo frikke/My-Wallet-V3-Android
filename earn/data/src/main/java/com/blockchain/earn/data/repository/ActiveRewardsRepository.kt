@@ -278,6 +278,10 @@ class ActiveRewardsRepository(
             bondingDeposits = Money.fromMinor(currency, bondingDeposits.toBigInteger()),
         )
 
+    override fun markBalancesAsStale() {
+        activeRewardsBalanceStore.markAsStale()
+    }
+
     companion object {
         private const val AR_PRODUCT_NAME = "EARN_CC1W"
 

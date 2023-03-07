@@ -26,6 +26,7 @@ import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.coincore.xlm.XlmAsset
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.ethereum.EvmNetworksService
+import com.blockchain.koin.activeRewardsBalanceStore
 import com.blockchain.koin.interestBalanceStore
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
@@ -184,7 +185,7 @@ val coincoreModule = module {
                 swapTransactionsStore = get(),
                 stakingBalanceStore = get(stakingBalanceStore),
                 stakingService = get(),
-                activeRewardsBalanceStore = get(),
+                activeRewardsBalanceStore = get(activeRewardsBalanceStore),
                 activeRewardsService = get()
             )
         }

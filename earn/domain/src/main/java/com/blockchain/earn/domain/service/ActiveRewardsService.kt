@@ -75,4 +75,6 @@ interface ActiveRewardsService {
         currency: Currency,
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<DataResource<Boolean>>
+
+    fun markBalancesAsStale()
 }

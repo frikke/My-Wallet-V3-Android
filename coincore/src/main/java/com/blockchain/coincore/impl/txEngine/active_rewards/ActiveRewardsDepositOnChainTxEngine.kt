@@ -1,7 +1,6 @@
 package com.blockchain.coincore.impl.txEngine.active_rewards
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.PendingTx
@@ -14,21 +13,17 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toCrypto
-import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.earn.data.dataresources.active.ActiveRewardsBalanceStore
 import com.blockchain.earn.domain.service.ActiveRewardsService
-import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.store.Store
 import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 class ActiveRewardsDepositOnChainTxEngine(
-    private val activeRewardsBalanceStore: ActiveRewardsBalanceStore,
+    private val activeRewardsBalanceStore: FlushableDataSource,
     activeRewardsService: ActiveRewardsService,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val onChainEngine: OnChainTxEngineBase,
@@ -36,12 +31,8 @@ class ActiveRewardsDepositOnChainTxEngine(
     val walletManager: CustodialWalletManager
 ) : ActiveRewardsBaseEngine(activeRewardsService) {
 
-    private val paymentTransactionHistoryStore: PaymentTransactionHistoryStore by scopedInject()
-
     override val flushableDataSources: List<FlushableDataSource>
         get() = listOf(activeRewardsBalanceStore, paymentTransactionHistoryStore)
-
-    private val balancesCache: Store<BalancesResponse> by scopedInject()
 
     override fun assertInputsValid() {
         check(sourceAccount is CryptoNonCustodialAccount)
@@ -63,10 +54,6 @@ class ActiveRewardsDepositOnChainTxEngine(
         refreshTrigger: RefreshTrigger
     ) {
         onChainEngine.start(sourceAccount, txTarget, exchangeRates, refreshTrigger)
-    }
-
-    override fun ensureSourceBalanceFreshness() {
-        balancesCache.markAsStale()
     }
 
     override fun doInitialiseTx(): Single<PendingTx> =

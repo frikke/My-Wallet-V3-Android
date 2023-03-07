@@ -17,7 +17,6 @@ import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.earn.data.dataresources.active.ActiveRewardsBalanceStore
 import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -30,7 +29,7 @@ import io.reactivex.rxjava3.core.Single
 const val AR_LIMITS: String = "AR_LIMITS"
 
 class ActiveRewardsDepositTradingEngine(
-    private val activeRewardsBalanceStore: ActiveRewardsBalanceStore,
+    private val activeRewardsBalanceStore: FlushableDataSource,
     activeRewardsService: ActiveRewardsService,
     private val tradingStore: TradingStore,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -38,11 +37,7 @@ class ActiveRewardsDepositTradingEngine(
 ) : ActiveRewardsBaseEngine(activeRewardsService) {
 
     override val flushableDataSources: List<FlushableDataSource>
-        get() = listOf(activeRewardsBalanceStore, tradingStore)
-
-    override fun ensureSourceBalanceFreshness() {
-        activeRewardsBalanceStore.markAsStale()
-    }
+        get() = listOf(activeRewardsBalanceStore, tradingStore, paymentTransactionHistoryStore)
 
     override fun assertInputsValid() {
         check(sourceAccount is TradingAccount)

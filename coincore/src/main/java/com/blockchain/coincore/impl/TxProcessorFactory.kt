@@ -47,7 +47,6 @@ import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.BankPartnerCallbackProvider
-import com.blockchain.earn.data.dataresources.active.ActiveRewardsBalanceStore
 import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
@@ -82,7 +81,7 @@ class TxProcessorFactory(
     private val plaidFeatureFlag: FeatureFlag,
     private val stakingBalanceStore: FlushableDataSource,
     private val stakingService: StakingService,
-    private val activeRewardsBalanceStore: ActiveRewardsBalanceStore,
+    private val activeRewardsBalanceStore: FlushableDataSource,
     private val activeRewardsService: ActiveRewardsService
 ) {
     fun createProcessor(

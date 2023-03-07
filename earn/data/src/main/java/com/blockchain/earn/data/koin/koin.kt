@@ -22,6 +22,7 @@ import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.koin.activeRewardsAccountFeatureFlag
+import com.blockchain.koin.activeRewardsBalanceStore
 import com.blockchain.koin.interestBalanceStore
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.stakingBalanceStore
@@ -37,11 +38,11 @@ val earnDataModule = module {
             )
         }
 
-        scoped {
+        scoped(activeRewardsBalanceStore) {
             ActiveRewardsBalanceStore(
                 activeRewardsApiService = get()
             )
-        }
+        }.bind(FlushableDataSource::class)
 
         scoped {
             ActiveRewardsEligibilityStore(
@@ -60,7 +61,7 @@ val earnDataModule = module {
             ActiveRewardsRepository(
                 activeRewardsRateStore = get(),
                 activeRewardsEligibilityStore = get(),
-                activeRewardsBalanceStore = get(),
+                activeRewardsBalanceStore = get(activeRewardsBalanceStore),
                 assetCatalogue = get(),
                 activeRewardsFeatureFlag = get(activeRewardsAccountFeatureFlag),
                 paymentTransactionHistoryStore = get(),
