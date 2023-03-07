@@ -33,8 +33,8 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.icons.ChevronRight
+import com.blockchain.componentlib.icons.Fire
 import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.Rocket
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tag.DefaultTag
 import com.blockchain.componentlib.theme.AppSurface
@@ -159,9 +159,9 @@ private fun BalanceChangeTableRow(
                         if (showRisingFastTag) {
                             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
                             Image(
-                                imageResource = Icons.Filled.Rocket
+                                imageResource = Icons.Filled.Fire
                                     .withSize(14.dp)
-                                    .withTint(AppTheme.colors.success)
+                                    .withTint(AppTheme.colors.warningMuted)
                             )
                         }
                     }
@@ -278,9 +278,9 @@ private fun BalanceChangeTableRowWithChevron(
                     if (showRisingFastTag) {
                         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
                         Image(
-                            imageResource = Icons.Filled.Rocket
+                            imageResource = Icons.Filled.Fire
                                 .withSize(14.dp)
-                                .withTint(AppTheme.colors.success)
+                                .withTint(AppTheme.colors.warningMuted)
                         )
                     }
                 }

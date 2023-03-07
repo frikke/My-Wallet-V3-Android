@@ -7,6 +7,8 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.icons.Fire
+import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.tablerow.TableRowHeader
 import com.blockchain.componentlib.theme.AppTheme
@@ -29,7 +31,10 @@ internal fun LazyListScope.homeTopMovers(
         ) {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
             TableRowHeader(
-                title = stringResource(R.string.prices_top_movers)
+                title = stringResource(R.string.prices_top_movers),
+                icon = Icons.Filled.Fire
+                    .withSize(AppTheme.dimensions.smallSpacing)
+                    .withTint(AppTheme.colors.warningMuted)
             )
             Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
         }

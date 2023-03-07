@@ -110,6 +110,8 @@ val Icons.Filter: ImageResource.Local
     get() = ImageResource.Local(R.drawable.filter_off)
 val Icons.Fingerprint: ImageResource.Local
     get() = ImageResource.Local(R.drawable.fingerprint_off)
+val Icons.Fire: ImageResource.Local
+    get() = ImageResource.Local(R.drawable.fire_off)
 val Icons.Flag: ImageResource.Local
     get() = ImageResource.Local(R.drawable.flag_off)
 val Icons.FlashOff: ImageResource.Local
