@@ -109,7 +109,8 @@ object Versions {
     const val countryPicker = "2.0.4"
 
     // Compose
-    const val compose = "1.2.0"
+    const val composeCompiler = "1.2.0"
+    const val compose = "1.4.0-beta01"
     const val composeShowkase = "1.1.1"
     const val coil = "2.2.2"
     const val landscapist = "2.1.3"
@@ -123,8 +124,8 @@ object Versions {
 
     // Accompanist
     const val systemUi = "0.25.0"
-    const val navigationMaterial = "0.25.0"
-    const val swipeRefresh = "0.25.0"
+    const val navigationMaterial = "0.29.1-alpha"
+    const val swipeRefresh = "0.29.1-alpha"
     const val pager = "0.25.0"
     const val pagerIndicators = "0.25.0"
     const val drawablePainter = "0.25.0"

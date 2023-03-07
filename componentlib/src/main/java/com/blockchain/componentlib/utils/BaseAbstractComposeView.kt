@@ -9,8 +9,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.ViewTreeLifecycleOwner
-import androidx.lifecycle.ViewTreeViewModelStoreOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
@@ -35,7 +35,7 @@ abstract class BaseAbstractComposeView @JvmOverloads constructor(
         if (isInEditMode) {
             // Taken from androidx.compose.ui.tooling.ComposeViewAdapter.kt
             fakeSavedStateRegistryOwner = object : SavedStateRegistryOwner {
-                private val lifecycle = LifecycleRegistry.createUnsafe(this)
+                override val lifecycle = LifecycleRegistry.createUnsafe(this)
                 private val controller = SavedStateRegistryController.create(this).apply {
                     performRestore(Bundle())
                 }
@@ -46,18 +46,14 @@ abstract class BaseAbstractComposeView @JvmOverloads constructor(
 
                 override val savedStateRegistry: SavedStateRegistry
                     get() = controller.savedStateRegistry
-
-                override fun getLifecycle(): Lifecycle = lifecycle
             }
             fakeViewModelStoreOwner = object : ViewModelStoreOwner {
-                private val viewModelStore = ViewModelStore()
-
-                override fun getViewModelStore() = viewModelStore
+                override val viewModelStore = ViewModelStore()
             }
 
-            ViewTreeLifecycleOwner.set(this, fakeSavedStateRegistryOwner)
+            setViewTreeLifecycleOwner(fakeSavedStateRegistryOwner)
             setViewTreeSavedStateRegistryOwner(fakeSavedStateRegistryOwner)
-            ViewTreeViewModelStoreOwner.set(this, fakeViewModelStoreOwner)
+            setViewTreeViewModelStoreOwner(fakeViewModelStoreOwner)
         }
     }
 
@@ -75,9 +71,9 @@ abstract class BaseAbstractComposeView @JvmOverloads constructor(
     override fun onAttachedToWindow() {
         if (isInEditMode) {
             ownerView = getLastParent()
-            ViewTreeLifecycleOwner.set(ownerView!!, fakeSavedStateRegistryOwner)
+            setViewTreeLifecycleOwner(fakeSavedStateRegistryOwner)
             setViewTreeSavedStateRegistryOwner(fakeSavedStateRegistryOwner)
-            ViewTreeViewModelStoreOwner.set(ownerView!!, fakeViewModelStoreOwner)
+            setViewTreeViewModelStoreOwner(fakeViewModelStoreOwner)
         }
         super.onAttachedToWindow()
     }
