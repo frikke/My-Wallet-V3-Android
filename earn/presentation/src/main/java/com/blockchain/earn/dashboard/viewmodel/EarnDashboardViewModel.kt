@@ -200,7 +200,6 @@ class EarnDashboardViewModel(
             return DashboardState.ShowKyc
         }
 
-        // TODO(labreu): this should also check that the user hasn't seen the intro before
         return if (!hasInterestBalance && !hasStakingBalance && !hasActiveRewardsBalance) {
             if (!hasSeenEarnIntro) {
                 DashboardState.ShowIntro(
@@ -349,9 +348,18 @@ class EarnDashboardViewModel(
         val earningList = mutableListOf<EarnAsset>()
         val discoverList = mutableListOf<EarnAsset>()
 
-        data.stakingEligibility.map { (asset, eligibility) ->
-            data.stakingBalancesWithFiat[asset]?.let { balances ->
-                val totalBalance = balances.stakingCryptoBalances.totalBalance
+        data.stakingBalancesWithFiat.map { (asset, balances) ->
+
+            val totalBalance = balances.stakingCryptoBalances.totalBalance
+
+            if (totalBalance.isPositive) {
+
+                val eligibility =
+                    if (data.stakingEligibility.isNotEmpty()) {
+                        data.stakingEligibility[asset] ?: EarnRewardsEligibility.Ineligible.OTHER
+                    } else {
+                        EarnRewardsEligibility.Ineligible.OTHER
+                    }
 
                 val stakingAsset = asset.createStakingAsset(
                     stakingBalancesWithFiat = balances,
@@ -359,24 +367,40 @@ class EarnDashboardViewModel(
                     eligibility = eligibility
                 )
 
+                earningList.add(stakingAsset)
                 discoverList.add(stakingAsset)
-                if (totalBalance.isPositive) {
-                    earningList.add(stakingAsset)
-                }
-            } ?: discoverList.add(
-                asset.createStakingAsset(
-                    stakingBalancesWithFiat = StakingBalancesWithFiat(
-                        asset, StakingAccountBalance.zeroBalance(asset), Money.zero(asset)
-                    ),
-                    stakingRate = data.stakingRates[asset],
-                    eligibility = eligibility
-                )
-            )
+            }
         }
 
-        data.interestEligibility.map { (asset, eligibility) ->
-            data.interestBalancesWithFiat[asset]?.let { balances ->
-                val totalBalance = balances.interestCryptoBalances.totalBalance
+        if (data.stakingEligibility.isNotEmpty()) {
+            data.stakingEligibility.map { (asset, eligibility) ->
+                // if discoverList doesn't contain the asset, add it
+                if (discoverList.none { it.type is EarnType.Staking && it.assetTicker == asset.networkTicker }) {
+                    discoverList.add(
+                        asset.createStakingAsset(
+                            stakingBalancesWithFiat = StakingBalancesWithFiat(
+                                asset, StakingAccountBalance.zeroBalance(asset), Money.zero(asset)
+                            ),
+                            stakingRate = data.stakingRates[asset],
+                            eligibility = eligibility
+                        )
+                    )
+                }
+            }
+        }
+
+        data.interestBalancesWithFiat.map { (asset, balances) ->
+
+            val totalBalance = balances.interestCryptoBalances.totalBalance
+
+            if (totalBalance.isPositive) {
+
+                val eligibility =
+                    if (data.interestEligibility.isNotEmpty()) {
+                        data.interestEligibility[asset] ?: EarnRewardsEligibility.Ineligible.OTHER
+                    } else {
+                        EarnRewardsEligibility.Ineligible.OTHER
+                    }
 
                 val passiveAsset = asset.createPassiveAsset(
                     interestBalancesWithFiat = balances,
@@ -384,24 +408,41 @@ class EarnDashboardViewModel(
                     eligibility = eligibility
                 )
 
+                earningList.add(passiveAsset)
                 discoverList.add(passiveAsset)
-                if (totalBalance.isPositive) {
-                    earningList.add(passiveAsset)
-                }
-            } ?: discoverList.add(
-                asset.createPassiveAsset(
-                    interestBalancesWithFiat = InterestBalancesWithFiat(
-                        asset, InterestAccountBalance.zeroBalance(asset), Money.zero(asset)
-                    ),
-                    passiveRate = data.interestRates[asset],
-                    eligibility = eligibility
-                )
-            )
+            }
         }
 
-        data.activeRewardsEligibility.map { (asset, eligibility) ->
-            data.activeRewardsBalancesWithFiat[asset]?.let { balances ->
-                val totalBalance = balances.activeRewardsCryptoBalances.totalBalance
+        if (data.interestEligibility.isNotEmpty()) {
+            data.interestEligibility.map { (asset, eligibility) ->
+                // if discoverList doesn't contain the asset, add it
+                if (discoverList.none { it.type is EarnType.Passive && it.assetTicker == asset.networkTicker }) {
+                    data.interestRates[asset]?.let { rate ->
+                        discoverList.add(
+                            asset.createPassiveAsset(
+                                interestBalancesWithFiat = InterestBalancesWithFiat(
+                                    asset, InterestAccountBalance.zeroBalance(asset), Money.zero(asset)
+                                ),
+                                passiveRate = rate,
+                                eligibility = eligibility
+                            )
+                        )
+                    }
+                }
+            }
+        }
+
+        data.activeRewardsBalancesWithFiat.map { (asset, balances) ->
+            val totalBalance = balances.activeRewardsCryptoBalances.totalBalance
+
+            if (totalBalance.isPositive) {
+
+                val eligibility =
+                    if (data.activeRewardsEligibility.isNotEmpty()) {
+                        data.activeRewardsEligibility[asset] ?: EarnRewardsEligibility.Ineligible.OTHER
+                    } else {
+                        EarnRewardsEligibility.Ineligible.OTHER
+                    }
 
                 val activeRewardsAsset = asset.createActiveRewardsAsset(
                     activeRewardsBalancesWithFiat = balances,
@@ -409,19 +450,26 @@ class EarnDashboardViewModel(
                     eligibility = eligibility
                 )
 
+                earningList.add(activeRewardsAsset)
                 discoverList.add(activeRewardsAsset)
-                if (totalBalance.isPositive) {
-                    earningList.add(activeRewardsAsset)
+            }
+        }
+
+        if (data.activeRewardsEligibility.isNotEmpty()) {
+            data.activeRewardsEligibility.map { (asset, eligibility) ->
+                // if discoverList doesn't contain the asset, add it
+                if (discoverList.none { it.type is EarnType.Active && it.assetTicker == asset.networkTicker }) {
+                    discoverList.add(
+                        asset.createActiveRewardsAsset(
+                            activeRewardsBalancesWithFiat = ActiveRewardsBalancesWithFiat(
+                                asset, ActiveRewardsAccountBalance.zeroBalance(asset), Money.zero(asset)
+                            ),
+                            activeRewardsRate = data.activeRewardsRates[asset],
+                            eligibility = eligibility
+                        )
+                    )
                 }
-            } ?: discoverList.add(
-                asset.createActiveRewardsAsset(
-                    activeRewardsBalancesWithFiat = ActiveRewardsBalancesWithFiat(
-                        asset, ActiveRewardsAccountBalance.zeroBalance(asset), Money.zero(asset)
-                    ),
-                    activeRewardsRate = data.activeRewardsRates[asset],
-                    eligibility = eligibility
-                )
-            )
+            }
         }
 
         return DashboardState.EarningAndDiscover(

@@ -155,6 +155,7 @@ class ActiveRewardsSummaryViewModel(
                                 withdrawalsEnabled &&
                                 hasOngoingWithdrawals.not(),
                             hasOngoingWithdrawals = hasOngoingWithdrawals,
+                            canDeposit = eligibility is EarnRewardsEligibility.Eligible,
                         )
                     }
                 }

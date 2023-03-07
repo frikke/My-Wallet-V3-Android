@@ -270,7 +270,8 @@ fun ActiveRewardsSummarySheet(
                         modifier = Modifier.weight(1F),
                         text = stringResource(id = R.string.common_add),
                         icon = ImageResource.Local(R.drawable.receive_off, colorFilter = ColorFilter.tint(Color.White)),
-                        onClick = { state.account?.let { onDepositPressed(it as EarnRewardsAccount.Active) } }
+                        onClick = { state.account?.let { onDepositPressed(it as EarnRewardsAccount.Active) } },
+                        state = if (state.canDeposit) ButtonState.Enabled else ButtonState.Disabled,
                     )
                 }
 
