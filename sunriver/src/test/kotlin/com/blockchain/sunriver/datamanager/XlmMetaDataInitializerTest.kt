@@ -57,7 +57,7 @@ class XlmMetaDataInitializerTest {
             accounts = listOf(
                 XlmAccount(
                     publicKey = "GDRXE2BQUC3AZNPVFSCEZ76NJ3WWL25FYFK6RGZGIEKWE4SOOHSUJUJ6",
-                    label = "My Lumen Wallet",
+                    _label = "My Lumen Wallet",
                     pubKey = "e3726830a0b60cb5f52c844cffcd4eed65eba5c155e89b26411562724e71e544",
                     _archived = false
                 )
@@ -95,7 +95,7 @@ class XlmMetaDataInitializerTest {
             accounts = listOf(
                 XlmAccount(
                     publicKey = "GDRXE2BQUC3AZNPVFSCEZ76NJ3WWL25FYFK6RGZGIEKWE4SOOHSUJUJ6",
-                    label = "My Lumen Wallet",
+                    _label = "My Lumen Wallet",
                     pubKey = "e3726830a0b60cb5f52c844cffcd4eed65eba5c155e89b26411562724e71e544",
                     _archived = false
                 )
@@ -135,7 +135,7 @@ class XlmMetaDataInitializerTest {
             accounts = listOf(
                 XlmAccount(
                     publicKey = "GAVXVW5MCK7Q66RIBWZZKZEDQTRXWCZUP4DIIFXCCENGW2P6W4OA34RH",
-                    label = "The Lumen Wallet",
+                    _label = "The Lumen Wallet",
                     pubKey = "2b7adbac12bf0f7a280db395648384e37b0b347f068416e2111a6b69feb71c0d",
                     _archived = false
                 )
@@ -176,7 +176,7 @@ class XlmMetaDataInitializerTest {
             accounts = listOf(
                 XlmAccount(
                     publicKey = "GDRXE2BQUC3AZNPVFSCEZ76NJ3WWL25FYFK6RGZGIEKWE4SOOHSUJUJ6",
-                    label = "My Lumen Wallet",
+                    _label = "My Lumen Wallet",
                     pubKey = "e3726830a0b60cb5f52c844cffcd4eed65eba5c155e89b26411562724e71e544",
                     _archived = false
                 )
@@ -214,7 +214,7 @@ class XlmMetaDataInitializerTest {
             accounts = listOf(
                 XlmAccount(
                     publicKey = "GDRXE2BQUC3AZNPVFSCEZ76NJ3WWL25FYFK6RGZGIEKWE4SOOHSUJUJ6",
-                    label = "My Lumen Wallet",
+                    _label = "My Lumen Wallet",
                     pubKey = "!@3",
                     _archived = false
                 )
@@ -330,7 +330,7 @@ class XlmMetaDataInitializerTest {
             accounts = listOf(
                 XlmAccount(
                     publicKey = "GDRXE2BQUC3AZNPVFSCEZ76NJ3WWL25FYFK6RGZGIEKWE4SOOHSUJUJ6",
-                    label = "My Lumen Wallet",
+                    _label = "My Lumen Wallet",
                     _archived = false,
                     pubKey = "@!£2",
                 )
@@ -378,7 +378,7 @@ class XlmMetaDataInitializerTest {
                 XlmAccount(
                     pubKey = "e3726830a0b60cb5f52c844cffcd4eed65eba5c155e89b26411562724e71e544",
                     publicKey = "GDRXE2BQUC3AZNPVFSCEZ76NJ3WWL25FYFK6RGZGIEKWE4SOOHSUJUJ6",
-                    label = "My Lumen Wallet",
+                    _label = "My Lumen Wallet",
                     _archived = false
                 )
             ),
@@ -420,7 +420,7 @@ class XlmMetaDataInitializerTest {
             accounts = listOf(
                 XlmAccount(
                     publicKey = "GDRXE2BQUC3AZNPVFSCEZ76NJ3WWL25FYFK6RGZGIEKWE4SOOHSUJUJ6",
-                    label = "My Lumen Wallet",
+                    _label = "My Lumen Wallet",
                     pubKey = "e3726830a0b60cb5f52c844cffcd4eed65eba5c155e89b26411562724e71e544",
                     _archived = false
                 )
@@ -459,7 +459,7 @@ class XlmMetaDataInitializerTest {
             accounts = listOf(
                 XlmAccount(
                     publicKey = "GC3MMSXBWHL6CPOAVERSJITX7BH76YU252WGLUOM5CJX3E7UCYZBTPJQ",
-                    label = "My Lumen Wallet X",
+                    _label = "My Lumen Wallet X",
                     pubKey = "b6c64ae1b1d7e13dc0a92324a277f84fff629aeeac65d1cce8937d93f4163219",
                     _archived = false
                 )
@@ -496,7 +496,7 @@ class XlmMetaDataInitializerTest {
             accounts = listOf(
                 XlmAccount(
                     publicKey = "GDRXE2BQUC3AZNPVFSCEZ76NJ3WWL25FYFK6RGZGIEKWE4SOOHSUJUJ6",
-                    label = "My Lumen Wallet",
+                    _label = "My Lumen Wallet",
                     _archived = false,
                     pubKey = "3998db92ebfd1e8c190c9845ea006cd094fad28088ac91847ec994079cc9906d",
                 )
@@ -537,7 +537,7 @@ class XlmMetaDataInitializerTest {
             accounts = listOf(
                 XlmAccount(
                     publicKey = "GDRXE2BQUC3AZNPVFSCEZ76NJ3WWL25FYFK6RGZGIEKWE4SOOHSUJUJ6",
-                    label = "My Lumen Wallet",
+                    _label = "My Lumen Wallet",
                     _archived = false,
                     pubKey = "!@3231"
                 )
@@ -586,7 +586,7 @@ class XlmMetaDataInitializerTest {
             accounts = listOf(
                 XlmAccount(
                     publicKey = "GDRXE2BQUC3AZNPVFSCEZ76NJ3WWL25FYFK6RGZGIEKWE4SOOHSUJUJ6",
-                    label = "My Lumen Wallet",
+                    _label = "My Lumen Wallet",
                     pubKey = "e3726830a0b60cb5f52c844cffcd4eed65eba5c155e89b26411562724e71e544",
                     _archived = false
                 )

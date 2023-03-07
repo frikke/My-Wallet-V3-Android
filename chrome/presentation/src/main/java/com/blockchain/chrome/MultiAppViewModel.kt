@@ -45,20 +45,21 @@ class MultiAppViewModel(
 
     override fun reduce(state: MultiAppModelState): MultiAppViewState = state.run {
         MultiAppViewState(
-            modeSwitcherOptions = state.walletModes?.let {
-                if (state.walletModes.size == 1) {
-                    ChromeModeOptions.SingleSelection(state.walletModes.first())
+            modeSwitcherOptions = walletModes?.let {
+                if (walletModes.size == 1) {
+                    ChromeModeOptions.SingleSelection(walletModes.first())
                 } else {
-                    ChromeModeOptions.MultiSelection(state.walletModes)
+                    ChromeModeOptions.MultiSelection(walletModes)
                 }
             },
-            selectedMode = state.selectedWalletMode,
-            backgroundColors = state.selectedWalletMode?.backgroundColors(),
-            totalBalance = state.totalBalance.map { balance -> balance.toStringWithSymbol() },
-            shouldRevealBalance = state.balanceRevealed.not(),
-            bottomNavigationItems = state.selectedWalletMode?.bottomNavigationItems()?.filter {
-                it != ChromeBottomNavigationItem.Dex || state.dexEnabled
-            }
+            selectedMode = selectedWalletMode,
+            backgroundColors = selectedWalletMode?.backgroundColors(),
+            totalBalance = totalBalance.map { balance -> balance.toStringWithSymbol() },
+            shouldRevealBalance = balanceRevealed.not(),
+            bottomNavigationItems = selectedWalletMode?.bottomNavigationItems()?.filter {
+                it != ChromeBottomNavigationItem.Dex || dexEnabled
+            },
+            selectedBottomNavigationItem = selectedBottomNavigationItem
         )
     }
 
@@ -103,6 +104,12 @@ class MultiAppViewModel(
             is MultiAppIntents.BalanceRevealed -> {
                 updateState {
                     it.copy(balanceRevealed = true)
+                }
+            }
+
+            is MultiAppIntents.BottomNavigationItemSelected -> {
+                updateState {
+                    it.copy(selectedBottomNavigationItem = intent.item)
                 }
             }
         }

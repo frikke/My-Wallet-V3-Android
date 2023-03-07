@@ -25,8 +25,8 @@ import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
 import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressRequest
 import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressResponse
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
-import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse
 import com.blockchain.nabu.models.responses.simplebuy.ConfirmOrderRequestBody
+import com.blockchain.nabu.models.responses.simplebuy.CustodialAccountResponse
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.DepositRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.ProductTransferRequestBody
@@ -50,7 +50,6 @@ import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenRespon
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.fold
-import com.blockchain.outcome.map
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.utils.thenSingle
 import com.blockchain.utils.toJsonElement
@@ -274,10 +273,12 @@ class NabuService internal constructor(
     ): Single<SimpleBuyPairsDto> =
         nabu.getSupportedSimpleBuyPairs(fiatCurrency).wrapErrorMessage()
 
-    fun getSimpleBuyBankAccountDetails(
-        currency: String
-    ): Single<BankAccountResponse> =
-        nabu.getSimpleBuyBankAccountDetails(
+    fun getCustodialAccountDetails(
+        product: String,
+        currency: String,
+    ): Single<CustodialAccountResponse> =
+        nabu.getCustodialAccountDetails(
+            product,
             SimpleBuyCurrency(currency)
         ).wrapErrorMessage()
 

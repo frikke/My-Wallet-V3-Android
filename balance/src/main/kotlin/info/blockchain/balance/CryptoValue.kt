@@ -20,6 +20,8 @@ data class CryptoValue(
 
     override fun isDust(): Boolean = false
 
+    override fun toString(): String = toStringWithSymbol(true)
+
     override fun toStringWithSymbol(includeDecimalsWhenWhole: Boolean) = formatWithUnit(
         locale = Locale.getDefault(),
         includeDecimalsWhenWhole = includeDecimalsWhenWhole

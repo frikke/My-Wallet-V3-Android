@@ -149,6 +149,10 @@ class WalletBase constructor(private val walletBaseDto: WalletBaseDto) {
         throw UnsupportedOperationException("Cannot update label of " + jsonSerializableAccount.javaClass.name)
     }
 
+    fun withUpdatedAccountsLabel(accounts: Map<Account, String>): WalletBase {
+        return withWalletBody(wallet.updateAccountsLabel(accounts))
+    }
+
     fun withUpdatedAccountState(account: JsonSerializableAccount?, isArchived: Boolean): WalletBase {
         return withWalletBody(wallet.updateArchivedState(account, isArchived))
     }

@@ -18,6 +18,7 @@ import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.preferences.DexPrefs
 import com.blockchain.preferences.ExchangeCampaignPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
@@ -63,6 +64,7 @@ val coreAndroidModule = module {
         bind(SmallBalancesPrefs::class)
         bind(NotificationPrefs::class)
         bind(DashboardPrefs::class)
+        bind(DexPrefs::class)
         bind(SecurityPrefs::class)
         bind(PricesPrefs::class)
         bind(WalletModePrefs::class)

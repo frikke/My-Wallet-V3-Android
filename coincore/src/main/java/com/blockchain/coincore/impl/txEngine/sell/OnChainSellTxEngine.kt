@@ -14,16 +14,17 @@ import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.TransactionsStore
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialSwapActivityStore
 import com.blockchain.store.Store
 import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Observables
 
 class OnChainSellTxEngine(
     private val tradingStore: TradingStore,
@@ -61,11 +62,14 @@ class OnChainSellTxEngine(
     }
 
     override fun doInitialiseTx(): Single<PendingTx> =
-        quotesEngine.getPricedQuote()
+        Observables.combineLatest(
+            quotesEngine.getPriceQuote(),
+            quotesEngine.getSampleDepositAddress().toObservable(),
+        )
             .firstOrError()
-            .doOnSuccess { pricedQuote ->
-                engine.startFromQuote(pricedQuote)
-            }.flatMap { quote ->
+            .doOnSuccess { (_, sampleDepositAddress) ->
+                engine.startFromTargetAddress(sampleDepositAddress)
+            }.flatMap { (quote, _) ->
                 engine.doInitialiseTx()
                     .flatMap {
                         updateLimits(target.currency, it, quote)

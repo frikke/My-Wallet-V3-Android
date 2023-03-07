@@ -39,6 +39,15 @@ data class WalletBodyDto(
         )
     }
 
+    fun updateAccountsLabel(updatedAccounts: Map<Account, String>): WalletBodyDto {
+        val updatedAccountList = accounts.map { account ->
+            updatedAccounts[account]?.let { label ->
+                account.updateLabel(label)
+            } ?: account
+        }
+        return copy(accounts = updatedAccountList)
+    }
+
     fun updateAccountArchivedState(account: Account, archived: Boolean): WalletBodyDto {
         val mAccount = accounts.first { it == account }
         return this.copy(

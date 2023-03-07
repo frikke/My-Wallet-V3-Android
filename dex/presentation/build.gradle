@@ -31,7 +31,7 @@ dependencies {
     implementation project(':common:presentation')
     implementation project(':string-resources')
     implementation project(':componentlib')
-
+    implementation project(':chrome:common')
     // koin
     implementation Libraries.koinAndroid
     implementation Libraries.koinCompose
@@ -41,4 +41,7 @@ dependencies {
     implementation Libraries.composeMaterial
     implementation Libraries.composePreview
     implementation Libraries.composeNavigation
+    implementation Libraries.accompanistPager
+    implementation Libraries.accompanistPagerIndicators
+    implementation Libraries.accompanistNavigationMaterial
 }

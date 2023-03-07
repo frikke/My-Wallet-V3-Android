@@ -6,6 +6,7 @@ import info.blockchain.wallet.ApiCode
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.api.data.Status
 import info.blockchain.wallet.api.data.WalletOptions
+import info.blockchain.wallet.payload.data.walletdto.WalletBaseDto
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -151,7 +152,7 @@ class WalletApi(
         }
     }
 
-    fun fetchWalletData(guid: String, sharedKey: String, sessionId: String): Single<ResponseBody> {
+    fun fetchWalletData(guid: String, sharedKey: String, sessionId: String): Single<WalletBaseDto> {
         return explorerInstance.fetchWalletData(
             "wallet.aes.json",
             guid,

@@ -35,6 +35,7 @@ dependencies {
     implementation project(':coincore')
     implementation project(':store:core')
     implementation project(':flowprices:domain')
+    implementation project(':analytics:domain')
 
     // android
     implementation Libraries.design

@@ -108,7 +108,7 @@ class InterestWithdrawTradingTxEngine(
                 txConfirmations = listOfNotNull(
                     TxConfirmationValue.From(sourceAccount, sourceAsset),
                     TxConfirmationValue.To(
-                        txTarget, AssetAction.InterestDeposit, sourceAccount
+                        txTarget, AssetAction.InterestDeposit, sourceAccount // TODO(labreu): InterestDeposit??
                     ),
                     TxConfirmationValue.Total(
                         totalWithFee = (pendingTx.amount as CryptoValue).plus(

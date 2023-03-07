@@ -29,7 +29,16 @@ class TradeService internal constructor(
         id = id
     ).wrapErrorMessage()
 
-    fun getQuotePrice(
+    /**
+     * paymentMethod, orderProfileName:
+     * Buy -> user defined(card, funds, etc..), SIMPLEBUY
+     * Sell -> FUNDS, SWAP_INTERNAL
+     * Sell NC -> DEPOSIT, SWAP_FROM_USERKEY
+     * Swap C-C -> FUNDS, SWAP_INTERNAL
+     * Swap NC-C -> DEPOSIT, SWAP_FROM_USERKEY
+     * Swap NC-NC -> DEPOSIT, SWAP_ON_CHAIN
+     */
+    suspend fun getQuotePrice(
         currencyPair: String,
         amount: String,
         paymentMethod: String,

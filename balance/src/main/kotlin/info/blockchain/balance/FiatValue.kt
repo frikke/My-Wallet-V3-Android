@@ -86,6 +86,8 @@ class FiatValue private constructor(
     override fun toFloat(): Float =
         toBigDecimal().toFloat()
 
+    override fun toString(): String = toStringWithSymbol(true)
+
     override fun toStringWithSymbol(includeDecimalsWhenWhole: Boolean): String =
         FiatFormat[
             Key(

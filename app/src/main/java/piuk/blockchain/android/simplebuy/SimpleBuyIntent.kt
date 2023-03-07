@@ -470,7 +470,6 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
                     fiatCurrency = buyOrder.source.currency as FiatCurrency,
                     orderFee = buyOrder.fee,
                 ),
-                // TODO(aromano): QUOTE with feynmanFF off we use the order crypto value instead of the quote
                 orderValue = buyOrder.orderValue as CryptoValue,
                 paymentSucceeded = buyOrder.state == OrderState.FINISHED,
                 isLoading = false,

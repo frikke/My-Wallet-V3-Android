@@ -35,7 +35,8 @@ val homePresentationModule = module {
         viewModel {
             AnnouncementsViewModel(
                 walletModeService = get(),
-                backupPhraseService = get()
+                backupPhraseService = get(),
+                announcementsService = get()
             )
         }
 

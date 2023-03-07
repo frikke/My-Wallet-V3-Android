@@ -27,6 +27,7 @@ import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.home.activity.CustodialActivityService
 import com.blockchain.home.presentation.activity.detail.ActivityDetailIntent
 import com.blockchain.home.presentation.activity.detail.ActivityDetailModelState
@@ -38,7 +39,6 @@ import com.blockchain.home.presentation.activity.detail.custodial.mappers.toActi
 import com.blockchain.home.presentation.activity.list.custodial.mappers.isSellingPair
 import com.blockchain.home.presentation.activity.list.custodial.mappers.isSwapPair
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
-import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.store.filterNotLoading
 import com.blockchain.store.mapData
 import com.blockchain.wallet.DefaultLabels
@@ -47,7 +47,6 @@ import info.blockchain.balance.asAssetInfoOrThrow
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flowOf

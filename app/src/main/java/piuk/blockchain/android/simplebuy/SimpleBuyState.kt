@@ -8,6 +8,7 @@ import com.blockchain.core.custodial.models.Availability
 import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.custodial.models.Promo
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.domain.common.model.Millis
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.domain.paymentmethods.model.DepositTerms
@@ -34,7 +35,6 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import java.io.Serializable
 import java.math.BigInteger
-import java.time.ZonedDateTime
 import kotlin.math.floor
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Transient
@@ -308,8 +308,8 @@ data class BuyQuote(
     val settlementReason: SettlementReason? = null,
     val quoteMargin: Double? = null,
     val feeDetails: BuyFees,
-    val createdAt: @Contextual ZonedDateTime,
-    val expiresAt: @Contextual ZonedDateTime,
+    val createdAt: Millis,
+    val expiresAt: Millis,
     val remainingTime: Long,
     val chunksTimeCounter: MutableList<Int> = mutableListOf(),
     val depositTerms: DepositTerms?
@@ -322,7 +322,7 @@ data class BuyQuote(
             BuyQuote(
                 id = brokerageQuote.id,
                 // we should pass the fiat to the state, otherwise Money interface wont get serialised.
-                price = brokerageQuote.price.toFiat(fiatCurrency),
+                price = brokerageQuote.sourceToDestinationRate.price.toFiat(fiatCurrency),
                 availability = brokerageQuote.availability,
                 settlementReason = brokerageQuote.settlementReason,
                 quoteMargin = brokerageQuote.quoteMargin,
@@ -342,7 +342,7 @@ data class BuyQuote(
             BuyQuote(
                 id = brokerageQuote.id,
                 // we should pass the fiat to the state, otherwise Money interface wont get serialised.
-                price = brokerageQuote.price.toFiat(fiatCurrency),
+                price = brokerageQuote.sourceToDestinationRate.price.toFiat(fiatCurrency),
                 availability = brokerageQuote.availability,
                 settlementReason = brokerageQuote.settlementReason,
                 quoteMargin = brokerageQuote.quoteMargin,

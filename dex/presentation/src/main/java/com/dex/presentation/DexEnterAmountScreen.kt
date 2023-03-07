@@ -20,6 +20,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,7 +36,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.Image
@@ -51,9 +51,21 @@ import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.dex.presentation.R
+import com.blockchain.preferences.DexPrefs
+import org.koin.androidx.compose.get
 
 @Composable
-fun DexEnterAmountScreen(listState: LazyListState) {
+fun DexEnterAmountScreen(
+    listState: LazyListState,
+    openIntro: () -> Unit,
+    dexIntroPrefs: DexPrefs = get()
+) {
+    LaunchedEffect(Unit) {
+        if (!dexIntroPrefs.dexIntroShown) {
+            openIntro()
+        }
+    }
+
     val spacing = AppTheme.dimensions.smallSpacing
     LazyColumn(
         state = listState,
@@ -65,7 +77,7 @@ fun DexEnterAmountScreen(listState: LazyListState) {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
         }
         paddedItem(paddingValues = PaddingValues(spacing)) {
-            InputField()
+            InputField(openIntro)
         }
     }
 }
@@ -75,9 +87,8 @@ fun DexEnterAmountScreen(listState: LazyListState) {
 * -compose-equivalent-to-inputfilter
 *
 * */
-@Preview(showBackground = true)
 @Composable
-fun InputField() {
+fun InputField(openIntro: () -> Unit) {
     var input by remember { mutableStateOf(TextFieldValue()) }
     var size by remember { mutableStateOf(IntSize.Zero) }
     Box {
@@ -121,7 +132,7 @@ fun InputField() {
                 }
             }
         }
-        MaskedCircleArrow(size)
+        MaskedCircleArrow(size, openIntro)
     }
 }
 
@@ -191,7 +202,7 @@ private fun RowScope.Balance() {
 }
 
 @Composable
-private fun MaskedCircleArrow(parentSize: IntSize) {
+private fun MaskedCircleArrow(parentSize: IntSize, openIntro: () -> Unit) {
     var boxSize by remember { mutableStateOf(IntSize.Zero) }
     Box(
         modifier = Modifier
@@ -220,7 +231,7 @@ private fun MaskedCircleArrow(parentSize: IntSize) {
             }
         )
         Image(
-            Icons.ArrowDown.withBackground(
+            imageResource = Icons.ArrowDown.withBackground(
                 backgroundColor = Color.White,
                 backgroundSize = AppTheme.dimensions.standardSpacing,
                 iconSize = AppTheme.dimensions.standardSpacing,

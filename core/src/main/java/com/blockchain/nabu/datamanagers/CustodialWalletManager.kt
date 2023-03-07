@@ -14,6 +14,7 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.trade.model.RecurringBuy
 import com.blockchain.domain.trade.model.RecurringBuyState
 import com.blockchain.domain.transactions.CustodialTransactionState
+import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
@@ -101,7 +102,7 @@ interface CustodialWalletManager {
         currency: FiatCurrency
     ): Single<BankAccount>
 
-    fun getCustodialAccountAddress(asset: Currency): Single<String>
+    fun getCustodialAccountAddress(product: Product, asset: Currency): Single<String>
 
     @Deprecated("use flow isCurrencyAvailableForTrading - remove when CoinView is migrated")
     fun isCurrencyAvailableForTradingLegacy(
@@ -438,13 +439,6 @@ data class BuySellPair(
 data class BuySellLimits(private val min: BigInteger, private val max: BigInteger) {
     fun minLimit(currency: Currency): Money = Money.fromMinor(currency, min)
     fun maxLimit(currency: Currency): Money = Money.fromMinor(currency, max)
-}
-
-enum class TransferDirection {
-    ON_CHAIN, // from non-custodial to non-custodial
-    FROM_USERKEY, // from non-custodial to custodial
-    TO_USERKEY, // from custodial to non-custodial - not in use currently
-    INTERNAL; // from custodial to custodial
 }
 
 data class BankAccount(val details: List<BankDetail>)

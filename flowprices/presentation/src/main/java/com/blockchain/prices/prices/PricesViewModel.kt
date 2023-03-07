@@ -19,6 +19,8 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.prices.domain.AssetPriceInfo
 import com.blockchain.prices.domain.PricesService
 import com.blockchain.utils.CurrentTimeProvider
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
@@ -29,6 +31,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class PricesViewModel(
+    private val walletModeService: WalletModeService,
     private val currencyPrefs: CurrencyPrefs,
     private val userFeaturePermissionService: UserFeaturePermissionService,
     private val pricesService: PricesService,
@@ -43,9 +46,14 @@ class PricesViewModel(
     private var pricesJob: Job? = null
     private var topMoversCountJob: Job? = null
     private var mostPopularJob: Job? = null
+    private var risingFastJob: Job? = null
     private var filtersJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
+
+    init {
+        loadWalletMode()
+    }
 
     override fun reduce(state: PricesModelState): PricesViewState {
         return PricesViewState(
@@ -89,7 +97,7 @@ class PricesViewModel(
                     )
                 }
                 .mapList {
-                    it.toPriceItemViewState()
+                    it.toPriceItemViewState(risingFastPercent = state.risingFastPercent)
                 }
                 .map {
                     it.groupBy {
@@ -97,22 +105,28 @@ class PricesViewModel(
                         else PricesOutputGroup.Others
                     }
                 },
-            topMovers = state.data.map { list ->
-                list.filter { it.price is DataResource.Data && it.isTradable }
-                    .sortedWith(
-                        compareByDescending { asset ->
-                            asset.price.map { it.delta24h.absoluteValue }.dataOrElse(0.0)
+            topMovers = if (isTopMoversSupported(walletMode = state.walletMode, filter = state.filterBy)) {
+                state.data.map { list ->
+                    list.filter { it.price is DataResource.Data && it.isTradable }
+                        .sortedWith(
+                            compareByDescending { asset ->
+                                asset.price.map { it.delta24h.absoluteValue }.dataOrElse(0.0)
+                            }
+                        )
+                        .take(state.topMoversCount)
+                        .map {
+                            it.toPriceItemViewState(risingFastPercent = state.risingFastPercent)
                         }
-                    )
-                    .take(state.topMoversCount)
-                    .map {
-                        it.toPriceItemViewState()
-                    }
+                }
+            } else {
+                DataResource.Data(emptyList())
             }
         )
     }
 
-    private fun AssetPriceInfo.toPriceItemViewState(): PriceItemViewState {
+    private fun AssetPriceInfo.toPriceItemViewState(
+        risingFastPercent: Double
+    ): PriceItemViewState {
         return PriceItemViewState(
             asset = assetInfo,
             name = assetInfo.name,
@@ -122,7 +136,8 @@ class PricesViewModel(
             delta = price.map { ValueChange.fromValue(it.delta24h) },
             currentPrice = price.map {
                 it.currentRate.price.format(currencyPrefs.selectedFiatCurrency)
-            }
+            },
+            showRisingFastTag = price.map { it.delta24h >= risingFastPercent }.dataOrElse(false)
         )
     }
 
@@ -130,13 +145,21 @@ class PricesViewModel(
         when (intent) {
             is PricesIntents.LoadData -> {
                 updateState {
-                    it.copy(loadStrategy = intent.strategy)
+                    it.copy(
+                        loadStrategy = intent.strategy,
+                        filterBy = when (intent.strategy) {
+                            PricesLoadStrategy.All -> PricesFilter.All
+                            PricesLoadStrategy.TradableOnly -> PricesFilter.Tradable
+                        }
+                    )
                 }
 
+                loadWalletMode()
                 loadFilters()
                 loadData(intent.strategy)
                 loadTopMoversCount()
                 loadMostPopularTickers()
+                loadRisingFastPercentThreshold()
             }
 
             is PricesIntents.FilterSearch -> {
@@ -156,6 +179,16 @@ class PricesViewModel(
                     it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
                 loadData(strategy = modelState.loadStrategy)
+            }
+        }
+    }
+
+    private fun loadWalletMode() {
+        viewModelScope.launch {
+            walletModeService.walletMode.collectLatest { walletMode ->
+                updateState {
+                    it.copy(walletMode = walletMode)
+                }
             }
         }
     }
@@ -222,6 +255,27 @@ class PricesViewModel(
                     }
                 }
         }
+    }
+
+    private fun loadRisingFastPercentThreshold() {
+        risingFastJob?.cancel()
+        risingFastJob = viewModelScope.launch {
+            pricesService.risingFastPercentThreshold()
+                .collectLatest { risingFastPercent ->
+                    updateState {
+                        it.copy(
+                            risingFastPercent = risingFastPercent
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun isTopMoversSupported(
+        walletMode: WalletMode?,
+        filter: PricesFilter
+    ): Boolean {
+        return walletMode == WalletMode.CUSTODIAL && filter == PricesFilter.Tradable
     }
 }
 

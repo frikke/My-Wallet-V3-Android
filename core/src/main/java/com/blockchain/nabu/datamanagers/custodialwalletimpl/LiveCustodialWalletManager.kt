@@ -13,7 +13,6 @@ import com.blockchain.core.trade.GetRecurringBuysStore
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
-import com.blockchain.data.onErrorReturn
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
@@ -21,6 +20,7 @@ import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.trade.model.RecurringBuy
 import com.blockchain.domain.trade.model.RecurringBuyState
+import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.nabu.datamanagers.BankAccount
 import com.blockchain.nabu.datamanagers.BuyOrderList
 import com.blockchain.nabu.datamanagers.BuySellLimits
@@ -41,7 +41,6 @@ import com.blockchain.nabu.datamanagers.SimplifiedDueDiligenceUserState
 import com.blockchain.nabu.datamanagers.TransactionErrorMapper
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
-import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferLimits
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
@@ -49,9 +48,9 @@ import com.blockchain.nabu.models.data.WithdrawFeeRequest
 import com.blockchain.nabu.models.responses.cards.PaymentCardAcquirerResponse
 import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
 import com.blockchain.nabu.models.responses.nabu.State
-import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
 import com.blockchain.nabu.models.responses.simplebuy.ConfirmOrderRequestBody
+import com.blockchain.nabu.models.responses.simplebuy.CustodialAccountResponse
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.PaymentAttributesResponse
 import com.blockchain.nabu.models.responses.simplebuy.PaymentStateResponse
@@ -258,15 +257,25 @@ class LiveCustodialWalletManager(
         }
 
     override fun getBankAccountDetails(currency: FiatCurrency): Single<BankAccount> =
-        nabuService.getSimpleBuyBankAccountDetails(currency.networkTicker).map { response ->
+        nabuService.getCustodialAccountDetails("simplebuy", currency.networkTicker).map { response ->
             paymentAccountMapperMappers[currency.networkTicker]?.map(response)
                 ?: throw IllegalStateException("Not valid Account returned")
         }
 
-    override fun getCustodialAccountAddress(asset: Currency): Single<String> =
-        nabuService.getSimpleBuyBankAccountDetails(asset.networkTicker).map { response ->
+    override fun getCustodialAccountAddress(
+        product: Product,
+        asset: Currency
+    ): Single<String> {
+        val product = when (product) {
+            Product.SELL,
+            Product.TRADE -> "swap"
+            Product.BUY -> "simplebuy"
+            else -> throw UnsupportedOperationException()
+        }
+        return nabuService.getCustodialAccountDetails(product, asset.networkTicker).map { response ->
             response.address
         }
+    }
 
     override fun isCurrencyAvailableForTradingLegacy(assetInfo: AssetInfo): Single<Boolean> {
         val tradingCurrency = fiatCurrenciesService.selectedTradingCurrency
@@ -757,7 +766,7 @@ private fun PaymentMethodResponse.isEligibleCard() =
     eligible && type.toPaymentMethodType() == PaymentMethodType.PAYMENT_CARD
 
 interface PaymentAccountMapper {
-    fun map(bankAccountResponse: BankAccountResponse): BankAccount?
+    fun map(bankAccountResponse: CustodialAccountResponse): BankAccount?
 }
 
 private data class CustodialFiatBalance(

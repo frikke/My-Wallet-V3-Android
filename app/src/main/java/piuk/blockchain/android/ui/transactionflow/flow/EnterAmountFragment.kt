@@ -221,6 +221,7 @@ class EnterAmountFragment :
 
                 if (newState.setMax) {
                     amountSheetInput.updateValue(newState.maxSpendable)
+                    model.process(TransactionIntent.ResetUseMaxSpendable)
                 } else if (!initialValueSet) {
                     newState.initialAmountToSet()?.let {
                         amountSheetInput.updateValue(it)

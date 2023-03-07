@@ -3,7 +3,6 @@ package com.blockchain.coincore.impl
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
-import com.blockchain.logging.Logger
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
@@ -12,22 +11,16 @@ import com.blockchain.store.impl.IsCachedMediator
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.api.WalletApi
-import io.reactivex.rxjava3.kotlin.subscribeBy
-import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
+@Serializable
 internal data class NotificationAddresses(
     val assetTicker: String,
     val addressList: List<String>,
-)
-
-@Serializable
-internal data class NotificationReceiveAddresses(
-    private val coin: String,
-    private val addresses: List<String>,
 )
 
 // Update the BE with the current address sets for assets, used to
@@ -37,39 +30,17 @@ internal class BackendNotificationUpdater(
     private val json: Json
 ) {
 
-    private val addressMap = mutableMapOf<String, NotificationAddresses>()
-
-    fun updateNotificationBackend(item: NotificationAddresses) {
-        addressMap[item.assetTicker] = item
-        if (item.assetTicker in REQUIRED_ASSETS && requiredAssetsUpdated()) {
-            // This is a fire and forget operation.
-            // We don't want this call to delay the main rx chain, and we don't care about errors,
-            updateBackend().ignoreElements()
-                .subscribeOn(Schedulers.io())
-                .subscribeBy(onError = { Logger.e("Notification Update failed: $it") })
-        }
+    fun updateNotificationBackend(item: NotificationAddresses): Completable {
+        return if (item.assetTicker in REQUIRED_ASSETS) {
+            updateBackend(item).ignoreElement().onErrorComplete()
+        } else Completable.complete()
     }
 
-    private fun requiredAssetsUpdated(): Boolean {
-        REQUIRED_ASSETS.forEach { if (!addressMap.containsKey(it)) return@requiredAssetsUpdated false }
-        return true
-    }
-
-    private fun updateBackend() = coinAddressesStore.stream(
+    private fun updateBackend(item: NotificationAddresses) = coinAddressesStore.stream(
         FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale).withKey(
-            coinReceiveAddresses()
+            json.encodeToString(item.copy(addressList = item.addressList.sorted()))
         )
-    ).asObservable()
-
-    private fun coinReceiveAddresses(): String {
-        val addresses = REQUIRED_ASSETS.map { key ->
-            val addresses =
-                addressMap[key]?.addressList ?: throw IllegalStateException("Required Asset missing")
-            NotificationReceiveAddresses(key, addresses.sorted())
-        }
-
-        return json.encodeToString(addresses)
-    }
+    ).asObservable().firstOrError()
 
     companion object {
         private val REQUIRED_ASSETS = setOf(
@@ -88,7 +59,7 @@ class CoinAddressesStore(private val walletApi: WalletApi, private val prefs: Au
                 prefs.walletGuid,
                 prefs.sharedKey,
                 key
-            ).firstOrError().map { }
+            ).firstOrError().map { Unit }
         },
         dataSerializer = Unit.serializer(),
         keySerializer = String.serializer(),

@@ -375,6 +375,14 @@ class WalletBody(
         )
     }
 
+    fun updateAccountsLabel(accounts: Map<Account, String>): WalletBody {
+        return WalletBody(
+            version,
+            walletBodyDto.updateAccountsLabel(accounts),
+            HD
+        )
+    }
+
     fun updateAccountState(account: Account, isArchived: Boolean): WalletBody =
         WalletBody(
             version,

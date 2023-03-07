@@ -2739,7 +2739,8 @@
     <string name="staking_confirmation_bonding_period_4"> Les fonds sont soumis à une période de cautionnement de</string>
     <plurals name="staking_confirmation_bonding_period_6">
         <item quantity="one" tools:ignore="ImpliedQuantity">jour</item>
-        <item quantity="many">jours</item>
+        <item quantity="many">de jours</item>
+        <item quantity="other">jours</item>
     </plurals>
     <string name="staking_confirmation_bonding_period_7"> avant de produire des récompenses.</string>
     <string name="staking_confirmation_progress_title">Staking de %1$s</string>
@@ -2809,7 +2810,7 @@
     <string name="show_pkw_accounts">Afficher les DeFi Wallets</string>
     <string name="actions_sheet_percentage_rate">Taux : %s%%</string>
     <string name="staking_asset">%1s staké</string>
-    <string name="earn_rate_apy">%1$s %% de taux de rendement annuel</string>
+    <string name="earn_rate">%1$s %% de taux de rendement annuel</string>
     <string name="activity_details_label_confirmations_single_line">%1$s/%2$s confirmations</string>
     <string name="no_balance_sheet_earn_title">Vous n\'avez pas de %1$s</string>
     <string name="no_balance_sheet_earn_subtitle">Achetez ou recevez %1$s pour commencer à gagner.</string>

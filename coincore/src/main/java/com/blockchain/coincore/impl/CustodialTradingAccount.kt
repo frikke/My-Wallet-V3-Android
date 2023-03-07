@@ -23,6 +23,7 @@ import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
@@ -33,7 +34,6 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransactionState
-import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.toRecurringBuyFailureReason
 import com.blockchain.utils.zipSingles
@@ -73,7 +73,7 @@ class CustodialTradingAccount(
         }
 
     override val receiveAddress: Single<ReceiveAddress>
-        get() = custodialWalletManager.getCustodialAccountAddress(currency).map {
+        get() = custodialWalletManager.getCustodialAccountAddress(Product.BUY, currency).map {
             makeExternalAssetAddress(
                 asset = currency,
                 address = it,
@@ -178,6 +178,7 @@ class CustodialTradingAccount(
             AssetAction.FiatWithdraw,
             AssetAction.InterestWithdraw,
             AssetAction.FiatDeposit,
+            AssetAction.ActiveRewardsWithdraw,
             AssetAction.Sign -> Single.just(StateAwareAction(ActionState.Unavailable, this))
         }
 

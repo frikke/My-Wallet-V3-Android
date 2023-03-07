@@ -39,7 +39,7 @@ import com.blockchain.walletmode.WalletModeService
 import exchange.ExchangeLinking
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.isCustodial
-import io.reactivex.rxjava3.core.Completable
+import info.blockchain.wallet.LabeledAccount
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.atomic.AtomicBoolean
@@ -79,23 +79,16 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
         })
     }
 
-    private fun updateLabelsIfNeeded(list: SingleAccountList): Completable =
-        Completable.concat(
-            list.map {
-                val cryptoNonCustodialAccount = it as? CryptoNonCustodialAccount
-                if (cryptoNonCustodialAccount?.labelNeedsUpdate() == true) {
-                    cryptoNonCustodialAccount.updateLabel(
-                        cryptoNonCustodialAccount.label.updatedLabel()
-                    ).doOnError { error ->
-                        remoteLogger.logException(error)
-                    }.onErrorComplete()
-                } else {
-                    Completable.complete()
-                }
-            }
-        )
+    protected fun LabeledAccount.labelNeedsUpdate(): Boolean {
+        val regexV0 =
+            """${labels.getV0DefaultNonCustodialWalletLabel(currency)}(\s?)(\d*)""".toRegex()
+        val regexV1 =
+            """${labels.getV1DefaultNonCustodialWalletLabel(currency)}(\s?)(\d*)""".toRegex()
 
-    private fun String.updatedLabel(): String {
+        return label.matches(regexV0) || label.matches(regexV1)
+    }
+
+    protected fun String.updatedLabel(): String {
         if (contains(labels.getV0DefaultNonCustodialWalletLabel(currency), true)) {
             return this.replace(
                 labels.getV0DefaultNonCustodialWalletLabel(currency),
@@ -154,15 +147,6 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             AssetFilter.Staking -> loadStakingAccounts()
             AssetFilter.ActiveRewards -> loadActiveRewardsAccounts()
         }
-    }
-
-    private fun CryptoNonCustodialAccount.labelNeedsUpdate(): Boolean {
-        val regexV0 =
-            """${labels.getV0DefaultNonCustodialWalletLabel(this@CryptoAssetBase.currency)}(\s?)([\d]*)""".toRegex()
-        val regexV1 =
-            """${labels.getV1DefaultNonCustodialWalletLabel(this@CryptoAssetBase.currency)}(\s?)([\d]*)""".toRegex()
-
-        return label.matches(regexV0) || label.matches(regexV1)
     }
 
     final override fun forceAccountsRefresh() {

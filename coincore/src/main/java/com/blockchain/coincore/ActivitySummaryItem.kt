@@ -3,13 +3,13 @@ package com.blockchain.coincore
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.transactions.CustodialTransactionState
+import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.earn.domain.models.EarnRewardsState
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
-import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo

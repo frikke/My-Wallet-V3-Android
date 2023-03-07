@@ -314,6 +314,72 @@ fun <T1, T2, T3, T4, T5, T6, T7, R> combineDataResources(
     }
 }
 
+fun <T1, T2, T3, T4, T5, T6, T7, T8, R> combineDataResources(
+    r1: DataResource<T1>,
+    r2: DataResource<T2>,
+    r3: DataResource<T3>,
+    r4: DataResource<T4>,
+    r5: DataResource<T5>,
+    r6: DataResource<T6>,
+    r7: DataResource<T7>,
+    r8: DataResource<T8>,
+    transform: (T1, T2, T3, T4, T5, T6, T7, T8) -> R
+): DataResource<R> {
+    val results = listOf(r1, r2, r3, r4, r5, r6, r7, r8)
+
+    return when {
+        results.anyLoading() -> DataResource.Loading
+        results.anyError() -> DataResource.Error(results.getFirstError().error)
+        else -> {
+            r1 as DataResource.Data
+            r2 as DataResource.Data
+            r3 as DataResource.Data
+            r4 as DataResource.Data
+            r5 as DataResource.Data
+            r6 as DataResource.Data
+            r7 as DataResource.Data
+            r8 as DataResource.Data
+
+            DataResource.Data(transform(r1.data, r2.data, r3.data, r4.data, r5.data, r6.data, r7.data, r8.data))
+        }
+    }
+}
+
+fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, R> combineDataResources(
+    r1: DataResource<T1>,
+    r2: DataResource<T2>,
+    r3: DataResource<T3>,
+    r4: DataResource<T4>,
+    r5: DataResource<T5>,
+    r6: DataResource<T6>,
+    r7: DataResource<T7>,
+    r8: DataResource<T8>,
+    r9: DataResource<T9>,
+    transform: (T1, T2, T3, T4, T5, T6, T7, T8, T9) -> R
+): DataResource<R> {
+    val results = listOf(r1, r2, r3, r4, r5, r6, r7, r8, r9)
+
+    return when {
+        results.anyLoading() -> DataResource.Loading
+        results.anyError() -> DataResource.Error(results.getFirstError().error)
+        else -> {
+            r1 as DataResource.Data
+            r2 as DataResource.Data
+            r3 as DataResource.Data
+            r4 as DataResource.Data
+            r5 as DataResource.Data
+            r6 as DataResource.Data
+            r7 as DataResource.Data
+            r8 as DataResource.Data
+            r9 as DataResource.Data
+
+            DataResource.Data(
+                transform(r1.data, r2.data, r3.data, r4.data, r5.data, r6.data, r7.data, r8.data, r9.data)
+            )
+        }
+    }
+}
+
 fun <T, R> combineDataResources(
     dataResources: Iterable<DataResource<T>>,
     transform: (List<T>) -> R

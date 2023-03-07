@@ -17,6 +17,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.setContent
 import com.blockchain.componentlib.alert.BlockchainSnackbar
@@ -445,8 +446,15 @@ class MultiAppActivity :
         )
     }
 
-    override fun launchActiveRewardsWithdrawal(account: EarnRewardsAccount.Active) {
-        // TODO(EARN) - Active rewards - not yet implemented
+    override fun launchActiveRewardsWithdrawal(
+        sourceAccount: BlockchainAccount,
+        targetAccount: CustodialTradingAccount
+    ) {
+        transactionFlowNavigation.startTransactionFlow(
+            action = AssetAction.ActiveRewardsWithdraw,
+            sourceAccount = sourceAccount,
+            target = targetAccount as TransactionTarget
+        )
     }
 
     override fun showActiveRewardsLoadingError(error: ActiveRewardsError) {

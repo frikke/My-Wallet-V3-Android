@@ -4,8 +4,8 @@ import com.blockchain.api.trade.data.AccumulatedInPeriodResponse
 import com.blockchain.api.trade.data.NextPaymentRecurringBuyResponse
 import com.blockchain.api.trade.data.QuoteResponse
 import com.blockchain.api.trade.data.RecurringBuyResponse
+import com.blockchain.outcome.Outcome
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -38,10 +38,10 @@ internal interface TradeApi {
     ): Completable
 
     @GET("brokerage/quote/price")
-    fun getQuotePrice(
+    suspend fun getQuotePrice(
         @Query("currencyPair") currencyPair: String,
         @Query("amount") amount: String,
         @Query("paymentMethod") paymentMethod: String,
         @Query("orderProfileName") orderProfileName: String = "SIMPLEBUY",
-    ): Observable<QuoteResponse>
+    ): Outcome<Exception, QuoteResponse>
 }

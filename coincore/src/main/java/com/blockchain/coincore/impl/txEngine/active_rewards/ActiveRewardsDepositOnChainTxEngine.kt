@@ -100,7 +100,7 @@ class ActiveRewardsDepositOnChainTxEngine(
     }
 
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> =
-        onChainEngine.doBuildConfirmations(pendingTx).map { pTx ->
+        onChainEngine.doBuildConfirmations(pendingTx).flatMap { pTx ->
             modifyEngineConfirmations(pTx)
         }.flatMap { px ->
             if (px.hasOption(TxConfirmation.MEMO)) {
@@ -122,7 +122,7 @@ class ActiveRewardsDepositOnChainTxEngine(
             Single.just(pendingTx.addOrReplaceOption(newConfirmation))
         } else {
             onChainEngine.doOptionUpdateRequest(pendingTx, newConfirmation)
-                .map { pTx ->
+                .flatMap { pTx ->
                     modifyEngineConfirmations(
                         pendingTx = pTx
                     )
@@ -140,14 +140,16 @@ class ActiveRewardsDepositOnChainTxEngine(
             }
 
     override fun doValidateAll(pendingTx: PendingTx): Single<PendingTx> =
-        onChainEngine.doValidateAll(pendingTx)
-            .map {
-                if (it.validationState == ValidationState.CAN_EXECUTE && !areOptionsValid(pendingTx)) {
-                    it.copy(validationState = ValidationState.OPTION_INVALID)
-                } else {
-                    it
-                }
+        Single.zip(
+            onChainEngine.doValidateAll(pendingTx),
+            areOptionsValid(pendingTx)
+        ) { tx, optionsValid ->
+            if (tx.validationState == ValidationState.CAN_EXECUTE && !optionsValid) {
+                tx.copy(validationState = ValidationState.OPTION_INVALID)
+            } else {
+                tx
             }
+        }
 
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
         onChainEngine.doExecute(pendingTx, secondPassword)

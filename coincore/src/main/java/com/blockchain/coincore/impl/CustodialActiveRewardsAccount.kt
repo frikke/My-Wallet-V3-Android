@@ -19,6 +19,7 @@ import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.earn.domain.models.EarnRewardsActivity
 import com.blockchain.earn.domain.models.EarnRewardsState
 import com.blockchain.earn.domain.service.ActiveRewardsService
@@ -28,7 +29,6 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.store.asObservable
 import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetInfo
@@ -94,7 +94,7 @@ class CustodialActiveRewardsAccount(
         ) { balance, rate ->
             AccountBalance(
                 total = balance.totalBalance,
-                withdrawable = balance.availableBalance,
+                withdrawable = balance.earningBalance,
                 pending = balance.pendingDeposit,
                 dashboardDisplay = balance.totalBalance,
                 exchangeRate = rate
@@ -163,9 +163,8 @@ class CustodialActiveRewardsAccount(
                         AssetAction.ActiveRewardsDeposit
                     ),
                     StateAwareAction(
-                        // TODO(labreu): withdraw from active rewards is not available yet
-                        ActionState.LockedDueToAvailability,
-                        AssetAction.InterestWithdraw
+                        ActionState.Available, // TODO (labreu): check Feature.WithdrawActiveRewards!!!
+                        AssetAction.ActiveRewardsWithdraw
                     ),
                     StateAwareAction(ActionState.Available, AssetAction.ViewStatement),
                     StateAwareAction(ActionState.Available, AssetAction.ViewActivity)

@@ -23,6 +23,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.subjects.BehaviorSubject
+import io.reactivex.rxjava3.subjects.PublishSubject
 import org.koin.core.component.KoinComponent
 
 open class TransferError(msg: String) : Exception(msg)
@@ -284,6 +285,9 @@ abstract class TxEngine : KoinComponent {
     open fun targetExchangeRate(): Observable<ExchangeRate> =
         Observable.empty()
 
+    open fun confirmationExchangeRate(): Observable<ExchangeRate> =
+        targetExchangeRate()
+
     // Implementation interface:
     // Call this first to initialise the processor. Construct and initialise a pendingTx object.
     abstract fun doInitialiseTx(): Single<PendingTx>
@@ -389,8 +393,9 @@ class TransactionProcessor(
             }.ignoreElement()
     }
 
+    private val cancelUpdateAmount = PublishSubject.create<Unit>()
     fun updateAmount(amount: Money): Completable {
-        Logger.d("!TRANSACTION!> in UpdateAmount")
+        cancelUpdateAmount.onNext(Unit)
         val pendingTx = getPendingTx()
         if (!canTransactFiat && amount is FiatValue)
             throw IllegalArgumentException("The processor does not support fiat values")
@@ -408,6 +413,8 @@ class TransactionProcessor(
                         }
                     }
             }
+            .toMaybe()
+            .takeUntil(cancelUpdateAmount.firstElement())
             .doOnSuccess {
                 updatePendingTx(it)
             }
@@ -500,6 +507,9 @@ class TransactionProcessor(
     // sell and or swap are fully integrated into this flow
     fun targetExchangeRate(): Observable<ExchangeRate> =
         engine.targetExchangeRate()
+
+    fun confirmationExchangeRate(): Observable<ExchangeRate> =
+        engine.confirmationExchangeRate()
 
     // Called back by the engine if it has received an external signal and the existing confirmation set
     // requires a refresh

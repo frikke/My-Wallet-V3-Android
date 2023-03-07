@@ -31,7 +31,7 @@ data class SimpleBuyEligibilityDto(
 data class SimpleBuyCurrency(val currency: String)
 
 @Serializable
-data class BankAccountResponse(
+data class CustodialAccountResponse(
     val address: String,
     val agent: BankAgentResponse,
     val currency: String,

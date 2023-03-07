@@ -151,6 +151,7 @@ class QuickActionsRepository(
             AssetAction.InterestWithdraw,
             AssetAction.Sign,
             AssetAction.ActiveRewardsDeposit,
+            AssetAction.ActiveRewardsWithdraw,
             AssetAction.StakingDeposit -> false
         }
 
@@ -186,12 +187,12 @@ class QuickActionsRepository(
                     state = if (balanceIsPositive) ActionState.Available else ActionState.Unavailable
                 ),
                 StateAwareAction(
-                    action = AssetAction.Receive,
-                    state = ActionState.Available
-                ),
-                StateAwareAction(
                     action = AssetAction.Send,
                     state = if (balanceIsPositive) ActionState.Available else ActionState.Unavailable
+                ),
+                StateAwareAction(
+                    action = AssetAction.Receive,
+                    state = ActionState.Available
                 ),
                 StateAwareAction(
                     action = AssetAction.Sell,

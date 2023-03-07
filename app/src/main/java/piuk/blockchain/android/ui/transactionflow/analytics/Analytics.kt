@@ -655,7 +655,7 @@ class TxFlowAnalytics(
                 ) {
                     analytics.logEvent(
                         SwapAnalyticsEvents.OnChainSwapRequested(
-                            exchangeRate = state.targetRate?.price?.toBigDecimal() ?: throw IllegalStateException(
+                            exchangeRate = state.confirmationRate?.price?.toBigDecimal() ?: throw IllegalStateException(
                                 "Target rate is missing"
                             ),
                             amount = state.pendingTx.amount,

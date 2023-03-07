@@ -29,21 +29,18 @@ import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.lazylist.paddedItem
-import com.blockchain.componentlib.tablerow.signedValue
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
-import com.blockchain.data.dataOrElse
-import com.blockchain.data.flatMap
-import com.blockchain.data.map
 import com.blockchain.data.toImmutableList
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.home.presentation.SectionSize
-import com.blockchain.home.presentation.accouncement.AnnouncementType
 import com.blockchain.home.presentation.accouncement.AnnouncementsIntent
 import com.blockchain.home.presentation.accouncement.AnnouncementsViewModel
 import com.blockchain.home.presentation.accouncement.AnnouncementsViewState
-import com.blockchain.home.presentation.accouncement.composable.Announcements
+import com.blockchain.home.presentation.accouncement.LocalAnnouncementType
+import com.blockchain.home.presentation.accouncement.composable.LocalAnnouncements
+import com.blockchain.home.presentation.accouncement.composable.StackedAnnouncements
 import com.blockchain.home.presentation.activity.list.ActivityIntent
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.activity.list.custodial.CustodialActivityViewModel
@@ -73,9 +70,9 @@ import com.blockchain.prices.prices.PricesIntents
 import com.blockchain.prices.prices.PricesLoadStrategy
 import com.blockchain.prices.prices.PricesViewModel
 import com.blockchain.prices.prices.PricesViewState
+import com.blockchain.prices.prices.percentAndPositionOf
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
@@ -210,6 +207,7 @@ fun HomeScreen(
 
     LaunchedEffect(key1 = isSwipingToRefresh) {
         if (isSwipingToRefresh) {
+            announcementsViewModel.onIntent(AnnouncementsIntent.Refresh)
             homeAssetsViewModel.onIntent(AssetsIntent.Refresh)
             pricesViewModel.onIntent(PricesIntents.Refresh)
             earnViewModel.onIntent(EarnIntent.Refresh)
@@ -282,14 +280,25 @@ fun HomeScreen(
             }
         }
 
+        item {
+            (announcementsState.remoteAnnouncements as? DataResource.Data)?.data?.let { announcements ->
+                StackedAnnouncements(
+                    announcements = announcements,
+                    onSwiped = { target ->
+                        announcementsViewModel.onIntent(AnnouncementsIntent.DeleteAnnouncement(target))
+                    }
+                )
+            }
+        }
+
         paddedItem(
             paddingValues = PaddingValues(horizontal = 16.dp)
         ) {
-            Announcements(
-                announcements = announcementsState.announcements,
+            LocalAnnouncements(
+                announcements = announcementsState.localAnnouncements,
                 onClick = { announcement ->
                     when (announcement.type) {
-                        AnnouncementType.PHRASE_RECOVERY -> startPhraseRecovery()
+                        LocalAnnouncementType.PHRASE_RECOVERY -> startPhraseRecovery()
                     }
                 }
             )
@@ -338,10 +347,7 @@ fun HomeScreen(
             assetOnClick = { asset ->
                 assetActionsNavigation.coinview(asset)
 
-                pricesViewState.topMovers.flatMap { list ->
-                    val item = list.first { it.asset == asset }
-                    item.delta.map { it.signedValue() to list.indexOf(item) + 1 }
-                }.dataOrElse(null)?.let { (percentageMove, position) ->
+                pricesViewState.topMovers.percentAndPositionOf(asset)?.let { (percentageMove, position) ->
                     analytics.logEvent(
                         DashboardAnalyticsEvents.TopMoverAssetClicked(
                             ticker = asset.networkTicker,

@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -28,7 +29,8 @@ fun SmallTagIcon(
     borderColor: Color = AppTheme.colors.background,
     mainIconSize: Dp = 24.dp,
     tagIconSize: Dp? = null,
-    mainIconShape: Shape = CircleShape
+    mainIconShape: Shape = CircleShape,
+    alphaProvider: () -> Float = { 1F }
 ) {
     val borderSize = mainIconSize.div(25f)
     val tagIconSize = tagIconSize ?: mainIconSize.div(1.6f)
@@ -36,6 +38,9 @@ fun SmallTagIcon(
 
     Box(
         modifier = Modifier
+            .graphicsLayer {
+                alpha = alphaProvider()
+            }
             .size(mainIconSize + tagIconSize - overlap + borderSize)
     ) {
 

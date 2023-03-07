@@ -12,6 +12,7 @@ import com.blockchain.api.NabuApiException
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NullAddress
@@ -99,6 +100,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Swap -> R.drawable.ic_swap_light_blue
             AssetAction.Sell -> R.drawable.ic_tx_sell
             AssetAction.FiatWithdraw -> R.drawable.ic_tx_withdraw_w_green_bkgd
+            AssetAction.ActiveRewardsWithdraw,
             AssetAction.InterestWithdraw -> R.drawable.ic_tx_withdraw
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
@@ -256,6 +258,7 @@ class TransactionFlowCustomiserImpl(
                 R.string.tx_title_withdraw,
                 (state.sendingAccount as FiatAccount).currency.displayTicker
             )
+            AssetAction.ActiveRewardsWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(
                 R.string.tx_title_withdraw, state.sendingAsset.displayTicker
             )
@@ -271,6 +274,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.ActiveRewardsDeposit -> resources.getString(R.string.send_enter_amount_deposit_max)
             AssetAction.Swap -> resources.getString(R.string.swap_enter_amount_max)
             AssetAction.Sell -> resources.getString(R.string.sell_enter_amount_max)
+            AssetAction.ActiveRewardsWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.withdraw_enter_amount_max)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
@@ -332,6 +336,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.StakingDeposit,
             AssetAction.ActiveRewardsDeposit,
             AssetAction.InterestWithdraw,
+            AssetAction.ActiveRewardsWithdraw,
             AssetAction.Sell,
             AssetAction.Swap,
             AssetAction.Send -> resources.getString(R.string.send_enter_amount_max_fee)
@@ -357,6 +362,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Swap -> resources.getString(R.string.tx_enter_amount_swap_cta)
             AssetAction.Sell -> resources.getString(R.string.tx_enter_amount_sell_cta)
             AssetAction.FiatWithdraw,
+            AssetAction.ActiveRewardsWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.tx_enter_amount_withdraw_cta)
             AssetAction.InterestDeposit,
             AssetAction.StakingDeposit,
@@ -411,6 +417,7 @@ class TransactionFlowCustomiserImpl(
                     R.string.common_transfer
                 )
             )
+            AssetAction.ActiveRewardsWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(
                 R.string.common_parametrised_confirm,
                 resources.getString(
@@ -444,6 +451,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.StakingDeposit -> resources.getString(R.string.send_confirmation_stake_cta_button)
             AssetAction.FiatDeposit -> resources.getString(R.string.deposit_confirmation_cta_button)
             AssetAction.FiatWithdraw,
+            AssetAction.ActiveRewardsWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.withdraw_confirmation_cta_button)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
@@ -532,7 +540,7 @@ class TransactionFlowCustomiserImpl(
                 R.string.send_progress_sending_title, amount
             )
             AssetAction.Swap -> {
-                val receivingAmount = state.targetRate?.convert(state.amount) ?: Money.zero(
+                val receivingAmount = state.confirmationRate?.convert(state.amount) ?: Money.zero(
                     (state.selectedTarget as CryptoAccount).currency
                 )
                 resources.getString(
@@ -631,6 +639,8 @@ class TransactionFlowCustomiserImpl(
             AssetAction.InterestWithdraw,
             -> resources.getString(R.string.withdraw_confirmation_success_title, amount)
             AssetAction.Sign -> resources.getString(R.string.signed)
+            AssetAction.ActiveRewardsWithdraw ->
+                resources.getString(R.string.earn_active_rewards_withdrawal_pending_title)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
     }
@@ -662,6 +672,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.FiatWithdraw,
             AssetAction.Sign,
             AssetAction.InterestWithdraw -> R.drawable.ic_check_circle
+            AssetAction.ActiveRewardsWithdraw -> R.drawable.ic_pending_clock
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
     }
@@ -746,6 +757,8 @@ class TransactionFlowCustomiserImpl(
                 state.sendingAsset.displayTicker,
                 state.selectedTarget.label
             )
+            AssetAction.ActiveRewardsWithdraw ->
+                resources.getString(R.string.earn_active_rewards_withdrawal_pending_subtitle)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
     }
@@ -933,6 +946,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.InterestDeposit,
             AssetAction.InterestWithdraw,
             AssetAction.StakingDeposit,
+            AssetAction.ActiveRewardsWithdraw,
             AssetAction.ActiveRewardsDeposit -> BalanceAndFeeView(ctx).also { frame.addView(it) }
             AssetAction.Sell,
             AssetAction.Swap -> QuickFillRowView(ctx).also {
@@ -1289,6 +1303,7 @@ class TransactionFlowCustomiserImpl(
             when (action) {
                 AssetAction.Send -> R.string.common_send
                 AssetAction.FiatWithdraw,
+                AssetAction.ActiveRewardsWithdraw,
                 AssetAction.InterestWithdraw -> R.string.common_withdraw
                 AssetAction.Swap -> R.string.common_swap
                 AssetAction.Sell -> R.string.common_sell
@@ -1446,6 +1461,10 @@ class TransactionFlowCustomiserImpl(
                 } else {
                     BackNavigationState.ResetPendingTransaction
                 }
+            }
+            TransactionStep.CONFIRM_DETAIL -> {
+                if (state.sendingAccount is EarnRewardsAccount.Active) BackNavigationState.ResetPendingTransaction
+                else BackNavigationState.NavigateToPreviousScreen
             }
             else -> BackNavigationState.NavigateToPreviousScreen
         }

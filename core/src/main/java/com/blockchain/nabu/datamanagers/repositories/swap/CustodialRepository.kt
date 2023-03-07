@@ -2,8 +2,8 @@ package com.blockchain.nabu.datamanagers.repositories.swap
 
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.nabu.datamanagers.CustodialOrderState
-import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.toCustodialOrderState
 import com.blockchain.store.asObservable
 import com.blockchain.store.asSingle

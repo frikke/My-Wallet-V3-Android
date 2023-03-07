@@ -35,6 +35,8 @@ import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.earn.R
 
+const val ACTIVE_REWARDS_LEARN_MORE_URL =
+    "https://support.blockchain.com/hc/en-us/articles/6868491485724-What-is-Active-Rewards-"
 class ActiveRewardsWithdrawalWarningSheet : ComposeModalBottomDialog() {
 
     override val host: Host by lazy {
@@ -47,7 +49,7 @@ class ActiveRewardsWithdrawalWarningSheet : ComposeModalBottomDialog() {
         get() = true
 
     interface Host : HostedBottomSheet.Host {
-        fun learnMoreClicked()
+        fun openExternalUrl(url: String)
         fun onNextClicked()
         fun onClose()
     }
@@ -57,7 +59,8 @@ class ActiveRewardsWithdrawalWarningSheet : ComposeModalBottomDialog() {
         ActiveRewardsWithdrawalWarning(
             dismiss = ::dismiss,
             onClose = { host.onClose() },
-            onLearnMoreClicked = host::learnMoreClicked,
+            onLearnMoreClicked = { host.openExternalUrl(ACTIVE_REWARDS_LEARN_MORE_URL) },
+            onWithdrawDisabledLearnMoreClicked = { host.openExternalUrl(WITHDRAWALS_DISABLED_LEARN_MORE_URL) },
             onNext = host::onNextClicked,
         )
     }
@@ -73,6 +76,7 @@ fun ActiveRewardsWithdrawalWarning(
     dismiss: () -> Unit,
     onClose: () -> Unit,
     onLearnMoreClicked: () -> Unit,
+    onWithdrawDisabledLearnMoreClicked: () -> Unit,
     onNext: () -> Unit,
 ) {
 
@@ -135,7 +139,7 @@ fun ActiveRewardsWithdrawalWarning(
 
             StandardVerticalSpacer()
 
-            ActiveRewardsWithdrawalNotice()
+            ActiveRewardsWithdrawalNotice(onWithdrawDisabledLearnMoreClicked)
         }
 
         PrimaryButton(
@@ -157,6 +161,7 @@ fun PreviewActiveRewardsWithdrawalWarning() {
     AppTheme {
         AppSurface {
             ActiveRewardsWithdrawalWarning(
+                {},
                 {},
                 {},
                 {},

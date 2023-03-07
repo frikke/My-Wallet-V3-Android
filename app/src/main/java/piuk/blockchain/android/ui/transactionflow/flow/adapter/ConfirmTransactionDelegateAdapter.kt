@@ -4,7 +4,13 @@ import androidx.recyclerview.widget.DiffUtil
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.UserEditable
 import com.blockchain.core.price.ExchangeRates
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.activeRewardsWithdrawalsFeatureFlag
 import info.blockchain.balance.FiatCurrency
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
@@ -16,7 +22,10 @@ class ConfirmTransactionDelegateAdapter(
     exchangeRates: ExchangeRates,
     selectedCurrency: FiatCurrency,
     onTooltipClicked: (TxConfirmationValue) -> Unit,
-) : DelegationAdapter<TxConfirmationValue>(AdapterDelegatesManager(), emptyList()) {
+    coroutineScope: CoroutineScope
+) : DelegationAdapter<TxConfirmationValue>(AdapterDelegatesManager(), emptyList()), KoinComponent {
+
+    private val activeRewardsWithdrawalsFF: FeatureFlag by inject(activeRewardsWithdrawalsFeatureFlag)
 
     override var items: List<TxConfirmationValue> = emptyList()
         set(value) {
@@ -41,24 +50,39 @@ class ConfirmTransactionDelegateAdapter(
             addAdapterDelegate(ConfirmNoteItemDelegate(model))
             addAdapterDelegate(ConfirmXlmMemoItemDelegate(model))
             addAdapterDelegate(ConfirmAgreementWithTAndCsItemDelegate(model))
-            addAdapterDelegate(
-                ConfirmAgreementToWithdrawalBlockedItemDelegate(
-                    model,
-                )
-            )
-            addAdapterDelegate(
-                ConfirmAgreementToTransferItemDelegate(
-                    model,
-                    exchangeRates,
-                    selectedCurrency
-                )
-            )
+
             addAdapterDelegate(LargeTransactionWarningItemDelegate(model))
             addAdapterDelegate(InvoiceCountdownTimerDelegate())
             addAdapterDelegate(ConfirmInfoItemValidationStatusDelegate())
             addAdapterDelegate(QuoteCountdownConfirmationDelegate())
             addAdapterDelegate(TooltipConfirmationCheckoutDelegate(mapper, onTooltipClicked))
             addAdapterDelegate(ReadMoreDisclaimerDelegate(mapper, onTooltipClicked))
+
+            coroutineScope.launch {
+                if (activeRewardsWithdrawalsFF.coEnabled().not()) {
+                    addAdapterDelegate(
+                        ConfirmAgreementToWithdrawalBlockedItemDelegate(
+                            model
+                        )
+                    )
+
+                    addAdapterDelegate(
+                        ConfirmAgreementToTransferItemDelegate(
+                            model,
+                            exchangeRates,
+                            selectedCurrency
+                        )
+                    )
+                } else {
+                    addAdapterDelegate(
+                        ConfirmAgreementToTransferItemDelegate(
+                            model,
+                            exchangeRates,
+                            selectedCurrency
+                        )
+                    )
+                }
+            }
         }
     }
 }

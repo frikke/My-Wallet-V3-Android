@@ -2813,7 +2813,7 @@
     <string name="show_pkw_accounts">Показать DeFi Wallets</string>
     <string name="actions_sheet_percentage_rate">Ставка: %s%%</string>
     <string name="staking_asset">В стейке %1s</string>
-    <string name="earn_rate_apy">%1$s%% годовых</string>
+    <string name="earn_rate">%1$s%% годовых</string>
     <string name="activity_details_label_confirmations_single_line">%1$s/%2$s подтверждений</string>
     <string name="no_balance_sheet_earn_title">У вас нет %1$s</string>
     <string name="no_balance_sheet_earn_subtitle">Купите или получите %1$s, чтобы начать зарабатывать.</string>

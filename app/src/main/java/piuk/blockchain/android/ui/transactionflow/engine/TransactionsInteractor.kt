@@ -371,6 +371,11 @@ class TransactionInteractor(
             "TxProcessor not initialised"
         )
 
+    fun startConfirmationRateFetch(): Observable<ExchangeRate> =
+        transactionProcessor?.confirmationExchangeRate()?.takeUntil(invalidate) ?: throw IllegalStateException(
+            "TxProcessor not initialised"
+        )
+
     fun validateTransaction(): Completable =
         transactionProcessor?.validateAll() ?: throw IllegalStateException("TxProcessor not initialised")
 

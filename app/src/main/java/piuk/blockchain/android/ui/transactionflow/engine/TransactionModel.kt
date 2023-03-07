@@ -129,6 +129,7 @@ data class TransactionState(
     val sendingAccount: SingleAccount = NullCryptoAccount(),
     val selectedTarget: TransactionTarget = NullAddress,
     override val fiatRate: ExchangeRate? = null,
+    val confirmationRate: ExchangeRate? = null,
     val targetRate: ExchangeRate? = null,
     val passwordRequired: Boolean = false,
     val secondPassword: String = "",
@@ -327,6 +328,7 @@ class TransactionModel(
             is TransactionIntent.ModifyTxOption -> processModifyTxOptionRequest(intent.confirmation)
             is TransactionIntent.FetchFiatRates -> processGetFiatRate()
             is TransactionIntent.FetchTargetRates -> processGetTargetRate()
+            is TransactionIntent.FetchConfirmationRates -> processGetConfirmationRate()
             is TransactionIntent.ValidateTransaction -> processValidateTransaction()
             is TransactionIntent.SetFeeLevel -> processSetFeeLevel(intent)
             is TransactionIntent.InvalidateTransaction -> processInvalidateTransaction()
@@ -415,11 +417,13 @@ class TransactionModel(
             is TransactionIntent.ReturnToPreviousStep,
             is TransactionIntent.FiatRateUpdated,
             is TransactionIntent.CryptoRateUpdated,
+            is TransactionIntent.ConfirmationRateUpdated,
             is TransactionIntent.EnteredAddressReset,
             is TransactionIntent.AvailableAccountsListUpdated,
             is TransactionIntent.UpdateTransactionCancelled,
             is TransactionIntent.ShowMoreAccounts,
             is TransactionIntent.UseMaxSpendable,
+            is TransactionIntent.ResetUseMaxSpendable,
             is TransactionIntent.UpdatePasswordIsValidated,
             is TransactionIntent.UpdatePasswordNotValidated,
             is TransactionIntent.PrepareTransaction,
@@ -488,7 +492,7 @@ class TransactionModel(
     ): Disposable =
         subscribeBy(
             onSuccess = {
-                if (action == AssetAction.Sell && it.size == 1) {
+                if ((action == AssetAction.Sell || action == AssetAction.ActiveRewardsWithdraw) && it.size == 1) {
                     process(
                         TransactionIntent.InitialiseWithSourceAndTargetAccount(
                             action = action,
@@ -681,8 +685,7 @@ class TransactionModel(
                 when (target) {
                     is EarnRewardsAccount.Interest -> interactor.userAccessForFeature(Feature.DepositInterest)
                     is EarnRewardsAccount.Staking -> interactor.userAccessForFeature(Feature.DepositStaking)
-                    // TODO(EARN):  eligibility
-                    is EarnRewardsAccount.Active -> interactor.userAccessForFeature(Feature.DepositStaking)
+                    is EarnRewardsAccount.Active -> interactor.userAccessForFeature(Feature.DepositActiveRewards)
                 }.toMaybe()
             } else {
                 Maybe.empty()
@@ -701,6 +704,7 @@ class TransactionModel(
         AssetAction.ViewActivity,
         AssetAction.ViewStatement -> throw IllegalStateException("$action is not part of TxFlow")
         AssetAction.InterestWithdraw,
+        AssetAction.ActiveRewardsWithdraw,
         AssetAction.Sign -> Maybe.empty()
     }
 
@@ -875,6 +879,17 @@ class TransactionModel(
                 onNext = { process(TransactionIntent.CryptoRateUpdated(it)) },
                 onComplete = { Timber.d("Target exchange Rate completed") },
                 onError = { Timber.e("Failed getting target exchange rate") }
+            )
+
+    private fun processGetConfirmationRate(): Disposable =
+        interactor.startConfirmationRateFetch()
+            .subscribeBy(
+                onNext = { process(TransactionIntent.ConfirmationRateUpdated(it)) },
+                // We cleanup the confirmation rate so if the confirmation screen is shown a second time it isn't
+                // rendered with the previous rate, this is also a requirement when the user changes source or target
+                // currencies, the previous rate would have the previous selected source and destination currencies
+                onComplete = { process(TransactionIntent.ConfirmationRateUpdated(null)) },
+                onError = { process(TransactionIntent.FatalTransactionError(it)) }
             )
 
     private fun processValidateTransaction(): Disposable? =

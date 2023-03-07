@@ -199,26 +199,18 @@ class SimpleBuyInteractor(
         amount: Money,
         paymentMethod: PaymentMethodType,
     ): Observable<QuotePrice> {
-        // TODO(aromano): QUOTE whats the difference between quote and quotePrice
-        return tradeDataService.getQuotePrice(
-            currencyPair = currencyPair.rawValue,
-            amount = amount.toBigInteger().toString(),
-            paymentMethod = paymentMethod.name,
-            orderProfileName = SIMPLEBUY_PROFILE_NAME
-        ).flatMap { quotePrice ->
-            Observable.interval(
-                INTERVAL_QUOTE_PRICE,
-                TimeUnit.MILLISECONDS
-            ).flatMap {
-                tradeDataService.getQuotePrice(
-                    currencyPair = currencyPair.rawValue,
-                    amount = amount.toBigInteger().toString(),
-                    paymentMethod = paymentMethod.name,
-                    orderProfileName = SIMPLEBUY_PROFILE_NAME
+        return Observable.interval(
+            0L,
+            INTERVAL_QUOTE_PRICE,
+            TimeUnit.MILLISECONDS
+        ).flatMapSingle {
+            rxSingleOutcome {
+                tradeDataService.getBuyQuotePrice(
+                    currencyPair = currencyPair,
+                    amount = amount,
+                    paymentMethod = paymentMethod,
                 )
-            }.startWithItem(
-                quotePrice
-            )
+            }
         }.takeUntil(stopPollingQuotePrices)
     }
 
@@ -228,12 +220,11 @@ class SimpleBuyInteractor(
         paymentMethodId: String? = null,
         paymentMethod: PaymentMethodType,
     ): Observable<BrokerageQuote> =
-        brokerageDataManager.quoteForTransaction(
+        brokerageDataManager.getBuyQuote(
             pair = CurrencyPair(amount.currency, cryptoAsset),
             amount = amount,
             paymentMethodType = getPaymentMethodType(paymentMethod),
             paymentMethodId = getPaymentMethodId(paymentMethodId, paymentMethod),
-            product = Product.BUY
         ).toObservable()
 
     val stopPollingBrokerageQuotes = PublishSubject.create<Unit>()
@@ -834,7 +825,6 @@ class SimpleBuyInteractor(
         const val PENDING = "pending"
 
         private const val INTERVAL_QUOTE_PRICE = 5000L
-        private const val SIMPLEBUY_PROFILE_NAME = "SIMPLEBUY"
 
         private const val INTERVAL: Long = 5
         private const val RETRIES_SHORT = 6

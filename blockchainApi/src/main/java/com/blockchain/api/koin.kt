@@ -4,6 +4,7 @@ import com.blockchain.api.adapters.OutcomeCallAdapterFactory
 import com.blockchain.api.addressmapping.AddressMappingApiInterface
 import com.blockchain.api.addressverification.AddressVerificationApi
 import com.blockchain.api.analytics.AnalyticsApiInterface
+import com.blockchain.api.announcements.AnnouncementsApi
 import com.blockchain.api.assetdiscovery.AssetDiscoveryApiInterface
 import com.blockchain.api.assetdiscovery.data.AssetInformationDto
 import com.blockchain.api.assetdiscovery.data.AssetType
@@ -87,6 +88,7 @@ import com.blockchain.api.wallet.WalletApi
 import com.blockchain.api.watchlist.WatchlistApi
 import com.blockchain.koin.applicationScope
 import com.blockchain.koin.authOkHttpClient
+import com.blockchain.koin.iterableRetrofit
 import com.blockchain.koin.kotlinJsonConverterFactory
 import com.blockchain.koin.kotlinXApiRetrofit
 import com.blockchain.koin.kotlinXCoinApiRetrofit
@@ -480,6 +482,10 @@ val blockchainApiModule = module {
         MercuryExperimentsApiService(
             api
         )
+    }
+
+    factory {
+        get<Retrofit>(iterableRetrofit).create(AnnouncementsApi::class.java)
     }
 
     scope(payloadScopeQualifier) {

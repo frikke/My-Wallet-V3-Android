@@ -5,6 +5,7 @@ import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.TxConfirmationValue
@@ -69,6 +70,7 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
                     }
                 }
             },
+            coroutineScope = lifecycleScope
         )
     }
 
@@ -87,6 +89,7 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
             itemAnimator = null
         }
         model.process(TransactionIntent.ValidateTransaction)
+        model.process(TransactionIntent.FetchConfirmationRates)
         model.process(TransactionIntent.LoadImprovedPaymentUxFeatureFlag)
         model.process(TransactionIntent.LoadDepositTerms)
     }

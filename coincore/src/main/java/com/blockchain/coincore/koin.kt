@@ -30,6 +30,7 @@ import com.blockchain.koin.interestBalanceStore
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
+import com.blockchain.koin.sellSwapBrokerageQuoteFeatureFlag
 import com.blockchain.koin.stakingBalanceStore
 import com.blockchain.unifiedcryptowallet.domain.balances.CoinNetworksService
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
@@ -172,7 +173,7 @@ val coincoreModule = module {
                 ethMessageSigner = get(),
                 limitsDataManager = get(),
                 walletPrefs = get(),
-                quotesEngine = get(),
+                quotesEngineFactory = get(),
                 analytics = get(),
                 fees = get(),
                 ethDataManager = get(),
@@ -217,7 +218,13 @@ val coincoreModule = module {
         }.bind(Erc20DataManager::class)
 
         factory {
-            TransferQuotesEngine(quotesProvider = get())
+            TransferQuotesEngine.Factory(
+                quotesProvider = get(),
+                custodialWalletManager = get(),
+                brokerageDataManager = get(),
+                tradeDataService = get(),
+                sellSwapBrokerageQuoteFF = get(sellSwapBrokerageQuoteFeatureFlag),
+            )
         }
 
         factory {

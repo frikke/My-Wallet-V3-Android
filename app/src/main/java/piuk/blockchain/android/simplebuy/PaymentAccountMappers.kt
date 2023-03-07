@@ -4,13 +4,13 @@ import android.content.res.Resources
 import com.blockchain.nabu.datamanagers.BankAccount
 import com.blockchain.nabu.datamanagers.BankDetail
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentAccountMapper
-import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse
-import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse.Companion.PARTNER_BIND
+import com.blockchain.nabu.models.responses.simplebuy.CustodialAccountResponse
+import com.blockchain.nabu.models.responses.simplebuy.CustodialAccountResponse.Companion.PARTNER_BIND
 import piuk.blockchain.android.R
 
 class GBPPaymentAccountMapper(private val resources: Resources) : PaymentAccountMapper {
 
-    override fun map(bankAccountResponse: BankAccountResponse): BankAccount? {
+    override fun map(bankAccountResponse: CustodialAccountResponse): BankAccount? {
         if (bankAccountResponse.currency != "GBP") return null
         return BankAccount(
             listOf(
@@ -35,7 +35,7 @@ class GBPPaymentAccountMapper(private val resources: Resources) : PaymentAccount
 
 class EURPaymentAccountMapper(private val resources: Resources) : PaymentAccountMapper {
 
-    override fun map(bankAccountResponse: BankAccountResponse): BankAccount? {
+    override fun map(bankAccountResponse: CustodialAccountResponse): BankAccount? {
         if (bankAccountResponse.currency != "EUR") return null
         return BankAccount(
             listOf(
@@ -77,7 +77,7 @@ class EURPaymentAccountMapper(private val resources: Resources) : PaymentAccount
 
 class USDPaymentAccountMapper(private val resources: Resources) : PaymentAccountMapper {
 
-    override fun map(bankAccountResponse: BankAccountResponse): BankAccount? {
+    override fun map(bankAccountResponse: CustodialAccountResponse): BankAccount? {
         if (bankAccountResponse.currency != "USD") return null
 
         return if (bankAccountResponse.partner == PARTNER_BIND) {
@@ -87,7 +87,7 @@ class USDPaymentAccountMapper(private val resources: Resources) : PaymentAccount
         }
     }
 
-    private fun regularUSDBankAccount(bankAccountResponse: BankAccountResponse) =
+    private fun regularUSDBankAccount(bankAccountResponse: CustodialAccountResponse) =
         BankAccount(
             listOfNotNull(
                 bankAccountResponse.address?.let { address ->
@@ -157,7 +157,7 @@ class USDPaymentAccountMapper(private val resources: Resources) : PaymentAccount
             )
         )
 
-    private fun bindUSDBankAccount(bankAccountResponse: BankAccountResponse) = BankAccount(
+    private fun bindUSDBankAccount(bankAccountResponse: CustodialAccountResponse) = BankAccount(
         listOfNotNull(
             bankAccountResponse.agent.label?.let { label ->
                 BankDetail(
@@ -213,7 +213,7 @@ class ARSPaymentAccountMapper(private val resources: Resources) : PaymentAccount
         VIRTUAL("CVU")
     }
 
-    override fun map(bankAccountResponse: BankAccountResponse): BankAccount? {
+    override fun map(bankAccountResponse: CustodialAccountResponse): BankAccount? {
         if (bankAccountResponse.currency != "ARS") return null
         return BankAccount(
             listOfNotNull(

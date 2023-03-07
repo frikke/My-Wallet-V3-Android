@@ -6,7 +6,7 @@ import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.math.max
+import kotlin.math.abs
 
 enum class FormatPrecision {
     /**
@@ -82,7 +82,7 @@ private class CryptoCurrencyFormatter(private val locale: Locale) {
 
 private fun BigDecimal.toPositiveDouble() = this.toDouble().toPositiveDouble()
 
-private fun Double.toPositiveDouble() = max(this, 0.0)
+private fun Double.toPositiveDouble() = abs(this)
 
 /**
  * Replace 0.0 with 0 to match web

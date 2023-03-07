@@ -29,8 +29,10 @@ import com.blockchain.prices.prices.composable.Prices
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.dex.presentation.DexEnterAmountScreen
+import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import org.koin.androidx.compose.get
 
+@OptIn(ExperimentalMaterialNavigationApi::class)
 @Composable
 fun MultiAppBottomNavigationHost(
     modifier: Modifier = Modifier,
@@ -54,6 +56,7 @@ fun MultiAppBottomNavigationHost(
     openFiatActionDetail: (String) -> Unit,
     startPhraseRecovery: () -> Unit,
     openExternalUrl: (url: String) -> Unit,
+    openDexIntro: () -> Unit,
     openNftHelp: () -> Unit,
     openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
     nftNavigation: NftNavigation,
@@ -139,7 +142,7 @@ fun MultiAppBottomNavigationHost(
                     )
                 },
                 content = { listState, shouldTriggerRefresh ->
-                    DexEnterAmountScreen(listState)
+                    DexEnterAmountScreen(listState, openDexIntro)
                 }
             )
         }

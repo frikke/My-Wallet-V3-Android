@@ -1,6 +1,6 @@
 package com.blockchain.componentlib.alert
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Surface
@@ -16,7 +17,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -68,78 +68,67 @@ fun CardAlert(
         typeColor
     }
 
-    var boxModifier = Modifier
-        .defaultMinSize(minWidth = 340.dp)
-        .clip(AppTheme.shapes.large)
-        .background(color = backgroundColor, shape = AppTheme.shapes.small)
-
-    if (isBordered) {
-        boxModifier = boxModifier.border(1.dp, borderColor, AppTheme.shapes.small)
-    }
-
-    Box(
-        modifier = boxModifier
+    Surface(
+        modifier = Modifier.defaultMinSize(minWidth = 340.dp),
+        shape = AppTheme.shapes.large,
+        color = backgroundColor,
+        border = BorderStroke(1.dp, borderColor).takeIf { isBordered }
     ) {
-        Surface(
+        Column(
             modifier = Modifier
+                .fillMaxWidth()
                 .padding(dimensionResource(R.dimen.small_spacing))
-                .background(backgroundColor)
-
         ) {
-            Column(
-                modifier = Modifier.background(backgroundColor)
-            ) {
-                Row {
-                    if (title.isNotEmpty()) {
-                        Text(
-                            modifier = Modifier
-                                .weight(1f, true),
-                            text = title,
-                            style = AppTheme.typography.body2,
-                            color = typeColor
-                        )
-                    }
-                    if (isDismissable) {
-                        CardCloseButton(onClick = onClose)
-                    }
-                }
-
-                if (subtitle.isNotEmpty()) {
+            Row {
+                if (title.isNotEmpty()) {
                     Text(
                         modifier = Modifier
-                            .padding(
-                                top = if (title.isNotEmpty()) dimensionResource(id = R.dimen.tiny_spacing) else 0.dp
-                            ),
-                        text = subtitle,
-                        style = AppTheme.typography.paragraph1,
-                        color = AppTheme.colors.title
+                            .weight(1f, true),
+                        text = title,
+                        style = AppTheme.typography.body2,
+                        color = typeColor
                     )
                 }
+                if (isDismissable) {
+                    CardCloseButton(onClick = onClose)
+                }
+            }
 
-                if (primaryCta != null) {
-                    Row(
-                        modifier = Modifier
-                            .padding(top = dimensionResource(id = R.dimen.small_spacing))
-                    ) {
-                        SmallSecondaryButton(
-                            text = primaryCta.text,
-                            onClick = primaryCta.onClick,
-                            state = ButtonState.Enabled
+            if (subtitle.isNotEmpty()) {
+                Text(
+                    modifier = Modifier
+                        .padding(
+                            top = if (title.isNotEmpty()) dimensionResource(id = R.dimen.tiny_spacing) else 0.dp
+                        ),
+                    text = subtitle,
+                    style = AppTheme.typography.paragraph1,
+                    color = AppTheme.colors.title
+                )
+            }
+
+            if (primaryCta != null) {
+                Row(
+                    modifier = Modifier
+                        .padding(top = dimensionResource(id = R.dimen.small_spacing))
+                ) {
+                    SmallSecondaryButton(
+                        text = primaryCta.text,
+                        onClick = primaryCta.onClick,
+                        state = ButtonState.Enabled
+                    )
+
+                    if (secondaryCta != null) {
+                        Spacer(
+                            modifier = Modifier.size(
+                                size = dimensionResource(id = R.dimen.tiny_spacing)
+                            )
                         )
 
-                        if (secondaryCta != null) {
-                            Spacer(
-                                modifier = Modifier.size(
-                                    size = dimensionResource(id = R.dimen.tiny_spacing)
-                                )
-                            )
-
-                            SmallSecondaryButton(
-                                text = secondaryCta.text,
-                                onClick = secondaryCta.onClick,
-                                state = ButtonState.Enabled
-                            )
-                        }
+                        SmallSecondaryButton(
+                            text = secondaryCta.text,
+                            onClick = secondaryCta.onClick,
+                            state = ButtonState.Enabled
+                        )
                     }
                 }
             }

@@ -52,6 +52,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.analytics.Analytics
 import com.blockchain.chrome.ChromeAnalyticsEvents
@@ -125,6 +126,7 @@ fun MultiAppChrome(
     openActivityDetail: (String, WalletMode) -> Unit,
     openReferral: () -> Unit,
     openSwapDexOption: () -> Unit,
+    openDexIntro: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
     openMoreQuickActions: () -> Unit,
     openExternalUrl: (url: String) -> Unit,
@@ -172,6 +174,10 @@ fun MultiAppChrome(
             balance = viewState.totalBalance,
             shouldRevealBalance = viewState.shouldRevealBalance,
             bottomNavigationItems = bottomNavigationItems.toImmutableList(),
+            selectedBottomNavigationItem = viewState.selectedBottomNavigationItem,
+            onBottomNavigationItemSelected = { navItem ->
+                viewModel.onIntent(MultiAppIntents.BottomNavigationItemSelected(navItem))
+            },
             onModeSelected = { walletMode ->
                 viewModel.onIntent(MultiAppIntents.WalletModeSelected(walletMode))
             },
@@ -181,6 +187,7 @@ fun MultiAppChrome(
             openActivityDetail = openActivityDetail,
             openReferral = openReferral,
             openSwapDexOption = openSwapDexOption,
+            openDexIntro = openDexIntro,
             openFiatActionDetail = openFiatActionDetail,
             openMoreQuickActions = openMoreQuickActions,
             assetActionsNavigation = assetActionsNavigation,
@@ -214,6 +221,8 @@ fun MultiAppChromeScreen(
     balance: DataResource<String>,
     shouldRevealBalance: Boolean,
     bottomNavigationItems: ImmutableList<ChromeBottomNavigationItem>,
+    selectedBottomNavigationItem: ChromeBottomNavigationItem,
+    onBottomNavigationItemSelected: (ChromeBottomNavigationItem) -> Unit,
     onModeSelected: (WalletMode) -> Unit,
     onModeLongClicked: (WalletMode) -> Unit,
     openCryptoAssets: () -> Unit,
@@ -229,6 +238,7 @@ fun MultiAppChromeScreen(
     openMoreQuickActions: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
     onBalanceRevealed: () -> Unit,
+    openDexIntro: () -> Unit,
     startPhraseRecovery: () -> Unit,
     openExternalUrl: (url: String) -> Unit,
     openNftHelp: () -> Unit,
@@ -239,10 +249,8 @@ fun MultiAppChromeScreen(
     val toolbarState = rememberToolbarState(modeSwitcherOptions)
     val navController = rememberNavController()
 
-    var selectedNavigationItem by remember { mutableStateOf(bottomNavigationItems.first()) }
-
-    LaunchedEffect(selectedNavigationItem) {
-        navController.navigate(selectedNavigationItem.route) {
+    LaunchedEffect(selectedBottomNavigationItem) {
+        navController.navigate(selectedBottomNavigationItem.route) {
             navController.graph.startDestinationRoute?.let { screen_route ->
                 popUpTo(screen_route) {
                     saveState = true
@@ -252,6 +260,17 @@ fun MultiAppChromeScreen(
             restoreState = true
         }
     }
+
+    // //////////////////////////////////////////////
+    // update vm selected bottom nav item on back press if needed
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val navControllerBottomNav = bottomNavigationItems.firstOrNull { it.route == navBackStackEntry?.destination?.route }
+    LaunchedEffect(key1 = navControllerBottomNav) {
+        navControllerBottomNav?.let {
+            onBottomNavigationItemSelected(it)
+        }
+    }
+    // //////////////////////////////////////////////
 
     // //////////////////////////////////////////////
     // snap header views depending on scroll position
@@ -704,11 +723,11 @@ fun MultiAppChromeScreen(
 
                         toolbarState.isPullToRefreshSwipeInProgress = listStateInfo.isSwipeInProgress
 
-                        if (verifyHeaderPositionForNewScreen && selectedNavigationItem == navItem) {
+                        if (verifyHeaderPositionForNewScreen && selectedBottomNavigationItem == navItem) {
                             verifyAndCollapseHeaderForNewScreen()
                         }
                     },
-                    selectedNavigationItem = selectedNavigationItem,
+                    selectedNavigationItem = selectedBottomNavigationItem,
                     refreshStarted = {
                         isRefreshing = true
                     },
@@ -725,6 +744,7 @@ fun MultiAppChromeScreen(
                     assetActionsNavigation = assetActionsNavigation,
                     settingsNavigation = settingsNavigation,
                     pricesNavigation = pricesNavigation,
+                    openDexIntro = openDexIntro,
                     qrScanNavigation = qrScanNavigation,
                     supportNavigation = supportNavigation,
                     startPhraseRecovery = startPhraseRecovery,
@@ -734,7 +754,7 @@ fun MultiAppChromeScreen(
                     nftNavigation = nftNavigation,
                     earnNavigation = earnNavigation,
                     openEarnDashboard = {
-                        selectedNavigationItem = ChromeBottomNavigationItem.Earn
+                        onBottomNavigationItemSelected(ChromeBottomNavigationItem.Earn)
                         verifyHeaderPositionForNewScreen = true
                     }
                 )
@@ -757,13 +777,13 @@ fun MultiAppChromeScreen(
                         y = bottomNavOffsetY
                     )
                 },
-            navControllerProvider = { navController },
             navigationItems = currentBottomNavigationItems.toImmutableList(),
+            selectedNavigationItem = selectedBottomNavigationItem,
             onSelected = {
                 if (isRefreshing) {
                     stopRefresh()
                 } else {
-                    selectedNavigationItem = it
+                    onBottomNavigationItemSelected(it)
                     verifyHeaderPositionForNewScreen = true
                 }
             }

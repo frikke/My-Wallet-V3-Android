@@ -22,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
@@ -66,7 +65,7 @@ fun IntroductionScreens(
     )
 }
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalTextApi::class)
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun IntroductionScreensData(
     setup: IntroductionScreensSetup,

@@ -4,6 +4,7 @@ import info.blockchain.wallet.api.WalletApi.IPResponse
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.api.data.Status
 import info.blockchain.wallet.api.data.WalletOptions
+import info.blockchain.wallet.payload.data.walletdto.WalletBaseDto
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -86,7 +87,7 @@ interface WalletExplorerEndpoints {
         @Field("sharedKey") sharedKey: String,
         @Field("format") format: String,
         @Field("api_code") apiCode: String
-    ): Single<ResponseBody>
+    ): Single<WalletBaseDto>
 
     @FormUrlEncoded
     @POST("wallet")

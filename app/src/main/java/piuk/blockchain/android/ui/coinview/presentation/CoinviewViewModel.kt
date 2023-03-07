@@ -39,6 +39,7 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
 import java.text.DecimalFormat
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -624,7 +625,7 @@ class CoinviewViewModel(
                 onIntent(CoinviewIntent.LoadPriceData)
                 onIntent(CoinviewIntent.LoadAccountsData)
                 onIntent(CoinviewIntent.LoadWatchlistData)
-                loadRecurringBuysData(modelState.asset, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
+                loadRecurringBuysData(asset = modelState.asset)
                 onIntent(CoinviewIntent.LoadAssetInfo)
             }
 
@@ -730,17 +731,29 @@ class CoinviewViewModel(
                 val cvAccount = modelState.accounts!!.accounts.first { it.account == intent.account }
                 val balance = cvAccount.cryptoBalance as? DataResource.Data ?: return
                 val fiatBalance = cvAccount.fiatBalance as? DataResource.Data ?: return
-                navigate(
-                    CoinviewNavigationEvent.ShowAccountActions(
-                        cvAccount = cvAccount,
-                        interestRate = cvAccount.interestRate(),
-                        stakingRate = cvAccount.stakingRate(),
-                        activeRewardsRate = cvAccount.activeRewardsRate(),
-                        actions = intent.actions,
-                        cryptoBalance = balance.data,
-                        fiatBalance = fiatBalance.data,
+
+                when {
+                    cvAccount.isInterestAccount() -> navigate(
+                        CoinviewNavigationEvent.NavigateToInterestStatement(cvAccount)
                     )
-                )
+                    cvAccount.isStakingAccount() -> navigate(
+                        CoinviewNavigationEvent.NavigateToStakingStatement(cvAccount)
+                    )
+                    cvAccount.isActiveRewardsAccount() -> navigate(
+                        CoinviewNavigationEvent.NavigateToActiveRewardsStatement(cvAccount)
+                    )
+                    else -> navigate(
+                        CoinviewNavigationEvent.ShowAccountActions(
+                            cvAccount = cvAccount,
+                            interestRate = cvAccount.interestRate(),
+                            stakingRate = cvAccount.stakingRate(),
+                            activeRewardsRate = cvAccount.activeRewardsRate(),
+                            actions = intent.actions,
+                            cryptoBalance = balance.data,
+                            fiatBalance = fiatBalance.data,
+                        )
+                    )
+                }
             }
 
             is CoinviewIntent.AccountActionSelected -> {
@@ -865,7 +878,19 @@ class CoinviewViewModel(
                 navigate(CoinviewNavigationEvent.NavigateToActivity(getStakingAccount(modelState.accounts)))
 
             is CoinviewIntent.LaunchActiveRewardsDepositFlow ->
-                navigate(CoinviewNavigationEvent.NavigateToActiveRewardsDeposit(getStakingAccount(modelState.accounts)))
+                navigate(
+                    CoinviewNavigationEvent.NavigateToActiveRewardsDeposit(
+                        getActiveRewardsAccount(modelState.accounts)
+                    )
+                )
+
+            is CoinviewIntent.LaunchActiveRewardsWithdrawFlow ->
+                navigate(
+                    CoinviewNavigationEvent.NavigateToActiveRewardsWithdraw(
+                        cvSourceActiveRewardsAccount = getActiveRewardsAccount(modelState.accounts),
+                        cvTargetCustodialTradingAccount = getCustodialTradingAccount(modelState.accounts)
+                    )
+                )
         }
     }
 
@@ -875,7 +900,25 @@ class CoinviewViewModel(
             "getStakingAccount no staking account source found"
         }
 
-        return modelState.accounts!!.accounts.first { it is CoinviewAccount.Custodial.Staking }
+        return accounts.accounts.filterIsInstance<CoinviewAccount.Custodial.Staking>().first()
+    }
+
+    private fun getActiveRewardsAccount(accounts: CoinviewAccounts?): CoinviewAccount {
+        require(accounts != null) { "getActiveRewardsAccount - accounts not initialized" }
+        require(accounts.accounts.filterIsInstance<CoinviewAccount.Custodial.ActiveRewards>().isNotEmpty()) {
+            "getActiveRewardsAccount no active rewards account source found"
+        }
+
+        return accounts.accounts.filterIsInstance<CoinviewAccount.Custodial.ActiveRewards>().first()
+    }
+
+    private fun getCustodialTradingAccount(accounts: CoinviewAccounts?): CoinviewAccount {
+        require(accounts != null) { "getCustodialTradingAccount - accounts not initialized" }
+        require(accounts.accounts.filterIsInstance<CoinviewAccount.Custodial.Trading>().isNotEmpty()) {
+            "getCustodialTradingAccount no custodial trading account source found"
+        }
+
+        return accounts.accounts.filterIsInstance<CoinviewAccount.Custodial.Trading>().first()
     }
 
     // //////////////////////
@@ -1110,17 +1153,29 @@ class CoinviewViewModel(
                             )
                             markAsSeen()
                         } else {
-                            navigate(
-                                CoinviewNavigationEvent.ShowAccountActions(
-                                    cvAccount = account,
-                                    interestRate = account.interestRate(),
-                                    stakingRate = account.stakingRate(),
-                                    activeRewardsRate = account.activeRewardsRate(),
-                                    actions = actions,
-                                    cryptoBalance = (account.cryptoBalance as DataResource.Data).data,
-                                    fiatBalance = (account.fiatBalance as DataResource.Data).data
+
+                            when {
+                                account.isInterestAccount() -> navigate(
+                                    CoinviewNavigationEvent.NavigateToInterestStatement(account)
                                 )
-                            )
+                                account.isStakingAccount() -> navigate(
+                                    CoinviewNavigationEvent.NavigateToStakingStatement(account)
+                                )
+                                account.isActiveRewardsAccount() -> navigate(
+                                    CoinviewNavigationEvent.NavigateToActiveRewardsStatement(account)
+                                )
+                                else -> navigate(
+                                    CoinviewNavigationEvent.ShowAccountActions(
+                                        cvAccount = account,
+                                        interestRate = account.interestRate(),
+                                        stakingRate = account.stakingRate(),
+                                        activeRewardsRate = account.activeRewardsRate(),
+                                        actions = actions,
+                                        cryptoBalance = (account.cryptoBalance as DataResource.Data).data,
+                                        fiatBalance = (account.fiatBalance as DataResource.Data).data
+                                    )
+                                )
+                            }
                         }
                     }
                 }
@@ -1235,29 +1290,13 @@ class CoinviewViewModel(
                 }
             )
 
-            AssetAction.InterestDeposit -> navigate(
-                CoinviewNavigationEvent.NavigateToInterestDeposit(
-                    cvAccount = account
-                )
-            )
-
-            AssetAction.InterestWithdraw -> navigate(
-                CoinviewNavigationEvent.NavigateToInterestWithdraw(
-                    cvAccount = account
-                )
-            )
-
-            AssetAction.StakingDeposit -> navigate(
-                CoinviewNavigationEvent.NavigateToStakingDeposit(
-                    cvAccount = account
-                )
-            )
-
-            AssetAction.ActiveRewardsDeposit -> navigate(
-                CoinviewNavigationEvent.NavigateToActiveRewardsDeposit(
-                    cvAccount = account
-                )
-            )
+            AssetAction.InterestDeposit,
+            AssetAction.InterestWithdraw,
+            AssetAction.StakingDeposit,
+            AssetAction.ActiveRewardsDeposit,
+            AssetAction.ActiveRewardsWithdraw -> {
+                // no-op
+            }
 
             else -> throw IllegalStateException("Action $action is not supported in this flow")
         }
@@ -1265,7 +1304,12 @@ class CoinviewViewModel(
 
     // //////////////////////
     // Recurring buys
-    private fun loadRecurringBuysData(asset: CryptoAsset, freshnessStrategy: FreshnessStrategy) {
+    private fun loadRecurringBuysData(
+        asset: CryptoAsset,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
+            RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
+        )
+    ) {
         loadRecurringBuyJob?.cancel()
         loadRecurringBuyJob = viewModelScope.launch {
             loadAssetRecurringBuysUseCase(asset, freshnessStrategy).collectLatest { dataResource ->

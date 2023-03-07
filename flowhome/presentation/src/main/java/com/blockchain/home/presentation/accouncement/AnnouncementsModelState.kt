@@ -3,19 +3,24 @@ package com.blockchain.home.presentation.accouncement
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.componentlib.utils.ImageValue
 import com.blockchain.componentlib.utils.TextValue
+import com.blockchain.data.DataResource
+import com.blockchain.home.announcements.Announcement
+import com.blockchain.walletmode.WalletMode
 
 data class AnnouncementModelState(
-    val announcements: List<Announcement> = emptyList(),
+    val walletMode: WalletMode? = null,
+    val remoteAnnouncements: DataResource<List<Announcement>> = DataResource.Loading,
+    val localAnnouncements: List<LocalAnnouncement> = emptyList(),
     val lastFreshDataTime: Long = 0
 ) : ModelState
 
-data class Announcement(
-    val type: AnnouncementType,
+data class LocalAnnouncement(
+    val type: LocalAnnouncementType,
     val title: TextValue,
     val subtitle: TextValue,
     val icon: ImageValue
 )
 
-enum class AnnouncementType {
+enum class LocalAnnouncementType {
     PHRASE_RECOVERY
 }

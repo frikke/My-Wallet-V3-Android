@@ -1,5 +1,6 @@
 package com.blockchain.earn.activeRewards
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,15 +15,21 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.earn.R
 
 @Composable
-fun ActiveRewardsWithdrawalNotice() {
+fun ActiveRewardsWithdrawalNotice(onLearnMorePressed: () -> Unit) {
     Card(
         backgroundColor = AppTheme.colors.background,
         shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+        border = BorderStroke(
+            width = 1.dp,
+            color = AppTheme.colors.warning
+        ),
         elevation = 0.dp,
     ) {
         Column(
@@ -44,6 +51,13 @@ fun ActiveRewardsWithdrawalNotice() {
                 style = ComposeTypographies.Caption1, color = ComposeColors.Title,
                 gravity = ComposeGravities.Start
             )
+
+            SmallVerticalSpacer()
+
+            SecondaryButton(
+                text = stringResource(id = R.string.common_learn_more),
+                onClick = onLearnMorePressed
+            )
         }
     }
 }
@@ -52,6 +66,6 @@ fun ActiveRewardsWithdrawalNotice() {
 @Composable
 fun PreviewActiveRewardsWithdrawalNotice() {
     AppTheme {
-        ActiveRewardsWithdrawalNotice()
+        ActiveRewardsWithdrawalNotice({})
     }
 }

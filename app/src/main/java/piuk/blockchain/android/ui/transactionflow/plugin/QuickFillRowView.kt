@@ -66,15 +66,9 @@ class QuickFillRowView @JvmOverloads constructor(
             maxButtonText = customiser.quickFillRowMaxButtonLabel(state)
 
             onMaxItemClick = { maxAmount ->
+                model.process(TransactionIntent.UseMaxSpendable)
+
                 state.fiatRate?.let { rate ->
-                    model.process(
-                        TransactionIntent.UpdatePrefillAmount(
-                            PrefillAmounts(
-                                cryptoValue = maxAmount,
-                                fiatValue = state.convertBalanceToFiat(maxAmount, rate)
-                            )
-                        )
-                    )
                     analytics.onQuickMaxClicked(
                         state = state,
                         maxAmount = maxAmount

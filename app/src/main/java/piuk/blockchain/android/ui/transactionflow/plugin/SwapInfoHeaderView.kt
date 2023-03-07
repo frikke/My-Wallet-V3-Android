@@ -63,7 +63,7 @@ class SwapInfoHeaderView @JvmOverloads constructor(
                 }
             }
 
-            state.targetRate?.let { cryptoExchangeRate ->
+            state.confirmationRate?.let { cryptoExchangeRate ->
                 val receivingAmount = cryptoExchangeRate.convert(state.amount)
                 val previousAmount = receivingAmountCrypto.text
                 receivingAmountCrypto.text = receivingAmount.toStringWithSymbol()

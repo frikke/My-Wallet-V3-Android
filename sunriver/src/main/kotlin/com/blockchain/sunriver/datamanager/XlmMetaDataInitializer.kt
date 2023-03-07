@@ -8,11 +8,13 @@ import com.blockchain.metadata.save
 import com.blockchain.rx.maybeCache
 import com.blockchain.sunriver.derivation.deriveXlmAccountKeyPair
 import com.blockchain.sunriver.toKeyPair
+import com.blockchain.utils.thenMaybe
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.wallet.Seed
 import com.blockchain.wallet.SeedAccess
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
+import org.spongycastle.crypto.InvalidCipherTextException
 import org.spongycastle.util.encoders.Hex
 
 internal class XlmMetaDataInitializer(
@@ -43,6 +45,7 @@ internal class XlmMetaDataInitializer(
 
     private val load: Maybe<XlmMetaData> = Maybe.defer {
         repository.load<XlmMetaData>(MetadataEntry.METADATA_XLM)
+            .ignoreInvalidCipherTextException()
             .ignoreBadMetadata()
             .compareForLog()
     }.maybeCache()
@@ -91,7 +94,9 @@ internal class XlmMetaDataInitializer(
             repository.save(
                 newData,
                 MetadataEntry.METADATA_XLM
-            ).andThen(Maybe.just(newData))
+            ).thenMaybe {
+                Maybe.just(newData)
+            }
         }
 
     private fun Maybe<Seed>.deriveMetadata(): Maybe<XlmMetaData> =
@@ -102,7 +107,7 @@ internal class XlmMetaDataInitializer(
                 accounts = listOf(
                     XlmAccount(
                         publicKey = derived.accountId,
-                        label = defaultLabels.getDefaultNonCustodialWalletLabel(),
+                        _label = defaultLabels.getDefaultNonCustodialWalletLabel(),
                         _archived = false,
                         pubKey = String(
                             Hex.encode(derived.toKeyPair().publicKey)
@@ -118,12 +123,19 @@ internal class XlmMetaDataInitializer(
         metadata.copy(
             accounts = listOf(
                 account.copy(
-                    label = newLabel
+                    _label = newLabel
                 )
             )
         )
     }.saveSideEffect().ignoreElement()
 }
+
+private fun Maybe<XlmMetaData>.ignoreInvalidCipherTextException(): Maybe<XlmMetaData> =
+    onErrorResumeNext {
+        if (it is InvalidCipherTextException) {
+            Maybe.empty()
+        } else Maybe.error(it)
+    }
 
 private fun Maybe<XlmMetaData>.ignoreBadMetadata(): Maybe<XlmMetaData> =
     map {

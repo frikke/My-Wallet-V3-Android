@@ -1,7 +1,9 @@
 package info.blockchain.wallet.payload
 
 import com.blockchain.AppVersion
+import com.blockchain.api.blockchainApiModule
 import com.blockchain.api.services.NonCustodialBitcoinService
+import com.blockchain.testutils.KoinTestRule
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.eq
@@ -20,9 +22,11 @@ import info.blockchain.wallet.multiaddress.MultiAddressFactoryBtc
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
+import info.blockchain.wallet.payload.data.walletdto.WalletBaseDto
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
+import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -31,20 +35,31 @@ import org.bitcoinj.core.ECKey
 import org.bitcoinj.crypto.DeterministicKey
 import org.junit.Assert
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.koin.test.KoinTest
+import org.koin.test.inject
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import retrofit2.HttpException
 import retrofit2.Response
 
-class PayloadManagerTest : WalletApiMockedResponseTest() {
+class PayloadManagerTest : WalletApiMockedResponseTest(), KoinTest {
     private val bitcoinApi = Mockito.mock(
         NonCustodialBitcoinService::class.java
     )
     private val walletApi: WalletApi = mock()
 
     private lateinit var payloadManager: PayloadManager
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            blockchainApiModule
+        )
+    }
+    val json: Json by inject()
     @Before fun setup() {
         MockitoAnnotations.openMocks(this)
 
@@ -242,7 +257,7 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
             )
         ).thenReturn(
             Single.just(
-                walletBase.toResponseBody("application/json".toMediaTypeOrNull())
+                json.decodeFromString(WalletBaseDto.serializer(), walletBase)
             )
         )
         payloadManager.initializeAndDecrypt(
@@ -263,7 +278,7 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
             )
         ).thenReturn(
             Single.just(
-                walletBase.toResponseBody("application/json".toMediaTypeOrNull())
+                json.decodeFromString(WalletBaseDto.serializer(), walletBase)
             )
         )
         payloadManager.initializeAndDecrypt(
@@ -516,7 +531,7 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
             )
         ).thenReturn(
             Single.just(
-                walletBase.toResponseBody("application/json".toMediaTypeOrNull())
+                json.decodeFromString(WalletBaseDto.serializer(), walletBase)
             )
         )
 
@@ -563,7 +578,7 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
             )
         ).thenReturn(
             Single.just(
-                walletBase.toResponseBody("application/json".toMediaTypeOrNull())
+                json.decodeFromString(WalletBaseDto.serializer(), walletBase)
             )
         )
 
@@ -674,7 +689,7 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
             )
         ).thenReturn(
             Single.just(
-                walletBase.toResponseBody("application/json".toMediaTypeOrNull())
+                json.decodeFromString(WalletBaseDto.serializer(), walletBase)
             )
         )
 

@@ -315,6 +315,7 @@ class FiatCryptoInputView(
                 exchangeCurrency = configuration.inputCurrency,
                 outputCurrency = amount.currency
             )
+            inputToggleSubject.onNext(amount.currency)
         }
         showValue(amount)
     }

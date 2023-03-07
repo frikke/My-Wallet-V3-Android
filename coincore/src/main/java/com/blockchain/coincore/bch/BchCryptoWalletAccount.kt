@@ -22,6 +22,8 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.bch.BchMainNetParams
 import info.blockchain.wallet.bch.CashAddress
 import info.blockchain.wallet.coin.GenericMetadataAccount
+import info.blockchain.wallet.payload.data.XPub
+import info.blockchain.wallet.payload.data.XPubs
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import org.bitcoinj.core.LegacyAddress
@@ -42,6 +44,13 @@ import org.bitcoinj.core.LegacyAddress
 ) : CryptoNonCustodialAccount(
     CryptoCurrency.BCH
 ) {
+
+    private val xPub: XPubs
+        get() = try {
+            internalAccount.xpubs()
+        } catch (e: IllegalStateException) {
+            XPubs(XPub(bchManager.getXpubForIndex(addressIndex), XPub.Format.LEGACY))
+        }
 
     override val label: String
         get() = internalAccount.label
@@ -67,7 +76,7 @@ import org.bitcoinj.core.LegacyAddress
     override suspend fun publicKey(): List<PublicKey> {
         return listOf(
             PublicKey(
-                address = internalAccount.xpubs().default.address,
+                address = xPub.default.address,
                 style = PubKeyStyle.EXTENDED,
                 descriptor = DEFAULT_ADDRESS_DESCRIPTOR
             )
@@ -91,14 +100,6 @@ import org.bitcoinj.core.LegacyAddress
             bchBalanceCache = bchBalanceCache,
             resolvedAddress = addressResolver.getReceiveAddress(currency, target, action)
         )
-
-    override fun updateLabel(newLabel: String): Completable {
-        require(newLabel.isNotEmpty())
-        val newAccount = internalAccount.updateLabel(newLabel)
-        return bchManager.updateAccount(oldAccount = internalAccount, newAccount = newAccount).doOnComplete {
-            internalAccount = newAccount
-        }
-    }
 
     override fun archive(): Completable =
         if (!isArchived && !isDefault) {
@@ -127,7 +128,7 @@ import org.bitcoinj.core.LegacyAddress
     }
 
     override val xpubAddress: String
-        get() = internalAccount.xpubs().default.address
+        get() = xPub.default.address
 
     override fun matches(other: CryptoAccount): Boolean =
         other is BchCryptoWalletAccount && other.xpubAddress == xpubAddress

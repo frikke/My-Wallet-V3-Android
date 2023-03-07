@@ -72,7 +72,7 @@ fun NavGraphBuilder.homeGraph(
         }
 
         walletMode?.let {
-            ChromeBottomSheet {
+            ChromeBottomSheet(onBackPressed) {
                 ActivityDetail(
                     selectedTxId = txId,
                     walletMode = walletMode,
@@ -91,7 +91,7 @@ fun NavGraphBuilder.homeGraph(
     }
 
     bottomSheet(navigationEvent = HomeDestination.SwapDexOptions) {
-        ChromeBottomSheet {
+        ChromeBottomSheet(onBackPressed) {
             SwapDexOptionScreen(
                 onBackPressed = onBackPressed
             )

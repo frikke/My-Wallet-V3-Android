@@ -90,10 +90,8 @@ class ActiveRewardsDepositTradingEngine(
         if (newConfirmation.confirmation.isInterestAgreement()) {
             Single.just(pendingTx.addOrReplaceOption(newConfirmation))
         } else {
-            Single.just(
-                modifyEngineConfirmations(
-                    pendingTx = pendingTx
-                )
+            modifyEngineConfirmations(
+                pendingTx = pendingTx
             )
         }
 
@@ -104,7 +102,7 @@ class ActiveRewardsDepositTradingEngine(
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> =
         Single.just(
             buildConfirmations(pendingTx)
-        ).map {
+        ).flatMap {
             modifyEngineConfirmations(it)
         }
 
@@ -148,12 +146,13 @@ class ActiveRewardsDepositTradingEngine(
         }
 
     override fun doValidateAll(pendingTx: PendingTx): Single<PendingTx> {
-        val px = if (!areOptionsValid(pendingTx)) {
-            pendingTx.copy(validationState = ValidationState.OPTION_INVALID)
-        } else {
-            pendingTx.copy(validationState = ValidationState.CAN_EXECUTE)
+        return areOptionsValid(pendingTx).map { optionsValid ->
+            if (!optionsValid) {
+                pendingTx.copy(validationState = ValidationState.OPTION_INVALID)
+            } else {
+                pendingTx.copy(validationState = ValidationState.CAN_EXECUTE)
+            }
         }
-        return Single.just(px)
     }
 
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
