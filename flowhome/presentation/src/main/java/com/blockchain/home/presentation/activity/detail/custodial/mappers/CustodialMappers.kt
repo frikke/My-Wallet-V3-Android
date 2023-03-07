@@ -1,6 +1,7 @@
 package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
 import com.blockchain.coincore.ActivitySummaryItem
+import com.blockchain.coincore.CustodialActiveRewardsActivitySummaryItem
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.CustodialStakingActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
@@ -29,6 +30,7 @@ internal fun ActivitySummaryItem.iconDetail() = when (this) {
     is CustodialTransferActivitySummaryItem -> iconDetail()
     is CustodialInterestActivitySummaryItem -> iconDetail()
     is CustodialStakingActivitySummaryItem -> iconDetail()
+    is CustodialActiveRewardsActivitySummaryItem -> iconDetail()
     is RecurringBuyActivitySummaryItem -> iconDetail()
     is TradeActivitySummaryItem -> when {
         isSellingPair() -> sellIconDetail()
@@ -45,6 +47,7 @@ private fun ActivitySummaryItem.title(): TextValue {
         is CustodialTransferActivitySummaryItem -> title()
         is CustodialInterestActivitySummaryItem -> title()
         is CustodialStakingActivitySummaryItem -> title()
+        is CustodialActiveRewardsActivitySummaryItem -> title()
         is RecurringBuyActivitySummaryItem -> title()
         is TradeActivitySummaryItem -> when {
             isSellingPair() -> sellTitle()
@@ -62,6 +65,7 @@ private fun CustodialActivityDetail.detailItems(): List<ActivityDetailGroup> {
         is CustodialTransferActivitySummaryItem -> activity.detailItems(extras)
         is CustodialInterestActivitySummaryItem -> activity.detailItems(extras)
         is CustodialStakingActivitySummaryItem -> activity.detailItems(extras)
+        is CustodialActiveRewardsActivitySummaryItem -> activity.detailItems(extras)
         is RecurringBuyActivitySummaryItem -> activity.detailItems(extras)
         is TradeActivitySummaryItem -> when {
             activity.isSellingPair() -> activity.sellDetailItems(extras)
@@ -79,6 +83,7 @@ private fun CustodialActivityDetail.floatingActions(): List<ActivityComponent> {
         is CustodialTransferActivitySummaryItem -> emptyList()
         is CustodialInterestActivitySummaryItem -> emptyList()
         is CustodialStakingActivitySummaryItem -> emptyList()
+        is CustodialActiveRewardsActivitySummaryItem -> emptyList()
         is RecurringBuyActivitySummaryItem -> emptyList()
         is TradeActivitySummaryItem -> emptyList()
         is FiatActivitySummaryItem -> emptyList()
