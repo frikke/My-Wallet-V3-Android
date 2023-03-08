@@ -6,5 +6,6 @@ import com.blockchain.home.announcements.Announcement
 
 data class AnnouncementsViewState(
     val remoteAnnouncements: DataResource<List<Announcement>>,
+    val hideAnnouncementsConfirmation: Boolean,
     val localAnnouncements: List<LocalAnnouncement>
 ) : ViewState

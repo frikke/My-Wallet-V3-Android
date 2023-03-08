@@ -284,6 +284,7 @@ fun HomeScreen(
             (announcementsState.remoteAnnouncements as? DataResource.Data)?.data?.let { announcements ->
                 StackedAnnouncements(
                     announcements = announcements,
+                    hideConfirmation = announcementsState.hideAnnouncementsConfirmation,
                     onSwiped = { target ->
                         announcementsViewModel.onIntent(AnnouncementsIntent.DeleteAnnouncement(target))
                     }

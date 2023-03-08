@@ -1,17 +1,28 @@
 package com.blockchain.home.presentation.accouncement.composable
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.swipeable.rememberSwipeableState
@@ -19,18 +30,23 @@ import com.blockchain.componentlib.swipeable.swipeable
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.home.announcements.Announcement
+import com.blockchain.home.presentation.R
 import kotlinx.coroutines.launch
 
 @Composable
 fun StackedAnnouncements(
     announcements: List<Announcement>,
+    hideConfirmation: Boolean,
     onSwiped: (Announcement) -> Unit
 ) {
+    val localDensity = LocalDensity.current
+
+    val confirmationCardScale = 0.5F
     val backCardScale = 0.9F
     val frontCardScale = 1F
     val animatableScale = remember { Animatable(backCardScale) }
 
-    val backCardsTranslation = with(LocalDensity.current) {
+    val backCardsTranslation = with(localDensity) {
         AppTheme.dimensions.tinySpacing.toPx()
     }.unaryMinus()
     val frontCardTranslation = 0F
@@ -40,13 +56,50 @@ fun StackedAnnouncements(
     val frontCardUnfocusedAlpha = 0.5F
     val animatableAlpha = remember { Animatable(frontCardFocusedAlpha) }
 
+    var fullHeight by remember { mutableStateOf(0.dp) }
+
     Box {
         val scope = rememberCoroutineScope()
         Box(
             Modifier
                 .fillMaxWidth()
                 .align(Alignment.Center)
+                .onGloballyPositioned {
+                    if (fullHeight == 0.dp) {
+                        with(localDensity) {
+                            fullHeight = it.size.height.toDp()
+                        }
+                    }
+                }
         ) {
+            AnimatedVisibility(
+                modifier = Modifier
+                    .align(Alignment.Center),
+                visible = !hideConfirmation,
+                exit = shrinkOut(tween(durationMillis = 200, delayMillis = 200)) + fadeOut(tween(durationMillis = 200))
+            ) {
+                Box(
+                    modifier = Modifier.height(fullHeight)
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .graphicsLayer {
+                                val scale = if (announcements.isNotEmpty()) {
+                                    animatableScale.value
+                                } else {
+                                    frontCardScale
+                                }
+                                scaleY = scale
+                                scaleX = scale
+                            },
+                        text = stringResource(R.string.announcements_all_done),
+                        style = AppTheme.typography.title3,
+                        color = AppTheme.colors.title
+                    )
+                }
+            }
+
             announcements.map {
                 it to rememberSwipeableState()
             }.forEachIndexed { index, (announcement, state) ->
@@ -92,7 +145,7 @@ fun StackedAnnouncements(
                                     translationTarget = frontCardTranslation
                                     alphaTarget = frontCardUnfocusedAlpha
                                 } else {
-                                    scaleTarget = backCardScale
+                                    scaleTarget = if (announcements.size == 1) confirmationCardScale else backCardScale
                                     translationTarget = backCardsTranslation
                                     alphaTarget = frontCardFocusedAlpha
                                 }
@@ -128,6 +181,7 @@ fun StackedAnnouncements(
                                 scope.launch {
                                     animatableAlpha.snapTo(frontCardFocusedAlpha)
                                 }
+
                                 onSwiped(announcement)
                             }
                         ),

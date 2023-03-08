@@ -3524,6 +3524,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="single_chain_eth_tokens">Single-chain, thousands of tokens on Ethereum</string>
     <string name="announcement_recovery_title">Never lose access to your DeFi Wallet</string>
     <string name="announcement_recovery_subtitle">Backup your DeFi Wallet</string>
+    <string name="announcements_all_done">🎉 You’re all caught up!</string>
     <string name="prices_top_movers">Top Movers</string>
     <string name="other_tokens">Other tokens</string>
     <string name="processing_fee">Processing fee</string>

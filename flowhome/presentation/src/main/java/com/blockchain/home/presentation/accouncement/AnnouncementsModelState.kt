@@ -10,6 +10,7 @@ import com.blockchain.walletmode.WalletMode
 data class AnnouncementModelState(
     val walletMode: WalletMode? = null,
     val remoteAnnouncements: DataResource<List<Announcement>> = DataResource.Loading,
+    val hideAnnouncementsConfirmation: Boolean = false,
     val localAnnouncements: List<LocalAnnouncement> = emptyList(),
     val lastFreshDataTime: Long = 0
 ) : ModelState

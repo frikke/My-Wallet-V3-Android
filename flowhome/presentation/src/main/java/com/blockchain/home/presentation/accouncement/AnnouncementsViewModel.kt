@@ -8,12 +8,15 @@ import com.blockchain.componentlib.icons.Unlock
 import com.blockchain.componentlib.theme.Pink600
 import com.blockchain.componentlib.utils.ImageValue
 import com.blockchain.componentlib.utils.TextValue
+import com.blockchain.data.DataResource
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.dataOrElse
 import com.blockchain.data.filter
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.extensions.minus
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.home.announcements.AnnouncementsService
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
@@ -21,6 +24,7 @@ import com.blockchain.presentation.pulltorefresh.PullToRefresh
 import com.blockchain.walletmode.WalletModeService
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -28,6 +32,7 @@ class AnnouncementsViewModel(
     private val walletModeService: WalletModeService,
     private val backupPhraseService: BackupPhraseService,
     private val announcementsService: AnnouncementsService,
+    private val iterableAnnouncementsFF: FeatureFlag,
 ) : MviViewModel<
     AnnouncementsIntent,
     AnnouncementsViewState,
@@ -37,6 +42,7 @@ class AnnouncementsViewModel(
     AnnouncementModelState()
 ) {
     private var remoteAnnouncementsJob: Job? = null
+    private var remoteAnnouncementsConfirmationJob: Job? = null
     private var localAnnouncementsJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
@@ -47,6 +53,7 @@ class AnnouncementsViewModel(
                 updateState {
                     it.copy(walletMode = walletMode)
                 }
+                updateRemoteAnnouncementsConfirmation(withDelay = false)
             }
         }
     }
@@ -56,6 +63,7 @@ class AnnouncementsViewModel(
             remoteAnnouncements = remoteAnnouncements.filter {
                 it.eligibleModes.contains(walletMode)
             },
+            hideAnnouncementsConfirmation = hideAnnouncementsConfirmation,
             localAnnouncements = localAnnouncements
         )
     }
@@ -68,11 +76,13 @@ class AnnouncementsViewModel(
             }
 
             is AnnouncementsIntent.DeleteAnnouncement -> {
+                val result = modelState.remoteAnnouncements.map { it.minus { it == intent.announcement } }
                 updateState {
                     it.copy(
-                        remoteAnnouncements = it.remoteAnnouncements.map { it.minus { it == intent.announcement } }
+                        remoteAnnouncements = result
                     )
                 }
+                updateRemoteAnnouncementsConfirmation(withDelay = true)
             }
 
             AnnouncementsIntent.Refresh -> {
@@ -84,14 +94,47 @@ class AnnouncementsViewModel(
     private fun loadRemoteAnnouncements(forceRefresh: Boolean) {
         remoteAnnouncementsJob?.cancel()
         remoteAnnouncementsJob = viewModelScope.launch {
-            announcementsService.announcements(
-                PullToRefresh.freshnessStrategy(
-                    shouldGetFresh = forceRefresh,
-                    RefreshStrategy.RefreshIfOlderThan(amount = 15, unit = TimeUnit.MINUTES)
-                )
-            ).collectLatest { dataResource ->
+            if (iterableAnnouncementsFF.coEnabled()) {
+                announcementsService.announcements(
+                    PullToRefresh.freshnessStrategy(
+                        shouldGetFresh = forceRefresh,
+                        RefreshStrategy.RefreshIfOlderThan(amount = 15, unit = TimeUnit.MINUTES)
+                    )
+                ).collectLatest { dataResource ->
+                    updateState {
+                        it.copy(remoteAnnouncements = it.remoteAnnouncements.updateDataWith(dataResource))
+                    }
+                }
+            } else {
                 updateState {
-                    it.copy(remoteAnnouncements = it.remoteAnnouncements.updateDataWith(dataResource))
+                    it.copy(remoteAnnouncements = DataResource.Data(emptyList()))
+                }
+            }
+        }
+    }
+
+    private fun updateRemoteAnnouncementsConfirmation(withDelay: Boolean) {
+        remoteAnnouncementsConfirmationJob?.cancel()
+        remoteAnnouncementsConfirmationJob = viewModelScope.launch {
+            val shouldHideConfirmation = modelState.remoteAnnouncements
+                .filter { it.eligibleModes.contains(modelState.walletMode) }
+                .map { it.isEmpty() }
+                .dataOrElse(false)
+
+            if (shouldHideConfirmation) {
+                if (withDelay) {
+                    delay(CONFIRMATION_DELAY)
+                }
+                updateState {
+                    it.copy(
+                        hideAnnouncementsConfirmation = true
+                    )
+                }
+            } else {
+                updateState {
+                    it.copy(
+                        hideAnnouncementsConfirmation = false
+                    )
                 }
             }
         }
@@ -121,5 +164,9 @@ class AnnouncementsViewModel(
                 }
             }
         }
+    }
+
+    companion object {
+        private val CONFIRMATION_DELAY = TimeUnit.SECONDS.toMillis(2)
     }
 }
