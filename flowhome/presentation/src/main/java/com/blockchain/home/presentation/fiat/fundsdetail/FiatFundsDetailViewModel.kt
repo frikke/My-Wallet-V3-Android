@@ -12,6 +12,7 @@ import com.blockchain.fiatActions.fiatactions.FiatActionsUseCase
 import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.fiat.actions.hasAvailableAction
+import com.blockchain.store.filterDataIsInstance
 import com.blockchain.store.flatMapData
 import com.blockchain.store.mapData
 import com.blockchain.walletmode.WalletMode
@@ -21,7 +22,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -96,7 +96,7 @@ class FiatFundsDetailViewModel(
         loadDataJob?.cancel()
         loadDataJob = viewModelScope.launch {
             homeAccountsService.accounts(WalletMode.CUSTODIAL)
-                .filterIsInstance<DataResource<List<FiatAccount>>>()
+                .filterDataIsInstance<FiatAccount>()
                 .mapData { it.first { it.currency.networkTicker == fiatTicker } }
                 .onEach { dataResource ->
                     updateState {
