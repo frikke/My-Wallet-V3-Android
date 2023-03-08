@@ -16,15 +16,19 @@ import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.domain.eligibility.model.ProductEligibility
 import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
 import com.blockchain.domain.eligibility.model.Region
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
 import com.blockchain.store.firstOutcome
 import com.blockchain.store.mapData
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 
 class EligibilityRepository(
     private val productsEligibilityStore: ProductsEligibilityStore,
-    private val eligibilityApiService: EligibilityApiService
+    private val eligibilityApiService: EligibilityApiService,
+    private val custodialAccountsFeatureFlag: FeatureFlag
 ) : EligibilityService {
 
     override suspend fun getCountriesList(
@@ -50,10 +54,18 @@ class EligibilityRepository(
         product: EligibleProduct,
         freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<ProductEligibility>> {
-        return productsEligibilityStore.stream(freshnessStrategy)
-            .mapData { eligibility ->
-                eligibility.products[product] ?: ProductEligibility.asEligible(product)
+        return flow {
+            if (product == EligibleProduct.USE_CUSTODIAL_ACCOUNTS && custodialAccountsFeatureFlag.coEnabled().not()) {
+                emit(DataResource.Data(ProductEligibility.asEligible(product)))
+            } else {
+                emitAll(
+                    productsEligibilityStore.stream(freshnessStrategy)
+                        .mapData { eligibility ->
+                            eligibility.products[product] ?: ProductEligibility.asEligible(product)
+                        }
+                )
             }
+        }
     }
 
     override suspend fun getMajorProductsNotEligibleReasons():

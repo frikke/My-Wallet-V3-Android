@@ -640,7 +640,7 @@ val applicationModule = module {
         scoped {
             DefaultWalletModeStrategy(
                 walletModePrefs = get(),
-                productsEligibilityStore = get()
+                eligibilityService = get()
             )
         }
 

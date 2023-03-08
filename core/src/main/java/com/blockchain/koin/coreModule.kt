@@ -195,7 +195,8 @@ val coreModule = module {
         scoped {
             EligibilityRepository(
                 productsEligibilityStore = get(),
-                eligibilityApiService = get()
+                eligibilityApiService = get(),
+                custodialAccountsFeatureFlag = get(custodialAccounts)
             )
         }.bind(EligibilityService::class)
 

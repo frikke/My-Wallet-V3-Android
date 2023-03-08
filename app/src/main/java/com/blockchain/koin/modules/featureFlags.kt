@@ -11,6 +11,7 @@ import com.blockchain.koin.blockchainMembershipsFeatureFlag
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.cardPaymentAsyncFeatureFlag
 import com.blockchain.koin.cowboysPromoFeatureFlag
+import com.blockchain.koin.custodialAccounts
 import com.blockchain.koin.dexFeatureFlag
 import com.blockchain.koin.earnTabFeatureFlag
 import com.blockchain.koin.exchangeWAPromptFeatureFlag
@@ -286,6 +287,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_iterable_announcements",
                 "Iterable Announcements"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(custodialAccounts) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_high_risk_ui",
+                "Disable custodial accounts for high risk countries"
             )
         )
     }.bind(FeatureFlag::class)

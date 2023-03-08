@@ -3,6 +3,7 @@ package com.blockchain.home.presentation.navigation
 import androidx.navigation.NavGraphBuilder
 import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.chrome.composable.ChromeSingleScreen
+import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.commonarch.presentation.mvi_v2.compose.getComposeArgument
@@ -22,6 +23,7 @@ import com.google.accompanist.navigation.material.ExperimentalMaterialNavigation
 @OptIn(ExperimentalMaterialNavigationApi::class)
 fun NavGraphBuilder.homeGraph(
     launchApp: () -> Unit,
+    openDex: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
     onBackPressed: () -> Unit,
 ) {
@@ -93,7 +95,9 @@ fun NavGraphBuilder.homeGraph(
     bottomSheet(navigationEvent = HomeDestination.SwapDexOptions) {
         ChromeBottomSheet(onBackPressed) {
             SwapDexOptionScreen(
-                onBackPressed = onBackPressed
+                onBackPressed = onBackPressed,
+                openDex = openDex,
+                openSwap = { assetActionsNavigation.navigate(AssetAction.Swap) }
             )
         }
     }

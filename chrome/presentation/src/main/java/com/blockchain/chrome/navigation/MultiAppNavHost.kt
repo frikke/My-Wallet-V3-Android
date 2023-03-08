@@ -7,6 +7,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.blockchain.chrome.ChromeBottomNavigationItem
 import com.blockchain.chrome.composable.MultiAppChrome
 import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
@@ -118,7 +119,10 @@ fun MultiAppNavHost(
                     }
                 },
                 assetActionsNavigation = assetActionsNavigation,
-                onBackPressed = navController::popBackStack
+                onBackPressed = navController::popBackStack,
+                openDex = {
+                    navController.navigate(ChromeBottomNavigationItem.Dex.route)
+                }
             )
 
             nftGraph(

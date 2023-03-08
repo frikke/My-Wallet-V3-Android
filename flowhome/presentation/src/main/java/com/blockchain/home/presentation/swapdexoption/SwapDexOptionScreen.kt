@@ -35,7 +35,9 @@ import com.blockchain.home.presentation.R
 
 @Composable
 fun SwapDexOptionScreen(
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    openSwap: () -> Unit,
+    openDex: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -79,14 +81,18 @@ fun SwapDexOptionScreen(
             roundedCornersItems(
                 items = items,
             ) {
-                SwapOptionCell(it)
+                SwapOptionCell(item = it, openDex = openDex, openSwap = openSwap)
             }
         }
     }
 }
 
 @Composable
-private fun SwapOptionCell(item: SwapOption) {
+private fun SwapOptionCell(
+    item: SwapOption,
+    openSwap: () -> Unit,
+    openDex: () -> Unit
+) {
     TableRow(
         content = {
             Column(
@@ -149,7 +155,12 @@ private fun SwapOptionCell(item: SwapOption) {
                 )
             )
         },
-        onContentClicked = { }
+        onContentClicked = {
+            when (item.type) {
+                SwapType.BCDC_SWAP -> openSwap()
+                SwapType.DEX -> openDex()
+            }
+        }
     )
 }
 
@@ -173,7 +184,8 @@ private fun SwapDexOptionItemPreview() {
                     "Title",
                     "Cross-chain, limited token pairs",
                     SwapType.BCDC_SWAP
-                )
+                ),
+                {}, {}
             )
         }
     }
@@ -185,7 +197,7 @@ private fun SwapDexOptionPreview() {
     AppTheme {
         AppSurface {
             SwapDexOptionScreen(
-                onBackPressed = { }
+                onBackPressed = { }, {}, {}
             )
         }
     }
