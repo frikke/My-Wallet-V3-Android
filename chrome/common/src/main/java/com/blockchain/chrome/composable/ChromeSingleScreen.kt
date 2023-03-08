@@ -80,75 +80,73 @@ private fun ChromeSingleScreen(
 
     val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
-    if ((!isBottomSheet == statusBarHeight > 0.dp) && navBarHeight > 0.dp) {
-        // this container has the following format
-        // -> Space for the status bar
-        // -> main screen content
-        // -> Space for the native android navigation
-        ConstraintLayout(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(if (!isBottomSheet) 1F else 0.95F)
-                .then(
-                    if (walletMode == null || isBottomSheet) {
-                        Modifier.background(AppTheme.colors.backgroundMuted)
-                    } else {
-                        Modifier.background(
-                            brush = Brush.horizontalGradient(
-                                colors = walletMode!!
-                                    .backgroundColors()
-                                    .asList()
-                            )
+    // this container has the following format
+    // -> Space for the status bar
+    // -> main screen content
+    // -> Space for the native android navigation
+    ConstraintLayout(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(if (!isBottomSheet) 1F else 0.95F)
+            .then(
+                if (walletMode == null || isBottomSheet) {
+                    Modifier.background(AppTheme.colors.backgroundMuted)
+                } else {
+                    Modifier.background(
+                        brush = Brush.horizontalGradient(
+                            colors = walletMode!!
+                                .backgroundColors()
+                                .asList()
                         )
-                    }
-                )
+                    )
+                }
+            )
+    ) {
+        val (statusBar, navBar, content) = createRefs()
+
+        Card(
+            modifier = Modifier
+                .constrainAs(content) {
+                    start.linkTo(parent.start)
+                    top.linkTo(statusBar.bottom)
+                    end.linkTo(parent.end)
+                    bottom.linkTo(navBar.top)
+                    height = Dimension.fillToConstraints
+                }
+                .fillMaxSize(),
+            backgroundColor = Color(0XFFF1F2F7),
+            shape = RoundedCornerShape(
+                topStart = AppTheme.dimensions.standardSpacing,
+                topEnd = AppTheme.dimensions.standardSpacing
+            ),
+            elevation = 0.dp
         ) {
-            val (statusBar, navBar, content) = createRefs()
-
-            Card(
-                modifier = Modifier
-                    .constrainAs(content) {
-                        start.linkTo(parent.start)
-                        top.linkTo(statusBar.bottom)
-                        end.linkTo(parent.end)
-                        bottom.linkTo(navBar.top)
-                        height = Dimension.fillToConstraints
-                    }
-                    .fillMaxSize(),
-                backgroundColor = Color(0XFFF1F2F7),
-                shape = RoundedCornerShape(
-                    topStart = AppTheme.dimensions.standardSpacing,
-                    topEnd = AppTheme.dimensions.standardSpacing
-                ),
-                elevation = 0.dp
-            ) {
-                content()
-            }
-
-            // status bar
-            Box(
-                modifier = Modifier
-                    .constrainAs(statusBar) {
-                        start.linkTo(parent.start)
-                        top.linkTo(parent.top)
-                        end.linkTo(parent.end)
-                    }
-                    .fillMaxWidth()
-                    .height(statusBarHeight)
-            )
-
-            // nav bar
-            Box(
-                modifier = Modifier
-                    .constrainAs(navBar) {
-                        start.linkTo(parent.start)
-                        bottom.linkTo(parent.bottom)
-                        end.linkTo(parent.end)
-                    }
-                    .fillMaxWidth()
-                    .height(navBarHeight)
-            )
+            content()
         }
+
+        // status bar
+        Box(
+            modifier = Modifier
+                .constrainAs(statusBar) {
+                    start.linkTo(parent.start)
+                    top.linkTo(parent.top)
+                    end.linkTo(parent.end)
+                }
+                .fillMaxWidth()
+                .height(statusBarHeight)
+        )
+
+        // nav bar
+        Box(
+            modifier = Modifier
+                .constrainAs(navBar) {
+                    start.linkTo(parent.start)
+                    bottom.linkTo(parent.bottom)
+                    end.linkTo(parent.end)
+                }
+                .fillMaxWidth()
+                .height(navBarHeight)
+        )
     }
 }
 
