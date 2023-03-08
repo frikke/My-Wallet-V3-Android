@@ -145,24 +145,37 @@ class TradingToOnChainTxEngine(
         }
     }
 
+    /**
+     * Cause the way fees are working, we dont request them every time that user's input is the max available,
+     * but we assume that are the ones requested in the initialisation of the tx
+     */
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> {
         require(amount is CryptoValue)
         require(amount.currency == sourceAsset)
-        return withdrawFeesAndMin(
-            WithdrawFeesAndMinRequest(
-                max = false,
-                amount = pendingTx.amount.toBigInteger().toString(),
-                fiatCurrency = userFiat.networkTicker,
-                currency = sourceAssetInfo.networkTicker,
-                paymentMethod = CRYPTO_TRANSFER_PAYMENT_METHOD
+        return if (amount.isPositive && amount == pendingTx.availableBalance) {
+            Single.just(
+                pendingTx.copy(
+                    amount = amount,
+                    feeAmount = pendingTx.feeForFullAvailable
+                )
             )
-        ).map { Money.fromMinor(sourceAsset, it.totalFees.amount.value.toBigInteger()) }.onErrorReturn {
-            Money.zero(sourceAsset)
-        }.map { fee ->
-            pendingTx.copy(
-                amount = amount,
-                feeAmount = fee
-            )
+        } else {
+            withdrawFeesAndMin(
+                WithdrawFeesAndMinRequest(
+                    max = false,
+                    amount = pendingTx.amount.toBigInteger().toString(),
+                    fiatCurrency = userFiat.networkTicker,
+                    currency = sourceAssetInfo.networkTicker,
+                    paymentMethod = CRYPTO_TRANSFER_PAYMENT_METHOD
+                )
+            ).map { Money.fromMinor(sourceAsset, it.totalFees.amount.value.toBigInteger()) }.onErrorReturn {
+                Money.zero(sourceAsset)
+            }.map { fee ->
+                pendingTx.copy(
+                    amount = amount,
+                    feeAmount = fee
+                )
+            }
         }
     }
 
