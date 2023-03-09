@@ -17,7 +17,9 @@ import com.blockchain.data.updateDataWith
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.extensions.minus
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.home.announcements.Announcement
 import com.blockchain.home.announcements.AnnouncementsService
+import com.blockchain.home.announcements.ConsumeAnnouncementAction
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.presentation.pulltorefresh.PullToRefresh
@@ -76,13 +78,14 @@ class AnnouncementsViewModel(
             }
 
             is AnnouncementsIntent.DeleteAnnouncement -> {
-                val result = modelState.remoteAnnouncements.map { it.minus { it == intent.announcement } }
-                updateState {
-                    it.copy(
-                        remoteAnnouncements = result
+                updateRemoteAnnouncementsConfirmation(withDelay = true)
+
+                viewModelScope.launch {
+                    announcementsService.consumeAnnouncement(
+                        announcement = intent.announcement,
+                        action = ConsumeAnnouncementAction.DELETED
                     )
                 }
-                updateRemoteAnnouncementsConfirmation(withDelay = true)
             }
 
             AnnouncementsIntent.Refresh -> {

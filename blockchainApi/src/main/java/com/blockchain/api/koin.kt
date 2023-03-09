@@ -57,6 +57,7 @@ import com.blockchain.api.services.ActivityWebSocketService
 import com.blockchain.api.services.AddressMappingService
 import com.blockchain.api.services.AddressVerificationApiService
 import com.blockchain.api.services.AnalyticsService
+import com.blockchain.api.services.AnnouncementsApiService
 import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.api.services.AssetPriceService
 import com.blockchain.api.services.AuthApiService
@@ -485,7 +486,10 @@ val blockchainApiModule = module {
     }
 
     factory {
-        get<Retrofit>(iterableRetrofit).create(AnnouncementsApi::class.java)
+        val api = get<Retrofit>(iterableRetrofit).create(AnnouncementsApi::class.java)
+        AnnouncementsApiService(
+            api = api
+        )
     }
 
     scope(payloadScopeQualifier) {

@@ -12,4 +12,9 @@ interface AnnouncementsService {
             RefreshStrategy.RefreshIfOlderThan(15, TimeUnit.MINUTES)
         )
     ): Flow<DataResource<List<Announcement>>>
+
+    suspend fun consumeAnnouncement(
+        announcement: Announcement,
+        action: ConsumeAnnouncementAction
+    )
 }

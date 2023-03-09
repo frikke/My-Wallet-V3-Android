@@ -7,6 +7,8 @@ import com.blockchain.home.data.FiltersStorage
 import com.blockchain.home.data.HomeAccountsRepository
 import com.blockchain.home.data.actions.QuickActionsRepository
 import com.blockchain.home.data.activity.CustodialActivityRepository
+import com.blockchain.home.data.announcements.AnnouncementsCredentials
+import com.blockchain.home.data.announcements.AnnouncementsCredentialsImpl
 import com.blockchain.home.data.announcements.AnnouncementsRepository
 import com.blockchain.home.data.announcements.AnnouncementsStore
 import com.blockchain.home.data.emptystate.CustodialEmptyCardRepository
@@ -51,16 +53,24 @@ val homeDataModule = module {
             )
         }
 
-        scoped {
-            AnnouncementsRepository(
-                announcementsStore = get()
+        scoped<AnnouncementsCredentials> {
+            AnnouncementsCredentialsImpl(
+                remoteConfigService = get()
             )
-        }.bind(AnnouncementsService::class)
+        }
+        scoped<AnnouncementsService> {
+            AnnouncementsRepository(
+                announcementsStore = get(),
+                announcementsApiService = get(),
+                announcementsCredentials = get(),
+                announcementsPrefs = get()
+            )
+        }
 
         scoped {
             AnnouncementsStore(
-                announcementsApi = get(),
-                remoteConfigService = get()
+                announcementsApiService = get(),
+                announcementsCredentials = get()
             )
         }
     }

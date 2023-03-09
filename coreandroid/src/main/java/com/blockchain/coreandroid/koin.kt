@@ -20,6 +20,7 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.DexPrefs
 import com.blockchain.preferences.ExchangeCampaignPrefs
+import com.blockchain.preferences.IterableAnnouncementsPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
@@ -86,6 +87,7 @@ val coreAndroidModule = module {
         bind(SuperAppMvpPrefs::class)
         bind(CowboysPrefs::class)
         bind(ExchangeCampaignPrefs::class)
+        bind(IterableAnnouncementsPrefs::class)
     }
 
     factory {

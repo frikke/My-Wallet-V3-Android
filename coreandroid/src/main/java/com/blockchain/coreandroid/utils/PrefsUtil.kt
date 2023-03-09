@@ -24,6 +24,7 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.DexPrefs
 import com.blockchain.preferences.ExchangeCampaignPrefs
+import com.blockchain.preferences.IterableAnnouncementsPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
@@ -86,7 +87,8 @@ class PrefsUtil(
     LocalSettingsPrefs,
     SuperAppMvpPrefs,
     CowboysPrefs,
-    ExchangeCampaignPrefs {
+    ExchangeCampaignPrefs,
+    IterableAnnouncementsPrefs {
 
     private var isUnderAutomationTesting = false // Don't persist!
 
@@ -778,6 +780,44 @@ class PrefsUtil(
             setValue(CAMPAIGN_ACTION_TAKEN, value)
         }
 
+    // iterable announcements
+    private fun parseAnnouncements(value: String): MutableList<String> = value.split(",").toMutableList()
+    private fun formatAnnouncements(list: List<String>): String = list.joinToString(separator = ",")
+
+    override fun markAsSeen(id: String) {
+        getValue(ITERABLE_SEEN_ANNOUNCEMENTS, "")
+            .run { parseAnnouncements(this) }
+            .apply { add(id) }
+            .also { setValue(ITERABLE_SEEN_ANNOUNCEMENTS, formatAnnouncements(it)) }
+    }
+
+    override fun markAsDeleted(id: String) {
+        getValue(ITERABLE_DELETED_ANNOUNCEMENTS, "")
+            .run { parseAnnouncements(this) }
+            .apply { add(id) }
+            .also { setValue(ITERABLE_DELETED_ANNOUNCEMENTS, formatAnnouncements(it)) }
+    }
+
+    override fun seenAnnouncements(): List<String> {
+        return getValue(ITERABLE_SEEN_ANNOUNCEMENTS, "")
+            .run { parseAnnouncements(this) }
+    }
+
+    override fun deletedAnnouncements(): List<String> {
+        return getValue(ITERABLE_DELETED_ANNOUNCEMENTS, "")
+            .run { parseAnnouncements(this) }
+    }
+
+    override fun updateSeenAnnouncements(ids: List<String>) {
+        formatAnnouncements(ids)
+            .also { setValue(ITERABLE_SEEN_ANNOUNCEMENTS, it) }
+    }
+
+    override fun syncDeletedAnnouncements(allAnnouncements: List<String>) {
+        val local = deletedAnnouncements().toMutableList()
+        local.removeIf { !allAnnouncements.contains(it) }
+    }
+
     companion object {
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
 
@@ -929,6 +969,10 @@ class PrefsUtil(
         private const val USER_DEFAULTED_TO_PKW = "USER_DEFAULTED_TO_PKW"
         private const val SHOULD_SHOW_SMALL_BALANCES = "should_show_small_balances"
         private const val DEX_INTRO_SHOWN = "dex_intro_shown_1"
+
+        // iterable announcements
+        private const val ITERABLE_SEEN_ANNOUNCEMENTS = "ITERABLE_SEEN_ANNOUNCEMENTS"
+        private const val ITERABLE_DELETED_ANNOUNCEMENTS = "ITERABLE_DELETED_ANNOUNCEMENTS"
     }
 
     override val legacyWalletMode: String
