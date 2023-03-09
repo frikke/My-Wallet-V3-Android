@@ -1,5 +1,6 @@
 package com.blockchain.koin.modules
 
+import com.blockchain.core.featureflag.CassyAlphaTesterUserTagFeatureFlag
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.featureflag.FeatureFlag
@@ -130,10 +131,12 @@ val featureFlagsModule = module {
     }.bind(FeatureFlag::class)
 
     single(cardPaymentAsyncFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "ff_card_payment_async",
-                "Enable Async Card Payment"
+        CassyAlphaTesterUserTagFeatureFlag(
+            IntegratedFeatureFlag(
+                remoteFlag = get<RemoteConfigService>().featureFlag(
+                    "ff_card_payment_async",
+                    "Enable Async Card Payment"
+                )
             )
         )
     }.bind(FeatureFlag::class)
@@ -148,10 +151,12 @@ val featureFlagsModule = module {
     }.bind(FeatureFlag::class)
 
     single(vgsFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_vgs",
-                "Enable VGS"
+        CassyAlphaTesterUserTagFeatureFlag(
+            IntegratedFeatureFlag(
+                remoteFlag = get<RemoteConfigService>().featureFlag(
+                    "android_ff_vgs",
+                    "Enable VGS"
+                )
             )
         )
     }.bind(FeatureFlag::class)

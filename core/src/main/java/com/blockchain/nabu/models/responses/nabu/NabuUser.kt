@@ -83,6 +83,10 @@ data class NabuUser(
     val isCowboysUser: Boolean
         get() = tags?.containsKey(COWBOYS_TAG) ?: false
 
+    // TODO(aromano): CASSY Remove when cassy goes live
+    val isCassyAlphaTester: Boolean
+        get() = tags?.containsKey(CARD_CASSY_ALPHA_TAG) ?: false
+
     val tagKeys: Set<String>
         get() = tags?.keys ?: emptySet()
 
@@ -91,6 +95,7 @@ data class NabuUser(
 
     companion object {
         private const val COWBOYS_TAG = "COWBOYS_2022"
+        private const val CARD_CASSY_ALPHA_TAG = "CARD_CASSY_ALPHA"
     }
 }
 
