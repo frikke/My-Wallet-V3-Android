@@ -1,5 +1,6 @@
 package com.blockchain.home.data.announcements
 
+import com.blockchain.api.announcements.DeviceInfo
 import com.blockchain.domain.experiments.RemoteConfigService
 import kotlinx.coroutines.rx3.await
 
@@ -11,6 +12,7 @@ interface AnnouncementsCredentials {
     suspend fun sdkVersion(): String
     val packageName: String
     val deviceId: String
+    val deviceInfo: DeviceInfo
 }
 
 class AnnouncementsCredentialsImpl internal constructor(
@@ -40,6 +42,13 @@ class AnnouncementsCredentialsImpl internal constructor(
 
     override val deviceId: String
         get() = "TODOOOO"
+
+    override val deviceInfo: DeviceInfo
+        get() = DeviceInfo(
+            appPackageName = packageName,
+            deviceId = deviceId,
+            platform = platform
+        )
 
     companion object {
         private const val KEY_ITERABLE_API_KEY = "android_iterable_api_key"

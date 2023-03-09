@@ -23,6 +23,13 @@ interface AnnouncementsApi {
     suspend fun consumeAnnouncement(
         @Header("Api-Key") apiKey: String,
 
-        @Body body: ConsumeAnnouncementDto,
+        @Body body: AnnouncementBodyDto,
+    )
+
+    @POST("api/events/trackInAppOpen")
+    suspend fun seenAnnouncement(
+        @Header("Api-Key") apiKey: String,
+
+        @Body body: AnnouncementBodyDto,
     )
 }

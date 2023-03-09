@@ -15,13 +15,14 @@ import com.blockchain.data.filter
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
-import com.blockchain.extensions.minus
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.home.announcements.Announcement
 import com.blockchain.home.announcements.AnnouncementsService
 import com.blockchain.home.announcements.ConsumeAnnouncementAction
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.presentation.pulltorefresh.PullToRefresh
+import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Job
@@ -61,9 +62,7 @@ class AnnouncementsViewModel(
 
     override fun reduce(state: AnnouncementModelState): AnnouncementsViewState = state.run {
         AnnouncementsViewState(
-            remoteAnnouncements = remoteAnnouncements.filter {
-                it.eligibleModes.contains(walletMode)
-            },
+            remoteAnnouncements = remoteAnnouncements.forMode(walletMode),
             hideAnnouncementsConfirmation = hideAnnouncementsConfirmation,
             localAnnouncements = localAnnouncements
         )
@@ -103,9 +102,21 @@ class AnnouncementsViewModel(
                         RefreshStrategy.RefreshIfOlderThan(amount = 15, unit = TimeUnit.MINUTES)
                     )
                 ).collectLatest { dataResource ->
-                    updateState {
-                        it.copy(remoteAnnouncements = it.remoteAnnouncements.updateDataWith(dataResource))
+                    val sorted = dataResource.map {
+                        it.sortedWith(
+                            compareByDescending<Announcement> { it.priority }
+                                .thenByDescending { it.createdAt }
+                        )
                     }
+                    updateState {
+                        it.copy(remoteAnnouncements = it.remoteAnnouncements.updateDataWith(sorted))
+                    }
+
+                    // mark latest as seen since it's shown first
+                    (sorted.forMode(modelState.walletMode).map { it.lastOrNull() } as? DataResource.Data)
+                        ?.data?.let {
+                            announcementsService.markAsSeen(it)
+                        }
                 }
             } else {
                 updateState {
@@ -166,6 +177,12 @@ class AnnouncementsViewModel(
                 }
             }
         }
+    }
+
+    private fun DataResource<List<Announcement>>.forMode(
+        walletMode: WalletMode?
+    ) = filter {
+        it.eligibleModes.contains(walletMode)
     }
 
     companion object {

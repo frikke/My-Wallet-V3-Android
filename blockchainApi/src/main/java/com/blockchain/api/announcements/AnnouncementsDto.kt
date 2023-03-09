@@ -11,6 +11,7 @@ data class AnnouncementsDto(
 @Serializable
 data class AnnouncementDto(
     @SerialName("messageId") val id: String,
+    @SerialName("createdAt") val createdAt: Double,
     @SerialName("customPayload") val customPayload: AnnouncementPayloadDto,
     @SerialName("priorityLevel") val priorityLevel: Double,
     @SerialName("read") val isRead: Boolean,
