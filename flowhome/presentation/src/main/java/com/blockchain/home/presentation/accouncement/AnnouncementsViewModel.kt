@@ -17,7 +17,6 @@ import com.blockchain.data.updateDataWith
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.extensions.minus
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.home.announcements.Announcement
 import com.blockchain.home.announcements.AnnouncementsService
 import com.blockchain.home.announcements.ConsumeAnnouncementAction
 import com.blockchain.home.presentation.R

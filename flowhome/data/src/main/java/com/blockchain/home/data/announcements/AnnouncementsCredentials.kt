@@ -23,7 +23,7 @@ class AnnouncementsCredentialsImpl internal constructor(
     }
 
     override val email: String
-        get() =  "lala@blockchain.com"
+        get() = "lala@blockchain.com"
 
     override val count: Int
         get() = 100
