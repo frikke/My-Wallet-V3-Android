@@ -190,35 +190,29 @@ class TradingToOnChainTxEngine(
     }
 
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> =
-        withdrawFeesAndMin(
-            WithdrawFeesAndMinRequest(
-                max = false,
-                amount = pendingTx.amount.toBigInteger().toString(),
-                fiatCurrency = userFiat.networkTicker,
-                currency = sourceAssetInfo.networkTicker,
-                paymentMethod = CRYPTO_TRANSFER_PAYMENT_METHOD
-            )
-        ).map { Money.fromMinor(sourceAsset, it.totalFees.amount.value.toBigInteger()) }.zipWith(
-            exchangeRates.exchangeRateToUserFiat(pendingTx.amount.currency).firstOrError()
-        ) { fee, exchangeRate ->
+        exchangeRates.exchangeRateToUserFiat(pendingTx.amount.currency).firstOrError().map { exchangeRate ->
             pendingTx.copy(
-                feeAmount = fee,
                 txConfirmations = listOfNotNull(
-                    TxConfirmationValue.From(sourceAccount, sourceAsset),
+                    TxConfirmationValue.From(
+                        sourceAccount,
+                        sourceAsset
+                    ),
                     TxConfirmationValue.To(
-                        txTarget, AssetAction.Send, sourceAccount
+                        txTarget,
+                        AssetAction.Send,
+                        sourceAccount
                     ),
                     TxConfirmationValue.ProcessingFee(
-                        feeAmount = fee,
-                        exchangeFee = exchangeRate.convert(fee),
+                        feeAmount = pendingTx.feeAmount,
+                        exchangeFee = exchangeRate.convert(pendingTx.feeAmount),
                     ),
                     TxConfirmationValue.Total(
                         totalWithFee = pendingTx.amount.plus(
-                            fee
+                            pendingTx.feeAmount
                         ),
                         exchange = exchangeRate.convert(
                             pendingTx.amount.plus(
-                                fee
+                                pendingTx.feeAmount
                             )
                         )
                     ),
