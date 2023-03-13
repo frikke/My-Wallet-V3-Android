@@ -142,13 +142,13 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
         private val REQUEST = GetAvailablePaymentMethodsTypesUseCase.Request(FIAT, false, true)
         private val AVAILABLE = listOf(
             PaymentMethodTypeWithEligibility(
-                true, FIAT, PaymentMethodType.PAYMENT_CARD, NULL_LIMITS, CARD_FUND_SOURCES
+                true, FIAT, PaymentMethodType.PAYMENT_CARD, NULL_LIMITS, CARD_FUND_SOURCES, null
             ),
             PaymentMethodTypeWithEligibility(
-                true, FIAT, PaymentMethodType.BANK_ACCOUNT, NULL_LIMITS, CARD_FUND_SOURCES
+                true, FIAT, PaymentMethodType.BANK_ACCOUNT, NULL_LIMITS, CARD_FUND_SOURCES, null
             ),
             PaymentMethodTypeWithEligibility(
-                false, FIAT, PaymentMethodType.BANK_TRANSFER, NULL_LIMITS, CARD_FUND_SOURCES
+                false, FIAT, PaymentMethodType.BANK_TRANSFER, NULL_LIMITS, CARD_FUND_SOURCES, null
             )
         )
         private val CARD =

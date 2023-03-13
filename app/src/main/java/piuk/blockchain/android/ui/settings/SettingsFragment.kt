@@ -45,10 +45,12 @@ import piuk.blockchain.android.cards.mapper.icon
 import piuk.blockchain.android.databinding.FragmentRedesignSettingsBinding
 import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
+import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
 import piuk.blockchain.android.simplebuy.sheets.RemoveLinkedBankBottomSheet
 import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
+import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.alias.BankAliasLinkContract
 import piuk.blockchain.android.ui.referral.presentation.Origin
@@ -338,6 +340,8 @@ class SettingsFragment :
                             linkAccessMap[PaymentMethodType.PAYMENT_CARD] == LinkAccess.GRANTED,
                             canLinkBank =
                             linkAccessMap[PaymentMethodType.BANK_TRANSFER] == LinkAccess.GRANTED,
+                            canWireTransfer =
+                            linkAccessMap[PaymentMethodType.BANK_ACCOUNT] == LinkAccess.GRANTED,
                         )
                     }
                 }
@@ -363,6 +367,8 @@ class SettingsFragment :
                             linkAccessMap[PaymentMethodType.PAYMENT_CARD] == LinkAccess.GRANTED,
                             canLinkBank =
                             linkAccessMap[PaymentMethodType.BANK_TRANSFER] == LinkAccess.GRANTED,
+                            canWireTransfer =
+                            linkAccessMap[PaymentMethodType.BANK_ACCOUNT] == LinkAccess.GRANTED,
                         )
                     }
                 }
@@ -417,6 +423,14 @@ class SettingsFragment :
                         BankAuthSource.SETTINGS,
                         requireContext()
                     )
+                )
+            }
+            is ViewToLaunch.WireTransfer -> {
+                val fiatCurrency = newState.viewToLaunch.currency
+                WireTransferAccountDetailsBottomSheet.newInstance(fiatCurrency)
+                    .show(childFragmentManager, BOTTOM_SHEET)
+                analytics.logEvent(
+                    linkBankEventWithCurrency(SimpleBuyAnalytics.WIRE_TRANSFER_CLICKED, fiatCurrency.networkTicker)
                 )
             }
             ViewToLaunch.None -> {
@@ -517,12 +531,14 @@ class SettingsFragment :
 
     private fun showPaymentMethodsBottomSheet(
         canAddCard: Boolean,
-        canLinkBank: Boolean
+        canLinkBank: Boolean,
+        canWireTransfer: Boolean,
     ) {
         showBottomSheet(
             AddPaymentMethodsBottomSheet.newInstance(
                 canAddCard = canAddCard,
-                canLinkBank = canLinkBank
+                canLinkBank = canLinkBank,
+                canWireTransfer = canWireTransfer,
             )
         )
     }
@@ -534,6 +550,10 @@ class SettingsFragment :
 
     override fun onLinkBankSelected() {
         model.process(SettingsIntent.AddLinkBankSelected)
+    }
+
+    override fun onWireTransferSelected() {
+        model.process(SettingsIntent.WireTransferSelected)
     }
 
     override fun onCardRemoved(cardId: String) {

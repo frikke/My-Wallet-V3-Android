@@ -64,7 +64,8 @@ class AccountSelectSheet(
         dismiss()
     }
 
-    private fun doOnListLoaded(isEmpty: Boolean) {
+    private fun doOnListLoaded(accounts: List<AccountListViewItem>) {
+        val isEmpty = accounts.isEmpty()
         binding.accountListEmpty.visibleIf { isEmpty }
         binding.progress.gone()
     }

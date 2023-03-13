@@ -302,7 +302,8 @@ class SelectSourceAccountFragment :
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentTxAccountSelectorBinding =
         FragmentTxAccountSelectorBinding.inflate(inflater, container, false)
 
-    private fun doOnListLoaded(isEmpty: Boolean) {
+    private fun doOnListLoaded(accounts: List<AccountListViewItem>) {
+        val isEmpty = accounts.isEmpty()
         with(binding) {
             if (isEmpty) {
                 if (hasEnteredSearchTerm) {

@@ -154,7 +154,7 @@ class AccountList @JvmOverloads constructor(
                         it.accountsSource.map { account -> SelectableAccountItem(account, false) } +
                         listOfNotNull(if (it.showAddNewBankAccount) AddBankAccountItem else null)
 
-                    onListLoaded(it.accountsSource.isEmpty())
+                    onListLoaded(it.accountsSource)
 
                     lastSelectedAccount?.let { account ->
                         updatedSelectedAccount(account)
@@ -201,7 +201,7 @@ class AccountList @JvmOverloads constructor(
     var onLoadError: (Throwable) -> Unit = {}
     var onAccountSelected: (BlockchainAccount) -> Unit = {}
     var onLockItemSelected: (AccountLocks) -> Unit = {}
-    var onListLoaded: (isEmpty: Boolean) -> Unit = {}
+    var onListLoaded: (List<AccountListViewItem>) -> Unit = {}
     var onListLoading: () -> Unit = {}
     var onAddNewBankAccountClicked: () -> Unit = {}
 
@@ -452,6 +452,9 @@ private class BankAccountViewHolder(
         isFirstItemInList: Boolean,
         isLastItemInList: Boolean
     ) {
+        val account = selectableAccountItem.item.account as LinkedBankAccount
+        val isDisabled = account.capabilities?.withdrawal?.enabled == false
+
         with(binding) {
             bankContainer.updateItemBackground(isFirstItemInList, isLastItemInList)
 
@@ -462,11 +465,11 @@ private class BankAccountViewHolder(
             } else {
                 bankContainer.updateItemBackground(isFirstItemInList, isLastItemInList)
             }
-            bankContainer.alpha = 1f
+            bankContainer.alpha = if (isDisabled) 0.4f else 1f
             bankAccount.updateAccount(
-                account = selectableAccountItem.item.account as LinkedBankAccount,
+                account = account,
                 action = assetAction,
-                onAccountClicked = onAccountClicked
+                onAccountClicked = if (isDisabled) null else onAccountClicked,
             )
         }
     }

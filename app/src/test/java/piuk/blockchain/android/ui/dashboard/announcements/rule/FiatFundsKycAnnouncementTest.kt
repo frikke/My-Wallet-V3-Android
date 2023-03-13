@@ -70,7 +70,7 @@ class FiatFundsKycAnnouncementTest {
         whenever(bankService.getLinkedBanks()).thenReturn(
             Single.just(
                 listOf(
-                    LinkedPaymentMethod.Bank("", "", "", "", "", false, BankState.ACTIVE, USD)
+                    LinkedPaymentMethod.Bank("", "", "", "", "", false, BankState.ACTIVE, null, USD)
                 )
             )
         )

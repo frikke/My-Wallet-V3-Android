@@ -32,6 +32,16 @@
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true">
 
+            <piuk.blockchain.android.ui.customviews.account.UxErrorsList
+                android:id="@+id/ux_errors_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/small_spacing"
+                android:layout_marginTop="@dimen/small_spacing"
+                app:layout_constraintTop_toTopOf="parent"
+                android:visibility="gone"
+                />
+
             <com.blockchain.componentlib.sectionheader.StandardSectionHeaderView
                 android:id="@+id/title_from"
                 android:layout_width="match_parent"
@@ -39,7 +49,7 @@
                 android:layout_marginTop="@dimen/small_spacing"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@id/ux_errors_list" />
 
             <FrameLayout
                 android:id="@+id/from_details"

@@ -7,6 +7,7 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.fiat.LinkedBankAccount
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 
 class TransactionFlowIntentMapper(
@@ -171,6 +172,12 @@ class TransactionFlowIntentMapper(
     private fun handleFiatWithdraw(passwordRequired: Boolean): TransactionIntent {
         check(sourceAccount.isFiatAccount())
         return when {
+            target is LinkedBankAccount && target.capabilities?.withdrawal?.enabled == false ->
+                TransactionIntent.InitialiseWithSourceAccount(
+                    action,
+                    sourceAccount,
+                    passwordRequired
+                )
             target.isDefinedTarget() -> TransactionIntent.InitialiseWithSourceAndPreferredTarget(
                 action,
                 sourceAccount,
