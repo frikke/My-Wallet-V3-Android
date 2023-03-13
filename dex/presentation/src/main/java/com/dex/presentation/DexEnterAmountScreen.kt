@@ -2,6 +2,7 @@ package com.dex.presentation
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,6 +21,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,12 +34,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.navigation.NavController
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.ArrowDown
@@ -50,21 +56,43 @@ import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.theme.Grey900
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.dex.presentation.R
+import com.blockchain.koin.payloadScope
 import com.blockchain.preferences.DexPrefs
+import com.dex.presentation.graph.DexDestination
+import info.blockchain.balance.Currency
+import info.blockchain.balance.Money
 import org.koin.androidx.compose.get
+import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun DexEnterAmountScreen(
     listState: LazyListState,
-    openIntro: () -> Unit,
+    navController: NavController,
+    viewModel: DexEnterAmountViewModel = getViewModel(scope = payloadScope),
     dexIntroPrefs: DexPrefs = get()
 ) {
     LaunchedEffect(Unit) {
         if (!dexIntroPrefs.dexIntroShown) {
-            openIntro()
+            navController.navigate(DexDestination.Intro.route)
         }
     }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_CREATE) {
+                viewModel.onIntent(InputAmountIntent.InitTransaction)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    val viewState: InputAmountViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     val spacing = AppTheme.dimensions.smallSpacing
     LazyColumn(
@@ -77,7 +105,13 @@ fun DexEnterAmountScreen(
             Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
         }
         paddedItem(paddingValues = PaddingValues(spacing)) {
-            InputField(openIntro)
+            InputField(
+                navController = navController,
+                viewState = viewState,
+                onValueChanged = {
+                    viewModel.onIntent(InputAmountIntent.AmountUpdated(it.text))
+                }
+            )
         }
     }
 }
@@ -88,7 +122,11 @@ fun DexEnterAmountScreen(
 *
 * */
 @Composable
-fun InputField(openIntro: () -> Unit) {
+fun InputField(
+    navController: NavController,
+    onValueChanged: (TextFieldValue) -> Unit,
+    viewState: InputAmountViewState
+) {
     var input by remember { mutableStateOf(TextFieldValue()) }
     var size by remember { mutableStateOf(IntSize.Zero) }
     Box {
@@ -104,12 +142,25 @@ fun InputField(openIntro: () -> Unit) {
                     }
             ) {
                 Column {
-                    AmountAndCurrencySelection(false, input) {
-                        input = it
-                    }
+                    AmountAndCurrencySelection(
+                        isReadOnly = false,
+                        input = input,
+                        onValueChanged = {
+                            input = it
+                            onValueChanged(it)
+                        },
+                        onClick = {
+                            navController.navigate(DexDestination.SelectSourceAccount.route)
+                        },
+                        currency = viewState.sourceCurrency
+                    )
                     Row {
-                        ExchangeAmount()
-                        MaxAmount()
+                        viewState.inputExchangeAmount?.let {
+                            ExchangeAmount(it)
+                        }
+                        viewState.maxAmount?.let {
+                            MaxAmount(it)
+                        }
                     }
                 }
             }
@@ -122,22 +173,33 @@ fun InputField(openIntro: () -> Unit) {
                     )
             ) {
                 Column {
-                    AmountAndCurrencySelection(true, input) {
-                        input = it
-                    }
+                    AmountAndCurrencySelection(
+                        isReadOnly = true,
+                        input = input,
+                        onValueChanged = {
+                        },
+                        onClick = {
+                            navController.navigate(DexDestination.SelectSourceAccount.route)
+                        },
+                        currency = viewState.destinationCurrency
+                    )
                     Row {
-                        ExchangeAmount()
-                        Balance()
+                        viewState.outputExchangeAmountIntent?.let {
+                            ExchangeAmount(it)
+                        }
+                        viewState.destinationAccountBalance?.let {
+                            MaxAmount(it)
+                        }
                     }
                 }
             }
         }
-        MaskedCircleArrow(size, openIntro)
+        MaskedCircleArrow(size)
     }
 }
 
 @Composable
-private fun RowScope.ExchangeAmount() {
+private fun RowScope.ExchangeAmount(money: Money) {
     Text(
         modifier = Modifier
             .padding(
@@ -145,14 +207,14 @@ private fun RowScope.ExchangeAmount() {
                 bottom = AppTheme.dimensions.smallSpacing
             )
             .weight(1f),
-        text = "$0.00",
+        text = money.toStringWithSymbol(),
         style = AppTheme.typography.bodyMono,
         color = Grey700
     )
 }
 
 @Composable
-private fun RowScope.MaxAmount() {
+private fun RowScope.MaxAmount(maxAvailable: Money) {
     Row(
         modifier = Modifier
             .padding(
@@ -169,7 +231,7 @@ private fun RowScope.MaxAmount() {
         )
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
         Text(
-            text = "0.783987432 ETH",
+            text = maxAvailable?.toStringWithSymbol().orEmpty(),
             style = AppTheme.typography.micro2,
             color = Blue600
         )
@@ -194,7 +256,7 @@ private fun RowScope.Balance() {
         )
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
         Text(
-            text = "0.783987432 ETH",
+            text = "",
             style = AppTheme.typography.micro2,
             color = Grey900
         )
@@ -202,7 +264,7 @@ private fun RowScope.Balance() {
 }
 
 @Composable
-private fun MaskedCircleArrow(parentSize: IntSize, openIntro: () -> Unit) {
+private fun MaskedCircleArrow(parentSize: IntSize) {
     var boxSize by remember { mutableStateOf(IntSize.Zero) }
     Box(
         modifier = Modifier
@@ -241,20 +303,27 @@ private fun MaskedCircleArrow(parentSize: IntSize, openIntro: () -> Unit) {
 }
 
 @Composable
-private fun CurrencySelection() {
+private fun CurrencySelection(onClick: () -> Unit, currency: Currency?) {
     Row(
         modifier = Modifier
             .background(
                 color = Grey000,
                 shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
             )
+            .clickable {
+                onClick()
+            }
             .wrapContentSize()
             .padding(end = AppTheme.dimensions.tinySpacing),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
-            imageResource =
-            ImageResource.Local(
+            imageResource = currency?.let {
+                ImageResource.Remote(
+                    url = it.logo,
+                    size = AppTheme.dimensions.smallSpacing
+                )
+            } ?: ImageResource.Local(
                 id = R.drawable.icon_no_account_selection,
                 size = AppTheme.dimensions.smallSpacing
             ),
@@ -267,7 +336,9 @@ private fun CurrencySelection() {
                 top = AppTheme.dimensions.smallestSpacing,
                 bottom = AppTheme.dimensions.smallestSpacing,
             ),
-            text = stringResource(id = R.string.common_select),
+            text = currency?.let {
+                it.displayTicker
+            } ?: stringResource(id = R.string.common_select),
             style = AppTheme.typography.body1,
             color = Grey900
         )
@@ -285,7 +356,9 @@ private fun CurrencySelection() {
 private fun AmountAndCurrencySelection(
     isReadOnly: Boolean,
     input: TextFieldValue,
-    onValueChanged: (TextFieldValue) -> Unit
+    currency: Currency?,
+    onValueChanged: (TextFieldValue) -> Unit,
+    onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -318,6 +391,6 @@ private fun AmountAndCurrencySelection(
             maxLines = 1,
             onValueChange = onValueChanged
         )
-        CurrencySelection()
+        CurrencySelection(onClick = onClick, currency = currency)
     }
 }

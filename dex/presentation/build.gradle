@@ -27,6 +27,9 @@ android {
 dependencies {
     // android
     implementation project(':commonarch')
+    implementation project(':balance')
+    implementation project(':core')
+    implementation project(':dex:domain')
     implementation project(':common:interface')
     implementation project(':common:presentation')
     implementation project(':string-resources')

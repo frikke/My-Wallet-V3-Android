@@ -48,6 +48,8 @@ import com.blockchain.store_caches_inmemory.storeCachesInMemoryModule
 import com.blockchain.store_persisters_persistedjsonsqldelight.storePersistersJsonSqlDelightModule
 import com.blockchain.unifiedcryptowallet.data.koin.unifiedCryptoWalletModule
 import com.blockchain.walletconnect.koin.walletConnectModule
+import com.dex.data.koin.dexDataModule
+import com.dex.presentation.koin.dexPresentation
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -111,6 +113,8 @@ object KoinStarter {
                     blockchainApiModule,
                     homePresentationModule,
                     fiatActionsModule,
+                    dexPresentation,
+                    dexDataModule,
                     com.blockchain.prices.koin.pricesPresentationModule,
                     unifiedCryptoWalletModule,
                     homeDataModule,
@@ -144,7 +148,8 @@ object KoinStarter {
                     notificationModule,
                     receiveCryptoModule,
                     resetAccountModule,
-                    secureChannelPresentationModule, secureChannelDataModule,
+                    secureChannelPresentationModule,
+                    secureChannelDataModule,
                     serviceModule,
                     startupUiModule,
                     sunriverModule,
@@ -162,7 +167,8 @@ object KoinStarter {
                     storeCachesInMemoryModule,
                     storePersistersJsonSqlDelightModule,
                     googlePayPresentationModule,
-                    interestDashboardDomainModule, interestDashboardPresentationModule,
+                    interestDashboardDomainModule,
+                    interestDashboardPresentationModule,
                     addressVerificationModule,
                     appMaintenanceDataModule, appMaintenanceDomainModule, appMaintenancePresentationModule,
                     bankAuthDataModule, bankAuthDomainModule, bankAuthPresentationModule,
