@@ -32,6 +32,7 @@ import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.sellSwapBrokerageQuoteFeatureFlag
 import com.blockchain.koin.superAppMvpFeatureFlag
 import com.blockchain.koin.superappFeatureFlag
+import com.blockchain.koin.topMoversInBuy
 import com.blockchain.koin.vgsFeatureFlag
 import com.blockchain.remoteconfig.featureFlag
 import org.koin.dsl.bind
@@ -301,6 +302,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_high_risk_ui",
                 "Disable custodial accounts for high risk countries"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(topMoversInBuy) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "blockchain_app_configuration_buy_top_movers_is_enabled",
+                "Show Top Movers in Buy flow"
             )
         )
     }.bind(FeatureFlag::class)
