@@ -157,22 +157,6 @@ class LoginAuthActivity :
                 launchPasswordRecoveryFlow()
             }
 
-            continueButton.setOnClickListener {
-                analytics.logEvent(LoginAnalytics.LoginPasswordEntered(analyticsInfo))
-                if (currentState.authMethod != TwoFAMethod.OFF) {
-                    model.process(
-                        LoginAuthIntents.SubmitTwoFactorCode(
-                            password = passwordText.text.toString(),
-                            code = codeText.text.toString()
-                        )
-                    )
-                    analytics.logEvent(LoginAnalytics.LoginTwoFaEntered(analyticsInfo))
-                    analytics.logEvent(SettingsAnalytics.TwoStepVerificationCodeSubmitted(TWO_SET_MOBILE_NUMBER_OPTION))
-                } else {
-                    model.process(LoginAuthIntents.VerifyPassword(passwordText.text.toString()))
-                }
-            }
-
             twoFaResend.text = getString(R.string.two_factor_resend_sms, walletPrefs.resendSmsRetries)
             twoFaResend.setOnClickListener {
                 if (!isTwoFATimerRunning.get()) {
@@ -357,6 +341,7 @@ class LoginAuthActivity :
                 }
             }.exhaustive
             continueButton.setOnClickListener {
+                analytics.logEvent(LoginAnalytics.LoginPasswordEntered(analyticsInfo))
                 if (authMethod != TwoFAMethod.OFF) {
                     model.process(
                         LoginAuthIntents.SubmitTwoFactorCode(
@@ -364,6 +349,7 @@ class LoginAuthActivity :
                             code = codeText.text.toString().trim()
                         )
                     )
+                    analytics.logEvent(LoginAnalytics.LoginTwoFaEntered(analyticsInfo))
                     analytics.logEvent(SettingsAnalytics.TwoStepVerificationCodeSubmitted(TWO_SET_MOBILE_NUMBER_OPTION))
                 } else {
                     model.process(LoginAuthIntents.VerifyPassword(passwordText.text.toString()))
