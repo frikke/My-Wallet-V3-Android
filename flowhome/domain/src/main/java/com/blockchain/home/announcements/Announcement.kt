@@ -11,3 +11,7 @@ data class Announcement(
     val actionUrl: String,
     val priority: Double
 )
+
+enum class ConsumeAnnouncementAction {
+    DELETED, CLICKED
+}
