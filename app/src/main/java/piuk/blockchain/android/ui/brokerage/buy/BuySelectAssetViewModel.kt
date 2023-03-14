@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
+import com.blockchain.data.updateDataWith
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -71,7 +72,7 @@ class BuySelectAssetViewModel(
             userFeaturePermissionService.getAccessForFeature(Feature.Buy)
                 .collectLatest { dataResource ->
                     updateState {
-                        it.copy(featureAccess = dataResource)
+                        it.copy(featureAccess = it.featureAccess.updateDataWith(dataResource))
                     }
                 }
         }
