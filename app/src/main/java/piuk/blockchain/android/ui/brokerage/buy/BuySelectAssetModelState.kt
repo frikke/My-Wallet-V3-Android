@@ -5,5 +5,6 @@ import com.blockchain.data.DataResource
 import com.blockchain.nabu.FeatureAccess
 
 data class BuySelectAssetModelState(
-    val featureAccess: DataResource<FeatureAccess> = DataResource.Loading
+    val featureAccess: DataResource<FeatureAccess> = DataResource.Loading,
+    val showTopMovers: Boolean = false
 ) : ModelState

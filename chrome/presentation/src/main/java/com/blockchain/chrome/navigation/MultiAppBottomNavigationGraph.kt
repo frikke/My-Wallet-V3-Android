@@ -5,6 +5,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -29,10 +30,8 @@ import com.blockchain.prices.prices.composable.Prices
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.dex.presentation.DexEnterAmountScreen
-import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import org.koin.androidx.compose.get
 
-@OptIn(ExperimentalMaterialNavigationApi::class)
 @Composable
 fun MultiAppBottomNavigationHost(
     modifier: Modifier = Modifier,
@@ -56,7 +55,7 @@ fun MultiAppBottomNavigationHost(
     openFiatActionDetail: (String) -> Unit,
     startPhraseRecovery: () -> Unit,
     openExternalUrl: (url: String) -> Unit,
-    openDexIntro: () -> Unit,
+    navController: NavController,
     openNftHelp: () -> Unit,
     openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
     nftNavigation: NftNavigation,
@@ -131,8 +130,11 @@ fun MultiAppBottomNavigationHost(
             ChromeListScreen(
                 modifier = modifier,
                 isPullToRefreshEnabled = enableRefresh,
-                refreshStarted = refreshStarted,
+                content = { listState, shouldTriggerRefresh ->
+                    DexEnterAmountScreen(listState, navController)
+                },
                 refreshComplete = refreshComplete,
+                refreshStarted = refreshStarted,
                 updateStatesInfo = { listStateInfo ->
                     updateScrollInfo(
                         Pair(
@@ -140,9 +142,6 @@ fun MultiAppBottomNavigationHost(
                             listStateInfo
                         )
                     )
-                },
-                content = { listState, shouldTriggerRefresh ->
-                    DexEnterAmountScreen(listState, openDexIntro)
                 }
             )
         }

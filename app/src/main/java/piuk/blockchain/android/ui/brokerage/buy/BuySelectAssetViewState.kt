@@ -5,5 +5,6 @@ import com.blockchain.data.DataResource
 import com.blockchain.nabu.FeatureAccess
 
 data class BuySelectAssetViewState(
-    val featureAccess: DataResource<FeatureAccess>
+    val featureAccess: DataResource<FeatureAccess>,
+    val showTopMovers: Boolean
 ) : ViewState

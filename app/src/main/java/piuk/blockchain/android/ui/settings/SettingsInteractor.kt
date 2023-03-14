@@ -36,7 +36,7 @@ class SettingsInteractor internal constructor(
     private val referralService: ReferralService,
     private val nabuUserIdentity: NabuUserIdentity,
 ) {
-    private val userSelectedFiat: FiatCurrency
+    val userSelectedFiat: FiatCurrency
         get() = currencyPrefs.selectedFiatCurrency
 
     fun getSupportEligibilityAndBasicInfo(): Single<UserDetails> {

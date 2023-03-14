@@ -92,6 +92,7 @@ fun BuySelectAsset(
         onErrorContactSupportClicked = onErrorContactSupportClicked,
         onEmptyStateClicked = onEmptyStateClicked,
         startKycClicked = startKycClicked,
+        showTopMovers = viewState.showTopMovers,
         onAssetClick = { asset ->
             viewModel.onIntent(BuySelectAssetIntent.AssetClicked(asset))
         }
@@ -105,6 +106,7 @@ fun BuySelectAssetScreen(
     onErrorContactSupportClicked: () -> Unit,
     onEmptyStateClicked: (BlockedReason) -> Unit,
     startKycClicked: () -> Unit,
+    showTopMovers: Boolean,
     onAssetClick: (AssetInfo) -> Unit,
 ) {
     with(featureAccess) {
@@ -143,6 +145,7 @@ fun BuySelectAssetScreen(
                     BlockedReason.ShouldAcknowledgeActiveRewardsWithdrawalWarning,
                     null -> {
                         Assets(
+                            showTopMovers = showTopMovers,
                             onErrorContactSupportClicked = onErrorContactSupportClicked,
                             onAssetClick = onAssetClick
                         )
@@ -156,6 +159,7 @@ fun BuySelectAssetScreen(
 @Composable
 private fun Assets(
     viewModel: PricesViewModel = getViewModel(scope = payloadScope),
+    showTopMovers: Boolean,
     onErrorContactSupportClicked: () -> Unit,
     onAssetClick: (AssetInfo) -> Unit,
 ) {
@@ -181,6 +185,7 @@ private fun Assets(
             }
             is DataResource.Data -> {
                 AssetsData(
+                    showTopMovers = showTopMovers,
                     topMovers = viewState.topMovers.toImmutableList(),
                     mostPopular = data[PricesOutputGroup.MostPopular]?.toImmutableList() ?: persistentListOf(),
                     others = data[PricesOutputGroup.Others]?.toImmutableList() ?: persistentListOf(),
@@ -197,6 +202,7 @@ private fun Assets(
 @Composable
 private fun AssetsData(
     analytics: Analytics = get(),
+    showTopMovers: Boolean,
     topMovers: DataResource<ImmutableList<PriceItemViewState>>,
     mostPopular: ImmutableList<PriceItemViewState>,
     others: List<PriceItemViewState>,
@@ -222,31 +228,33 @@ private fun AssetsData(
 
         LazyColumn {
             // top movers
-            paddedItem(
-                paddingValues = PaddingValues(horizontal = 16.dp)
-            ) {
-                TableRowHeader(title = stringResource(com.blockchain.prices.R.string.prices_top_movers))
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-            }
+            if (showTopMovers) {
+                paddedItem(
+                    paddingValues = PaddingValues(horizontal = 16.dp)
+                ) {
+                    TableRowHeader(title = stringResource(com.blockchain.prices.R.string.prices_top_movers))
+                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+                }
 
-            item {
-                TopMoversScreen(
-                    data = topMovers,
-                    assetOnClick = { asset ->
-                        onAssetClick(asset)
+                item {
+                    TopMoversScreen(
+                        data = topMovers,
+                        assetOnClick = { asset ->
+                            onAssetClick(asset)
 
-                        topMovers.percentAndPositionOf(asset)?.let { (percentageMove, position) ->
-                            analytics.logEvent(
-                                BuyAnalyticsEvents.TopMoverAssetClicked(
-                                    ticker = asset.networkTicker,
-                                    percentageMove = percentageMove,
-                                    position = position
+                            topMovers.percentAndPositionOf(asset)?.let { (percentageMove, position) ->
+                                analytics.logEvent(
+                                    BuyAnalyticsEvents.TopMoverAssetClicked(
+                                        ticker = asset.networkTicker,
+                                        percentageMove = percentageMove,
+                                        position = position
+                                    )
                                 )
-                            )
+                            }
                         }
-                    }
-                )
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+                    )
+                    Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+                }
             }
 
             if (searchedText.isNotEmpty() && mostPopular.isEmpty() && others.isEmpty()) {

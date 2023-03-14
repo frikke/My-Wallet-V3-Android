@@ -53,7 +53,7 @@ class ExchangeRate(
     }
 
     override fun toString(): String {
-        return "ExchangeRate(from=$from, to=$to, rate=$rate)"
+        return "ExchangeRate(from=${from.networkTicker}, to=${to.networkTicker}, rate=$rate)"
     }
 
     companion object {
