@@ -52,6 +52,10 @@ sealed class SettingsIntent : MviIntent<SettingsState> {
         override fun reduce(oldState: SettingsState): SettingsState = oldState
     }
 
+    object WireTransferSelected : SettingsIntent() {
+        override fun reduce(oldState: SettingsState): SettingsState = oldState
+    }
+
     object Logout : SettingsIntent() {
         override fun reduce(oldState: SettingsState): SettingsState = oldState
     }

@@ -968,7 +968,7 @@ class PrefsUtil(
         private const val WALLET_MODE_KEY = "WALLET_MODE_UPDATED_KEY"
         private const val USER_DEFAULTED_TO_PKW = "USER_DEFAULTED_TO_PKW"
         private const val SHOULD_SHOW_SMALL_BALANCES = "should_show_small_balances"
-        private const val DEX_INTRO_SHOWN = "dex_intro_shown_1"
+        private const val DEX_INTRO_SHOWN = "dex_intro_shown"
 
         // iterable announcements
         private const val ITERABLE_SEEN_ANNOUNCEMENTS = "ITERABLE_SEEN_ANNOUNCEMENTS"

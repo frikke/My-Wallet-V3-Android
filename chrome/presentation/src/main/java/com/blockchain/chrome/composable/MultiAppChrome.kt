@@ -52,6 +52,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.analytics.Analytics
@@ -126,7 +127,7 @@ fun MultiAppChrome(
     openActivityDetail: (String, WalletMode) -> Unit,
     openReferral: () -> Unit,
     openSwapDexOption: () -> Unit,
-    openDexIntro: () -> Unit,
+    graphNavController: NavController,
     openFiatActionDetail: (String) -> Unit,
     openMoreQuickActions: () -> Unit,
     openExternalUrl: (url: String) -> Unit,
@@ -187,8 +188,8 @@ fun MultiAppChrome(
             openActivityDetail = openActivityDetail,
             openReferral = openReferral,
             openSwapDexOption = openSwapDexOption,
-            openDexIntro = openDexIntro,
             openFiatActionDetail = openFiatActionDetail,
+            graphNavController = graphNavController,
             openMoreQuickActions = openMoreQuickActions,
             assetActionsNavigation = assetActionsNavigation,
             settingsNavigation = settingsNavigation,
@@ -238,7 +239,7 @@ fun MultiAppChromeScreen(
     openMoreQuickActions: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
     onBalanceRevealed: () -> Unit,
-    openDexIntro: () -> Unit,
+    graphNavController: NavController,
     startPhraseRecovery: () -> Unit,
     openExternalUrl: (url: String) -> Unit,
     openNftHelp: () -> Unit,
@@ -744,7 +745,7 @@ fun MultiAppChromeScreen(
                     assetActionsNavigation = assetActionsNavigation,
                     settingsNavigation = settingsNavigation,
                     pricesNavigation = pricesNavigation,
-                    openDexIntro = openDexIntro,
+                    navController = graphNavController,
                     qrScanNavigation = qrScanNavigation,
                     supportNavigation = supportNavigation,
                     startPhraseRecovery = startPhraseRecovery,

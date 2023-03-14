@@ -211,7 +211,8 @@ class SellIntroFragment :
                         startSellFlow(it)
                     }
                 }
-                onListLoaded = { isEmpty ->
+                onListLoaded = { accounts ->
+                    val isEmpty = accounts.isEmpty()
 
                     sellSearchEmpty.visibleIf { isEmpty && hasEnteredSearchTerm }
                     accountsList.goneIf { isEmpty }

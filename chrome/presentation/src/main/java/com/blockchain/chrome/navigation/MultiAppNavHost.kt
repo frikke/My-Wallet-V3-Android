@@ -36,7 +36,6 @@ import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.walletmode.WalletMode
-import com.dex.presentation.graph.DexDestination
 import com.dex.presentation.graph.dexGraph
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
@@ -187,9 +186,7 @@ private fun NavGraphBuilder.chrome(
             openReferral = {
                 navController.navigate(HomeDestination.Referral)
             },
-            openDexIntro = {
-                navController.navigate(DexDestination.Intro)
-            },
+            graphNavController = navController,
             openSwapDexOption = {
                 navController.navigate(HomeDestination.SwapDexOptions)
             },

@@ -58,7 +58,7 @@ internal class BtcAsset(
                 btcAccountFromImportedAccount(account)
             }
 
-            val updateNotificationsCompletable = btcAccounts.firstOrNull { it.isDefault }?.let {
+            val updateNotificationsCompletable = btcAccounts.firstOrNull { it.isDefault && !it.isArchived }?.let {
                 updateBackendNotificationAddresses(it)
             } ?: Completable.complete()
 
@@ -69,11 +69,7 @@ internal class BtcAsset(
     }
 
     private fun updateBackendNotificationAddresses(account: BtcCryptoWalletAccount): Completable {
-        require(account.isDefault)
-        require(!account.isArchived)
-
         val addressList = mutableListOf<String>()
-
         for (i in 0 until OFFLINE_CACHE_ITEM_COUNT) {
             account.getReceiveAddressAtPosition(i)?.let {
                 addressList += it

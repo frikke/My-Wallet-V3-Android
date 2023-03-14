@@ -5,12 +5,14 @@ import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.blockchain.api.NabuApiException
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
@@ -79,7 +81,8 @@ class WireTransferAccountDetailsBottomSheet :
                     fetchAndDisplayAccountDetails()
                 },
                 onError = {
-                    renderErrorUi()
+                    val uxError = (it as? NabuApiException)?.getServerSideErrorInfo()
+                    renderErrorUi(uxError)
                     binding.loading.gone()
                 }
             )
@@ -113,7 +116,8 @@ class WireTransferAccountDetailsBottomSheet :
                 },
                 onError = {
                     binding.loading.gone()
-                    renderErrorUi()
+                    val uxError = (it as? NabuApiException)?.getServerSideErrorInfo()
+                    renderErrorUi(uxError)
                     analytics.logEvent(
                         linkBankEventWithCurrency(
                             SimpleBuyAnalytics.WIRE_TRANSFER_LOADING_ERROR,
@@ -135,11 +139,15 @@ class WireTransferAccountDetailsBottomSheet :
         }
     }
 
-    private fun renderErrorUi() {
+    private fun renderErrorUi(uxError: ServerSideUxErrorInfo?) {
         with(binding) {
-            bankDetailsError.errorContainer.visible()
-            bankDetailsError.errorButton.setOnClickListener {
-                dismiss()
+            bankDetailsError.apply {
+                errorContainer.visible()
+                errorButton.setOnClickListener {
+                    dismiss()
+                }
+                errorTitle.text = uxError?.title ?: getString(R.string.common_oops_bank)
+                errorMessage.text = uxError?.description ?: getString(R.string.unable_to_load_bank_details)
             }
             title.gone()
             subtitle.gone()

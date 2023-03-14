@@ -63,7 +63,7 @@ class XlmOnChainTxEngine(
     }
 
     override fun doAfterOnRestart(txTarget: TransactionTarget, pendingTx: PendingTx): Single<PendingTx> {
-        return super.restart(txTarget, pendingTx).map { px ->
+        return super.doAfterOnRestart(txTarget, pendingTx).map { px ->
             targetXlmAddress.memo?.let {
                 px.setMemo(
                     TxConfirmationValue.Memo(
