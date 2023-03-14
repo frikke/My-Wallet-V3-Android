@@ -13,6 +13,7 @@ val dexPresentation = module {
             DexEnterAmountViewModel(
                 currencyPrefs = get(),
                 txProcessor = get(),
+                dexAccountsService = get(),
                 exchangeRatesDataManager = get()
             )
         }

@@ -24,33 +24,47 @@ class DexAccountsRepository(
 ) :
     DexAccountsService {
     override fun sourceAccounts(): Flow<List<DexAccount>> {
-        return coincore.activeWalletsInMode(WalletMode.NON_CUSTODIAL).map {
-            it.accounts
-        }.map {
-            it.filterIsInstance<CryptoAccount>()
-                .filter { account -> account.currency.isLayer2Token }
-        }.distinctUntilChanged { old, new ->
-            old.map { it.currency.networkTicker } == new.map { it.currency.networkTicker }
-        }.flatMapLatest { cryptoAccounts ->
-            cryptoAccounts.map { account ->
-                account.balance().map { balance -> account to balance }
-            }.merge().scan(emptyMap<CryptoAccount, AccountBalance>()) { acc, (account, balance) ->
-                acc
-                    .filterKeys { it.currency.networkTicker != account.currency.networkTicker }
-                    .plus(account to balance)
-            }.filter {
-                it.keys.map { it.currency.networkTicker }.toSet() == cryptoAccounts.map { it.currency.networkTicker }
-                    .toSet()
-            }.map { balancedaccounts ->
-                balancedaccounts.map { (account, balance) ->
-                    DexAccount(
-                        account = account,
-                        currency = account.currency,
-                        balance = balance.total,
-                        fiatBalance = balance.totalFiat,
-                    )
-                }
+        return allDexAccounts().map { balancedaccounts ->
+            balancedaccounts.map { (account, balance) ->
+                DexAccount(
+                    account = account,
+                    currency = account.currency,
+                    balance = balance.total,
+                    fiatBalance = balance.totalFiat,
+                )
             }
+        }
+    }
+
+    override fun defSourceAccount(): Flow<DexAccount> =
+        allDexAccounts().map { map ->
+            map.maxBy { it.value.totalFiat }
+        }.map { (account, balance) ->
+            DexAccount(
+                account = account,
+                currency = account.currency,
+                balance = balance.total,
+                fiatBalance = balance.totalFiat,
+            )
+        }
+
+    private fun allDexAccounts() = coincore.activeWalletsInMode(WalletMode.NON_CUSTODIAL).map {
+        it.accounts
+    }.map {
+        it.filterIsInstance<CryptoAccount>()
+            .filter { account -> account.currency.isLayer2Token }
+    }.distinctUntilChanged { old, new ->
+        old.map { it.currency.networkTicker }.toSet() == new.map { it.currency.networkTicker }.toSet()
+    }.flatMapLatest { cryptoAccounts ->
+        cryptoAccounts.map { account ->
+            account.balance().map { balance -> account to balance }
+        }.merge().scan(emptyMap<CryptoAccount, AccountBalance>()) { acc, (account, balance) ->
+            acc
+                .filterKeys { it.currency.networkTicker != account.currency.networkTicker }
+                .plus(account to balance)
+        }.filter {
+            it.keys.map { it.currency.networkTicker }.toSet() == cryptoAccounts.map { it.currency.networkTicker }
+                .toSet()
         }
     }
 }

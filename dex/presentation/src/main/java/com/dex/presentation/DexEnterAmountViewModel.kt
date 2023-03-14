@@ -10,6 +10,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.preferences.CurrencyPrefs
+import com.dex.domain.DexAccountsService
 import com.dex.domain.DexTransaction
 import com.dex.domain.DexTransactionProcessor
 import com.dex.domain.EmptyDexTransaction
@@ -18,6 +19,7 @@ import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import info.blockchain.balance.canConvert
 import java.math.BigDecimal
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -25,6 +27,7 @@ import kotlinx.coroutines.launch
 class DexEnterAmountViewModel(
     private val currencyPrefs: CurrencyPrefs,
     private val txProcessor: DexTransactionProcessor,
+    private val dexAccountsService: DexAccountsService,
     private val exchangeRatesDataManager: ExchangeRatesDataManager
 ) : MviViewModel<
     InputAmountIntent,
@@ -67,6 +70,7 @@ class DexEnterAmountViewModel(
             InputAmountIntent.InitTransaction -> {
                 txProcessor.initTransaction()
                 subscribeForTxUpdates()
+                preselectSourceAccount()
             }
             is InputAmountIntent.AmountUpdated ->
                 when {
@@ -78,6 +82,14 @@ class DexEnterAmountViewModel(
                         // invalid amount todo
                     }
                 }
+        }
+    }
+
+    private fun preselectSourceAccount() {
+        viewModelScope.launch {
+            dexAccountsService.defSourceAccount().collect {
+                txProcessor.updateSourceAccount(it)
+            }
         }
     }
 

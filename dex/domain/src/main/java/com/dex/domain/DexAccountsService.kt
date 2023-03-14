@@ -4,4 +4,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface DexAccountsService {
     fun sourceAccounts(): Flow<List<DexAccount>>
+
+    fun defSourceAccount(): Flow<DexAccount>
 }

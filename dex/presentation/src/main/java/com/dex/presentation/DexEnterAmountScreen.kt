@@ -28,6 +28,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -35,6 +36,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -66,6 +68,7 @@ import info.blockchain.balance.Money
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DexEnterAmountScreen(
     listState: LazyListState,
@@ -78,6 +81,8 @@ fun DexEnterAmountScreen(
             navController.navigate(DexDestination.Intro.route)
         }
     }
+
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
@@ -106,7 +111,10 @@ fun DexEnterAmountScreen(
         }
         paddedItem(paddingValues = PaddingValues(spacing)) {
             InputField(
-                navController = navController,
+                selectSourceAccount = {
+                    navController.navigate(DexDestination.SelectSourceAccount.route)
+                    keyboardController?.hide()
+                },
                 viewState = viewState,
                 onValueChanged = {
                     viewModel.onIntent(InputAmountIntent.AmountUpdated(it.text))
@@ -123,7 +131,7 @@ fun DexEnterAmountScreen(
 * */
 @Composable
 fun InputField(
-    navController: NavController,
+    selectSourceAccount: () -> Unit,
     onValueChanged: (TextFieldValue) -> Unit,
     viewState: InputAmountViewState
 ) {
@@ -149,9 +157,7 @@ fun InputField(
                             input = it
                             onValueChanged(it)
                         },
-                        onClick = {
-                            navController.navigate(DexDestination.SelectSourceAccount.route)
-                        },
+                        onClick = selectSourceAccount,
                         currency = viewState.sourceCurrency
                     )
                     Row {
@@ -176,11 +182,8 @@ fun InputField(
                     AmountAndCurrencySelection(
                         isReadOnly = true,
                         input = input,
-                        onValueChanged = {
-                        },
-                        onClick = {
-                            navController.navigate(DexDestination.SelectSourceAccount.route)
-                        },
+                        onValueChanged = {},
+                        onClick = selectSourceAccount,
                         currency = viewState.destinationCurrency
                     )
                     Row {
