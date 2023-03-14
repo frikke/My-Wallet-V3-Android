@@ -15,6 +15,7 @@ import com.blockchain.data.filter
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
+import com.blockchain.extensions.minus
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.home.announcements.Announcement
 import com.blockchain.home.announcements.AnnouncementsService
@@ -55,7 +56,11 @@ class AnnouncementsViewModel(
                 updateState {
                     it.copy(walletMode = walletMode)
                 }
-                updateRemoteAnnouncementsConfirmation(withDelay = false)
+
+                updateRemoteAnnouncementsConfirmation(
+                    announcements = modelState.remoteAnnouncements,
+                    withDelay = false
+                )
             }
         }
     }
@@ -64,6 +69,7 @@ class AnnouncementsViewModel(
         AnnouncementsViewState(
             remoteAnnouncements = remoteAnnouncements.forMode(walletMode),
             hideAnnouncementsConfirmation = hideAnnouncementsConfirmation,
+            animateHideAnnouncementsConfirmation = animateHideAnnouncementsConfirmation,
             localAnnouncements = localAnnouncements
         )
     }
@@ -76,12 +82,32 @@ class AnnouncementsViewModel(
             }
 
             is AnnouncementsIntent.DeleteAnnouncement -> {
-                updateRemoteAnnouncementsConfirmation(withDelay = true)
+                updateRemoteAnnouncementsConfirmation(
+                    announcements = modelState.remoteAnnouncements.remove(intent.announcement)
+                )
 
                 viewModelScope.launch {
                     announcementsService.consumeAnnouncement(
                         announcement = intent.announcement,
                         action = ConsumeAnnouncementAction.DELETED
+                    )
+                }
+            }
+
+            is AnnouncementsIntent.AnnouncementClicked -> {
+                updateRemoteAnnouncementsConfirmation(
+                    announcements = modelState.remoteAnnouncements.remove(intent.announcement)
+                )
+
+                viewModelScope.launch {
+                    // track clicked + consume so backend removes it from future responses
+                    announcementsService.trackClicked(
+                        announcement = intent.announcement
+                    )
+
+                    announcementsService.consumeAnnouncement(
+                        announcement = intent.announcement,
+                        action = ConsumeAnnouncementAction.CLICKED
                     )
                 }
             }
@@ -112,10 +138,14 @@ class AnnouncementsViewModel(
                         it.copy(remoteAnnouncements = it.remoteAnnouncements.updateDataWith(sorted))
                     }
 
+                    updateRemoteAnnouncementsConfirmation(
+                        announcements = sorted.forMode(modelState.walletMode)
+                    )
+
                     // mark latest as seen since it's shown first
                     (sorted.forMode(modelState.walletMode).map { it.lastOrNull() } as? DataResource.Data)
                         ?.data?.let {
-                            announcementsService.markAsSeen(it)
+                            announcementsService.trackSeen(it)
                         }
                 }
             } else {
@@ -126,11 +156,14 @@ class AnnouncementsViewModel(
         }
     }
 
-    private fun updateRemoteAnnouncementsConfirmation(withDelay: Boolean) {
+    private fun updateRemoteAnnouncementsConfirmation(
+        announcements: DataResource<List<Announcement>>,
+        withDelay: Boolean = true
+    ) {
         remoteAnnouncementsConfirmationJob?.cancel()
         remoteAnnouncementsConfirmationJob = viewModelScope.launch {
-            val shouldHideConfirmation = modelState.remoteAnnouncements
-                .filter { it.eligibleModes.contains(modelState.walletMode) }
+            val shouldHideConfirmation = announcements
+                .forMode(modelState.walletMode)
                 .map { it.isEmpty() }
                 .dataOrElse(false)
 
@@ -140,13 +173,15 @@ class AnnouncementsViewModel(
                 }
                 updateState {
                     it.copy(
-                        hideAnnouncementsConfirmation = true
+                        hideAnnouncementsConfirmation = true,
+                        animateHideAnnouncementsConfirmation = withDelay
                     )
                 }
             } else {
                 updateState {
                     it.copy(
-                        hideAnnouncementsConfirmation = false
+                        hideAnnouncementsConfirmation = false,
+                        animateHideAnnouncementsConfirmation = true
                     )
                 }
             }
@@ -185,7 +220,13 @@ class AnnouncementsViewModel(
         it.eligibleModes.contains(walletMode)
     }
 
+    private fun DataResource<List<Announcement>>.remove(
+        announcement: Announcement
+    ) = map {
+        it.minus { it == announcement }
+    }
+
     companion object {
-        private val CONFIRMATION_DELAY = TimeUnit.SECONDS.toMillis(2)
+        private val CONFIRMATION_DELAY = TimeUnit.SECONDS.toMillis(1)
     }
 }

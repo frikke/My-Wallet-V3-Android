@@ -18,7 +18,11 @@ interface AnnouncementsService {
         action: ConsumeAnnouncementAction
     )
 
-    suspend fun markAsSeen(
+    suspend fun trackSeen(
+        announcement: Announcement
+    )
+
+    suspend fun trackClicked(
         announcement: Announcement
     )
 }
