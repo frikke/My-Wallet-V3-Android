@@ -49,7 +49,7 @@ class SwipeableState(
         require(thresholdVsMaxWidth in 0F..1F)
     }
 
-    var isEnabled: Boolean by mutableStateOf(true)
+    var isSwipeEnabled: Boolean by mutableStateOf(true)
 
     private val _offset = Animatable(Offset.withX(0f), Offset.VectorConverter)
     val offsetProvider = { _offset }

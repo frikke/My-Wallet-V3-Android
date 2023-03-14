@@ -95,13 +95,13 @@ class AnnouncementsRepository(
         )
     }
 
-    override suspend fun trackSeen(
+    override suspend fun markAsSeen(
         announcement: Announcement
     ) {
         if (!announcementsPrefs.seenAnnouncements().contains(announcement.id)) {
             announcementsPrefs.markAsSeen(announcement.id)
 
-            announcementsApiService.trackSeen(
+            announcementsApiService.seenAnnouncement(
                 apiKey = announcementsCredentials.apiKey(),
                 body = AnnouncementBodyDto.seen(
                     email = announcementsCredentials.email,
@@ -110,17 +110,5 @@ class AnnouncementsRepository(
                 )
             )
         }
-    }
-
-    override suspend fun trackClicked(announcement: Announcement) {
-        announcementsApiService.trackClicked(
-            apiKey = announcementsCredentials.apiKey(),
-            body = AnnouncementBodyDto.click(
-                email = announcementsCredentials.email,
-                messageId = announcement.id,
-                clickedUrl = announcement.actionUrl,
-                deviceInfo = announcementsCredentials.deviceInfo
-            )
-        )
     }
 }

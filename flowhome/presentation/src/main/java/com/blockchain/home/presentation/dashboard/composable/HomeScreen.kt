@@ -15,7 +15,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
@@ -35,7 +34,6 @@ import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.data.toImmutableList
 import com.blockchain.domain.referral.model.ReferralInfo
-import com.blockchain.home.announcements.Announcement
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.accouncement.AnnouncementsIntent
 import com.blockchain.home.presentation.accouncement.AnnouncementsViewModel
@@ -98,7 +96,6 @@ fun HomeScreen(
     openMoreQuickActions: () -> Unit,
     startPhraseRecovery: () -> Unit,
     openEarnDashboard: () -> Unit,
-    processAnnouncementUrl: (String) -> Unit
 ) {
     var menuOptionsHeight: Int by remember { mutableStateOf(0) }
     var balanceOffsetToMenuOption: Float by remember { mutableStateOf(0F) }
@@ -288,13 +285,8 @@ fun HomeScreen(
                 StackedAnnouncements(
                     announcements = announcements,
                     hideConfirmation = announcementsState.hideAnnouncementsConfirmation,
-                    animateHideConfirmation = announcementsState.animateHideAnnouncementsConfirmation,
-                    announcementOnSwiped = { announcement ->
-                        announcementsViewModel.onIntent(AnnouncementsIntent.DeleteAnnouncement(announcement))
-                    },
-                    announcementOnClick = { announcement ->
-                        processAnnouncementUrl(announcement.actionUrl)
-                        announcementsViewModel.onIntent(AnnouncementsIntent.AnnouncementClicked(announcement))
+                    onSwiped = { target ->
+                        announcementsViewModel.onIntent(AnnouncementsIntent.DeleteAnnouncement(target))
                     }
                 )
             }

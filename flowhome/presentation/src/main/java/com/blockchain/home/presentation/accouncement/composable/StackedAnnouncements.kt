@@ -37,9 +37,7 @@ import kotlinx.coroutines.launch
 fun StackedAnnouncements(
     announcements: List<Announcement>,
     hideConfirmation: Boolean,
-    animateHideConfirmation: Boolean,
-    announcementOnSwiped: (Announcement) -> Unit,
-    announcementOnClick: (Announcement) -> Unit
+    onSwiped: (Announcement) -> Unit
 ) {
     val localDensity = LocalDensity.current
 
@@ -60,9 +58,8 @@ fun StackedAnnouncements(
 
     var fullHeight by remember { mutableStateOf(0.dp) }
 
-    val scope = rememberCoroutineScope()
-
     Box {
+        val scope = rememberCoroutineScope()
         Box(
             Modifier
                 .fillMaxWidth()
@@ -75,40 +72,38 @@ fun StackedAnnouncements(
                     }
                 }
         ) {
-            if (animateHideConfirmation) {
-                AnimatedVisibility(
-                    modifier = Modifier.align(Alignment.Center),
-                    visible = !hideConfirmation,
-                    exit = fadeOut(tween(durationMillis = 100)) +
-                        shrinkOut(tween(durationMillis = 100, delayMillis = 100))
+            AnimatedVisibility(
+                modifier = Modifier
+                    .align(Alignment.Center),
+                visible = !hideConfirmation,
+                exit = shrinkOut(tween(durationMillis = 200, delayMillis = 200)) + fadeOut(tween(durationMillis = 200))
+            ) {
+                Box(
+                    modifier = Modifier.height(fullHeight)
                 ) {
-                    Box(
-                        modifier = Modifier.height(fullHeight)
-                    ) {
-                        Text(
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .graphicsLayer {
-                                    val scale = if (announcements.isNotEmpty()) {
-                                        animatableScale.value
-                                    } else {
-                                        frontCardScale
-                                    }
-                                    scaleY = scale
-                                    scaleX = scale
-                                },
-                            text = stringResource(R.string.announcements_all_done),
-                            style = AppTheme.typography.title3,
-                            color = AppTheme.colors.title
-                        )
-                    }
+                    Text(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .graphicsLayer {
+                                val scale = if (announcements.isNotEmpty()) {
+                                    animatableScale.value
+                                } else {
+                                    frontCardScale
+                                }
+                                scaleY = scale
+                                scaleX = scale
+                            },
+                        text = stringResource(R.string.announcements_all_done),
+                        style = AppTheme.typography.title3,
+                        color = AppTheme.colors.title
+                    )
                 }
             }
 
             announcements.map {
                 it to rememberSwipeableState()
             }.forEachIndexed { index, (announcement, state) ->
-                state.isEnabled = index == announcements.lastIndex
+                state.isSwipeEnabled = index == announcements.lastIndex
 
                 AnnouncementCard(
                     modifier = Modifier
@@ -187,7 +182,7 @@ fun StackedAnnouncements(
                                     animatableAlpha.snapTo(frontCardFocusedAlpha)
                                 }
 
-                                announcementOnSwiped(announcement)
+                                onSwiped(announcement)
                             }
                         ),
                     title = announcement.title,
@@ -208,11 +203,7 @@ fun StackedAnnouncements(
                             else -> 1F
                         }
                     },
-                    onClick = {
-                        if (state.isEnabled) {
-                            announcementOnClick(announcement)
-                        }
-                    }
+                    onClick = {}
                 )
             }
         }

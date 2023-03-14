@@ -36,19 +36,6 @@ class AnnouncementBodyDto private constructor(
             clickedUrl = null,
             deviceInfo = deviceInfo
         )
-
-        fun click(
-            email: String,
-            messageId: String,
-            clickedUrl: String,
-            deviceInfo: DeviceInfo
-        ) = AnnouncementBodyDto(
-            email = email,
-            messageId = messageId,
-            deleteAction = null,
-            clickedUrl = clickedUrl,
-            deviceInfo = deviceInfo
-        )
     }
 }
 

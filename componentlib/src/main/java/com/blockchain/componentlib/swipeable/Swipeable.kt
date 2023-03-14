@@ -16,7 +16,7 @@ fun Modifier.swipeable(
     onSwipe: (Direction) -> Unit,
     onSwipeComplete: (Direction) -> Unit,
     onSwipeCancel: () -> Unit = {}
-) = pointerInput(state.isEnabled) {
+) = pointerInput(state.isSwipeEnabled) {
     var flingStartTime = 0L
     var flingStartPosition = 0f
 
@@ -26,7 +26,7 @@ fun Modifier.swipeable(
         onSwipeComplete(this)
     }
 
-    if (state.isEnabled) {
+    if (state.isSwipeEnabled) {
         coroutineScope {
             detectDragGestures(
                 onDragStart = {

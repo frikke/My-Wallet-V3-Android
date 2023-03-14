@@ -57,8 +57,7 @@ fun MultiAppNavHost(
     supportNavigation: SupportNavigation,
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
-    openExternalUrl: (url: String) -> Unit,
-    processAnnouncementUrl: (url: String) -> Unit
+    openExternalUrl: (url: String) -> Unit
 ) {
     val bottomSheetNavigator = rememberBottomSheetNavigator(skipHalfExpanded = true)
     val navController = rememberNavController(bottomSheetNavigator)
@@ -105,8 +104,7 @@ fun MultiAppNavHost(
                 showAppRating = showAppRating,
                 openExternalUrl = openExternalUrl,
                 nftNavigation = nftNavigation,
-                earnNavigation = earnNavigation,
-                processAnnouncementUrl = processAnnouncementUrl
+                earnNavigation = earnNavigation
             )
 
             // home screens
@@ -149,8 +147,7 @@ private fun NavGraphBuilder.chrome(
     supportNavigation: SupportNavigation,
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
-    openExternalUrl: (url: String) -> Unit,
-    processAnnouncementUrl: (url: String) -> Unit
+    openExternalUrl: (url: String) -> Unit
 ) {
     composable(navigationEvent = ChromeDestination.Main) {
         MultiAppChrome(
@@ -221,8 +218,7 @@ private fun NavGraphBuilder.chrome(
                 )
             },
             nftNavigation = nftNavigation,
-            earnNavigation = earnNavigation,
-            processAnnouncementUrl = processAnnouncementUrl
+            earnNavigation = earnNavigation
         )
     }
 }

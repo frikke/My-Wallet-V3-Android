@@ -11,7 +11,6 @@ data class AnnouncementModelState(
     val walletMode: WalletMode? = null,
     val remoteAnnouncements: DataResource<List<Announcement>> = DataResource.Loading,
     val hideAnnouncementsConfirmation: Boolean = false,
-    val animateHideAnnouncementsConfirmation: Boolean = true,
     val localAnnouncements: List<LocalAnnouncement> = emptyList(),
     val lastFreshDataTime: Long = 0
 ) : ModelState

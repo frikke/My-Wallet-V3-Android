@@ -32,19 +32,13 @@ class AnnouncementsApiService internal constructor(
         body = body
     )
 
-   suspend fun trackSeen(
+   suspend fun seenAnnouncement(
        apiKey: String,
        body: AnnouncementBodyDto,
-    ) = api.trackSeen(
+    ) = api.seenAnnouncement(
         apiKey = apiKey,
         body = body
     )
 
-    suspend fun trackClicked(
-       apiKey: String,
-       body: AnnouncementBodyDto,
-    ) = api.trackClicked(
-        apiKey = apiKey,
-        body = body
-    )
+
 }
