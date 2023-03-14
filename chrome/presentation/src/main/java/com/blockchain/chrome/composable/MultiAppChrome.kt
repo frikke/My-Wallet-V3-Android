@@ -131,6 +131,7 @@ fun MultiAppChrome(
     openMoreQuickActions: () -> Unit,
     openExternalUrl: (url: String) -> Unit,
     openNftHelp: () -> Unit,
+    processAnnouncementUrl: (String) -> Unit,
     openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
@@ -205,7 +206,8 @@ fun MultiAppChrome(
             openNftHelp = openNftHelp,
             openNftDetail = openNftDetail,
             nftNavigation = nftNavigation,
-            earnNavigation = earnNavigation
+            earnNavigation = earnNavigation,
+            processAnnouncementUrl = processAnnouncementUrl
         )
     }
 }
@@ -245,6 +247,7 @@ fun MultiAppChromeScreen(
     openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
+    processAnnouncementUrl: (String) -> Unit,
 ) {
     val toolbarState = rememberToolbarState(modeSwitcherOptions)
     val navController = rememberNavController()
@@ -753,6 +756,7 @@ fun MultiAppChromeScreen(
                     openNftDetail = openNftDetail,
                     nftNavigation = nftNavigation,
                     earnNavigation = earnNavigation,
+                    processAnnouncementUrl = processAnnouncementUrl,
                     openEarnDashboard = {
                         onBottomNavigationItemSelected(ChromeBottomNavigationItem.Earn)
                         verifyHeaderPositionForNewScreen = true

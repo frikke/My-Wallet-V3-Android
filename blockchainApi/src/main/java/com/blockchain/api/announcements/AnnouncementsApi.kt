@@ -27,7 +27,14 @@ interface AnnouncementsApi {
     )
 
     @POST("api/events/trackInAppOpen")
-    suspend fun seenAnnouncement(
+    suspend fun trackSeen(
+        @Header("Api-Key") apiKey: String,
+
+        @Body body: AnnouncementBodyDto,
+    )
+
+    @POST("api/events/trackInAppClick")
+    suspend fun trackClicked(
         @Header("Api-Key") apiKey: String,
 
         @Body body: AnnouncementBodyDto,
