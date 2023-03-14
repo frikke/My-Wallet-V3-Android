@@ -378,11 +378,7 @@ fun BlockedDueToSanctions(
 
 @Composable
 fun Loading() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(AppTheme.colors.light)
-    ) {
+    Box {
         ShimmerLoadingCard(
             modifier = Modifier
                 .fillMaxWidth()
