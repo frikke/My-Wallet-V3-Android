@@ -5,10 +5,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import com.airbnb.android.showkase.models.Showkase
 import com.google.android.material.button.MaterialButton
-import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ActionTableRowActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.AlertButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.AsyncMediaActivity
-import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.BalanceTableRowActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.CardActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.CardAlertActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ChartsActivity
@@ -74,15 +72,6 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.tags).setOnClickListener {
             startActivity(Intent(this@MainActivity, TagsActivity::class.java))
-        }
-        findViewById<MaterialButton>(R.id.default_table_row).setOnClickListener {
-            startActivity(Intent(this@MainActivity, DefaultTableRowActivity::class.java))
-        }
-        findViewById<MaterialButton>(R.id.action_table_row).setOnClickListener {
-            startActivity(Intent(this@MainActivity, ActionTableRowActivity::class.java))
-        }
-        findViewById<MaterialButton>(R.id.balance_table_row).setOnClickListener {
-            startActivity(Intent(this@MainActivity, BalanceTableRowActivity::class.java))
         }
         findViewById<MaterialButton>(R.id.dividers).setOnClickListener {
             startActivity(Intent(this@MainActivity, DividerActivity::class.java))

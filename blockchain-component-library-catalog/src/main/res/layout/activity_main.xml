@@ -79,27 +79,6 @@
             android:textAllCaps="false" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/default_table_row"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Default Table Rows"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/action_table_row"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Action Table Rows"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/balance_table_row"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Balance Table Rows"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
             android:id="@+id/dividers"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

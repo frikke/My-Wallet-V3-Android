@@ -76,12 +76,6 @@
             android:name=".abstract_compose_view.DividerActivity"
             android:exported="false" />
         <activity
-            android:name=".abstract_compose_view.BalanceTableRowActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.ActionTableRowActivity"
-            android:exported="false" />
-        <activity
             android:name=".abstract_compose_view.DefaultTableRowActivity"
             android:exported="false" />
         <activity

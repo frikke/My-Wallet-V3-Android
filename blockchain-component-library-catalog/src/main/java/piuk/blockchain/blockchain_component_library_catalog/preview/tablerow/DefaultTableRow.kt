@@ -6,8 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.tablerow.DefaultStackedIconTableRow
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.tablerow.ToggleTableRow
 import com.blockchain.componentlib.tablerow.ToggleTableRowType
@@ -80,28 +78,6 @@ fun TagTableRowPreview() {
                         type = TagType.Warning()
                     ),
                 ),
-            )
-        }
-    }
-}
-
-@Preview(name = "Stacked Icon", group = "Table Row")
-@Composable
-fun StackedIconTableRowPreview() {
-    AppTheme {
-        AppSurface {
-            DefaultStackedIconTableRow(
-                primaryText = "Primary text",
-                secondaryText = "Secondary text",
-                topImageResource = ImageResource.Remote(
-                    url = "https://www.blockchain.com/static/img/prices/prices-btc.svg",
-                    contentDescription = null,
-                ),
-                bottomImageResource = ImageResource.Remote(
-                    url = "https://www.blockchain.com/static/img/prices/prices-eth.svg",
-                    contentDescription = null,
-                ),
-                onClick = {},
             )
         }
     }

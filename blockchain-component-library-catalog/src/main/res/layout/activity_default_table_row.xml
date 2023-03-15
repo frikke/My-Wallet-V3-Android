@@ -59,17 +59,6 @@
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Stacked Icon Table Row"
-            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
-
-        <com.blockchain.componentlib.tablerow.DefaultStackedIconTableRowView
-            android:id="@+id/stacked_icon_table_row"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="Large Table Row"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
