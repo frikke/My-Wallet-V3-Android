@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.blockchain.home.presentation.navigation.HomeLaunch
@@ -22,13 +23,12 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.support.SupportCentreActivity
-import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.brokerage.buy.composable.BuySelectAsset
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU5
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU8
 
-class BuySelectAssetFragment : ViewPagerFragment(), KoinScopeComponent {
+class BuySelectAssetFragment : Fragment(), KoinScopeComponent {
 
     override val scope: Scope = payloadScope
     private val viewModel: BuySelectAssetViewModel by viewModel()

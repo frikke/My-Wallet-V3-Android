@@ -1,8 +1,8 @@
 package com.blockchain.api.services
 
+import com.blockchain.api.announcements.AnnouncementBodyDto
 import com.blockchain.api.announcements.AnnouncementsApi
 import com.blockchain.api.announcements.AnnouncementsDto
-import com.blockchain.api.announcements.AnnouncementBodyDto
 import io.reactivex.rxjava3.core.Single
 
 class AnnouncementsApiService internal constructor(
@@ -32,17 +32,17 @@ class AnnouncementsApiService internal constructor(
         body = body
     )
 
-   suspend fun trackSeen(
-       apiKey: String,
-       body: AnnouncementBodyDto,
+    suspend fun trackSeen(
+        apiKey: String,
+        body: AnnouncementBodyDto,
     ) = api.trackSeen(
         apiKey = apiKey,
         body = body
     )
 
     suspend fun trackClicked(
-       apiKey: String,
-       body: AnnouncementBodyDto,
+        apiKey: String,
+        body: AnnouncementBodyDto,
     ) = api.trackClicked(
         apiKey = apiKey,
         body = body

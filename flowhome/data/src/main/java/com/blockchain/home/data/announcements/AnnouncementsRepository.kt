@@ -1,7 +1,7 @@
 package com.blockchain.home.data.announcements
 
-import com.blockchain.api.announcements.AnnouncementPayloadDto
 import com.blockchain.api.announcements.AnnouncementBodyDto
+import com.blockchain.api.announcements.AnnouncementPayloadDto
 import com.blockchain.api.services.AnnouncementsApiService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy

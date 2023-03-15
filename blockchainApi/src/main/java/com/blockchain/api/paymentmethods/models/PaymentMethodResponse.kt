@@ -21,7 +21,9 @@ data class PaymentMethodResponse(
     @SerialName("mobilePayment")
     val mobilePayment: List<String>? = null,
     @SerialName("cardFundSources")
-    val cardFundSources: List<String>? = null
+    val cardFundSources: List<String>? = null,
+    // optional since only ACH will support it initially, if null then we assume all capabilities are present
+    val capabilities: List<String>? = null,
 ) {
     companion object {
         const val PAYMENT_CARD = "PAYMENT_CARD"
@@ -29,6 +31,10 @@ data class PaymentMethodResponse(
         const val FUNDS = "FUNDS"
         const val BANK_TRANSFER = "BANK_TRANSFER"
         const val BANK_ACCOUNT = "BANK_ACCOUNT"
+
+        const val CAPABILITY_DEPOSIT = "DEPOSIT"
+        const val CAPABILITY_WITHDRAWAL = "WITHDRAWAL"
+        const val CAPABILITY_BROKERAGE = "BROKERAGE"
     }
 }
 

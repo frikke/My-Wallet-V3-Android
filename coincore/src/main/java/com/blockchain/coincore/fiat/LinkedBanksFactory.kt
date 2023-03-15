@@ -26,7 +26,8 @@ class LinkedBanksFactory(
                     accountType = it.toHumanReadableAccount(),
                     currency = it.currency,
                     custodialWalletManager = custodialWalletManager,
-                    type = it.type
+                    type = it.type,
+                    capabilities = it.capabilities,
                 )
             }
         }
@@ -42,7 +43,8 @@ class LinkedBanksFactory(
                         accountType = bank.toHumanReadableAccount(),
                         currency = bank.currency,
                         custodialWalletManager = custodialWalletManager,
-                        type = bank.type
+                        type = bank.type,
+                        capabilities = bank.capabilities,
                     )
                 }
         }

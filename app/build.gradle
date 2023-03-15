@@ -430,6 +430,8 @@ dependencies {
     implementation project(':earn:presentation')
 
     implementation project(':fiatActions')
+    implementation project(':dex:presentation')
+    implementation project(':dex:data')
 
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring

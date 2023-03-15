@@ -43,7 +43,7 @@ class AccountInfoBank @JvmOverloads constructor(
         shouldShowBadges: Boolean = true,
         account: LinkedBankAccount,
         action: AssetAction? = null,
-        onAccountClicked: (LinkedBankAccount) -> Unit
+        onAccountClicked: ((LinkedBankAccount) -> Unit)?
     ) {
         with(binding) {
             bankName.text = account.label
@@ -58,7 +58,11 @@ class AccountInfoBank @JvmOverloads constructor(
                 account.accountNumber
             )
         }
-        setOnClickListener { onAccountClicked(account) }
+        if (onAccountClicked != null) {
+            setOnClickListener { onAccountClicked(account) }
+        } else {
+            setOnClickListener(null)
+        }
 
         if (shouldShowBadges) {
             require(account.type == PaymentMethodType.BANK_TRANSFER || account.type == PaymentMethodType.BANK_ACCOUNT) {

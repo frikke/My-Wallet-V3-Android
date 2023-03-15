@@ -79,6 +79,10 @@ class SettingsModel(
                         }
                     }
                 )
+            is SettingsIntent.WireTransferSelected -> {
+                process(SettingsIntent.UpdateViewToLaunch(ViewToLaunch.WireTransfer(interactor.userSelectedFiat)))
+                null
+            }
             is SettingsIntent.Logout -> interactor.unpairWallet()
                 .subscribeBy(
                     onComplete = {

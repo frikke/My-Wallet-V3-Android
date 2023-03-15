@@ -59,7 +59,7 @@ class SelectTargetAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentTxAccountSelectorBinding =
         FragmentTxAccountSelectorBinding.inflate(inflater, container, false)
 
-    private fun doOnListLoaded(isEmpty: Boolean) {
+    private fun doOnListLoaded(accounts: List<AccountListViewItem>) {
         binding.progress.gone()
     }
 

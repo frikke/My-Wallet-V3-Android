@@ -2,7 +2,6 @@ package com.blockchain.core.payments
 
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.api.brokerage.data.DepositTermsResponse
-import com.blockchain.api.mapActions
 import com.blockchain.api.nabu.data.AddressRequest
 import com.blockchain.api.paymentmethods.models.AddNewCardBodyRequest
 import com.blockchain.api.paymentmethods.models.AliasInfoResponse
@@ -18,6 +17,7 @@ import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.api.payments.data.BankInfoResponse
 import com.blockchain.api.payments.data.BankMediaResponse
 import com.blockchain.api.payments.data.BankMediaResponse.Companion.ICON
+import com.blockchain.api.payments.data.BankTransferCapabilitiesResponse
 import com.blockchain.api.payments.data.BankTransferChargeAttributes
 import com.blockchain.api.payments.data.BankTransferChargeResponse
 import com.blockchain.api.payments.data.BankTransferPaymentAttributes
@@ -38,6 +38,7 @@ import com.blockchain.api.payments.data.YapilyMediaResponse
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
 import com.blockchain.api.services.toMobilePaymentType
+import com.blockchain.core.common.mapper.toDomain
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.payments.cache.CardDetailsStore
 import com.blockchain.core.payments.cache.LinkedBankStore
@@ -49,7 +50,6 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.common.model.ServerErrorAction
-import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
@@ -77,6 +77,8 @@ import com.blockchain.domain.paymentmethods.model.InstitutionCountry
 import com.blockchain.domain.paymentmethods.model.LinkBankAttributes
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBank
+import com.blockchain.domain.paymentmethods.model.LinkedBankCapabilities
+import com.blockchain.domain.paymentmethods.model.LinkedBankCapability
 import com.blockchain.domain.paymentmethods.model.LinkedBankErrorState
 import com.blockchain.domain.paymentmethods.model.LinkedBankState
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
@@ -86,6 +88,7 @@ import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.PaymentMethodTypeCapability
 import com.blockchain.domain.paymentmethods.model.PaymentMethodTypeWithEligibility
 import com.blockchain.domain.paymentmethods.model.PlaidAttributes
 import com.blockchain.domain.paymentmethods.model.RefreshBankInfo
@@ -757,17 +760,7 @@ class PaymentsRepository(
                 ?: throw IllegalStateException("Unknown currency $currency"),
             mobilePaymentType = mobilePaymentType?.toMobilePaymentType(),
             cardRejectionState = CardRejectionStateResponse(block, ux).toDomain(),
-            serverSideUxErrorInfo = ux?.let {
-                ServerSideUxErrorInfo(
-                    id = it.id,
-                    title = it.title,
-                    description = it.message,
-                    iconUrl = it.icon?.url.orEmpty(),
-                    statusUrl = it.icon?.status?.url.orEmpty(),
-                    actions = it.mapActions(),
-                    categories = it.categories ?: emptyList()
-                )
-            }
+            serverSideUxErrorInfo = ux?.toDomain()
         )
 
     private fun LinkedPaymentMethod.Card.toCardPaymentMethod(cardLimits: PaymentLimits) =
@@ -794,6 +787,7 @@ class PaymentsRepository(
             iconUrl = attributes?.media?.find { it.type == BankMediaResponse.ICON }?.source.orEmpty(),
             isBankTransferAccount = isBankTransferAccount,
             state = state.toBankState(),
+            capabilities = capabilities?.toDomain(),
             currency = assetCatalogue.fiatFromNetworkTicker(currency) ?: return null
         )
     }
@@ -891,6 +885,15 @@ class PaymentsRepository(
             else -> BankState.UNKNOWN
         }
 
+    private fun BankTransferCapabilitiesResponse.toDomain(): LinkedBankCapabilities = LinkedBankCapabilities(
+        withdrawal = withdrawal?.let {
+            LinkedBankCapability(
+                enabled = it.enabled,
+                ux = it.ux?.toDomain(),
+            )
+        },
+    )
+
     private fun String.toCardStatus(): CardStatus =
         when (this) {
             CardResponse.ACTIVE -> CardStatus.ACTIVE
@@ -910,6 +913,13 @@ class PaymentsRepository(
         else -> PaymentMethodType.UNKNOWN
     }
 
+    private fun String.toPaymentMethodCapability(): PaymentMethodTypeCapability? = when (this) {
+        PaymentMethodResponse.CAPABILITY_DEPOSIT -> PaymentMethodTypeCapability.DEPOSIT
+        PaymentMethodResponse.CAPABILITY_WITHDRAWAL -> PaymentMethodTypeCapability.WITHDRAWAL
+        PaymentMethodResponse.CAPABILITY_BROKERAGE -> PaymentMethodTypeCapability.BROKERAGE
+        else -> null
+    }
+
     private fun PaymentMethodResponse.toAvailablePaymentMethodType(
         currency: FiatCurrency,
     ): PaymentMethodTypeWithEligibility =
@@ -918,7 +928,8 @@ class PaymentsRepository(
             currency = currency,
             type = type.toPaymentMethodType(),
             limits = limits.toPaymentLimits(currency),
-            cardFundSources = cardFundSources
+            cardFundSources = cardFundSources,
+            capabilities = capabilities?.mapNotNull { it.toPaymentMethodCapability() },
         )
 
     private fun BankTransferChargeResponse.toBankTransferDetails() =

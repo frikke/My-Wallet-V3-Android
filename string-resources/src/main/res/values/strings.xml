@@ -3205,7 +3205,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bc_card_unable_to_load_card">Unable to load card</string>
     <string name="bc_card_transaction_status">Status</string>
     <string name="bc_card_transaction_payment_method">Payment Method</string>
-    <string name="bc_card_transaction_fee">Blockchain.com Fee</string>
     <string name="bc_card_transaction_original_amount">Total %1$s</string>
     <string name="bc_card_dashboard_legal_disclaimer">This Blockchain.com Visa® Card is issued by Pathward, N.A., Member FDIC, pursuant to a license from Visa U.S.A. Inc. Blockchain.com Visa card can be used everywhere Visa debit cards are accepted.</string>
     <string name="bc_card_order_intro_legal_disclaimer">This Blockchain.com Visa® Card is issued by Pathward, N.A., Member FDIC, pursuant to a license from Visa U.S.A. Inc. Blockchain.com Visa card can be used everywhere Visa debit cards are accepted. ¹No Blockchain.com Fees but a spread applies when we sell cryptocurrencies. ²This optional offer is not a Pathward product or service nor does Pathward endorse this offer.</string>
@@ -3543,6 +3542,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="swap_1000_tokens_subtitle">Swap ETH, UNI, USDT, DAI, and more.</string>
     <string name="keep_control_of_funds">Keep control of your funds</string>
     <string name="keep_control_of_funds_subtitle">When you trade on a DEX, you keep access to your private keys––it\'s \"your keys, your crypto.\" Blockchain.com doesn’t hold these funds.</string>
+    <string name="select_token">Select Token</string>
     <string name="common_requested">Requested</string>
     <string name="earn_active_rewards_withdrawal_close_date">Next Saturday</string>
 

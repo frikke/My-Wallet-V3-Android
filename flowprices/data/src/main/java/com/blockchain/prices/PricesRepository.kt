@@ -12,7 +12,6 @@ import com.blockchain.data.mapList
 import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.prices.domain.AssetPriceInfo
 import com.blockchain.prices.domain.PricesService
-import com.blockchain.store.filterListData
 import com.blockchain.store.mapData
 import com.blockchain.store.mapListData
 import com.blockchain.utils.toFlowDataResource
@@ -20,9 +19,11 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.await
@@ -34,20 +35,26 @@ class PricesRepository(
     private val watchlistService: WatchlistService,
     private val remoteConfigService: RemoteConfigService
 ) : PricesService {
-    override fun allAssets(): Flow<DataResource<List<AssetPriceInfo>>> {
-        val tradableCurrenciesFlow = simpleBuyService.getSupportedBuySellCryptoCurrencies()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun assets(tradableOnly: Boolean): Flow<DataResource<List<AssetPriceInfo>>> {
+        val tradableCurrenciesAndPricesFlow = simpleBuyService.getSupportedBuySellCryptoCurrencies()
             .mapListData { it.source.networkTicker }
+            .flatMapLatest { tradablePickers ->
+                loadAssetsAndPrices(
+                    filterOnlyPickers = tradablePickers.dataOrElse(emptyList()).takeIf { tradableOnly }
+                ).map { prices ->
+                    tradablePickers to prices
+                }
+            }
 
         val watchlistFlow = watchlistService.getWatchlist()
             .mapData { (it + defaultWatchlist).distinct() }.mapListData { it.networkTicker }
 
-        val pricesFlow = loadAssetsAndPrices()
-
         return combine(
-            tradableCurrenciesFlow,
-            watchlistFlow,
-            pricesFlow
-        ) { tradableCurrencies, watchlist, prices ->
+            tradableCurrenciesAndPricesFlow,
+            watchlistFlow
+        ) { (tradableCurrencies, prices), watchlist ->
             prices.map { it.toList() }
                 .mapList { (asset, price) ->
                     AssetPriceInfo(
@@ -60,7 +67,21 @@ class PricesRepository(
         }.distinctUntilChanged()
     }
 
-    private fun loadAssetsAndPrices(): Flow<DataResource<Map<AssetInfo, DataResource<Prices24HrWithDelta>>>> {
+    override fun allAssets(): Flow<DataResource<List<AssetPriceInfo>>> {
+        return assets(tradableOnly = false)
+    }
+
+    override fun tradableAssets(): Flow<DataResource<List<AssetPriceInfo>>> {
+        return assets(tradableOnly = true)
+    }
+
+    /**
+     * @param filterOnlyPickers use to load only for select assets
+     * loading individual prices all and then filtering takes much more time - null to load all
+     */
+    private fun loadAssetsAndPrices(
+        filterOnlyPickers: List<String>?
+    ): Flow<DataResource<Map<AssetInfo, DataResource<Prices24HrWithDelta>>>> {
         // todo(othman) have to check why flow is behaving strange - for now keeping rx
 
         //        return coincore.availableCryptoAssetsFlow().flatMapData {
@@ -95,6 +116,11 @@ class PricesRepository(
         //        }
         return flow {
             coincore.availableCryptoAssets()
+                .map { allAssets ->
+                    filterOnlyPickers?.let {
+                        allAssets.filter { filterOnlyPickers.contains(it.networkTicker) }
+                    } ?: allAssets
+                }
                 .flatMap { assets ->
                     Single.concat(
                         assets.map { asset ->
@@ -120,10 +146,6 @@ class PricesRepository(
             }.subscribeOn(Schedulers.io()).onErrorReturn {
                 DataResource.Error(Exception())
             }
-    }
-
-    override fun tradableAssets(): Flow<DataResource<List<AssetPriceInfo>>> {
-        return allAssets().filterListData { it.isTradable }
     }
 
     override fun topMoversCount(): Flow<Int> {
@@ -159,7 +181,7 @@ class PricesRepository(
         private const val TOP_MOVERS_DEFAULT_COUNT = 4
         private const val KEY_MOST_POPULAR = "prices_most_popular"
         private const val MOST_POPULAR_SEPARATOR = ","
-        private const val KEY_PRICES_RISING_FAST_PERCENT = "prices_rising_fast_percent"
+        private const val KEY_PRICES_RISING_FAST_PERCENT = "blockchain_app_configuration_prices_rising_fast_percent"
         private const val PRICES_RISING_FAST_DEFAULT_PERCENT = 4.0
     }
 }

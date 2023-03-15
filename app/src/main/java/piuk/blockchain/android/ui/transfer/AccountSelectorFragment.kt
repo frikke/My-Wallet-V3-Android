@@ -182,7 +182,8 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
         doOnEmptyList()
     }
 
-    private fun doOnListLoaded(isEmpty: Boolean) {
+    private fun doOnListLoaded(accounts: List<AccountListViewItem>) {
+        val isEmpty = accounts.isEmpty()
         if (isEmpty) doOnEmptyList() else doOnListLoaded()
     }
 }

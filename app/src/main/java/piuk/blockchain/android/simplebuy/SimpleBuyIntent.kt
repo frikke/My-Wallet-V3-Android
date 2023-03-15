@@ -478,7 +478,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
                 } else {
                     RecurringBuyState.ACTIVE
                 },
-                hasQuoteChanged = oldState.quote?.id != null && (oldState.quote.id != quote.id)
+                hasQuoteChanged = oldState.quote == null || (oldState.quote.id != quote.id)
             )
     }
 
@@ -492,7 +492,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
                     brokerageQuote = quote,
                     fiatCurrency = currencySource as FiatCurrency
                 ),
-                hasQuoteChanged = oldState.quote?.id != null && (oldState.quote.id != quote.id)
+                hasQuoteChanged = oldState.quote == null || (oldState.quote.id != quote.id)
             )
     }
 

@@ -4,6 +4,8 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
+import com.blockchain.data.updateDataWith
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -13,7 +15,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class BuySelectAssetViewModel(
-    private val userFeaturePermissionService: UserFeaturePermissionService
+    private val userFeaturePermissionService: UserFeaturePermissionService,
+    private val topMoversInBuyFF: FeatureFlag
 ) : MviViewModel<BuySelectAssetIntent,
     BuySelectAssetViewState,
     BuySelectAssetModelState,
@@ -21,12 +24,24 @@ class BuySelectAssetViewModel(
     ModelConfigArgs.NoArgs>(
     BuySelectAssetModelState()
 ) {
+    init {
+        viewModelScope.launch {
+            val showTopMovers = topMoversInBuyFF.coEnabled()
+            updateState {
+                it.copy(showTopMovers = showTopMovers)
+            }
+        }
+    }
+
     private var eligibilityJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
     override fun reduce(state: BuySelectAssetModelState): BuySelectAssetViewState = state.run {
-        BuySelectAssetViewState(featureAccess = featureAccess)
+        BuySelectAssetViewState(
+            featureAccess = featureAccess,
+            showTopMovers = showTopMovers
+        )
     }
 
     override suspend fun handleIntent(
@@ -57,7 +72,7 @@ class BuySelectAssetViewModel(
             userFeaturePermissionService.getAccessForFeature(Feature.Buy)
                 .collectLatest { dataResource ->
                     updateState {
-                        it.copy(featureAccess = dataResource)
+                        it.copy(featureAccess = it.featureAccess.updateDataWith(dataResource))
                     }
                 }
         }

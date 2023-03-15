@@ -372,7 +372,8 @@ class PaymentsRepositoryTest {
             accountName = null,
             accountNumber = null,
             attributes = null,
-            bankAccountType = null
+            bankAccountType = null,
+            capabilities = null,
         )
         val fiatCurrency: FiatCurrency = mockk()
         every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns fiatCurrency

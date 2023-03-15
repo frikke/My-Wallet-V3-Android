@@ -14,6 +14,7 @@ import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.viewextensions.getTextString
@@ -79,8 +80,15 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                 onLoadError = {
                     hideTransferList()
                 }
-                onListLoaded = {
-                    if (it) hideTransferList()
+                onListLoaded = { accounts ->
+                    if (accounts.isEmpty()) hideTransferList()
+
+                    val uxErrors = accounts.mapNotNull {
+                        if (it.account !is LinkedBankAccount) return@mapNotNull null
+                        val error = it.account.capabilities?.withdrawal?.ux ?: return@mapNotNull null
+                        error
+                    }.distinct()
+                    binding.uxErrorsList.submitList(uxErrors)
                 }
             }
 

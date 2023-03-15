@@ -12,6 +12,7 @@ import com.blockchain.coincore.TxSourceState
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
+import com.blockchain.domain.paymentmethods.model.LinkedBankCapabilities
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -29,7 +30,8 @@ class LinkedBankAccount(
     val accountType: String,
     override val currency: FiatCurrency,
     val custodialWalletManager: CustodialWalletManager,
-    val type: PaymentMethodType
+    val type: PaymentMethodType,
+    val capabilities: LinkedBankCapabilities?,
 ) : FiatAccount, BankAccount {
 
     init {
