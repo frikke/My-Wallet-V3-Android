@@ -32,6 +32,7 @@ import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.home.presentation.allassets.CustodialAssetState
 import com.blockchain.home.presentation.allassets.FiatAssetState
 import com.blockchain.home.presentation.allassets.HomeAsset
+import com.blockchain.home.presentation.allassets.HomeCryptoAsset
 import com.blockchain.home.presentation.allassets.NonCustodialAssetState
 import com.blockchain.home.presentation.allassets.composable.BalanceWithFiatAndCryptoBalance
 import com.blockchain.home.presentation.allassets.composable.BalanceWithPriceChange
@@ -86,11 +87,12 @@ internal fun LazyListScope.homeAssets(
     paddedItem(
         paddingValues = PaddingValues(horizontal = 16.dp)
     ) {
+        val showSeeAll = data.filterIsInstance<HomeCryptoAsset>().isNotEmpty()
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
         TableRowHeader(
             title = stringResource(R.string.ma_home_assets_title),
-            actionTitle = stringResource(R.string.see_all),
-            actionOnClick = openCryptoAssets
+            actionTitle = stringResource(R.string.see_all).takeIf { showSeeAll },
+            actionOnClick = openCryptoAssets.takeIf { showSeeAll }
         )
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
     }
