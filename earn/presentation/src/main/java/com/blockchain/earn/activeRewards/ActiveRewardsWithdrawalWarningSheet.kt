@@ -10,6 +10,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,6 +39,9 @@ import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.earn.R
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.activeRewardsWithdrawalsFeatureFlag
+import org.koin.androidx.compose.get
 
 const val ACTIVE_REWARDS_LEARN_MORE_URL =
     "https://support.blockchain.com/hc/en-us/articles/6868491485724-What-is-Active-Rewards-"
@@ -78,7 +86,13 @@ fun ActiveRewardsWithdrawalWarning(
     onLearnMoreClicked: () -> Unit,
     onWithdrawDisabledLearnMoreClicked: () -> Unit,
     onNext: () -> Unit,
+    withdrawalsEnabledFF: FeatureFlag = get(activeRewardsWithdrawalsFeatureFlag)
 ) {
+
+    var withdrawalsEnabled by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        withdrawalsEnabled = withdrawalsEnabledFF.coEnabled()
+    }
 
     Column(
         modifier = Modifier
@@ -139,7 +153,9 @@ fun ActiveRewardsWithdrawalWarning(
 
             StandardVerticalSpacer()
 
-            ActiveRewardsWithdrawalNotice(onWithdrawDisabledLearnMoreClicked)
+            if (withdrawalsEnabled.not()) {
+                ActiveRewardsWithdrawalNotice(onWithdrawDisabledLearnMoreClicked)
+            }
         }
 
         PrimaryButton(
