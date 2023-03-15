@@ -97,7 +97,11 @@ class PricesViewModel(
                     )
                 }
                 .mapList {
-                    it.toPriceItemViewState(risingFastPercent = state.risingFastPercent)
+                    it.toPriceItemViewState(
+                        risingFastPercent = state.risingFastPercent,
+                        withNetwork = state.walletMode != WalletMode.CUSTODIAL ||
+                            state.filterBy != PricesFilter.Tradable
+                    )
                 }
                 .map {
                     it.groupBy {
@@ -125,13 +129,14 @@ class PricesViewModel(
     }
 
     private fun AssetPriceInfo.toPriceItemViewState(
-        risingFastPercent: Double
+        risingFastPercent: Double,
+        withNetwork: Boolean = true
     ): PriceItemViewState {
         return PriceItemViewState(
             asset = assetInfo,
             name = assetInfo.name,
             ticker = assetInfo.displayTicker,
-            network = assetInfo.takeIf { it.isLayer2Token }?.coinNetwork?.shortName,
+            network = assetInfo.takeIf { it.isLayer2Token }?.coinNetwork?.shortName?.takeIf { withNetwork },
             logo = assetInfo.logo,
             delta = price.map { ValueChange.fromValue(it.delta24h) },
             currentPrice = price.map {
