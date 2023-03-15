@@ -17,4 +17,8 @@ interface AnnouncementsService {
         announcement: Announcement,
         action: ConsumeAnnouncementAction
     )
+
+    suspend fun markAsSeen(
+        announcement: Announcement
+    )
 }

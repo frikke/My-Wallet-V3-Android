@@ -1,8 +1,8 @@
 package com.blockchain.api.services
 
+import com.blockchain.api.announcements.AnnouncementBodyDto
 import com.blockchain.api.announcements.AnnouncementsApi
 import com.blockchain.api.announcements.AnnouncementsDto
-import com.blockchain.api.announcements.ConsumeAnnouncementDto
 import io.reactivex.rxjava3.core.Single
 
 class AnnouncementsApiService internal constructor(
@@ -26,8 +26,16 @@ class AnnouncementsApiService internal constructor(
 
     suspend fun consumeAnnouncement(
         apiKey: String,
-        body: ConsumeAnnouncementDto,
+        body: AnnouncementBodyDto,
     ) = api.consumeAnnouncement(
+        apiKey = apiKey,
+        body = body
+    )
+
+    suspend fun seenAnnouncement(
+        apiKey: String,
+        body: AnnouncementBodyDto,
+    ) = api.seenAnnouncement(
         apiKey = apiKey,
         body = body
     )
