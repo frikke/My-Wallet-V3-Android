@@ -150,7 +150,7 @@ fun CoinviewScreen(
 
     quickActionsCenter: DataResource<List<CoinviewQuickActionState>>,
 
-    recurringBuys: CoinviewRecurringBuysState,
+    recurringBuys: DataResource<CoinviewRecurringBuysState?>,
     onRecurringBuyUpsellClick: () -> Unit,
     onRecurringBuyItemClick: (String) -> Unit,
 
@@ -354,7 +354,7 @@ fun PreviewCoinviewScreen() {
 
         quickActionsCenter = DataResource.Loading,
 
-        recurringBuys = CoinviewRecurringBuysState.Loading,
+        recurringBuys = DataResource.Loading,
         onRecurringBuyUpsellClick = {},
         onRecurringBuyItemClick = {},
 
@@ -396,7 +396,7 @@ fun PreviewCoinviewScreen_Unknown() {
 
         quickActionsCenter = DataResource.Loading,
 
-        recurringBuys = CoinviewRecurringBuysState.Loading,
+        recurringBuys = DataResource.Loading,
         onRecurringBuyUpsellClick = {},
         onRecurringBuyItemClick = {},
 

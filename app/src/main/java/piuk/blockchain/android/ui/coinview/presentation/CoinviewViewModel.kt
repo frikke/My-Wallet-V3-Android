@@ -445,32 +445,24 @@ class CoinviewViewModel(
         assetColor = asset.currency.colour
     )
 
-    private fun reduceRecurringBuys(state: CoinviewModelState): CoinviewRecurringBuysState = state.run {
-        when {
-            // not supported for non custodial
-            isTradeableAsset == false || walletMode == WalletMode.NON_CUSTODIAL -> {
-                CoinviewRecurringBuysState.NotSupported
-            }
-
-            recurringBuys is DataResource.Loading -> {
-                CoinviewRecurringBuysState.Loading
-            }
-
-            recurringBuys is DataResource.Error -> {
-                CoinviewRecurringBuysState.Error
-            }
-
-            recurringBuys is DataResource.Data -> {
+    private fun reduceRecurringBuys(
+        state: CoinviewModelState
+    ): DataResource<CoinviewRecurringBuysState?> = state.run {
+        recurringBuys.map {
+            if (isTradeableAsset == false || walletMode == WalletMode.NON_CUSTODIAL) {
+                // not supported for non custodial
+                null
+            } else {
                 check(asset != null) { "asset not initialized" }
 
-                with(recurringBuys.data) {
+                with(it) {
                     when {
                         data.isEmpty() && isAvailableForTrading -> {
                             CoinviewRecurringBuysState.Upsell
                         }
 
-                        data.isEmpty() && isAvailableForTrading.not() -> {
-                            CoinviewRecurringBuysState.NotSupported
+                        data.isEmpty() -> {
+                            null
                         }
 
                         else -> CoinviewRecurringBuysState.Data(
@@ -504,10 +496,6 @@ class CoinviewViewModel(
                         )
                     }
                 }
-            }
-
-            else -> {
-                CoinviewRecurringBuysState.Loading
             }
         }
     }
