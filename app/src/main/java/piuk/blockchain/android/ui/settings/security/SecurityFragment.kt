@@ -24,6 +24,7 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.presentation.backup.BackupPhraseActivity
 import com.blockchain.presentation.koin.scopedInject
+import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.biometrics.BiometricPromptUtil
 import piuk.blockchain.android.data.biometrics.BiometricsController
@@ -358,7 +359,7 @@ class SecurityFragment :
     }
 
     override fun onActionOnWebTwoFa() {
-        onWebWalletOpenResult.launch(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.$WEB_WALLET_LOGIN_URI")))
+        onWebWalletOpenResult.launch(Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.WEB_WALLET_URL)))
     }
 
     override fun onPositiveActionClicked(sheetMode: BiometricsInfoSheet.Companion.BiometricSheetMode) {

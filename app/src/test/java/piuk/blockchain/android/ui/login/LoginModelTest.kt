@@ -48,7 +48,8 @@ class LoginModelTest {
             remoteLogger = mock(),
             interactor = interactor,
             getAppMaintenanceConfigUseCase,
-            analytics = mock()
+            analytics = mock(),
+            authPrefs = mock(),
         )
     }
 

@@ -1,11 +1,13 @@
 package piuk.blockchain.android.ui.login
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import androidx.activity.addCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
@@ -43,6 +45,7 @@ import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
 import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.launcher.LauncherActivityV2
 import piuk.blockchain.android.ui.login.auth.LoginAuthActivity
+import piuk.blockchain.android.ui.login.auth.LoginAuthActivity.Companion.RESULT_BACK_FROM_RECOVERY
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.settings.security.pin.PinActivity
@@ -71,6 +74,14 @@ class LoginActivity :
 
     private val recaptchaClient: GoogleReCaptchaClient by lazy {
         GoogleReCaptchaClient(this, environmentConfig)
+    }
+
+    private val loginAuthResult = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        if(it.resultCode == RESULT_BACK_FROM_RECOVERY) {
+            model.process(LoginIntents.RevertToEmailInput)
+        }
     }
 
     private var state: LoginState? = null
@@ -240,13 +251,16 @@ class LoginActivity :
             LoginStep.SHOW_EMAIL_ERROR -> showSnackbar(SnackbarType.Error, R.string.login_send_email_error)
             LoginStep.NAVIGATE_FROM_DEEPLINK -> {
                 newState.intentUri?.let { uri ->
-                    startActivity(Intent(newState.intentAction, uri, this, LoginAuthActivity::class.java))
+                    loginAuthResult.launch(
+                        Intent(newState.intentAction, uri, this, LoginAuthActivity::class.java)
+                    )
                 }
             }
             LoginStep.NAVIGATE_FROM_PAYLOAD -> {
                 newState.payload?.let {
-                    startActivity(LoginAuthActivity.newInstance(this, it, newState.payloadBase64String))
-                    model.process(LoginIntents.ShowEmailSent)
+                    loginAuthResult.launch(
+                        LoginAuthActivity.newInstance(this, it, newState.payloadBase64String)
+                    )
                 }
             }
             LoginStep.NAVIGATE_TO_WALLET_CONNECT -> {

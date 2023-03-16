@@ -2349,7 +2349,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="resend_email_cta">Send Again</string>
     <string name="login_wallet_id_text">Wallet: %s</string>
     <string name="login_password_hint">Password</string>
-    <string name="forgot_password_label">Trouble logging in?</string>
+    <string name="forgot_password_label">Forgot your password?</string>
     <string name="two_factor_auth_title">Authorize login</string>
     <string name="two_factor_code_hint">2FA code</string>
     <string name="invalid_two_fa_code">Invalid 2FA code</string>
