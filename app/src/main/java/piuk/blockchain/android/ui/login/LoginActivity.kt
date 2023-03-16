@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.login
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
@@ -79,7 +78,7 @@ class LoginActivity :
     private val loginAuthResult = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) {
-        if(it.resultCode == RESULT_BACK_FROM_RECOVERY) {
+        if (it.resultCode == RESULT_BACK_FROM_RECOVERY) {
             model.process(LoginIntents.RevertToEmailInput)
         }
     }

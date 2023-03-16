@@ -38,7 +38,6 @@ import piuk.blockchain.android.ui.settings.sheets.BackupPhraseInfoSheet
 import piuk.blockchain.android.ui.settings.sheets.BiometricsInfoSheet
 import piuk.blockchain.android.ui.settings.sheets.TwoFactorInfoSheet
 import piuk.blockchain.android.ui.settings.sheets.sms.SMSPhoneVerificationBottomSheet
-import piuk.blockchain.android.urllinks.WEB_WALLET_LOGIN_URI
 
 class SecurityFragment :
     MviFragment<SecurityModel, SecurityIntent, SecurityState, FragmentSecurityBinding>(),

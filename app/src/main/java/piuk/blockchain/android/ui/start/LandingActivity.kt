@@ -113,7 +113,7 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
             }
         }
 
-        if(intent.getBooleanExtra(REDIRECT_TO_LOGIN, false)){
+        if (intent.getBooleanExtra(REDIRECT_TO_LOGIN, false)) {
             launchSSOLoginActivity()
         }
     }
