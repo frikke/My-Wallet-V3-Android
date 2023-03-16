@@ -5,44 +5,38 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.icon.StackedIcons
+import com.blockchain.componentlib.icon.CustomStackedIcon
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
-fun ActionStackedIconTableRow(
+fun SingleIconTableRow(
     primaryText: String,
-    onClick: () -> Unit,
-    topImageResource: ImageResource,
-    bottomImageResource: ImageResource,
+    onClick: () -> Unit = {},
+    imageResource: ImageResource.LocalWithBackground,
     secondaryText: String? = null,
-    endImageResource: ImageResource = ImageResource.Local(
-        id = R.drawable.ic_chevron_end,
-        contentDescription = null
-    ),
+    endImageResource: ImageResource = ImageResource.None,
+    backgroundColor: Color = AppTheme.colors.background
 ) {
     TableRow(
         contentStart = {
-            StackedIcons(
-                topImageResource = topImageResource,
-                bottomImageResource = bottomImageResource,
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(end = dimensionResource(R.dimen.medium_spacing))
+            CustomStackedIcon(
+                icon = StackedIcon.SingleIcon(imageResource),
+                iconBackground = imageResource.backgroundColor
             )
         },
         content = {
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(end = 8.dp)
+                    .padding(horizontal = AppTheme.dimensions.smallSpacing)
             ) {
                 Text(
                     text = primaryText,
@@ -67,43 +61,24 @@ fun ActionStackedIconTableRow(
                 ),
             )
         },
-        onContentClicked = onClick
+        onContentClicked = onClick,
+        backgroundColor = backgroundColor
     )
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
-fun ActionStackedIconTableRowPreview() {
+fun SingleIconTableRowPreview() {
     AppTheme {
-        ActionStackedIconTableRow(
+        SingleIconTableRow(
             primaryText = "Primary Text",
-            secondaryText = "Secondary Text",
-            onClick = {},
-            topImageResource = ImageResource.Local(
-                id = R.drawable.ic_eth,
-                contentDescription = null
+            imageResource = ImageResource.LocalWithBackground(
+                id = R.drawable.ic_blockchain,
+                contentDescription = null,
+                backgroundColor = AppTheme.colors.light,
+                iconColor = AppTheme.colors.title
             ),
-            bottomImageResource = ImageResource.Local(
-                id = R.drawable.send_on,
-                contentDescription = null
-            ),
-        )
-    }
-}
-
-@Preview
-@Composable
-fun ActionSingleIconTableRowPreview() {
-    AppTheme {
-        ActionStackedIconTableRow(
-            primaryText = "Primary Text",
-            secondaryText = "Secondary Text",
-            onClick = {},
-            topImageResource = ImageResource.Local(
-                id = R.drawable.ic_eth,
-                contentDescription = null
-            ),
-            bottomImageResource = ImageResource.None,
+            secondaryText = "Secondary Text"
         )
     }
 }

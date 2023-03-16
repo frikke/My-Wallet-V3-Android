@@ -5,6 +5,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardNavigationEvent
+import com.blockchain.earn.dashboard.viewmodel.EarnType
 import info.blockchain.balance.AssetInfo
 
 interface EarnNavigation {
@@ -27,4 +28,6 @@ interface EarnNavigation {
     fun launchReceive(cryptoTicker: String)
 
     fun startKycClicked()
+
+    fun openProductComparatorBottomSheet(earnProducts: List<EarnType>)
 }
