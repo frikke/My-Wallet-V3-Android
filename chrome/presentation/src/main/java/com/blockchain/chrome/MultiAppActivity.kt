@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.graphics.Color
+import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -26,6 +27,8 @@ import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.navigation.DestinationArgs
+import com.blockchain.deeplinking.processor.DeepLinkResult
+import com.blockchain.deeplinking.processor.DeeplinkProcessorV2
 import com.blockchain.domain.auth.SecureChannelService
 import com.blockchain.domain.paymentmethods.model.LINKED_BANK_ID_KEY
 import com.blockchain.earn.activeRewards.ActiveRewardsSummaryBottomSheet
@@ -73,6 +76,7 @@ import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx3.await
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
 import org.koin.core.parameter.parametersOf
@@ -130,6 +134,8 @@ class MultiAppActivity :
             this
         )
     }
+
+    private val deeplinkProcessor: DeeplinkProcessorV2 by scopedInject()
 
     private lateinit var qrScanNavigation: QrScanNavigation
     private lateinit var settingsNavigation: SettingsNavigation
@@ -203,7 +209,8 @@ class MultiAppActivity :
                 supportNavigation = supportNavigation,
                 nftNavigation = nftNavigation,
                 earnNavigation = earnNavigation,
-                openExternalUrl = ::openExternalUrl
+                openExternalUrl = ::openExternalUrl,
+                processAnnouncementUrl = ::processAnnouncementUrl
             )
         }
         handleIntent(intent)
@@ -219,6 +226,24 @@ class MultiAppActivity :
             lifecycleScope.launch {
                 deeplinkNavigationHandler.checkDeeplinkDestination(intent)
             }
+        }
+    }
+
+    private fun processAnnouncementUrl(url: String) {
+        lifecycleScope.launch {
+            deeplinkProcessor.process(url.toUri())
+                .onErrorReturn { DeepLinkResult.DeepLinkResultUnknownLink() }
+                .await()
+                .let { result ->
+                    when (result) {
+                        is DeepLinkResult.DeepLinkResultSuccess -> {
+                            navigateToDeeplinkDestination(result.destination)
+                        }
+                        is DeepLinkResult.DeepLinkResultUnknownLink -> {
+                            // check url format and open ext link
+                        }
+                    }
+                }
         }
     }
 
