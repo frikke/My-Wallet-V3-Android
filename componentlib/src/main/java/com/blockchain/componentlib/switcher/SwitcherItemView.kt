@@ -27,7 +27,7 @@ class SwitcherItemView @JvmOverloads constructor(
         )
     )
     var switcherState by mutableStateOf(SwitcherState.Enabled)
-    var indicator : SwitcherItemIndicator? by mutableStateOf(null)
+    var indicator: SwitcherItemIndicator? by mutableStateOf(null)
     var onClick by mutableStateOf({})
 
     @Composable

@@ -278,12 +278,11 @@ class PrefsUtil(
             setValue(KEY_FIRST_TIME_BUYER, value)
         }
 
-     override var hasSeenRecurringBuyOptions: Boolean
+    override var hasSeenRecurringBuyOptions: Boolean
         get() = getValue(KEY_HAS_SEEN_RB_OPTIONS, false)
         set(value) {
             setValue(KEY_HAS_SEEN_RB_OPTIONS, value)
         }
-
 
     override var tradingCurrency: FiatCurrency?
         get() = assetCatalogue.fromNetworkTicker(getValue(KEY_SIMPLE_BUY_CURRENCY, "")) as? FiatCurrency
