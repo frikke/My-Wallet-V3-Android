@@ -15,6 +15,7 @@ import io.intercom.android.sdk.Intercom
 import piuk.blockchain.android.ui.auth.LogoutActivity
 import piuk.blockchain.android.ui.launcher.LauncherActivityV2
 import piuk.blockchain.android.ui.launcher.loader.LoginMethod
+import piuk.blockchain.android.ui.start.LandingActivity
 
 class AppUtil(
     private val context: Context,
@@ -52,15 +53,18 @@ class AppUtil(
         sessionPrefs.clear()
     }
 
-    fun clearCredentialsAndRestart() {
+    fun clearCredentialsAndRestart(
+        redirectLandingToLogin: Boolean = false
+    ) {
         clearCredentials()
-        restartApp()
+        restartApp(redirectLandingToLogin = redirectLandingToLogin)
     }
 
-    override fun restartApp() {
+    override fun restartApp(redirectLandingToLogin: Boolean) {
         context.startActivity(
             Intent(context, LauncherActivityV2::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                putExtra(LandingActivity.REDIRECT_TO_LOGIN, redirectLandingToLogin)
             }
         )
     }
