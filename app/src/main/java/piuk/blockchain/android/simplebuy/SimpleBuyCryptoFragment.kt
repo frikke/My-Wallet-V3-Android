@@ -22,6 +22,7 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Pending
 import com.blockchain.componentlib.switcher.SwitcherItemIndicator
 import com.blockchain.componentlib.switcher.SwitcherState
 import com.blockchain.componentlib.tablerow.DefaultTableRowView
