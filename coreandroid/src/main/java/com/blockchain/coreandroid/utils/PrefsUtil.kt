@@ -30,6 +30,7 @@ import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.PricesPrefs
+import com.blockchain.preferences.RecurringBuyPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SecureChannelPrefs
@@ -72,6 +73,7 @@ class PrefsUtil(
     SmallBalancesPrefs,
     DexPrefs,
     SimpleBuyPrefs,
+    RecurringBuyPrefs,
     WalletStatusPrefs,
     TransactionPrefs,
     EncryptedPrefs,
@@ -275,6 +277,13 @@ class PrefsUtil(
         set(value) {
             setValue(KEY_FIRST_TIME_BUYER, value)
         }
+
+     override var hasSeenRecurringBuyOptions: Boolean
+        get() = getValue(KEY_HAS_SEEN_RB_OPTIONS, false)
+        set(value) {
+            setValue(KEY_HAS_SEEN_RB_OPTIONS, value)
+        }
+
 
     override var tradingCurrency: FiatCurrency?
         get() = assetCatalogue.fromNetworkTicker(getValue(KEY_SIMPLE_BUY_CURRENCY, "")) as? FiatCurrency
@@ -838,6 +847,7 @@ class PrefsUtil(
         private const val KEY_SIMPLE_BUY_STATE = "key_simple_buy_state_2"
         private const val KEY_CARD_STATE = "key_card_state"
         private const val KEY_FIRST_TIME_BUYER = "key_first_time_buyer"
+        private const val KEY_HAS_SEEN_RB_OPTIONS = "key_has_seen_rb_options"
         private const val KEY_SIMPLE_BUY_CURRENCY = "key_trading_urrency_currency"
         private const val KEY_HAS_COMPLETED_AT_LEAST_ONE_BUY = "has_completed_at_least_one_buy"
         private const val KEY_BUYS_COMPLETED_COUNT = "KEY_BUYS_COMPLETED_COUNT"
