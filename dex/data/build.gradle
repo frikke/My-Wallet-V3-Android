@@ -5,8 +5,11 @@ apply from: rootProject.file('gradle/local/common-feature-domain.gradle')
 dependencies {
     implementation project(':common:interface')
     implementation project(':dex:domain')
+    implementation project(':blockchainApi')
     implementation project(':coincore')
     implementation project(':core')
+    implementation project(":store:caches:persistedjsonsqldelight")
+    implementation project(":store:core")
 
     // rx
     implementation Libraries.rxKotlin

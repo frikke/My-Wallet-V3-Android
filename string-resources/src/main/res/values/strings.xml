@@ -3545,6 +3545,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="select_token">Select Token</string>
     <string name="common_requested">Requested</string>
     <string name="earn_active_rewards_withdrawal_close_date">Next Saturday</string>
+    <string name="your_assets">Your Assets</string>
+    <string name="all_tokens">All Tokens</string>
     <string name="earn_passive_rewards_description">Earn rewards for simply holding an asset for a longer period of time.</string>
     <string name="earn_staking_rewards_description">Earn rewards by holding an asset and securing networks.</string>
     <string name="earn_active_rewards_description">Earn rewards by holding an asset and forecasting the market.</string>

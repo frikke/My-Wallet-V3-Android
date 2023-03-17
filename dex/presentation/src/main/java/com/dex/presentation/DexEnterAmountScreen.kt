@@ -65,6 +65,8 @@ import com.blockchain.preferences.DexPrefs
 import com.dex.presentation.graph.DexDestination
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
+import java.text.DecimalFormatSymbols
+import java.util.Locale
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
@@ -115,6 +117,10 @@ fun DexEnterAmountScreen(
                     navController.navigate(DexDestination.SelectSourceAccount.route)
                     keyboardController?.hide()
                 },
+                selectDestinationAccount = {
+                    navController.navigate(DexDestination.SelectDestinationAccount.route)
+                    keyboardController?.hide()
+                },
                 viewState = viewState,
                 onValueChanged = {
                     viewModel.onIntent(InputAmountIntent.AmountUpdated(it.text))
@@ -124,17 +130,17 @@ fun DexEnterAmountScreen(
     }
 }
 
-/*
-*https://stackoverflow.com/questions/67846021/jetpack
-* -compose-equivalent-to-inputfilter
-*
-* */
 @Composable
 fun InputField(
     selectSourceAccount: () -> Unit,
+    selectDestinationAccount: () -> Unit,
     onValueChanged: (TextFieldValue) -> Unit,
     viewState: InputAmountViewState
 ) {
+
+    val decimalSeparator = DecimalFormatSymbols(Locale.getDefault()).decimalSeparator.toString()
+    val regex = "-?\\d+(\\.\\d+)?".toRegex()
+
     var input by remember { mutableStateOf(TextFieldValue()) }
     var size by remember { mutableStateOf(IntSize.Zero) }
     Box {
@@ -154,8 +160,10 @@ fun InputField(
                         isReadOnly = false,
                         input = input,
                         onValueChanged = {
-                            input = it
-                            onValueChanged(it)
+                            if (it.text.isEmpty() || it.text.toDoubleOrNull() != null) {
+                                input = it
+                                onValueChanged(it)
+                            }
                         },
                         onClick = selectSourceAccount,
                         currency = viewState.sourceCurrency
@@ -183,7 +191,7 @@ fun InputField(
                         isReadOnly = true,
                         input = input,
                         onValueChanged = {},
-                        onClick = selectSourceAccount,
+                        onClick = selectDestinationAccount,
                         currency = viewState.destinationCurrency
                     )
                     Row {
@@ -234,7 +242,7 @@ private fun RowScope.MaxAmount(maxAvailable: Money) {
         )
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
         Text(
-            text = maxAvailable?.toStringWithSymbol().orEmpty(),
+            text = maxAvailable.toStringWithSymbol(),
             style = AppTheme.typography.micro2,
             color = Blue600
         )

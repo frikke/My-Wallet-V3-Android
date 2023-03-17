@@ -22,7 +22,7 @@ import org.koin.core.component.get
 class PersistedJsonSqlDelightStoreBuilder : KoinComponent {
 
     @OptIn(DelicateCoroutinesApi::class)
-    fun <T : Any> build(
+    inline fun <reified T : Any> build(
         storeId: StoreId,
         fetcher: Fetcher<Unit, T>,
         dataSerializer: KSerializer<T>,
