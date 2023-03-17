@@ -44,6 +44,7 @@ import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.network.PollResult
 import com.blockchain.outcome.getOrElse
 import com.blockchain.payments.core.CardAcquirer
+import com.blockchain.preferences.RecurringBuyPrefs
 import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
@@ -89,6 +90,7 @@ class SimpleBuyModel(
     private val getSafeConnectTosLinkUseCase: GetSafeConnectTosLinkUseCase,
     private val appRatingService: AppRatingService,
     private val cardPaymentAsyncFF: FeatureFlag,
+    private val recurringBuyPrefs: RecurringBuyPrefs,
 ) : MviModel<SimpleBuyState, SimpleBuyIntent>(
     initialState = serializer.fetch() ?: initialState.withSelectedFiatCurrency(fiatCurrenciesService),
     uiScheduler = uiScheduler,
@@ -612,6 +614,18 @@ class SimpleBuyModel(
                 } else {
                     null
                 }
+            }
+            SimpleBuyIntent.LoadRecurringBuyOptionsSeenState -> {
+                process(
+                    SimpleBuyIntent.RecurringBuyOptionsSeenStateLoaded(
+                        seen = recurringBuyPrefs.hasSeenRecurringBuyOptions
+                    )
+                )
+                null
+            }
+            SimpleBuyIntent.RecurringBuyOptionsSeen -> {
+                recurringBuyPrefs.hasSeenRecurringBuyOptions = true
+                null
             }
             else -> null
         }

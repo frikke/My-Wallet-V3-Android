@@ -695,4 +695,18 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
         override fun isValidFor(oldState: SimpleBuyState) = !oldState.orderFinishedSuccessfullyHandled
     }
+
+    object LoadRecurringBuyOptionsSeenState : SimpleBuyIntent()
+
+    data class RecurringBuyOptionsSeenStateLoaded(val seen: Boolean) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(hasSeenRecurringBuyOptions = seen)
+    }
+
+    object RecurringBuyOptionsSeen : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(hasSeenRecurringBuyOptions = true)
+
+        override fun isValidFor(oldState: SimpleBuyState) = !oldState.hasSeenRecurringBuyOptions
+    }
 }
