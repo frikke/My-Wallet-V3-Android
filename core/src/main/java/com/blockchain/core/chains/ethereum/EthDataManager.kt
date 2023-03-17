@@ -39,7 +39,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.HashMap
 import org.web3j.crypto.RawTransaction
@@ -328,28 +327,28 @@ class EthDataManager(
 
     fun getFeesForEvmTx(l1Chain: String) = rxSingleOutcome {
         val defaultFeeForEvm = FeeOptions.defaultForEvm(l1Chain)
-        nonCustodialEvmService.getFeeLevels(l1Chain).map { feeLevels ->
+        nonCustodialEvmService.getFeeLevels(l1Chain).map { fees ->
             FeeOptions(
-                gasLimit = defaultFeeForEvm.gasLimit,
+                gasLimit = fees.gasLimit.toLong(),
                 regularFee = getFeeForLevel(
-                    feeLevels = feeLevels,
+                    feeLevels = fees.feeLevels,
                     feeLevel = FeeLevel.NORMAL,
                     defaultFeeForLevel = defaultFeeForEvm.regularFee
                 ),
-                gasLimitContract = defaultFeeForEvm.gasLimitContract,
+                gasLimitContract = fees.gasLimitContract.toLong(),
                 priorityFee = getFeeForLevel(
-                    feeLevels = feeLevels,
+                    feeLevels = fees.feeLevels,
                     feeLevel = FeeLevel.HIGH,
                     defaultFeeForLevel = defaultFeeForEvm.priorityFee
                 ),
                 limits = FeeLimits(
                     min = getFeeForLevel(
-                        feeLevels = feeLevels,
+                        feeLevels = fees.feeLevels,
                         feeLevel = FeeLevel.LOW,
                         defaultFeeForLevel = defaultFeeForEvm.limits?.min ?: DEFAULT_MIN_FEE
                     ),
                     max = getFeeForLevel(
-                        feeLevels = feeLevels,
+                        feeLevels = fees.feeLevels,
                         feeLevel = FeeLevel.HIGH,
                         defaultFeeForLevel = defaultFeeForEvm.limits?.max ?: DEFAULT_MAX_FEE
                     )
@@ -359,8 +358,13 @@ class EthDataManager(
     }
         .applySchedulers()
 
-    private fun getFeeForLevel(feeLevels: Map<FeeLevel, BigDecimal>, feeLevel: FeeLevel, defaultFeeForLevel: Long) =
-        feeLevels[feeLevel]?.let { Convert.fromWei(it, Convert.Unit.GWEI).toLong() } ?: defaultFeeForLevel
+    private fun getFeeForLevel(feeLevels: Map<FeeLevel, BigInteger?>, feeLevel: FeeLevel, defaultFeeForLevel: Long) =
+        feeLevels[feeLevel]?.let {
+            Convert.fromWei(
+                it.toBigDecimal(),
+                Convert.Unit.GWEI
+            ).toLong()
+        } ?: defaultFeeForLevel
 
     fun pushEvmTx(signedTxBytes: ByteArray, l1Chain: String): Single<String> =
         rxSingleOutcome {
