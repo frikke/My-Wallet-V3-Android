@@ -28,7 +28,10 @@ class DexTransactionProcessor {
                         sourceAccount.currency,
                         current.toBigDecimal()
                     )
-                }
+                },
+                destinationAccount = if (dexTx.destinationAccount?.currency == sourceAccount.currency) {
+                    null
+                } else dexTx.destinationAccount
             )
         }
     }

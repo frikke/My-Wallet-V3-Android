@@ -410,11 +410,11 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             is NonCustodialAccount ->
                 Maybe.concat(
                     listOf(
-                        getExchangeTargets(),
-                        getInterestTargets(),
-                        getTradingTargets(),
-                        getNonCustodialTargets(exclude = account),
-                        getStakingTargets()
+                        getExchangeTargets().onErrorReturnItem(emptyList()),
+                        getInterestTargets().onErrorReturnItem(emptyList()),
+                        getTradingTargets().onErrorReturnItem(emptyList()),
+                        getNonCustodialTargets(exclude = account).onErrorReturnItem(emptyList()),
+                        getStakingTargets().onErrorReturnItem(emptyList())
                     )
                 ).toList()
                     .map { ll -> ll.flatten() }

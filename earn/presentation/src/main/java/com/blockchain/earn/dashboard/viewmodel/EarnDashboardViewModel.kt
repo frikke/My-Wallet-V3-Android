@@ -123,8 +123,25 @@ class EarnDashboardViewModel(
                     earnType = intent.earnAsset.type,
                     assetTicker = intent.earnAsset.assetTicker
                 )
-            is EarnDashboardIntent.CarouselLearnMoreSelected ->
-                navigate(EarnDashboardNavigationEvent.OpenUrl(intent.url))
+            is EarnDashboardIntent.LaunchProductComparator -> {
+                modelState.earnData?.let {
+                    val earnProducts = mutableListOf<EarnType>().apply {
+                        if (it.interestEligibility.any { it.value == EarnRewardsEligibility.Eligible }) {
+                            add(EarnType.Passive)
+                        }
+                        if (it.stakingEligibility.any { it.value == EarnRewardsEligibility.Eligible }) {
+                            add(EarnType.Staking)
+                        }
+                        if (it.activeRewardsEligibility.any { it.value == EarnRewardsEligibility.Eligible }) {
+                            add(EarnType.Active)
+                        }
+                    }
+
+                    if (earnProducts.isNotEmpty())
+                        navigate(EarnDashboardNavigationEvent.OpenProductComparator(earnProducts = earnProducts))
+                } ?: Timber.w("Unable to launch Earn Product Comparator. Earn data is null")
+            }
+
             EarnDashboardIntent.StartKycClicked -> navigate(EarnDashboardNavigationEvent.OpenKyc)
             is EarnDashboardIntent.OnNavigateToAction -> {
                 when (intent.action) {

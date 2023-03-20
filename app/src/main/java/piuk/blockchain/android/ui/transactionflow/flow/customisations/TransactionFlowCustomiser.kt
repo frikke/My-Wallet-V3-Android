@@ -837,7 +837,7 @@ class TransactionFlowCustomiserImpl(
             TransactionErrorState.NONE -> ""
             TransactionErrorState.INSUFFICIENT_FUNDS -> resources.getString(
                 R.string.not_enough_funds,
-                state.amount.currencyCode
+                state.amount.currency.displayTicker
             )
             TransactionErrorState.INVALID_AMOUNT -> resources.getString(
                 R.string.send_enter_amount_error_invalid_amount_1,
@@ -850,7 +850,7 @@ class TransactionFlowCustomiserImpl(
             )
             TransactionErrorState.INVALID_ADDRESS -> resources.getString(
                 R.string.send_error_not_valid_asset_address,
-                (state.sendingAccount as SingleAccount).uiCurrency()
+                state.sendingAccount.uiCurrency()
             )
             TransactionErrorState.INVALID_DOMAIN -> resources.getString(
                 R.string.send_error_invalid_domain

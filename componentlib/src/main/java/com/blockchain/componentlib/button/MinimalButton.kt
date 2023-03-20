@@ -22,6 +22,8 @@ fun MinimalButton(
     shape: Shape = AppTheme.shapes.extraLarge,
     icon: ImageResource = ImageResource.None,
     minHeight: Dp = 48.dp,
+    isTransparent: Boolean = true,
+    backgroundColour: Color = AppTheme.colors.background,
 ) {
     OutlinedButton(
         text = text,
@@ -30,6 +32,11 @@ fun MinimalButton(
         state = state,
         shape = shape,
         icon = icon,
+        backgroundColour = if (isTransparent) {
+            Color.Unspecified
+        } else {
+            backgroundColour
+        },
         buttonContent = {
                 state: ButtonState,
                 text: String,

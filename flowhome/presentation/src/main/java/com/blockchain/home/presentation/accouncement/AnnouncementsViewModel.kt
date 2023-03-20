@@ -17,11 +17,13 @@ import com.blockchain.data.updateDataWith
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.extensions.minus
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.home.announcements.Announcement
 import com.blockchain.home.announcements.AnnouncementsService
 import com.blockchain.home.announcements.ConsumeAnnouncementAction
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.presentation.pulltorefresh.PullToRefresh
+import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Job
@@ -54,17 +56,20 @@ class AnnouncementsViewModel(
                 updateState {
                     it.copy(walletMode = walletMode)
                 }
-                updateRemoteAnnouncementsConfirmation(withDelay = false)
+
+                updateRemoteAnnouncementsConfirmation(
+                    announcements = modelState.remoteAnnouncements,
+                    withDelay = false
+                )
             }
         }
     }
 
     override fun reduce(state: AnnouncementModelState): AnnouncementsViewState = state.run {
         AnnouncementsViewState(
-            remoteAnnouncements = remoteAnnouncements.filter {
-                it.eligibleModes.contains(walletMode)
-            },
+            remoteAnnouncements = remoteAnnouncements.forMode(walletMode),
             hideAnnouncementsConfirmation = hideAnnouncementsConfirmation,
+            animateHideAnnouncementsConfirmation = animateHideAnnouncementsConfirmation,
             localAnnouncements = localAnnouncements
         )
     }
@@ -77,12 +82,32 @@ class AnnouncementsViewModel(
             }
 
             is AnnouncementsIntent.DeleteAnnouncement -> {
-                updateRemoteAnnouncementsConfirmation(withDelay = true)
+                updateRemoteAnnouncementsConfirmation(
+                    announcements = modelState.remoteAnnouncements.remove(intent.announcement)
+                )
 
                 viewModelScope.launch {
                     announcementsService.consumeAnnouncement(
                         announcement = intent.announcement,
                         action = ConsumeAnnouncementAction.DELETED
+                    )
+                }
+            }
+
+            is AnnouncementsIntent.AnnouncementClicked -> {
+                updateRemoteAnnouncementsConfirmation(
+                    announcements = modelState.remoteAnnouncements.remove(intent.announcement)
+                )
+
+                viewModelScope.launch {
+                    // track clicked + consume so backend removes it from future responses
+                    announcementsService.trackClicked(
+                        announcement = intent.announcement
+                    )
+
+                    announcementsService.consumeAnnouncement(
+                        announcement = intent.announcement,
+                        action = ConsumeAnnouncementAction.CLICKED
                     )
                 }
             }
@@ -103,9 +128,25 @@ class AnnouncementsViewModel(
                         RefreshStrategy.RefreshIfOlderThan(amount = 15, unit = TimeUnit.MINUTES)
                     )
                 ).collectLatest { dataResource ->
-                    updateState {
-                        it.copy(remoteAnnouncements = it.remoteAnnouncements.updateDataWith(dataResource))
+                    val sorted = dataResource.map {
+                        it.sortedWith(
+                            compareByDescending<Announcement> { it.priority }
+                                .thenByDescending { it.createdAt }
+                        )
                     }
+                    updateState {
+                        it.copy(remoteAnnouncements = it.remoteAnnouncements.updateDataWith(sorted))
+                    }
+
+                    updateRemoteAnnouncementsConfirmation(
+                        announcements = sorted.forMode(modelState.walletMode)
+                    )
+
+                    // mark latest as seen since it's shown first
+                    (sorted.forMode(modelState.walletMode).map { it.lastOrNull() } as? DataResource.Data)
+                        ?.data?.let {
+                            announcementsService.trackSeen(it)
+                        }
                 }
             } else {
                 updateState {
@@ -115,11 +156,14 @@ class AnnouncementsViewModel(
         }
     }
 
-    private fun updateRemoteAnnouncementsConfirmation(withDelay: Boolean) {
+    private fun updateRemoteAnnouncementsConfirmation(
+        announcements: DataResource<List<Announcement>>,
+        withDelay: Boolean = true
+    ) {
         remoteAnnouncementsConfirmationJob?.cancel()
         remoteAnnouncementsConfirmationJob = viewModelScope.launch {
-            val shouldHideConfirmation = modelState.remoteAnnouncements
-                .filter { it.eligibleModes.contains(modelState.walletMode) }
+            val shouldHideConfirmation = announcements
+                .forMode(modelState.walletMode)
                 .map { it.isEmpty() }
                 .dataOrElse(false)
 
@@ -129,13 +173,15 @@ class AnnouncementsViewModel(
                 }
                 updateState {
                     it.copy(
-                        hideAnnouncementsConfirmation = true
+                        hideAnnouncementsConfirmation = true,
+                        animateHideAnnouncementsConfirmation = withDelay
                     )
                 }
             } else {
                 updateState {
                     it.copy(
-                        hideAnnouncementsConfirmation = false
+                        hideAnnouncementsConfirmation = false,
+                        animateHideAnnouncementsConfirmation = true
                     )
                 }
             }
@@ -168,7 +214,19 @@ class AnnouncementsViewModel(
         }
     }
 
+    private fun DataResource<List<Announcement>>.forMode(
+        walletMode: WalletMode?
+    ) = filter {
+        it.eligibleModes.contains(walletMode)
+    }
+
+    private fun DataResource<List<Announcement>>.remove(
+        announcement: Announcement
+    ) = map {
+        it.minus { it == announcement }
+    }
+
     companion object {
-        private val CONFIRMATION_DELAY = TimeUnit.SECONDS.toMillis(2)
+        private val CONFIRMATION_DELAY = TimeUnit.SECONDS.toMillis(1)
     }
 }

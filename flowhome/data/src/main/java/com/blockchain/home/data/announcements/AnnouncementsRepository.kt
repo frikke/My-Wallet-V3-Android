@@ -1,8 +1,7 @@
 package com.blockchain.home.data.announcements
 
+import com.blockchain.api.announcements.AnnouncementBodyDto
 import com.blockchain.api.announcements.AnnouncementPayloadDto
-import com.blockchain.api.announcements.ConsumeAnnouncementDto
-import com.blockchain.api.announcements.DeviceInfo
 import com.blockchain.api.services.AnnouncementsApiService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
@@ -56,6 +55,7 @@ class AnnouncementsRepository(
             it.map {
                 Announcement(
                     id = it.id,
+                    createdAt = it.createdAt,
                     title = it.customPayload.title,
                     description = it.customPayload.description,
                     imageUrl = it.customPayload.imageUrl,
@@ -86,15 +86,40 @@ class AnnouncementsRepository(
 
         announcementsApiService.consumeAnnouncement(
             apiKey = announcementsCredentials.apiKey(),
-            body = ConsumeAnnouncementDto(
+            body = AnnouncementBodyDto.consume(
                 email = announcementsCredentials.email,
                 messageId = announcement.id,
                 deleteAction = action.name,
-                deviceInfo = DeviceInfo(
-                    appPackageName = announcementsCredentials.packageName,
-                    deviceId = announcementsCredentials.deviceId,
-                    platform = announcementsCredentials.platform
+                deviceInfo = announcementsCredentials.deviceInfo
+            )
+        )
+    }
+
+    override suspend fun trackSeen(
+        announcement: Announcement
+    ) {
+        if (!announcementsPrefs.seenAnnouncements().contains(announcement.id)) {
+            announcementsPrefs.markAsSeen(announcement.id)
+
+            announcementsApiService.trackSeen(
+                apiKey = announcementsCredentials.apiKey(),
+                body = AnnouncementBodyDto.seen(
+                    email = announcementsCredentials.email,
+                    messageId = announcement.id,
+                    deviceInfo = announcementsCredentials.deviceInfo
                 )
+            )
+        }
+    }
+
+    override suspend fun trackClicked(announcement: Announcement) {
+        announcementsApiService.trackClicked(
+            apiKey = announcementsCredentials.apiKey(),
+            body = AnnouncementBodyDto.click(
+                email = announcementsCredentials.email,
+                messageId = announcement.id,
+                clickedUrl = announcement.actionUrl,
+                deviceInfo = announcementsCredentials.deviceInfo
             )
         )
     }

@@ -559,6 +559,7 @@ val applicationModule = module {
                 getSafeConnectTosLinkUseCase = payloadScope.get(),
                 appRatingService = get(),
                 cardPaymentAsyncFF = get(cardPaymentAsyncFeatureFlag),
+                recurringBuyPrefs = get()
             )
         }
 

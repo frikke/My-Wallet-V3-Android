@@ -7,6 +7,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationDe
 import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.dex.presentation.DexIntroductionScreens
+import com.dex.presentation.SelectDestinationAccountBottomSheet
 import com.dex.presentation.SelectSourceAccountBottomSheet
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 
@@ -25,6 +26,14 @@ fun NavGraphBuilder.dexGraph(onBackPressed: () -> Unit) {
             )
         }
     }
+
+    bottomSheet(navigationEvent = DexDestination.SelectDestinationAccount) { backStackEntry ->
+        ChromeBottomSheet(onBackPressed) {
+            SelectDestinationAccountBottomSheet(
+                closeClicked = onBackPressed
+            )
+        }
+    }
 }
 
 sealed class DexDestination(
@@ -32,4 +41,5 @@ sealed class DexDestination(
 ) : ComposeNavigationDestination {
     object Intro : DexDestination("Intro")
     object SelectSourceAccount : DexDestination("SelectSourceAccount")
+    object SelectDestinationAccount : DexDestination("SelectDestinationAccount")
 }

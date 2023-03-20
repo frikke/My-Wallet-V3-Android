@@ -96,6 +96,7 @@ fun HomeScreen(
     openMoreQuickActions: () -> Unit,
     startPhraseRecovery: () -> Unit,
     openEarnDashboard: () -> Unit,
+    processAnnouncementUrl: (String) -> Unit
 ) {
     var menuOptionsHeight: Int by remember { mutableStateOf(0) }
     var balanceOffsetToMenuOption: Float by remember { mutableStateOf(0F) }
@@ -285,8 +286,13 @@ fun HomeScreen(
                 StackedAnnouncements(
                     announcements = announcements,
                     hideConfirmation = announcementsState.hideAnnouncementsConfirmation,
-                    onSwiped = { target ->
-                        announcementsViewModel.onIntent(AnnouncementsIntent.DeleteAnnouncement(target))
+                    animateHideConfirmation = announcementsState.animateHideAnnouncementsConfirmation,
+                    announcementOnSwiped = { announcement ->
+                        announcementsViewModel.onIntent(AnnouncementsIntent.DeleteAnnouncement(announcement))
+                    },
+                    announcementOnClick = { announcement ->
+                        processAnnouncementUrl(announcement.actionUrl)
+                        announcementsViewModel.onIntent(AnnouncementsIntent.AnnouncementClicked(announcement))
                     }
                 )
             }

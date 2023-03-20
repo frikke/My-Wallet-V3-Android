@@ -79,12 +79,15 @@ class CustodialActivityViewModel(
         // group by date (month/year)
         return this
             .groupBy { activity ->
-                val activityDate = Calendar.getInstance().apply { timeInMillis = activity.timeStampMs }
                 if (activity.stateIsFinalised) {
                     Calendar.getInstance().apply {
-                        timeInMillis = 0
-                        set(Calendar.YEAR, activityDate.get(Calendar.YEAR))
-                        set(Calendar.MONTH, activityDate.get(Calendar.MONTH))
+                        timeInMillis = activity.timeStampMs
+                        // keep year/month to group with and reset everything else
+                        set(Calendar.DAY_OF_MONTH, 1)
+                        set(Calendar.HOUR_OF_DAY, 0)
+                        set(Calendar.MINUTE, 0)
+                        set(Calendar.SECOND, 0)
+                        set(Calendar.MILLISECOND, 0)
                     }.let { date ->
                         TransactionGroup.Group.Date(date)
                     }
@@ -93,8 +96,8 @@ class CustodialActivityViewModel(
                 }
             }
             // reduce to summary
-            .map { (group, activities) ->
-                group to activities.map { it.toActivityComponent() }
+            .mapValues { (_, activities) ->
+                activities.map { it.toActivityComponent() }
             }
             .toMap()
             .toSortedMap(compareByDescending { it })

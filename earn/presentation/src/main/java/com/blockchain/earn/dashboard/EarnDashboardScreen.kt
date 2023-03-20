@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -35,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
@@ -46,8 +48,10 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.SmallMinimalButton
+import com.blockchain.componentlib.button.SmallSecondaryButton
 import com.blockchain.componentlib.control.NonCancelableOutlinedSearch
 import com.blockchain.componentlib.control.TabLayoutLarge
 import com.blockchain.componentlib.divider.HorizontalDivider
@@ -57,9 +61,11 @@ import com.blockchain.componentlib.filter.LabeledFiltersGroup
 import com.blockchain.componentlib.system.LazyRoundedCornersColumnIndexed
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.BalanceTableRow
+import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.SmallestVerticalSpacer
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.EarnAnalytics
@@ -137,8 +143,8 @@ fun EarnDashboardScreen(
             },
             earningTabQueryBy = viewState.earningTabQueryBy,
             discoverTabQueryBy = viewState.discoverTabQueryBy,
-            carouselLearnMoreClicked = { url ->
-                viewModel.onIntent(EarnDashboardIntent.CarouselLearnMoreSelected(url))
+            onCompareProductsClicked = {
+                viewModel.onIntent(EarnDashboardIntent.LaunchProductComparator)
             },
             startKycClicked = {
                 viewModel.onIntent(EarnDashboardIntent.StartKycClicked)
@@ -162,7 +168,7 @@ fun EarnDashboard(
     onRefreshData: () -> Unit,
     earningTabQueryBy: String,
     discoverTabQueryBy: String,
-    carouselLearnMoreClicked: (String) -> Unit,
+    onCompareProductsClicked: () -> Unit,
     startKycClicked: () -> Unit,
     onFinishOnboarding: () -> Unit
 ) {
@@ -197,7 +203,7 @@ fun EarnDashboard(
                 onDiscoverItemClicked = onDiscoverItemClicked,
                 earningTabQueryBy = earningTabQueryBy,
                 discoverTabQueryBy = discoverTabQueryBy,
-                carouselLearnMoreClicked = carouselLearnMoreClicked
+                onCompareProductsClicked = onCompareProductsClicked
             )
             is DashboardState.OnlyDiscover -> DiscoverScreen(
                 queryFilter = discoverTabQueryFilter,
@@ -207,7 +213,7 @@ fun EarnDashboard(
                 discoverAssetList = s.discover.toImmutableList(),
                 onItemClicked = onDiscoverItemClicked,
                 discoverTabQueryBy = discoverTabQueryBy,
-                carouselLearnMoreClicked = carouselLearnMoreClicked
+                onOpenProductComparator = onCompareProductsClicked
             )
         }
     }
@@ -227,7 +233,7 @@ fun EarningAndDiscover(
     onDiscoverItemClicked: (EarnAsset) -> Unit,
     earningTabQueryBy: String,
     discoverTabQueryBy: String,
-    carouselLearnMoreClicked: (String) -> Unit
+    onCompareProductsClicked: () -> Unit
 ) {
     var selectedTab by remember { mutableStateOf(SelectedTab.Earning) }
 
@@ -272,7 +278,7 @@ fun EarningAndDiscover(
                     discoverAssetList = state.discover.toImmutableList(),
                     onItemClicked = onDiscoverItemClicked,
                     discoverTabQueryBy = discoverTabQueryBy,
-                    carouselLearnMoreClicked = carouselLearnMoreClicked
+                    onOpenProductComparator = onCompareProductsClicked
                 )
             }
         }
@@ -289,7 +295,7 @@ private fun DiscoverScreen(
     discoverAssetList: List<EarnAsset>,
     onItemClicked: (EarnAsset) -> Unit,
     discoverTabQueryBy: String,
-    carouselLearnMoreClicked: (String) -> Unit,
+    onOpenProductComparator: () -> Unit,
 ) {
     var searchedText by remember { mutableStateOf("") }
 
@@ -300,7 +306,7 @@ private fun DiscoverScreen(
         contentPadding = PaddingValues(AppTheme.dimensions.smallSpacing)
     ) {
         item {
-            LearningCarousel(onLearnMoreClicked = carouselLearnMoreClicked)
+            ProductComparatorCta(onOpenProductComparator = onOpenProductComparator)
         }
 
         stickyHeader {
@@ -436,6 +442,57 @@ private fun DiscoverScreen(
                 }
             )
         }
+    }
+}
+
+@Composable
+private fun ProductComparatorCta(onOpenProductComparator: () -> Unit) {
+    Card(
+        backgroundColor = AppTheme.colors.light,
+        shape = AppTheme.shapes.large,
+        elevation = 0.dp
+    ) {
+        TableRow(
+            contentStart = {
+                Image(imageResource = ImageResource.Local(R.drawable.coins_on).withTint(AppTheme.colors.primary))
+            },
+            content = {
+                Column(modifier = Modifier.padding(start = AppTheme.dimensions.smallSpacing)) {
+                    SimpleText(
+                        text = stringResource(id = R.string.earn_product_comparator_title),
+                        style = ComposeTypographies.Caption1,
+                        color = ComposeColors.Title,
+                        gravity = ComposeGravities.Start
+                    )
+                    SmallestVerticalSpacer()
+                    SimpleText(
+                        text = stringResource(id = R.string.earn_product_comparator_description),
+                        style = ComposeTypographies.Paragraph2,
+                        color = ComposeColors.Title,
+                        gravity = ComposeGravities.Start
+                    )
+                }
+            },
+            contentEnd = {
+                SmallSecondaryButton(
+                    text = stringResource(id = R.string.common_go),
+                    onClick = onOpenProductComparator,
+                    state = ButtonState.Enabled,
+                    modifier = Modifier
+                        .wrapContentWidth(align = Alignment.End)
+                        .padding(start = AppTheme.dimensions.smallSpacing)
+                        .wrapContentWidth(align = Alignment.End).weight(1f)
+                )
+            }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ProductComparatorCtaPreview() {
+    AppTheme {
+        ProductComparatorCta(onOpenProductComparator = {})
     }
 }
 

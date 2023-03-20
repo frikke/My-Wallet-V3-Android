@@ -96,7 +96,11 @@ class L1EvmOnChainTxEngine(
 
     private fun absoluteFees(): Single<Map<FeeLevel, CryptoValue>> =
         feeOptions().map { feeOptions ->
-            val gasLimit = if (txTarget.isContract) { feeOptions.gasLimitContract } else { feeOptions.gasLimit }
+            val gasLimit = if (txTarget.isContract) {
+                feeOptions.gasLimitContract
+            } else {
+                feeOptions.gasLimit
+            }
             mapOf(
                 FeeLevel.None to CryptoValue.zero(sourceAssetInfo),
                 FeeLevel.Regular to getValueForFeeLevel(gasLimit, feeOptions.regularFee),
@@ -144,7 +148,7 @@ class L1EvmOnChainTxEngine(
             pendingTx.copy(
                 amount = amount,
                 totalBalance = balance.total,
-                availableBalance = balance.withdrawable,
+                availableBalance = balance.withdrawable - fee,
                 feeForFullAvailable = fee,
                 feeAmount = fee,
                 feeSelection = pendingTx.feeSelection.copy(
@@ -271,7 +275,7 @@ class L1EvmOnChainTxEngine(
                     gasPriceWei = fees.gasPrice(
                         pendingTx.feeSelection.selectedLevel
                     ),
-                    gasLimitGwei = fees.gasLimitGwei,
+                    gasLimitGwei = fees.gasLimitGwei(tgt.isContract),
                     hotWalletAddress = hotWalletAddress,
                     evmNetwork = evmNetworkTicker
                 )
@@ -284,9 +288,9 @@ class L1EvmOnChainTxEngine(
             Convert.Unit.GWEI
         ).toBigInteger()
 
-    private val FeeOptions.gasLimitGwei: BigInteger
-        get() = BigInteger.valueOf(
-            gasLimitContract
+    private fun FeeOptions.gasLimitGwei(isContract: Boolean): BigInteger =
+        BigInteger.valueOf(
+            if (isContract) gasLimitContract else gasLimit
         )
 
     private val TransactionTarget.isContract: Boolean

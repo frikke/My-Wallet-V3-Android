@@ -12,6 +12,7 @@ val keys = mapOf(
     "api-code" to "25a6ad13-1633-4dfb-b6ee-9b91cdf0b5c3",
     "site-key" to BuildConfig.RECAPTCHA_SITE_KEY
 )
+private const val DEX_API_VERSION = "v1"
 
 val urls = mapOf(
     "HorizonURL" to BuildConfig.HORIZON_URL,
@@ -19,8 +20,9 @@ val urls = mapOf(
     "blockchain-api" to BuildConfig.API_URL,
     "wallet-pubkey-api" to "${BuildConfig.API_URL}wallet-pubkey/",
     "evm-nodes-api" to BuildConfig.EVM_NODE_API_URL,
-    "unified-activity-ws" to "${BuildConfig.UNIFIED_ACTIVITY_WS_URL}",
+    "unified-activity-ws" to BuildConfig.UNIFIED_ACTIVITY_WS_URL,
     "nabu-api" to "${BuildConfig.API_URL}nabu-gateway/",
+    "dex-api" to "${BuildConfig.API_URL}dex-gateway/$DEX_API_VERSION/",
     "wallet-helper-url" to BuildConfig.WALLET_HELPER_URL,
     CHECKMARKET_URL to BuildConfig.CHECKMARKET_URL,
 )

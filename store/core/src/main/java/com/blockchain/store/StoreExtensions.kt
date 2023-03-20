@@ -106,9 +106,7 @@ fun <T> Flow<DataResource<T>>.getDataOrThrow(): Flow<T> =
             when (it) {
                 is DataResource.Data -> it.data
                 is DataResource.Error ->
-                    throw it.error as? Exception
-                        ?: it.error as? Throwable
-                        ?: Throwable(it.error.toString())
+                    throw it.error
                 is DataResource.Loading -> throw IllegalStateException()
             }
         }

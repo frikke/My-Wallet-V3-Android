@@ -21,14 +21,15 @@ import com.blockchain.koin.payloadScope
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun SelectSourceAccountBottomSheet(
+fun SelectDestinationAccountBottomSheet(
     closeClicked: () -> Unit,
-    viewModel: DexSourceAccountViewModel = getViewModel(scope = payloadScope)
+    viewModel: DexSelectDestinationAccountViewModel = getViewModel(scope = payloadScope)
 ) {
-    val viewState: SourceAccountSelectionViewState by viewModel.viewState.collectAsStateLifecycleAware()
+
+    val viewState: DestinationAccountSelectionViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(SourceAccountIntent.LoadSourceAccounts)
+        viewModel.onIntent(DestinationAccountIntent.LoadAccounts)
         onDispose { }
     }
 
@@ -52,11 +53,11 @@ fun SelectSourceAccountBottomSheet(
             DexAccountSelection(
                 accounts = viewState.accounts,
                 onAccountSelected = {
-                    viewModel.onIntent(SourceAccountIntent.OnAccountSelected(it))
+                    viewModel.onIntent(DestinationAccountIntent.OnAccountSelected(it))
                     closeClicked()
                 },
                 onSearchTermUpdated = {
-                    viewModel.onIntent(SourceAccountIntent.Search(it))
+                    viewModel.onIntent(DestinationAccountIntent.Search(it))
                 }
             )
         }

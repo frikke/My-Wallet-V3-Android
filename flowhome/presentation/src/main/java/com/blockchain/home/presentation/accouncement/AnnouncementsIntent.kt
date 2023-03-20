@@ -14,6 +14,12 @@ sealed interface AnnouncementsIntent : Intent<AnnouncementModelState> {
         }
     }
 
+    data class AnnouncementClicked(val announcement: Announcement) : AnnouncementsIntent {
+        override fun isValidFor(modelState: AnnouncementModelState): Boolean {
+            return (modelState.remoteAnnouncements as? DataResource.Data)?.data?.find { it == announcement } != null
+        }
+    }
+
     object Refresh : AnnouncementsIntent {
         override fun isValidFor(modelState: AnnouncementModelState): Boolean {
             return PullToRefresh.canRefresh(modelState.lastFreshDataTime)

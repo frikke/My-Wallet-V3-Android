@@ -4,6 +4,7 @@ import com.blockchain.walletmode.WalletMode
 
 data class Announcement(
     val id: String,
+    val createdAt: Double,
     val title: String,
     val description: String,
     val imageUrl: String?,

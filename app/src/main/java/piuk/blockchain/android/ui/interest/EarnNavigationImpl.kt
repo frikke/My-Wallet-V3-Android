@@ -9,6 +9,7 @@ import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.earn.R
 import com.blockchain.earn.activeRewards.ActiveRewardsSummaryBottomSheet
 import com.blockchain.earn.dashboard.EarnAccessBlockedBottomSheet
+import com.blockchain.earn.dashboard.EarnProductComparatorBottomSheet
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardNavigationEvent
 import com.blockchain.earn.dashboard.viewmodel.EarnType
 import com.blockchain.earn.interest.InterestSummarySheet
@@ -62,6 +63,9 @@ class EarnNavigationImpl(
             )
             is EarnDashboardNavigationEvent.OpenReceive -> launchReceive(navigationEvent.networkTicker)
             EarnDashboardNavigationEvent.OpenKyc -> startKycClicked()
+
+            is EarnDashboardNavigationEvent.OpenProductComparator ->
+                openProductComparatorBottomSheet(earnProducts = navigationEvent.earnProducts)
         }
     }
 
@@ -79,6 +83,10 @@ class EarnNavigationImpl(
 
     override fun showBlockedAccessSheet(title: String, paragraph: String) {
         activity?.showBottomSheet(EarnAccessBlockedBottomSheet.newInstance(title, paragraph))
+    }
+
+    override fun openProductComparatorBottomSheet(earnProducts: List<EarnType>) {
+        activity?.showBottomSheet(EarnProductComparatorBottomSheet.newInstance(earnProducts))
     }
 
     override fun openExternalUrl(url: String) {

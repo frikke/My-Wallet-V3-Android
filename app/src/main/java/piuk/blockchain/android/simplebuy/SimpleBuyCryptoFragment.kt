@@ -21,11 +21,15 @@ import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Pending
+import com.blockchain.componentlib.switcher.SwitcherItemIndicator
 import com.blockchain.componentlib.switcher.SwitcherState
 import com.blockchain.componentlib.tablerow.DefaultTableRowView
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Pink700
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.limits.TxLimit
@@ -203,6 +207,7 @@ class SimpleBuyCryptoFragment :
 
         analytics.logEvent(BuyAmountScreenViewedEvent)
         model.process(SimpleBuyIntent.InitializeFeatureFlags)
+        model.process(SimpleBuyIntent.LoadRecurringBuyOptionsSeenState)
         model.process(SimpleBuyIntent.InitialiseSelectedCryptoAndFiat(asset, fiatCurrency))
         model.process(
             SimpleBuyIntent.FetchSuggestedPaymentMethod(
@@ -474,6 +479,7 @@ class SimpleBuyCryptoFragment :
         }
 
         binding.recurringBuyCta.apply {
+            startIcon = Icons.Pending
             text = newState.recurringBuyFrequency.toHumanReadableRecurringBuy(requireContext())
         }
 
@@ -803,16 +809,18 @@ class SimpleBuyCryptoFragment :
         }
 
         if (state.isSelectedPaymentMethodRecurringBuyEligible()) {
-            enableRecurringBuyCta()
+            enableRecurringBuyCta(showIndicator = !state.hasSeenRecurringBuyOptions)
         } else {
             disableRecurringBuyCta(state.selectedPaymentMethodDetails?.canBeUsedForPaying() ?: false)
         }
     }
 
-    private fun enableRecurringBuyCta() {
+    private fun enableRecurringBuyCta(showIndicator: Boolean) {
         binding.recurringBuyCta.apply {
             switcherState = SwitcherState.Enabled
+            indicator = SwitcherItemIndicator(color = Pink700).takeIf { showIndicator }
             onClick = {
+                model.process(SimpleBuyIntent.RecurringBuyOptionsSeen)
                 showBottomSheet(RecurringBuySelectionBottomSheet.newInstance())
             }
         }

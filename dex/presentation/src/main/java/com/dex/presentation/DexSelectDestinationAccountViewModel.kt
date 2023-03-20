@@ -11,28 +11,29 @@ import com.dex.domain.DexAccount
 import com.dex.domain.DexAccountsService
 import com.dex.domain.DexTransactionProcessor
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 
-class DexSourceAccountViewModel(
+class DexSelectDestinationAccountViewModel(
     private val dexService: DexAccountsService,
     private val transactionProcessor: DexTransactionProcessor
 ) : MviViewModel<
-    SourceAccountIntent,
-    SourceAccountSelectionViewState,
-    SourceAccountModelState,
+    DestinationAccountIntent,
+    DestinationAccountSelectionViewState,
+    DestinationAccountModelState,
     NavigationEvent,
     ModelConfigArgs.NoArgs
     >(
-    initialState = SourceAccountModelState(
+    initialState = DestinationAccountModelState(
         accounts = emptyList()
     )
 ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
-    override fun reduce(state: SourceAccountModelState): SourceAccountSelectionViewState {
+    override fun reduce(state: DestinationAccountModelState): DestinationAccountSelectionViewState {
         return with(state) {
-            SourceAccountSelectionViewState(
+            DestinationAccountSelectionViewState(
                 accounts = this.accounts.filter { account ->
                     searchFilter.isEmpty() ||
                         account.currency.networkTicker.contains(searchFilter, true) ||
@@ -45,23 +46,30 @@ class DexSourceAccountViewModel(
         }
     }
 
-    override suspend fun handleIntent(modelState: SourceAccountModelState, intent: SourceAccountIntent) {
+    override suspend fun handleIntent(modelState: DestinationAccountModelState, intent: DestinationAccountIntent) {
         when (intent) {
-            SourceAccountIntent.LoadSourceAccounts -> {
+            DestinationAccountIntent.LoadAccounts -> {
                 viewModelScope.launch {
-                    dexService.sourceAccounts().collectLatest { dexAccounts ->
-                        updateState {
-                            it.copy(
-                                accounts = dexAccounts
-                            )
+                    dexService.destinationAccounts()
+                        .zip(transactionProcessor.transaction) { accounts, tx ->
+                            accounts.filter {
+                                val sourceAccount = tx.sourceAccount
+                                sourceAccount == null || it.currency.networkTicker !=
+                                    sourceAccount.currency.networkTicker
+                            }
+                        }.collectLatest { dexAccounts ->
+                            updateState {
+                                it.copy(
+                                    accounts = dexAccounts
+                                )
+                            }
                         }
-                    }
                 }
             }
-            is SourceAccountIntent.OnAccountSelected -> {
-                transactionProcessor.updateSourceAccount(intent.account)
+            is DestinationAccountIntent.OnAccountSelected -> {
+                transactionProcessor.updateDestinationAccount(intent.account)
             }
-            is SourceAccountIntent.Search -> {
+            is DestinationAccountIntent.Search -> {
                 updateState {
                     it.copy(
                         searchFilter = intent.query
@@ -72,17 +80,17 @@ class DexSourceAccountViewModel(
     }
 }
 
-sealed class SourceAccountIntent : Intent<SourceAccountModelState> {
-    object LoadSourceAccounts : SourceAccountIntent()
-    class OnAccountSelected(val account: DexAccount) : SourceAccountIntent()
-    class Search(val query: String) : SourceAccountIntent()
+sealed class DestinationAccountIntent : Intent<DestinationAccountModelState> {
+    object LoadAccounts : DestinationAccountIntent()
+    class OnAccountSelected(val account: DexAccount) : DestinationAccountIntent()
+    class Search(val query: String) : DestinationAccountIntent()
 }
 
-data class SourceAccountSelectionViewState(
+data class DestinationAccountSelectionViewState(
     val accounts: List<DexAccount> = emptyList()
 ) : ViewState
 
-data class SourceAccountModelState(
+data class DestinationAccountModelState(
     val accounts: List<DexAccount> = emptyList(),
     val searchFilter: String = ""
 ) : ModelState

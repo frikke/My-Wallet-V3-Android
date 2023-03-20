@@ -26,6 +26,7 @@ import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.PricesPrefs
+import com.blockchain.preferences.RecurringBuyPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SecureChannelPrefs
@@ -71,6 +72,7 @@ val coreAndroidModule = module {
         bind(WalletModePrefs::class)
         bind(RemoteConfigPrefs::class)
         bind(SimpleBuyPrefs::class)
+        bind(RecurringBuyPrefs::class)
         bind(WalletStatusPrefs::class)
         bind(EncryptedPrefs::class)
         bind(TransactionPrefs::class)

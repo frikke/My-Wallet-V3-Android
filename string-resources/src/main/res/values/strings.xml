@@ -3206,7 +3206,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bc_card_unable_to_load_card">Unable to load card</string>
     <string name="bc_card_transaction_status">Status</string>
     <string name="bc_card_transaction_payment_method">Payment Method</string>
-    <string name="bc_card_transaction_fee">Blockchain.com Fee</string>
     <string name="bc_card_transaction_original_amount">Total %1$s</string>
     <string name="bc_card_dashboard_legal_disclaimer">This Blockchain.com Visa® Card is issued by Pathward, N.A., Member FDIC, pursuant to a license from Visa U.S.A. Inc. Blockchain.com Visa card can be used everywhere Visa debit cards are accepted.</string>
     <string name="bc_card_order_intro_legal_disclaimer">This Blockchain.com Visa® Card is issued by Pathward, N.A., Member FDIC, pursuant to a license from Visa U.S.A. Inc. Blockchain.com Visa card can be used everywhere Visa debit cards are accepted. ¹No Blockchain.com Fees but a spread applies when we sell cryptocurrencies. ²This optional offer is not a Pathward product or service nor does Pathward endorse this offer.</string>
@@ -3547,5 +3546,33 @@ If you want to know more about our verification process visit our <annotation li
     <string name="select_token">Select Token</string>
     <string name="common_requested">Requested</string>
     <string name="earn_active_rewards_withdrawal_close_date">Next Saturday</string>
+    <string name="your_assets">Your Assets</string>
+    <string name="all_tokens">All Tokens</string>
+    <string name="earn_passive_rewards_description">Earn rewards for simply holding an asset for a longer period of time.</string>
+    <string name="earn_staking_rewards_description">Earn rewards by holding an asset and securing networks.</string>
+    <string name="earn_active_rewards_description">Earn rewards by holding an asset and forecasting the market.</string>
+    <string name="earn_product_target_audience_all">For all eligible users</string>
+    <string name="earn_product_target_audience_intermediate">Intermediate users</string>
+    <string name="earn_product_target_audience_advanced">Advanced users</string>
+    <string name="earn_product_asset_availability_all">All assets available</string>
+    <string name="earn_product_asset_availability_ethereum">Available on Ethereum</string>
+    <string name="earn_product_asset_availability_bitcoin">Available on Bitcoin</string>
+    <string name="earn_passive_rate_label">Up to 10%% annually</string>
+    <string name="earn_staking_rate_label">Up to 4%% annually</string>
+    <string name="earn_active_rate_label">Up to 8%% annually</string>
+    <string name="earn_rate_update_frequency_weekly">Variable weekly</string>
+    <string name="earn_rate_update_frequency_monthly">Updated monthly</string>
+    <string name="earn_rate_update_frequency_variable">Variable by network</string>
+    <string name="earn_product_earn_frequency_daily">Earn daily</string>
+    <string name="earn_product_earn_frequency_weekly">Earn daily</string>
+    <string name="earn_product_payout_frequency_daily">Paid daily</string>
+    <string name="earn_product_payout_frequency_weekly">Paid weekly</string>
+    <string name="earn_product_payout_frequency_monthly">Paid monthly</string>
+    <string name="earn_product_withdrawal_frequency_instantly">Withdraw instantly after 7 days</string>
+    <string name="earn_product_withdrawal_frequency_variable">Withdraw depending on network</string>
+    <string name="earn_product_withdrawal_frequency_weekly">Withdraw weekly</string>
+    <string name="earn_product_comparator_title">Compare Products</string>
+    <string name="earn_product_comparator_description">Learn which Earn Product is\nbest for you.</string>
+    <string name="common_go">GO</string>
 
 </resources>

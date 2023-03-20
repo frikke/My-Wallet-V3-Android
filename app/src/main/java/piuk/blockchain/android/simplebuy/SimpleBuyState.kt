@@ -73,6 +73,7 @@ data class SimpleBuyState constructor(
     val googlePayDetails: GooglePayDetails? = null,
     val featureFlagSet: FeatureFlagsSet = FeatureFlagsSet(),
     val quotePrice: QuotePrice? = null,
+    val hasSeenRecurringBuyOptions: Boolean = true,
     @Transient val quickFillButtonData: QuickFillButtonData? = null,
     @Transient val safeConnectTosLink: String? = null,
     @Transient val paymentOptions: PaymentOptions = PaymentOptions(),

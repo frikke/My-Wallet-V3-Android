@@ -21,6 +21,8 @@ import com.blockchain.api.brokerage.BrokerageApi
 import com.blockchain.api.coinnetworks.CoinNetworkApiInterface
 import com.blockchain.api.custodial.CustodialBalanceApi
 import com.blockchain.api.dataremediation.DataRemediationApi
+import com.blockchain.api.dex.DexApi
+import com.blockchain.api.dex.DexApiService
 import com.blockchain.api.earn.active.ActiveRewardsApi
 import com.blockchain.api.earn.active.ActiveRewardsApiService
 import com.blockchain.api.earn.passive.InterestApiInterface
@@ -124,6 +126,7 @@ val blockchainApi = StringQualifier("blockchain-api")
 val walletPubkeyApi = StringQualifier("wallet-pubkey-api")
 val explorerApi = StringQualifier("explorer-api")
 val nabuApi = StringQualifier("nabu-api")
+val dexApi = StringQualifier("dex-api")
 val assetsApi = StringQualifier("assets-api")
 
 val blockchainApiModule = module {
@@ -164,6 +167,16 @@ val blockchainApiModule = module {
     single(nabuApi) {
         Retrofit.Builder()
             .baseUrl(getBaseUrl("nabu-api"))
+            .client(get(authOkHttpClient))
+            .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
+            .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
+            .addConverterFactory(get(kotlinJsonConverterFactory))
+            .build()
+    }
+
+    single(dexApi) {
+        Retrofit.Builder()
+            .baseUrl(getBaseUrl("dex-api"))
             .client(get(authOkHttpClient))
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
@@ -344,6 +357,13 @@ val blockchainApiModule = module {
         val api = get<Retrofit>(nabuApi).create(KycApiInterface::class.java)
         KycApiService(
             kycApi = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(dexApi).create(DexApi::class.java)
+        DexApiService(
+            api = api
         )
     }
 
