@@ -9,6 +9,7 @@ import android.text.Editable
 import android.text.InputType
 import android.text.method.DigitsKeyListener
 import android.text.method.LinkMovementMethod
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.commonarch.presentation.mvi.MviActivity
@@ -27,6 +28,7 @@ import com.blockchain.presentation.koin.scopedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.util.concurrent.atomic.AtomicBoolean
 import org.koin.android.ext.android.inject
+import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginAuthBinding
 import piuk.blockchain.android.fraud.domain.service.FraudFlow
@@ -37,7 +39,6 @@ import piuk.blockchain.android.ui.login.LoginAnalytics
 import piuk.blockchain.android.ui.login.PayloadHandler
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STEP
-import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.ui.settings.SettingsAnalytics.Companion.TWO_SET_MOBILE_NUMBER_OPTION
 import piuk.blockchain.android.ui.settings.security.pin.PinActivity
@@ -96,6 +97,14 @@ class LoginAuthActivity :
 
     private val analyticsInfo: LoginAuthInfo?
         get() = if (::currentState.isInitialized) currentState.authInfoForAnalytics else null
+
+    private val accountRecoveryResult = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        // close and go back to email
+        setResult(RESULT_BACK_FROM_RECOVERY)
+        finish()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -383,12 +392,7 @@ class LoginAuthActivity :
 
     private fun launchPasswordRecoveryFlow() {
         analytics.logEvent(LoginAnalytics.LoginHelpClicked(analyticsInfo))
-        val intent = Intent(this, AccountRecoveryActivity::class.java).apply {
-            putExtra(EMAIL, email)
-            putExtra(USER_ID, userId)
-            putExtra(RECOVERY_TOKEN, recoveryToken)
-        }
-        startActivity(intent)
+        accountRecoveryResult.launch(Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.PASSWORD_RECOVERY_URL)))
     }
 
     private fun showCustomerSupportSheet() {
@@ -415,5 +419,6 @@ class LoginAuthActivity :
         private const val DIGITS = "1234567890"
         private const val SECOND_PASSWORD_LINK_ANNOTATION = "learn_more"
         private const val RESET_2FA_LINK_ANNOTATION = "reset_2fa"
+        const val RESULT_BACK_FROM_RECOVERY = 2
     }
 }

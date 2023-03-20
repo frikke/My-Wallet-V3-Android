@@ -132,6 +132,7 @@ android {
             buildConfigField "String", "ZENDESK_CHAT_KEY", "\"${buildProperties.secrets['zendeskChatChannelKey']}\""
             buildConfigField "boolean",  "INTERNAL", "false"
             buildConfigField "String", "WEB_WALLET_URL", "\"${buildProperties.secrets['prodLoginPortal']}\""
+            buildConfigField "String", "PASSWORD_RECOVERY_URL", "\"${buildProperties.secrets['prodRecoveryPortal']}\""
             buildConfigField "String", "RECAPTCHA_PASS", "\"${buildProperties.secrets['recaptchaPassProduction']}\""
 
             buildConfigField "String", "PLAY_STORE_DEMO_EMAIL", "\"${buildProperties.secrets['playstoreProdDemoEmail']}\""
@@ -188,6 +189,7 @@ android {
             buildConfigField "String", "ZENDESK_API_KEY", "\"${buildProperties.secrets['zendeskAccountKey']}\""
             buildConfigField "String", "ZENDESK_CHAT_KEY", "\"${buildProperties.secrets['zendeskChatChannelKey']}\""
             buildConfigField "String", "WEB_WALLET_URL", "\"${buildProperties.secrets['prodLoginPortal']}\""
+            buildConfigField "String", "PASSWORD_RECOVERY_URL", "\"${buildProperties.secrets['prodRecoveryPortal']}\""
             buildConfigField "String", "PLAY_STORE_DEMO_EMAIL", "\"${buildProperties.secrets['playstoreProdDemoEmail']}\""
             buildConfigField "String", "PLAY_STORE_DEMO_WALLET_ID", "\"${buildProperties.secrets['playstoreProdDemoWalletId']}\""
 
@@ -246,6 +248,7 @@ android {
             buildConfigField "String", "ZENDESK_API_KEY", "\"${buildProperties.secrets['zendeskAccountKey']}\""
             buildConfigField "String", "ZENDESK_CHAT_KEY", "\"${buildProperties.secrets['zendeskChatChannelKey']}\""
             buildConfigField "String", "WEB_WALLET_URL", "\"${buildProperties.secrets['stagingLoginPortal']}\""
+            buildConfigField "String", "PASSWORD_RECOVERY_URL", "\"${buildProperties.secrets['stagingRecoveryPortal']}\""
             buildConfigField "String", "PLAY_STORE_DEMO_EMAIL", "\"${buildProperties.secrets['playstoreStagingDemoEmail']}\""
             buildConfigField "String", "PLAY_STORE_DEMO_WALLET_ID", "\"${buildProperties.secrets['playstoreStagingDemoWalletId']}\""
             buildConfigField "String", "RECAPTCHA_PASS", "\"${buildProperties.secrets['recaptchaPassStaging']}\""

@@ -49,8 +49,10 @@ class PasswordRequiredPresenter(
         view?.showWalletGuid(authPrefs.walletGuid)
     }
 
-    fun onForgetWalletConfirmed() {
-        appUtil.clearCredentialsAndRestart()
+    fun onForgetWalletConfirmed(
+        redirectLandingToLogin: Boolean = false
+    ) {
+        appUtil.clearCredentialsAndRestart(redirectLandingToLogin = redirectLandingToLogin)
     }
 
     override fun onAuthFailed() {

@@ -153,7 +153,10 @@ class LauncherActivityV2 :
             }
 
             LaunchNavigationEvent.NoGuid -> {
-                LandingActivity.start(this)
+                LandingActivity.start(
+                    context = this,
+                    redirectToLogin = intent.getBooleanExtra(LandingActivity.REDIRECT_TO_LOGIN, false)
+                )
             }
         }
     }

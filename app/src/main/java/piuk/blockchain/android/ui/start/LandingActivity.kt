@@ -112,6 +112,10 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
                 )
             }
         }
+
+        if (intent.getBooleanExtra(REDIRECT_TO_LOGIN, false)) {
+            launchSSOLoginActivity()
+        }
     }
 
     override fun onStart() {
@@ -183,10 +187,13 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
     }
 
     companion object {
+        const val REDIRECT_TO_LOGIN = "REDIRECT_TO_LOGIN"
+
         @JvmStatic
-        fun start(context: Context) {
+        fun start(context: Context, redirectToLogin: Boolean = false) {
             Intent(context, LandingActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                putExtra(REDIRECT_TO_LOGIN, redirectToLogin)
                 context.startActivity(this)
             }
         }

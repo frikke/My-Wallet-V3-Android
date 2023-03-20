@@ -1,9 +1,11 @@
 package piuk.blockchain.android.ui.start
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.CountDownTimer
 import androidx.activity.addCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.componentlib.alert.BlockchainSnackbar
@@ -17,6 +19,7 @@ import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.presentation.koin.scopedInject
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
+import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityPasswordRequiredBinding
 import piuk.blockchain.android.fraud.domain.service.FraudFlow
@@ -26,7 +29,6 @@ import piuk.blockchain.android.ui.customviews.getTwoFactorDialog
 import piuk.blockchain.android.ui.launcher.LauncherActivityV2
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STEP
-import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
 import piuk.blockchain.android.ui.settings.security.pin.PinActivity
 
 class PasswordRequiredActivity :
@@ -55,6 +57,13 @@ class PasswordRequiredActivity :
                 walletPrefs.setResendSmsRetries(3)
             }
         }
+    }
+
+    private val accountRecoveryResult = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        // logout and go back to email
+        presenter.onForgetWalletConfirmed(redirectLandingToLogin = true)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -206,5 +215,7 @@ class PasswordRequiredActivity :
         super.onDestroy()
     }
 
-    private fun launchRecoveryFlow() = startActivity(Intent(this, AccountRecoveryActivity::class.java))
+    private fun launchRecoveryFlow() {
+        accountRecoveryResult.launch(Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.PASSWORD_RECOVERY_URL)))
+    }
 }
