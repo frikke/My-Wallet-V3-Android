@@ -47,7 +47,11 @@ private fun TableRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
             contentStart?.invoke(this)
-            content()
+            Row(
+                modifier = Modifier.weight(weight = 1F, fill = true),
+            ) {
+                content()
+            }
             contentEnd?.invoke(this)
         }
         Box(modifier = Modifier.fillMaxWidth()) {

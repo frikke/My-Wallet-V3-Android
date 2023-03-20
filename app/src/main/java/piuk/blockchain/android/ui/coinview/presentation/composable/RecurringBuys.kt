@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,16 +19,16 @@ import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.componentlib.alert.AlertType
 import com.blockchain.componentlib.alert.CardAlert
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.card.ButtonType
-import com.blockchain.componentlib.card.CardButton
-import com.blockchain.componentlib.card.DefaultCard
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Sync
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
+import com.blockchain.componentlib.tablerow.ButtonTableRow
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue200
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.componentlib.utils.value
+import com.blockchain.data.DataResource
 import org.koin.androidx.compose.get
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState
@@ -37,38 +38,40 @@ import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 @Composable
 fun RecurringBuys(
     analytics: Analytics = get(),
-    data: CoinviewRecurringBuysState,
+    data: DataResource<CoinviewRecurringBuysState?>,
     assetTicker: String,
     onRecurringBuyUpsellClick: () -> Unit,
     onRecurringBuyItemClick: (String) -> Unit
 ) {
     when (data) {
-        CoinviewRecurringBuysState.NotSupported -> {
-            Empty()
-        }
-
-        CoinviewRecurringBuysState.Loading -> {
+        DataResource.Loading -> {
             RecurringBuysLoading()
         }
 
-        CoinviewRecurringBuysState.Error -> {
+        is DataResource.Error -> {
             RecurringBuysError()
         }
 
-        CoinviewRecurringBuysState.Upsell -> {
-            RecurringBuysUpsell(
-                analytics = analytics,
-                onRecurringBuyUpsellClick = onRecurringBuyUpsellClick
-            )
-        }
+        is DataResource.Data -> {
+            data.data?.let { rbState ->
+                when (rbState) {
+                    CoinviewRecurringBuysState.Upsell -> {
+                        RecurringBuysUpsell(
+                            analytics = analytics,
+                            onRecurringBuyUpsellClick = onRecurringBuyUpsellClick
+                        )
+                    }
 
-        is CoinviewRecurringBuysState.Data -> {
-            RecurringBuysData(
-                analytics = analytics,
-                data = data,
-                assetTicker = assetTicker,
-                onRecurringBuyItemClick = onRecurringBuyItemClick
-            )
+                    is CoinviewRecurringBuysState.Data -> {
+                        RecurringBuysData(
+                            analytics = analytics,
+                            data = rbState,
+                            assetTicker = assetTicker,
+                            onRecurringBuyItemClick = onRecurringBuyItemClick
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -109,29 +112,25 @@ fun RecurringBuysUpsell(
     analytics: Analytics = get(),
     onRecurringBuyUpsellClick: () -> Unit
 ) {
-    Column(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(AppTheme.dimensions.smallSpacing)
+            .padding(AppTheme.dimensions.smallSpacing),
+        shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
     ) {
+
         val title = stringResource(R.string.coinview_rb_card_title)
 
-        DefaultCard(
+        ButtonTableRow(
             title = title,
-            subtitle = stringResource(R.string.coinview_rb_card_blurb),
-            iconResource = ImageResource.LocalWithBackground(
-                R.drawable.ic_tx_recurring_buy, AppTheme.colors.primary, Blue200
-            ),
-            callToActionButton = CardButton(
-                text = stringResource(R.string.common_learn_more),
-                type = ButtonType.Minimal,
-                onClick = {
-                    analytics.logEvent(RecurringBuyAnalytics.RecurringBuyLearnMoreClicked(LaunchOrigin.CURRENCY_PAGE))
-                    analytics.logEvent(RecurringBuyAnalytics.RecurringBuyLearnMoreXSellClicked(dcaTitle = title))
-                    onRecurringBuyUpsellClick()
-                }
-            ),
-            isDismissable = false
+            subtitle = stringResource(R.string.coinview_rb_card_subtitle),
+            imageResource = Icons.Filled.Sync.withTint(AppTheme.colors.primary),
+            actionText = stringResource(R.string.common_go),
+            onClick = {
+                analytics.logEvent(RecurringBuyAnalytics.RecurringBuyLearnMoreClicked(LaunchOrigin.CURRENCY_PAGE))
+                analytics.logEvent(RecurringBuyAnalytics.RecurringBuyLearnMoreXSellClicked(dcaTitle = title))
+                onRecurringBuyUpsellClick()
+            }
         )
     }
 }
@@ -185,7 +184,7 @@ fun RecurringBuysData(
 fun PreviewRecurringBuys_Loading() {
     RecurringBuys(
         previewAnalytics,
-        CoinviewRecurringBuysState.Loading, assetTicker = "ETH", {}, {}
+        DataResource.Loading, assetTicker = "ETH", {}, {}
     )
 }
 
@@ -194,7 +193,7 @@ fun PreviewRecurringBuys_Loading() {
 fun PreviewRecurringBuys_Error() {
     RecurringBuys(
         previewAnalytics,
-        CoinviewRecurringBuysState.Error, assetTicker = "ETH", {}, {}
+        DataResource.Error(Exception()), assetTicker = "ETH", {}, {}
     )
 }
 
@@ -203,7 +202,7 @@ fun PreviewRecurringBuys_Error() {
 fun PreviewRecurringBuys_Upsell() {
     RecurringBuys(
         previewAnalytics,
-        CoinviewRecurringBuysState.Upsell, assetTicker = "ETH", {}, {}
+        DataResource.Data(CoinviewRecurringBuysState.Upsell), assetTicker = "ETH", {}, {}
     )
 }
 
@@ -212,25 +211,27 @@ fun PreviewRecurringBuys_Upsell() {
 fun PreviewRecurringBuys_Data() {
     RecurringBuys(
         previewAnalytics,
-        CoinviewRecurringBuysState.Data(
-            listOf(
-                CoinviewRecurringBuyState(
-                    id = "1",
-                    description = TextValue.StringValue("RecurringBuyState description 1"),
-                    status = TextValue.StringValue("RecurringBuyState status 1"),
-                    assetColor = "#2949F8"
-                ),
-                CoinviewRecurringBuyState(
-                    id = "2",
-                    description = TextValue.StringValue("RecurringBuyState description 2"),
-                    status = TextValue.StringValue("RecurringBuyState status 2"),
-                    assetColor = "#2949F8"
-                ),
-                CoinviewRecurringBuyState(
-                    id = "3",
-                    description = TextValue.StringValue("RecurringBuyState description 3"),
-                    status = TextValue.StringValue("RecurringBuyState status 3"),
-                    assetColor = "#2949F8"
+        DataResource.Data(
+            CoinviewRecurringBuysState.Data(
+                listOf(
+                    CoinviewRecurringBuyState(
+                        id = "1",
+                        description = TextValue.StringValue("RecurringBuyState description 1"),
+                        status = TextValue.StringValue("RecurringBuyState status 1"),
+                        assetColor = "#2949F8"
+                    ),
+                    CoinviewRecurringBuyState(
+                        id = "2",
+                        description = TextValue.StringValue("RecurringBuyState description 2"),
+                        status = TextValue.StringValue("RecurringBuyState status 2"),
+                        assetColor = "#2949F8"
+                    ),
+                    CoinviewRecurringBuyState(
+                        id = "3",
+                        description = TextValue.StringValue("RecurringBuyState description 3"),
+                        status = TextValue.StringValue("RecurringBuyState status 3"),
+                        assetColor = "#2949F8"
+                    )
                 )
             )
         ),

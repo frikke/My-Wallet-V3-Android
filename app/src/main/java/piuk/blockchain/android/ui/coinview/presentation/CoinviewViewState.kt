@@ -21,7 +21,7 @@ data class CoinviewViewState(
     val watchlist: DataResource<Boolean>,
     val accounts: DataResource<CoinviewAccountsState?>,
     val centerQuickAction: DataResource<List<CoinviewQuickActionState>>,
-    val recurringBuys: CoinviewRecurringBuysState,
+    val recurringBuys: DataResource<CoinviewRecurringBuysState?>,
     val bottomQuickAction: DataResource<List<CoinviewQuickActionState>>,
     val assetInfo: CoinviewAssetInfoState,
     val pillAlert: CoinviewPillAlertState,
@@ -113,14 +113,10 @@ data class CoinviewAccountsState(
 
 // Recurring buys
 sealed interface CoinviewRecurringBuysState {
-    object NotSupported : CoinviewRecurringBuysState
-    object Loading : CoinviewRecurringBuysState
-    object Error : CoinviewRecurringBuysState
     object Upsell : CoinviewRecurringBuysState
     data class Data(
         val recurringBuys: List<CoinviewRecurringBuyState>
     ) : CoinviewRecurringBuysState {
-
         data class CoinviewRecurringBuyState(
             val id: String,
             val description: TextValue,
