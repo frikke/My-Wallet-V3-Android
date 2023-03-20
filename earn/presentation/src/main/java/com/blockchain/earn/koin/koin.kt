@@ -2,6 +2,7 @@ package com.blockchain.earn.koin
 
 import com.blockchain.earn.activeRewards.viewmodel.ActiveRewardsSummaryViewModel
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardViewModel
+import com.blockchain.earn.interest.viewmodel.InterestSummaryViewModel
 import com.blockchain.earn.staking.viewmodel.StakingSummaryViewModel
 import com.blockchain.koin.activeRewardsAccountFeatureFlag
 import com.blockchain.koin.activeRewardsWithdrawalsFeatureFlag
@@ -11,6 +12,15 @@ import org.koin.dsl.module
 
 val earnPresentationModule = module {
     scope(payloadScopeQualifier) {
+
+        viewModel {
+            InterestSummaryViewModel(
+                coincore = get(),
+                interestService = get(),
+                exchangeRatesDataManager = get()
+            )
+        }
+
         viewModel {
             StakingSummaryViewModel(
                 coincore = get(),

@@ -3,7 +3,6 @@ package com.blockchain.earn.dashboard.viewmodel
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.core.price.ExchangeRatesDataManager
@@ -264,9 +263,9 @@ class EarnDashboardViewModel(
                 pkwAccountsBalance > BigDecimal.ZERO
             ) {
                 when (earnType) {
-                    EarnType.Passive -> {
-                        getAccountForInterest(currency.networkTicker)
-                    }
+                    EarnType.Passive -> navigate(
+                        EarnDashboardNavigationEvent.OpenInterestSummarySheet(currency.networkTicker)
+                    )
                     EarnType.Staking -> navigate(
                         EarnDashboardNavigationEvent.OpenStakingSummarySheet(currency.networkTicker)
                     )
@@ -293,16 +292,6 @@ class EarnDashboardViewModel(
                     }.firstOrNull()
             }
         } ?: Timber.e("Earn Dashboard - unknown asset $assetTicker")
-    }
-
-    private suspend fun getAccountForInterest(assetTicker: String) {
-        assetCatalogue.fromNetworkTicker(assetTicker)?.let {
-            navigate(
-                EarnDashboardNavigationEvent.OpenRewardsSummarySheet(
-                    coincore[it].accountGroup(AssetFilter.Interest).awaitSingle().accounts.first() as CryptoAccount
-                )
-            )
-        }
     }
 
     private fun buildDiscoverList(

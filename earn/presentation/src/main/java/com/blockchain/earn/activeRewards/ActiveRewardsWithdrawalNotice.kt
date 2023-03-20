@@ -38,7 +38,7 @@ fun ActiveRewardsWithdrawalNotice(onLearnMorePressed: () -> Unit) {
                 .padding(AppTheme.dimensions.smallSpacing)
         ) {
             SimpleText(
-                text = stringResource(R.string.common_important),
+                text = stringResource(R.string.common_important_information),
                 style = ComposeTypographies.Paragraph2,
                 color = ComposeColors.Warning,
                 gravity = ComposeGravities.Start

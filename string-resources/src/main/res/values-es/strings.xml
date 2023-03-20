@@ -1367,7 +1367,7 @@
     <string name="earn_rewards">Obtener Rewards</string>
     <string name="rewards_summary_total">Total de Rewards obtenidas</string>
     <string name="rewards_summary_next_payment">Próximo pago de recompensas</string>
-    <string name="rewards_summary_hold_period">Período de retención inicial</string>
+    <string name="earn_interest_hold_period">Período de retención inicial</string>
     <string name="rewards_summary_hold_period_days">%1$d días</string>
     <string name="rewards_summary_rate">Tasa de recompensas</string>
     <string name="rewards_dashboard_title">Cuenta Rewards</string>
@@ -2979,13 +2979,13 @@
     <string name="earn_payment_frequency_unknown">Desconocido</string>
     <string name="earn_summary_sheet_error_unknown_asset">Se ha producido un error al cargar los detalles del resumen para %1$s. Inténtalo de nuevo más tarde.</string>
     <string name="earn_summary_sheet_error_other">Se ha producido un error inesperado al cargar los detalles del resumen. Inténtalo de nuevo más tarde.</string>
-    <string name="earn_rate_explanation">Los precios de Rewards vienen determinados por cada protocolo menos una comisión del %1$s%% de Blockchain.com. Los usuarios reciben el precio mostrado.</string>
+    <string name="earn_staking_rate_description">Los precios de Rewards vienen determinados por cada protocolo menos una comisión del %1$s%% de Blockchain.com. Los usuarios reciben el precio mostrado.</string>
     <string name="active_rewards_summary_title">%1$s Active Rewards</string>
-    <string name="earn_net_earnings">Ganancias netas</string>
+    <string name="earn_active_rewards_earnings">Ganancias netas</string>
     <string name="earn_total_subscribed">Total suscrito</string>
-    <string name="earn_on_hold">En hold</string>
+    <string name="earn_active_rewards_on_hold">En hold</string>
     <string name="earn_annual_rate">Tasa anual estimada</string>
-    <string name="earn_trigger_price">Precio de activación</string>
+    <string name="earn_active_rewards_trigger_price">Precio de activación</string>
     <string name="common_important">Importante</string>
     <string name="earn_active_rewards_withdrawal_blocked">Las retiradas aún no están habilitadas para Active Rewards. Estamos ultimando la función de retiradas semanales y estará disponible aproximadamente en marzo de 2023. Hasta entonces, los activos de BTC en las cuentas de Active Rewards se volverán a suscribir a cada estrategia semanal. Blockchain.com no asume ninguna responsabilidad por cualquier pérdida derivada de fluctuaciones de precios. Debes tomar precauciones al hacer trading.</string>
     <string name="processing_fee">Tasa de procesamiento</string>

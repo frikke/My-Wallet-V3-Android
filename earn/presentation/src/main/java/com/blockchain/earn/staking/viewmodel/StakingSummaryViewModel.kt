@@ -58,7 +58,7 @@ class StakingSummaryViewModel(
             stakingRate = stakingRate,
             commissionRate = stakingCommission,
             isWithdrawable = isWithdrawable,
-            rewardsFrequency = state.frequency,
+            earnFrequency = state.frequency,
             canDeposit = canDeposit
         )
     }

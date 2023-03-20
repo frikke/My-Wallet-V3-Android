@@ -15,6 +15,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoTarget
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviActivity
@@ -33,7 +34,8 @@ import com.blockchain.domain.paymentmethods.model.BankLinkingInfo
 import com.blockchain.domain.paymentmethods.model.FiatTransactionState
 import com.blockchain.domain.paymentmethods.model.LINKED_BANK_ID_KEY
 import com.blockchain.domain.referral.model.ReferralInfo
-import com.blockchain.earn.interest.InterestSummarySheet
+import com.blockchain.earn.interest.InterestSummaryBottomSheet
+import com.blockchain.earn.interest.viewmodel.InterestError
 import com.blockchain.extensions.exhaustive
 import com.blockchain.home.presentation.navigation.AccountWalletLinkAlertSheetHost
 import com.blockchain.home.presentation.navigation.AuthNavigationHost
@@ -121,7 +123,7 @@ class MainActivity :
     WCApproveSessionBottomSheet.Host,
     ScanAndConnectBottomSheet.Host,
     KycUpgradeNowSheet.Host,
-    InterestSummarySheet.Host {
+    InterestSummaryBottomSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -625,8 +627,8 @@ class MainActivity :
             is ViewToLaunch.LaunchRewardsSummaryFromDeepLink -> {
                 if (view.account is LaunchFlowForAccount.SourceAccount) {
                     showBottomSheet(
-                        InterestSummarySheet.newInstance(
-                            singleAccount = view.account.source as CryptoAccount
+                        InterestSummaryBottomSheet.newInstance(
+                            cryptoTicker = (view.account.source as CryptoAccount).currency.networkTicker
                         )
                     )
                 } else {
@@ -879,25 +881,29 @@ class MainActivity :
         launchQrScan()
     }
 
-    override fun goToInterestDeposit(toAccount: BlockchainAccount) {
+    override fun launchInterestDeposit(account: EarnRewardsAccount.Interest) {
         model.process(
             MainIntent.UpdateViewToLaunch(
                 ViewToLaunch.LaunchTxFlowWithAccountForAction(
-                    LaunchFlowForAccount.TargetAccount(toAccount as TransactionTarget), AssetAction.InterestDeposit
+                    LaunchFlowForAccount.TargetAccount(account as TransactionTarget), AssetAction.InterestDeposit
                 )
             )
         )
     }
 
-    override fun goToInterestWithdraw(fromAccount: BlockchainAccount) {
+    override fun launchInterestWithdrawal(sourceAccount: BlockchainAccount) {
         model.process(
             MainIntent.UpdateViewToLaunch(
                 ViewToLaunch.LaunchTxFlowWithAccountForAction(
-                    LaunchFlowForAccount.SourceAccount(fromAccount), AssetAction.InterestWithdraw
+                    LaunchFlowForAccount.SourceAccount(sourceAccount), AssetAction.InterestWithdraw
                 )
             )
         )
     }
+
+    override fun openExternalUrl(url: String) {}
+
+    override fun showInterestLoadingError(error: InterestError) {}
 
     override fun navigateToBottomSheet(bottomSheet: BottomSheetDialogFragment) {
         clearBottomSheet()

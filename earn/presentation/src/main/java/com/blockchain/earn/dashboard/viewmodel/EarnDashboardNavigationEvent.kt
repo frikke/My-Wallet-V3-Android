@@ -1,13 +1,12 @@
 package com.blockchain.earn.dashboard.viewmodel
 
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import info.blockchain.balance.AssetInfo
 
 sealed class EarnDashboardNavigationEvent : NavigationEvent {
-    class OpenRewardsSummarySheet(val account: CryptoAccount) : EarnDashboardNavigationEvent()
+    class OpenInterestSummarySheet(val assetTicker: String) : EarnDashboardNavigationEvent()
     class OpenStakingSummarySheet(val assetTicker: String) : EarnDashboardNavigationEvent()
     class OpenActiveRewardsSummarySheet(val assetTicker: String) : EarnDashboardNavigationEvent()
     class OpenBlockedForRegionSheet(val earnType: EarnType) : EarnDashboardNavigationEvent()

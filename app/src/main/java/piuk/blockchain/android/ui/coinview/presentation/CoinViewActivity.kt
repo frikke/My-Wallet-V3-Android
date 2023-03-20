@@ -20,7 +20,8 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.earn.activeRewards.ActiveRewardsSummaryBottomSheet
 import com.blockchain.earn.activeRewards.viewmodel.ActiveRewardsError
-import com.blockchain.earn.interest.InterestSummarySheet
+import com.blockchain.earn.interest.InterestSummaryBottomSheet
+import com.blockchain.earn.interest.viewmodel.InterestError
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.earn.staking.viewmodel.StakingError
 import com.blockchain.extensions.enumValueOfOrNull
@@ -62,9 +63,9 @@ class CoinViewActivity :
     AccountExplainerBottomSheet.Host,
     NoBalanceActionBottomSheet.Host,
     AccountActionsBottomSheet.Host,
-    InterestSummarySheet.Host,
     RecurringBuyDetailsSheet.Host,
     KycUpgradeNowSheet.Host,
+    InterestSummaryBottomSheet.Host,
     StakingSummaryBottomSheet.Host,
     ActiveRewardsSummaryBottomSheet.Host {
 
@@ -241,9 +242,12 @@ class CoinViewActivity :
                 goToActivityFor(navigationEvent.cvAccount.account)
             }
 
-            is CoinviewNavigationEvent.NavigateToInterestStatement -> {
-                showBottomSheet(InterestSummarySheet.newInstance(navigationEvent.cvAccount.account as CryptoAccount))
-            }
+            is CoinviewNavigationEvent.NavigateToInterestStatement ->
+                showBottomSheet(
+                    InterestSummaryBottomSheet.newInstance(
+                        (navigationEvent.cvAccount.account as CryptoAccount).currency.networkTicker
+                    )
+                )
 
             is CoinviewNavigationEvent.NavigateToStakingStatement ->
                 showBottomSheet(
@@ -258,14 +262,6 @@ class CoinViewActivity :
                         (navigationEvent.cvAccount.account as CryptoAccount).currency.networkTicker,
                     )
                 )
-
-            is CoinviewNavigationEvent.NavigateToInterestDeposit -> {
-                goToInterestDeposit(navigationEvent.cvAccount.account)
-            }
-
-            is CoinviewNavigationEvent.NavigateToInterestWithdraw -> {
-                goToInterestWithdraw(navigationEvent.cvAccount.account)
-            }
 
             is CoinviewNavigationEvent.ShowNoBalanceUpsell -> {
                 showBottomSheet(
@@ -429,42 +425,6 @@ class CoinViewActivity :
         finish()
     }
 
-    override fun goToInterestDeposit(toAccount: BlockchainAccount) {
-        analytics.logEvent(
-            CoinViewAnalytics.RewardsWithdrawOrAddClicked(
-                origin = LaunchOrigin.COIN_VIEW,
-                currency = (toAccount as CryptoAccount).currency.networkTicker,
-                type = CoinViewAnalytics.Companion.Type.ADD
-            )
-        )
-
-        startActivity(
-            TransactionFlowActivity.newIntent(
-                context = this,
-                action = AssetAction.InterestDeposit,
-                target = toAccount as TransactionTarget
-            )
-        )
-    }
-
-    override fun goToInterestWithdraw(fromAccount: BlockchainAccount) {
-        analytics.logEvent(
-            CoinViewAnalytics.RewardsWithdrawOrAddClicked(
-                origin = LaunchOrigin.COIN_VIEW,
-                currency = (fromAccount as CryptoAccount).currency.networkTicker,
-                type = CoinViewAnalytics.Companion.Type.WITHDRAW
-            )
-        )
-
-        startActivity(
-            TransactionFlowActivity.newIntent(
-                context = this,
-                action = AssetAction.InterestWithdraw,
-                sourceAccount = fromAccount
-            )
-        )
-    }
-
     override fun startKycClicked() {
         KycNavHostActivity.startForResult(this, CampaignType.SimpleBuy, SimpleBuyActivity.KYC_STARTED)
     }
@@ -475,6 +435,57 @@ class CoinViewActivity :
 
     override fun openExternalUrl(url: String) {
         openUrl(url)
+    }
+
+    override fun launchInterestDeposit(account: EarnRewardsAccount.Interest) {
+        analytics.logEvent(
+            CoinViewAnalytics.RewardsWithdrawOrAddClicked(
+                origin = LaunchOrigin.COIN_VIEW,
+                currency = (account as CryptoAccount).currency.networkTicker,
+                type = CoinViewAnalytics.Companion.Type.ADD
+            )
+        )
+
+        startActivity(
+            TransactionFlowActivity.newIntent(
+                context = this,
+                action = AssetAction.InterestDeposit,
+                target = account as TransactionTarget
+            )
+        )
+    }
+
+    override fun launchInterestWithdrawal(sourceAccount: BlockchainAccount) {
+        analytics.logEvent(
+            CoinViewAnalytics.RewardsWithdrawOrAddClicked(
+                origin = LaunchOrigin.COIN_VIEW,
+                currency = (sourceAccount as CryptoAccount).currency.networkTicker,
+                type = CoinViewAnalytics.Companion.Type.WITHDRAW
+            )
+        )
+
+        startActivity(
+            TransactionFlowActivity.newIntent(
+                context = this,
+                action = AssetAction.InterestWithdraw,
+                sourceAccount = sourceAccount
+            )
+        )
+    }
+
+    override fun showInterestLoadingError(error: InterestError) {
+        BlockchainSnackbar.make(
+            view = window.decorView.rootView,
+            message = when (error) {
+                is InterestError.UnknownAsset -> getString(
+                    R.string.earn_summary_sheet_error_unknown_asset, error.assetTicker
+                )
+                InterestError.Other -> getString(R.string.earn_summary_sheet_error_other)
+                InterestError.None -> getString(R.string.empty)
+            },
+            duration = Snackbar.LENGTH_SHORT,
+            type = SnackbarType.Error
+        ).show()
     }
 
     override fun launchStakingWithdrawal(account: EarnRewardsAccount.Staking) {

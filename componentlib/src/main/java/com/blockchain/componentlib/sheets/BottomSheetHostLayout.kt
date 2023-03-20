@@ -16,10 +16,10 @@ import com.blockchain.componentlib.theme.AppTheme
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun BottomSheetHostLayout(
-    content: @Composable () -> Unit,
+    sheetContent: @Composable ColumnScope.() -> Unit,
     onBackAction: () -> Unit,
     modalBottomSheetState: ModalBottomSheetState,
-    sheetContent: @Composable ColumnScope.() -> Unit,
+    content: @Composable () -> Unit,
 ) {
     BackHandler(modalBottomSheetState.isVisible) {
         onBackAction()

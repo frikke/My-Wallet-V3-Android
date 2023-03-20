@@ -1,255 +1,266 @@
 package com.blockchain.earn.interest
 
-import android.content.DialogInterface
-import android.view.LayoutInflater
-import android.view.ViewGroup
-import android.view.animation.AnimationUtils
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.analytics.events.LaunchOrigin
-import com.blockchain.coincore.AssetAction
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Card
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.EarnRewardsAccount
-import com.blockchain.coincore.SingleAccount
-import com.blockchain.coincore.toUserFiat
-import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.basic.ComposeColors
+import com.blockchain.componentlib.basic.ComposeGravities
+import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.viewextensions.gone
-import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.core.price.ExchangeRates
-import com.blockchain.earn.EarnAnalytics
+import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.componentlib.button.SecondaryButton
+import com.blockchain.componentlib.divider.HorizontalDivider
+import com.blockchain.componentlib.sheets.SheetHeader
+import com.blockchain.componentlib.tablerow.custom.TextWithTooltipTableRow
+import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.LargeVerticalSpacer
+import com.blockchain.componentlib.theme.TinyHorizontalSpacer
+import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.earn.R
-import com.blockchain.earn.dashboard.viewmodel.EarnType
-import com.blockchain.earn.databinding.DialogSheetInterestDetailsBinding
-import com.blockchain.earn.domain.service.InterestService
-import com.blockchain.presentation.customviews.BlockchainListDividerDecor
-import com.blockchain.presentation.koin.scopedInject
-import com.blockchain.utils.secondsToDays
-import info.blockchain.balance.AssetInfo
+import com.blockchain.earn.common.EarnFieldExplainer
+import com.blockchain.earn.domain.models.EarnRewardsFrequency
+import com.blockchain.earn.interest.viewmodel.InterestError
+import com.blockchain.earn.interest.viewmodel.InterestSummaryViewState
+import com.blockchain.extensions.safeLet
+import com.blockchain.utils.toFormattedDate
+import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.Money
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.Singles
-import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import timber.log.Timber
+import info.blockchain.balance.FiatCurrency
+import info.blockchain.balance.FiatValue
+import java.math.BigInteger
+import java.util.Calendar
 
-class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetailsBinding>() {
-    interface Host : SlidingModalBottomDialog.Host {
-        fun goToInterestDeposit(toAccount: BlockchainAccount)
-        fun goToInterestWithdraw(fromAccount: BlockchainAccount)
-    }
+@Composable
+fun InterestSummarySheet(
+    state: InterestSummaryViewState,
+    onWithdrawPressed: (sourceAccount: BlockchainAccount) -> Unit,
+    onDepositPressed: (currency: EarnRewardsAccount.Interest) -> Unit,
+    onExplainerClicked: (EarnFieldExplainer) -> Unit,
+    onClosePressed: () -> Unit,
+) {
+    Box {
+        Column {
+            SheetHeader(
+                title = stringResource(
+                    id = R.string.passive_rewards_summary_title, state.balanceCrypto?.currency?.networkTicker.orEmpty()
+                ),
+                startImageResource = ImageResource.Remote(state.balanceCrypto?.currency?.logo.orEmpty()),
+                shouldShowDivider = false,
+                onClosePress = onClosePressed
+            )
 
-    override val host: Host by lazy {
-        super.host as? Host ?: throw IllegalStateException(
-            "Host fragment is not a InterestSummarySheet.Host"
-        )
-    }
+            Column(
+                modifier = Modifier
+                    .background(color = AppTheme.colors.light)
+                    .fillMaxWidth()
+                    .padding(horizontal = AppTheme.dimensions.standardSpacing)
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                LargeVerticalSpacer()
 
-    private lateinit var account: SingleAccount
-    private var showActivity: Boolean = true
-    private lateinit var asset: AssetInfo
+                state.balanceFiat?.let { balance ->
+                    SimpleText(
+                        text = balance.toStringWithSymbol(),
+                        style = ComposeTypographies.Title1,
+                        color = ComposeColors.Title,
+                        gravity = ComposeGravities.Centre
+                    )
+                    TinyVerticalSpacer()
+                }
 
-    override fun initBinding(
-        inflater: LayoutInflater,
-        container: ViewGroup?
-    ): DialogSheetInterestDetailsBinding =
-        DialogSheetInterestDetailsBinding.inflate(inflater, container, false)
+                state.balanceCrypto?.let { balance ->
+                    SimpleText(
+                        text = balance.toStringWithSymbol(),
+                        style = ComposeTypographies.Body2,
+                        color = ComposeColors.Body,
+                        gravity = ComposeGravities.Centre
+                    )
+                }
 
-    private val disposables = CompositeDisposable()
-    private val interestService: InterestService by scopedInject()
-    private val exchangeRates: ExchangeRates by scopedInject()
-    private val coincore: Coincore by scopedInject()
+                LargeVerticalSpacer()
 
-    private val listAdapter: InterestSummaryAdapter by lazy { InterestSummaryAdapter() }
+                Card(
+                    backgroundColor = AppTheme.colors.background,
+                    shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+                    elevation = 0.dp,
+                ) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        TinyVerticalSpacer()
 
-    override fun initControls(binding: DialogSheetInterestDetailsBinding) {
-        binding.interestDetailsList.apply {
-            layoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
-            addItemDecoration(BlockchainListDividerDecor(requireContext()))
-            adapter = listAdapter
-            layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.layout_animation_fall_down)
-        }
-
-        binding.apply {
-            interestDetailsLoading1.showIconLoader = false
-            interestDetailsLoading2.showIconLoader = false
-            interestDetailsLoading3.showIconLoader = false
-            interestDetailsLoadingGroup.visible()
-            interestDetailsList.gone()
-
-            interestDetailsTitle.text = account.label
-            interestDetailsSheetHeader.text = asset.name
-            interestDetailsLabel.text = asset.name
-
-            interestDetailsAssetWithIcon.apply {
-                image = ImageResource.Remote((account as CryptoAccount).currency.logo)
-            }
-
-            disposables += coincore.walletsWithAction(action = AssetAction.InterestDeposit).map { accounts ->
-                accounts.filter { account -> account is CryptoAccount && account.currency == asset }
-            }
-                .onErrorReturn { emptyList() }
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeBy { accounts ->
-                    if (accounts.isNotEmpty() && accounts.any { it is EarnRewardsAccount.Interest }) {
-                        interestDetailsDepositCta.alpha = 0f
-                        interestDetailsDepositCta.visible()
-                        interestDetailsDepositCta.animate().alpha(1f).start()
-                        interestDetailsDepositCta.text =
-                            getString(R.string.tx_title_add_with_ticker, asset.displayTicker)
-                        interestDetailsDepositCta.setOnClickListener {
-                            analytics.logEvent(EarnAnalytics.InterestSummaryDepositCta)
-                            analytics.logEvent(
-                                EarnAnalytics.AddClicked(
-                                    currency = asset.networkTicker,
-                                    product = EarnType.Passive
-                                )
+                        safeLet(
+                            state.totalEarnedFiat,
+                            state.totalEarnedCrypto
+                        ) { earnedFiat, earnedCrypto ->
+                            TextWithTooltipTableRow(
+                                startText = stringResource(R.string.staking_summary_total_earned),
+                                endTitle = earnedFiat.toStringWithSymbol(),
+                                endSubtitle = earnedCrypto.toStringWithSymbol(),
+                                isTappable = false,
                             )
-                            host.goToInterestDeposit(account)
-                            dismiss()
+
+                            TinyVerticalSpacer()
+                            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                            TinyVerticalSpacer()
                         }
-                    } else {
-                        interestDetailsDepositCta.gone()
+
+                        safeLet(
+                            state.pendingInterestFiat,
+                            state.pendingInterestCrypto
+                        ) { pendingEarnedFiat, pendingEarnedCrypto ->
+                            TextWithTooltipTableRow(
+                                startText = stringResource(R.string.earn_interest_accrued_this_month),
+                                endTitle = pendingEarnedFiat.toStringWithSymbol(),
+                                endSubtitle = pendingEarnedCrypto.toStringWithSymbol(),
+                                onClick = { onExplainerClicked(EarnFieldExplainer.MonthlyAccruedInterest) },
+                            )
+                        }
                     }
                 }
-        }
 
-        disposables += Singles.zip(
-            interestService.getBalanceFor(asset).firstOrError(),
-            interestService.getLimitsForAsset(asset),
-            interestService.getInterestRate(asset)
-        ).observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy(
-                onSuccess = { (details, limits, interestRate) ->
-                    with(binding) {
-                        interestDetailsLoadingGroup.gone()
-                        interestDetailsList.visible()
+                LargeVerticalSpacer()
+
+                Card(
+                    backgroundColor = AppTheme.colors.background,
+                    shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+                    elevation = 0.dp,
+                ) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        TinyVerticalSpacer()
+
+                        TextWithTooltipTableRow(
+                            startText = stringResource(R.string.rewards_summary_rate),
+                            endTitle = "${state.interestRate}%",
+                            onClick = { onExplainerClicked(EarnFieldExplainer.InterestRate) },
+                        )
+
+                        TinyVerticalSpacer()
+                        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                        TinyVerticalSpacer()
+
+                        TextWithTooltipTableRow(
+                            startText = stringResource(R.string.earn_payment_frequency),
+                            endTitle = when (state.earnFrequency) {
+                                EarnRewardsFrequency.Daily ->
+                                    stringResource(id = R.string.earn_payment_frequency_daily)
+
+                                EarnRewardsFrequency.Weekly ->
+                                    stringResource(id = R.string.earn_payment_frequency_weekly)
+
+                                EarnRewardsFrequency.Monthly ->
+                                    stringResource(id = R.string.earn_payment_frequency_monthly)
+
+                                else ->
+                                    stringResource(id = R.string.earn_payment_frequency_unknown)
+                            },
+                            onClick = { onExplainerClicked(EarnFieldExplainer.MonthlyPaymentFrequency) },
+                        )
+
+                        TinyVerticalSpacer()
+                        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                        TinyVerticalSpacer()
+
+                        TextWithTooltipTableRow(
+                            startText = stringResource(R.string.common_next_payment),
+                            endTitle = "${state.nextPaymentDate?.toFormattedDate()}",
+                            isTappable = false,
+                        )
+
+                        TinyVerticalSpacer()
+                        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                        TinyVerticalSpacer()
+
+                        TextWithTooltipTableRow(
+                            startText = stringResource(R.string.earn_interest_hold_period),
+                            endTitle = stringResource(
+                                R.string.rewards_summary_hold_period_days, state.initialHoldPeriod
+                            ),
+                            onClick = { onExplainerClicked(EarnFieldExplainer.HoldPeriod) },
+                        )
+
+                        TinyVerticalSpacer()
                     }
-                    compositeToView(
-                        CompositeInterestDetails(
-                            totalInterest = details.totalInterest,
-                            pendingInterest = details.pendingInterest,
-                            balance = (details.totalBalance - details.lockedBalance) as CryptoValue,
-                            lockupDuration = limits.interestLockUpDuration.secondsToDays(),
-                            interestRate = interestRate,
-                            nextInterestPayment = limits.nextInterestPayment
-                        )
-                    )
-                },
-                onError = {
-                    Timber.e("Error loading interest summary details: $it")
                 }
-            )
-    }
 
-    private fun compositeToView(composite: CompositeInterestDetails) {
-        with(binding) {
-            if (composite.balance.isPositive) {
-                interestDetailsWithdrawCta.text =
-                    getString(R.string.tx_title_withdraw, asset.displayTicker)
-                interestDetailsWithdrawCta.visible()
-                interestDetailsWithdrawCta.setOnClickListener {
-                    analytics.logEvent(
-                        EarnAnalytics.InterestWithdrawalClicked(
-                            currency = composite.balance.currencyCode,
-                            origin = LaunchOrigin.SAVINGS_PAGE
-                        )
+                LargeVerticalSpacer()
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    SecondaryButton(
+                        modifier = Modifier.weight(1F),
+                        text = stringResource(id = R.string.common_withdraw),
+                        icon = ImageResource.Local(R.drawable.send_off, colorFilter = ColorFilter.tint(Color.White)),
+                        state = ButtonState.Disabled,
+                        onClick = { state.account?.let { onWithdrawPressed(it) } },
                     )
 
-                    EarnAnalytics.WithdrawClicked(
-                        currency = asset.networkTicker,
-                        product = EarnType.Passive
+                    TinyHorizontalSpacer()
+
+                    SecondaryButton(
+                        modifier = Modifier.weight(1F),
+                        text = stringResource(id = R.string.common_add),
+                        icon = ImageResource.Local(R.drawable.receive_off, colorFilter = ColorFilter.tint(Color.White)),
+                        onClick = { state.account?.let { onDepositPressed(it as EarnRewardsAccount.Interest) } },
+                        state = if (state.canDeposit) ButtonState.Enabled else ButtonState.Disabled,
                     )
-
-                    analytics.logEvent(EarnAnalytics.InterestSummaryWithdrawCta)
-
-                    host.goToInterestWithdraw(account)
-                    dismiss()
                 }
+
+                LargeVerticalSpacer()
             }
         }
-
-        val itemList = mutableListOf<InterestSummaryInfoItem>()
-        itemList.apply {
-            add(
-                InterestSummaryInfoItem(
-                    getString(R.string.rewards_summary_total),
-                    composite.totalInterest.toStringWithSymbol()
-                )
-            )
-
-            val sdf = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
-            val formattedDate = sdf.format(composite.nextInterestPayment)
-            add(InterestSummaryInfoItem(getString(R.string.rewards_summary_next_payment), formattedDate))
-
-            add(
-                InterestSummaryInfoItem(
-                    getString(R.string.rewards_summary_accrued),
-                    composite.pendingInterest.toStringWithSymbol()
-                )
-            )
-
-            add(
-                InterestSummaryInfoItem(
-                    getString(R.string.rewards_summary_hold_period),
-                    getString(R.string.rewards_summary_hold_period_days, composite.lockupDuration)
-                )
-            )
-
-            add(InterestSummaryInfoItem(getString(R.string.rewards_summary_rate), "${composite.interestRate}%"))
-        }
-
-        composite.balance.run {
-            binding.apply {
-                interestDetailsCryptoValue.text = toStringWithSymbol()
-                interestDetailsFiatValue.text = toUserFiat(exchangeRates)
-                    .toStringWithSymbol()
-            }
-        }
-
-        listAdapter.items = itemList
     }
+}
 
-    companion object {
-        fun newInstance(
-            singleAccount: CryptoAccount,
-            showActivity: Boolean = true
-        ): InterestSummarySheet =
-            InterestSummarySheet().apply {
-                account = singleAccount
-                asset = singleAccount.currency
-                this.showActivity = showActivity
-            }
-    }
-
-    data class InterestSummaryInfoItem(
-        val title: String,
-        val label: String
-    )
-
-    private data class CompositeInterestDetails(
-        val balance: Money,
-        val totalInterest: Money,
-        val pendingInterest: Money,
-        var nextInterestPayment: Date,
-        val lockupDuration: Int,
-        val interestRate: Double
-    )
-
-    override fun dismiss() {
-        super.dismiss()
-        disposables.clear()
-    }
-
-    override fun onCancel(dialog: DialogInterface) {
-        super.onCancel(dialog)
-        disposables.clear()
+@Preview(showBackground = true)
+@Composable
+fun InterestSummarySheetPreview() {
+    AppTheme {
+        InterestSummarySheet(
+            state = InterestSummaryViewState(
+                balanceFiat = FiatValue.fromMinor(FiatCurrency.Dollars, BigInteger("1000000")),
+                balanceCrypto = CryptoValue.fromMinor(CryptoCurrency.BTC, BigInteger("1000000")),
+                totalEarnedFiat = FiatValue.fromMinor(FiatCurrency.Dollars, BigInteger("1000000")),
+                totalEarnedCrypto = CryptoValue.fromMinor(CryptoCurrency.BTC, BigInteger("1000000")),
+                pendingInterestFiat = FiatValue.fromMinor(FiatCurrency.Dollars, BigInteger("10000")),
+                pendingInterestCrypto = CryptoValue.fromMinor(CryptoCurrency.BTC, BigInteger("10000")),
+                interestRate = 0.1,
+                nextPaymentDate = Calendar.getInstance().apply {
+                    set(Calendar.DAY_OF_MONTH, 1)
+                    add(Calendar.MONTH, 3)
+                }.time,
+                initialHoldPeriod = 7,
+                earnFrequency = EarnRewardsFrequency.Monthly,
+                account = null,
+                errorState = InterestError.None,
+                isLoading = false,
+                interestCommission = 0.0,
+                canWithdraw = false,
+                canDeposit = true,
+            ),
+            onWithdrawPressed = {},
+            onDepositPressed = {},
+            onClosePressed = {},
+            onExplainerClicked = {},
+        )
     }
 }

@@ -1369,7 +1369,7 @@
     <string name="earn_rewards">Зарабатывайте Rewards</string>
     <string name="rewards_summary_total">Всего заработанных Rewards</string>
     <string name="rewards_summary_next_payment">Следующая выплата вознаграждений</string>
-    <string name="rewards_summary_hold_period">Начальный период удержания</string>
+    <string name="earn_interest_hold_period">Начальный период удержания</string>
     <string name="rewards_summary_hold_period_days">%1$d дней</string>
     <string name="rewards_summary_rate">Показатель вознаграждений</string>
     <string name="rewards_dashboard_title">Счет Rewards</string>
@@ -2985,13 +2985,13 @@
     <string name="earn_payment_frequency_unknown">Неизвестно</string>
     <string name="earn_summary_sheet_error_unknown_asset">При загрузке данных сводки для %1$s произошла ошибка. Повторите попытку позже.</string>
     <string name="earn_summary_sheet_error_other">При загрузке данных сводки произошла непредвиденная ошибка. Повторите попытку позже.</string>
-    <string name="earn_rate_explanation">Ставки вознаграждения определяются каждым протоколом за вычетом комиссии Blockchain.com в размере %1$s%%. Пользователи получают отображаемую ставку.</string>
+    <string name="earn_staking_rate_description">Ставки вознаграждения определяются каждым протоколом за вычетом комиссии Blockchain.com в размере %1$s%%. Пользователи получают отображаемую ставку.</string>
     <string name="active_rewards_summary_title">%1$s Active Rewards</string>
-    <string name="earn_net_earnings">Чистый заработок</string>
+    <string name="earn_active_rewards_earnings">Чистый заработок</string>
     <string name="earn_total_subscribed">Всего выделено</string>
-    <string name="earn_on_hold">На удержании</string>
+    <string name="earn_active_rewards_on_hold">На удержании</string>
     <string name="earn_annual_rate">Расчетная годовая ставка</string>
-    <string name="earn_trigger_price">Триггерная цена</string>
+    <string name="earn_active_rewards_trigger_price">Триггерная цена</string>
     <string name="common_important">Важное</string>
     <string name="earn_active_rewards_withdrawal_blocked">Вывод средств для Active Rewards пока не поддерживается. Разработка функции еженедельного вывода средств почти завершена и станет доступна ориентировочно в марте 2023 г. А до тех пор активы BTC на аккаунтах Active Rewards будут повторно включаться в стратегию каждой недели.\n\nBlockchain.com не несет ответственности за убытки, понесенные вследствие колебаний цен. Торгуйте осторожно.</string>
     <string name="processing_fee">Комиссия за обработку</string>

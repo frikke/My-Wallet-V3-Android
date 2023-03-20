@@ -33,7 +33,8 @@ import com.blockchain.domain.auth.SecureChannelService
 import com.blockchain.domain.paymentmethods.model.LINKED_BANK_ID_KEY
 import com.blockchain.earn.activeRewards.ActiveRewardsSummaryBottomSheet
 import com.blockchain.earn.activeRewards.viewmodel.ActiveRewardsError
-import com.blockchain.earn.interest.InterestSummarySheet
+import com.blockchain.earn.interest.InterestSummaryBottomSheet
+import com.blockchain.earn.interest.viewmodel.InterestError
 import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.earn.staking.viewmodel.StakingError
@@ -87,7 +88,7 @@ import timber.log.Timber
 
 class MultiAppActivity :
     BlockchainActivity(),
-    InterestSummarySheet.Host,
+    InterestSummaryBottomSheet.Host,
     StakingSummaryBottomSheet.Host,
     ActiveRewardsSummaryBottomSheet.Host,
     QuestionnaireSheetHost,
@@ -420,22 +421,37 @@ class MultiAppActivity :
         }
     }
 
-    override fun goToInterestDeposit(toAccount: BlockchainAccount) {
+    override fun launchInterestDeposit(account: EarnRewardsAccount.Interest) {
         transactionFlowNavigation.startTransactionFlow(
             action = AssetAction.InterestDeposit,
-            target = toAccount as TransactionTarget
+            target = account as TransactionTarget
         )
     }
 
-    override fun goToInterestWithdraw(fromAccount: BlockchainAccount) {
+    override fun launchInterestWithdrawal(sourceAccount: BlockchainAccount) {
         transactionFlowNavigation.startTransactionFlow(
             action = AssetAction.InterestWithdraw,
-            sourceAccount = fromAccount
+            sourceAccount = sourceAccount
         )
     }
 
     override fun openExternalUrl(url: String) {
         openUrl(url)
+    }
+
+    override fun showInterestLoadingError(error: InterestError) {
+        BlockchainSnackbar.make(
+            view = window.decorView.rootView,
+            message = when (error) {
+                is InterestError.UnknownAsset -> getString(
+                    R.string.earn_summary_sheet_error_unknown_asset, error.assetTicker
+                )
+                InterestError.Other -> getString(R.string.earn_summary_sheet_error_other)
+                InterestError.None -> getString(R.string.empty)
+            },
+            duration = Snackbar.LENGTH_SHORT,
+            type = SnackbarType.Error
+        ).show()
     }
 
     override fun launchStakingWithdrawal(account: EarnRewardsAccount.Staking) {

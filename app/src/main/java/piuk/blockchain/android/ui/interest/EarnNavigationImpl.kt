@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.interest
 
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.domain.common.model.BuySellViewType
@@ -12,7 +11,7 @@ import com.blockchain.earn.dashboard.EarnAccessBlockedBottomSheet
 import com.blockchain.earn.dashboard.EarnProductComparatorBottomSheet
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardNavigationEvent
 import com.blockchain.earn.dashboard.viewmodel.EarnType
-import com.blockchain.earn.interest.InterestSummarySheet
+import com.blockchain.earn.interest.InterestSummaryBottomSheet
 import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
@@ -28,8 +27,8 @@ class EarnNavigationImpl(
 ) : EarnNavigation {
     override fun route(navigationEvent: EarnDashboardNavigationEvent) {
         when (navigationEvent) {
-            is EarnDashboardNavigationEvent.OpenRewardsSummarySheet -> openInterestSummarySheet(
-                account = navigationEvent.account
+            is EarnDashboardNavigationEvent.OpenInterestSummarySheet -> openInterestSummarySheet(
+                assetTicker = navigationEvent.assetTicker
             )
             is EarnDashboardNavigationEvent.OpenStakingSummarySheet -> openStakingSummarySheet(
                 assetTicker = navigationEvent.assetTicker
@@ -69,8 +68,8 @@ class EarnNavigationImpl(
         }
     }
 
-    override fun openInterestSummarySheet(account: CryptoAccount) {
-        activity?.showBottomSheet(InterestSummarySheet.newInstance(account))
+    override fun openInterestSummarySheet(assetTicker: String) {
+        activity?.showBottomSheet(InterestSummaryBottomSheet.newInstance(assetTicker))
     }
 
     override fun openStakingSummarySheet(assetTicker: String) {

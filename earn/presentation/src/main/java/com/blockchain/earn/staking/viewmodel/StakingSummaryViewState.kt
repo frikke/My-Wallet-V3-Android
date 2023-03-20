@@ -20,7 +20,7 @@ data class StakingSummaryViewState(
     val stakingRate: Double,
     val commissionRate: Double,
     val isWithdrawable: Boolean,
-    val rewardsFrequency: EarnRewardsFrequency,
+    val earnFrequency: EarnRewardsFrequency,
     val canDeposit: Boolean
 ) : ViewState
 

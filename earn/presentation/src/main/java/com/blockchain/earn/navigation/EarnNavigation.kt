@@ -2,7 +2,6 @@ package com.blockchain.earn.navigation
 
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.CryptoAccount
 import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardNavigationEvent
 import com.blockchain.earn.dashboard.viewmodel.EarnType
@@ -11,7 +10,7 @@ import info.blockchain.balance.AssetInfo
 interface EarnNavigation {
     fun route(navigationEvent: EarnDashboardNavigationEvent)
 
-    fun openInterestSummarySheet(account: CryptoAccount)
+    fun openInterestSummarySheet(assetTicker: String)
 
     fun openStakingSummarySheet(assetTicker: String)
 

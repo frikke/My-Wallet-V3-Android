@@ -1,4 +1,4 @@
-package com.blockchain.earn.activeRewards
+package com.blockchain.earn.interest
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.ComposeView
@@ -18,54 +19,49 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.EarnRewardsAccount
-import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.mvi_v2.MVIBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
-import com.blockchain.earn.activeRewards.viewmodel.ActiveRewardsError
-import com.blockchain.earn.activeRewards.viewmodel.ActiveRewardsSummaryArgs
-import com.blockchain.earn.activeRewards.viewmodel.ActiveRewardsSummaryNavigationEvent
-import com.blockchain.earn.activeRewards.viewmodel.ActiveRewardsSummaryViewModel
-import com.blockchain.earn.activeRewards.viewmodel.ActiveRewardsSummaryViewState
+import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.earn.common.EarnFieldExplainer
 import com.blockchain.earn.common.EarnFieldExplainerBottomSheet
-import com.blockchain.earn.staking.SummarySheetLoading
+import com.blockchain.earn.interest.viewmodel.InterestError
+import com.blockchain.earn.interest.viewmodel.InterestSummaryArgs
+import com.blockchain.earn.interest.viewmodel.InterestSummaryNavigationEvent
+import com.blockchain.earn.interest.viewmodel.InterestSummaryViewModel
+import com.blockchain.earn.interest.viewmodel.InterestSummaryViewState
 import com.blockchain.koin.payloadScope
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
 import org.koin.core.scope.Scope
 
-const val WITHDRAWALS_DISABLED_LEARN_MORE_URL =
-    "https://support.blockchain.com/" +
-        "hc/en-us/articles/6868823856540-How-do-I-withdraw-crypto-from-my-Active-Rewards-Account-"
-
-class ActiveRewardsSummaryBottomSheet :
-    MVIBottomSheet<ActiveRewardsSummaryViewState>(),
+class InterestSummaryBottomSheet :
+    MVIBottomSheet<InterestSummaryViewState>(),
     KoinScopeComponent,
-    NavigationRouter<ActiveRewardsSummaryNavigationEvent> {
+    NavigationRouter<InterestSummaryNavigationEvent> {
 
     interface Host : MVIBottomSheet.Host {
         fun openExternalUrl(url: String)
-        fun launchActiveRewardsWithdrawal(sourceAccount: BlockchainAccount, targetAccount: CustodialTradingAccount)
-        fun launchActiveRewardsDeposit(account: EarnRewardsAccount.Active)
-        fun showActiveRewardsLoadingError(error: ActiveRewardsError)
+        fun launchInterestDeposit(account: EarnRewardsAccount.Interest)
+        fun launchInterestWithdrawal(sourceAccount: BlockchainAccount)
+        fun showInterestLoadingError(error: InterestError)
     }
 
     override val host: Host by lazy {
         super.host as? Host ?: throw IllegalStateException(
-            "Host fragment is not a ActiveRewardsSummaryBottomSheet.Host"
+            "Host fragment is not a InterestSummaryBottomSheet.Host"
         )
     }
 
     override val scope: Scope
         get() = payloadScope
 
-    private val viewModel by viewModel<ActiveRewardsSummaryViewModel>()
+    private val viewModel by viewModel<InterestSummaryViewModel>()
 
     private val cryptoTicker by lazy {
         arguments?.getString(ASSET_TICKER) ?: throw IllegalStateException(
-            "ActiveRewardsSummaryBottomSheet requires a ticker to start"
+            "InterestSummaryBottomSheet requires a ticker to start"
         )
     }
 
@@ -74,27 +70,24 @@ class ActiveRewardsSummaryBottomSheet :
             setContent {
                 bindViewModel(
                     viewModel = viewModel,
-                    navigator = this@ActiveRewardsSummaryBottomSheet,
-                    args = ActiveRewardsSummaryArgs(cryptoTicker)
+                    navigator = this@InterestSummaryBottomSheet,
+                    args = InterestSummaryArgs(cryptoTicker)
                 )
 
-                ActiveRewardsSummaryScreen(
+                InterestSummaryScreen(
                     viewModel = viewModel,
-                    onClosePressed = this@ActiveRewardsSummaryBottomSheet::dismiss,
+                    onClosePressed = this@InterestSummaryBottomSheet::dismiss,
                     onLoadError = { error ->
                         dismiss()
-                        host.showActiveRewardsLoadingError(error)
+                        host.showInterestLoadingError(error)
                     },
-                    onWithdrawPressed = { sourceAccount, tradingAccount ->
+                    onWithdrawPressed = { account ->
                         dismiss()
-                        host.launchActiveRewardsWithdrawal(sourceAccount, tradingAccount)
+                        host.launchInterestWithdrawal(account)
                     },
                     onDepositPressed = { account ->
                         dismiss()
-                        host.launchActiveRewardsDeposit(account)
-                    },
-                    withdrawDisabledLearnMore = {
-                        host.openExternalUrl(WITHDRAWALS_DISABLED_LEARN_MORE_URL)
+                        host.launchInterestDeposit(account)
                     },
                     onExplainerClicked = { earnField ->
                         showEarnFieldExplainer(earnField)
@@ -104,9 +97,11 @@ class ActiveRewardsSummaryBottomSheet :
         }
     }
 
-    override fun onStateUpdated(state: ActiveRewardsSummaryViewState) { }
+    override fun onStateUpdated(state: InterestSummaryViewState) {
+    }
 
-    override fun route(navigationEvent: ActiveRewardsSummaryNavigationEvent) { }
+    override fun route(navigationEvent: InterestSummaryNavigationEvent) {
+    }
 
     private fun showEarnFieldExplainer(earnField: EarnFieldExplainer) =
         (activity as BlockchainActivity).showBottomSheet(EarnFieldExplainerBottomSheet.newInstance(earnField))
@@ -114,7 +109,7 @@ class ActiveRewardsSummaryBottomSheet :
     companion object {
         private const val ASSET_TICKER = "ASSET_TICKER"
 
-        fun newInstance(cryptoTicker: String) = ActiveRewardsSummaryBottomSheet().apply {
+        fun newInstance(cryptoTicker: String) = InterestSummaryBottomSheet().apply {
             arguments = Bundle().apply {
                 putString(ASSET_TICKER, cryptoTicker)
             }
@@ -123,20 +118,19 @@ class ActiveRewardsSummaryBottomSheet :
 }
 
 @Composable
-fun ActiveRewardsSummaryScreen(
-    viewModel: ActiveRewardsSummaryViewModel,
+fun InterestSummaryScreen(
+    viewModel: InterestSummaryViewModel,
     onClosePressed: () -> Unit,
-    onLoadError: (ActiveRewardsError) -> Unit,
-    onWithdrawPressed: (sourceAccount: BlockchainAccount, targetAccount: CustodialTradingAccount) -> Unit,
-    onDepositPressed: (currency: EarnRewardsAccount.Active) -> Unit,
-    withdrawDisabledLearnMore: () -> Unit,
+    onLoadError: (InterestError) -> Unit,
+    onWithdrawPressed: (sourceAccount: BlockchainAccount) -> Unit,
+    onDepositPressed: (currency: EarnRewardsAccount.Interest) -> Unit,
     onExplainerClicked: (EarnFieldExplainer) -> Unit,
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
-    val viewState: ActiveRewardsSummaryViewState? by stateFlowLifecycleAware.collectAsState(null)
+    val viewState: InterestSummaryViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     viewState?.let { state ->
         Column(modifier = Modifier.nestedScroll(rememberNestedScrollInteropConnection())) {
@@ -144,20 +138,28 @@ fun ActiveRewardsSummaryScreen(
                 state.isLoading -> {
                     SummarySheetLoading()
                 }
-                state.errorState != ActiveRewardsError.None -> {
+                state.errorState != InterestError.None -> {
                     onLoadError(state.errorState)
                 }
                 else -> {
-                    ActiveRewardsSummarySheet(
+                    InterestSummarySheet(
                         state = state,
                         onWithdrawPressed = onWithdrawPressed,
                         onDepositPressed = onDepositPressed,
-                        withdrawDisabledLearnMore = withdrawDisabledLearnMore,
                         onClosePressed = onClosePressed,
                         onExplainerClicked = onExplainerClicked
                     )
                 }
             }
         }
+    }
+}
+
+@Composable
+fun SummarySheetLoading() {
+    Column {
+        ShimmerLoadingTableRow(false)
+        ShimmerLoadingTableRow(false)
+        ShimmerLoadingTableRow(false)
     }
 }

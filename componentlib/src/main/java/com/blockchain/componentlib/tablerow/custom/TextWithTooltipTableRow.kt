@@ -103,6 +103,64 @@ fun TextWithTooltipTableRow(
     }
 }
 
+@Composable
+fun TextWithTooltipTableRow(
+    startText: String,
+    endTitle: String = "",
+    endSubtitle: String? = null,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(AppTheme.dimensions.smallSpacing)
+            .clickable(onClick = onClick)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SimpleText(
+                text = startText,
+                style = ComposeTypographies.Paragraph2,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Start
+            )
+
+            Spacer(
+                modifier = Modifier.size(
+                    width = AppTheme.dimensions.tinySpacing,
+                    height = AppTheme.dimensions.smallestSpacing
+                )
+            )
+
+            Image(imageResource = ImageResource.Local(R.drawable.ic_question))
+
+            Spacer(
+                modifier = Modifier.weight(1f)
+            )
+
+            Column(horizontalAlignment = Alignment.End) {
+                SimpleText(
+                    text = endTitle,
+                    style = ComposeTypographies.Paragraph2,
+                    color = ComposeColors.Title,
+                    gravity = ComposeGravities.End
+                )
+
+                endSubtitle?.let {
+                    SimpleText(
+                        text = endSubtitle,
+                        style = ComposeTypographies.Paragraph1,
+                        color = ComposeColors.Body,
+                        gravity = ComposeGravities.End
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun TextTableRowPreview() {

@@ -1,10 +1,5 @@
 package com.blockchain.earn.activeRewards
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
-import com.blockchain.componentlib.alert.SnackbarAlert
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -57,6 +51,7 @@ import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.earn.R
 import com.blockchain.earn.activeRewards.viewmodel.ActiveRewardsError
 import com.blockchain.earn.activeRewards.viewmodel.ActiveRewardsSummaryViewState
+import com.blockchain.earn.common.EarnFieldExplainer
 import com.blockchain.earn.domain.models.EarnRewardsFrequency
 import com.blockchain.extensions.safeLet
 import com.blockchain.featureflag.FeatureFlag
@@ -75,10 +70,9 @@ fun ActiveRewardsSummarySheet(
     onWithdrawPressed: (sourceAccount: BlockchainAccount, targetAccount: CustodialTradingAccount) -> Unit,
     onDepositPressed: (currency: EarnRewardsAccount.Active) -> Unit,
     withdrawDisabledLearnMore: () -> Unit,
+    onExplainerClicked: (EarnFieldExplainer) -> Unit,
     onClosePressed: () -> Unit,
 ) {
-
-    var snackbarState by remember { mutableStateOf<InfoSnackbarState>(InfoSnackbarState.Hidden) }
     Box {
         Column {
             SheetHeader(
@@ -145,12 +139,11 @@ fun ActiveRewardsSummarySheet(
 
                         if (state.totalEarnedFiat != null && state.totalEarnedCrypto != null) {
                             TextWithTooltipTableRow(
-                                startText = stringResource(R.string.earn_net_earnings),
+                                startText = stringResource(R.string.earn_active_rewards_earnings),
                                 endTitle = state.totalEarnedFiat.toStringWithSymbol(),
                                 endSubtitle = state.totalEarnedCrypto.toStringWithSymbol(),
-                                isTappable = true,
-                                tooltipContent = {
-                                    TooltipText(tooltipText = stringResource(R.string.earn_net_earning_explainer))
+                                onClick = {
+                                    onExplainerClicked(EarnFieldExplainer.ActiveRewardsEarnings)
                                 }
                             )
                         }
@@ -165,12 +158,11 @@ fun ActiveRewardsSummarySheet(
 
                         if (state.totalOnHoldFiat != null && state.totalOnHoldCrypto != null) {
                             TextWithTooltipTableRow(
-                                startText = stringResource(R.string.earn_on_hold),
+                                startText = stringResource(R.string.earn_active_rewards_on_hold),
                                 endTitle = state.totalOnHoldFiat.toStringWithSymbol(),
                                 endSubtitle = state.totalOnHoldCrypto.toStringWithSymbol(),
-                                isTappable = true,
-                                tooltipContent = {
-                                    TooltipText(tooltipText = stringResource(R.string.earn_on_hold_explainer))
+                                onClick = {
+                                    onExplainerClicked(EarnFieldExplainer.ActiveRewardsOnHold)
                                 }
                             )
                         }
@@ -191,19 +183,17 @@ fun ActiveRewardsSummarySheet(
                         TextWithTooltipTableRow(
                             startText = stringResource(R.string.earn_annual_rate),
                             endTitle = "${state.activeRewardsRate}%",
-                            isTappable = true,
-                            tooltipContent = {
-                                TooltipText(tooltipText = stringResource(R.string.earn_annual_rate_explainer))
+                            onClick = {
+                                onExplainerClicked(EarnFieldExplainer.ActiveRewardsEarnRate)
                             }
                         )
 
                         if (state.triggerPrice != null) {
                             TextWithTooltipTableRow(
-                                startText = stringResource(R.string.earn_trigger_price),
+                                startText = stringResource(R.string.earn_active_rewards_trigger_price),
                                 endTitle = state.triggerPrice.toStringWithSymbol(),
-                                isTappable = true,
-                                tooltipContent = {
-                                    TooltipText(tooltipText = stringResource(R.string.earn_trigger_price_explainer))
+                                onClick = {
+                                    onExplainerClicked(EarnFieldExplainer.ActiveRewardsTriggerPrice)
                                 }
                             )
                         }
@@ -222,7 +212,7 @@ fun ActiveRewardsSummarySheet(
 
                                 else ->
                                     stringResource(id = R.string.earn_payment_frequency_unknown)
-                            }
+                            },
                         )
 
                         TinyVerticalSpacer()
@@ -278,30 +268,6 @@ fun ActiveRewardsSummarySheet(
                 LargeVerticalSpacer()
             }
         }
-
-        AnimatedVisibility(
-            modifier = Modifier.align(Alignment.BottomCenter),
-            visible = snackbarState !is InfoSnackbarState.Hidden,
-            enter = slideInHorizontally() + fadeIn(),
-            exit = slideOutHorizontally() + fadeOut()
-        ) {
-            when (snackbarState) {
-                is InfoSnackbarState.RateInfo -> {
-                    SnackbarAlert(
-                        message = stringResource(
-                            R.string.earn_rate_explanation, state.activeRewardsRate.toString()
-                        ),
-                        actionLabel = stringResource(R.string.common_ok),
-                        onActionClicked = {
-                            snackbarState = InfoSnackbarState.Hidden
-                        }
-                    )
-                }
-                else -> {
-                    // do nothing
-                }
-            }
-        }
     }
 }
 
@@ -329,6 +295,7 @@ fun PreviewActiveRewardsSummarySheet() {
             onDepositPressed = {},
             withdrawDisabledLearnMore = {},
             onClosePressed = {},
+            onExplainerClicked = {}
         )
     }
 }

@@ -24,7 +24,7 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.common.model.PromotionStyleInfo
 import com.blockchain.domain.paymentmethods.model.BankAuthSource
 import com.blockchain.domain.referral.model.ReferralInfo
-import com.blockchain.earn.interest.InterestSummarySheet
+import com.blockchain.earn.interest.InterestSummaryBottomSheet
 import com.blockchain.extensions.minus
 import com.blockchain.fiatActions.BankLinkingHost
 import com.blockchain.fiatActions.QuestionnaireSheetHost
@@ -377,8 +377,8 @@ class PortfolioFragment :
                     )
                 }
                 DashboardNavigationAction.FiatFundsNoKyc -> showFiatFundsKyc()
-                is DashboardNavigationAction.InterestSummary -> InterestSummarySheet.newInstance(
-                    navigationAction.account
+                is DashboardNavigationAction.InterestSummary -> InterestSummaryBottomSheet.newInstance(
+                    navigationAction.account.currency.networkTicker
                 )
                 is DashboardNavigationAction.FiatDepositOrWithdrawalBlockedDueToSanctions ->
                     BlockedDueToSanctionsSheet.newInstance(navigationAction.reason)

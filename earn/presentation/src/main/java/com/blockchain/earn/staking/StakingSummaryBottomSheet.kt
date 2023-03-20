@@ -14,9 +14,12 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.coincore.EarnRewardsAccount
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.mvi_v2.MVIBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
+import com.blockchain.earn.common.EarnFieldExplainer
+import com.blockchain.earn.common.EarnFieldExplainerBottomSheet
 import com.blockchain.earn.staking.viewmodel.StakingError
 import com.blockchain.earn.staking.viewmodel.StakingSummaryArgs
 import com.blockchain.earn.staking.viewmodel.StakingSummaryNavigationEvent
@@ -84,6 +87,9 @@ class StakingSummaryBottomSheet :
                         dismiss()
                         host.openExternalUrl(ETH_STAKING_CONSIDERATIONS)
                     },
+                    onExplainerClicked = { earnField ->
+                        showEarnFieldExplainer(earnField)
+                    }
                 )
             }
         }
@@ -94,6 +100,9 @@ class StakingSummaryBottomSheet :
 
     override fun route(navigationEvent: StakingSummaryNavigationEvent) {
     }
+
+    private fun showEarnFieldExplainer(earnField: EarnFieldExplainer) =
+        (activity as BlockchainActivity).showBottomSheet(EarnFieldExplainerBottomSheet.newInstance(earnField))
 
     companion object {
         private const val ASSET_TICKER = "ASSET_TICKER"
@@ -115,6 +124,7 @@ fun StakingSummaryScreen(
     onWithdrawPressed: (currency: EarnRewardsAccount.Staking) -> Unit,
     onDepositPressed: (currency: EarnRewardsAccount.Staking) -> Unit,
     withdrawDisabledLearnMore: () -> Unit,
+    onExplainerClicked: (EarnFieldExplainer) -> Unit,
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
@@ -138,6 +148,7 @@ fun StakingSummaryScreen(
                         onDepositPressed = onDepositPressed,
                         withdrawDisabledLearnMore = withdrawDisabledLearnMore,
                         onClosePressed = onClosePressed,
+                        onExplainerClicked = onExplainerClicked
                     )
                 }
             }

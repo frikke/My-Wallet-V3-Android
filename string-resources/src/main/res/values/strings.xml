@@ -86,6 +86,7 @@
     <string name="common_other">Other</string>
     <string name="common_important">Important</string>
     <string name="common_go">GO</string>
+    <string name="common_important_information">Important information</string>
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>
@@ -1856,7 +1857,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="rewards_summary_total">Total Rewards Earned</string>
     <string name="rewards_summary_next_payment">Next Rewards Payment</string>
     <string name="rewards_summary_accrued">Accrued Rewards This Month</string>
-    <string name="rewards_summary_hold_period">Initial Hold Period</string>
     <string name="rewards_summary_hold_period_days">%1$d Days</string>
     <string name="rewards_summary_rate">Rewards Rate</string>
     <string name="earn_dashboard_title">Earn</string>
@@ -3424,7 +3424,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_summary_sheet_error_other">There was an unexpected error loading the Summary details, please try again later</string>
     <string name="staking_summary_non_withdrawable_info">Unstaking and withdrawing ETH will be available when enabled by the Ethereum network.</string>
     <string name="staking_summary_bonding_explanation">Staked funds are subject to a bonding period of time before they start generating staking rewards.</string>
-    <string name="earn_rate_explanation">Rewards rates are determined by each protocol minus a %1$s%% Blockchain.com fee. Users receive the displayed rate.</string>
+    <string name="earn_staking_rate_description">Rewards rates are determined by each protocol minus a Blockchain.com fee. Users receive the displayed rate.</string>
     <string name="earn_dashboard_filter_all">All</string>
     <string name="earn_dashboard_filter_staking">Staking</string>
     <string name="earn_dashboard_filter_interest">Passive</string>
@@ -3457,9 +3457,9 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_onboarding_active_subtitle">Participate on weekly strategies and earn rewards based on crypto performance.</string>
     <string name="earn_onboarding_cta">Start earning</string>
     <string name="earn_net_earning_explainer">Sum of all rewards and debits of previous strategies</string>
-    <string name="earn_on_hold_explainer">Funds that will be added to the subscribed amount once the current strategy finishes</string>
-    <string name="earn_annual_rate_explainer">Rate perceived by the user if market price is at or lower than the trigger price at the expiration date.</string>
-    <string name="earn_trigger_price_explainer">A price level that results in a debit to your crypto balance if exceeded on the expiration date</string>
+    <string name="earn_active_rewards_on_hold_description">Funds you transfer during the week will be included in the following week\'s strategy at 08:00 AM (UTC).</string>
+    <string name="earn_active_rewards_rate_description">Rate perceived by the user if market price is at or lower than the trigger price at the expiration date.</string>
+    <string name="earn_active_rewards_trigger_price_description">A price level that results in a debit to your crypto balance if exceeded on the expiration date.</string>
     <string name="earn_active_rewards_withdrawal_pending_title">Withdrawal requested</string>
     <string name="earn_active_rewards_withdrawal_pending_subtitle">Your withdrawal will be executed once this week\'s strategy is complete.</string>
     <string name="earn_active_rewards_withdrawal_activity">Withdrew all %1$s</string>
@@ -3527,11 +3527,11 @@ If you want to know more about our verification process visit our <annotation li
     <string name="prices_top_movers">Top Movers</string>
     <string name="other_tokens">Other tokens</string>
     <string name="processing_fee">Processing fee</string>
-    <string name="earn_net_earnings">Net earnings</string>
+    <string name="earn_active_rewards_earnings">Net earnings</string>
     <string name="earn_total_subscribed">Total subscribed</string>
-    <string name="earn_on_hold">On hold</string>
+    <string name="earn_active_rewards_on_hold">On hold</string>
     <string name="earn_annual_rate">Estimated annual rate</string>
-    <string name="earn_trigger_price">Trigger price</string>
+    <string name="earn_active_rewards_trigger_price">Trigger price</string>
     <string name="earn_active_rewards_withdrawal_blocked">Withdrawals for Active Rewards are not yet enabled. Weekly withdrawal functionality is being finalized and will be enabled in approximately March 2023. Until then, BTC assets in Active Rewards Accounts will be re-subscribed to each week\'s strategy. Blockchain.com does not assume liability for any losses incurred from price fluctuations. Please trade with caution.</string>
     <string name="earn_active_rewards_withdrawal_blocked_warning_title">Active Rewards considerations</string>
     <string name="earn_active_rewards_withdrawal_blocked_warning_subtitle">Price movements may result in a reduction of your asset’s balance. \n\nOnce subscribed, assets are locked until the following week and subject to market volatility. \n\nBlockchain.com does not assume liability for any losses incurred from price fluctuations. Please trade with caution.</string>
@@ -3572,6 +3572,18 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_product_withdrawal_frequency_weekly">Withdraw weekly</string>
     <string name="earn_product_comparator_title">Compare Products</string>
     <string name="earn_product_comparator_description">Learn which Earn Product is\nbest for you.</string>
+    <string name="earn_staking_withdrawal_blocked">Unstaking ETH won’t be available until withdrawals are enabled by the Ethereum network.</string>
+    <string name="passive_rewards_summary_title">%1$s Passive Rewards</string>
+    <string name="earn_interest_accrued_this_month">Accrued this month</string>
+    <string name="earn_interest_accrued_this_month_explainer">Rewards earned month to date.</string>
+    <string name="common_next_payment">Next payment</string>
+    <string name="common_got_it">Got it</string>
+    <string name="earn_payment_frequency_monthly_description">Rewards are paid by the end of the day on the 1st of each month.</string>
+    <string name="earn_interest_hold_period_description">From the moment you deposit your funds into your Passive Rewards account, these will be restricted from being withdrawn for 7 days.</string>
+    <string name="earn_interest_hold_period">Initial Hold Period</string>
+    <string name="earn_interest_accrued_this_month_description">Rewards earned month to date</string>
+    <string name="earn_interest_rate_description">Rewards accrues daily and is paid monthly. The rewards rate may be periodically adjusted.</string>
+    <string name="earn_active_rewards_earnings_description">Sum of all debits and credits of previous strategies.</string>
     <string name="dex_no_input_title">To get started, transfer to your wallets</string>
 
 </resources>
