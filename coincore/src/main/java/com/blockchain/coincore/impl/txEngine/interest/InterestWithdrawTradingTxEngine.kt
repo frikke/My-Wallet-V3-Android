@@ -26,6 +26,7 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
+import java.math.BigInteger
 
 class InterestWithdrawTradingTxEngine(
     private val interestBalanceStore: FlushableDataSource,
@@ -49,14 +50,14 @@ class InterestWithdrawTradingTxEngine(
 
     override fun doInitialiseTx(): Single<PendingTx> =
         Singles.zip(
-            walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAssetInfo, Product.SAVINGS),
             interestService.getLimitsForAsset(sourceAssetInfo),
             availableBalance
-        ).map { (minLimits, maxLimits, balance) ->
+        ).map { (maxLimits, balance) ->
             PendingTx(
                 amount = Money.zero(sourceAsset),
                 limits = TxLimits.fromAmounts(
-                    min = Money.fromMinor(sourceAsset, minLimits.minLimit),
+                    // For withdrawls, the min is 1 minor unit of the source asset
+                    min = Money.fromMinor(sourceAsset, BigInteger.ONE),
                     max = (maxLimits.maxWithdrawalFiatValue as FiatValue).toCrypto(exchangeRates, sourceAssetInfo)
                 ),
                 feeSelection = FeeSelection(),
