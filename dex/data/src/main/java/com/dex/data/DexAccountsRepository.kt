@@ -5,6 +5,7 @@ import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.SingleAccountList
+import com.blockchain.core.chains.ethereum.EthDataManager.Companion.ETH_CHAIN_ID
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
@@ -12,7 +13,6 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.getDataOrThrow
 import com.blockchain.utils.asFlow
 import com.blockchain.walletmode.WalletMode
-import com.dex.data.stores.DexChainDataStorage
 import com.dex.data.stores.DexTokensDataStorage
 import com.dex.domain.DexAccount
 import com.dex.domain.DexAccountsService
@@ -23,6 +23,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
@@ -32,55 +34,48 @@ import kotlinx.coroutines.flow.scan
 class DexAccountsRepository(
     private val coincore: Coincore,
     private val currencyPrefs: CurrencyPrefs,
-    private val dexChainDataStorage: DexChainDataStorage,
     private val dexTokensDataStorage: DexTokensDataStorage,
 ) : DexAccountsService {
     override fun sourceAccounts(): Flow<List<DexAccount>> =
-        dexSourceAccounts().map { dexSourceAccounts ->
-            dexSourceAccounts.map { (account, balance) ->
-                DexAccount(
-                    account = account,
-                    currency = account.currency,
-                    balance = balance.total,
-                    fiatBalance = balance.totalFiat,
-                )
-            }
-        }.catch {
+        dexSourceAccounts().catch {
             emit(emptyList())
         }
 
-    override fun defSourceAccount(): Flow<DexAccount> =
-        dexSourceAccounts().map { map ->
-            map.maxBy { it.value.totalFiat }
-        }.map { (account, balance) ->
-            DexAccount(
-                account = account,
-                currency = account.currency,
-                balance = balance.total,
-                fiatBalance = balance.totalFiat,
-            )
-        }
+    override suspend fun defSourceAccount(): DexAccount? {
+        return dexSourceAccounts().map { accounts ->
+            accounts.maxByOrNull { it.fiatBalance }
+        }.firstOrNull()
+    }
 
     private val freshness = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
 
     private fun dexAvailableTokens() =
-        dexChainDataStorage.stream(freshness).getDataOrThrow().flatMapLatest { chains ->
-            chains.map {
-                dexTokensDataStorage.stream(
-                    freshness.withKey(
-                        DexTokensRequest(
-                            chainId = it.chainId
-                        )
-                    )
-                ).getDataOrThrow()
-            }.merge()
-        }
+        dexTokensDataStorage.stream(
+            freshness.withKey(
+                DexTokensRequest(
+                    chainId = ETH_CHAIN_ID
+                )
+            )
+        ).getDataOrThrow()
 
-    private fun dexSourceAccounts(): Flow<Map<CryptoAccount, AccountBalance>> {
+    private fun dexSourceAccounts(): Flow<List<DexAccount>> {
         return dexAvailableTokens().flatMapLatest { tokens ->
             activeAccounts().map {
                 it.filterKeys { account ->
                     account.currency.networkTicker in tokens.map { token -> token.symbol }
+                }.filterValues { balance ->
+                    balance.total.isPositive
+                }
+            }.map { balancedAccounts ->
+                balancedAccounts.map { (account, balance) ->
+                    DexAccount(
+                        account = account,
+                        balance = balance.total,
+                        currency = account.currency,
+                        fiatBalance = balance.totalFiat,
+                        contractAddress = tokens.first { it.symbol == account.currency.networkTicker }.address,
+                        chainId = tokens.first { it.symbol == account.currency.networkTicker }.chainId
+                    )
                 }
             }
         }
@@ -113,6 +108,12 @@ class DexAccountsRepository(
                             account = account,
                             currency = account.currency as AssetInfo,
                             balance = Money.zero(account.currency),
+                            contractAddress = tokens.first { token ->
+                                token.symbol == account.currency.networkTicker
+                            }.address,
+                            chainId = tokens.first { token ->
+                                token.symbol == account.currency.networkTicker
+                            }.chainId,
                             fiatBalance = Money.zero(currencyPrefs.selectedFiatCurrency),
                         )
                     }.plus(
@@ -122,6 +123,12 @@ class DexAccountsRepository(
                                 currency = account.currency,
                                 balance = balance.total,
                                 fiatBalance = balance.totalFiat,
+                                contractAddress = tokens.first { token ->
+                                    token.symbol == account.currency.networkTicker
+                                }.address,
+                                chainId = tokens.first { token ->
+                                    token.symbol == account.currency.networkTicker
+                                }.chainId,
                             )
                         }
                     )

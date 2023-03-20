@@ -33,7 +33,9 @@ val dexPresentation = module {
         }
 
         scoped {
-            DexTransactionProcessor()
+            DexTransactionProcessor(
+                dexQuotesService = get()
+            )
         }
     }
 }

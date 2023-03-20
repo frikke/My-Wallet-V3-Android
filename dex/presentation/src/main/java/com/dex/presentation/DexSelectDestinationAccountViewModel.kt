@@ -53,9 +53,7 @@ class DexSelectDestinationAccountViewModel(
                     dexService.destinationAccounts()
                         .zip(transactionProcessor.transaction) { accounts, tx ->
                             accounts.filter {
-                                val sourceAccount = tx.sourceAccount
-                                sourceAccount == null || it.currency.networkTicker !=
-                                    sourceAccount.currency.networkTicker
+                                it.currency.networkTicker != tx.sourceAccount.currency.networkTicker
                             }
                         }.collectLatest { dexAccounts ->
                             updateState {

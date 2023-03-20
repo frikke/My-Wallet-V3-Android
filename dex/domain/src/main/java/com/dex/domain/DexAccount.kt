@@ -9,4 +9,18 @@ data class DexAccount(
     val currency: AssetInfo,
     val balance: Money,
     val fiatBalance: Money,
+    val contractAddress: String,
+    val chainId: Int
+)
+
+data class DexQuote(
+    val amount: Money,
+    val outputAmount: OutputAmount
+)
+
+data class DexQuoteParams(
+    val sourceAccount: DexAccount,
+    val destinationAccount: DexAccount,
+    val amount: Money,
+    val slippage: Double
 )

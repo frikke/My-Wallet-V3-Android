@@ -9,17 +9,17 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
+import com.blockchain.extensions.safeLet
 import com.blockchain.preferences.CurrencyPrefs
 import com.dex.domain.DexAccountsService
 import com.dex.domain.DexTransaction
 import com.dex.domain.DexTransactionProcessor
-import com.dex.domain.EmptyDexTransaction
+import com.dex.domain.DexTxError
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import info.blockchain.balance.canConvert
 import java.math.BigDecimal
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -37,8 +37,10 @@ class DexEnterAmountViewModel(
     ModelConfigArgs.NoArgs
     >(
     initialState = AmountModelState(
-        transaction = EmptyDexTransaction,
-        inputToFiatExchangeRate = null
+        transaction = null,
+        inputToFiatExchangeRate = null,
+        outputToFiatExchangeRate = null,
+        canTransact = DataResource.Loading
     )
 ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
@@ -46,49 +48,85 @@ class DexEnterAmountViewModel(
 
     override fun reduce(state: AmountModelState): InputAmountViewState {
         with(state) {
-            return InputAmountViewState(
-                sourceCurrency = transaction.sourceAccount?.currency,
-                destinationCurrency = transaction.destinationAccount?.currency,
-                maxAmount = transaction.sourceAccount?.balance,
-                inputExchangeAmount = fiatInputAmount(transaction.amount, inputToFiatExchangeRate),
-                outputExchangeAmountIntent = Money.zero(currencyPrefs.selectedFiatCurrency),
-                destinationAccountBalance = transaction.destinationAccount?.balance
-            )
+            return when (canTransact) {
+                DataResource.Loading -> InputAmountViewState.Loading
+                is DataResource.Data -> if (canTransact.data) {
+                    showInputUi(state)
+                } else {
+                    showNoInoutUi()
+                }
+                /**
+                 * todo map loading errors
+                 * */
+                else -> throw IllegalStateException("Model state cannot be mapped")
+            }
         }
     }
 
-    private fun fiatInputAmount(amount: Money?, inputToFiatExchangeRate: ExchangeRate?): Money {
-        val inputAmount = amount ?: return Money.zero(currencyPrefs.selectedFiatCurrency)
-        val exchangeRate = inputToFiatExchangeRate ?: return Money.zero(currencyPrefs.selectedFiatCurrency)
-        return exchangeRate.takeIf { it.canConvert(inputAmount) }?.let {
-            it.convert(inputAmount)
-        } ?: return Money.zero(currencyPrefs.selectedFiatCurrency)
+    private fun showNoInoutUi(): InputAmountViewState =
+        InputAmountViewState.NoInputViewState
+
+    private fun showInputUi(state: AmountModelState): InputAmountViewState {
+        val transaction = state.transaction
+        return InputAmountViewState.TransactionInputState(
+            sourceCurrency = transaction?.sourceAccount?.currency,
+            destinationCurrency = transaction?.destinationAccount?.currency,
+            maxAmount = transaction?.sourceAccount?.balance,
+            error = transaction?.toUiError() ?: DexUiError.None,
+            inputExchangeAmount = safeLet(transaction?.amount, state.inputToFiatExchangeRate) { amount, rate ->
+                fiatAmount(amount, rate)
+            } ?: Money.zero(currencyPrefs.selectedFiatCurrency),
+            outputAmount = transaction?.outputAmount?.expectedOutput,
+            outputExchangeAmount = safeLet(
+                transaction?.outputAmount?.expectedOutput, state.outputToFiatExchangeRate
+            ) { amount, rate ->
+                fiatAmount(amount, rate)
+            } ?: Money.zero(currencyPrefs.selectedFiatCurrency),
+            destinationAccountBalance = transaction?.destinationAccount?.balance
+        )
+    }
+
+    private fun fiatAmount(amount: Money, exchangeRate: ExchangeRate): Money {
+        return exchangeRate.takeIf { it.canConvert(amount) }?.convert(amount) ?: return Money.zero(
+            currencyPrefs.selectedFiatCurrency
+        )
     }
 
     override suspend fun handleIntent(modelState: AmountModelState, intent: InputAmountIntent) {
         when (intent) {
             InputAmountIntent.InitTransaction -> {
-                txProcessor.initTransaction()
-                subscribeForTxUpdates()
-                preselectSourceAccount()
+                initTransaction()
             }
-            is InputAmountIntent.AmountUpdated ->
-                when {
-                    intent.amountString.isEmpty() -> txProcessor.updateTransactionAmount(BigDecimal.ZERO)
-                    intent.amountString.toDoubleOrNull() != null -> txProcessor.updateTransactionAmount(
-                        intent.amountString.toBigDecimal()
-                    )
-                    else -> {
-                        // invalid amount todo
-                    }
+            is InputAmountIntent.AmountUpdated -> {
+                val amount = when {
+                    intent.amountString.isEmpty() -> BigDecimal.ZERO
+                    intent.amountString.toBigDecimalOrNull() != null -> intent.amountString.toBigDecimal()
+                    else -> null
                 }
+                amount?.let {
+                    txProcessor.updateTransactionAmount(amount)
+                }
+            }
+            InputAmountIntent.DisposeTransaction -> {
+            }
         }
     }
 
-    private fun preselectSourceAccount() {
+    private fun initTransaction() {
         viewModelScope.launch {
-            dexAccountsService.defSourceAccount().collect {
-                txProcessor.updateSourceAccount(it)
+            val preselectedAccount = dexAccountsService.defSourceAccount()
+            preselectedAccount?.let {
+                updateState { state ->
+                    state.copy(
+                        canTransact = DataResource.Data(true)
+                    )
+                }
+                txProcessor.initTransaction(it)
+                subscribeForTxUpdates()
+            } ?: updateState { state ->
+                state.copy(
+                    canTransact = DataResource.Data(false)
+                )
             }
         }
     }
@@ -96,19 +134,31 @@ class DexEnterAmountViewModel(
     private fun subscribeForTxUpdates() {
         viewModelScope.launch {
             txProcessor.transaction.onEach {
-                val sourceCurrency = it.sourceAccount?.currency ?: return@onEach
-                if (modelState.inputToFiatExchangeRate?.from != sourceCurrency) {
-                    updateInputFiatExchangeRate(
-                        from = sourceCurrency,
-                        to = currencyPrefs.selectedFiatCurrency
-                    )
-                }
+                updateFiatExchangeRatesIfNeeded(it)
             }.collectLatest {
                 updateState { state ->
                     state.copy(
                         transaction = it
                     )
                 }
+            }
+        }
+    }
+
+    private fun updateFiatExchangeRatesIfNeeded(dexTransaction: DexTransaction) {
+        if (modelState.inputToFiatExchangeRate?.from != dexTransaction.sourceAccount.currency) {
+            updateInputFiatExchangeRate(
+                from = dexTransaction.sourceAccount.currency,
+                to = currencyPrefs.selectedFiatCurrency
+            )
+        }
+
+        dexTransaction.destinationAccount?.currency?.let {
+            if (modelState.outputToFiatExchangeRate?.from != it) {
+                updateOutputFiatExchangeRate(
+                    from = it,
+                    to = currencyPrefs.selectedFiatCurrency
+                )
             }
         }
     }
@@ -126,25 +176,62 @@ class DexEnterAmountViewModel(
             }
         }
     }
+
+    private fun updateOutputFiatExchangeRate(from: Currency, to: Currency) {
+        viewModelScope.launch {
+            exchangeRatesDataManager.exchangeRate(fromAsset = from, toAsset = to).collectLatest {
+                (it as? DataResource.Data)?.data?.let { rate ->
+                    updateState { state ->
+                        state.copy(
+                            outputToFiatExchangeRate = rate
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun DexTransaction.toUiError() =
+        when (this.txError) {
+            DexTxError.None -> DexUiError.None
+            DexTxError.NotEnoughFunds -> DexUiError.InsufficientFunds(
+                sourceAccount.currency
+            )
+        }
 }
 
-data class InputAmountViewState(
-    val sourceCurrency: Currency?,
-    val destinationCurrency: Currency?,
-    val maxAmount: Money?,
-    val destinationAccountBalance: Money?,
-    val inputExchangeAmount: Money?,
-    val outputExchangeAmountIntent: Money?
-) : ViewState
+sealed class InputAmountViewState : ViewState {
+    data class TransactionInputState(
+        val sourceCurrency: Currency?,
+        val destinationCurrency: Currency?,
+        val maxAmount: Money?,
+        val destinationAccountBalance: Money?,
+        val inputExchangeAmount: Money?,
+        val outputExchangeAmount: Money?,
+        val outputAmount: Money?,
+        val error: DexUiError = DexUiError.None
+    ) : InputAmountViewState()
+
+    object NoInputViewState : InputAmountViewState()
+    object Loading : InputAmountViewState()
+}
 
 data class AmountModelState(
-    val transaction: DexTransaction,
+    val canTransact: DataResource<Boolean> = DataResource.Loading,
+    val transaction: DexTransaction?,
     val inputToFiatExchangeRate: ExchangeRate?,
+    val outputToFiatExchangeRate: ExchangeRate?,
 ) : ModelState
 
 class AmountNavigationEvent : NavigationEvent
 
 sealed class InputAmountIntent : Intent<AmountModelState> {
     object InitTransaction : InputAmountIntent()
+    object DisposeTransaction : InputAmountIntent()
     class AmountUpdated(val amountString: String) : InputAmountIntent()
+}
+
+sealed class DexUiError {
+    object None : DexUiError()
+    data class InsufficientFunds(val currency: Currency) : DexUiError()
 }

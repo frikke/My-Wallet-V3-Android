@@ -43,8 +43,6 @@ import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
@@ -268,7 +266,7 @@ class AssetsViewModel(
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun loadAccounts() {
         accountsJob?.cancel()
-        accountsJob = CoroutineScope(Dispatchers.IO).launch {
+        accountsJob = viewModelScope.launch {
             walletModeService.walletMode.onEach { walletMode ->
                 if (walletMode != modelState.walletMode) {
                     updateState {

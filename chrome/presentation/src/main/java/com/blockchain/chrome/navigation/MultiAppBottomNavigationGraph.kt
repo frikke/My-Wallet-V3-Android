@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.blockchain.chrome.ChromeBottomNavigationItem
 import com.blockchain.chrome.composable.bottomNavigationItems
+import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.chrome.ChromeGridScreen
 import com.blockchain.componentlib.chrome.ChromeListScreen
 import com.blockchain.componentlib.chrome.ListStateInfo
@@ -132,8 +133,10 @@ fun MultiAppBottomNavigationHost(
             ChromeListScreen(
                 modifier = modifier,
                 isPullToRefreshEnabled = enableRefresh,
-                content = { listState, shouldTriggerRefresh ->
-                    DexEnterAmountScreen(listState, navController)
+                content = { listState, _ ->
+                    DexEnterAmountScreen(
+                        listState, navController, { assetActionsNavigation.navigate(AssetAction.Receive) }
+                    )
                 },
                 refreshComplete = refreshComplete,
                 refreshStarted = refreshStarted,

@@ -23,6 +23,8 @@ import com.blockchain.api.custodial.CustodialBalanceApi
 import com.blockchain.api.dataremediation.DataRemediationApi
 import com.blockchain.api.dex.DexApi
 import com.blockchain.api.dex.DexApiService
+import com.blockchain.api.dex.DexQuotesApi
+import com.blockchain.api.dex.DexQuotesApiService
 import com.blockchain.api.earn.active.ActiveRewardsApi
 import com.blockchain.api.earn.active.ActiveRewardsApiService
 import com.blockchain.api.earn.passive.InterestApiInterface
@@ -364,6 +366,13 @@ val blockchainApiModule = module {
         val api = get<Retrofit>(dexApi).create(DexApi::class.java)
         DexApiService(
             api = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(DexQuotesApi::class.java)
+        DexQuotesApiService(
+            dexQuotesApi = api
         )
     }
 

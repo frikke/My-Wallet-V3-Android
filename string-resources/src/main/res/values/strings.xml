@@ -3572,4 +3572,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_product_withdrawal_frequency_weekly">Withdraw weekly</string>
     <string name="earn_product_comparator_title">Compare Products</string>
     <string name="earn_product_comparator_description">Learn which Earn Product is\nbest for you.</string>
+    <string name="dex_no_input_title">To get started, transfer to your wallets</string>
+
 </resources>

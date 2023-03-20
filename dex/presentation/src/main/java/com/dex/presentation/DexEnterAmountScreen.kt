@@ -3,6 +3,7 @@ package com.dex.presentation
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
@@ -41,13 +43,21 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
+import com.blockchain.componentlib.basic.ComposeColors
+import com.blockchain.componentlib.basic.ComposeGravities
+import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.button.AlertButton
+import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.icons.ArrowDown
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.withBackground
@@ -58,6 +68,7 @@ import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.theme.Grey900
+import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.dex.presentation.R
 import com.blockchain.koin.payloadScope
@@ -65,8 +76,6 @@ import com.blockchain.preferences.DexPrefs
 import com.dex.presentation.graph.DexDestination
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
-import java.text.DecimalFormatSymbols
-import java.util.Locale
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
@@ -75,6 +84,7 @@ import org.koin.androidx.compose.getViewModel
 fun DexEnterAmountScreen(
     listState: LazyListState,
     navController: NavController,
+    startReceiving: () -> Unit,
     viewModel: DexEnterAmountViewModel = getViewModel(scope = payloadScope),
     dexIntroPrefs: DexPrefs = get()
 ) {
@@ -108,24 +118,96 @@ fun DexEnterAmountScreen(
             .fillMaxWidth()
             .clip(RoundedCornerShape(AppTheme.dimensions.mediumSpacing))
     ) {
-        item {
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
+
+        (viewState as? InputAmountViewState.TransactionInputState)?.let {
+            item {
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
+            }
+            paddedItem(paddingValues = PaddingValues(spacing)) {
+                InputField(
+                    selectSourceAccount = {
+                        navController.navigate(DexDestination.SelectSourceAccount.route)
+                        keyboardController?.hide()
+                    },
+                    selectDestinationAccount = {
+                        navController.navigate(DexDestination.SelectDestinationAccount.route)
+                        keyboardController?.hide()
+                    },
+                    viewState = it,
+                    onValueChanged = {
+                        viewModel.onIntent(InputAmountIntent.AmountUpdated(it.text))
+                    }
+                )
+            }
         }
-        paddedItem(paddingValues = PaddingValues(spacing)) {
-            InputField(
-                selectSourceAccount = {
-                    navController.navigate(DexDestination.SelectSourceAccount.route)
-                    keyboardController?.hide()
-                },
-                selectDestinationAccount = {
-                    navController.navigate(DexDestination.SelectDestinationAccount.route)
-                    keyboardController?.hide()
-                },
-                viewState = viewState,
-                onValueChanged = {
-                    viewModel.onIntent(InputAmountIntent.AmountUpdated(it.text))
-                }
-            )
+        (viewState as? InputAmountViewState.NoInputViewState)?.let {
+            paddedItem(paddingValues = PaddingValues(spacing)) {
+                NoInputScreen(
+                    receive = startReceiving
+                )
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun NoInputScreen(receive: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        Card(
+            backgroundColor = AppTheme.colors.background,
+            shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+            elevation = 3.dp
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(
+                        horizontal = AppTheme.dimensions.smallSpacing
+                    )
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                StandardVerticalSpacer()
+                Image(
+                    imageResource = ImageResource.Local(
+                        id = R.drawable.ic_empty_state_deposit,
+                        contentDescription = stringResource(id = R.string.dex_no_input_title),
+                    )
+                )
+                StandardVerticalSpacer()
+
+                SimpleText(
+                    text = stringResource(id = R.string.dex_no_input_title),
+                    style = ComposeTypographies.Title3,
+                    color = ComposeColors.Title,
+                    gravity = ComposeGravities.Centre
+                )
+
+                SimpleText(
+                    text = stringResource(id = R.string.transfer_from_your_trading_account),
+                    style = ComposeTypographies.Body1,
+                    color = ComposeColors.Body,
+                    gravity = ComposeGravities.Centre,
+                    modifier = Modifier.padding(
+                        vertical = AppTheme.dimensions.smallSpacing,
+                    )
+                )
+
+                PrimaryButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            vertical = AppTheme.dimensions.standardSpacing,
+                            horizontal = AppTheme.dimensions.smallSpacing
+                        ),
+                    text = stringResource(id = R.string.common_receive),
+                    onClick = receive
+                )
+            }
         }
     }
 }
@@ -135,79 +217,97 @@ fun InputField(
     selectSourceAccount: () -> Unit,
     selectDestinationAccount: () -> Unit,
     onValueChanged: (TextFieldValue) -> Unit,
-    viewState: InputAmountViewState
+    viewState: InputAmountViewState.TransactionInputState
 ) {
-
-    val decimalSeparator = DecimalFormatSymbols(Locale.getDefault()).decimalSeparator.toString()
-    val regex = "-?\\d+(\\.\\d+)?".toRegex()
 
     var input by remember { mutableStateOf(TextFieldValue()) }
     var size by remember { mutableStateOf(IntSize.Zero) }
-    Box {
-        Column {
-            Row(
-                modifier = Modifier
-                    .background(
-                        color = Color.White,
-                        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-                    )
-                    .onGloballyPositioned { coordinates ->
-                        size = coordinates.size
-                    }
-            ) {
-                Column {
-                    AmountAndCurrencySelection(
-                        isReadOnly = false,
-                        input = input,
-                        onValueChanged = {
-                            if (it.text.isEmpty() || it.text.toDoubleOrNull() != null) {
-                                input = it
-                                onValueChanged(it)
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box {
+            Column {
+                Row(
+                    modifier = Modifier
+                        .background(
+                            color = Color.White,
+                            shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+                        )
+                        .onGloballyPositioned { coordinates ->
+                            size = coordinates.size
+                        }
+                ) {
+                    Column {
+                        AmountAndCurrencySelection(
+                            isReadOnly = false,
+                            input = input,
+                            onValueChanged = {
+                                if (it.text.isEmpty() || it.text.toDoubleOrNull() != null) {
+                                    input = it
+                                    onValueChanged(it)
+                                }
+                            },
+                            onClick = selectSourceAccount,
+                            currency = viewState.sourceCurrency
+                        )
+                        Row {
+                            viewState.inputExchangeAmount?.let {
+                                ExchangeAmount(it)
                             }
-                        },
-                        onClick = selectSourceAccount,
-                        currency = viewState.sourceCurrency
-                    )
-                    Row {
-                        viewState.inputExchangeAmount?.let {
-                            ExchangeAmount(it)
+                            viewState.maxAmount?.let {
+                                MaxAmount(it)
+                            }
                         }
-                        viewState.maxAmount?.let {
-                            MaxAmount(it)
+                    }
+                }
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+                Row(
+                    modifier = Modifier
+                        .background(
+                            color = Color.White,
+                            shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+                        )
+                ) {
+                    Column {
+                        AmountAndCurrencySelection(
+                            isReadOnly = true,
+                            input = TextFieldValue(viewState.outputAmount?.toStringWithoutSymbol().orEmpty()),
+                            onValueChanged = {},
+                            onClick = selectDestinationAccount,
+                            currency = viewState.destinationCurrency
+                        )
+                        Row {
+                            viewState.outputExchangeAmount?.let {
+                                ExchangeAmount(it)
+                            }
+                            viewState.destinationAccountBalance?.let {
+                                MaxAmount(it)
+                            }
                         }
                     }
                 }
             }
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-            Row(
-                modifier = Modifier
-                    .background(
-                        color = Color.White,
-                        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-                    )
-            ) {
-                Column {
-                    AmountAndCurrencySelection(
-                        isReadOnly = true,
-                        input = input,
-                        onValueChanged = {},
-                        onClick = selectDestinationAccount,
-                        currency = viewState.destinationCurrency
-                    )
-                    Row {
-                        viewState.outputExchangeAmountIntent?.let {
-                            ExchangeAmount(it)
-                        }
-                        viewState.destinationAccountBalance?.let {
-                            MaxAmount(it)
-                        }
-                    }
-                }
-            }
+            MaskedCircleArrow(size)
         }
-        MaskedCircleArrow(size)
+
+        if (viewState.error != DexUiError.None) {
+            AlertButton(
+                modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.small_spacing)),
+                text = viewState.error.message(),
+                onClick = { },
+                state = ButtonState.Enabled
+            )
+        }
     }
 }
+
+@Composable
+private fun DexUiError.message(): String =
+    when (this) {
+        DexUiError.None -> throw IllegalStateException("No error message")
+        is DexUiError.InsufficientFunds -> stringResource(id = R.string.not_enough_funds, currency.displayTicker)
+    }
 
 @Composable
 private fun RowScope.ExchangeAmount(money: Money) {
