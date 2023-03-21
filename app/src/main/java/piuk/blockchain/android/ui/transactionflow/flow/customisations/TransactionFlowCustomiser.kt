@@ -345,11 +345,14 @@ class TransactionFlowCustomiserImpl(
 
     override fun shouldDisplayNetworkFee(state: TransactionState): Boolean =
         !state.isCustodialWithdrawal() && state.pendingTx?.hasFees() == true
+
     override fun shouldDisplayTotalBalance(state: TransactionState): Boolean =
         !state.isCustodialWithdrawal() && state.amount.isPositive
+
     private fun TransactionState.isCustodialWithdrawal(): Boolean =
         action == AssetAction.Send && sendingAccount is CustodialTradingAccount &&
             selectedTarget is NonCustodialAccount
+
     override fun enterAmountGetNoBalanceMessage(state: TransactionState): String =
         when (state.action) {
             AssetAction.Send -> resources.getString(R.string.enter_amount_not_enough_balance)
@@ -1033,9 +1036,17 @@ class TransactionFlowCustomiserImpl(
             AssetAction.FiatWithdraw -> AccountInfoFiat(ctx).also {
                 frame.addView(it)
             }
-            else -> AccountInfoCrypto(ctx).also {
-                frame.addView(it)
-            }
+            else -> AccountInfoCrypto(ctx)
+                .apply {
+                    updateBackground(
+                        isFirstItemInList = true,
+                        isLastItemInList = true,
+                        isSelected = false
+                    )
+                }
+                .also {
+                    frame.addView(it)
+                }
         }
 
     private fun aboveMaxErrorMessage(state: TransactionState, input: CurrencyType): String {

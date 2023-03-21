@@ -6,11 +6,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -23,18 +26,20 @@ import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 import com.blockchain.componentlib.theme.SmallestVerticalSpacer
 
 @Composable
-fun NonCustodialAssetBalanceTableRow(
+fun BalanceFiatAndCryptoTableRow(
     title: String,
     subtitle: String = "",
+    tag: String = "",
     valueCrypto: String,
     valueFiat: String,
     icon: StackedIcon = StackedIcon.None,
     defaultIconSize: Dp = AppTheme.dimensions.standardSpacing,
     onClick: () -> Unit
 ) {
-    NonCustodialAssetBalanceTableRow(
+    BalanceFiatAndCryptoTableRow(
         title = title,
         subtitle = subtitle,
+        tag = tag,
         valueCrypto = valueCrypto,
         valueFiat = valueFiat,
         contentStart = {
@@ -48,9 +53,10 @@ fun NonCustodialAssetBalanceTableRow(
 }
 
 @Composable
-private fun NonCustodialAssetBalanceTableRow(
+private fun BalanceFiatAndCryptoTableRow(
     title: String,
     subtitle: String = "",
+    tag: String = "",
     valueCrypto: String,
     valueFiat: String,
     contentStart: @Composable (RowScope.() -> Unit)? = null,
@@ -78,10 +84,34 @@ private fun NonCustodialAssetBalanceTableRow(
                         gravity = ComposeGravities.Start
                     )
 
-                    if (subtitle.isNotEmpty()) {
-                        SmallestVerticalSpacer()
-                        DefaultTag(text = subtitle)
+                    Spacer(
+                        modifier = Modifier.size(
+                            if (tag.isNotEmpty()) AppTheme.dimensions.composeSmallestSpacing
+                            else if (subtitle.isNotEmpty()) AppTheme.dimensions.smallestSpacing
+                            else 0.dp
+                        )
+                    )
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (subtitle.isNotEmpty()) {
+                            Text(
+                                text = subtitle,
+                                style = AppTheme.typography.caption1,
+                                color = AppTheme.colors.body
+                            )
+                        }
+
+                        if (subtitle.isNotEmpty() && tag.isNotEmpty()) {
+                            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+                        }
+
+                        if (tag.isNotEmpty()) {
+                            DefaultTag(text = tag)
+                        }
                     }
+
                 }
 
                 Spacer(modifier = Modifier.weight(1F))
@@ -110,9 +140,9 @@ private fun NonCustodialAssetBalanceTableRow(
 
 @Preview
 @Composable
-fun NonCustodialBalanceTableRowPreview() {
+fun PreviewBalanceFiatAndCryptoTableRow() {
     AppTheme {
-        NonCustodialAssetBalanceTableRow(
+        BalanceFiatAndCryptoTableRow(
             title = "Bitcoin",
             valueCrypto = "1",
             valueFiat = "1232222",
@@ -123,11 +153,26 @@ fun NonCustodialBalanceTableRowPreview() {
 
 @Preview
 @Composable
-fun NonCustodialL2EVMBalanceTableRowPreview() {
+fun PreviewBalanceFiatAndCryptoTableRow_Subtitle() {
     AppTheme {
-        NonCustodialAssetBalanceTableRow(
+        BalanceFiatAndCryptoTableRow(
+            title = "Bitcoin",
+            subtitle = "BTC",
+            valueCrypto = "1",
+            valueFiat = "1232222",
+            onClick = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun PreviewBalanceFiatAndCryptoTableRow_SubtitleTag() {
+    AppTheme {
+        BalanceFiatAndCryptoTableRow(
             title = "USDC",
-            subtitle = "Polygon",
+            subtitle = "BTC",
+            tag = "Polygon",
             valueCrypto = "1",
             valueFiat = "1232222",
             onClick = {}

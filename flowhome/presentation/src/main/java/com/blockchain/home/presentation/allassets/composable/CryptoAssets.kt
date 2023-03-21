@@ -42,7 +42,7 @@ import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
-import com.blockchain.componentlib.tablerow.NonCustodialAssetBalanceTableRow
+import com.blockchain.componentlib.tablerow.BalanceFiatAndCryptoTableRow
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
@@ -250,9 +250,9 @@ fun BalanceWithFiatAndCryptoBalance(
     cryptoAsset: NonCustodialAssetState,
     onAssetClick: (AssetInfo) -> Unit
 ) {
-    NonCustodialAssetBalanceTableRow(
+    BalanceFiatAndCryptoTableRow(
         title = cryptoAsset.name,
-        subtitle = cryptoAsset.asset.takeIf { it.isLayer2Token }?.coinNetwork?.shortName ?: "",
+        tag = cryptoAsset.asset.takeIf { it.isLayer2Token }?.coinNetwork?.shortName ?: "",
         valueCrypto = cryptoAsset.balance.map { it.toStringWithSymbol() }.dataOrElse(""),
         valueFiat = cryptoAsset.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         icon = if (cryptoAsset.icon.size == 2) {

@@ -3,18 +3,25 @@ package piuk.blockchain.android.ui.customviews.account
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import androidx.compose.ui.unit.Dp
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.toUserFiat
-import com.blockchain.componentlib.viewextensions.gone
-import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRates
 import com.blockchain.koin.scopedInject
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CoinNetwork
+import info.blockchain.balance.isLayer2Token
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -37,11 +44,24 @@ class AccountInfoCrypto @JvmOverloads constructor(
 
     private val exchangeRates: ExchangeRates by scopedInject()
     private val coincore: Coincore by scopedInject()
+    private val assetCatalogue: AssetCatalogue by scopedInject()
     private val compositeDisposable = CompositeDisposable()
     private var isEnabled: Boolean? = null
 
     val binding: ViewAccountCryptoOverviewBinding =
         ViewAccountCryptoOverviewBinding.inflate(LayoutInflater.from(context), this, true)
+
+    fun updateBackground(
+        isFirstItemInList: Boolean,
+        isLastItemInList: Boolean,
+        isSelected: Boolean
+    ) {
+        with(binding.tableRow) {
+            roundedTop = isFirstItemInList
+            roundedBottom = isLastItemInList
+            withBorder = isSelected
+        }
+    }
 
     fun updateItem(
         item: AccountListViewItem,
@@ -61,29 +81,35 @@ class AccountInfoCrypto @JvmOverloads constructor(
 
         if (item.showRewardsUpsell) setInterestAccountDetails(item.account)
 
-        with(binding.assetWithAccount) {
-            updateIcon(item.account)
-            visible()
-        }
+        val mainLogo = ImageResource.Remote(item.account.currency.logo)
+        val tagLogo = item.l2Network?.nativeAssetTicker
+            ?.let { assetCatalogue.fromNetworkTicker(it)?.logo }
+            ?.let { ImageResource.Remote(it) }
+        binding.tableRow.icon = tagLogo?.let {
+            StackedIcon.SmallTag(
+                main = mainLogo,
+                tag = tagLogo
+            )
+        } ?: StackedIcon.SingleIcon(mainLogo)
+
+        binding.tableRow.tag = item.l2Network?.shortName ?: ""
     }
 
     private fun setInterestAccountDetails(
         account: SingleAccount,
     ) {
-        with(binding) {
+        with(binding.tableRow) {
             compositeDisposable += (coincore[account.currency] as CryptoAsset)
                 .interestRate()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
                     onSuccess = {
-                        assetSubtitle.text = resources.getString(R.string.dashboard_asset_balance_rewards, it)
-                        assetSubtitle.visible()
+                        subtitle = resources.getString(R.string.dashboard_asset_balance_rewards, it)
                     },
                     onError = {
-                        assetSubtitle.text = resources.getString(
+                        subtitle = resources.getString(
                             R.string.dashboard_asset_actions_rewards_dsc_failed
                         )
-                        assetSubtitle.visible()
                         Timber.e("AssetActions error loading Interest rate: $it")
                     }
                 )
@@ -95,54 +121,50 @@ class AccountInfoCrypto @JvmOverloads constructor(
         onAccountClicked: (SingleAccount) -> Unit,
         cellDecorator: CellDecorator,
     ) {
-        with(binding) {
+        with(binding.tableRow) {
             val account = item.account
-            root.contentDescription = "${item.title} ${item.subTitle}"
-            assetTitle.text = item.title
-            if (item.account !is CustodialTradingAccount) {
-                assetSubtitle.apply {
-                    text = item.subTitle
-                    visible()
-                }
+            contentDescription = "${item.title} ${item.subTitle}"
+            title = item.title
+            subtitle = if (item.account !is CustodialTradingAccount) {
+                item.subTitle
             } else {
-                assetSubtitle.gone()
+                ""
             }
 
             compositeDisposable += account.balanceRx().map { it.total }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
                     onNext = { accountBalance ->
-                        walletBalanceCrypto.text = accountBalance.toStringWithSymbol()
-                        walletBalanceFiat.text =
-                            accountBalance.toUserFiat(exchangeRates).toStringWithSymbol()
-                        root.contentDescription = "${item.title} ${item.subTitle}: " +
+                        valueCrypto = accountBalance.toStringWithSymbol()
+                        valueFiat = accountBalance.toUserFiat(exchangeRates).toStringWithSymbol()
+                        contentDescription = "${item.title} ${item.subTitle}: " +
                             "${context.getString(R.string.accessibility_balance)} " +
-                            "${walletBalanceFiat.text} ${walletBalanceCrypto.text}"
+                            "$valueFiat $valueCrypto"
                     },
                     onError = {
                         Timber.e("Cannot get balance for ${account.label}")
                     }
                 )
-            compositeDisposable += cellDecorator.view(container.context)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeBy(
-                    onSuccess = {
-                        container.addViewToBottomWithConstraints(
-                            view = it,
-                            bottomOfView = assetSubtitle,
-                            startOfView = assetSubtitle,
-                            endOfView = walletBalanceCrypto
-                        )
-                    },
-                    onComplete = {
-                        container.removePossibleBottomView()
-                    },
-                    onError = {
-                        container.removePossibleBottomView()
-                    }
-                )
+            //            compositeDisposable += cellDecorator.view(container.context)
+            //                .observeOn(AndroidSchedulers.mainThread())
+            //                .subscribeBy(
+            //                    onSuccess = {
+            //                        container.addViewToBottomWithConstraints(
+            //                            view = it,
+            //                            bottomOfView = assetSubtitle,
+            //                            startOfView = assetSubtitle,
+            //                            endOfView = walletBalanceCrypto
+            //                        )
+            //                    },
+            //                    onComplete = {
+            //                        container.removePossibleBottomView()
+            //                    },
+            //                    onError = {
+            //                        container.removePossibleBottomView()
+            //                    }
+            //                )
 
-            container.alpha = 1f
+            //            container.alpha = 1f
             compositeDisposable += cellDecorator.isEnabled()
                 .doOnSuccess {
                     isEnabled = it
@@ -155,12 +177,10 @@ class AccountInfoCrypto @JvmOverloads constructor(
                 .subscribeBy(
                     onSuccess = { isEnabled ->
                         if (isEnabled) {
-                            setOnClickListener {
-                                onAccountClicked(account)
-                            }
-                            container.alpha = 1f
+                            onClick = { onAccountClicked(account) }
+                            alpha = 1f
                         } else {
-                            container.alpha = .6f
+                            alpha = .6f
                         }
                     }
                 )
@@ -199,17 +219,20 @@ class AccountListViewItem(
     val type: AccountsListViewItemType
         get() = if (account is CryptoAccount) AccountsListViewItemType.Crypto else AccountsListViewItemType.Blockchain
 
-    private val currencyName = account.currency.name
-
     private val accountLabel = if (account is CustodialTradingAccount)
         account.label.replaceAfter("Blockchain.com", "")
             .replaceBefore("Blockchain.com", "") else account.label
 
     val title: String
-        get() = if (emphasiseNameOverCurrency) accountLabel else currencyName
+        get() = if (emphasiseNameOverCurrency) accountLabel else account.currency.name
 
     val subTitle: String
-        get() = if (emphasiseNameOverCurrency) currencyName else accountLabel
+        get() = if (emphasiseNameOverCurrency) account.currency.displayTicker else accountLabel
+
+    val l2Network: CoinNetwork?
+        get() = (account as? CryptoNonCustodialAccount)?.currency
+            ?.takeIf { it.isLayer2Token }
+            ?.coinNetwork
 }
 
 enum class AccountsListViewItemType {
