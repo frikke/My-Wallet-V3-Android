@@ -43,7 +43,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -62,6 +61,7 @@ import com.blockchain.componentlib.icons.ArrowDown
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.lazylist.paddedItem
+import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.BackgroundMuted
 import com.blockchain.componentlib.theme.Blue600
@@ -150,7 +150,6 @@ fun DexEnterAmountScreen(
     }
 }
 
-@Preview
 @Composable
 private fun NoInputScreen(receive: () -> Unit) {
     Column(
@@ -281,14 +280,41 @@ fun InputField(
                             viewState.outputExchangeAmount?.let {
                                 ExchangeAmount(it)
                             }
-                            viewState.destinationAccountBalance?.let {
-                                MaxAmount(it)
+                            viewState.destinationAccountBalance?.takeIf { it.isPositive }?.let {
+                                DestinationBalanceAmount(it)
                             }
                         }
                     }
                 }
             }
             MaskedCircleArrow(size)
+        }
+
+        viewState.uiFee?.let { uiFee ->
+            TableRow(
+                modifier = Modifier
+                    .padding(vertical = dimensionResource(id = R.dimen.standard_spacing))
+                    .clip(shape = RoundedCornerShape(AppTheme.dimensions.smallSpacing)),
+                content = {
+                    Text(
+                        modifier = Modifier
+                            .padding(start = dimensionResource(id = R.dimen.tiny_spacing)),
+                        text = stringResource(id = R.string.estimated_fees),
+                        style = AppTheme.typography.body2,
+                        color = AppTheme.colors.title
+                    )
+                },
+                contentStart = {
+                    Image(imageResource = ImageResource.Remote(uiFee.fee.currency.logo))
+                },
+                contentEnd = {
+                    Text(
+                        text = "~ ${uiFee.feeInFiat?.toStringWithSymbol() ?: uiFee.fee.toStringWithSymbol()}",
+                        style = AppTheme.typography.body2,
+                        color = AppTheme.colors.title
+                    )
+                }
+            )
         }
 
         if (viewState.error != DexUiError.None) {
@@ -307,6 +333,7 @@ private fun DexUiError.message(): String =
     when (this) {
         DexUiError.None -> throw IllegalStateException("No error message")
         is DexUiError.InsufficientFunds -> stringResource(id = R.string.not_enough_funds, currency.displayTicker)
+        is DexUiError.NotEnoughGas -> stringResource(id = R.string.not_enough_gas, gasCurrency.displayTicker)
     }
 
 @Composable
@@ -340,11 +367,36 @@ private fun RowScope.MaxAmount(maxAvailable: Money) {
             style = AppTheme.typography.micro2,
             color = Grey700
         )
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
         Text(
             text = maxAvailable.toStringWithSymbol(),
             style = AppTheme.typography.micro2,
             color = Blue600
+        )
+    }
+}
+
+@Composable
+private fun DestinationBalanceAmount(amount: Money) {
+    Row(
+        modifier = Modifier
+            .padding(
+                start = AppTheme.dimensions.smallSpacing,
+                end = AppTheme.dimensions.smallSpacing,
+                bottom = AppTheme.dimensions.smallSpacing
+            )
+            .wrapContentSize()
+    ) {
+        Text(
+            text = stringResource(id = R.string.common_balance),
+            style = AppTheme.typography.micro2,
+            color = Grey700
+        )
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+        Text(
+            text = amount.toStringWithSymbol(),
+            style = AppTheme.typography.micro2,
+            color = AppTheme.colors.title
         )
     }
 }

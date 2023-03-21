@@ -3585,5 +3585,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_interest_rate_description">Rewards accrues daily and is paid monthly. The rewards rate may be periodically adjusted.</string>
     <string name="earn_active_rewards_earnings_description">Sum of all debits and credits of previous strategies.</string>
     <string name="dex_no_input_title">To get started, transfer to your wallets</string>
+    <string name="estimated_fees">Estimated fee</string>
+    <string name="not_enough_gas">Not enough %1$s for gas fees</string>
 
 </resources>

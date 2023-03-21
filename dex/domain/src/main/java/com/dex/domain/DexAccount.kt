@@ -13,10 +13,15 @@ data class DexAccount(
     val chainId: Int
 )
 
-data class DexQuote(
-    val amount: Money,
-    val outputAmount: OutputAmount
-)
+sealed class DexQuote {
+    data class ExchangeQuote(
+        val amount: Money,
+        val outputAmount: OutputAmount,
+        val fees: Money
+    ) : DexQuote()
+
+    object InvalidQuote : DexQuote()
+}
 
 data class DexQuoteParams(
     val sourceAccount: DexAccount,

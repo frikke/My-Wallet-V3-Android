@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 @OptIn(FlowPreview::class)
 class DexTransactionProcessor(
     private val dexQuotesService: DexQuotesService,
+    private val balanceService: DexBalanceService
 ) {
 
     private val _dexTransaction: MutableStateFlow<DexTransaction> = MutableStateFlow(
@@ -53,9 +54,15 @@ class DexTransactionProcessor(
                 .distinctUntilChanged()
                 .debounce(500)
                 .mapLatest {
-                    dexQuotesService.quote(
-                        it
-                    )
+                    if (it.amount.isPositive) {
+                        dexQuotesService.quote(
+                            it
+                        )
+                    } else {
+                        Outcome.Success(
+                            DexQuote.InvalidQuote
+                        )
+                    }
                 }.collectLatest {
                     when (it) {
                         is Outcome.Success -> updateTxQuote(it.value)
@@ -71,9 +78,16 @@ class DexTransactionProcessor(
 
     private fun updateTxQuote(quote: DexQuote) {
         _dexTransaction.update {
-            it.copy(
-                outputAmount = quote.outputAmount
-            )
+            when (quote) {
+                is DexQuote.ExchangeQuote -> it.copy(
+                    outputAmount = quote.outputAmount,
+                    fees = quote.fees
+                )
+                DexQuote.InvalidQuote -> it.copy(
+                    outputAmount = null,
+                    fees = null
+                )
+            }
         }
     }
 
@@ -106,30 +120,49 @@ class DexTransactionProcessor(
         _dexTransaction.update { tx ->
             tx.copy(
                 _amount = Money.fromMajor(tx.sourceAccount.currency, amount),
-                outputAmount = tx.outputAmount?.let { cAmount ->
-                    if (amount.signum() == 0) {
-                        OutputAmount.zero(cAmount.expectedOutput.currency)
-                    } else cAmount
-                }
             )
         }
     }
 
     private fun Flow<DexTransaction>.validate(): Flow<DexTransaction> {
         return map { tx ->
+            tx.copy(
+                txError = DexTxError.None
+            )
+        }.validate { tx ->
             tx.validateSufficientFunds()
+        }.validate { tx ->
+            tx.validateSufficientNetworkFees()
         }
-        /**
-         add rest off validations
-         */
+        /* add rest off validations*/
+    }
+
+    private fun Flow<DexTransaction>.validate(validation: suspend (DexTransaction) -> DexTransaction):
+        Flow<DexTransaction> {
+        return map {
+            if (it.txError == DexTxError.None)
+                validation(it)
+            else it
+        }
     }
 
     private fun DexTransaction.validateSufficientFunds(): DexTransaction {
         return if (sourceAccount.balance >= amount)
-            this.copy(txError = DexTxError.None)
+            this
         else copy(
             txError = DexTxError.NotEnoughFunds
         )
+    }
+
+    private suspend fun DexTransaction.validateSufficientNetworkFees(): DexTransaction {
+        return fees?.let {
+            val networkBalance = balanceService.networkBalance(sourceAccount)
+            if (networkBalance >= it) {
+                this
+            } else copy(
+                txError = DexTxError.NotEnoughGas
+            )
+        } ?: this
     }
 }
 
@@ -144,7 +177,7 @@ data class DexTransaction internal constructor(
     val txError: DexTxError
 ) {
     val quoteParams: DexQuoteParams?
-        get() = safeLet(_sourceAccount, destinationAccount, _amount.takeIf { it?.isPositive == true }) { s, d, a ->
+        get() = safeLet(_sourceAccount, destinationAccount, _amount) { s, d, a ->
             return DexQuoteParams(
                 sourceAccount = s,
                 destinationAccount = d,
@@ -171,6 +204,7 @@ data class OutputAmount(val expectedOutput: Money, val minOutputAmount: Money) {
 
 sealed class DexTxError {
     object NotEnoughFunds : DexTxError()
+    object NotEnoughGas : DexTxError()
     object None : DexTxError()
 }
 

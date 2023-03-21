@@ -6,6 +6,7 @@ import com.dex.data.DexQuotesRepository
 import com.dex.data.stores.DexChainDataStorage
 import com.dex.data.stores.DexTokensDataStorage
 import com.dex.domain.DexAccountsService
+import com.dex.domain.DexBalanceService
 import com.dex.domain.DexQuotesService
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -38,6 +39,9 @@ val dexDataModule = module {
                 coincore = get(),
                 assetCatalogue = get()
             )
-        }.bind(DexQuotesService::class)
+        }.apply {
+            bind(DexQuotesService::class)
+            bind(DexBalanceService::class)
+        }
     }
 }

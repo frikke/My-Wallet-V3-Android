@@ -8,25 +8,36 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
+import com.blockchain.utils.asFlow
 import com.blockchain.utils.awaitOutcome
 import com.dex.domain.DexAccount
+import com.dex.domain.DexBalanceService
 import com.dex.domain.DexQuote
 import com.dex.domain.DexQuoteParams
 import com.dex.domain.DexQuotesService
 import com.dex.domain.OutputAmount
 import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
-import info.blockchain.balance.isLayer2Token
+import java.math.BigInteger
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import org.web3j.utils.Convert
 
 class DexQuotesRepository(
     private val dexQuotesApiService: DexQuotesApiService,
     private val coincore: Coincore,
     private val assetCatalogue: AssetCatalogue
-) : DexQuotesService {
+) : DexQuotesService, DexBalanceService {
     override suspend fun quote(
         dexQuoteParams: DexQuoteParams
     ): Outcome<Exception, DexQuote> {
         val address = dexQuoteParams.sourceAccount.receiveAddress()
+
+        val nativeCurrency = dexQuoteParams.sourceAccount.currency.coinNetwork?.nativeAssetTicker?.let {
+            assetCatalogue.fromNetworkTicker(it)
+        } ?: return Outcome.Failure(IllegalStateException("Unknown native asset ticker"))
+
         return address.flatMap {
             dexQuotesApiService.quote(
                 fromCurrency = FromCurrency(
@@ -43,7 +54,7 @@ class DexQuotesRepository(
                 slippage = dexQuoteParams.slippage,
                 address = it
             ).map { resp ->
-                DexQuote(
+                DexQuote.ExchangeQuote(
                     amount = dexQuoteParams.amount,
                     outputAmount = OutputAmount(
                         expectedOutput = Money.fromMinor(
@@ -55,15 +66,40 @@ class DexQuotesRepository(
                             value = resp.quote.buyAmount.minAmount?.toBigInteger()
                                 ?: resp.quote.buyAmount.amount.toBigInteger()
                         )
+                    ),
+                    fees = calculateEstimatedQuoteFee(
+                        nativeCurrency,
+                        resp.transaction.gasLimit.toBigInteger(),
+                        resp.transaction.gasPrice.toBigInteger()
                     )
                 )
             }
         }
     }
 
+    private fun calculateEstimatedQuoteFee(
+        nativeCurrency: Currency,
+        gasLimit: BigInteger,
+        gasPriceWei: BigInteger
+    ): Money {
+
+        val gasPriceInGwei = Convert.fromWei(
+            gasPriceWei.toBigDecimal(), Convert.Unit.GWEI
+        )
+
+        val feeInWei = Convert.toWei(
+            gasPriceInGwei.multiply(gasLimit.toBigDecimal()),
+            Convert.Unit.GWEI
+        ).toBigInteger()
+
+        return Money.fromMinor(
+            nativeCurrency,
+            feeInWei
+        )
+    }
+
     private suspend fun DexAccount.receiveAddress(): Outcome<Exception, String> {
-        val nativeAssetTicker =
-            currency.takeIf { it.isLayer2Token }?.coinNetwork?.nativeAssetTicker ?: currency.networkTicker
+        val nativeAssetTicker = currency.coinNetwork?.nativeAssetTicker ?: currency.networkTicker
         val currency = assetCatalogue.fromNetworkTicker(nativeAssetTicker) ?: return Outcome.Failure(
             IllegalStateException("Unknown currency")
         )
@@ -72,5 +108,13 @@ class DexQuotesRepository(
                 receiveAddress.address
             }
         }.awaitOutcome()
+    }
+
+    override suspend fun networkBalance(account: DexAccount): Money {
+        val nativeCurrency = account.currency.coinNetwork?.nativeAssetTicker?.let {
+            assetCatalogue.fromNetworkTicker(it)
+        } ?: throw IllegalArgumentException("Unsupported currency")
+        val coincoreAccount = coincore[nativeCurrency].defaultAccount(AssetFilter.NonCustodial).asFlow().first()
+        return coincoreAccount.balance().map { it.total }.first()
     }
 }
