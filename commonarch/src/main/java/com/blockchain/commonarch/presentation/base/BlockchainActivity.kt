@@ -31,6 +31,7 @@ import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBarButton
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.instrumentation.InstrumentationScaffold // ktlint-disable instrumentation-ruleset:no-instrumentation-import
 import com.blockchain.koin.payloadScope
@@ -285,6 +286,11 @@ abstract class BlockchainActivity : ToolBarActivity() {
 
     fun updateToolbarStartItem(startItem: NavigationBarButton) {
         toolbarBinding?.navigationToolbar?.startNavigationButton = startItem
+        setStatusBarForMode()
+    }
+
+    fun updateToolbarIcon(icon: StackedIcon) {
+        toolbarBinding?.navigationToolbar?.icon = icon
         setStatusBarForMode()
     }
 

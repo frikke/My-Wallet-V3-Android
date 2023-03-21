@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
@@ -18,6 +19,8 @@ class NavigationBarView @JvmOverloads constructor(
 
     var onBackButtonClick by mutableStateOf(null as? (() -> Unit)?)
     var startNavigationButton by mutableStateOf(null as? NavigationBarButton?)
+
+    var icon: StackedIcon  by mutableStateOf(StackedIcon.None)
 
     var title by mutableStateOf("")
     var endNavigationBarButtons by mutableStateOf(listOf<NavigationBarButton>())
@@ -34,6 +37,7 @@ class NavigationBarView @JvmOverloads constructor(
                         modeColor = modeColor,
                         mutedBackground = mutedBackground,
                         title = title,
+                        icon = icon,
                         startNavigationBarButton = startNavigationButton,
                         endNavigationBarButtons = endNavigationBarButtons
                     )
@@ -42,6 +46,7 @@ class NavigationBarView @JvmOverloads constructor(
                         modeColor = modeColor,
                         mutedBackground = mutedBackground,
                         title = title,
+                        icon = icon,
                         onBackButtonClick = onBackButtonClick,
                         navigationBarButtons = endNavigationBarButtons
                     )

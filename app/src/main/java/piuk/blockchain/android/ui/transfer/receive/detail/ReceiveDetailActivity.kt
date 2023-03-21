@@ -9,11 +9,13 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.analytics.events.RequestAnalyticsEvents
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.visible
@@ -23,6 +25,8 @@ import com.blockchain.presentation.copyToClipboardWithConfirmationDialog
 import com.blockchain.presentation.extensions.getAccount
 import com.blockchain.presentation.extensions.putAccount
 import com.blockchain.presentation.koin.scopedInject
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.isLayer2Token
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityReceiveDetailsBinding
@@ -36,6 +40,7 @@ class ReceiveDetailActivity :
     SlidingModalBottomDialog.Host {
     override val model: ReceiveDetailModel by scopedInject()
     private val encoder: QRCodeEncoder by inject()
+    private val assetCatalogue: AssetCatalogue by scopedInject()
 
     private var qrBitmap: Bitmap? = null
 
@@ -62,6 +67,26 @@ class ReceiveDetailActivity :
             model.process(InitWithAccount(it))
             binding.receiveAccountDetails.updateItem(AccountListViewItem(it))
         } ?: finish()
+
+        // icon
+        account?.run {
+            val l2Network = (account as? CryptoNonCustodialAccount)?.currency
+                ?.takeIf { it.isLayer2Token }
+                ?.coinNetwork
+
+            val mainIcon = ImageResource.Remote(currency.logo)
+            val tagIcon = l2Network?.nativeAssetTicker
+                ?.let { assetCatalogue.fromNetworkTicker(it)?.logo }
+                ?.let { ImageResource.Remote(it) }
+            val icon = tagIcon?.let {
+                StackedIcon.SmallTag(
+                    main = mainIcon,
+                    tag = tagIcon
+                )
+            } ?: StackedIcon.SingleIcon(mainIcon)
+
+            updateToolbarIcon(icon)
+        }
 
         with(binding) {
             shareButton.apply {

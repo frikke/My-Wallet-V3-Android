@@ -48,7 +48,9 @@ class SimpleBuyBlockedFragment : Fragment() {
             notEligibleIcon.setImageResource(data.icon)
         }
 
-        (activity as BlockchainActivity).updateToolbar(getString(R.string.empty), emptyList()) { activity?.finish() }
+        (activity as BlockchainActivity).updateToolbar(
+            toolbarTitle = getString(R.string.empty), menuItems = emptyList()
+        ) { activity?.finish() }
 
         logErrorAnalytics(data.title, data.error, data.description)
     }
