@@ -13,7 +13,6 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.NullAddress
-import com.blockchain.coincore.NullFiatAccount.currency
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.componentlib.alert.BlockchainSnackbar
