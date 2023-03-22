@@ -49,8 +49,10 @@ class SimpleBuyBlockedFragment : Fragment() {
         }
 
         (activity as BlockchainActivity).updateToolbar(
-            toolbarTitle = getString(R.string.empty), menuItems = emptyList()
-        ) { activity?.finish() }
+            toolbarTitle = getString(R.string.empty),
+            menuItems = emptyList(),
+            backAction = { activity?.finish() }
+        )
 
         logErrorAnalytics(data.title, data.error, data.description)
     }
