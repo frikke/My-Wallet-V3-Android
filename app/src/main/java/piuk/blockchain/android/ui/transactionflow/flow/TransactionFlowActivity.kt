@@ -12,16 +12,20 @@ import androidx.lifecycle.lifecycleScope
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.NullFiatAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.base.addTransactionAnimation
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
@@ -41,6 +45,8 @@ import com.blockchain.presentation.extensions.putTarget
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.presentation.openUrl
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.isLayer2Token
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -100,6 +106,7 @@ class TransactionFlowActivity :
     private val dataRemediationService: DataRemediationService by scopedInject()
     private val fraudService: FraudService by inject()
     private lateinit var startingIntent: TransactionIntent
+    private val assetCatalogue: AssetCatalogue by scopedInject()
 
     private val sourceAccount: SingleAccount by lazy {
         intent.extras?.getAccount(SOURCE) as? SingleAccount ?: kotlin.run {
@@ -146,6 +153,26 @@ class TransactionFlowActivity :
                 onBackPressedAnalytics(state)
             }
         )
+
+        // header icon
+        sourceAccount.takeIf { it !is NullCryptoAccount }?.let {
+            val l2Network = (sourceAccount as? CryptoNonCustodialAccount)?.currency
+                ?.takeIf { it.isLayer2Token }
+                ?.coinNetwork
+
+            val mainIcon = ImageResource.Remote(sourceAccount.currency.logo)
+            val tagIcon = l2Network?.nativeAssetTicker
+                ?.let { assetCatalogue.fromNetworkTicker(it)?.logo }
+                ?.let { ImageResource.Remote(it) }
+            val icon = tagIcon?.let {
+                StackedIcon.SmallTag(
+                    main = mainIcon,
+                    tag = tagIcon
+                )
+            } ?: StackedIcon.SingleIcon(mainIcon)
+            updateToolbarIcon(icon)
+        }
+
         binding.txProgress.visible()
         startModel()
     }
