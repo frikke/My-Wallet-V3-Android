@@ -111,7 +111,6 @@ private fun BalanceFiatAndCryptoTableRow(
                             DefaultTag(text = tag)
                         }
                     }
-
                 }
 
                 Spacer(modifier = Modifier.weight(1F))

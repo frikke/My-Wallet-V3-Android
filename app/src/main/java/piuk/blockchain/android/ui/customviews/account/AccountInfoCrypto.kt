@@ -3,12 +3,10 @@ package piuk.blockchain.android.ui.customviews.account
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
-import androidx.compose.ui.unit.Dp
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
-import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
@@ -19,7 +17,6 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRates
 import com.blockchain.koin.scopedInject
 import info.blockchain.balance.AssetCatalogue
-import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.isLayer2Token
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers

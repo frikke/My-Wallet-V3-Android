@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -33,11 +32,8 @@ import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.componentlib.alert.AlertType
 import com.blockchain.componentlib.alert.CardAlert
-import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SmallInfoWithIcon
-import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.Info
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tablerow.DefaultTableRow

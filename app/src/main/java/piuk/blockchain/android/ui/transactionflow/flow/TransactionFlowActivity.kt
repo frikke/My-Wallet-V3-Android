@@ -12,7 +12,6 @@ import androidx.lifecycle.lifecycleScope
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.NullCryptoAccount
-import com.blockchain.coincore.NullFiatAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount

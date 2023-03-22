@@ -20,7 +20,7 @@ class NavigationBarView @JvmOverloads constructor(
     var onBackButtonClick by mutableStateOf(null as? (() -> Unit)?)
     var startNavigationButton by mutableStateOf(null as? NavigationBarButton?)
 
-    var icon: StackedIcon  by mutableStateOf(StackedIcon.None)
+    var icon: StackedIcon by mutableStateOf(StackedIcon.None)
 
     var title by mutableStateOf("")
     var endNavigationBarButtons by mutableStateOf(listOf<NavigationBarButton>())
