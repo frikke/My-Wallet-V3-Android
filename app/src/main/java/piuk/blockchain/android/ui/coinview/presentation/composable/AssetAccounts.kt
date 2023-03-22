@@ -35,6 +35,7 @@ import com.blockchain.componentlib.alert.AlertType
 import com.blockchain.componentlib.alert.CardAlert
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.basic.SmallInfoWithIcon
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Info
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
@@ -245,38 +246,10 @@ fun AssetAccountsData(
             l1Network?.let { l1Network ->
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
-                        )
-                        .padding(AppTheme.dimensions.tinySpacing),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        ImageResource.Remote(
-                            url = l1Network.logo,
-                            shape = CircleShape,
-                            size = AppTheme.dimensions.mediumSpacing
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-
-                    Text(
-                        modifier = Modifier.weight(1F),
-                        text = stringResource(R.string.coinview_asset_l1, it.assetName, l1Network.name),
-                        style = AppTheme.typography.paragraph2,
-                        color = AppTheme.colors.muted,
-                    )
-
-                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-
-                    Image(
-                        Icons.Filled.Info.copy(colorFilter = ColorFilter.tint(AppTheme.colors.dark))
-                    )
-                }
+                SmallInfoWithIcon(
+                    iconUrl = l1Network.logo,
+                    text = stringResource(R.string.coinview_asset_l1, it.assetName, l1Network.name),
+                )
             }
         }
     }
