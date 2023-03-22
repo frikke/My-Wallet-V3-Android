@@ -142,26 +142,23 @@ class AccountInfoCrypto @JvmOverloads constructor(
                         Timber.e("Cannot get balance for ${account.label}")
                     }
                 )
-            //            compositeDisposable += cellDecorator.view(container.context)
-            //                .observeOn(AndroidSchedulers.mainThread())
-            //                .subscribeBy(
-            //                    onSuccess = {
-            //                        container.addViewToBottomWithConstraints(
-            //                            view = it,
-            //                            bottomOfView = assetSubtitle,
-            //                            startOfView = assetSubtitle,
-            //                            endOfView = walletBalanceCrypto
-            //                        )
-            //                    },
-            //                    onComplete = {
-            //                        container.removePossibleBottomView()
-            //                    },
-            //                    onError = {
-            //                        container.removePossibleBottomView()
-            //                    }
-            //                )
 
-            //            container.alpha = 1f
+            compositeDisposable += cellDecorator.view(context)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeBy(
+                    onSuccess = {
+                        subView = it
+                    },
+                    onComplete = {
+                        subView = null
+                    },
+                    onError = {
+                        subView = null
+                    }
+                )
+
+            alpha = 1f
+
             compositeDisposable += cellDecorator.isEnabled()
                 .doOnSuccess {
                     isEnabled = it
