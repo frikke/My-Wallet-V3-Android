@@ -101,12 +101,8 @@ class VeriffSplashFragment :
             is Navigation.TierCurrentState -> {
                 fraudService.endFlow(FraudFlow.KYC)
 
-                findNavController(this).navigate(
-                    KycNavXmlDirections.actionStartTierCurrentState(
-                        navigationEvent.kycState,
-                        navigationEvent.isSddVerified,
-                    )
-                )
+                findNavController(this)
+                    .navigate(KycNavXmlDirections.actionStartTierCurrentState(navigationEvent.kycState))
             }
             is Navigation.Veriff -> {
                 VeriffLauncher().launchVeriff(

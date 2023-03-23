@@ -4,10 +4,8 @@ import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
-import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.usecases.UseCase
 import info.blockchain.balance.FiatCurrency
@@ -24,66 +22,22 @@ class GetAvailablePaymentMethodsTypesUseCase(
     data class Request(
         val currency: FiatCurrency,
         val onlyEligible: Boolean,
-        val fetchSddLimits: Boolean = false
     )
 
     override fun execute(parameter: Request): Single<List<AvailablePaymentMethodType>> =
         paymentMethodService.getAvailablePaymentMethodsTypes(
             fiatCurrency = parameter.currency,
-            fetchSddLimits = parameter.fetchSddLimits,
             onlyEligible = parameter.onlyEligible
-        ).zipWith(kycService.getHighestApprovedTierLevelLegacy()).flatMap { (availableTypes, tier) ->
-            val isSilver = tier == KycTier.SILVER
-            val cardType = availableTypes.find { it.type == PaymentMethodType.PAYMENT_CARD }
-            if (cardType == null || !isSilver) {
-                Single.just(
-                    availableTypes.map {
-                        AvailablePaymentMethodType(
-                            canBeUsedForPayment = it.eligible,
-                            type = it.type,
-                            limits = it.limits,
-                            currency = it.currency,
-                            linkAccess = linkAccessForTier(it.eligible, tier),
-                            cardFundSources = it.cardFundSources
-                        )
-                    }
+        ).zipWith(kycService.getHighestApprovedTierLevelLegacy()).map { (availableTypes, tier) ->
+            availableTypes.map {
+                AvailablePaymentMethodType(
+                    canBeUsedForPayment = it.eligible,
+                    type = it.type,
+                    limits = it.limits,
+                    currency = it.currency,
+                    linkAccess = linkAccessForTier(it.eligible, tier),
+                    cardFundSources = it.cardFundSources
                 )
-            } else {
-                userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence)
-                    .flatMap { isSDD ->
-                        if (isSDD) {
-                            cardService.getLinkedCardsLegacy(CardStatus.ACTIVE).map { cards ->
-                                availableTypes.map {
-                                    AvailablePaymentMethodType(
-                                        canBeUsedForPayment = it.eligible,
-                                        type = it.type,
-                                        limits = it.limits,
-                                        currency = it.currency,
-                                        linkAccess =
-                                        if (cards.isNotEmpty() && it.type == PaymentMethodType.PAYMENT_CARD) {
-                                            LinkAccess.BLOCKED
-                                        } else {
-                                            linkAccessForTier(it.eligible, tier)
-                                        },
-                                        cardFundSources = it.cardFundSources
-                                    )
-                                }
-                            }
-                        } else {
-                            Single.just(
-                                availableTypes.map {
-                                    AvailablePaymentMethodType(
-                                        canBeUsedForPayment = it.eligible,
-                                        type = it.type,
-                                        limits = it.limits,
-                                        currency = it.currency,
-                                        linkAccess = linkAccessForTier(it.eligible, tier),
-                                        cardFundSources = it.cardFundSources
-                                    )
-                                }
-                            )
-                        }
-                    }
             }
         }
 

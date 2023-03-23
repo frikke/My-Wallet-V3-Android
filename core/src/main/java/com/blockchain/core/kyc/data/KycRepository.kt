@@ -14,7 +14,6 @@ import com.blockchain.core.kyc.domain.model.TiersMap
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.instrumentation.instrument // ktlint-disable instrumentation-ruleset:no-instrumentation-import
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.common.extensions.wrapErrorMessage
 import com.blockchain.outcome.Outcome
@@ -67,18 +66,12 @@ class KycRepository(
     }
 
     override suspend fun shouldLaunchProve(): Outcome<Exception, Boolean> =
-        instrument(
-            "true" to Outcome.Success(true),
-            "false" to Outcome.Success(false),
-            "error" to Outcome.Failure(Exception("Some error")),
-        ) {
-            if (proveFeatureFlag.coEnabled()) {
-                kycApiService.getKycFlow().map { response ->
-                    response?.nextFlow == "/kyc/prove"
-                }
-            } else {
-                Outcome.Success(false)
+        if (proveFeatureFlag.coEnabled()) {
+            kycApiService.getKycFlow().map { response ->
+                response?.nextFlow == "/kyc/prove"
             }
+        } else {
+            Outcome.Success(false)
         }
 
     override fun isPendingFor(tierLevel: KycTier, freshnessStrategy: FreshnessStrategy): Single<Boolean> {

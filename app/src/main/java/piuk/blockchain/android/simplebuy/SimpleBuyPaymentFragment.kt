@@ -46,9 +46,9 @@ import piuk.blockchain.android.cards.CardAuthoriseWebViewActivity
 import piuk.blockchain.android.cards.CardVerificationFragment
 import piuk.blockchain.android.cards.cvv.SecurityCodeActivity
 import piuk.blockchain.android.databinding.FragmentSimpleBuyPaymentBinding
+import piuk.blockchain.android.kyc.KycAnalytics
 import piuk.blockchain.android.rating.presentaion.AppRatingFragment
 import piuk.blockchain.android.rating.presentaion.AppRatingTriggerSource
-import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INSUFFICIENT_FUNDS
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INTERNET_CONNECTION_ERROR
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.OVER_MAXIMUM_SOURCE_LIMIT
@@ -870,7 +870,7 @@ class SimpleBuyPaymentFragment :
 
     override fun unlockHigherLimits() {
         KycNavHostActivity.startForResult(this, CampaignType.SimpleBuy, SimpleBuyActivity.KYC_STARTED)
-        analytics.logEvent(SDDAnalytics.UPGRADE_TO_GOLD_CLICKED)
+        analytics.logEvent(KycAnalytics.UPGRADE_TO_GOLD_CLICKED)
     }
 
     override fun navigator(): SimpleBuyNavigator =

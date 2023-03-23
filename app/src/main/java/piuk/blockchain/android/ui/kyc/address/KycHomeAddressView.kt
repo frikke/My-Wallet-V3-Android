@@ -21,5 +21,4 @@ interface KycHomeAddressView : View {
 
     fun continueToQuestionnaire(questionnaire: Questionnaire, countryCode: String)
     fun tier1Complete()
-    fun onSddVerified()
 }

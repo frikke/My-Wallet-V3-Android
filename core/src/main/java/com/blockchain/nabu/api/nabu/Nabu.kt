@@ -1,7 +1,5 @@
 package com.blockchain.nabu.api.nabu
 
-import com.blockchain.core.sdd.domain.model.SddEligibilityDto
-import com.blockchain.core.sdd.domain.model.SddStatusDto
 import com.blockchain.nabu.models.responses.cards.PaymentCardAcquirerResponse
 import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
 import com.blockchain.nabu.models.responses.nabu.AddAddressRequest
@@ -170,13 +168,6 @@ internal interface Nabu {
     fun fetchExchangeSendAddress(
         @Body currency: SendToExchangeAddressRequest
     ): Single<SendToExchangeAddressResponse>
-
-    @AuthenticationNotRequired
-    @GET(SDD_ELIGIBLE)
-    fun isSDDEligible(): Single<SddEligibilityDto>
-
-    @GET(SDD_VERIFIED)
-    fun isSDDVerified(): Single<SddStatusDto>
 
     @AuthenticationNotRequired
     @GET(NABU_SIMPLE_BUY_PAIRS)

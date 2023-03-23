@@ -36,9 +36,6 @@ class TierCurrentStateFragment : Fragment() {
     private val kycState: KycState by lazy {
         TierCurrentStateFragmentArgs.fromBundle(requireArguments()).kycState
     }
-    private val isSddVerified: Boolean by lazy {
-        TierCurrentStateFragmentArgs.fromBundle(requireArguments()).isSddVerified
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,7 +45,6 @@ class TierCurrentStateFragment : Fragment() {
         setContent {
             TierCurrentStateScreen(
                 state = kycState,
-                isSddVerified = isSddVerified,
                 underReviewCtaClicked = ::finish,
                 verifiedCtaClicked = ::finish,
                 rejectedCtaClicked = ::finish,

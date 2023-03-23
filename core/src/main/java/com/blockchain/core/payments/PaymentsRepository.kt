@@ -198,7 +198,6 @@ class PaymentsRepository(
 
     override fun getAvailablePaymentMethodsTypes(
         fiatCurrency: FiatCurrency,
-        fetchSddLimits: Boolean,
         onlyEligible: Boolean,
     ): Single<List<PaymentMethodTypeWithEligibility>> =
         Single.zip(
@@ -206,7 +205,6 @@ class PaymentsRepository(
                 FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale).withKey(
                     PaymentMethodsEligibilityStore.Key(
                         currencyTicker = fiatCurrency.networkTicker,
-                        shouldFetchSddLimits = fetchSddLimits,
                         eligibleOnly = onlyEligible
                     )
                 )
@@ -269,7 +267,6 @@ class PaymentsRepository(
     override fun getEligiblePaymentMethodTypes(fiatCurrency: FiatCurrency): Single<List<EligiblePaymentMethodType>> =
         getAvailablePaymentMethodsTypes(
             fiatCurrency = fiatCurrency,
-            fetchSddLimits = false,
             onlyEligible = true
         ).map { available ->
             available.map { EligiblePaymentMethodType(it.type, it.currency) }
@@ -656,7 +653,6 @@ class PaymentsRepository(
             } else {
                 getAvailablePaymentMethodsTypes(
                     fiatCurrency = fiatCurrency,
-                    fetchSddLimits = false,
                     onlyEligible = true
                 ).map { available ->
                     available.any {
@@ -1039,7 +1035,6 @@ class PaymentsRepository(
         private val SUPPORTED_BANK_PARTNERS = listOf(
             BankPartner.YAPILY, BankPartner.YODLEE, BankPartner.PLAID
         )
-        private const val SDD_ELIGIBLE_TIER = 3
     }
 }
 

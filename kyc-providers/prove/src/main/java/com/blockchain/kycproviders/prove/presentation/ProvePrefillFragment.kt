@@ -32,7 +32,7 @@ class ProvePrefillFragment :
     interface Host {
         fun launchContactSupport()
         fun navigateToProfileInfo(countryIso: CountryIso, stateIso: StateIso?)
-        fun navigateToTierStatus(kycState: KycState, isSddVerified: Boolean)
+        fun navigateToTierStatus(kycState: KycState)
         fun navigateToVeriff(countryIso: CountryIso)
     }
 
@@ -93,7 +93,7 @@ class ProvePrefillFragment :
                     .show()
             }
             Navigation.ExitToProfileInfo -> host.navigateToProfileInfo(countryIso, stateIso)
-            is Navigation.ExitToTierStatus -> host.navigateToTierStatus(navigationEvent.kycState, false)
+            is Navigation.ExitToTierStatus -> host.navigateToTierStatus(navigationEvent.kycState)
             Navigation.ExitToVeriff -> host.navigateToVeriff(countryIso)
         }
     }

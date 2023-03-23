@@ -13,7 +13,6 @@ import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.payments.googlepay.manager.GooglePayManager
@@ -71,17 +70,6 @@ class AnnouncementQueries(
     fun isTier1Or2Verified(): Single<Boolean> =
         kycService.getTiersLegacy().map { it.isVerified() }
 
-    fun isSimplifiedDueDiligenceEligibleAndNotVerified(): Single<Boolean> =
-        userIdentity.isEligibleFor(Feature.SimplifiedDueDiligence).flatMap {
-            if (!it)
-                Single.just(false)
-            else
-                userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence).map { verified -> verified.not() }
-        }
-
-    fun isSimplifiedDueDiligenceVerified(): Single<Boolean> =
-        userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence)
-
     fun isSimpleBuyKycInProgress(): Single<Boolean> {
         // If we have a local simple buy in progress and it has the kyc unfinished state set
         return Single.defer {
@@ -136,7 +124,6 @@ class AnnouncementQueries(
         Single.zip(
             paymentMethodsService.getAvailablePaymentMethodsTypes(
                 currency = fiatCurrenciesService.selectedTradingCurrency.networkTicker,
-                tier = null,
                 eligibleOnly = true
             ).map { list ->
                 list.any { response ->

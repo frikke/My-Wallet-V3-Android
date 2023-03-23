@@ -397,7 +397,7 @@ class EnterAmountFragment :
                 }
                 InfoActionType.KYC_UPGRADE -> return {
                     showBottomSheet(
-                        KycUpgradeNowSheet.newInstance(state.transactionsLimit ?: TransactionsLimit.Unlimited)
+                        KycUpgradeNowSheet.newInstance()
                     )
                 }
             }

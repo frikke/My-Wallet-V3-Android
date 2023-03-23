@@ -14,7 +14,6 @@ import piuk.blockchain.android.ui.dashboard.announcements.rule.FiatFundsKycAnnou
 import piuk.blockchain.android.ui.dashboard.announcements.rule.FiatFundsNoKycAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.GooglePayAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.HideDustAnnouncement
-import piuk.blockchain.android.ui.dashboard.announcements.rule.IncreaseLimitsAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.InterestAvailableAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycIncompleteAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycMoreInfoAnnouncement
@@ -163,14 +162,6 @@ val dashboardAnnouncementsModule = module {
             BackupPhraseAnnouncement(
                 dismissRecorder = get(),
                 walletStatusPrefs = get()
-            )
-        }.bind(AnnouncementRule::class)
-
-        factory {
-            IncreaseLimitsAnnouncement(
-                dismissRecorder = get(),
-                announcementQueries = get(),
-                simpleBuyPrefs = get()
             )
         }.bind(AnnouncementRule::class)
 

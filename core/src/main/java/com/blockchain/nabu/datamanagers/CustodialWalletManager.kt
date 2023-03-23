@@ -153,11 +153,6 @@ interface CustodialWalletManager {
 
     fun getExchangeSendAddressFor(asset: AssetInfo): Maybe<String>
 
-    @Deprecated("use SddService")
-    fun isSimplifiedDueDiligenceEligible(): Single<Boolean>
-
-    fun fetchSimplifiedDueDiligenceUserState(): Single<SimplifiedDueDiligenceUserState>
-
     fun createCustodialOrder(
         direction: TransferDirection,
         quoteId: String,
@@ -534,9 +529,4 @@ data class CustodialOrder(
     val createdAt: Date,
     val inputMoney: Money,
     val outputMoney: Money
-)
-
-data class SimplifiedDueDiligenceUserState(
-    val isVerified: Boolean,
-    val stateFinalised: Boolean
 )

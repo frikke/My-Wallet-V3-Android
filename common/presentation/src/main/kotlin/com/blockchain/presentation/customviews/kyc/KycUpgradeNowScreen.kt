@@ -1,34 +1,19 @@
 package com.blockchain.presentation.customviews.kyc
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,13 +29,11 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.Button
 import com.blockchain.componentlib.button.ButtonContent
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.icons.Check
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Interest
 import com.blockchain.componentlib.icons.Plus
-import com.blockchain.componentlib.icons.Send
 import com.blockchain.componentlib.icons.Swap
 import com.blockchain.componentlib.icons.Verified
 import com.blockchain.componentlib.icons.withBackground
@@ -58,7 +41,6 @@ import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.core.kyc.domain.KycService
@@ -66,32 +48,18 @@ import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
-import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.koin.payloadScope
-import com.blockchain.nabu.Feature
-import com.blockchain.nabu.UserIdentity
-import com.blockchain.outcome.getOrDefault
-import com.blockchain.utils.awaitOutcome
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.PagerState
-import com.google.accompanist.pager.rememberPagerState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 
 @Composable
 fun KycUpgradeNowScreen(
-    transactionsLimit: TransactionsLimit = TransactionsLimit.Unlimited,
     startKycClicked: () -> Unit,
     analytics: Analytics = get(scope = payloadScope),
-    userIdentity: UserIdentity = get(scope = payloadScope),
     kycService: KycService = get(scope = payloadScope),
 ) {
-    // I didn't want to create a VM just to have these 2 calls on startup, hence why they are here
+    // I didn't want to create a VM just to have this call on startup, hence why it's here
     val highestTierFlow = remember {
         kycService.getHighestApprovedTierLevel(
             FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
@@ -99,54 +67,29 @@ fun KycUpgradeNowScreen(
     }
     val highestTier by highestTierFlow.collectAsStateLifecycleAware(initial = null)
 
-    val coroutineScope = rememberCoroutineScope()
-    val isSdd = remember {
-        coroutineScope.async {
-            userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence)
-                .awaitOutcome()
-                .getOrDefault(false)
-        }
-    }
     LaunchedEffect(Unit) {
-        val isSdd = isSdd.await()
         val highestTier = highestTier ?: highestTierFlow.firstOrNull()
         if (highestTier != null) {
-            AnalyticsType.Viewed.log(analytics, highestTier, isSdd)
+            AnalyticsType.Viewed.log(analytics, highestTier)
         }
     }
 
-    // Should never happen as there should always be cache available
-    highestTier?.let { highestTier ->
-        KycUpgradeNow(
-            highestTier = highestTier,
-            transactionsLimit = transactionsLimit,
-            basicCtaClicked = {
-                coroutineScope.launch {
-                    AnalyticsType.GetBasicClicked.log(analytics, highestTier, isSdd.await())
-                }
-                startKycClicked()
-            },
-            verifiedCtaClicked = {
-                coroutineScope.launch {
-                    AnalyticsType.GetVerifiedClicked.log(analytics, highestTier, isSdd.await())
-                }
-                startKycClicked()
-            },
-        )
-    }
+    KycUpgradeNow(
+        ctaClicked = {
+            highestTier?.let {
+                AnalyticsType.GetVerifiedClicked.log(analytics, it)
+            }
+            startKycClicked()
+        },
+    )
 }
 
-@OptIn(ExperimentalPagerApi::class)
 @Composable
 private fun KycUpgradeNow(
-    highestTier: KycTier?,
-    transactionsLimit: TransactionsLimit,
-    basicCtaClicked: () -> Unit,
-    verifiedCtaClicked: () -> Unit,
+    ctaClicked: () -> Unit,
 ) {
     Column(
         Modifier
-            .fillMaxSize()
             .background(White)
             .padding(AppTheme.dimensions.smallSpacing)
     ) {
@@ -173,40 +116,12 @@ private fun KycUpgradeNow(
             }
         }
 
-        val isAtleastSilver = highestTier != KycTier.BRONZE
-        val pagerState = rememberPagerState()
-        val coroutineScope = rememberCoroutineScope()
-        LaunchedEffect(Unit) {
-            pagerState.scrollToPage(Tab.VERIFIED.ordinal)
-        }
-        var isInitialisingPager by remember { mutableStateOf(true) }
-
-        CustomTabLayout(pagerState, coroutineScope)
-
-        HorizontalPager(
-            modifier = Modifier
-                .fillMaxHeight()
-                .padding(top = AppTheme.dimensions.tinySpacing),
-            state = pagerState,
-            count = Tab.values().size,
-            itemSpacing = AppTheme.dimensions.smallSpacing,
-            verticalAlignment = Alignment.Top,
-        ) { page ->
-            // We've gotta do it like this because there's no way of setting the initial page on the Pager and changing
-            // pages is not synchronous, and we were seeing a quick flash between Basic and Verified when first rendered
-            if (isInitialisingPager) {
-                Verified(verifiedCtaClicked)
-                isInitialisingPager = false
-                return@HorizontalPager
-            }
-            when (Tab.values()[page]) {
-                Tab.BASIC -> Basic(isAtleastSilver, transactionsLimit, basicCtaClicked)
-                Tab.VERIFIED -> Verified(verifiedCtaClicked)
-            }
-        }
+        Verified(ctaClicked)
     }
 }
 
+/* (aromano): Disabling since it's not used anymore, but leaving it in
+              because this custom tablayout might be used in the future
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun CustomTabLayout(pagerState: PagerState, coroutineScope: CoroutineScope) {
@@ -262,151 +177,14 @@ fun CustomTabLayout(pagerState: PagerState, coroutineScope: CoroutineScope) {
         }
     }
 }
-
-@Composable
-private fun Basic(
-    isBasicApproved: Boolean,
-    transactionsLimit: TransactionsLimit,
-    ctaClicked: () -> Unit,
-) {
-    Column {
-        Column(
-            Modifier
-                .background(White, RoundedCornerShape(AppTheme.dimensions.tinySpacing))
-                .border(1.dp, AppTheme.colors.light, RoundedCornerShape(AppTheme.dimensions.tinySpacing))
-        ) {
-            DefaultTableRow(
-                modifier = Modifier.fillMaxWidth(),
-                startImageResource = Icons.Filled.Verified.withTint(Grey400),
-                primaryText = stringResource(R.string.kyc_upgrade_now_basic_level),
-                endTag = TagViewState(
-                    stringResource(
-                        if (isBasicApproved) R.string.kyc_upgrade_now_basic_active
-                        else R.string.kyc_upgrade_now_basic_limited_access
-                    ),
-                    TagType.InfoAlt()
-                ),
-                onClick = null,
-            )
-            HorizontalDivider(Modifier.fillMaxWidth())
-            DefaultTableRow(
-                modifier = Modifier.fillMaxWidth(),
-                startImageResource = Icons.Filled.Send.withTint(AppTheme.colors.primary),
-                primaryText = stringResource(R.string.kyc_upgrade_now_basic_send_receive_title),
-                secondaryText = stringResource(R.string.kyc_upgrade_now_basic_send_receive_description),
-                endImageResource = Icons.Check.withTint(AppTheme.colors.primary),
-                onClick = null,
-            )
-            HorizontalDivider(Modifier.fillMaxWidth())
-            DefaultTableRow(
-                modifier = Modifier.fillMaxWidth(),
-                startImageResource = Icons.Filled.Swap.withTint(AppTheme.colors.primary),
-                primaryText = stringResource(R.string.kyc_upgrade_now_basic_swap_title),
-                secondaryText = stringResource(R.string.kyc_upgrade_now_basic_swap_description),
-                endImageResource = Icons.Check.withTint(AppTheme.colors.primary),
-                onClick = null,
-            )
-
-            if (!isBasicApproved) {
-                PrimaryButton(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(AppTheme.dimensions.standardSpacing),
-                    text = stringResource(R.string.kyc_upgrade_now_basic_cta),
-                    onClick = ctaClicked
-                )
-            }
-        }
-
-        if (transactionsLimit is TransactionsLimit.Limited) {
-            TransactionsLeft(
-                maxTransactions = transactionsLimit.maxTransactionsCap,
-                transactionsLeft = transactionsLimit.maxTransactionsLeft
-            )
-        }
-    }
-}
-
-@Composable
-private fun TransactionsLeft(
-    maxTransactions: Int,
-    transactionsLeft: Int,
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = AppTheme.dimensions.tinySpacing)
-            .background(White, RoundedCornerShape(AppTheme.dimensions.tinySpacing))
-            .border(1.dp, AppTheme.colors.light, RoundedCornerShape(AppTheme.dimensions.tinySpacing))
-            .padding(
-                vertical = AppTheme.dimensions.smallSpacing,
-                horizontal = AppTheme.dimensions.standardSpacing,
-            )
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            val progress = transactionsLeft.toFloat() / maxTransactions.toFloat()
-            val backgroundColor = AppTheme.colors.medium
-            val progressColor = AppTheme.colors.primary
-
-            Box(modifier = Modifier.size(AppTheme.dimensions.xHugeSpacing)) {
-                CircularProgressIndicator(
-                    modifier = Modifier.matchParentSize(),
-                    color = backgroundColor,
-                    strokeWidth = 6.dp,
-                    progress = 1f,
-                )
-                CircularProgressIndicator(
-                    modifier = Modifier.matchParentSize(),
-                    color = progressColor,
-                    strokeWidth = 6.dp,
-                    progress = progress,
-                )
-
-                SimpleText(
-                    modifier = Modifier.align(Alignment.Center),
-                    text = "$transactionsLeft",
-                    style = ComposeTypographies.Body2,
-                    color = ComposeColors.Primary,
-                    gravity = ComposeGravities.Centre,
-                )
-            }
-
-            Column(
-                Modifier.weight(1f)
-            ) {
-                SimpleText(
-                    modifier = Modifier.padding(
-                        start = AppTheme.dimensions.smallSpacing,
-                        bottom = AppTheme.dimensions.composeSmallestSpacing,
-                    ),
-                    text = stringResource(R.string.transactions_left_title),
-                    style = ComposeTypographies.Body2,
-                    color = ComposeColors.Title,
-                    gravity = ComposeGravities.Start,
-                )
-                SimpleText(
-                    modifier = Modifier.padding(
-                        start = AppTheme.dimensions.smallSpacing,
-                        top = AppTheme.dimensions.composeSmallestSpacing,
-                    ),
-                    text = stringResource(R.string.transactions_left_subtitle),
-                    style = ComposeTypographies.Caption1,
-                    color = ComposeColors.Title,
-                    gravity = ComposeGravities.Start,
-                )
-            }
-        }
-    }
-}
+*/
 
 @Composable
 private fun Verified(ctaClicked: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(top = AppTheme.dimensions.standardSpacing)
             .background(AppTheme.colors.primary, RoundedCornerShape(AppTheme.dimensions.tinySpacing))
     ) {
         Column {
@@ -497,12 +275,12 @@ private fun Verified(ctaClicked: () -> Unit) {
     }
 }
 
-private fun AnalyticsType.log(analytics: Analytics, highestTier: KycTier, isSdd: Boolean) {
+private fun AnalyticsType.log(analytics: Analytics, highestTier: KycTier) {
     val event = when (this) {
-        AnalyticsType.GetBasicClicked -> KycUpgradeNowGetBasicClicked(highestTier, isSdd)
-        AnalyticsType.GetVerifiedClicked -> KycUpgradeNowGetVerifiedClicked(highestTier, isSdd)
-        AnalyticsType.Viewed -> KycUpgradeNowViewed(highestTier, isSdd)
-        AnalyticsType.Dismissed -> KycUpgradeNowDismissed(highestTier, isSdd)
+        AnalyticsType.GetBasicClicked -> KycUpgradeNowGetBasicClicked(highestTier)
+        AnalyticsType.GetVerifiedClicked -> KycUpgradeNowGetVerifiedClicked(highestTier)
+        AnalyticsType.Viewed -> KycUpgradeNowViewed(highestTier)
+        AnalyticsType.Dismissed -> KycUpgradeNowDismissed(highestTier)
     }
     analytics.logEvent(event)
 }
@@ -518,32 +296,12 @@ private enum class AnalyticsType {
 @Composable
 private fun Preview() {
     KycUpgradeNow(
-        highestTier = KycTier.SILVER,
-        transactionsLimit = TransactionsLimit.Limited(3, 2),
-        basicCtaClicked = {},
-        verifiedCtaClicked = {},
+        ctaClicked = {},
     )
-}
-
-@Preview
-@Composable
-private fun PreviewBasicT0() {
-    Basic(false, TransactionsLimit.Unlimited, {})
-}
-
-@Preview
-@Composable
-private fun PreviewBasicT1() {
-    Basic(true, TransactionsLimit.Limited(3, 1), {})
 }
 
 @Preview
 @Composable
 private fun PreviewVerified() {
     Verified({})
-}
-
-private enum class Tab {
-    BASIC,
-    VERIFIED,
 }

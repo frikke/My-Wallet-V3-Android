@@ -9,6 +9,7 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.utils.schedulers.applySchedulers
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.koin.scopedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -45,6 +46,7 @@ class KycLimitsActivity : BlockchainActivity(), KycUpgradeNowSheet.Host {
     override fun onResume() {
         super.onResume()
         disposables += kycService.getHighestApprovedTierLevelLegacy()
+            .applySchedulers()
             .doOnSubscribe { showLoading() }
             .doOnTerminate { hideLoading() }
             .subscribeBy(

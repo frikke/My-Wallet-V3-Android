@@ -45,7 +45,6 @@ interface PaymentMethodsApi {
     @GET("eligible/payment-methods")
     fun getAvailablePaymentMethodsTypes(
         @Query("currency") currency: String,
-        @Query("tier") tier: Int?,
         @Query("eligibleOnly") eligibleOnly: Boolean
     ): Single<List<PaymentMethodResponse>>
 

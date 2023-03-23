@@ -239,8 +239,8 @@ class KycNavHostActivity :
         )
     }
 
-    override fun navigateToTierStatus(kycState: KycState, isSddVerified: Boolean) {
-        navController.navigate(KycNavXmlDirections.actionStartTierCurrentState(kycState, isSddVerified))
+    override fun navigateToTierStatus(kycState: KycState) {
+        navController.navigate(KycNavXmlDirections.actionStartTierCurrentState(kycState))
     }
 
     override fun navigateToVeriff(countryIso: CountryIso) {
@@ -257,7 +257,6 @@ class KycNavHostActivity :
     override fun getView(): KycNavHostView = this
 
     companion object {
-        const val RESULT_KYC_FOR_SDD_COMPLETE = 35432
         const val RESULT_KYC_FOR_TIER_COMPLETE = 8954234
         private const val EXTRA_CAMPAIGN_TYPE = "piuk.blockchain.android.EXTRA_CAMPAIGN_TYPE"
         private const val FROM_COWBOYS = "FROM_COWBOYS"

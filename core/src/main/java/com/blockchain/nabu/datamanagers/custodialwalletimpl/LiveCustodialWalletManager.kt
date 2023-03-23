@@ -34,7 +34,6 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentAttributes
 import com.blockchain.nabu.datamanagers.PaymentCardAcquirer
 import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.datamanagers.SimplifiedDueDiligenceUserState
 import com.blockchain.nabu.datamanagers.TransactionErrorMapper
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
@@ -432,9 +431,8 @@ class LiveCustodialWalletManager(
     }
 
     /**
-     * Returns a list of the available payment methods. [shouldFetchSddLimits] if true, then the responded
-     * payment methods will contain the limits for SDD user. We use this argument only if we want to get back
-     * these limits. To achieve back-words compatibility with the other platforms we had to use
+     * Returns a list of the available payment methods.
+     * To achieve back-words compatibility with the other platforms we had to use
      * a flag called visible (instead of not returning the corresponding payment methods at all.
      * Any payment method with the flag visible=false should be discarded.
      */
@@ -442,13 +440,11 @@ class LiveCustodialWalletManager(
         currency: Currency,
         freshnessStrategy: FreshnessStrategy,
         eligibleOnly: Boolean,
-        shouldFetchSddLimits: Boolean = false,
     ) = paymentMethodsEligibilityStore.stream(
         freshnessStrategy.withKey(
             PaymentMethodsEligibilityStore.Key(
                 currency.networkTicker,
                 eligibleOnly,
-                shouldFetchSddLimits
             )
         )
     )
@@ -466,19 +462,6 @@ class LiveCustodialWalletManager(
                 }
             }
             .onErrorComplete()
-
-    override fun isSimplifiedDueDiligenceEligible(): Single<Boolean> =
-        nabuService.isSDDEligible().map { response ->
-            response.eligible && response.tier == SDD_ELIGIBLE_TIER
-        }.onErrorReturn { false }
-
-    override fun fetchSimplifiedDueDiligenceUserState(): Single<SimplifiedDueDiligenceUserState> =
-        nabuService.isSDDVerified().map {
-            SimplifiedDueDiligenceUserState(
-                isVerified = it.verified,
-                stateFinalised = it.taskComplete
-            )
-        }
 
     override fun createCustodialOrder(
         direction: TransferDirection,
@@ -577,27 +560,6 @@ class LiveCustodialWalletManager(
 
     override fun getSwapTrades(): Single<List<CustodialOrder>> = simpleBuyService.swapOrders().asSingle()
 
-    private fun CustodialOrderResponse.toSwapOrder(): CustodialOrder? {
-        return CustodialOrder(
-            id = this.id,
-            state = this.state.toCustodialOrderState(),
-            depositAddress = this.kind.depositAddress,
-            createdAt = this.createdAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
-            inputMoney = Money.fromMinor(
-                assetCatalogue.assetInfoFromNetworkTicker(
-                    this.pair.toCryptoCurrencyPair()?.source?.networkTicker.toString()
-                ) ?: return null,
-                this.priceFunnel.inputMoney.toBigInteger()
-            ),
-            outputMoney = Money.fromMinor(
-                assetCatalogue.assetInfoFromNetworkTicker(
-                    this.pair.toCryptoCurrencyPair()?.destination?.networkTicker.toString()
-                ) ?: return null,
-                this.priceFunnel.outputMoney.toBigInteger()
-            )
-        )
-    }
-
     private fun CustodialOrderResponse.toCustodialOrder(): CustodialOrder? {
         return CustodialOrder(
             id = this.id,
@@ -621,9 +583,6 @@ class LiveCustodialWalletManager(
 
     companion object {
         private const val ACH_CURRENCY = "USD"
-
-        @Deprecated("use SddRepository")
-        private const val SDD_ELIGIBLE_TIER = 3
     }
 }
 
