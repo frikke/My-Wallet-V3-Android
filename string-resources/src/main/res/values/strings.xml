@@ -1158,9 +1158,6 @@
     <string name="kyc_tier_current_state_underreview_subtitle">You’ve successfully submitted your application. A Blockchain.com Support Member is reviewing it now.</string>
     <string name="kyc_tier_current_state_underreview_nextstep_title">What happens next?</string>
     <string name="kyc_tier_current_state_underreview_nextstep_subtitle">We’ll notify you via email about the status of your application.</string>
-    <string name="kyc_tier_current_state_underreview_nextstep_subtitle_sdd">We’ll notify you via email about the status of your application.
-
-While you wait, you can make your first trade and move currency up to your current limit.</string>
     <string name="kyc_tier_current_state_underreview_cta">Go to dashboard</string>
 
     <string name="kyc_tier_current_state_verified_title">You’ve been verified</string>
@@ -2904,16 +2901,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="transactions_left_title">Transactions Left</string>
     <string name="transactions_left_subtitle">Verify for unlimited trades.</string>
     <string name="kyc_upgrade_now_toolbar">Upgrade Now</string>
-    <string name="kyc_upgrade_now_tab_basic">Limited Access</string>
-    <string name="kyc_upgrade_now_tab_verified">Full Access</string>
-    <string name="kyc_upgrade_now_basic_level">Limited Access</string>
-    <string name="kyc_upgrade_now_basic_active">Active</string>
-    <string name="kyc_upgrade_now_basic_limited_access">Apply Now</string>
-    <string name="kyc_upgrade_now_basic_send_receive_title">Send and receive crypto</string>
-    <string name="kyc_upgrade_now_basic_send_receive_description">Between DeFi wallets</string>
-    <string name="kyc_upgrade_now_basic_swap_title">Swap crypto</string>
-    <string name="kyc_upgrade_now_basic_swap_description">One-time between DeFi wallets</string>
-    <string name="kyc_upgrade_now_basic_cta">Get Limited Access</string>
     <string name="kyc_upgrade_now_verified_level">Full Access</string>
     <string name="kyc_upgrade_now_verified_full_access">Apply Now</string>
     <string name="kyc_upgrade_now_verified_swap_title">Swap crypto</string>

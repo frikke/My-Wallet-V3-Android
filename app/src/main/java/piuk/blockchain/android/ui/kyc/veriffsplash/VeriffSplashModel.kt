@@ -13,14 +13,12 @@ import com.blockchain.core.kyc.data.datasources.KycTiersStore
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.common.model.CountryIso
 import com.blockchain.nabu.api.getuser.domain.UserService
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.getOrDefault
-import com.blockchain.outcome.zipOutcomes
 import com.blockchain.preferences.SessionPrefs
 import com.blockchain.utils.awaitOutcome
 import com.blockchain.veriff.VeriffApplicantAndToken
@@ -32,10 +30,7 @@ import timber.log.Timber
 
 sealed class Navigation : NavigationEvent {
     data class Veriff(val veriffApplicantAndToken: VeriffApplicantAndToken) : Navigation()
-    data class TierCurrentState(
-        val kycState: KycState,
-        val isSddVerified: Boolean,
-    ) : Navigation()
+    data class TierCurrentState(val kycState: KycState) : Navigation()
 }
 
 @Parcelize
@@ -45,7 +40,6 @@ data class Args(
 
 class VeriffSplashModel(
     private val userService: UserService,
-    private val custodialWalletManager: CustodialWalletManager,
     private val nabuDataManager: NabuDataManager,
     private val kycTiersStore: KycTiersStore,
     private val sessionPrefs: SessionPrefs,
@@ -85,7 +79,7 @@ class VeriffSplashModel(
                     ) {
                         sessionPrefs.devicePreIDVCheckFailed = true
                         analytics.logEvent(KYCAnalyticsEvents.VeriffPreIDV("UNAVAILABLE"))
-                        navigate(Navigation.TierCurrentState(KycState.Rejected, false))
+                        navigate(Navigation.TierCurrentState(KycState.Rejected))
                     } else {
                         updateState {
                             it.copy(
@@ -120,7 +114,7 @@ class VeriffSplashModel(
         when (intent) {
             VeriffSplashIntent.ContinueClicked -> {
                 if (BuildConfig.DEBUG && BuildConfig.SKIP_VERIFF_KYC) {
-                    navigate(Navigation.TierCurrentState(KycState.Verified, true))
+                    navigate(Navigation.TierCurrentState(KycState.Verified))
                 } else {
                     navigate(Navigation.Veriff(veriffApplicantAndToken))
                 }
@@ -129,19 +123,12 @@ class VeriffSplashModel(
                 updateState { it.copy(continueButtonState = ButtonState.Loading) }
                 nabuDataManager.submitVeriffVerification().awaitOutcome()
                     .flatMap {
-                        zipOutcomes(
-                            { userService.getUser().map { it.kycState }.awaitOutcome() },
-                            {
-                                custodialWalletManager.fetchSimplifiedDueDiligenceUserState()
-                                    .map { it.isVerified }
-                                    .awaitOutcome()
-                            }
-                        )
+                        userService.getUser().map { it.kycState }.awaitOutcome()
                     }
-                    .doOnSuccess { (kycState, isSddVerified) ->
+                    .doOnSuccess { kycState ->
                         analytics.logEvent(KYCAnalyticsEvents.VeriffInfoSubmitted)
                         kycTiersStore.markAsStale()
-                        navigate(Navigation.TierCurrentState(kycState, isSddVerified))
+                        navigate(Navigation.TierCurrentState(kycState))
                     }
                     .doOnFailure { error ->
                         updateState { it.copy(error = VeriffSplashError.Generic) }

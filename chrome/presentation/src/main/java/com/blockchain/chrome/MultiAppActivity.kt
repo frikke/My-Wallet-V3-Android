@@ -60,6 +60,7 @@ import com.blockchain.home.presentation.navigation.WCSessionIntent
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
 import com.blockchain.nfts.navigation.NftNavigation
+import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.navigation.DefiBackupNavigation
 import com.blockchain.presentation.sheets.NoBalanceActionBottomSheet
 import com.blockchain.prices.navigation.PricesNavigation
@@ -99,6 +100,7 @@ class MultiAppActivity :
     KycBenefitsSheetHost,
     SelectNetworkBottomSheet.Host,
     NoBalanceActionBottomSheet.Host,
+    KycUpgradeNowSheet.Host,
     KoinScopeComponent {
 
     override val statusbarColor: ModeBackgroundColor = ModeBackgroundColor.None
@@ -666,6 +668,10 @@ class MultiAppActivity :
 
     override fun onSessionRejected(session: WalletConnectSession) {
         qrScanNavigation.updateWalletConnectSession(WCSessionIntent.RejectWCSession(session))
+    }
+
+    override fun startKycClicked() {
+        earnNavigation.startKycClicked()
     }
 
     override fun navigateToAction(action: AssetAction, selectedAccount: BlockchainAccount, assetInfo: AssetInfo) {

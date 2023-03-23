@@ -1,6 +1,7 @@
 package com.blockchain.earn.data.repository
 
 import com.blockchain.api.earn.EarnRewardsEligibilityDto
+import com.blockchain.api.earn.EarnRewardsEligibilityResponseDto
 import com.blockchain.api.earn.passive.InterestApiService
 import com.blockchain.api.earn.passive.data.InterestAccountBalanceDto
 import com.blockchain.api.earn.passive.data.InterestWithdrawalBodyDto
@@ -163,8 +164,12 @@ internal class InterestRepository(
 
         return interestEligibilityStore.stream(refreshStrategy).mapData { mapAssetTicketWithEligibility ->
             assetCatalogue.supportedCustodialAssets.associateWith { asset ->
-                val eligibilityDto = mapAssetTicketWithEligibility[asset.networkTicker.uppercase()]
-                    ?: EarnRewardsEligibilityDto.default()
+                val eligibilityDto = when (mapAssetTicketWithEligibility) {
+                    is EarnRewardsEligibilityResponseDto.AssetsWithEligibility ->
+                        mapAssetTicketWithEligibility.assets[asset.networkTicker.uppercase()]
+                            ?: EarnRewardsEligibilityDto.default()
+                    is EarnRewardsEligibilityResponseDto.IneligibleReason -> mapAssetTicketWithEligibility.eligibility
+                }
 
                 if (eligibilityDto.isEligible) {
                     EarnRewardsEligibility.Eligible

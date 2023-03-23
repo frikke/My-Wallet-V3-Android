@@ -46,7 +46,6 @@ import com.blockchain.domain.trade.TradeDataService
 import com.blockchain.domain.trade.model.QuotePrice
 import com.blockchain.domain.trade.model.RecurringBuyFrequency
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CardPaymentState
@@ -105,7 +104,6 @@ import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
 import piuk.blockchain.android.rating.domain.model.APP_RATING_MINIMUM_BUY_ORDERS
-import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
 import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import timber.log.Timber
@@ -159,14 +157,11 @@ class SimpleBuyInteractor(
         Singles.zip(
             fetchLimits(sourceCurrency = fiat, targetCurrency = asset, paymentMethodType = paymentMethodType),
             kycService.getHighestApprovedTierLevelLegacy()
-        ).flatMap { (limits, highestTier) ->
+        ).map { (limits, highestTier) ->
             when (highestTier) {
-                KycTier.BRONZE -> Single.just(limits.copy(max = TxLimit.Unlimited))
-                KycTier.SILVER -> userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence).map { isSdd ->
-                    if (isSdd) limits
-                    else limits.copy(max = TxLimit.Unlimited)
-                }
-                KycTier.GOLD -> Single.just(limits)
+                KycTier.BRONZE -> limits.copy(max = TxLimit.Unlimited)
+                KycTier.SILVER -> limits.copy(max = TxLimit.Unlimited)
+                KycTier.GOLD -> limits
             }
         }
 
@@ -450,20 +445,12 @@ class SimpleBuyInteractor(
 
     fun paymentMethods(fiatCurrency: FiatCurrency): Single<PaymentMethods> =
         kycService.getTiersLegacy()
-            .zipWith(
-                custodialWalletManager.isSimplifiedDueDiligenceEligible().onErrorReturn { false }
-                    .doOnSuccess {
-                        if (it) {
-                            analytics.logEventOnce(SDDAnalytics.SDD_ELIGIBLE)
-                        }
-                    }
-            ).flatMap { (tier, sddEligible) ->
+            .flatMap { tier ->
                 Single.zip(
                     getAvailablePaymentMethodsTypesUseCase(
                         GetAvailablePaymentMethodsTypesUseCase.Request(
                             currency = fiatCurrency,
                             onlyEligible = tier.isInitialisedFor(KycTier.GOLD),
-                            fetchSddLimits = sddEligible && tier.isInInitialState()
                         )
                     ),
                     paymentMethodService.getLinkedPaymentMethods(

@@ -2,8 +2,6 @@ package piuk.blockchain.android.ui.coinview.domain
 
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.CryptoAsset
-import com.blockchain.core.kyc.domain.KycService
-import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.data.DataResource
 import com.blockchain.data.combineDataResources
 import com.blockchain.nabu.BlockedReason
@@ -22,7 +20,6 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickActions
 
 class LoadQuickActionsUseCase(
-    private val kycService: KycService,
     private val userFeaturePermissionService: UserFeaturePermissionService,
     private val custodialWalletManager: CustodialWalletManager,
 ) {
@@ -46,17 +43,13 @@ class LoadQuickActionsUseCase(
                     flowOf(DataResource.Data(CoinviewQuickActions.none()))
                 } else {
                     combine(
-                        kycService.getHighestApprovedTierLevel(),
-                        userFeaturePermissionService.isEligibleFor(Feature.SimplifiedDueDiligence),
                         userFeaturePermissionService.getAccessForFeatures(Feature.Buy, Feature.Sell),
                         custodialWalletManager.isCurrencyAvailableForTrading(asset.currency),
                         custodialWalletManager.isAssetSupportedForSwap(asset.currency).toFlowDataResource()
-                    ) { kycTier, sddEligibility, featuresAccess, isAvailableForTrading, isSupportedForSwap ->
+                    ) { featuresAccess, isAvailableForTrading, isSupportedForSwap ->
                         combineDataResources(
-                            kycTier, sddEligibility, featuresAccess, isAvailableForTrading, isSupportedForSwap
-                        ) { kycTierData,
-                            sddEligibilityData,
-                            featuresAccessData,
+                            featuresAccess, isAvailableForTrading, isSupportedForSwap
+                        ) { featuresAccessData,
                             isAvailableForTradingData,
                             isSupportedForSwapData ->
 
@@ -81,7 +74,6 @@ class LoadQuickActionsUseCase(
                             val sellAccess = featuresAccessData[Feature.Sell]
                             val canSell = sellAccess is FeatureAccess.Granted &&
                                 isAvailableForTradingData &&
-                                (kycTierData == KycTier.GOLD || sddEligibilityData) &&
                                 hasPositiveFilterBalance
 
                             /**
@@ -109,9 +101,15 @@ class LoadQuickActionsUseCase(
 
                             /**
                              * Swap button will be enabled if
+                             * * Access is [FeatureAccess.Granted]
+                             *
+                             * *AND*
+                             *
                              * * Balance is positive
                              */
-                            val canSwap = hasPositiveFilterBalance && isSupportedForSwapData
+                            val swapAccess = featuresAccessData[Feature.Swap]
+                            val canSwap = swapAccess is FeatureAccess.Granted &&
+                                hasPositiveFilterBalance && isSupportedForSwapData
 
                             /**
                              * Send button will be enabled if
@@ -128,7 +126,8 @@ class LoadQuickActionsUseCase(
                              * * Is available for trading ([isAvailableForTrading])
                              */
                             @Suppress("UnnecessaryVariable")
-                            val canReceive = isAvailableForTradingData
+                            val receiveAccess = featuresAccessData[Feature.DepositCrypto]
+                            val canReceive = receiveAccess is FeatureAccess.Granted && isAvailableForTradingData
 
                             val centerButtons = listOfNotNull(
                                 CoinviewQuickAction.Swap.takeIf { canSwap },

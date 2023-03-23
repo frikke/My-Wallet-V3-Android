@@ -33,7 +33,6 @@ import piuk.blockchain.android.util.StringUtils
 @Composable
 fun TierCurrentStateScreen(
     state: KycState,
-    isSddVerified: Boolean,
     underReviewCtaClicked: () -> Unit,
     verifiedCtaClicked: () -> Unit,
     rejectedCtaClicked: () -> Unit,
@@ -44,7 +43,7 @@ fun TierCurrentStateScreen(
         when (state) {
             KycState.None,
             KycState.Pending,
-            KycState.UnderReview -> UnderReviewScreen(isSddVerified, underReviewCtaClicked)
+            KycState.UnderReview -> UnderReviewScreen(underReviewCtaClicked)
             KycState.Verified -> VerifiedScreen(verifiedCtaClicked)
             KycState.Expired,
             KycState.Rejected -> RejectedScreen(rejectedCtaClicked)
@@ -54,7 +53,6 @@ fun TierCurrentStateScreen(
 
 @Composable
 private fun ColumnScope.UnderReviewScreen(
-    isSddVerified: Boolean,
     underReviewCtaClicked: () -> Unit
 ) {
     Header(state = KycState.UnderReview)
@@ -92,10 +90,7 @@ private fun ColumnScope.UnderReviewScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = AppTheme.dimensions.tinySpacing),
-            text = stringResource(
-                if (isSddVerified) R.string.kyc_tier_current_state_underreview_nextstep_subtitle_sdd
-                else R.string.kyc_tier_current_state_underreview_nextstep_subtitle
-            ),
+            text = stringResource(R.string.kyc_tier_current_state_underreview_nextstep_subtitle),
             style = ComposeTypographies.Caption1,
             color = ComposeColors.Body,
             gravity = ComposeGravities.Start
@@ -229,7 +224,6 @@ private fun ColumnScope.Header(
 private fun PreviewUnderReview() {
     TierCurrentStateScreen(
         state = KycState.UnderReview,
-        isSddVerified = true,
         underReviewCtaClicked = {},
         verifiedCtaClicked = {},
         rejectedCtaClicked = {},
@@ -241,7 +235,6 @@ private fun PreviewUnderReview() {
 private fun PreviewRejected() {
     TierCurrentStateScreen(
         state = KycState.Rejected,
-        isSddVerified = true,
         underReviewCtaClicked = {},
         verifiedCtaClicked = {},
         rejectedCtaClicked = {},
@@ -253,7 +246,6 @@ private fun PreviewRejected() {
 private fun PreviewVerified() {
     TierCurrentStateScreen(
         state = KycState.Verified,
-        isSddVerified = true,
         underReviewCtaClicked = {},
         verifiedCtaClicked = {},
         rejectedCtaClicked = {},

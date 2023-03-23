@@ -2,8 +2,6 @@ package com.blockchain.nabu.service
 
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorCodes
-import com.blockchain.core.sdd.domain.model.SddEligibilityDto
-import com.blockchain.core.sdd.domain.model.SddStatusDto
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.tags.TagsService
 import com.blockchain.enviroment.EnvironmentConfig
@@ -225,12 +223,6 @@ class NabuService internal constructor(
     ): Single<SendToExchangeAddressResponse> = nabu.fetchExchangeSendAddress(
         SendToExchangeAddressRequest(cryptoSymbol)
     ).wrapErrorMessage()
-
-    internal fun isSDDEligible(): Single<SddEligibilityDto> =
-        nabu.isSDDEligible().wrapErrorMessage()
-
-    internal fun isSDDVerified(): Single<SddStatusDto> =
-        nabu.isSDDVerified().wrapErrorMessage()
 
     internal fun fetchQuote(
         quoteRequest: QuoteRequest

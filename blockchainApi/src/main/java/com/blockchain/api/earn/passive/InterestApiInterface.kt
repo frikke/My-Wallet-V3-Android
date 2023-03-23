@@ -1,6 +1,6 @@
 package com.blockchain.api.earn.passive
 
-import com.blockchain.api.earn.EarnRewardsEligibilityDto
+import com.blockchain.api.earn.EarnRewardsEligibilityResponseDto
 import com.blockchain.api.earn.passive.data.InterestAccountBalanceDto
 import com.blockchain.api.earn.passive.data.InterestAddressDto
 import com.blockchain.api.earn.passive.data.InterestAvailableTickersDto
@@ -27,7 +27,7 @@ internal interface InterestApiInterface {
     @GET("earn/eligible")
     fun getTickersEligibility(
         @Query("product") product: String = "SAVINGS"
-    ): Single<Map<String, EarnRewardsEligibilityDto>>
+    ): Single<EarnRewardsEligibilityResponseDto>
 
     @GET("savings/limits")
     fun getTickersLimits(

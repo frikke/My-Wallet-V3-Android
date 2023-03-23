@@ -55,7 +55,7 @@ class KycAddressVerificationFragment :
 
             fraudService.endFlow(FraudFlow.ONBOARDING)
 
-            presenter.onContinueClicked(progressListener.campaignType, address)
+            presenter.onContinueClicked(address)
             analytics.logEvent(KYCAnalyticsEvents.AddressChanged)
         }
     }
@@ -139,14 +139,10 @@ class KycAddressVerificationFragment :
         )
     }
 
+    // TODO(aromano): KYC remove when I refactor NextStepDecision
     override fun tier1Complete() {
         requireActivity().hideKeyboard()
         activity?.setResult(KycNavHostActivity.RESULT_KYC_FOR_TIER_COMPLETE)
-        activity?.finish()
-    }
-
-    override fun onSddVerified() {
-        activity?.setResult(KycNavHostActivity.RESULT_KYC_FOR_SDD_COMPLETE)
         activity?.finish()
     }
 

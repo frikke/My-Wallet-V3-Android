@@ -519,7 +519,7 @@ class SimpleBuyCryptoFragment :
                 )
                 if (info != null) {
                     showBottomSheet(TransactionFlowInfoBottomSheet.newInstance(info))
-                    infoActionCallback = handlePossibleInfoAction(info, newState.transactionsLimit)
+                    infoActionCallback = handlePossibleInfoAction(info)
                 }
             }
         } else {
@@ -630,7 +630,7 @@ class SimpleBuyCryptoFragment :
             binding.btnError.onClick = {
                 showBottomSheet(TransactionFlowInfoBottomSheet.newInstance(info))
                 infoActionCallback =
-                    handlePossibleInfoAction(info, state.transactionsLimit ?: TransactionsLimit.Unlimited)
+                    handlePossibleInfoAction(info)
             }
         } ?: run { binding.btnError.onClick = {} }
 
@@ -640,13 +640,12 @@ class SimpleBuyCryptoFragment :
 
     private fun handlePossibleInfoAction(
         info: TransactionFlowBottomSheetInfo,
-        transactionsLimit: TransactionsLimit,
     ): () -> Unit {
         val type = info.action?.actionType ?: return {}
         return when (type) {
             InfoActionType.KYC_UPGRADE -> return {
                 analytics.logEvent(InfoBottomSheetKycUpsellActionClicked(AssetAction.Buy))
-                showBottomSheet(KycUpgradeNowSheet.newInstance(transactionsLimit))
+                showBottomSheet(KycUpgradeNowSheet.newInstance())
             }
             InfoActionType.BUY -> {
                 {}
@@ -1344,7 +1343,7 @@ class SimpleBuyCryptoFragment :
             if (resultCode == SimpleBuyActivity.RESULT_KYC_SIMPLE_BUY_COMPLETE) {
                 model.process(SimpleBuyIntent.KycCompleted)
                 navigator().goToKycVerificationScreen()
-            } else if (resultCode == KycNavHostActivity.RESULT_KYC_FOR_SDD_COMPLETE) {
+            } else if (resultCode == KycNavHostActivity.RESULT_KYC_FOR_TIER_COMPLETE) {
                 model.process(
                     SimpleBuyIntent.UpdatePaymentMethodsAndAddTheFirstEligible(
                         fiatCurrency

@@ -25,7 +25,6 @@ interface PaymentMethodService {
 
     fun getAvailablePaymentMethodsTypes(
         fiatCurrency: FiatCurrency,
-        fetchSddLimits: Boolean,
         onlyEligible: Boolean
     ): Single<List<PaymentMethodTypeWithEligibility>>
 

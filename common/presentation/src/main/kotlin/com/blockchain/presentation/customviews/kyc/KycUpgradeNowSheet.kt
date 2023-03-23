@@ -11,17 +11,13 @@ import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
-import com.blockchain.domain.eligibility.model.TransactionsLimit
-import com.blockchain.nabu.Feature
-import com.blockchain.nabu.UserIdentity
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.emptySubscribe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 
-class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBinding>() {
+class KycUpgradeNowSheet private constructor() : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBinding>() {
 
     interface Host : SlidingModalBottomDialog.Host {
         fun startKycClicked()
@@ -29,19 +25,11 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
 
     private val disposables = CompositeDisposable()
 
-    private val userIdentity: UserIdentity by scopedInject()
     private val kycService: KycService by scopedInject()
 
-    private val transactionsLimit: TransactionsLimit by lazy {
-        arguments?.getSerializable(ARG_TRANSACTIONS_LIMIT) as TransactionsLimit
-    }
-
     private var ctaClicked = false
-    private val getHighestTierAndIsSdd: Single<Pair<KycTier, Boolean>> by lazy {
-        Singles.zip(
-            kycService.getHighestApprovedTierLevelLegacy(),
-            userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence)
-        ).cache()
+    private val getHighestTier: Single<KycTier> by lazy {
+        kycService.getHighestApprovedTierLevelLegacy().cache()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -58,7 +46,6 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
         DialogSheetKycUpgradeNowBinding.inflate(inflater, container, false).apply {
             composeView.setContent {
                 KycUpgradeNowScreen(
-                    transactionsLimit = transactionsLimit,
                     startKycClicked = {
                         ctaClicked = true
                         startKycClicked()
@@ -87,7 +74,7 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
             }
         }
         // prep stream for onDestroyView call
-        getHighestTierAndIsSdd.emptySubscribe()
+        getHighestTier.emptySubscribe()
     }
 
     private fun startKycClicked() {
@@ -97,8 +84,8 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
 
     override fun onDestroyView() {
         if (!ctaClicked) {
-            disposables += getHighestTierAndIsSdd.subscribe { (highestTier, isSdd) ->
-                analytics.logEvent(KycUpgradeNowDismissed(highestTier, isSdd))
+            disposables += getHighestTier.subscribe { highestTier ->
+                analytics.logEvent(KycUpgradeNowDismissed(highestTier))
             }
         }
         disposables.dispose()
@@ -106,14 +93,6 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
     }
 
     companion object {
-        private const val ARG_TRANSACTIONS_LIMIT = "ARG_TRANSACTIONS_LIMIT"
-
-        fun newInstance(
-            transactionsLimit: TransactionsLimit = TransactionsLimit.Unlimited,
-        ): KycUpgradeNowSheet = KycUpgradeNowSheet().apply {
-            arguments = Bundle().apply {
-                putSerializable(ARG_TRANSACTIONS_LIMIT, transactionsLimit)
-            }
-        }
+        fun newInstance(): KycUpgradeNowSheet = KycUpgradeNowSheet()
     }
 }

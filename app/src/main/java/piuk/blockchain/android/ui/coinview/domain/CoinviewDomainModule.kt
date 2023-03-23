@@ -38,7 +38,6 @@ val coinviewDomainModule = module {
 
         scoped {
             LoadQuickActionsUseCase(
-                kycService = get(),
                 userFeaturePermissionService = get(),
                 custodialWalletManager = get()
             )

@@ -16,6 +16,7 @@ import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.HomeLaunch
+import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.sheets.NoBalanceActionBottomSheet
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.campaign.CampaignType
@@ -36,6 +37,8 @@ class EarnNavigationImpl(
             is EarnDashboardNavigationEvent.OpenActiveRewardsSummarySheet -> openActiveRewardsSummarySheet(
                 assetTicker = navigationEvent.assetTicker
             )
+            is EarnDashboardNavigationEvent.OpenKycUpgradeNowSheet ->
+                activity?.showBottomSheet(KycUpgradeNowSheet.newInstance())
             is EarnDashboardNavigationEvent.OpenBlockedForRegionSheet -> {
                 activity?.let {
                     showBlockedAccessSheet(

@@ -50,7 +50,6 @@ interface UserIdentity {
 
 sealed class Feature {
     data class TierLevel(val tier: KycTier) : Feature()
-    object SimplifiedDueDiligence : Feature()
     data class Interest(val currency: Currency) : Feature()
     object Buy : Feature()
     object Swap : Feature()

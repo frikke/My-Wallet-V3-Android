@@ -43,7 +43,6 @@ import com.blockchain.componentlib.system.EmbeddedFragment
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue600
-import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.BUY_URL
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.KYC_URL
 import com.blockchain.domain.common.model.PromotionStyleInfo
@@ -64,7 +63,7 @@ import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailVerificationFragment
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
-import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity.Companion.RESULT_KYC_FOR_SDD_COMPLETE
+import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity.Companion.RESULT_KYC_FOR_TIER_COMPLETE
 import timber.log.Timber
 
 class CowboysFlowActivity : BlockchainActivity(), EmailEntryHost {
@@ -159,14 +158,7 @@ class CowboysFlowActivity : BlockchainActivity(), EmailEntryHost {
         with(deeplinkPath) {
             when {
                 contains(KYC_URL) -> {
-                    when (this.split("=")[1].toInt()) {
-                        KycTier.SILVER.ordinal -> {
-                            launchKycForResult(SDD_REQUEST, CampaignType.SimpleBuy)
-                        }
-                        else -> {
-                            launchKycForResult(GOLD_VERIFICATION_REQUEST)
-                        }
-                    }
+                    launchKycForResult(GOLD_VERIFICATION_REQUEST)
                 }
                 contains(BUY_URL) -> {
                     assetCatalogue.assetInfoFromNetworkTicker(
@@ -239,16 +231,13 @@ class CowboysFlowActivity : BlockchainActivity(), EmailEntryHost {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
-            SDD_REQUEST -> {
-                if (resultCode == RESULT_KYC_FOR_SDD_COMPLETE) {
+            GOLD_VERIFICATION_REQUEST -> {
+                if (resultCode == RESULT_KYC_FOR_TIER_COMPLETE) {
                     flowStep = FlowStep.Raffle
                     loadDataForStep(flowStep)
                 } else {
                     navigateToMainActivity()
                 }
-            }
-            GOLD_VERIFICATION_REQUEST -> {
-                navigateToMainActivity()
             }
         }
     }
@@ -289,7 +278,6 @@ class CowboysFlowActivity : BlockchainActivity(), EmailEntryHost {
         }
 
     companion object {
-        private const val SDD_REQUEST = 567
         private const val GOLD_VERIFICATION_REQUEST = 890
         private const val BTC_TICKER = "BTC"
         private const val FLOW_STEP = "FLOW_STEP"
