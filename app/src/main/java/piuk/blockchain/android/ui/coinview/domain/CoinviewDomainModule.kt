@@ -31,7 +31,7 @@ val coinviewDomainModule = module {
 
         scoped {
             LoadAssetRecurringBuysUseCase(
-                tradeDataService = get(),
+                recurringBuyService = get(),
                 custodialWalletManager = get()
             )
         }

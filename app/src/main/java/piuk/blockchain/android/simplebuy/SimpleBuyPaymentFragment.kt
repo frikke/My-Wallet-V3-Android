@@ -13,6 +13,8 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyState
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.paymentmethods.model.BankAuthSource
@@ -20,8 +22,6 @@ import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.BankPaymentApproval
 import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import com.blockchain.domain.trade.model.RecurringBuyFrequency
-import com.blockchain.domain.trade.model.RecurringBuyState
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.nabu.datamanagers.OrderState

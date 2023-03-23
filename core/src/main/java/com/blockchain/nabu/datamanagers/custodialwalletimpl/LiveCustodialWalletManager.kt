@@ -8,8 +8,8 @@ import com.blockchain.core.buy.data.toBuySellOrder
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.buy.domain.models.SimpleBuyPair
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
+import com.blockchain.core.recurringbuy.data.datasources.RecurringBuyStore
 import com.blockchain.core.recurringbuy.domain.RecurringBuyService
-import com.blockchain.core.trade.GetRecurringBuysStore
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
@@ -18,8 +18,6 @@ import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import com.blockchain.domain.trade.model.RecurringBuy
-import com.blockchain.domain.trade.model.RecurringBuyState
 import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.nabu.datamanagers.BankAccount
 import com.blockchain.nabu.datamanagers.BuyOrderList
@@ -36,7 +34,6 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentAttributes
 import com.blockchain.nabu.datamanagers.PaymentCardAcquirer
 import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.nabu.datamanagers.SimplifiedDueDiligenceUserState
 import com.blockchain.nabu.datamanagers.TransactionErrorMapper
 import com.blockchain.nabu.datamanagers.TransactionState
@@ -55,10 +52,8 @@ import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.PaymentAttributesResponse
 import com.blockchain.nabu.models.responses.simplebuy.PaymentStateResponse
 import com.blockchain.nabu.models.responses.simplebuy.ProductTransferRequestBody
-import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferRequest
-import com.blockchain.nabu.models.responses.simplebuy.toRecurringBuyOrder
 import com.blockchain.nabu.models.responses.swap.CreateOrderRequest
 import com.blockchain.nabu.models.responses.swap.CustodialOrderResponse
 import com.blockchain.nabu.service.NabuService
@@ -97,7 +92,7 @@ class LiveCustodialWalletManager(
     private val transactionErrorMapper: TransactionErrorMapper,
     private val fiatCurrenciesService: FiatCurrenciesService,
     private val recurringBuyService: RecurringBuyService,
-    private val getRecurringBuysStore: GetRecurringBuysStore,
+    private val recurringBuyStore: RecurringBuyStore,
 ) : CustodialWalletManager {
 
     override val selectedFiatcurrency: FiatCurrency
@@ -112,19 +107,6 @@ class LiveCustodialWalletManager(
             stateAction
         ).map { response ->
             response.toDomainOrThrow()
-        }
-
-    override fun createRecurringBuyOrder(
-        recurringBuyRequestBody: RecurringBuyRequestBody,
-    ): Single<RecurringBuyOrder> =
-        nabuService.createRecurringBuyOrder(
-            recurringBuyRequestBody
-        ).map { response ->
-            response.toRecurringBuyOrder().also {
-                if (it.state == RecurringBuyState.ACTIVE) {
-                    getRecurringBuysStore.markAsStale(GetRecurringBuysStore.Key(response.destinationCurrency))
-                }
-            }
         }
 
     override fun createWithdrawOrder(amount: Money, bankId: String): Completable =
@@ -396,13 +378,6 @@ class LiveCustodialWalletManager(
         val max = limits.max
         return dailyMax.coerceAtMost(max)
     }
-
-    override fun getRecurringBuyForId(recurringBuyId: String): Single<RecurringBuy> {
-        return recurringBuyService.getRecurringBuyForId(id = recurringBuyId).asSingle()
-    }
-
-    override fun cancelRecurringBuy(recurringBuyId: String): Completable =
-        nabuService.cancelRecurringBuy(recurringBuyId)
 
     override fun getCardAcquirers(): Single<List<PaymentCardAcquirer>> =
         nabuService.cardAcquirers().map { paymentCardAcquirers ->

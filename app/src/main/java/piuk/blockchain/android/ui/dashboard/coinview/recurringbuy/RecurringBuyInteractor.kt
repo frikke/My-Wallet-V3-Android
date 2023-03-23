@@ -1,16 +1,18 @@
 package piuk.blockchain.android.ui.dashboard.coinview.recurringbuy
 
+import com.blockchain.core.recurringbuy.domain.RecurringBuyService
+import com.blockchain.core.recurringbuy.domain.model.FundsAccount
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuy
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.RecurringBuyPaymentDetails
-import com.blockchain.domain.trade.TradeDataService
-import com.blockchain.domain.trade.model.FundsAccount
-import com.blockchain.domain.trade.model.RecurringBuy
+import com.blockchain.store.asSingle
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.rx3.rxCompletable
 
 class RecurringBuyInteractor(
-    private val tradeDataService: TradeDataService,
+    private val recurringBuyService: RecurringBuyService,
     private val bankService: BankService,
     private val cardService: CardService
 ) {
@@ -34,8 +36,10 @@ class RecurringBuyInteractor(
         }
     }
 
-    fun deleteRecurringBuy(recurringBuy: RecurringBuy) = tradeDataService.cancelRecurringBuy(recurringBuy)
+    fun deleteRecurringBuy(recurringBuy: RecurringBuy) = rxCompletable {
+        recurringBuyService.cancelRecurringBuy(recurringBuy)
+    }
 
     fun getRecurringBuyById(recurringBuyId: String): Single<RecurringBuy> =
-        tradeDataService.getRecurringBuyForId(recurringBuyId)
+        recurringBuyService.recurringBuy(recurringBuyId).asSingle()
 }

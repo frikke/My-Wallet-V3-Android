@@ -4,9 +4,9 @@ import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.custodial.models.BuyOrderAndQuote
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import com.blockchain.domain.trade.model.RecurringBuyFrequency
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderInput
@@ -28,7 +28,6 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.subjects.PublishSubject
-import java.lang.IllegalStateException
 import java.util.concurrent.TimeUnit
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import timber.log.Timber

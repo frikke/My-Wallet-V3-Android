@@ -15,6 +15,10 @@ import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payments.PaymentsRepository
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.recurringbuy.domain.RecurringBuyService
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyOrder
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyRequest
 import com.blockchain.coreandroid.remoteconfig.RemoteConfigRepository
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
@@ -44,7 +48,6 @@ import com.blockchain.domain.paymentmethods.model.fromPreferencesValue
 import com.blockchain.domain.paymentmethods.model.toPreferencesValue
 import com.blockchain.domain.trade.TradeDataService
 import com.blockchain.domain.trade.model.QuotePrice
-import com.blockchain.domain.trade.model.RecurringBuyFrequency
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
@@ -56,10 +59,8 @@ import com.blockchain.nabu.datamanagers.OrderOutput
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentCardAcquirer
 import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
-import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
 import com.blockchain.outcome.doOnFailure
@@ -143,7 +144,8 @@ class SimpleBuyInteractor(
     private val feynmanCheckoutFF: FeatureFlag,
     private val improvedPaymentUxFF: FeatureFlag,
     private val remoteConfigRepository: RemoteConfigRepository,
-    private val quickFillRoundingService: QuickFillRoundingService
+    private val quickFillRoundingService: QuickFillRoundingService,
+    private val recurringBuyService: RecurringBuyService
 ) {
 
     // Hack until we have a proper limits api.
@@ -289,17 +291,19 @@ class SimpleBuyInteractor(
             require(order.amount != null) { "createRecurringBuyOrder amount is null" }
 
             val amount = order.amount
-            custodialWalletManager.createRecurringBuyOrder(
-                RecurringBuyRequestBody(
-                    orderId = orderId,
-                    inputValue = amount.toBigInteger().toString(),
-                    inputCurrency = amount.currencyCode,
-                    destinationCurrency = asset.networkTicker,
-                    paymentMethod = selectedPaymentMethod.paymentMethodType.name,
-                    period = recurringBuyFrequency.name,
-                    paymentMethodId = selectedPaymentMethod.takeUnless { it.isFunds() }?.id
+            rxSingleOutcome {
+                recurringBuyService.createOrder(
+                    RecurringBuyRequest(
+                        orderId = orderId,
+                        inputValue = amount.toBigInteger().toString(),
+                        inputCurrency = amount.currencyCode,
+                        destinationCurrency = asset.networkTicker,
+                        paymentMethod = selectedPaymentMethod.paymentMethodType.name,
+                        period = recurringBuyFrequency.name,
+                        paymentMethodId = selectedPaymentMethod.takeUnless { it.isFunds() }?.id
+                    )
                 )
-            )
+            }
         } else {
             Single.just(RecurringBuyOrder())
         }

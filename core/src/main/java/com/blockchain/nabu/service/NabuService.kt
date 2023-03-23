@@ -30,7 +30,6 @@ import com.blockchain.nabu.models.responses.simplebuy.CustodialAccountResponse
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.DepositRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.ProductTransferRequestBody
-import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyCurrency
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibilityDto
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsDto
@@ -323,12 +322,6 @@ class NabuService internal constructor(
         }
     }.wrapErrorMessage()
 
-    fun createRecurringBuyOrder(
-        recurringOrderBody: RecurringBuyRequestBody
-    ) = nabu.createRecurringBuy(
-        recurringBuyBody = recurringOrderBody
-    ).wrapErrorMessage()
-
     internal fun fetchWithdrawFeesAndLimits(
         product: String,
         paymentMethod: String
@@ -438,12 +431,6 @@ class NabuService internal constructor(
         body: ProductTransferRequestBody
     ) = nabu.executeTransfer(
         body = body
-    ).wrapErrorMessage()
-
-    fun cancelRecurringBuy(
-        id: String
-    ) = nabu.cancelRecurringBuy(
-        id = id
     ).wrapErrorMessage()
 
     private fun getLocalisedErrorIfEnabled(): String? =

@@ -8,6 +8,9 @@ import com.blockchain.core.custodial.models.Availability
 import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.custodial.models.Promo
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.recurringbuy.domain.model.EligibleAndNextPaymentRecurringBuy
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyState
 import com.blockchain.domain.common.model.Millis
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.eligibility.model.TransactionsLimit
@@ -18,9 +21,6 @@ import com.blockchain.domain.paymentmethods.model.Partner
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.SettlementReason
-import com.blockchain.domain.trade.model.EligibleAndNextPaymentRecurringBuy
-import com.blockchain.domain.trade.model.RecurringBuyFrequency
-import com.blockchain.domain.trade.model.RecurringBuyState
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.payments.googlepay.manager.request.BillingAddressParameters
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData

@@ -49,6 +49,7 @@ import com.blockchain.api.nfts.api.NftApi
 import com.blockchain.api.nftwaitlist.data.api.NftWaitlistApi
 import com.blockchain.api.paymentmethods.PaymentMethodsApi
 import com.blockchain.api.payments.PaymentsApi
+import com.blockchain.api.recurringbuy.RecurringBuyApi
 import com.blockchain.api.referral.ReferralApi
 import com.blockchain.api.selfcustody.SelfCustodyApi
 import com.blockchain.api.selfcustody.activity.ActivityRequest
@@ -82,6 +83,7 @@ import com.blockchain.api.services.NonCustodialErc20Service
 import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
+import com.blockchain.api.services.RecurringBuyApiService
 import com.blockchain.api.services.ReferralApiService
 import com.blockchain.api.services.TradeService
 import com.blockchain.api.services.TxLimitsService
@@ -435,6 +437,13 @@ val blockchainApiModule = module {
     factory {
         val api = get<Retrofit>(nabuApi).create(TradeApi::class.java)
         TradeService(
+            api = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(RecurringBuyApi::class.java)
+        RecurringBuyApiService(
             api = api
         )
     }

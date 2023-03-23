@@ -27,8 +27,6 @@ import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.DepositRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.FeesResponse
 import com.blockchain.nabu.models.responses.simplebuy.ProductTransferRequestBody
-import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
-import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyResponse
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyCurrency
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibilityDto
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsDto
@@ -316,22 +314,6 @@ internal interface Nabu {
     @POST(NABU_TRANSFER)
     fun executeTransfer(
         @Body body: ProductTransferRequestBody
-    ): Completable
-
-    @POST("recurring-buy/create")
-    fun createRecurringBuy(
-        @Body recurringBuyBody: RecurringBuyRequestBody
-    ): Single<RecurringBuyResponse>
-
-    @GET("recurring-buy/list")
-    fun getRecurringBuyById(
-        @Query("id") recurringBuyId: String,
-        @Query("states") states: String
-    ): Single<List<RecurringBuyResponse>>
-
-    @DELETE("recurring-buy/{id}/cancel")
-    fun cancelRecurringBuy(
-        @Path("id") id: String
     ): Completable
 }
 

@@ -11,15 +11,12 @@ import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.domain.paymentmethods.model.Partner
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import com.blockchain.domain.trade.model.RecurringBuy
-import com.blockchain.domain.trade.model.RecurringBuyState
 import com.blockchain.domain.transactions.CustodialTransactionState
 import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
-import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyPair
@@ -81,10 +78,6 @@ interface CustodialWalletManager {
         custodialWalletOrder: CustodialWalletOrder,
         stateAction: String? = null
     ): Single<BuySellOrder>
-
-    fun createRecurringBuyOrder(
-        recurringBuyRequestBody: RecurringBuyRequestBody
-    ): Single<RecurringBuyOrder>
 
     fun createWithdrawOrder(
         amount: Money,
@@ -203,10 +196,6 @@ interface CustodialWalletManager {
     fun executeCustodialTransfer(amount: Money, origin: Product, destination: Product): Completable
 
     val selectedFiatcurrency: FiatCurrency
-
-    fun getRecurringBuyForId(recurringBuyId: String): Single<RecurringBuy>
-
-    fun cancelRecurringBuy(recurringBuyId: String): Completable
 }
 
 data class PaymentAttributes(
@@ -550,9 +539,4 @@ data class CustodialOrder(
 data class SimplifiedDueDiligenceUserState(
     val isVerified: Boolean,
     val stateFinalised: Boolean
-)
-
-data class RecurringBuyOrder(
-    val state: RecurringBuyState = RecurringBuyState.UNINITIALISED,
-    val id: String? = null,
 )

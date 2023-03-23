@@ -69,7 +69,6 @@ import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.core.payments.cache.PaymentMethodsStore
 import com.blockchain.core.recurringbuy.data.RecurringBuyRepository
-import com.blockchain.core.recurringbuy.data.datasources.RecurringBuyWithIdStore
 import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.core.referral.dataresource.ReferralStore
@@ -217,15 +216,11 @@ val coreModule = module {
             )
         }
 
-        scoped {
-            RecurringBuyWithIdStore(
-                nabu = get()
-            )
-        }
-
         scoped<RecurringBuyService> {
             RecurringBuyRepository(
-                recurringBuyWithIdStore = get(),
+                rbStore = get(),
+                rbFrequencyConfigStore = get(),
+                recurringBuyApiService = get(),
                 assetCatalogue = get()
             )
         }

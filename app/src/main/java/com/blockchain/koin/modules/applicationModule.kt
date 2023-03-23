@@ -18,7 +18,8 @@ import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.theme.AppThemeProvider
 import com.blockchain.core.access.PinRepository
 import com.blockchain.core.auth.metadata.WalletCredentialsMetadataUpdater
-import com.blockchain.core.trade.GetRecurringBuysStore
+import com.blockchain.core.recurringbuy.data.datasources.RecurringBuyFrequencyConfigStore
+import com.blockchain.core.recurringbuy.data.datasources.RecurringBuyStore
 import com.blockchain.core.trade.TradeDataRepository
 import com.blockchain.core.utils.SSLVerifyUtil
 import com.blockchain.deeplinking.processor.DeeplinkService
@@ -108,7 +109,6 @@ import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailableCryptoAssetsUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
 import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCase
-import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.GetReceiveAccountsForAssetUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.everypay.service.EveryPayCardService
@@ -536,7 +536,8 @@ val applicationModule = module {
                 feynmanCheckoutFF = get(feynmanCheckoutFeatureFlag),
                 improvedPaymentUxFF = get(improvedPaymentUxFeatureFlag),
                 remoteConfigRepository = get(),
-                quickFillRoundingService = get()
+                quickFillRoundingService = get(),
+                recurringBuyService = get()
             )
         }
 
@@ -553,7 +554,7 @@ val applicationModule = module {
                 environmentConfig = get(),
                 remoteLogger = get(),
                 createBuyOrderUseCase = get(),
-                getEligibilityAndNextPaymentDateUseCase = get(),
+                recurringBuyService = get(),
                 bankPartnerCallbackProvider = get(),
                 userIdentity = get(),
                 getSafeConnectTosLinkUseCase = payloadScope.get(),
@@ -565,12 +566,6 @@ val applicationModule = module {
 
         factory {
             IsFirstTimeBuyerUseCase(
-                tradeDataService = get()
-            )
-        }
-
-        factory {
-            GetEligibilityAndNextPaymentDateUseCase(
                 tradeDataService = get()
             )
         }
@@ -617,14 +612,19 @@ val applicationModule = module {
         factory<TradeDataService> {
             TradeDataRepository(
                 tradeService = get(),
-                getRecurringBuysStore = get(),
                 assetCatalogue = get()
             )
         }
 
         scoped {
-            GetRecurringBuysStore(
-                tradeService = get()
+            RecurringBuyStore(
+                recurringBuyApiService = get()
+            )
+        }
+
+        scoped {
+            RecurringBuyFrequencyConfigStore(
+                recurringBuyApiService = get()
             )
         }
 

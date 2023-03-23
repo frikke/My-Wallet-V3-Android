@@ -13,10 +13,10 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.domain.common.model.ServerErrorAction
-import com.blockchain.domain.trade.model.RecurringBuyFrequency
 import com.blockchain.koin.scopedInject
 import com.blockchain.presentation.checkValidUrlAndOpen
 import info.blockchain.balance.Currency

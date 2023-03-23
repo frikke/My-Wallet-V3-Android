@@ -33,6 +33,7 @@ import com.blockchain.componentlib.theme.Pink700
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.limits.TxLimit
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.DIFFERENT_PAYMENT_URL
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
@@ -45,7 +46,6 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethod.UndefinedCard.CardFundSource
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.UndefinedPaymentMethod
-import com.blockchain.domain.trade.model.RecurringBuyFrequency
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData
