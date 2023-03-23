@@ -52,6 +52,7 @@
     <string name="common_try_again">Try Again</string>
     <string name="common_sell">Sell</string>
     <string name="common_select">Select</string>
+    <string name="common_settings">Settings</string>
     <string name="common_sign">Sign</string>
     <string name="common_buy">Buy</string>
     <string name="common_balance">Balance</string>
@@ -670,7 +671,8 @@
     <string name="tx_title_add_with_ticker">Add %s</string>
     <string name="tx_title_stake_with_ticker">Stake %s</string>
     <string name="tx_title_added">Added %s</string>
-    <string name="tx_title_stake_earned">%s Earned</string>
+    <string name="tx_title_earned">%s Earned</string>
+    <string name="tx_title_debited">%s Debited</string>
     <string name="tx_title_stake_withdrawn">%s Unstaked</string>
     <string name="tx_title_staked">Staked %s</string>
 
@@ -1156,9 +1158,6 @@
     <string name="kyc_tier_current_state_underreview_subtitle">You’ve successfully submitted your application. A Blockchain.com Support Member is reviewing it now.</string>
     <string name="kyc_tier_current_state_underreview_nextstep_title">What happens next?</string>
     <string name="kyc_tier_current_state_underreview_nextstep_subtitle">We’ll notify you via email about the status of your application.</string>
-    <string name="kyc_tier_current_state_underreview_nextstep_subtitle_sdd">We’ll notify you via email about the status of your application.
-
-While you wait, you can make your first trade and move currency up to your current limit.</string>
     <string name="kyc_tier_current_state_underreview_cta">Go to dashboard</string>
 
     <string name="kyc_tier_current_state_verified_title">You’ve been verified</string>
@@ -2902,16 +2901,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="transactions_left_title">Transactions Left</string>
     <string name="transactions_left_subtitle">Verify for unlimited trades.</string>
     <string name="kyc_upgrade_now_toolbar">Upgrade Now</string>
-    <string name="kyc_upgrade_now_tab_basic">Limited Access</string>
-    <string name="kyc_upgrade_now_tab_verified">Full Access</string>
-    <string name="kyc_upgrade_now_basic_level">Limited Access</string>
-    <string name="kyc_upgrade_now_basic_active">Active</string>
-    <string name="kyc_upgrade_now_basic_limited_access">Apply Now</string>
-    <string name="kyc_upgrade_now_basic_send_receive_title">Send and receive crypto</string>
-    <string name="kyc_upgrade_now_basic_send_receive_description">Between DeFi wallets</string>
-    <string name="kyc_upgrade_now_basic_swap_title">Swap crypto</string>
-    <string name="kyc_upgrade_now_basic_swap_description">One-time between DeFi wallets</string>
-    <string name="kyc_upgrade_now_basic_cta">Get Limited Access</string>
     <string name="kyc_upgrade_now_verified_level">Full Access</string>
     <string name="kyc_upgrade_now_verified_full_access">Apply Now</string>
     <string name="kyc_upgrade_now_verified_swap_title">Swap crypto</string>
@@ -3585,5 +3574,10 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_interest_rate_description">Rewards accrues daily and is paid monthly. The rewards rate may be periodically adjusted.</string>
     <string name="earn_active_rewards_earnings_description">Sum of all debits and credits of previous strategies.</string>
     <string name="dex_no_input_title">To get started, transfer to your wallets</string>
+    <string name="estimated_fees">Estimated fee</string>
+    <string name="fetching_quote">Fetching best price…</string>
+    <string name="not_enough_gas">Not enough %1$s for gas fees</string>
+    <string name="allowed_slippage">Allowed Slippage</string>
+    <string name="slippage_explanation">Slippage is the max percentage of price you\'re willing to allow for your swap to go through. If price changes beyond that, the swap will revert and your assets will be returned.</string>
 
 </resources>

@@ -59,7 +59,7 @@ class InterestSummaryViewModel(
             earnFrequency = earnFrequency,
             nextPaymentDate = nextPaymentDate,
             initialHoldPeriod = initialHoldPeriod,
-            canWithdraw = cardWithdraw,
+            canWithdraw = canWithdraw,
             canDeposit = canDeposit
         )
     }
@@ -108,7 +108,7 @@ class InterestSummaryViewModel(
                             earnFrequency = EarnRewardsFrequency.Monthly,
                             nextPaymentDate = limits.nextInterestPayment,
                             initialHoldPeriod = limits.interestLockUpDuration.secondsToDays(),
-                            cardWithdraw = limits.maxWithdrawalFiatValue.isPositive,
+                            canWithdraw = limits.maxWithdrawalFiatValue.isPositive,
                             canDeposit = eligibility is EarnRewardsEligibility.Eligible
                         )
                     }

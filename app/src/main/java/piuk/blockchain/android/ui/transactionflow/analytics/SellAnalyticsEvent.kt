@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.transactionflow.analytics
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.earn.TxFlowAnalyticsAccountType
-import com.blockchain.extensions.withoutNullValues
+import com.blockchain.extensions.filterNotNullValues
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.Money
@@ -112,7 +112,7 @@ class SellAmountScreenNextClicked(
         INPUT_AMOUNT to amount.toBigDecimal(),
         INPUT_CURRENCY to amount.currencyCode,
         OUTPUT_CURRENCY to outputCurrency
-    ).withoutNullValues()
+    ).filterNotNullValues()
 }
 
 object SellCheckoutScreenViewedEvent : AnalyticsEvent {

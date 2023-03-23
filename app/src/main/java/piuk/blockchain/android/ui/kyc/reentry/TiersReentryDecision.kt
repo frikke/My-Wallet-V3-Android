@@ -23,12 +23,7 @@ class TiersReentryDecision(
 
     override fun findReentryPoint(user: NabuUser): Single<ReentryPoint> {
         if (user.kycState != KycState.None) {
-            return custodialWalletManager.fetchSimplifiedDueDiligenceUserState().map {
-                ReentryPoint.TierCurrentState(
-                    kycState = user.kycState,
-                    isSddVerified = it.isVerified,
-                )
-            }
+            return Single.just(ReentryPoint.TierCurrentState(user.kycState))
         }
 
         nabuUser = user

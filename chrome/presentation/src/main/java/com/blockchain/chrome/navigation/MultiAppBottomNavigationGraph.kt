@@ -135,7 +135,9 @@ fun MultiAppBottomNavigationHost(
                 isPullToRefreshEnabled = enableRefresh,
                 content = { listState, _ ->
                     DexEnterAmountScreen(
-                        listState, navController, { assetActionsNavigation.navigate(AssetAction.Receive) }
+                        listState,
+                        navController,
+                        { assetActionsNavigation.navigate(AssetAction.Receive) }
                     )
                 },
                 refreshComplete = refreshComplete,

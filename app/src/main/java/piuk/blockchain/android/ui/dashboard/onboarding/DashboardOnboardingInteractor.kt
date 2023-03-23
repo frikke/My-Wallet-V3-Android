@@ -21,7 +21,6 @@ class DashboardOnboardingInteractor(
         getAvailablePaymentMethodsTypesUseCase.invoke(
             GetAvailablePaymentMethodsTypesUseCase.Request(
                 currency = currency,
-                fetchSddLimits = false,
                 onlyEligible = true
             )
         )

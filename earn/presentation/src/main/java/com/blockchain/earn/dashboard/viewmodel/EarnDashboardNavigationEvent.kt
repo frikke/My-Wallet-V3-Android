@@ -9,6 +9,7 @@ sealed class EarnDashboardNavigationEvent : NavigationEvent {
     class OpenInterestSummarySheet(val assetTicker: String) : EarnDashboardNavigationEvent()
     class OpenStakingSummarySheet(val assetTicker: String) : EarnDashboardNavigationEvent()
     class OpenActiveRewardsSummarySheet(val assetTicker: String) : EarnDashboardNavigationEvent()
+    object OpenKycUpgradeNowSheet : EarnDashboardNavigationEvent()
     class OpenBlockedForRegionSheet(val earnType: EarnType) : EarnDashboardNavigationEvent()
     class OpenBuyOrReceiveSheet(val assetAction: AssetAction, val availableToBuy: Boolean, val account: SingleAccount) :
         EarnDashboardNavigationEvent()

@@ -210,7 +210,7 @@ fun InterestSummarySheet(
                         modifier = Modifier.weight(1F),
                         text = stringResource(id = R.string.common_withdraw),
                         icon = ImageResource.Local(R.drawable.send_off, colorFilter = ColorFilter.tint(Color.White)),
-                        state = ButtonState.Disabled,
+                        state = if (state.canWithdraw) ButtonState.Enabled else ButtonState.Disabled,
                         onClick = { state.account?.let { onWithdrawPressed(it) } },
                     )
 

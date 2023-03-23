@@ -31,6 +31,7 @@ internal fun CustodialActiveRewardsActivitySummaryItem.iconDetail(): ImageResour
             TransactionSummary.TransactionType.DEPOSIT -> Icons.Filled.Plus
             TransactionSummary.TransactionType.INTEREST_EARNED -> Icons.Filled.Rewards
             TransactionSummary.TransactionType.WITHDRAW -> Icons.Filled.Minus
+            TransactionSummary.TransactionType.DEBIT -> Icons.Filled.Minus
             else -> Icons.Filled.Plus
         }
         else -> Icons.Filled.Rewards
@@ -42,6 +43,7 @@ internal fun CustodialActiveRewardsActivitySummaryItem.title(): TextValue = Text
         TransactionSummary.TransactionType.DEPOSIT -> R.string.tx_title_added
         TransactionSummary.TransactionType.WITHDRAW -> R.string.tx_title_withdrawn
         TransactionSummary.TransactionType.INTEREST_EARNED -> R.string.tx_title_rewards
+        TransactionSummary.TransactionType.DEBIT -> R.string.tx_title_debited
         else -> R.string.tx_title_transferred
     },
     args = listOf(account.currency.displayTicker)
@@ -230,6 +232,7 @@ private fun CustodialActiveRewardsActivitySummaryItem.fromToLabels(): List<Activ
     TransactionSummary.TransactionType.DEPOSIT -> listOf(toLabel())
     TransactionSummary.TransactionType.WITHDRAW -> listOf(fromLabel())
     TransactionSummary.TransactionType.INTEREST_EARNED -> listOf(fromLabel(), toLabel())
+    TransactionSummary.TransactionType.DEBIT -> listOf(fromLabel())
     else -> emptyList()
 }
 

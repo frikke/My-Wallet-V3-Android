@@ -27,19 +27,16 @@ class PaymentMethodsService internal constructor(
 ) {
 
     /**
-     * Returns a list of the available payment methods. [shouldFetchSddLimits] if true, then the responded
-     * payment methods will contain the limits for SDD user. We use this argument only if we want to get back
-     * these limits. To achieve back-words compatibility with the other platforms we had to use
+     * Returns a list of the available payment methods.
+     * To achieve back-words compatibility with the other platforms we had to use
      * a flag called visible (instead of not returning the corresponding payment methods at all.
      * Any payment method with the flag visible=false should be discarded.
      */
     fun getAvailablePaymentMethodsTypes(
         currency: String,
-        tier: Int?,
         eligibleOnly: Boolean
     ): Single<List<PaymentMethodResponse>> = api.getAvailablePaymentMethodsTypes(
         currency,
-        tier,
         eligibleOnly
     ).map {
         it.filter { paymentMethod -> paymentMethod.visible }

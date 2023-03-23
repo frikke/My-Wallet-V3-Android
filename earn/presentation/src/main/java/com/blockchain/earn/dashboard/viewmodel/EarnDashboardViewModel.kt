@@ -112,9 +112,13 @@ class EarnDashboardViewModel(
                         earnType = intent.earnAsset.type,
                         assetTicker = intent.earnAsset.assetTicker
                     )
-                    is EarnRewardsEligibility.Ineligible -> navigate(
-                        EarnDashboardNavigationEvent.OpenBlockedForRegionSheet(intent.earnAsset.type)
-                    )
+                    is EarnRewardsEligibility.Ineligible -> when (intent.earnAsset.eligibility) {
+                        EarnRewardsEligibility.Ineligible.KYC_TIER ->
+                            navigate(EarnDashboardNavigationEvent.OpenKycUpgradeNowSheet)
+                        EarnRewardsEligibility.Ineligible.REGION,
+                        EarnRewardsEligibility.Ineligible.OTHER ->
+                            navigate(EarnDashboardNavigationEvent.OpenBlockedForRegionSheet(intent.earnAsset.type))
+                    }
                 }
             }
             is EarnDashboardIntent.EarningItemSelected ->

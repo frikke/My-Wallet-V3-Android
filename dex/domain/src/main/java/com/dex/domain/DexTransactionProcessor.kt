@@ -2,7 +2,6 @@ package com.dex.domain
 
 import com.blockchain.extensions.safeLet
 import com.blockchain.outcome.Outcome
-import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import java.math.BigDecimal
 import kotlinx.coroutines.CoroutineScope
@@ -18,27 +17,38 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @OptIn(FlowPreview::class)
 class DexTransactionProcessor(
     private val dexQuotesService: DexQuotesService,
+    private val balanceService: DexBalanceService
 ) {
 
     private val _dexTransaction: MutableStateFlow<DexTransaction> = MutableStateFlow(
         EmptyDexTransaction
     )
 
+    private val _operationInProgress: MutableStateFlow<Boolean> = MutableStateFlow(
+        false
+    )
+
+    val operationInProgress: Flow<Boolean>
+        get() = _operationInProgress
+
     private val scope = CoroutineScope(Job() + Dispatchers.IO)
 
     val transaction: Flow<DexTransaction>
         get() = _dexTransaction.validate()
 
-    fun initTransaction(sourceAccount: DexAccount) {
+    fun initTransaction(sourceAccount: DexAccount, destinationAccount: DexAccount?, slippage: Double) {
         _dexTransaction.update {
             EmptyDexTransaction.copy(
-                _sourceAccount = sourceAccount
+                _sourceAccount = sourceAccount,
+                destinationAccount = destinationAccount,
+                slippage = slippage
             )
         }
         startQuotesUpdates()
@@ -53,9 +63,18 @@ class DexTransactionProcessor(
                 .distinctUntilChanged()
                 .debounce(500)
                 .mapLatest {
-                    dexQuotesService.quote(
-                        it
-                    )
+                    _operationInProgress.emit(true)
+                    if (it.amount.isPositive) {
+                        dexQuotesService.quote(
+                            it
+                        )
+                    } else {
+                        Outcome.Success(
+                            DexQuote.InvalidQuote
+                        )
+                    }
+                }.onEach {
+                    _operationInProgress.emit(false)
                 }.collectLatest {
                     when (it) {
                         is Outcome.Success -> updateTxQuote(it.value)
@@ -69,11 +88,26 @@ class DexTransactionProcessor(
         }
     }
 
-    private fun updateTxQuote(quote: DexQuote) {
+    fun updateSlippage(slippage: Double) {
         _dexTransaction.update {
             it.copy(
-                outputAmount = quote.outputAmount
+                slippage = slippage
             )
+        }
+    }
+
+    private fun updateTxQuote(quote: DexQuote) {
+        _dexTransaction.update {
+            when (quote) {
+                is DexQuote.ExchangeQuote -> it.copy(
+                    outputAmount = quote.outputAmount,
+                    fees = quote.fees
+                )
+                DexQuote.InvalidQuote -> it.copy(
+                    outputAmount = null,
+                    fees = null
+                )
+            }
         }
     }
 
@@ -106,30 +140,49 @@ class DexTransactionProcessor(
         _dexTransaction.update { tx ->
             tx.copy(
                 _amount = Money.fromMajor(tx.sourceAccount.currency, amount),
-                outputAmount = tx.outputAmount?.let { cAmount ->
-                    if (amount.signum() == 0) {
-                        OutputAmount.zero(cAmount.expectedOutput.currency)
-                    } else cAmount
-                }
             )
         }
     }
 
     private fun Flow<DexTransaction>.validate(): Flow<DexTransaction> {
         return map { tx ->
+            tx.copy(
+                txError = DexTxError.None
+            )
+        }.validate { tx ->
             tx.validateSufficientFunds()
+        }.validate { tx ->
+            tx.validateSufficientNetworkFees()
         }
-        /**
-         add rest off validations
-         */
+        /* add rest off validations*/
+    }
+
+    private fun Flow<DexTransaction>.validate(validation: suspend (DexTransaction) -> DexTransaction):
+        Flow<DexTransaction> {
+        return map {
+            if (it.txError == DexTxError.None)
+                validation(it)
+            else it
+        }
     }
 
     private fun DexTransaction.validateSufficientFunds(): DexTransaction {
         return if (sourceAccount.balance >= amount)
-            this.copy(txError = DexTxError.None)
+            this
         else copy(
             txError = DexTxError.NotEnoughFunds
         )
+    }
+
+    private suspend fun DexTransaction.validateSufficientNetworkFees(): DexTransaction {
+        return fees?.let {
+            val networkBalance = balanceService.networkBalance(sourceAccount)
+            if (networkBalance >= it) {
+                this
+            } else copy(
+                txError = DexTxError.NotEnoughGas
+            )
+        } ?: this
     }
 }
 
@@ -139,17 +192,17 @@ data class DexTransaction internal constructor(
     private val _sourceAccount: DexAccount?,
     val destinationAccount: DexAccount?,
     val fees: Money?,
-    val slippage: Double?,
+    val slippage: Double,
     val maxAvailable: Money?,
     val txError: DexTxError
 ) {
     val quoteParams: DexQuoteParams?
-        get() = safeLet(_sourceAccount, destinationAccount, _amount.takeIf { it?.isPositive == true }) { s, d, a ->
+        get() = safeLet(_sourceAccount, destinationAccount, _amount) { s, d, a ->
             return DexQuoteParams(
                 sourceAccount = s,
                 destinationAccount = d,
                 amount = a,
-                slippage = 0.03
+                slippage = slippage
             )
         }
 
@@ -159,18 +212,11 @@ data class DexTransaction internal constructor(
         get() = _amount ?: Money.zero(sourceAccount.currency)
 }
 
-data class OutputAmount(val expectedOutput: Money, val minOutputAmount: Money) {
-    companion object {
-        fun zero(currency: Currency): OutputAmount =
-            OutputAmount(
-                expectedOutput = Money.zero(currency),
-                minOutputAmount = Money.zero(currency),
-            )
-    }
-}
+data class OutputAmount(val expectedOutput: Money, val minOutputAmount: Money)
 
 sealed class DexTxError {
     object NotEnoughFunds : DexTxError()
+    object NotEnoughGas : DexTxError()
     object None : DexTxError()
 }
 
@@ -180,7 +226,7 @@ private val EmptyDexTransaction = DexTransaction(
     null,
     null,
     null,
-    null,
+    0.toDouble(),
     null,
     DexTxError.None
 )

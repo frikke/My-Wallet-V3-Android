@@ -71,11 +71,8 @@ val kycUiModule = module {
             KycHomeAddressPresenter(
                 nabuDataManager = get(),
                 eligibilityService = get(),
-                userService = get(),
                 nabuUserSync = get(),
-                custodialWalletManager = get(),
                 kycNextStepDecision = get(),
-                analytics = get(),
                 kycTiersStore = get(),
             )
         }
@@ -98,7 +95,6 @@ val kycUiModule = module {
         viewModel {
             VeriffSplashModel(
                 userService = get(),
-                custodialWalletManager = get(),
                 nabuDataManager = get(),
                 kycTiersStore = get(),
                 analytics = get(),

@@ -1,6 +1,7 @@
 package com.blockchain.api.dex
 
 import com.blockchain.outcome.Outcome
+import kotlinx.serialization.SerialName
 
 class DexQuotesApiService(private val dexQuotesApi: DexQuotesApi) {
     suspend fun quote(
@@ -29,13 +30,25 @@ private const val DEX_PRODUCT = "DEX"
 @kotlinx.serialization.Serializable
 data class DexQuoteResponse(
     val type: String,
-    val quote: QuoteResponse
+    val quote: QuoteResponse,
+    @SerialName("tx")
+    val transaction: DexTransactionResponse
 )
 
 @kotlinx.serialization.Serializable
 data class QuoteResponse(
     val buyAmount: DexQuoteAmount,
     val sellAmount: DexQuoteAmount
+)
+
+@kotlinx.serialization.Serializable
+data class DexTransactionResponse(
+    val chainId: Int,
+    val to: String,
+    val data: String,
+    val value: String,
+    val gasLimit: String, // In Gas units
+    val gasPrice: String, // In WEI
 )
 
 @kotlinx.serialization.Serializable

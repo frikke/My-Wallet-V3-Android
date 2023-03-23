@@ -2690,7 +2690,7 @@
     <string name="staking_coming_soon_title">Скоро появится в смартфоне</string>
     <string name="staking_coming_soon_subtitle">А пока вы можете управлять своим аккаунтом Staking Account с помощью веб-приложения.</string>
     <string name="staking_coming_soon_cta">Перейти в веб-приложение</string>
-    <string name="tx_title_stake_earned">Получено %s</string>
+    <string name="tx_title_earned">Получено %s</string>
     <string name="tx_title_stake_withdrawn">%s Снято со стейкинга</string>
     <string name="tx_title_staked">Поставлено в стейкинг %s</string>
     <string name="activity_details_loading_error">Не удалось загрузить сведения об этой транзакции. Повторите попытку позже</string>

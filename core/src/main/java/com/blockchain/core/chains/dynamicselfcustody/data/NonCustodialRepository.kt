@@ -8,6 +8,7 @@ import com.blockchain.api.selfcustody.TransactionDirection
 import com.blockchain.api.selfcustody.TransactionResponse
 import com.blockchain.api.services.DynamicSelfCustodyService
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
+import com.blockchain.core.chains.dynamicselfcustody.domain.model.FeeLevel
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialAccountBalance
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialDerivedAddress
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialTxHistoryItem
@@ -15,19 +16,25 @@ import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSig
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.domain.wallet.CoinType
 import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.asSingle
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import java.math.BigInteger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import org.bitcoinj.core.Sha256Hash
@@ -38,7 +45,8 @@ internal class NonCustodialRepository(
     private val currencyPrefs: CurrencyPrefs,
     private val subscriptionsStore: NonCustodialSubscriptionsStore,
     private val assetCatalogue: AssetCatalogue,
-    private val coinTypeStore: CoinTypeStore
+    private val coinTypeStore: CoinTypeStore,
+    private val remoteConfigService: RemoteConfigService,
 ) : NonCustodialService {
 
     private val supportedCoins: Single<Map<String, CoinType>>
@@ -153,7 +161,7 @@ internal class NonCustodialRepository(
         type: String,
         transactionTarget: String,
         amount: String,
-        fee: String,
+        fee: FeeLevel,
         memo: String,
         feeCurrency: String
     ): Outcome<Exception, BuildTxResponse> =
@@ -163,7 +171,7 @@ internal class NonCustodialRepository(
             type,
             transactionTarget,
             amount,
-            fee,
+            fee.toNetwork(),
             memo
         )
 
@@ -189,6 +197,27 @@ internal class NonCustodialRepository(
                 )
             }
         )
+
+    override suspend fun getFeeOptions(asset: AssetInfo): Outcome<Exception, Map<FeeLevel, CryptoValue>> {
+        // We're currently storing this as a Map<AssetNetworkTicker, FeeInMinor> in Firebase RemoteConfig
+        val serializer = MapSerializer(String.serializer(), String.serializer())
+        return remoteConfigService.getParsedJsonValue(
+            "blockchain_app_configuration_dynamicselfcustody_static_fee",
+            serializer
+        ).flatMap { response ->
+            val assetFees = response[asset.networkTicker] ?: return@flatMap Outcome.Failure(
+                UnsupportedOperationException("Network fees for ${asset.networkTicker} not found")
+            )
+            val amount = try {
+                BigInteger(assetFees)
+            } catch (ex: Exception) {
+                return@flatMap Outcome.Failure(
+                    IllegalArgumentException("Error parsing network fees for ${asset.networkTicker}")
+                )
+            }
+            Outcome.Success(mapOf(FeeLevel.HIGH to CryptoValue.fromMinor(asset, amount)))
+        }
+    }
 
     private fun getHashedString(input: String): String = String(Hex.encode(Sha256Hash.hash(input.toByteArray())))
 
@@ -218,3 +247,5 @@ private fun TransactionResponse.toHistoryEvent(): NonCustodialTxHistoryItem {
         status = status ?: Status.PENDING
     )
 }
+
+private fun FeeLevel.toNetwork(): String = this.name

@@ -18,6 +18,6 @@ data class InterestSummaryModelState(
     val earnFrequency: EarnRewardsFrequency = EarnRewardsFrequency.Unknown,
     val nextPaymentDate: Date? = null,
     val initialHoldPeriod: Int = 0,
-    val cardWithdraw: Boolean = true,
+    val canWithdraw: Boolean = true,
     val canDeposit: Boolean = false
 ) : ModelState

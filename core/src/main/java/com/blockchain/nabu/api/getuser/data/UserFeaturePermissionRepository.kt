@@ -2,7 +2,6 @@ package com.blockchain.nabu.api.getuser.data
 
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.kyc.domain.KycService
-import com.blockchain.core.sdd.domain.SddService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.combineDataResources
@@ -22,7 +21,6 @@ import kotlinx.coroutines.flow.combine
 internal class UserFeaturePermissionRepository(
     private val kycService: KycService,
     private val interestService: InterestService,
-    private val sddService: SddService,
     private val eligibilityService: EligibilityService,
     private val simpleBuyService: SimpleBuyService
 ) : UserFeaturePermissionService {
@@ -39,9 +37,6 @@ internal class UserFeaturePermissionRepository(
             is Feature.Interest -> {
                 interestService.getEligibilityForAssets(freshnessStrategy)
                     .mapData { mapAssetWithEligibility -> mapAssetWithEligibility.containsKey(feature.currency) }
-            }
-            is Feature.SimplifiedDueDiligence -> {
-                sddService.isEligible(freshnessStrategy)
             }
             Feature.Buy,
             Feature.Swap,
@@ -160,7 +155,6 @@ internal class UserFeaturePermissionRepository(
             }
 
             is Feature.Interest,
-            Feature.SimplifiedDueDiligence,
             is Feature.TierLevel -> {
                 TODO("Not Implemented Yet")
             }

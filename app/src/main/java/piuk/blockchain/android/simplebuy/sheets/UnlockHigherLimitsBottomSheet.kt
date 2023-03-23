@@ -12,7 +12,7 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.UnlockHigherLimitsLayoutBinding
-import piuk.blockchain.android.sdd.SDDAnalytics
+import piuk.blockchain.android.kyc.KycAnalytics
 import piuk.blockchain.android.ui.customviews.ButtonOptions
 import piuk.blockchain.android.ui.customviews.VerifyIdentityIconedBenefitItem
 
@@ -77,6 +77,6 @@ class UnlockHigherLimitsBottomSheet : SlidingModalBottomDialog<UnlockHigherLimit
                 )
             }, onError = {})
 
-        analytics.logEvent(SDDAnalytics.UPGRADE_TO_GOLD_SEEN)
+        analytics.logEvent(KycAnalytics.UPGRADE_TO_GOLD_SEEN)
     }
 }

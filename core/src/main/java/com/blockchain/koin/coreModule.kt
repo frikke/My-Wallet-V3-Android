@@ -73,9 +73,6 @@ import com.blockchain.core.recurringbuy.data.datasources.RecurringBuyWithIdStore
 import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.core.referral.dataresource.ReferralStore
-import com.blockchain.core.sdd.data.SddRepository
-import com.blockchain.core.sdd.data.datasources.SddEligibilityStore
-import com.blockchain.core.sdd.domain.SddService
 import com.blockchain.core.settings.EmailSyncUpdater
 import com.blockchain.core.settings.PhoneNumberUpdater
 import com.blockchain.core.settings.SettingsDataManager
@@ -212,12 +209,6 @@ val coreModule = module {
         }.bind(FiatCurrenciesService::class)
 
         scoped {
-            SddEligibilityStore(
-                nabuService = get()
-            )
-        }
-
-        scoped {
             RecurringBuyWithIdStore(
                 nabu = get()
             )
@@ -227,12 +218,6 @@ val coreModule = module {
             RecurringBuyRepository(
                 recurringBuyWithIdStore = get(),
                 assetCatalogue = get()
-            )
-        }
-
-        scoped<SddService> {
-            SddRepository(
-                sddEligibilityStore = get()
             )
         }
 
@@ -551,7 +536,8 @@ val coreModule = module {
                 currencyPrefs = get(),
                 assetCatalogue = get(),
                 subscriptionsStore = get(),
-                coinTypeStore = get()
+                coinTypeStore = get(),
+                remoteConfigService = get(),
             )
         }
 

@@ -2686,7 +2686,7 @@
     <string name="staking_coming_soon_title">Próximamente disponible para teléfonos móviles</string>
     <string name="staking_coming_soon_subtitle">Mientras tanto, puede gestionar su cuenta de Staking utilizando nuestra aplicación web.</string>
     <string name="staking_coming_soon_cta">Ir a la aplicación web</string>
-    <string name="tx_title_stake_earned">%s ganado</string>
+    <string name="tx_title_earned">%s ganado</string>
     <string name="tx_title_stake_withdrawn">%s sin asignar</string>
     <string name="tx_title_staked">%s asignado</string>
     <string name="activity_details_loading_error">Se ha producido un problema al cargar los detalles de esta transacción. Vuelva a intentarlo</string>

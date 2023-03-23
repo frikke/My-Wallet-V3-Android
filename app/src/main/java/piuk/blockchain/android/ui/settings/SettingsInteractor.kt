@@ -122,7 +122,6 @@ class SettingsInteractor internal constructor(
             GetAvailablePaymentMethodsTypesUseCase.Request(
                 currency = fiatCurrency,
                 onlyEligible = true,
-                fetchSddLimits = false
             )
         ).map { available ->
             val allowedTypes = listOf(

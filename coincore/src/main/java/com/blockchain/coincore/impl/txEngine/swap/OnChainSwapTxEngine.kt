@@ -84,7 +84,7 @@ class OnChainSwapTxEngine(
                     }
             }.map { px ->
                 px.copy(
-                    feeSelection = defaultFeeSelection(px)
+                    feeSelection = defaultFeeSelection(px),
                 )
             }.handlePendingOrdersError(
                 PendingTx(

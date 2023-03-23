@@ -15,7 +15,6 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.payments.googlepay.manager.GooglePayManager
@@ -318,43 +317,13 @@ class AnnouncementQueriesTest {
     }
 
     @Test
-    fun `user isSddEligible but verified`() {
-        whenever(userIdentity.isEligibleFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(true))
-        whenever(userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(true))
-
-        subject.isSimplifiedDueDiligenceEligibleAndNotVerified()
-            .test()
-            .assertValue { !it }
-    }
-
-    @Test
-    fun `user not SddEligible neither verified`() {
-        whenever(userIdentity.isEligibleFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(false))
-        whenever(userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(false))
-
-        subject.isSimplifiedDueDiligenceEligibleAndNotVerified()
-            .test()
-            .assertValue { !it }
-    }
-
-    @Test
-    fun `user SddEligible and not verified`() {
-        whenever(userIdentity.isEligibleFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(true))
-        whenever(userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(false))
-
-        subject.isSimplifiedDueDiligenceEligibleAndNotVerified()
-            .test()
-            .assertValue { it }
-    }
-
-    @Test
     fun `when google pay feature flag disabled then return false`() {
         whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(false))
         whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(true))
         whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
         whenever(
             paymentMethodsService.getAvailablePaymentMethodsTypes(
-                FiatCurrency.Dollars.networkTicker, null, true
+                FiatCurrency.Dollars.networkTicker, true
             )
         ).thenReturn(
             Single.just(
@@ -384,7 +353,7 @@ class AnnouncementQueriesTest {
         whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
         whenever(
             paymentMethodsService.getAvailablePaymentMethodsTypes(
-                FiatCurrency.Dollars.networkTicker, null, true
+                FiatCurrency.Dollars.networkTicker, true
             )
         ).thenReturn(Single.just(emptyList()))
 
@@ -400,7 +369,7 @@ class AnnouncementQueriesTest {
         whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
         whenever(
             paymentMethodsService.getAvailablePaymentMethodsTypes(
-                FiatCurrency.Dollars.networkTicker, null, true
+                FiatCurrency.Dollars.networkTicker, true
             )
         ).thenReturn(
             Single.just(
@@ -430,7 +399,7 @@ class AnnouncementQueriesTest {
         whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
         whenever(
             paymentMethodsService.getAvailablePaymentMethodsTypes(
-                FiatCurrency.Dollars.networkTicker, null, true
+                FiatCurrency.Dollars.networkTicker, true
             )
         ).thenReturn(
             Single.just(

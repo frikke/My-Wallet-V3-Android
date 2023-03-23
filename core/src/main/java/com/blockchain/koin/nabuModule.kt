@@ -102,7 +102,6 @@ val nabuModule = module {
             UserFeaturePermissionRepository(
                 kycService = get(),
                 interestService = get(),
-                sddService = get(),
                 eligibilityService = get(),
                 simpleBuyService = get()
             )

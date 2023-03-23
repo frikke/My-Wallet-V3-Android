@@ -6,6 +6,7 @@ import com.blockchain.api.selfcustody.PushTxResponse
 import com.blockchain.api.selfcustody.SignatureAlgorithm
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.FeeInfo
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
 import com.blockchain.coincore.PendingTx
@@ -20,8 +21,11 @@ import com.blockchain.coincore.updateTxValidity
 import com.blockchain.coincore.xlm.STATE_MEMO
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSignature
+import com.blockchain.extensions.filterNotNullKeys
 import com.blockchain.logging.Logger
 import com.blockchain.nabu.datamanagers.TransactionError
+import com.blockchain.outcome.flatMap
+import com.blockchain.outcome.map
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.storedatasource.FlushableDataSource
 import com.blockchain.utils.rxSingleOutcome
@@ -49,7 +53,7 @@ private val PendingTx.memo: String?
         }
     }
 
-class DynamicOnChanTxEngine(
+class DynamicOnChainTxEngine(
     private val nonCustodialService: NonCustodialService,
     walletPreferences: WalletStatusPrefs,
     requireSecondPassword: Boolean,
@@ -60,6 +64,15 @@ class DynamicOnChanTxEngine(
         nonCustodialService.getFeeCurrencyFor(sourceAsset as AssetInfo)
     }
 
+    private val feeOptions: Single<Map<FeeLevel, CryptoValue>> = rxSingleOutcome {
+        nonCustodialService.getFeeOptions(sourceAsset as AssetInfo)
+            .map {
+                it.mapKeys { (level, _) ->
+                    level.toPresentation()
+                }.filterNotNullKeys()
+            }
+    }.cache()
+
     override val flushableDataSources: List<FlushableDataSource>
         get() = listOf()
 
@@ -69,6 +82,16 @@ class DynamicOnChanTxEngine(
                 txConfirmations = listOfNotNull(
                     TxConfirmationValue.From(sourceAccount, sourceAsset),
                     TxConfirmationValue.To(txTarget, AssetAction.Send, sourceAccount),
+                    TxConfirmationValue.CompoundNetworkFee(
+                        sendingFeeInfo = if (!pendingTx.feeAmount.isZero) {
+                            FeeInfo(
+                                pendingTx.feeAmount,
+                                pendingTx.feeAmount.toUserFiat(exchangeRates),
+                                sourceAsset
+                            )
+                        } else null,
+                        feeLevel = pendingTx.feeSelection.selectedLevel
+                    ),
                     buildConfirmationTotal(pendingTx),
                     if ((sourceAsset as? AssetInfo)?.coinNetwork?.isMemoSupported == true) {
                         val memo = (txTarget as? CryptoAddress)?.memo
@@ -93,34 +116,44 @@ class DynamicOnChanTxEngine(
     }
 
     override fun doInitialiseTx(): Single<PendingTx> =
-        Single.just(
+        feeOptions.map { fees ->
+            val selectedLevel = when {
+                fees.isEmpty() -> FeeLevel.None
+                fees.containsKey(FeeLevel.Regular) -> FeeLevel.Regular
+                else -> fees.keys.first()
+            }
             PendingTx(
                 amount = Money.zero(sourceAsset),
                 totalBalance = Money.zero(sourceAsset),
                 availableBalance = Money.zero(sourceAsset),
-                feeForFullAvailable = Money.zero(sourceAsset),
-                feeAmount = Money.zero(feeCurrency),
+                feeForFullAvailable = fees[selectedLevel] ?: Money.zero(sourceAsset),
+                feeAmount = fees[selectedLevel] ?: Money.zero(sourceAsset),
                 feeSelection = FeeSelection(
-                    selectedLevel = FeeLevel.Regular,
-                    availableLevels = AVAILABLE_FEE_LEVELS,
-                    asset = feeCurrency
+                    selectedLevel = selectedLevel,
+                    availableLevels = fees.keys,
+                    feesForLevels = fees,
+                    asset = feeCurrency,
                 ),
                 selectedFiat = userFiat
             )
-        )
+        }
 
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> {
         require(amount is CryptoValue)
         require(amount.currency == sourceAsset)
 
-        return sourceAccount.balanceRx().firstOrError().map { balance ->
+        return Single.zip(
+            sourceAccount.balanceRx().firstOrError(),
+            feeOptions,
+        ) { balance, fees ->
+            val fees = fees[pendingTx.feeSelection.selectedLevel] ?: Money.zero(sourceAsset)
+
             pendingTx.copy(
                 amount = amount,
                 totalBalance = balance.total,
-                availableBalance = balance.withdrawable,
-                feeForFullAvailable = CryptoValue.zero(feeCurrency),
-                feeAmount = CryptoValue.zero(feeCurrency),
-                feeSelection = pendingTx.feeSelection.copy()
+                availableBalance = Money.max(balance.withdrawable - fees, Money.zero(sourceAsset)),
+                feeForFullAvailable = fees,
+                feeAmount = fees,
             )
         }
     }
@@ -223,12 +256,12 @@ class DynamicOnChanTxEngine(
                 accountIndex = 0,
                 type = TX_TYPE_PAYMENT,
                 transactionTarget = targetAddress.address,
-                amount = if (pendingTx.amount < pendingTx.totalBalance) {
+                amount = if (pendingTx.amount <= pendingTx.totalBalance) {
                     pendingTx.amount.toBigInteger().toString()
                 } else {
                     MAX_AMOUNT
                 },
-                fee = NORMAL_FEE,
+                fee = pendingTx.feeSelection.selectedLevel.toDomain(),
                 memo = pendingTx.memo ?: targetAddress.memo ?: "",
                 feeCurrency = feeCurrency.networkTicker
             )
@@ -236,9 +269,10 @@ class DynamicOnChanTxEngine(
 
     private fun buildConfirmationTotal(pendingTx: PendingTx): TxConfirmationValue.Total {
         val fiatAmount = pendingTx.amount.toUserFiat(exchangeRates) as FiatValue
+        val fiatFees = pendingTx.feeAmount.toUserFiat(exchangeRates) as FiatValue
         return TxConfirmationValue.Total(
-            totalWithFee = pendingTx.amount,
-            exchange = fiatAmount
+            totalWithFee = pendingTx.amount + pendingTx.feeAmount,
+            exchange = fiatAmount + fiatFees
         )
     }
 
@@ -252,7 +286,7 @@ class DynamicOnChanTxEngine(
     private fun validateSufficientFunds(pendingTx: PendingTx): Completable =
         sourceAccount.balanceRx().firstOrError().map { it.withdrawable }
             .map { balance ->
-                if (pendingTx.amount > balance) {
+                if (pendingTx.feeAmount + pendingTx.amount > balance) {
                     throw TxValidationFailure(
                         ValidationState.INSUFFICIENT_FUNDS
                     )
@@ -262,9 +296,22 @@ class DynamicOnChanTxEngine(
             }.ignoreElement()
 
     companion object {
-        private val AVAILABLE_FEE_LEVELS = setOf(FeeLevel.Regular, FeeLevel.Priority)
-        private const val NORMAL_FEE = "NORMAL"
         private const val MAX_AMOUNT = "MAX"
         private const val TX_TYPE_PAYMENT = "PAYMENT"
     }
+
+    private fun com.blockchain.core.chains.dynamicselfcustody.domain.model.FeeLevel.toPresentation(): FeeLevel? =
+        when (this) {
+            com.blockchain.core.chains.dynamicselfcustody.domain.model.FeeLevel.LOW -> null
+            com.blockchain.core.chains.dynamicselfcustody.domain.model.FeeLevel.NORMAL -> FeeLevel.Regular
+            com.blockchain.core.chains.dynamicselfcustody.domain.model.FeeLevel.HIGH -> FeeLevel.Priority
+        }
+
+    private fun FeeLevel.toDomain(): com.blockchain.core.chains.dynamicselfcustody.domain.model.FeeLevel =
+        when (this) {
+            FeeLevel.None -> throw UnsupportedOperationException()
+            FeeLevel.Regular -> com.blockchain.core.chains.dynamicselfcustody.domain.model.FeeLevel.NORMAL
+            FeeLevel.Priority -> com.blockchain.core.chains.dynamicselfcustody.domain.model.FeeLevel.HIGH
+            FeeLevel.Custom -> throw UnsupportedOperationException()
+        }
 }

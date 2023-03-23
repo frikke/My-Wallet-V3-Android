@@ -45,7 +45,6 @@ class NabuUserIdentity(
             }
             is Feature.Interest -> interestService.getEligibilityForAssetsLegacy()
                 .map { mapAssetWithEligibility -> mapAssetWithEligibility.containsKey(feature.currency) }
-            is Feature.SimplifiedDueDiligence -> custodialWalletManager.isSimplifiedDueDiligenceEligible()
             Feature.Buy,
             Feature.Swap,
             Feature.Sell,
@@ -63,9 +62,6 @@ class NabuUserIdentity(
         return when (feature) {
             is Feature.TierLevel -> kycService.getTiersLegacy().map {
                 it.isApprovedFor(feature.tier)
-            }
-            is Feature.SimplifiedDueDiligence -> custodialWalletManager.fetchSimplifiedDueDiligenceUserState().map {
-                it.isVerified
             }
             is Feature.Interest,
             Feature.Buy,
@@ -205,7 +201,6 @@ class NabuUserIdentity(
                 }
                     .map(ProductEligibility::toFeatureAccess)
             is Feature.Interest,
-            Feature.SimplifiedDueDiligence,
             is Feature.TierLevel -> TODO("Not Implemented Yet")
         }
     }

@@ -978,6 +978,8 @@ class PrefsUtil(
         private const val USER_DEFAULTED_TO_PKW = "USER_DEFAULTED_TO_PKW"
         private const val SHOULD_SHOW_SMALL_BALANCES = "should_show_small_balances"
         private const val DEX_INTRO_SHOWN = "dex_intro_shown"
+        private const val DEX_LAST_SELECTED_SLIPPAGE_INDEX = "LAST_SELECTED_SLIPPAGE_INDEX"
+        private const val DEX_LAST_SELECTED_DESTINATION_TICKER = "DEX_LAST_SELECTED_DESTINATION_TICKER"
 
         // iterable announcements
         private const val ITERABLE_SEEN_ANNOUNCEMENTS = "ITERABLE_SEEN_ANNOUNCEMENTS"
@@ -1010,6 +1012,20 @@ class PrefsUtil(
     override fun markDexIntroAsSeen() {
         setValue(DEX_INTRO_SHOWN, true)
     }
+
+    override var selectedSlippageIndex: Int
+        get() =
+            getValue(DEX_LAST_SELECTED_SLIPPAGE_INDEX, -1)
+        set(value) {
+            setValue(DEX_LAST_SELECTED_SLIPPAGE_INDEX, value)
+        }
+
+    override var selectedDestinationCurrencyTicker: String
+        get() =
+            getValue(DEX_LAST_SELECTED_DESTINATION_TICKER, "")
+        set(value) {
+            setValue(DEX_LAST_SELECTED_DESTINATION_TICKER, value)
+        }
 }
 
 fun BrowserIdentity.pubKeyHash() = Sha256Hash.of(Hex.decode(this.pubkey)).toString()

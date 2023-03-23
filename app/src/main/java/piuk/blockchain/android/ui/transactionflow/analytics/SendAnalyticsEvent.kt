@@ -4,7 +4,7 @@ import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.earn.TxFlowAnalyticsAccountType
-import com.blockchain.extensions.withoutNullValues
+import com.blockchain.extensions.filterNotNullValues
 import info.blockchain.balance.Currency
 import java.io.Serializable
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics.Companion.FEE_SCHEDULE
@@ -66,7 +66,7 @@ sealed class SendAnalyticsEvent(
             PARAM_TARGET to target,
             PARAM_SOURCE to source,
             PARAM_ERROR to error
-        ).withoutNullValues()
+        ).filterNotNullValues()
     )
 
     data class FeeChanged(val oldFee: FeeLevel, val newFee: FeeLevel) :

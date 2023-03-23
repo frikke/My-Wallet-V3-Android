@@ -8,7 +8,6 @@ import com.blockchain.core.kyc.data.datasources.KycTiersStore
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.datamanagers.SimplifiedDueDiligenceUserState
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.preferences.SessionPrefs
@@ -35,11 +34,7 @@ class VeriffSplashModelTest {
     @get:Rule
     var coroutineTestRule = CoroutineTestRule()
 
-    private val custodialWalletManager: CustodialWalletManager = mockk {
-        every { fetchSimplifiedDueDiligenceUserState() } returns Single.just(
-            SimplifiedDueDiligenceUserState(isVerified = true, stateFinalised = true)
-        )
-    }
+    private val custodialWalletManager: CustodialWalletManager = mockk()
     private val userService: UserService = mockk {
         every { getUser() } returns Single.just(getBlankNabuUser(KycState.Pending))
     }
@@ -49,7 +44,6 @@ class VeriffSplashModelTest {
     private val sessionPrefs: SessionPrefs = mockk(relaxed = true)
 
     private val subject = VeriffSplashModel(
-        custodialWalletManager = custodialWalletManager,
         userService = userService,
         nabuDataManager = nabuDataManager,
         kycTiersStore = kycTiersStore,
@@ -128,7 +122,7 @@ class VeriffSplashModelTest {
             // Act
             subject.viewCreated(Args(COUNTRY_CODE))
 
-            awaitItem() shouldBeEqualTo Navigation.TierCurrentState(KycState.Rejected, false)
+            awaitItem() shouldBeEqualTo Navigation.TierCurrentState(KycState.Rejected)
         }
     }
 

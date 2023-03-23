@@ -30,7 +30,7 @@ import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.domain.paymentmethods.model.SettlementType
-import com.blockchain.extensions.withoutNullValues
+import com.blockchain.extensions.filterNotNullValues
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
@@ -113,7 +113,7 @@ class FiatDepositTxEngine(
                             PAYMENT_METHOD_LIMITS to TxLimits.fromAmounts(
                                 paymentMethodLimits.min, paymentMethodLimits.max
                             )
-                        ).withoutNullValues()
+                        ).filterNotNullValues()
                     )
                 }
             }

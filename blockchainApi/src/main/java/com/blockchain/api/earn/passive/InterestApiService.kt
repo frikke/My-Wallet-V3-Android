@@ -1,7 +1,7 @@
 package com.blockchain.api.earn.passive
 
 import com.blockchain.api.HttpStatus
-import com.blockchain.api.earn.EarnRewardsEligibilityDto
+import com.blockchain.api.earn.EarnRewardsEligibilityResponseDto
 import com.blockchain.api.earn.passive.data.InterestAccountBalanceDto
 import com.blockchain.api.earn.passive.data.InterestAddressDto
 import com.blockchain.api.earn.passive.data.InterestAvailableTickersDto
@@ -35,9 +35,8 @@ class InterestApiService internal constructor(
             .wrapErrorMessage()
     }
 
-    fun getTickersEligibility(): Single<Map<String, EarnRewardsEligibilityDto>> {
+    fun getTickersEligibility(): Single<EarnRewardsEligibilityResponseDto> {
         return interestApi.getTickersEligibility()
-            .onErrorReturn { emptyMap() }
     }
 
     fun getTickersLimits(fiatCurrencyTicker: String): Single<InterestTickerLimitsDto> {

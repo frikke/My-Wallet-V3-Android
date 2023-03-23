@@ -129,10 +129,6 @@
             android:name="kycState"
             app:argType="com.blockchain.nabu.models.responses.nabu.KycState"
             />
-        <argument
-            android:name="isSddVerified"
-            app:argType="boolean"
-            />
     </fragment>
     <fragment
         android:id="@+id/kycTierSplashFragment"

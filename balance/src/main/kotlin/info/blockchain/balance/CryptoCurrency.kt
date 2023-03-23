@@ -95,6 +95,18 @@ open class CryptoCurrency(
         requiredConfirmations = 3,
         startDate = 1282089600L, // 2010-08-18 00:00:00 UTC
         colour = "#FF9B22",
+        coinNetwork = CoinNetwork(
+            explorerUrl = "https://www.blockchain.com/btc/tx",
+            nativeAssetTicker = "BTC",
+            networkTicker = "BTC",
+            name = "Bitcoin",
+            shortName = "Bitcoin",
+            isMemoSupported = false,
+            feeCurrencies = listOf("native"),
+            type = NetworkType.BTC,
+            chainId = null,
+            nodeUrls = listOf()
+        ),
         logo = "file:///android_asset/logo/bitcoin/logo.png",
         txExplorerUrlBase = "https://www.blockchain.com/btc/tx/"
     ) {
@@ -108,6 +120,18 @@ open class CryptoCurrency(
         name = "Ethereum",
         categories = setOf(AssetCategory.NON_CUSTODIAL, AssetCategory.CUSTODIAL),
         precisionDp = 18,
+        coinNetwork = CoinNetwork(
+            explorerUrl = "https://www.blockchain.com/eth/tx",
+            nativeAssetTicker = "ETH",
+            networkTicker = "ETH",
+            name = "Ethereum",
+            shortName = "Ethereum",
+            isMemoSupported = false,
+            type = NetworkType.EVM,
+            chainId = 1,
+            feeCurrencies = listOf("native"),
+            nodeUrls = listOf("https://api.blockchain.info/eth/nodes/rpc")
+        ),
         requiredConfirmations = 12,
         startDate = 1438992000L, // 2015-08-08 00:00:00 UTC
         colour = "#473BCB",
@@ -125,6 +149,18 @@ open class CryptoCurrency(
         categories = setOf(AssetCategory.NON_CUSTODIAL, AssetCategory.CUSTODIAL),
         precisionDp = 8,
         requiredConfirmations = 3,
+        coinNetwork = CoinNetwork(
+            explorerUrl = "https://www.blockchain.com/bch/tx",
+            nativeAssetTicker = "BCH",
+            networkTicker = "BCH",
+            name = "Bitcoin Cash",
+            shortName = "Bitcoin Cash",
+            isMemoSupported = false,
+            feeCurrencies = listOf("native"),
+            type = NetworkType.BCH,
+            chainId = null,
+            nodeUrls = listOf()
+        ),
         startDate = 1500854400L, // 2017-07-24 00:00:00 UTC
         colour = "#8DC351",
         logo = "file:///android_asset/logo/bitcoin_cash/logo.png",

@@ -5,6 +5,7 @@ import com.dex.domain.DexTransactionProcessor
 import com.dex.presentation.DexEnterAmountViewModel
 import com.dex.presentation.DexSelectDestinationAccountViewModel
 import com.dex.presentation.DexSourceAccountViewModel
+import com.dex.presentation.SettingsViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -15,7 +16,8 @@ val dexPresentation = module {
                 currencyPrefs = get(),
                 txProcessor = get(),
                 dexAccountsService = get(),
-                exchangeRatesDataManager = get()
+                exchangeRatesDataManager = get(),
+                dexSlippageService = get()
             )
         }
         viewModel {
@@ -31,10 +33,17 @@ val dexPresentation = module {
                 transactionProcessor = get()
             )
         }
+        viewModel {
+            SettingsViewModel(
+                slippageService = get(),
+                txProcessor = get(),
+            )
+        }
 
         scoped {
             DexTransactionProcessor(
-                dexQuotesService = get()
+                dexQuotesService = get(),
+                balanceService = get()
             )
         }
     }

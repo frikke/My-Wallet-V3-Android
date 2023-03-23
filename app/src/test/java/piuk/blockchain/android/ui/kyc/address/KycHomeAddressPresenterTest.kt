@@ -10,12 +10,10 @@ import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.datamanagers.SimplifiedDueDiligenceUserState
 import com.blockchain.outcome.Outcome
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
@@ -25,7 +23,6 @@ import org.amshove.kluent.`should be equal to`
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.campaign.CampaignType
 
 class KycHomeAddressPresenterTest {
 
@@ -54,11 +51,8 @@ class KycHomeAddressPresenterTest {
         subject = KycHomeAddressPresenter(
             nabuDataManager,
             eligibilityService,
-            userService,
             nabuUserSync,
             kycNextStepDecision,
-            custodialWalletManager,
-            mock(),
             kycTiersStore
         )
         subject.initView(view)
@@ -84,7 +78,7 @@ class KycHomeAddressPresenterTest {
         ).thenReturn(Completable.complete())
         givenRequestJwtAndUpdateWalletInfoSucceds()
         // Act
-        subject.onContinueClicked(null, addressModel(firstLine, city, state, zipCode, countryCode))
+        subject.onContinueClicked(addressModel(firstLine, city, state, zipCode, countryCode))
         // Assert
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
@@ -111,7 +105,7 @@ class KycHomeAddressPresenterTest {
         ).thenReturn(Completable.complete())
         givenRequestJwtAndUpdateWalletInfoSucceds()
         // Act
-        subject.onContinueClicked(null, addressModel(firstLine, city, state, zipCode, countryCode))
+        subject.onContinueClicked(addressModel(firstLine, city, state, zipCode, countryCode))
         // Assert
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
@@ -139,7 +133,7 @@ class KycHomeAddressPresenterTest {
         ).thenReturn(Completable.complete())
         givenRequestJwtAndUpdateWalletInfoSucceds()
         // Act
-        subject.onContinueClicked(null, addressModel(firstLine, city, state, zipCode, countryCode))
+        subject.onContinueClicked(addressModel(firstLine, city, state, zipCode, countryCode))
         // Assert
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
@@ -157,7 +151,6 @@ class KycHomeAddressPresenterTest {
         val state = "3"
         val zipCode = "4"
         val countryCode = "UK"
-        whenever(custodialWalletManager.isSimplifiedDueDiligenceEligible()).thenReturn(Single.just(false))
         givenRequestJwtAndUpdateWalletInfoSucceds()
         whenever(
             nabuDataManager.addAddress(
@@ -170,7 +163,7 @@ class KycHomeAddressPresenterTest {
             )
         ).thenReturn(Completable.complete())
         // Act
-        subject.onContinueClicked(null, addressModel(firstLine, city, state, zipCode, countryCode))
+        subject.onContinueClicked(addressModel(firstLine, city, state, zipCode, countryCode))
         // Assert
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
@@ -207,21 +200,16 @@ class KycHomeAddressPresenterTest {
         // Arrange
         givenAddressCompletes()
         givenRequestJwtAndUpdateWalletInfoSucceds()
-        whenever(custodialWalletManager.isSimplifiedDueDiligenceEligible()).thenReturn(Single.just(true))
-        whenever(custodialWalletManager.fetchSimplifiedDueDiligenceUserState()).thenReturn(
-            Single.just(SimplifiedDueDiligenceUserState(isVerified = true, stateFinalised = true))
-        )
         // Act
         val firstLine = "1"
         val city = "2"
         val state = "3"
         val zipCode = "4"
         val countryCode = "UK"
-        subject.onContinueClicked(CampaignType.SimpleBuy, addressModel(firstLine, city, state, zipCode, countryCode))
+        subject.onContinueClicked(addressModel(firstLine, city, state, zipCode, countryCode))
         // Assert
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
-        verify(view).onSddVerified()
     }
 
     @Test
@@ -229,21 +217,16 @@ class KycHomeAddressPresenterTest {
         // Arrange
         givenAddressCompletes()
         givenRequestJwtAndUpdateWalletInfoSucceds()
-        whenever(custodialWalletManager.isSimplifiedDueDiligenceEligible()).thenReturn(Single.just(true))
-        whenever(custodialWalletManager.fetchSimplifiedDueDiligenceUserState()).thenReturn(
-            Single.just(SimplifiedDueDiligenceUserState(isVerified = true, stateFinalised = true))
-        )
         // Act
         val firstLine = "1"
         val city = "2"
         val state = "3"
         val zipCode = "4"
         val countryCode = "UK"
-        subject.onContinueClicked(CampaignType.SimpleBuy, addressModel(firstLine, city, state, zipCode, countryCode))
+        subject.onContinueClicked(addressModel(firstLine, city, state, zipCode, countryCode))
         // Assert
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
-        verify(view).onSddVerified()
         verify(kycTiersStore).markAsStale()
         verify(nabuUserSync).syncUser()
     }
@@ -253,23 +236,16 @@ class KycHomeAddressPresenterTest {
         // Arrange
         givenAddressCompletes()
         givenRequestJwtAndUpdateWalletInfoSucceds()
-        whenever(custodialWalletManager.isSimplifiedDueDiligenceEligible()).thenReturn(Single.just(true))
-        whenever(custodialWalletManager.fetchSimplifiedDueDiligenceUserState()).thenReturn(
-            Single.just(SimplifiedDueDiligenceUserState(isVerified = true, stateFinalised = true))
-        )
         // Act
         val firstLine = "1"
         val city = "2"
         val state = "3"
         val zipCode = "4"
         val countryCode = "UK"
-        subject.onContinueClicked(CampaignType.None, addressModel(firstLine, city, state, zipCode, countryCode))
+        subject.onContinueClicked(addressModel(firstLine, city, state, zipCode, countryCode))
         // Assert
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
-        verify(view, never()).onSddVerified()
-        verify(custodialWalletManager).fetchSimplifiedDueDiligenceUserState()
-        verify(custodialWalletManager).isSimplifiedDueDiligenceEligible()
         verify(view).continueToVeriffSplash("UK")
     }
 
