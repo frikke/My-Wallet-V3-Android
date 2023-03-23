@@ -10,12 +10,14 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.DexPrefs
 import com.blockchain.store.getDataOrThrow
 import com.blockchain.utils.asFlow
 import com.blockchain.walletmode.WalletMode
 import com.dex.data.stores.DexTokensDataStorage
 import com.dex.domain.DexAccount
 import com.dex.domain.DexAccountsService
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,7 +25,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -34,6 +35,8 @@ import kotlinx.coroutines.flow.scan
 class DexAccountsRepository(
     private val coincore: Coincore,
     private val currencyPrefs: CurrencyPrefs,
+    private val dexPrefs: DexPrefs,
+    private val assetCatalogue: AssetCatalogue,
     private val dexTokensDataStorage: DexTokensDataStorage,
 ) : DexAccountsService {
     override fun sourceAccounts(): Flow<List<DexAccount>> =
@@ -45,6 +48,16 @@ class DexAccountsRepository(
         return dexSourceAccounts().map { accounts ->
             accounts.maxByOrNull { it.fiatBalance }
         }.firstOrNull()
+    }
+
+    override suspend fun defDestinationAccount(): DexAccount? {
+        val persistedCurrency = dexPrefs.selectedDestinationCurrencyTicker.takeIf { it.isNotEmpty() } ?: return null
+        val currency = assetCatalogue.fromNetworkTicker(persistedCurrency) ?: return null
+        return destinationAccounts().firstOrNull()?.firstOrNull { it.currency.networkTicker == currency.networkTicker }
+    }
+
+    override fun updatePersistedDestinationAccount(dexAccount: DexAccount) {
+        dexPrefs.selectedDestinationCurrencyTicker = dexAccount.currency.networkTicker
     }
 
     private val freshness = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)

@@ -18,10 +18,10 @@ import com.blockchain.componentlib.theme.Grey900
 
 @Composable
 fun SecondaryButton(
+    modifier: Modifier = Modifier,
     text: String,
     onClick: () -> Unit,
     state: ButtonState = ButtonState.Enabled,
-    modifier: Modifier = Modifier,
     icon: ImageResource = ImageResource.None,
 ) {
     Button(

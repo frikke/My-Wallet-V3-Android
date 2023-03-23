@@ -7,6 +7,8 @@ interface DexAccountsService {
     fun sourceAccounts(): Flow<List<DexAccount>>
     fun destinationAccounts(): Flow<List<DexAccount>>
     suspend fun defSourceAccount(): DexAccount?
+    suspend fun defDestinationAccount(): DexAccount?
+    fun updatePersistedDestinationAccount(dexAccount: DexAccount)
 }
 
 interface DexQuotesService {

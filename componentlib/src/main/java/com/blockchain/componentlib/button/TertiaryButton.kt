@@ -18,10 +18,10 @@ import com.blockchain.componentlib.theme.Blue600
 
 @Composable
 fun TertiaryButton(
+    modifier: Modifier = Modifier,
     text: String,
     onClick: () -> Unit,
     state: ButtonState = ButtonState.Enabled,
-    modifier: Modifier = Modifier,
     textColor: Color = Blue600,
     defaultBackgroundColor: Color? = null,
     icon: ImageResource = ImageResource.None,

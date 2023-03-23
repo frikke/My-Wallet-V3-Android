@@ -55,10 +55,13 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.AlertButton
+import com.blockchain.componentlib.button.ButtonLoadingIndicator
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.icons.ArrowDown
 import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Settings
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.tablerow.TableRow
@@ -66,6 +69,8 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.BackgroundMuted
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.Grey000
+import com.blockchain.componentlib.theme.Grey200
+import com.blockchain.componentlib.theme.Grey300
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
@@ -136,7 +141,12 @@ fun DexEnterAmountScreen(
                     viewState = it,
                     onValueChanged = {
                         viewModel.onIntent(InputAmountIntent.AmountUpdated(it.text))
+                    },
+                    settingsOnClick = {
+                        navController.navigate(DexDestination.Settings.route)
+                        keyboardController?.hide()
                     }
+
                 )
             }
         }
@@ -216,9 +226,9 @@ fun InputField(
     selectSourceAccount: () -> Unit,
     selectDestinationAccount: () -> Unit,
     onValueChanged: (TextFieldValue) -> Unit,
+    settingsOnClick: () -> Unit,
     viewState: InputAmountViewState.TransactionInputState
 ) {
-
     var input by remember { mutableStateOf(TextFieldValue()) }
     var size by remember { mutableStateOf(IntSize.Zero) }
     Column(
@@ -248,11 +258,12 @@ fun InputField(
                                 }
                             },
                             onClick = selectSourceAccount,
-                            currency = viewState.sourceCurrency
+                            currency = viewState.sourceCurrency,
+                            operationInProgress = viewState.operationInProgress
                         )
                         Row {
                             viewState.inputExchangeAmount?.let {
-                                ExchangeAmount(it)
+                                ExchangeAmount(it, true)
                             }
                             viewState.maxAmount?.let {
                                 MaxAmount(it)
@@ -274,11 +285,15 @@ fun InputField(
                             input = TextFieldValue(viewState.outputAmount?.toStringWithoutSymbol().orEmpty()),
                             onValueChanged = {},
                             onClick = selectDestinationAccount,
-                            currency = viewState.destinationCurrency
+                            currency = viewState.destinationCurrency,
+                            operationInProgress = viewState.operationInProgress
                         )
                         Row {
                             viewState.outputExchangeAmount?.let {
-                                ExchangeAmount(it)
+                                ExchangeAmount(
+                                    money = it,
+                                    isEnabled = !viewState.operationInProgress
+                                )
                             }
                             viewState.destinationAccountBalance?.takeIf { it.isPositive }?.let {
                                 DestinationBalanceAmount(it)
@@ -290,31 +305,13 @@ fun InputField(
             MaskedCircleArrow(size)
         }
 
-        viewState.uiFee?.let { uiFee ->
-            TableRow(
-                modifier = Modifier
-                    .padding(vertical = dimensionResource(id = R.dimen.standard_spacing))
-                    .clip(shape = RoundedCornerShape(AppTheme.dimensions.smallSpacing)),
-                content = {
-                    Text(
-                        modifier = Modifier
-                            .padding(start = dimensionResource(id = R.dimen.tiny_spacing)),
-                        text = stringResource(id = R.string.estimated_fees),
-                        style = AppTheme.typography.body2,
-                        color = AppTheme.colors.title
-                    )
-                },
-                contentStart = {
-                    Image(imageResource = ImageResource.Remote(uiFee.fee.currency.logo))
-                },
-                contentEnd = {
-                    Text(
-                        text = "~ ${uiFee.feeInFiat?.toStringWithSymbol() ?: uiFee.fee.toStringWithSymbol()}",
-                        style = AppTheme.typography.body2,
-                        color = AppTheme.colors.title
-                    )
-                }
-            )
+        Settings(settingsOnClick)
+
+        viewState.uiFee?.takeIf { !viewState.operationInProgress }?.let { uiFee ->
+            Fee(uiFee)
+        }
+        viewState.operationInProgress.takeIf { it }?.let {
+            PriceFetching()
         }
 
         if (viewState.error != DexUiError.None) {
@@ -329,6 +326,72 @@ fun InputField(
 }
 
 @Composable
+private fun Fee(uiFee: UiFee) {
+    TableRow(
+        modifier = Modifier
+            .padding(top = AppTheme.dimensions.smallSpacing)
+            .clip(shape = RoundedCornerShape(AppTheme.dimensions.smallSpacing)),
+        content = {
+            Text(
+                modifier = Modifier
+                    .padding(start = dimensionResource(id = R.dimen.tiny_spacing)),
+                text = stringResource(id = R.string.estimated_fees),
+                style = AppTheme.typography.paragraph2,
+                color = AppTheme.colors.title
+            )
+        },
+        contentStart = {
+            Image(imageResource = ImageResource.Remote(uiFee.fee.currency.logo))
+        },
+        contentEnd = {
+            Text(
+                text = "~ ${uiFee.feeInFiat?.toStringWithSymbol() ?: uiFee.fee.toStringWithSymbol()}",
+                style = AppTheme.typography.body2,
+                color = AppTheme.colors.title
+            )
+        }
+    )
+}
+
+@Composable
+private fun PriceFetching() {
+    TableRow(
+        modifier = Modifier
+            .padding(top = AppTheme.dimensions.smallSpacing)
+            .clip(shape = RoundedCornerShape(AppTheme.dimensions.smallSpacing)),
+        content = {
+            Text(
+                modifier = Modifier
+                    .padding(start = dimensionResource(id = R.dimen.tiny_spacing)),
+                text = stringResource(id = R.string.fetching_quote),
+                style = AppTheme.typography.paragraph2,
+                color = AppTheme.colors.title
+            )
+        },
+        contentStart = {
+            ButtonLoadingIndicator(loadingIconResId = R.drawable.ic_loading_minimal_light)
+        },
+    )
+}
+
+@Composable
+private fun Settings(onClick: () -> Unit) {
+    Row(
+        Modifier
+            .padding(top = AppTheme.dimensions.smallSpacing)
+            .fillMaxWidth()
+    ) {
+        Spacer(Modifier.weight(1f))
+        TertiaryButton(
+            text = stringResource(id = R.string.common_settings),
+            textColor = Grey900,
+            onClick = onClick,
+            icon = Icons.Settings
+        )
+    }
+}
+
+@Composable
 private fun DexUiError.message(): String =
     when (this) {
         DexUiError.None -> throw IllegalStateException("No error message")
@@ -337,7 +400,7 @@ private fun DexUiError.message(): String =
     }
 
 @Composable
-private fun RowScope.ExchangeAmount(money: Money) {
+private fun RowScope.ExchangeAmount(money: Money, isEnabled: Boolean) {
     Text(
         modifier = Modifier
             .padding(
@@ -347,7 +410,7 @@ private fun RowScope.ExchangeAmount(money: Money) {
             .weight(1f),
         text = money.toStringWithSymbol(),
         style = AppTheme.typography.bodyMono,
-        color = Grey700
+        color = if (isEnabled) Grey700 else Grey200
     )
 }
 
@@ -466,7 +529,10 @@ private fun MaskedCircleArrow(parentSize: IntSize) {
 }
 
 @Composable
-private fun CurrencySelection(onClick: () -> Unit, currency: Currency?) {
+private fun CurrencySelection(
+    onClick: () -> Unit,
+    currency: Currency?,
+) {
     Row(
         modifier = Modifier
             .background(
@@ -499,9 +565,7 @@ private fun CurrencySelection(onClick: () -> Unit, currency: Currency?) {
                 top = AppTheme.dimensions.smallestSpacing,
                 bottom = AppTheme.dimensions.smallestSpacing,
             ),
-            text = currency?.let {
-                it.displayTicker
-            } ?: stringResource(id = R.string.common_select),
+            text = currency?.displayTicker ?: stringResource(id = R.string.common_select),
             style = AppTheme.typography.body1,
             color = Grey900
         )
@@ -519,6 +583,7 @@ private fun CurrencySelection(onClick: () -> Unit, currency: Currency?) {
 private fun AmountAndCurrencySelection(
     isReadOnly: Boolean,
     input: TextFieldValue,
+    operationInProgress: Boolean,
     currency: Currency?,
     onValueChanged: (TextFieldValue) -> Unit,
     onClick: () -> Unit
@@ -534,6 +599,8 @@ private fun AmountAndCurrencySelection(
         TextField(
             modifier = Modifier.weight(1f),
             value = input,
+            singleLine = true,
+            enabled = if (isReadOnly) !operationInProgress else true,
             textStyle = AppTheme.typography.title2Mono,
             readOnly = isReadOnly,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -546,6 +613,7 @@ private fun AmountAndCurrencySelection(
             },
             colors = TextFieldDefaults.textFieldColors(
                 textColor = Grey900,
+                disabledTextColor = Grey300,
                 backgroundColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
@@ -554,6 +622,9 @@ private fun AmountAndCurrencySelection(
             maxLines = 1,
             onValueChange = onValueChanged
         )
-        CurrencySelection(onClick = onClick, currency = currency)
+        CurrencySelection(
+            onClick = onClick,
+            currency = currency,
+        )
     }
 }

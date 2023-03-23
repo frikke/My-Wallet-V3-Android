@@ -52,6 +52,7 @@
     <string name="common_try_again">Try Again</string>
     <string name="common_sell">Sell</string>
     <string name="common_select">Select</string>
+    <string name="common_settings">Settings</string>
     <string name="common_sign">Sign</string>
     <string name="common_buy">Buy</string>
     <string name="common_balance">Balance</string>
@@ -3587,6 +3588,9 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_active_rewards_earnings_description">Sum of all debits and credits of previous strategies.</string>
     <string name="dex_no_input_title">To get started, transfer to your wallets</string>
     <string name="estimated_fees">Estimated fee</string>
+    <string name="fetching_quote">Fetching best price…</string>
     <string name="not_enough_gas">Not enough %1$s for gas fees</string>
+    <string name="allowed_slippage">Allowed Slippage</string>
+    <string name="slippage_explanation">Slippage is the max percentage of price you\'re willing to allow for your swap to go through. If price changes beyond that, the swap will revert and your assets will be returned.</string>
 
 </resources>

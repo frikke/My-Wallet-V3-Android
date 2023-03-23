@@ -15,6 +15,7 @@ import com.dex.domain.DexAccountsService
 import com.dex.domain.DexTransaction
 import com.dex.domain.DexTransactionProcessor
 import com.dex.domain.DexTxError
+import com.dex.domain.SlippageService
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
@@ -29,6 +30,7 @@ class DexEnterAmountViewModel(
     private val currencyPrefs: CurrencyPrefs,
     private val txProcessor: DexTransactionProcessor,
     private val dexAccountsService: DexAccountsService,
+    private val dexSlippageService: SlippageService,
     private val exchangeRatesDataManager: ExchangeRatesDataManager
 ) : MviViewModel<
     InputAmountIntent,
@@ -85,6 +87,7 @@ class DexEnterAmountViewModel(
                 fiatAmount(amount, rate)
             } ?: Money.zero(currencyPrefs.selectedFiatCurrency),
             destinationAccountBalance = transaction?.destinationAccount?.balance,
+            operationInProgress = state.operationInProgress,
             uiFee = uiFee(
                 transaction?.fees,
                 state.feeToFiatExchangeRate
@@ -131,14 +134,20 @@ class DexEnterAmountViewModel(
 
     private fun initTransaction() {
         viewModelScope.launch {
+            val selectedSlippage = dexSlippageService.selectedSlippage()
             val preselectedAccount = dexAccountsService.defSourceAccount()
-            preselectedAccount?.let {
+            preselectedAccount?.let { source ->
+                val preselectedDestination = dexAccountsService.defDestinationAccount()
                 updateState { state ->
                     state.copy(
                         canTransact = DataResource.Data(true)
                     )
                 }
-                txProcessor.initTransaction(it)
+                txProcessor.initTransaction(
+                    sourceAccount = source,
+                    destinationAccount = preselectedDestination,
+                    slippage = selectedSlippage
+                )
                 subscribeForTxUpdates()
             } ?: updateState { state ->
                 state.copy(
@@ -156,6 +165,16 @@ class DexEnterAmountViewModel(
                 updateState { state ->
                     state.copy(
                         transaction = it
+                    )
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            txProcessor.operationInProgress.collectLatest {
+                updateState { state ->
+                    state.copy(
+                        operationInProgress = it
                     )
                 }
             }
@@ -252,6 +271,7 @@ sealed class InputAmountViewState : ViewState {
         val sourceCurrency: Currency?,
         val destinationCurrency: Currency?,
         val maxAmount: Money?,
+        val operationInProgress: Boolean,
         val destinationAccountBalance: Money?,
         val inputExchangeAmount: Money?,
         val outputExchangeAmount: Money?,
@@ -272,6 +292,7 @@ data class UiFee(
 data class AmountModelState(
     val canTransact: DataResource<Boolean> = DataResource.Loading,
     val transaction: DexTransaction?,
+    val operationInProgress: Boolean = false,
     val inputToFiatExchangeRate: ExchangeRate?,
     val outputToFiatExchangeRate: ExchangeRate?,
     val feeToFiatExchangeRate: ExchangeRate?,

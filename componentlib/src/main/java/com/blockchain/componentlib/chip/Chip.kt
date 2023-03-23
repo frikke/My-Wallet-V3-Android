@@ -147,6 +147,20 @@ enum class ChipState {
 fun DefaultChip_Basic() {
     AppTheme {
         AppSurface {
+            Chip(
+                text = "Default",
+                initialChipState = ChipState.Selected,
+                onClick = {}
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun DefaultChip_Basic_Selected() {
+    AppTheme {
+        AppSurface {
             Chip(text = "Default", onClick = {})
         }
     }

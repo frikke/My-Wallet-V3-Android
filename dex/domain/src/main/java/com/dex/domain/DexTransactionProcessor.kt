@@ -2,7 +2,6 @@ package com.dex.domain
 
 import com.blockchain.extensions.safeLet
 import com.blockchain.outcome.Outcome
-import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import java.math.BigDecimal
 import kotlinx.coroutines.CoroutineScope
@@ -18,6 +17,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -31,15 +31,24 @@ class DexTransactionProcessor(
         EmptyDexTransaction
     )
 
+    private val _operationInProgress: MutableStateFlow<Boolean> = MutableStateFlow(
+        false
+    )
+
+    val operationInProgress: Flow<Boolean>
+        get() = _operationInProgress
+
     private val scope = CoroutineScope(Job() + Dispatchers.IO)
 
     val transaction: Flow<DexTransaction>
         get() = _dexTransaction.validate()
 
-    fun initTransaction(sourceAccount: DexAccount) {
+    fun initTransaction(sourceAccount: DexAccount, destinationAccount: DexAccount?, slippage: Double) {
         _dexTransaction.update {
             EmptyDexTransaction.copy(
-                _sourceAccount = sourceAccount
+                _sourceAccount = sourceAccount,
+                destinationAccount = destinationAccount,
+                slippage = slippage
             )
         }
         startQuotesUpdates()
@@ -54,6 +63,7 @@ class DexTransactionProcessor(
                 .distinctUntilChanged()
                 .debounce(500)
                 .mapLatest {
+                    _operationInProgress.emit(true)
                     if (it.amount.isPositive) {
                         dexQuotesService.quote(
                             it
@@ -63,6 +73,8 @@ class DexTransactionProcessor(
                             DexQuote.InvalidQuote
                         )
                     }
+                }.onEach {
+                    _operationInProgress.emit(false)
                 }.collectLatest {
                     when (it) {
                         is Outcome.Success -> updateTxQuote(it.value)
@@ -73,6 +85,14 @@ class DexTransactionProcessor(
                         }
                     }
                 }
+        }
+    }
+
+    fun updateSlippage(slippage: Double) {
+        _dexTransaction.update {
+            it.copy(
+                slippage = slippage
+            )
         }
     }
 
@@ -172,7 +192,7 @@ data class DexTransaction internal constructor(
     private val _sourceAccount: DexAccount?,
     val destinationAccount: DexAccount?,
     val fees: Money?,
-    val slippage: Double?,
+    val slippage: Double,
     val maxAvailable: Money?,
     val txError: DexTxError
 ) {
@@ -182,7 +202,7 @@ data class DexTransaction internal constructor(
                 sourceAccount = s,
                 destinationAccount = d,
                 amount = a,
-                slippage = 0.03
+                slippage = slippage
             )
         }
 
@@ -192,15 +212,7 @@ data class DexTransaction internal constructor(
         get() = _amount ?: Money.zero(sourceAccount.currency)
 }
 
-data class OutputAmount(val expectedOutput: Money, val minOutputAmount: Money) {
-    companion object {
-        fun zero(currency: Currency): OutputAmount =
-            OutputAmount(
-                expectedOutput = Money.zero(currency),
-                minOutputAmount = Money.zero(currency),
-            )
-    }
-}
+data class OutputAmount(val expectedOutput: Money, val minOutputAmount: Money)
 
 sealed class DexTxError {
     object NotEnoughFunds : DexTxError()
@@ -214,7 +226,7 @@ private val EmptyDexTransaction = DexTransaction(
     null,
     null,
     null,
-    null,
+    0.toDouble(),
     null,
     DexTxError.None
 )

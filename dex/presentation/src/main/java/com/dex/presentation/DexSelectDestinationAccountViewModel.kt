@@ -66,6 +66,7 @@ class DexSelectDestinationAccountViewModel(
             }
             is DestinationAccountIntent.OnAccountSelected -> {
                 transactionProcessor.updateDestinationAccount(intent.account)
+                dexService.updatePersistedDestinationAccount(intent.account)
             }
             is DestinationAccountIntent.Search -> {
                 updateState {

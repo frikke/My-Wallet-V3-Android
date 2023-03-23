@@ -9,6 +9,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.dex.presentation.DexIntroductionScreens
 import com.dex.presentation.SelectDestinationAccountBottomSheet
 import com.dex.presentation.SelectSourceAccountBottomSheet
+import com.dex.presentation.SettingsBottomSheet
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 
 @OptIn(ExperimentalMaterialNavigationApi::class)
@@ -19,7 +20,7 @@ fun NavGraphBuilder.dexGraph(onBackPressed: () -> Unit) {
         }
     }
 
-    bottomSheet(navigationEvent = DexDestination.SelectSourceAccount) { backStackEntry ->
+    bottomSheet(navigationEvent = DexDestination.SelectSourceAccount) {
         ChromeBottomSheet(onBackPressed) {
             SelectSourceAccountBottomSheet(
                 closeClicked = onBackPressed
@@ -27,12 +28,18 @@ fun NavGraphBuilder.dexGraph(onBackPressed: () -> Unit) {
         }
     }
 
-    bottomSheet(navigationEvent = DexDestination.SelectDestinationAccount) { backStackEntry ->
+    bottomSheet(navigationEvent = DexDestination.SelectDestinationAccount) {
         ChromeBottomSheet(onBackPressed) {
             SelectDestinationAccountBottomSheet(
                 closeClicked = onBackPressed
             )
         }
+    }
+
+    bottomSheet(navigationEvent = DexDestination.Settings) {
+        SettingsBottomSheet(
+            closeClicked = onBackPressed
+        )
     }
 }
 
@@ -42,4 +49,5 @@ sealed class DexDestination(
     object Intro : DexDestination("Intro")
     object SelectSourceAccount : DexDestination("SelectSourceAccount")
     object SelectDestinationAccount : DexDestination("SelectDestinationAccount")
+    object Settings : DexDestination("Settings")
 }
