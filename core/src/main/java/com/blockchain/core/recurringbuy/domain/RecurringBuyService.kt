@@ -38,6 +38,4 @@ interface RecurringBuyService {
     suspend fun createOrder(
         request: RecurringBuyRequest
     ): Outcome<Exception, RecurringBuyOrder>
-
-    // todo(othman) add rest of the stuff
 }
