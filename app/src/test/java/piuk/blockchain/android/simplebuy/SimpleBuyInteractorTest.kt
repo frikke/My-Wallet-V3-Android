@@ -11,6 +11,7 @@ import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payments.PaymentsRepository
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.coreandroid.remoteconfig.RemoteConfigRepository
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.Region
@@ -86,6 +87,7 @@ class SimpleBuyInteractorTest {
     private val brokerageDataManager: BrokerageDataManager = mock()
     private val simpleBuyPrefs: SimpleBuyPrefs = mock()
     private val onboardingPrefs: OnboardingPrefs = mock()
+    private val recurringBuyService: RecurringBuyService = mock()
     private val eligibilityService: EligibilityService = mock {
         onBlocking { getStatesList(any(), any()) }.thenReturn(
             Outcome.Success(
@@ -134,7 +136,8 @@ class SimpleBuyInteractorTest {
             feynmanCheckoutFF = feynmanCheckoutScreenFF,
             quickFillRoundingService = quickFillRoundingService,
             brokerageDataManager = brokerageDataManager,
-            improvedPaymentUxFF = improvedPaymentUxFF
+            improvedPaymentUxFF = improvedPaymentUxFF,
+            recurringBuyService = recurringBuyService
         )
 
         whenever(quickFillRoundingService.getQuickFillRoundingForAction(AssetAction.Buy)).thenReturn(
