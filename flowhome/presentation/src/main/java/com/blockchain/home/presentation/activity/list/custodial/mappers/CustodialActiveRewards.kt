@@ -16,6 +16,7 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
             TransactionSummary.TransactionType.DEPOSIT -> R.drawable.ic_activity_buy
             TransactionSummary.TransactionType.INTEREST_EARNED -> R.drawable.ic_activity_rewards
             TransactionSummary.TransactionType.WITHDRAW -> R.drawable.ic_activity_sell
+            TransactionSummary.TransactionType.DEBIT -> R.drawable.ic_activity_sell
             else -> R.drawable.ic_activity_buy
         }
         else -> R.drawable.ic_activity_rewards
@@ -28,7 +29,8 @@ internal fun CustodialActiveRewardsActivitySummaryItem.leadingTitle(): ActivityS
             value = when (type) {
                 TransactionSummary.TransactionType.DEPOSIT -> R.string.tx_title_deposited
                 TransactionSummary.TransactionType.WITHDRAW -> R.string.tx_title_withdrawn
-                TransactionSummary.TransactionType.INTEREST_EARNED -> R.string.tx_title_stake_earned
+                TransactionSummary.TransactionType.INTEREST_EARNED -> R.string.tx_title_earned
+                TransactionSummary.TransactionType.DEBIT -> R.string.tx_title_debited
                 else -> R.string.tx_title_transferred
             },
             args = listOf(account.currency.displayTicker)

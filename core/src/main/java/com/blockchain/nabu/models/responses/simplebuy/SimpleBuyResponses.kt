@@ -332,6 +332,7 @@ data class TransactionResponse(
         const val BANK_TRANSFER_PAYMENT_REJECTED = "BANK_TRANSFER_PAYMENT_REJECTED"
         const val BANK_TRANSFER_PAYMENT_EXPIRED = "BANK_TRANSFER_PAYMENT_EXPIRED"
         const val WITHDRAWAL = "WITHDRAWAL"
+        const val DEBIT = "DEBIT"
     }
 }
 

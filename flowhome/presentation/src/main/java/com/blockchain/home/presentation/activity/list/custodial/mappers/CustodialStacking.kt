@@ -28,7 +28,7 @@ internal fun CustodialStakingActivitySummaryItem.leadingTitle(): ActivityStackVi
             value = when (type) {
                 TransactionSummary.TransactionType.DEPOSIT -> R.string.tx_title_staked
                 TransactionSummary.TransactionType.WITHDRAW -> R.string.tx_title_stake_withdrawn
-                TransactionSummary.TransactionType.INTEREST_EARNED -> R.string.tx_title_stake_earned
+                TransactionSummary.TransactionType.INTEREST_EARNED -> R.string.tx_title_earned
                 else -> R.string.tx_title_transferred
             },
             args = listOf(account.currency.displayTicker)

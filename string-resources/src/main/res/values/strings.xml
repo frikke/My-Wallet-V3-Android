@@ -670,7 +670,8 @@
     <string name="tx_title_add_with_ticker">Add %s</string>
     <string name="tx_title_stake_with_ticker">Stake %s</string>
     <string name="tx_title_added">Added %s</string>
-    <string name="tx_title_stake_earned">%s Earned</string>
+    <string name="tx_title_earned">%s Earned</string>
+    <string name="tx_title_debited">%s Debited</string>
     <string name="tx_title_stake_withdrawn">%s Unstaked</string>
     <string name="tx_title_staked">Staked %s</string>
 
