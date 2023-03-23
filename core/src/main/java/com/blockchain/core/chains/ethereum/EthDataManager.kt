@@ -1,7 +1,7 @@
 package com.blockchain.core.chains.ethereum
 
-import com.blockchain.api.ethereum.evm.FeeLevel
 import com.blockchain.api.services.NonCustodialEvmService
+import com.blockchain.core.chains.dynamicselfcustody.domain.model.FeeLevel
 import com.blockchain.core.chains.ethereum.datastores.EthDataStore
 import com.blockchain.core.chains.ethereum.models.CombinedEthModel
 import com.blockchain.core.payload.PayloadDataManager
@@ -327,28 +327,35 @@ class EthDataManager(
 
     fun getFeesForEvmTx(l1Chain: String) = rxSingleOutcome {
         val defaultFeeForEvm = FeeOptions.defaultForEvm(l1Chain)
-        nonCustodialEvmService.getFeeLevels(l1Chain).map { fees ->
+        nonCustodialEvmService.getFeeLevels(l1Chain).map { feesResponse ->
+            val feeLevels = mapOf(
+                FeeLevel.LOW to feesResponse.LOW?.toBigInteger(),
+                FeeLevel.NORMAL to feesResponse.NORMAL?.toBigInteger(),
+                FeeLevel.HIGH to feesResponse.HIGH?.toBigInteger(),
+            )
+            val gasLimit = feesResponse.gasLimit?.toBigInteger() ?: BigInteger.ZERO
+            val gasLimitContract = feesResponse.gasLimitContract?.toBigInteger() ?: BigInteger.ZERO
             FeeOptions(
-                gasLimit = fees.gasLimit.toLong(),
+                gasLimit = gasLimit.toLong(),
                 regularFee = getFeeForLevel(
-                    feeLevels = fees.feeLevels,
+                    feeLevels = feeLevels,
                     feeLevel = FeeLevel.NORMAL,
                     defaultFeeForLevel = defaultFeeForEvm.regularFee
                 ),
-                gasLimitContract = fees.gasLimitContract.toLong(),
+                gasLimitContract = gasLimitContract.toLong(),
                 priorityFee = getFeeForLevel(
-                    feeLevels = fees.feeLevels,
+                    feeLevels = feeLevels,
                     feeLevel = FeeLevel.HIGH,
                     defaultFeeForLevel = defaultFeeForEvm.priorityFee
                 ),
                 limits = FeeLimits(
                     min = getFeeForLevel(
-                        feeLevels = fees.feeLevels,
+                        feeLevels = feeLevels,
                         feeLevel = FeeLevel.LOW,
                         defaultFeeForLevel = defaultFeeForEvm.limits?.min ?: DEFAULT_MIN_FEE
                     ),
                     max = getFeeForLevel(
-                        feeLevels = fees.feeLevels,
+                        feeLevels = feeLevels,
                         feeLevel = FeeLevel.HIGH,
                         defaultFeeForLevel = defaultFeeForEvm.limits?.max ?: DEFAULT_MAX_FEE
                     )

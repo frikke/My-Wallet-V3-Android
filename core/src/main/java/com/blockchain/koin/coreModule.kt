@@ -551,7 +551,8 @@ val coreModule = module {
                 currencyPrefs = get(),
                 assetCatalogue = get(),
                 subscriptionsStore = get(),
-                coinTypeStore = get()
+                coinTypeStore = get(),
+                remoteConfigService = get(),
             )
         }
 

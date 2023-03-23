@@ -23,7 +23,7 @@ import com.blockchain.coincore.impl.txEngine.swap.RECEIVE_AMOUNT
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.earn.EarnAnalytics
 import com.blockchain.earn.TxFlowAnalyticsAccountType
-import com.blockchain.extensions.withoutNullValues
+import com.blockchain.extensions.filterNotNullValues
 import com.blockchain.logging.RemoteLogger
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
@@ -746,7 +746,7 @@ class TxFlowAnalytics(
                 PARAM_TARGET to target,
                 PARAM_SOURCE to source,
                 PARAM_ERROR to error
-            ).withoutNullValues()
+            ).filterNotNullValues()
     }
 }
 

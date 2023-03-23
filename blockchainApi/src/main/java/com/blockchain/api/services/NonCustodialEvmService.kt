@@ -2,11 +2,8 @@ package com.blockchain.api.services
 
 import com.blockchain.api.ethereum.evm.BalancesRequest
 import com.blockchain.api.ethereum.evm.EvmApi
-import com.blockchain.api.ethereum.evm.FeeLevel
 import com.blockchain.api.ethereum.evm.PushTransactionRequest
 import com.blockchain.api.ethereum.evm.TransactionHistoryRequest
-import com.blockchain.outcome.map
-import java.math.BigInteger
 
 class NonCustodialEvmService(
     private val evmApi: EvmApi,
@@ -30,17 +27,7 @@ class NonCustodialEvmService(
             )
         )
 
-    suspend fun getFeeLevels(assetTicker: String) = evmApi.getFees(assetTicker).map {
-        EvmTransactionFees(
-            mapOf(
-                FeeLevel.LOW to it.LOW?.toBigInteger(),
-                FeeLevel.NORMAL to it.NORMAL?.toBigInteger(),
-                FeeLevel.HIGH to it.HIGH?.toBigInteger(),
-            ),
-            gasLimit = it.gasLimit?.toBigInteger() ?: BigInteger.ZERO,
-            gasLimitContract = it.gasLimitContract?.toBigInteger() ?: BigInteger.ZERO
-        )
-    }
+    suspend fun getFeeLevels(assetTicker: String) = evmApi.getFees(assetTicker)
 
     suspend fun pushTransaction(rawTransaction: String, networkCurrency: String) = evmApi.pushTransaction(
         request = PushTransactionRequest(
@@ -54,9 +41,3 @@ class NonCustodialEvmService(
         const val NATIVE_IDENTIFIER = "native"
     }
 }
-
-data class EvmTransactionFees(
-    val feeLevels: Map<FeeLevel, BigInteger?>,
-    val gasLimit: BigInteger,
-    val gasLimitContract: BigInteger,
-)

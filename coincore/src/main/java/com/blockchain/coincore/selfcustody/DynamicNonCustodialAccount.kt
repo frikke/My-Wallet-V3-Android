@@ -59,7 +59,7 @@ class DynamicNonCustodialAccount(
     override val isDefault: Boolean = true
 
     override fun createTxEngine(target: TransactionTarget, action: AssetAction): TxEngine =
-        DynamicOnChanTxEngine(
+        DynamicOnChainTxEngine(
             nonCustodialService = nonCustodialService,
             walletPreferences = walletPreferences,
             requireSecondPassword = false,

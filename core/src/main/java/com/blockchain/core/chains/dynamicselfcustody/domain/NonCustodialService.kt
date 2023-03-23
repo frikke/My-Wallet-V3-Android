@@ -2,6 +2,7 @@ package com.blockchain.core.chains.dynamicselfcustody.domain
 
 import com.blockchain.api.selfcustody.BuildTxResponse
 import com.blockchain.api.selfcustody.PushTxResponse
+import com.blockchain.core.chains.dynamicselfcustody.domain.model.FeeLevel
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialAccountBalance
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialDerivedAddress
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialTxHistoryItem
@@ -11,6 +12,7 @@ import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.wallet.CoinType
 import com.blockchain.outcome.Outcome
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Maybe
 import kotlinx.coroutines.flow.Flow
@@ -42,7 +44,7 @@ interface NonCustodialService {
         type: String,
         transactionTarget: String,
         amount: String,
-        fee: String,
+        fee: FeeLevel,
         memo: String = "",
         feeCurrency: String = currency
     ): Outcome<Exception, BuildTxResponse>
@@ -54,4 +56,6 @@ interface NonCustodialService {
         rawTx: JsonObject,
         signatures: List<TransactionSignature>
     ): Outcome<Exception, PushTxResponse>
+
+    suspend fun getFeeOptions(asset: AssetInfo): Outcome<Exception, Map<FeeLevel, CryptoValue>>
 }
