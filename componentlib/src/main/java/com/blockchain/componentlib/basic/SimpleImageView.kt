@@ -3,6 +3,7 @@ package com.blockchain.componentlib.basic
 import android.content.Context
 import android.util.AttributeSet
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,6 +23,7 @@ class SimpleImageView @JvmOverloads constructor(
     var image by mutableStateOf(ImageResource.None as ImageResource)
     var scaleType by mutableStateOf(ContentScale.Fit)
     var onClick by mutableStateOf(null as? (() -> Unit)?)
+    var squared by mutableStateOf(false)
 
     @Composable
     override fun Content() {
@@ -37,6 +39,10 @@ class SimpleImageView @JvmOverloads constructor(
                                     it()
                                 }
                             }
+                        )
+                        .then(
+                            if (squared) Modifier.aspectRatio(1F)
+                            else Modifier
                         ),
                     contentScale = scaleType,
                 )

@@ -328,14 +328,11 @@ private class CryptoSingleAccountViewHolder(
         isLastItemInList: Boolean
     ) {
         with(binding) {
-
-            if (showSelectionStatus) {
-                cryptoAccount.updateSelectableItemBackground(
-                    isFirstItemInList, isLastItemInList, selectableAccountItem.isSelected
-                )
-            } else {
-                cryptoAccount.updateItemBackground(isFirstItemInList, isLastItemInList)
-            }
+            cryptoAccount.updateBackground(
+                isFirstItemInList = isFirstItemInList,
+                isLastItemInList = isLastItemInList,
+                isSelected = showSelectionStatus && selectableAccountItem.isSelected
+            )
 
             cryptoAccount.updateItem(
                 item = selectableAccountItem.item,

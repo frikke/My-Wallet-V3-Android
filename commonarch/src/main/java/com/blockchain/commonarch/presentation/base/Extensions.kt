@@ -11,7 +11,9 @@ fun Fragment.updateToolbar(
     menuItems: List<NavigationBarButton>? = null,
     backAction: (() -> Unit)? = null
 ) {
-    (activity as? BlockchainActivity)?.updateToolbar(toolbarTitle, menuItems, backAction)
+    (activity as? BlockchainActivity)?.updateToolbar(
+        toolbarTitle = toolbarTitle, menuItems = menuItems, backAction = backAction
+    )
 }
 
 fun Fragment.updateToolbarBackground(

@@ -222,7 +222,7 @@ private fun NavigationBar(
                 CustomStackedIcon(
                     icon = icon,
                     iconBackground = AppTheme.colors.background,
-                    borderColor = AppTheme.colors.background,
+                    borderColor = if (mutedBg) AppTheme.colors.backgroundMuted else AppTheme.colors.background,
                 )
 
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
