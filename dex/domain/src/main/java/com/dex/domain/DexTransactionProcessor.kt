@@ -57,16 +57,17 @@ class DexTransactionProcessor(
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun startQuotesUpdates() {
         scope.launch {
-            transaction.mapLatest {
-                it.quoteParams
-            }.filterNotNull()
-                .distinctUntilChanged()
-                .debounce(500)
+            transaction
                 .mapLatest {
-                    _operationInProgress.emit(true)
-                    if (it.amount.isPositive) {
+                    it.quoteParams to it.canBeQuoted()
+                }.filterNotNull()
+                .distinctUntilChanged()
+                .debounce(350)
+                .mapLatest { (params, canBeQuoted) ->
+                    if (params != null && canBeQuoted) {
+                        _operationInProgress.emit(true)
                         dexQuotesService.quote(
-                            it
+                            params
                         )
                     } else {
                         Outcome.Success(
@@ -79,12 +80,22 @@ class DexTransactionProcessor(
                     when (it) {
                         is Outcome.Success -> updateTxQuote(it.value)
                         is Outcome.Failure -> {
-                            println(
-                                "Quote failed ${it.failure}"
-                            )
+                            (it.failure as? DexTxError.QuoteError)?.let { qError ->
+                                updateQuoteError(qError)
+                            }
                         }
                     }
                 }
+        }
+    }
+
+    private fun updateQuoteError(failure: DexTxError.QuoteError) {
+        _dexTransaction.update {
+            it.copy(
+                quoteError = failure,
+                outputAmount = null,
+                fees = null
+            )
         }
     }
 
@@ -101,11 +112,13 @@ class DexTransactionProcessor(
             when (quote) {
                 is DexQuote.ExchangeQuote -> it.copy(
                     outputAmount = quote.outputAmount,
-                    fees = quote.fees
+                    fees = quote.fees,
+                    quoteError = null
                 )
                 DexQuote.InvalidQuote -> it.copy(
                     outputAmount = null,
-                    fees = null
+                    fees = null,
+                    quoteError = null
                 )
             }
         }
@@ -153,6 +166,8 @@ class DexTransactionProcessor(
             tx.validateSufficientFunds()
         }.validate { tx ->
             tx.validateSufficientNetworkFees()
+        }.validate { tx ->
+            tx.validateQuoteError()
         }
         /* add rest off validations*/
     }
@@ -164,6 +179,14 @@ class DexTransactionProcessor(
                 validation(it)
             else it
         }
+    }
+
+    private fun DexTransaction.validateQuoteError(): DexTransaction {
+        return if (quoteError == null)
+            this
+        else copy(
+            txError = quoteError
+        )
     }
 
     private fun DexTransaction.validateSufficientFunds(): DexTransaction {
@@ -186,6 +209,15 @@ class DexTransactionProcessor(
     }
 }
 
+/**
+ * We are able to fetch a quote when amount>0 AND ( no error or error is quote related )
+ */
+private fun DexTransaction.canBeQuoted() =
+    amount.isPositive && (
+        this.txError == DexTxError.None ||
+            this.txError is DexTxError.QuoteError
+        )
+
 data class DexTransaction internal constructor(
     private val _amount: Money?,
     val outputAmount: OutputAmount?,
@@ -194,7 +226,8 @@ data class DexTransaction internal constructor(
     val fees: Money?,
     val slippage: Double,
     val maxAvailable: Money?,
-    val txError: DexTxError
+    val txError: DexTxError,
+    val quoteError: DexTxError.QuoteError?
 ) {
     val quoteParams: DexQuoteParams?
         get() = safeLet(_sourceAccount, destinationAccount, _amount) { s, d, a ->
@@ -214,12 +247,6 @@ data class DexTransaction internal constructor(
 
 data class OutputAmount(val expectedOutput: Money, val minOutputAmount: Money)
 
-sealed class DexTxError {
-    object NotEnoughFunds : DexTxError()
-    object NotEnoughGas : DexTxError()
-    object None : DexTxError()
-}
-
 private val EmptyDexTransaction = DexTransaction(
     null,
     null,
@@ -228,5 +255,14 @@ private val EmptyDexTransaction = DexTransaction(
     null,
     0.toDouble(),
     null,
-    DexTxError.None
+    DexTxError.None,
+    null
 )
+
+sealed class DexTxError {
+    object NotEnoughFunds : DexTxError()
+    object NotEnoughGas : DexTxError()
+    data class QuoteError(val title: String, val message: String) : DexTxError()
+    class FatalTxError(val exception: Exception) : DexTxError()
+    object None : DexTxError()
+}

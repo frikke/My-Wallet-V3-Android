@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
@@ -231,10 +232,16 @@ fun InputField(
 ) {
     var input by remember { mutableStateOf(TextFieldValue()) }
     var size by remember { mutableStateOf(IntSize.Zero) }
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        (viewState.error as? DexUiError.CommonUiError)?.let {
+            UiError(it)
+        }
+
         Box {
             Column {
                 Row(
@@ -314,15 +321,38 @@ fun InputField(
             PriceFetching()
         }
 
-        if (viewState.error != DexUiError.None) {
+        (viewState.error as? AlertError)?.let {
             AlertButton(
                 modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.small_spacing)),
-                text = viewState.error.message(),
+                text = it.message(LocalContext.current),
                 onClick = { },
                 state = ButtonState.Enabled
             )
         }
     }
+}
+
+@Composable
+private fun UiError(dexUiError: DexUiError.CommonUiError) {
+    TableRow(
+        modifier = Modifier
+            .padding(bottom = AppTheme.dimensions.smallSpacing)
+            .clip(shape = RoundedCornerShape(AppTheme.dimensions.smallSpacing)),
+        content = {
+            Column {
+                Text(
+                    text = dexUiError.title,
+                    style = AppTheme.typography.paragraph2,
+                    color = AppTheme.colors.title
+                )
+                Text(
+                    text = dexUiError.description,
+                    style = AppTheme.typography.caption1,
+                    color = AppTheme.colors.body
+                )
+            }
+        }
+    )
 }
 
 @Composable
@@ -390,14 +420,6 @@ private fun Settings(onClick: () -> Unit) {
         )
     }
 }
-
-@Composable
-private fun DexUiError.message(): String =
-    when (this) {
-        DexUiError.None -> throw IllegalStateException("No error message")
-        is DexUiError.InsufficientFunds -> stringResource(id = R.string.not_enough_funds, currency.displayTicker)
-        is DexUiError.NotEnoughGas -> stringResource(id = R.string.not_enough_gas, gasCurrency.displayTicker)
-    }
 
 @Composable
 private fun RowScope.ExchangeAmount(money: Money, isEnabled: Boolean) {

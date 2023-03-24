@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -33,10 +32,8 @@ import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.componentlib.alert.AlertType
 import com.blockchain.componentlib.alert.CardAlert
-import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.Info
+import com.blockchain.componentlib.basic.SmallInfoWithIcon
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tablerow.DefaultTableRow
@@ -245,38 +242,10 @@ fun AssetAccountsData(
             l1Network?.let { l1Network ->
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
-                        )
-                        .padding(AppTheme.dimensions.tinySpacing),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        ImageResource.Remote(
-                            url = l1Network.logo,
-                            shape = CircleShape,
-                            size = AppTheme.dimensions.mediumSpacing
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-
-                    Text(
-                        modifier = Modifier.weight(1F),
-                        text = stringResource(R.string.coinview_asset_l1, it.assetName, l1Network.name),
-                        style = AppTheme.typography.paragraph2,
-                        color = AppTheme.colors.muted,
-                    )
-
-                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-
-                    Image(
-                        Icons.Filled.Info.copy(colorFilter = ColorFilter.tint(AppTheme.colors.dark))
-                    )
-                }
+                SmallInfoWithIcon(
+                    iconUrl = l1Network.logo,
+                    text = stringResource(R.string.coinview_asset_l1, it.assetName, l1Network.name),
+                )
             }
         }
     }
