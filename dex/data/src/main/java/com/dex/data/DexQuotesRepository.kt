@@ -1,5 +1,6 @@
 package com.dex.data
 
+import com.blockchain.api.NabuApiException
 import com.blockchain.api.dex.DexQuotesApiService
 import com.blockchain.api.dex.FromCurrency
 import com.blockchain.api.dex.ToCurrency
@@ -8,6 +9,7 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
+import com.blockchain.outcome.mapError
 import com.blockchain.utils.asFlow
 import com.blockchain.utils.awaitOutcome
 import com.dex.domain.DexAccount
@@ -15,6 +17,7 @@ import com.dex.domain.DexBalanceService
 import com.dex.domain.DexQuote
 import com.dex.domain.DexQuoteParams
 import com.dex.domain.DexQuotesService
+import com.dex.domain.DexTxError
 import com.dex.domain.OutputAmount
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
@@ -31,12 +34,14 @@ class DexQuotesRepository(
 ) : DexQuotesService, DexBalanceService {
     override suspend fun quote(
         dexQuoteParams: DexQuoteParams
-    ): Outcome<Exception, DexQuote> {
+    ): Outcome<DexTxError, DexQuote> {
         val address = dexQuoteParams.sourceAccount.receiveAddress()
 
         val nativeCurrency = dexQuoteParams.sourceAccount.currency.coinNetwork?.nativeAssetTicker?.let {
             assetCatalogue.fromNetworkTicker(it)
-        } ?: return Outcome.Failure(IllegalStateException("Unknown native asset ticker"))
+        } ?: return Outcome.Failure(
+            DexTxError.FatalTxError(IllegalStateException("Unknown native asset ticker"))
+        )
 
         return address.flatMap {
             dexQuotesApiService.quote(
@@ -73,6 +78,18 @@ class DexQuotesRepository(
                         resp.transaction.gasPrice.toBigInteger()
                     )
                 )
+            }
+        }.mapError {
+            if (it is NabuApiException) {
+                DexTxError.QuoteError(
+                    title = it.getServerSideErrorInfo()?.title.orEmpty().plus(" --- ").plus(
+                        it.getErrorType()
+                    ),
+                    message = it.getErrorDescription().plus(" ").plus(" ")
+                        .plus(it.getServerSideErrorInfo()?.description.orEmpty())
+                )
+            } else {
+                DexTxError.FatalTxError(it)
             }
         }
     }
