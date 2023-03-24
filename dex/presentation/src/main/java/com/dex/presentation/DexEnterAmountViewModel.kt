@@ -1,5 +1,6 @@
 package com.dex.presentation
 
+import android.content.Context
 import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
@@ -9,6 +10,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
+import com.blockchain.dex.presentation.R
 import com.blockchain.extensions.safeLet
 import com.blockchain.preferences.CurrencyPrefs
 import com.dex.domain.DexAccountsService
@@ -250,8 +252,8 @@ class DexEnterAmountViewModel(
         }
     }
 
-    private fun DexTransaction.toUiError() =
-        when (this.txError) {
+    private fun DexTransaction.toUiError(): DexUiError {
+        return when (val error = this.txError) {
             DexTxError.None -> DexUiError.None
             DexTxError.NotEnoughFunds -> DexUiError.InsufficientFunds(
                 sourceAccount.currency
@@ -263,7 +265,15 @@ class DexEnterAmountViewModel(
                     feeCurrency
                 )
             }
+            is DexTxError.FatalTxError -> DexUiError.UnknownError(error.exception)
+            is DexTxError.QuoteError -> {
+                DexUiError.CommonUiError(
+                    error.title,
+                    error.message
+                )
+            }
         }
+    }
 }
 
 sealed class InputAmountViewState : ViewState {
@@ -308,6 +318,20 @@ sealed class InputAmountIntent : Intent<AmountModelState> {
 
 sealed class DexUiError {
     object None : DexUiError()
-    data class InsufficientFunds(val currency: Currency) : DexUiError()
-    data class NotEnoughGas(val gasCurrency: Currency) : DexUiError()
+    data class InsufficientFunds(val currency: Currency) : DexUiError(), AlertError {
+        override fun message(context: Context): String =
+            context.getString(R.string.not_enough_funds, currency.displayTicker)
+    }
+
+    data class NotEnoughGas(val gasCurrency: Currency) : DexUiError(), AlertError {
+        override fun message(context: Context): String =
+            context.getString(R.string.not_enough_gas, gasCurrency.displayTicker)
+    }
+
+    data class CommonUiError(val title: String, val description: String) : DexUiError()
+    data class UnknownError(val exception: Exception) : DexUiError()
+}
+
+interface AlertError {
+    fun message(context: Context): String
 }

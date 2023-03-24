@@ -30,7 +30,7 @@ import com.blockchain.componentlib.icons.ChevronRight
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.lazylist.roundedCornersItems
-import com.blockchain.componentlib.tablerow.NonCustodialAssetBalanceTableRow
+import com.blockchain.componentlib.tablerow.BalanceFiatAndCryptoTableRow
 import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.tablerow.TableRowHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
@@ -82,9 +82,9 @@ fun DexAccountSelection(
                         it.currency.networkTicker
                     },
                     content = { dexAccount ->
-                        NonCustodialAssetBalanceTableRow(
+                        BalanceFiatAndCryptoTableRow(
                             title = dexAccount.currency.name,
-                            subtitle = dexAccount.currency.takeIf { it.isLayer2Token }?.coinNetwork?.shortName ?: "",
+                            tag = dexAccount.currency.takeIf { it.isLayer2Token }?.coinNetwork?.shortName ?: "",
                             valueCrypto = dexAccount.balance.toStringWithSymbol(),
                             valueFiat = dexAccount.fiatBalance.toStringWithSymbol(),
                             icon = StackedIcon.SingleIcon(

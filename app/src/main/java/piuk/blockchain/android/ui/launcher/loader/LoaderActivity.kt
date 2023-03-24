@@ -129,8 +129,8 @@ class LoaderActivity :
 
     override fun onEmailEntryFragmentUpdated(showSkipButton: Boolean, buttonAction: () -> Unit) =
         updateToolbar(
-            getString(R.string.security_check),
-            if (showSkipButton) {
+            toolbarTitle = getString(R.string.security_check),
+            menuItems = if (showSkipButton) {
                 listOf(
                     NavigationBarButton.TextWithColorInt(
                         getString(R.string.common_skip),

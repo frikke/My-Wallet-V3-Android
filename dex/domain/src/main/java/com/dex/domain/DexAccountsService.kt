@@ -14,5 +14,5 @@ interface DexAccountsService {
 interface DexQuotesService {
     suspend fun quote(
         dexQuoteParams: DexQuoteParams
-    ): Outcome<Exception, DexQuote>
+    ): Outcome<DexTxError, DexQuote>
 }
