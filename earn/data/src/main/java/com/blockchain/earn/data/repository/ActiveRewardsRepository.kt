@@ -79,7 +79,7 @@ class ActiveRewardsRepository(
                     commission = rateData.commission,
                     triggerPrice = Money.fromMinor(
                         FiatCurrency.Dollars,
-                        rateData.triggerPrice.toBigInteger()
+                        rateData.triggerPrice?.toBigInteger() ?: 0.toBigInteger()
                     )
                 )
             } ?: ActiveRewardsRates(0.0, 0.0, Money.zero(currency))
