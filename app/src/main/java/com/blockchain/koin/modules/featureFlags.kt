@@ -12,7 +12,6 @@ import com.blockchain.koin.blockchainMembershipsFeatureFlag
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.cardPaymentAsyncFeatureFlag
 import com.blockchain.koin.cowboysPromoFeatureFlag
-import com.blockchain.koin.custodialAccounts
 import com.blockchain.koin.dexFeatureFlag
 import com.blockchain.koin.earnTabFeatureFlag
 import com.blockchain.koin.exchangeWAPromptFeatureFlag
@@ -30,8 +29,6 @@ import com.blockchain.koin.proveFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.sellSwapBrokerageQuoteFeatureFlag
-import com.blockchain.koin.superAppMvpFeatureFlag
-import com.blockchain.koin.superappFeatureFlag
 import com.blockchain.koin.topMoversInBuy
 import com.blockchain.koin.vgsFeatureFlag
 import com.blockchain.remoteconfig.featureFlag
@@ -64,15 +61,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_buy_refresh_quote",
                 "Buy Quote refreshing on checkout screen"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(superAppMvpFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_new_super_app",
-                "Super App mode"
             )
         )
     }.bind(FeatureFlag::class)
@@ -189,15 +177,6 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
-    single(superappFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_superapp_redesign",
-                "Enable SuperApp"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
     single(activeRewardsAccountFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfigService>().featureFlag(
@@ -293,15 +272,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_iterable_announcements",
                 "Iterable Announcements"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(custodialAccounts) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_high_risk_ui",
-                "Disable custodial accounts for high risk countries"
             )
         )
     }.bind(FeatureFlag::class)

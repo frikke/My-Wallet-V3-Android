@@ -193,7 +193,6 @@ val coreModule = module {
             EligibilityRepository(
                 productsEligibilityStore = get(),
                 eligibilityApiService = get(),
-                custodialAccountsFeatureFlag = get(custodialAccounts)
             )
         }.bind(EligibilityService::class)
 

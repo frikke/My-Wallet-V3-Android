@@ -38,7 +38,6 @@ import org.junit.Test
 
 class NabuUserIdentityTest {
 
-    private val custodialWalletManager: CustodialWalletManager = mock()
     private val interestService: InterestService = mock()
     private val simpleBuyService: SimpleBuyService = mock()
     private val kycService: KycService = mock()
@@ -47,7 +46,6 @@ class NabuUserIdentityTest {
     private val bindFeatureFlag: FeatureFlag = mock()
 
     private val subject = NabuUserIdentity(
-        custodialWalletManager = custodialWalletManager,
         interestService = interestService,
         simpleBuyService = simpleBuyService,
         kycService = kycService,

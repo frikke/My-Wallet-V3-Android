@@ -30,7 +30,6 @@ import io.reactivex.rxjava3.kotlin.zipWith
 import kotlinx.coroutines.rx3.asObservable
 
 class NabuUserIdentity(
-    private val custodialWalletManager: CustodialWalletManager,
     private val interestService: InterestService,
     private val simpleBuyService: SimpleBuyService,
     private val kycService: KycService,
