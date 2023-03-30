@@ -2,8 +2,6 @@ package com.blockchain.home.presentation.dashboard.composable
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,7 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Sync
@@ -22,8 +19,8 @@ import com.blockchain.componentlib.tablerow.ButtonTableRow
 import com.blockchain.componentlib.tablerow.TableRowHeader
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.value
-import com.blockchain.home.presentation.recurringbuy.RecurringBuyViewState
-import com.blockchain.home.presentation.recurringbuy.composable.RecurringBuyTableRow
+import com.blockchain.home.presentation.recurringbuy.list.RecurringBuyViewState
+import com.blockchain.home.presentation.recurringbuy.list.composable.RecurringBuyTableRow
 
 internal fun LazyListScope.homeRecurringBuys(
     recurringBuys: List<RecurringBuyViewState>,

@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.recurringbuy
+package com.blockchain.home.presentation.recurringbuy.list
 
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.core.recurringbuy.domain.model.RecurringBuy

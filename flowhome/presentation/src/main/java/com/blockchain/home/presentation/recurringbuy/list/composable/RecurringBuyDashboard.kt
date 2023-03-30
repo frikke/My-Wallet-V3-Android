@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.recurringbuy.composable
+package com.blockchain.home.presentation.recurringbuy.list.composable
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -27,16 +27,14 @@ import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.componentlib.utils.value
 import com.blockchain.data.DataResource
-import com.blockchain.data.map
-import com.blockchain.data.toImmutableList
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
-import com.blockchain.home.presentation.recurringbuy.RecurringBuyEligibleState
-import com.blockchain.home.presentation.recurringbuy.RecurringBuyViewState
-import com.blockchain.home.presentation.recurringbuy.RecurringBuysIntent
-import com.blockchain.home.presentation.recurringbuy.RecurringBuysViewModel
-import com.blockchain.home.presentation.recurringbuy.RecurringBuysViewState
+import com.blockchain.home.presentation.recurringbuy.list.RecurringBuyEligibleState
+import com.blockchain.home.presentation.recurringbuy.list.RecurringBuyViewState
+import com.blockchain.home.presentation.recurringbuy.list.RecurringBuysIntent
+import com.blockchain.home.presentation.recurringbuy.list.RecurringBuysViewModel
+import com.blockchain.home.presentation.recurringbuy.list.RecurringBuysViewState
 import com.blockchain.koin.payloadScope
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf

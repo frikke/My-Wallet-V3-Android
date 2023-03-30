@@ -14,7 +14,7 @@ import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailViewMode
 import com.blockchain.home.presentation.onboarding.defi.DeFiOnboardingViewModel
 import com.blockchain.home.presentation.onboarding.introduction.IntroScreensViewModel
 import com.blockchain.home.presentation.quickactions.QuickActionsViewModel
-import com.blockchain.home.presentation.recurringbuy.RecurringBuysViewModel
+import com.blockchain.home.presentation.recurringbuy.list.RecurringBuysViewModel
 import com.blockchain.home.presentation.referral.ReferralViewModel
 import com.blockchain.koin.activeRewardsAccountFeatureFlag
 import com.blockchain.koin.dexFeatureFlag

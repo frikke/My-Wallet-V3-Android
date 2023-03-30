@@ -65,10 +65,10 @@ import com.blockchain.home.presentation.quickactions.QuickActionsIntent
 import com.blockchain.home.presentation.quickactions.QuickActionsViewModel
 import com.blockchain.home.presentation.quickactions.QuickActionsViewState
 import com.blockchain.home.presentation.quickactions.maxQuickActionsOnScreen
-import com.blockchain.home.presentation.recurringbuy.RecurringBuyEligibleState
-import com.blockchain.home.presentation.recurringbuy.RecurringBuysIntent
-import com.blockchain.home.presentation.recurringbuy.RecurringBuysViewModel
-import com.blockchain.home.presentation.recurringbuy.RecurringBuysViewState
+import com.blockchain.home.presentation.recurringbuy.list.RecurringBuyEligibleState
+import com.blockchain.home.presentation.recurringbuy.list.RecurringBuysIntent
+import com.blockchain.home.presentation.recurringbuy.list.RecurringBuysViewModel
+import com.blockchain.home.presentation.recurringbuy.list.RecurringBuysViewState
 import com.blockchain.home.presentation.referral.ReferralIntent
 import com.blockchain.home.presentation.referral.ReferralViewModel
 import com.blockchain.home.presentation.referral.ReferralViewState

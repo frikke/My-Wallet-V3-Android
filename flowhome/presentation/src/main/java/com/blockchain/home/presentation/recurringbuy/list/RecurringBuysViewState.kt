@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.recurringbuy
+package com.blockchain.home.presentation.recurringbuy.list
 
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.utils.TextValue

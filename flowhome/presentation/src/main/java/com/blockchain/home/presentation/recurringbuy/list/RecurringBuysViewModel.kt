@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.recurringbuy
+package com.blockchain.home.presentation.recurringbuy.list
 
 import androidx.annotation.StringRes
 import androidx.lifecycle.viewModelScope
@@ -10,7 +10,6 @@ import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency
 import com.blockchain.core.recurringbuy.domain.model.RecurringBuyState
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
-import com.blockchain.data.mapList
 import com.blockchain.data.updateDataWith
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
