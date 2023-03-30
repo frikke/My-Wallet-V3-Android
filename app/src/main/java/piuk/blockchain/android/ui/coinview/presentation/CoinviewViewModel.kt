@@ -1331,8 +1331,8 @@ class CoinviewViewModel(
         return recurringBuyService.recurringBuys(
             freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
         )
-            .mapData { it.isNotEmpty() }
             .filterNotLoading()
+            .mapData { it.isNotEmpty() }
             .firstOrNull()
             ?.dataOrElse(false) ?: false
     }
