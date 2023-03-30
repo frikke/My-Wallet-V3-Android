@@ -59,6 +59,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
@@ -394,19 +395,26 @@ class SimpleBuyModel(
                 }
             }
             is SimpleBuyIntent.MakePayment ->
-                interactor.fetchOrder(intent.orderId)
-                    .subscribeBy(
-                        onError = {
-                            processOrderErrors(it)
-                        },
-                        onSuccess = {
-                            if (it.attributes != null) {
-                                handleOrderAttrs(it)
-                            } else {
-                                pollForOrderStatus()
-                            }
+                Singles.zip(interactor.fetchOrder(intent.orderId), cardPaymentAsyncFF.enabled).subscribeBy(
+                    onError = {
+                        processOrderErrors(it)
+                    },
+                    onSuccess = { (order, isAsyncCardEnabled) ->
+                        if (
+                            isAsyncCardEnabled &&
+                            order.paymentMethodType in listOf(
+                                PaymentMethodType.PAYMENT_CARD,
+                                PaymentMethodType.GOOGLE_PAY
+                            )
+                        ) {
+                            pollForOrderStatus()
+                        } else if (order.attributes != null) {
+                            handleOrderAttrs(order)
+                        } else {
+                            pollForOrderStatus()
                         }
-                    )
+                    }
+                )
             is SimpleBuyIntent.GetAuthorisationUrl ->
                 interactor.pollForAuthorisationUrl(intent.orderId)
                     .subscribeBy(
