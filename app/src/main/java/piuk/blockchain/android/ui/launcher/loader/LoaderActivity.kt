@@ -18,8 +18,6 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.superappFeatureFlag
 import com.blockchain.presentation.koin.scopedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
@@ -52,8 +50,6 @@ class LoaderActivity :
 
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
-
-    private val superappFF: FeatureFlag by inject(superappFeatureFlag)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
