@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import com.blockchain.api.NabuApiException
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.BlockchainSnackbar
@@ -24,6 +25,8 @@ import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.enumValueOfOrNull
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.upsellAnotherAssetFeatureFlag
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.presentation.disableBackPress
@@ -38,6 +41,7 @@ import com.stripe.android.PaymentConfiguration
 import com.stripe.android.model.ConfirmPaymentIntentParams
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -74,6 +78,9 @@ class SimpleBuyPaymentFragment :
     private var isFirstLoad = false
     private lateinit var previousSelectedPaymentMethodId: String
     private lateinit var previousSelectedCryptoAsset: AssetInfo
+
+    private val upSellAnotherAssetFF: FeatureFlag by inject(upsellAnotherAssetFeatureFlag)
+    private var upSellEnabled: Boolean = false
 
     private val isPaymentAuthorised: Boolean by lazy {
         arguments?.getBoolean(IS_PAYMENT_AUTHORISED, false) ?: false
@@ -121,6 +128,12 @@ class SimpleBuyPaymentFragment :
         super.onViewCreated(view, savedInstanceState)
         activity.updateToolbarTitle(getString(R.string.common_payment))
         binding.checkoutCardForm.initCheckoutPaymentForm()
+        lifecycleScope.launch {
+            if (upSellAnotherAssetFF.coEnabled()) {
+                upSellEnabled = true
+                model.process(SimpleBuyIntent.LoadAssetUpSellDismissState)
+            }
+        }
     }
 
     override fun render(newState: SimpleBuyState) {
@@ -201,7 +214,11 @@ class SimpleBuyPaymentFragment :
                             model.process(SimpleBuyIntent.CreateRecurringBuy(it))
                         }
                     } else {
-                        navigator().exitSimpleBuyFlow()
+                        if (upSellEnabled && newState.shouldUpsellAnotherAsset) {
+                            navigator().launchUpSellBottomSheet(newState.selectedCryptoAsset.networkTicker)
+                        } else {
+                            navigator().exitSimpleBuyFlow()
+                        }
                     }
                 }
                 else -> navigator().goToPendingOrderScreen()

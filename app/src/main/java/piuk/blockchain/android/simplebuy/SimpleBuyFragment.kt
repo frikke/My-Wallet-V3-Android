@@ -44,6 +44,7 @@ interface SimpleBuyNavigator :
 interface SmallSimpleBuyNavigator {
     fun exitSimpleBuyFlow()
     fun popFragmentsInStackUntilFind(fragmentName: String, popInclusive: Boolean)
+    fun launchUpSellBottomSheet(assetBoughtTicker: String)
 }
 
 interface ErrorBuyNavigator {

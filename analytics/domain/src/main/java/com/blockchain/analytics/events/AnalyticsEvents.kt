@@ -104,6 +104,10 @@ enum class AnalyticsNames(val eventName: String) {
     BUY_CHECKOUT_SCREEN_SUBMITTED("Buy Checkout Screen Submitted"),
     BUY_CHECKOUT_SCREEN_BACK_CLICKED("Buy Checkout Screen Back Clicked"),
     BUY_AMOUNT_SCREEN_BACK_CLICKED("Buy Amount Screen Back Clicked"),
+    BUY_ASSET_UPSELL_PAGE_VIEWED("Buy Flow Buy Other Crypto Page Viewed"),
+    BUY_ASSET_UPSELL_PAGE_DISMISSED("Buy Flow Buy Other Crypto Page Dismissed"),
+    BUY_ASSET_UPSELL_MAYBE_LATER_CLICKED("Buy Flow Buy Other Crypto Maybe Later Clicked"),
+    BUY_ASSET_UPSELL_MOST_POPULAR_ASSET_CLICKED("Buy Flow Buy Other Crypto Most Popular Asset Clicked"),
 
     // BUY ENTRY
     FAB_BUY_CLICKED("FAB Buy Clicked"),
