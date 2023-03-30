@@ -11,6 +11,6 @@ import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.FiatCurrency
 
 data class RecurringBuysModelState(
-    val recurringBuys: DataResource<List<RecurringBuy>> = DataResource.Loading,
+    val recurringBuys: DataResource<List<RecurringBuy>?> = DataResource.Loading,
     val lastFreshDataTime: Long = 0
 ) : ModelState

@@ -12,6 +12,8 @@ import info.blockchain.balance.AssetInfo
 import kotlinx.coroutines.flow.Flow
 
 interface RecurringBuyService {
+    suspend fun isEligible(): Boolean
+
     fun recurringBuys(
         includeInactive: Boolean = false,
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)

@@ -17,12 +17,16 @@ import com.blockchain.core.recurringbuy.domain.model.RecurringBuyState
 import com.blockchain.core.recurringbuy.domain.model.isActive
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.dataOrElse
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.toPaymentMethodType
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.map
 import com.blockchain.store.filterListData
+import com.blockchain.store.filterNotLoading
 import com.blockchain.store.mapData
 import com.blockchain.store.mapListDataNotNull
 import com.blockchain.utils.fromIso8601ToUtc
@@ -34,13 +38,23 @@ import info.blockchain.balance.Money
 import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.firstOrNull
 
 internal class RecurringBuyRepository(
     private val rbStore: RecurringBuyStore,
     private val rbFrequencyConfigStore: RecurringBuyFrequencyConfigStore,
     private val recurringBuyApiService: RecurringBuyApiService,
-    private val assetCatalogue: AssetCatalogue
+    private val assetCatalogue: AssetCatalogue,
+    private val userFeaturePermissionService: UserFeaturePermissionService
 ) : RecurringBuyService {
+
+    override suspend fun isEligible(): Boolean {
+        return userFeaturePermissionService
+            .isEligibleFor(feature = Feature.Buy)
+            .filterNotLoading()
+            .firstOrNull()
+            ?.dataOrElse(false) ?: false
+    }
 
     override fun recurringBuys(
         includeInactive: Boolean,
