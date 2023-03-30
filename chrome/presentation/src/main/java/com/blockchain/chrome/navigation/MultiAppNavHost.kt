@@ -172,7 +172,7 @@ private fun NavGraphBuilder.chrome(
             qrScanNavigation = qrScanNavigation,
             supportNavigation = supportNavigation,
             openCryptoAssets = {
-                navController.navigate(HomeDestination.CryptoAssets)
+                navController.navigate(HomeDestination.RecurringBuys)
             },
             openActivity = {
                 navController.navigate(HomeDestination.Activity)

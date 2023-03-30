@@ -63,6 +63,7 @@ fun NavGraphBuilder.homeGraph(
     composable(navigationEvent = HomeDestination.RecurringBuys) {
         ChromeSingleScreen {
             RecurringBuyDashboard(
+                assetActionsNavigation = assetActionsNavigation,
                 onBackPressed = onBackPressed
             )
         }

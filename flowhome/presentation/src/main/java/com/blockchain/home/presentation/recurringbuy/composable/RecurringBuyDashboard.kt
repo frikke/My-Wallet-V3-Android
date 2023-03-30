@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
@@ -29,6 +30,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.toImmutableList
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.SectionSize
+import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.recurringbuy.RecurringBuyViewState
 import com.blockchain.home.presentation.recurringbuy.RecurringBuysIntent
 import com.blockchain.home.presentation.recurringbuy.RecurringBuysViewModel
@@ -41,6 +43,7 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 fun RecurringBuyDashboard(
     viewModel: RecurringBuysViewModel = getViewModel(scope = payloadScope),
+    assetActionsNavigation: AssetActionsNavigation,
     onBackPressed: () -> Unit
 ) {
     val viewState: RecurringBuysViewState by viewModel.viewState.collectAsStateLifecycleAware()
@@ -52,6 +55,9 @@ fun RecurringBuyDashboard(
 
     RecurringBuyDashboardScreen(
         recurringBuys = viewState.recurringBuys.toImmutableList(),
+        addOnClick = {
+            assetActionsNavigation.navigate(AssetAction.Buy)
+        },
         onBackPressed = onBackPressed
     )
 }
@@ -59,6 +65,7 @@ fun RecurringBuyDashboard(
 @Composable
 fun RecurringBuyDashboardScreen(
     recurringBuys: DataResource<ImmutableList<RecurringBuyViewState>>,
+    addOnClick: () -> Unit,
     onBackPressed: () -> Unit
 ) {
     Column(
@@ -79,7 +86,8 @@ fun RecurringBuyDashboardScreen(
             }
             is DataResource.Data -> {
                 RecurringBuyDashboardData(
-                    recurringBuys = recurringBuys.data
+                    recurringBuys = recurringBuys.data,
+                    addOnClick = addOnClick
                 )
             }
         }
@@ -88,7 +96,8 @@ fun RecurringBuyDashboardScreen(
 
 @Composable
 fun RecurringBuyDashboardData(
-    recurringBuys: ImmutableList<RecurringBuyViewState>
+    recurringBuys: ImmutableList<RecurringBuyViewState>,
+    addOnClick: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.weight(1F)) {
@@ -117,7 +126,7 @@ fun RecurringBuyDashboardData(
                 .padding(AppTheme.dimensions.standardSpacing)
                 .fillMaxWidth(),
             text = stringResource(R.string.recurring_buy_add),
-            onClick = { },
+            onClick = addOnClick,
             state = ButtonState.Enabled
         )
     }
@@ -145,22 +154,23 @@ fun PreviewRecurringBuyDashboardData() {
         recurringBuys = persistentListOf(
             RecurringBuyViewState(
                 id = "1",
-                iconUrl = "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
+                iconUrl = "",
                 description = TextValue.StringValue("20 every Tuesday"),
                 status = TextValue.StringValue("Next buy on Tue, March 18"),
             ),
             RecurringBuyViewState(
                 id = "2",
-                iconUrl = "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
+                iconUrl = "",
                 description = TextValue.StringValue("20 every Tuesday"),
                 status = TextValue.StringValue("Next buy on Tue, March 18"),
             ),
             RecurringBuyViewState(
                 id = "3",
-                iconUrl = "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
+                iconUrl = "",
                 description = TextValue.StringValue("20 every Tuesday"),
                 status = TextValue.StringValue("Next buy on Tue, March 18"),
             )
-        )
+        ),
+        addOnClick = {}
     )
 }
