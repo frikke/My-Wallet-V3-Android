@@ -14,6 +14,7 @@ sealed class HomeDestination(
     object Introduction : HomeDestination("Introduction/${ARG_WALLET_MODE.wrappedArg()}")
     object DefiOnboarding : HomeDestination("DefiOnboarding/${ARG_IS_FROM_MODE_SWITCH.wrappedArg()}")
     object CryptoAssets : HomeDestination("AllAssets")
+    object RecurringBuys : HomeDestination("RecurringBuys")
     object Activity : HomeDestination("Activity")
 
     object ActivityDetail : HomeDestination(

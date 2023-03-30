@@ -39,10 +39,7 @@ fun DefaultTableRow(
     tags: List<TagViewState>? = null,
     endTag: TagViewState? = null,
     startImageResource: ImageResource = ImageResource.None,
-    endImageResource: ImageResource = ImageResource.Local(
-        id = R.drawable.ic_chevron_end,
-        contentDescription = null
-    ),
+    endImageResource: ImageResource = Icons.ChevronRight.withTint(Grey400),
     backgroundColor: Color = AppTheme.colors.background,
     primaryTextColor: Color = AppTheme.colors.title,
     secondaryTextColor: Color = AppTheme.colors.body
@@ -74,10 +71,7 @@ fun DefaultTableRow(
     tags: List<TagViewState>? = null,
     endTag: TagViewState? = null,
     contentStart: @Composable (RowScope.() -> Unit)? = null,
-    endImageResource: ImageResource = ImageResource.Local(
-        id = R.drawable.ic_chevron_end,
-        contentDescription = null
-    ),
+    endImageResource: ImageResource = Icons.ChevronRight.withTint(Grey400),
     backgroundColor: Color = AppTheme.colors.background,
     primaryTextColor: Color = AppTheme.colors.title,
     secondaryTextColor: Color = AppTheme.colors.body
@@ -207,7 +201,7 @@ fun DefaultTableRow(
                     color = primaryTextColor
                 )
                 if (secondaryText != null) {
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(AppTheme.dimensions.smallestSpacing))
                     Text(
                         text = secondaryText,
                         style = AppTheme.typography.paragraph1,
