@@ -2318,7 +2318,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="checkout_rb_weekly_title">Invest Weekly?</string>
     <string name="checkout_rb_biweekly_title">Invest bi-Weekly?</string>
     <string name="checkout_rb_monthly_title">Invest Monthly?</string>
-    <string name="checkout_rb_subtitle">Buy %1$s %2$s. Cancel anytime.</string>
+    <string name="checkout_rb_subtitle">Buy %1$s every %2$s. Cancel anytime.</string>
 
     <!-- New pairing -->
     <string name="pairing_wallet_title">Pair your wallet</string>

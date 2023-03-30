@@ -59,7 +59,7 @@ class SimpleBuyCheckoutItemDiffUtil(
 
     override fun getNewListSize(): Int = newItems.size
 
-    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean = true
+    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) = oldListSize == newListSize
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
         return oldItems[oldItemPosition] == newItems[newItemPosition]
@@ -92,7 +92,10 @@ sealed class SimpleBuyCheckoutItem {
     data class ComplexCheckoutItem(val label: String, val title: String, val subtitle: String) :
         SimpleBuyCheckoutItem()
 
-    data class ToggleCheckoutItem(val title: String, val subtitle: String) : SimpleBuyCheckoutItem()
+    data class ToggleCheckoutItem(
+        val title: String,
+        val subtitle: String,
+    ) : SimpleBuyCheckoutItem()
 
     data class ClickableCheckoutItem(
         val label: String,
@@ -255,13 +258,10 @@ private class ToggleCheckoutItemItemViewHolder(
 
     fun bind(
         item: SimpleBuyCheckoutItem.ToggleCheckoutItem,
-        onToggleChanged: (Boolean) -> Unit
+        onToggleChanged: (Boolean) -> Unit,
     ) {
         with(binding) {
-            toggleParent.updateItemBackground(
-                isFirstItemInList = true,
-                isLastItemInList = true
-            )
+            root.updateItemBackground(isFirstItemInList = false, isLastItemInList = true)
             toggleRow.apply {
                 primaryText = item.title
                 secondaryText = item.subtitle
@@ -269,7 +269,6 @@ private class ToggleCheckoutItemItemViewHolder(
                     isChecked = newCheckedState
                     onToggleChanged(newCheckedState)
                 }
-                this.rootView.background = ContextCompat.getDrawable(context, R.drawable.bkgd_white_large_rounding)
             }
         }
     }
