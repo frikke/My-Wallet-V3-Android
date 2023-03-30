@@ -32,6 +32,8 @@ import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
+import com.blockchain.data.dataOrElse
+import com.blockchain.data.map
 import com.blockchain.data.toImmutableList
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.home.presentation.SectionSize
@@ -62,6 +64,10 @@ import com.blockchain.home.presentation.quickactions.QuickActionsIntent
 import com.blockchain.home.presentation.quickactions.QuickActionsViewModel
 import com.blockchain.home.presentation.quickactions.QuickActionsViewState
 import com.blockchain.home.presentation.quickactions.maxQuickActionsOnScreen
+import com.blockchain.home.presentation.recurringbuy.RecurringBuyEligibleState
+import com.blockchain.home.presentation.recurringbuy.RecurringBuysIntent
+import com.blockchain.home.presentation.recurringbuy.RecurringBuysViewModel
+import com.blockchain.home.presentation.recurringbuy.RecurringBuysViewState
 import com.blockchain.home.presentation.referral.ReferralIntent
 import com.blockchain.home.presentation.referral.ReferralViewModel
 import com.blockchain.home.presentation.referral.ReferralViewState
@@ -88,6 +94,7 @@ fun HomeScreen(
     openSettings: () -> Unit,
     launchQrScanner: () -> Unit,
     openCryptoAssets: () -> Unit,
+    openRecurringBuys: () -> Unit,
     openActivity: () -> Unit,
     openActivityDetail: (String, WalletMode) -> Unit,
     openReferral: () -> Unit,
@@ -107,6 +114,9 @@ fun HomeScreen(
 
     val homeAssetsViewModel: AssetsViewModel = getViewModel(scope = payloadScope)
     val assetsViewState: AssetsViewState by homeAssetsViewModel.viewState.collectAsStateLifecycleAware()
+
+    val rbViewModel: RecurringBuysViewModel = getViewModel(scope = payloadScope)
+    val rbViewState: RecurringBuysViewState by rbViewModel.viewState.collectAsStateLifecycleAware()
 
     val pricesViewModel: PricesViewModel = getViewModel(scope = payloadScope)
     val pricesViewState: PricesViewState by pricesViewModel.viewState.collectAsStateLifecycleAware()
@@ -151,6 +161,7 @@ fun HomeScreen(
                 homeAssetsViewModel.onIntent(AssetsIntent.LoadFilters)
                 homeAssetsViewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.Limited(MAX_ASSET_COUNT)))
                 homeAssetsViewModel.onIntent(AssetsIntent.LoadFundLocks)
+                rbViewModel.onIntent(RecurringBuysIntent.LoadRecurringBuys(SectionSize.Limited(MAX_RB_COUNT)))
                 pricesViewModel.onIntent(PricesIntents.LoadData(PricesLoadStrategy.TradableOnly))
                 earnViewModel.onIntent(EarnIntent.LoadEarnAccounts())
                 quickActionsViewModel.onIntent(QuickActionsIntent.LoadActions(maxQuickActions))
@@ -348,6 +359,21 @@ fun HomeScreen(
             )
         }
 
+        // recurring buys
+        if (walletMode == WalletMode.CUSTODIAL) {
+            rbViewState.recurringBuys
+                .map { state ->
+                    (state as? RecurringBuyEligibleState.Eligible)?.recurringBuys
+                }
+                .dataOrElse(null)
+                ?.let { recurringBuys ->
+                    homeRecurringBuys(
+                        recurringBuys = recurringBuys,
+                        manageOnclick = openRecurringBuys
+                    )
+                }
+        }
+
         // top movers
         homeTopMovers(
             data = pricesViewState.topMovers.toImmutableList(),
@@ -413,3 +439,4 @@ fun HomeScreen(
 
 private const val MAX_ASSET_COUNT = 7
 private const val MAX_ACTIVITY_COUNT = 5
+private const val MAX_RB_COUNT = 5

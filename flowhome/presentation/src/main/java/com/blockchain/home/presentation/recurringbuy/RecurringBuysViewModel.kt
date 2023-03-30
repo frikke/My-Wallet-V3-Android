@@ -34,29 +34,35 @@ class RecurringBuysViewModel(
     override fun reduce(state: RecurringBuysModelState): RecurringBuysViewState = state.run {
         RecurringBuysViewState(
             recurringBuys = state.recurringBuys.map {
-                it?.map { recurringBuy ->
-                    RecurringBuyViewState(
-                        id = recurringBuy.id,
-                        iconUrl = recurringBuy.asset.logo,
-                        description = TextValue.IntResValue(
-                            R.string.dashboard_recurring_buy_item_title_1,
-                            listOf(
-                                recurringBuy.amount.toStringWithSymbol(),
-                                recurringBuy.recurringBuyFrequency.toHumanReadableRecurringBuy()
-                            )
-                        ),
-                        status = if (recurringBuy.state == RecurringBuyState.ACTIVE) {
-                            TextValue.IntResValue(
-                                R.string.dashboard_recurring_buy_item_label,
-                                listOf(recurringBuy.nextPaymentDate.toFormattedDateWithoutYear())
-                            )
-                        } else {
-                            TextValue.IntResValue(
-                                R.string.dashboard_recurring_buy_item_label_error
-                            )
-                        }
+                it?.let { recurringBuys ->
+                    RecurringBuyEligibleState.Eligible(
+                        recurringBuys = recurringBuys
+                            .sortedBy { it.nextPaymentDate }
+                            .map { recurringBuy ->
+                                RecurringBuyViewState(
+                                    id = recurringBuy.id,
+                                    iconUrl = recurringBuy.asset.logo,
+                                    description = TextValue.IntResValue(
+                                        R.string.dashboard_recurring_buy_item_title_1,
+                                        listOf(
+                                            recurringBuy.amount.toStringWithSymbol(),
+                                            recurringBuy.recurringBuyFrequency.toHumanReadableRecurringBuy()
+                                        )
+                                    ),
+                                    status = if (recurringBuy.state == RecurringBuyState.ACTIVE) {
+                                        TextValue.IntResValue(
+                                            R.string.dashboard_recurring_buy_item_label,
+                                            listOf(recurringBuy.nextPaymentDate.toFormattedDateWithoutYear())
+                                        )
+                                    } else {
+                                        TextValue.IntResValue(
+                                            R.string.dashboard_recurring_buy_item_label_error
+                                        )
+                                    }
+                                )
+                            }
                     )
-                }
+                } ?: RecurringBuyEligibleState.NotEligible
             }
         )
     }

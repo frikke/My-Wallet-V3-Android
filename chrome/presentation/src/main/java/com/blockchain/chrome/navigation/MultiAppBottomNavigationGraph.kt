@@ -48,6 +48,7 @@ fun MultiAppBottomNavigationHost(
     refreshStarted: () -> Unit,
     refreshComplete: () -> Unit,
     openCryptoAssets: () -> Unit,
+    openRecurringBuys: () -> Unit,
     openActivity: () -> Unit,
     openActivityDetail: (String, WalletMode) -> Unit,
     openReferral: () -> Unit,
@@ -111,6 +112,7 @@ fun MultiAppBottomNavigationHost(
                         isSwipingToRefresh = shouldTriggerRefresh &&
                             selectedNavigationItem == ChromeBottomNavigationItem.Home,
                         openCryptoAssets = openCryptoAssets,
+                        openRecurringBuys = openRecurringBuys,
                         assetActionsNavigation = assetActionsNavigation,
                         supportNavigation = supportNavigation,
                         openSettings = openSettings,
