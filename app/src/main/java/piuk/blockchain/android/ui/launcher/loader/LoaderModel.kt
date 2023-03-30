@@ -3,7 +3,6 @@ package piuk.blockchain.android.ui.launcher.loader
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataInitException
 import com.blockchain.preferences.AuthPrefs
@@ -27,7 +26,6 @@ class LoaderModel(
     private val prerequisites: Prerequisites,
     private val authPrefs: AuthPrefs,
     private val interactor: LoaderInteractor,
-    private val superAppFeatureFlag: FeatureFlag,
 ) : MviModel<LoaderState, LoaderIntents>(initialState, mainScheduler, environmentConfig, remoteLogger) {
     override fun performAction(previousState: LoaderState, intent: LoaderIntents): Disposable? {
         return when (intent) {
@@ -38,13 +36,12 @@ class LoaderModel(
             )
 
             is LoaderIntents.LaunchDashboard -> {
-                return superAppFeatureFlag.enabled.subscribeBy {
-                    launchDashboard(
-                        data = intent.data,
-                        shouldLaunchUiTour = intent.shouldLaunchUiTour,
-                        isUserInCowboysPromo = previousState.isUserInCowboysPromo
-                    )
-                }
+                launchDashboard(
+                    data = intent.data,
+                    shouldLaunchUiTour = intent.shouldLaunchUiTour,
+                    isUserInCowboysPromo = previousState.isUserInCowboysPromo
+                )
+                null
             }
             is LoaderIntents.UpdateLoadingStep -> {
                 (intent.loadingStep as? LoadingStep.Error)?.let { error ->

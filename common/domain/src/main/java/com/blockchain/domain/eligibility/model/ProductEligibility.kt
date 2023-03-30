@@ -19,6 +19,15 @@ data class ProductEligibility(
                 maxTransactionsCap = TransactionsLimit.Unlimited,
                 reasonNotEligible = null
             )
+
+        fun asNotEligible(product: EligibleProduct): ProductEligibility =
+            ProductEligibility(
+                product = product,
+                canTransact = false,
+                isDefault = false,
+                maxTransactionsCap = TransactionsLimit.Unlimited,
+                reasonNotEligible = ProductNotEligibleReason.Unknown("Unknown Reason")
+            )
     }
 }
 

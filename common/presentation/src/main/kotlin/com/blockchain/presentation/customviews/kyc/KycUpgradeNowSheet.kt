@@ -17,7 +17,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 
-class KycUpgradeNowSheet private constructor() : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBinding>() {
+class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBinding>() {
 
     interface Host : SlidingModalBottomDialog.Host {
         fun startKycClicked()

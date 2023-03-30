@@ -209,6 +209,12 @@ class SimpleBuyCheckoutFragment :
 
     private var startPolling = true
 
+    private var onQuoteAnimEnd: () -> Unit = {
+        binding.amount.setTextColor(
+            ContextCompat.getColor(binding.amount.context, R.color.grey_800)
+        )
+    }
+
     override fun render(newState: SimpleBuyState) {
         if (newState.featureFlagSet.feynmanCheckoutFF && startPolling) {
             startPolling = false
@@ -227,11 +233,9 @@ class SimpleBuyCheckoutFragment :
                 startCounter(newState.quote, chunksCounter.first())
             }
             if (newState.hasQuoteChanged && !isPendingOrAwaitingFunds(newState.orderState)) {
-                binding.amount.animateChange {
-                    binding.amount.setTextColor(
-                        ContextCompat.getColor(binding.amount.context, R.color.grey_800)
-                    )
-                }
+                binding.amount.animateChange(
+                    onAnimationEnd = onQuoteAnimEnd
+                )
                 checkoutAdapterDelegate.items = getCheckoutFields(newState)
             }
         }
@@ -1035,6 +1039,7 @@ class SimpleBuyCheckoutFragment :
     override fun onDestroy() {
         model.process(SimpleBuyIntent.StopPollingBrokerageQuotes)
         countDownTimer?.cancel()
+        onQuoteAnimEnd = {}
         super.onDestroy()
     }
 
