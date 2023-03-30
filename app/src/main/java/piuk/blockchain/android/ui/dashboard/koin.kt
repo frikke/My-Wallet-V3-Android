@@ -158,7 +158,7 @@ val dashboardModule = module {
 
         factory {
             RecurringBuyInteractor(
-                tradeDataService = get(),
+                recurringBuyService = get(),
                 bankService = get(),
                 cardService = get()
             )

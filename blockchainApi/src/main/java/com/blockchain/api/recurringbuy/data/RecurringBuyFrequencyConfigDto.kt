@@ -1,14 +1,14 @@
-package com.blockchain.api.trade.data
+package com.blockchain.api.recurringbuy.data
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class NextPaymentRecurringBuyResponse(
-    val nextPayments: List<NextPaymentRecurringBuy>
+data class RecurringBuyFrequencyConfigListDto(
+    val nextPayments: List<RecurringBuyFrequencyConfigDto>
 )
 
 @Serializable
-data class NextPaymentRecurringBuy(
+data class RecurringBuyFrequencyConfigDto(
     val period: String,
     val nextPayment: String,
     val eligibleMethods: List<String>

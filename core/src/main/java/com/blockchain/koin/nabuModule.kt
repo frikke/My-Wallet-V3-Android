@@ -122,7 +122,7 @@ val nabuModule = module {
                 paymentMethodsEligibilityStore = get(),
                 fiatCurrenciesService = get(),
                 recurringBuyService = get(),
-                getRecurringBuysStore = get(),
+                recurringBuyStore = get(),
             )
         }.bind(CustodialWalletManager::class)
 

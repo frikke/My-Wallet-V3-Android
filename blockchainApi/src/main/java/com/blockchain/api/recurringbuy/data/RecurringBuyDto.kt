@@ -1,9 +1,9 @@
-package com.blockchain.api.trade.data
+package com.blockchain.api.recurringbuy.data
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class RecurringBuyResponse(
+data class RecurringBuyDto(
     val id: String,
     val userId: String,
     val inputCurrency: String,

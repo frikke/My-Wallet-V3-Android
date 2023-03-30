@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.dashboard.coinview.recurringbuy
 
 import com.blockchain.commonarch.presentation.mvi.MviIntent
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuy
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyState
 import com.blockchain.domain.paymentmethods.model.RecurringBuyPaymentDetails
-import com.blockchain.domain.trade.model.RecurringBuy
-import com.blockchain.domain.trade.model.RecurringBuyState
 
 sealed class RecurringBuyIntent : MviIntent<RecurringBuyModelState> {
 

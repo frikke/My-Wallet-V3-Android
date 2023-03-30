@@ -3,8 +3,8 @@ package piuk.blockchain.android.ui.recurringbuy
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import com.blockchain.domain.trade.model.RecurringBuyFrequency
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import java.io.Serializable

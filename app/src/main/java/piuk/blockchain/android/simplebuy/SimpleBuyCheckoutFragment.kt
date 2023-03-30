@@ -28,6 +28,8 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.custodial.models.Availability
 import com.blockchain.core.custodial.models.Promo
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyState
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.DIFFERENT_PAYMENT_URL
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
@@ -36,8 +38,6 @@ import com.blockchain.domain.paymentmethods.model.GooglePayAddress
 import com.blockchain.domain.paymentmethods.model.PaymentMethod.Companion.GOOGLE_PAY_PAYMENT_ID
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.SettlementReason
-import com.blockchain.domain.trade.model.RecurringBuyFrequency
-import com.blockchain.domain.trade.model.RecurringBuyState
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.payments.googlepay.interceptor.OnGooglePayDataReceivedListener

@@ -16,6 +16,7 @@ import com.blockchain.componentlib.icons.Star
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyState
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.core.watchlist.domain.model.WatchlistToggle
 import com.blockchain.data.DataResource
@@ -25,7 +26,6 @@ import com.blockchain.data.dataOrElse
 import com.blockchain.data.doOnData
 import com.blockchain.data.doOnError
 import com.blockchain.data.map
-import com.blockchain.domain.trade.model.RecurringBuyState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.filterNotLoading

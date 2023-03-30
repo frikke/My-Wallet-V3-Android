@@ -3,6 +3,9 @@ package piuk.blockchain.android.simplebuy
 import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.recurringbuy.domain.model.EligibleAndNextPaymentRecurringBuy
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyState
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.domain.paymentmethods.model.GooglePayAddress
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
@@ -10,9 +13,6 @@ import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.Partner
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import com.blockchain.domain.trade.model.EligibleAndNextPaymentRecurringBuy
-import com.blockchain.domain.trade.model.RecurringBuyFrequency
-import com.blockchain.domain.trade.model.RecurringBuyState
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.payments.googlepay.manager.request.BillingAddressParameters

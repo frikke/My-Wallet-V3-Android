@@ -15,6 +15,10 @@ import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.core.buy.data.dataresources.BuyOrdersStore
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.recurringbuy.domain.RecurringBuyService
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyOrder
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyState
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.BankPartnerCallbackProvider
@@ -26,8 +30,6 @@ import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.UndefinedPaymentMethod
-import com.blockchain.domain.trade.model.RecurringBuyFrequency
-import com.blockchain.domain.trade.model.RecurringBuyState
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflag.FeatureFlag
@@ -40,11 +42,11 @@ import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CardAttributes
 import com.blockchain.nabu.datamanagers.CardPaymentState
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.network.PollResult
 import com.blockchain.outcome.getOrElse
 import com.blockchain.payments.core.CardAcquirer
 import com.blockchain.preferences.RecurringBuyPrefs
+import com.blockchain.store.asSingle
 import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
@@ -63,7 +65,6 @@ import io.reactivex.rxjava3.kotlin.zipWith
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.cards.partners.CardActivator
-import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.android.rating.domain.service.AppRatingService
 import piuk.blockchain.android.simplebuy.BuyQuote.Companion.toFiat
@@ -81,7 +82,7 @@ class SimpleBuyModel(
     private val cardActivator: CardActivator,
     private val interactor: SimpleBuyInteractor,
     private val _activityIndicator: Lazy<ActivityIndicator?>,
-    private val getEligibilityAndNextPaymentDateUseCase: GetEligibilityAndNextPaymentDateUseCase,
+    private val recurringBuyService: RecurringBuyService,
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger,
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
@@ -957,7 +958,7 @@ class SimpleBuyModel(
     ) =
         fetchEligiblePaymentMethods(fiatCurrency)
             .flatMap { paymentMethods ->
-                getEligibilityAndNextPaymentDateUseCase(Unit)
+                recurringBuyService.frequencyConfig().asSingle()
                     .map { paymentMethods to it }
                     .onErrorReturn { paymentMethods to emptyList() }
             }.trackProgress(activityIndicator)
