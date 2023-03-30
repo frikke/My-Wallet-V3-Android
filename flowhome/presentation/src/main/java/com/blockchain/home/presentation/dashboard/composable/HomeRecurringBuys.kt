@@ -27,7 +27,8 @@ import com.blockchain.home.presentation.recurringbuy.composable.RecurringBuyTabl
 
 internal fun LazyListScope.homeRecurringBuys(
     recurringBuys: List<RecurringBuyViewState>,
-    manageOnclick: () -> Unit
+    manageOnclick: () -> Unit,
+    upsellOnClick: () -> Unit
 ) {
     paddedItem(
         paddingValues = PaddingValues(horizontal = 16.dp)
@@ -53,8 +54,7 @@ internal fun LazyListScope.homeRecurringBuys(
                     subtitle = stringResource(R.string.recurring_buy_automate_description),
                     imageResource = Icons.Filled.Sync.withTint(AppTheme.colors.primary),
                     actionText = stringResource(R.string.common_go),
-                    onClick = {
-                    }
+                    onClick = upsellOnClick
                 )
             }
         }

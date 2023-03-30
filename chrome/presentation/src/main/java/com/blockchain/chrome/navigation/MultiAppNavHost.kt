@@ -22,6 +22,7 @@ import com.blockchain.home.presentation.navigation.ARG_WALLET_MODE
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.HomeDestination
 import com.blockchain.home.presentation.navigation.QrScanNavigation
+import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.home.presentation.navigation.homeGraph
@@ -50,6 +51,7 @@ fun MultiAppNavHost(
     startPhraseRecovery: () -> Unit,
     showAppRating: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
+    recurringBuyNavigation: RecurringBuyNavigation,
     pricesNavigation: PricesNavigation,
     settingsNavigation: SettingsNavigation,
     qrScanNavigation: QrScanNavigation,
@@ -97,6 +99,7 @@ fun MultiAppNavHost(
                 navController = navController,
                 startPhraseRecovery = startPhraseRecovery,
                 assetActionsNavigation = assetActionsNavigation,
+                recurringBuyNavigation = recurringBuyNavigation,
                 settingsNavigation = settingsNavigation,
                 pricesNavigation = pricesNavigation,
                 qrScanNavigation = qrScanNavigation,
@@ -142,6 +145,7 @@ private fun NavGraphBuilder.chrome(
     startPhraseRecovery: () -> Unit,
     showAppRating: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
+    recurringBuyNavigation: RecurringBuyNavigation,
     settingsNavigation: SettingsNavigation,
     pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
@@ -167,6 +171,7 @@ private fun NavGraphBuilder.chrome(
                 )
             },
             assetActionsNavigation = assetActionsNavigation,
+            recurringBuyNavigation = recurringBuyNavigation,
             settingsNavigation = settingsNavigation,
             pricesNavigation = pricesNavigation,
             qrScanNavigation = qrScanNavigation,

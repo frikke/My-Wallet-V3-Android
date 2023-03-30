@@ -285,7 +285,6 @@ class CoinViewActivity :
                 startActivity(
                     RecurringBuyOnboardingActivity.newIntent(
                         context = this,
-                        fromCoinView = true,
                         assetTicker = navigationEvent.asset.currency.networkTicker
                     )
                 )

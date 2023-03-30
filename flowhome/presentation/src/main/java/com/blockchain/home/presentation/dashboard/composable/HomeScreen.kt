@@ -58,6 +58,7 @@ import com.blockchain.home.presentation.earn.EarnViewModel
 import com.blockchain.home.presentation.earn.EarnViewState
 import com.blockchain.home.presentation.earn.homeEarnAssets
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.home.presentation.quickactions.QuickActions
 import com.blockchain.home.presentation.quickactions.QuickActionsIntent
@@ -90,6 +91,7 @@ fun HomeScreen(
     listState: LazyListState,
     isSwipingToRefresh: Boolean,
     assetActionsNavigation: AssetActionsNavigation,
+    recurringBuyNavigation: RecurringBuyNavigation,
     supportNavigation: SupportNavigation,
     openSettings: () -> Unit,
     launchQrScanner: () -> Unit,
@@ -368,8 +370,11 @@ fun HomeScreen(
                 .dataOrElse(null)
                 ?.let { recurringBuys ->
                     homeRecurringBuys(
-                        recurringBuys = recurringBuys,
-                        manageOnclick = openRecurringBuys
+                        recurringBuys = listOf(),
+                        manageOnclick = openRecurringBuys,
+                        upsellOnClick = {
+                            recurringBuyNavigation.openOnboarding()
+                        }
                     )
                 }
         }

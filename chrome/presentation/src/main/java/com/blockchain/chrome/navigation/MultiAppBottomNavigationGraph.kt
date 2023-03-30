@@ -21,6 +21,7 @@ import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.home.presentation.dashboard.composable.HomeScreen
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.QrScanNavigation
+import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.koin.payloadScope
@@ -39,6 +40,7 @@ fun MultiAppBottomNavigationHost(
     navControllerProvider: () -> NavHostController,
     enableRefresh: Boolean,
     assetActionsNavigation: AssetActionsNavigation,
+    recurringBuyNavigation: RecurringBuyNavigation,
     settingsNavigation: SettingsNavigation,
     pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
@@ -114,6 +116,7 @@ fun MultiAppBottomNavigationHost(
                         openCryptoAssets = openCryptoAssets,
                         openRecurringBuys = openRecurringBuys,
                         assetActionsNavigation = assetActionsNavigation,
+                        recurringBuyNavigation = recurringBuyNavigation,
                         supportNavigation = supportNavigation,
                         openSettings = openSettings,
                         launchQrScanner = launchQrScanner,
