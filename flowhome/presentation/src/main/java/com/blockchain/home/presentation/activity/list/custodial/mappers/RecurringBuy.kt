@@ -67,12 +67,12 @@ internal fun RecurringBuyActivitySummaryItem.trailingTitle(): ActivityStackView 
 
     return ActivityStackView.Text(
         value = when (transactionState) {
-            OrderState.FINISHED -> TextValue.StringValue(value.toStringWithSymbol())
+            OrderState.FINISHED -> TextValue.StringValue(fundedFiat.toStringWithSymbol())
             OrderState.AWAITING_FUNDS,
             OrderState.PENDING_EXECUTION,
             OrderState.PENDING_CONFIRMATION,
             OrderState.CANCELED,
-            OrderState.FAILED -> TextValue.StringValue(fundedFiat.toStringWithSymbol())
+            OrderState.FAILED -> TextValue.StringValue(value.toStringWithSymbol())
             else -> TextValue.StringValue("")
         },
         style = basicTitleStyle.copy(color = color, strikethrough = trailingStrikethrough())
@@ -82,7 +82,7 @@ internal fun RecurringBuyActivitySummaryItem.trailingTitle(): ActivityStackView 
 internal fun RecurringBuyActivitySummaryItem.trailingSubtitle(): ActivityStackView {
     return ActivityStackView.Text(
         value = when (transactionState) {
-            OrderState.FINISHED -> TextValue.StringValue(fundedFiat.toStringWithSymbol())
+            OrderState.FINISHED -> TextValue.StringValue(value.toStringWithSymbol())
             else -> TextValue.StringValue("")
         },
         style = basicSubtitleStyle.copy(strikethrough = trailingStrikethrough())

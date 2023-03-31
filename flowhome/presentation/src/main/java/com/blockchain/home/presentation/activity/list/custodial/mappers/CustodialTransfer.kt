@@ -63,14 +63,14 @@ internal fun CustodialTransferActivitySummaryItem.trailingTitle(): ActivityStack
     }
 
     return ActivityStackView.Text(
-        value = TextValue.StringValue(value.toStringWithSymbol()),
+        value = TextValue.StringValue(fiatValue.toStringWithSymbol()),
         style = basicTitleStyle.copy(color = color, strikethrough = trailingStrikethrough())
     )
 }
 
 internal fun CustodialTransferActivitySummaryItem.trailingSubtitle(): ActivityStackView {
     return ActivityStackView.Text(
-        value = TextValue.StringValue(fiatValue.toStringWithSymbol()),
+        value = TextValue.StringValue(value.toStringWithSymbol()),
         style = basicSubtitleStyle.copy(strikethrough = trailingStrikethrough())
     )
 }
