@@ -8,6 +8,7 @@ import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency
 import com.blockchain.core.recurringbuy.domain.model.RecurringBuyState
+import com.blockchain.data.map
 import com.blockchain.data.mapList
 import com.blockchain.data.updateDataWith
 import com.blockchain.home.presentation.R
@@ -31,29 +32,31 @@ class RecurringBuysViewModel(
 
     override fun reduce(state: RecurringBuysModelState): RecurringBuysViewState = state.run {
         RecurringBuysViewState(
-            recurringBuys = state.recurringBuys.mapList { recurringBuy ->
-                RecurringBuyViewState(
-                    id = recurringBuy.id,
-                    iconUrl = recurringBuy.asset.logo,
-                    description = TextValue.IntResValue(
-                        R.string.dashboard_recurring_buy_item_title_1,
-                        listOf(
-                            recurringBuy.amount.toStringWithSymbol(),
-                            recurringBuy.recurringBuyFrequency.toHumanReadableRecurringBuy()
-                        )
-                    ),
-                    status = if (recurringBuy.state == RecurringBuyState.ACTIVE) {
-                        TextValue.IntResValue(
-                            R.string.dashboard_recurring_buy_item_label,
-                            listOf(recurringBuy.nextPaymentDate.toFormattedDateWithoutYear())
-                        )
-                    } else {
-                        TextValue.IntResValue(
-                            R.string.dashboard_recurring_buy_item_label_error
-                        )
-                    }
-                )
-            }
+            recurringBuys = state.recurringBuys
+                .map { it.take(sectionSize.size) }
+                .mapList { recurringBuy ->
+                    RecurringBuyViewState(
+                        id = recurringBuy.id,
+                        iconUrl = recurringBuy.asset.logo,
+                        description = TextValue.IntResValue(
+                            R.string.dashboard_recurring_buy_item_title_1,
+                            listOf(
+                                recurringBuy.amount.toStringWithSymbol(),
+                                recurringBuy.recurringBuyFrequency.toHumanReadableRecurringBuy()
+                            )
+                        ),
+                        status = if (recurringBuy.state == RecurringBuyState.ACTIVE) {
+                            TextValue.IntResValue(
+                                R.string.dashboard_recurring_buy_item_label,
+                                listOf(recurringBuy.nextPaymentDate.toFormattedDateWithoutYear())
+                            )
+                        } else {
+                            TextValue.IntResValue(
+                                R.string.dashboard_recurring_buy_item_label_error
+                            )
+                        }
+                    )
+                }
         )
     }
 
@@ -63,6 +66,12 @@ class RecurringBuysViewModel(
     ) {
         when (intent) {
             is RecurringBuysIntent.LoadRecurringBuys -> {
+                updateState {
+                    it.copy(
+                        sectionSize = intent.sectionSize
+                    )
+                }
+
                 loadRecurringBuys(includeInactive = intent.includeInactive)
             }
         }
