@@ -75,6 +75,14 @@ class PricesRepository(
         return assets(tradableOnly = true)
     }
 
+    override fun mostPopularAssets(): Flow<DataResource<List<AssetPriceInfo>>> =
+        combine(mostPopularTickers(), allAssets()) {
+                mostPopularTickers, allAssetsData ->
+            allAssetsData.map { allAssets ->
+                allAssets.filter { it.assetInfo.networkTicker in mostPopularTickers }
+            }
+        }
+
     /**
      * @param filterOnlyPickers use to load only for select assets
      * loading individual prices all and then filtering takes much more time - null to load all

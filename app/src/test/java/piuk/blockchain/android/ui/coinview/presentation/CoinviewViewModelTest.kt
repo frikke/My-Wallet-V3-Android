@@ -10,6 +10,7 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.data.DataResource
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -97,6 +98,8 @@ class CoinviewViewModelTest {
 
     private val coinviewAssetPrice: CoinviewAssetPrice = mockk()
 
+    private val recurringBuyService: RecurringBuyService = mockk()
+
     private val tradingWalletLabel = "TradingWalletLabel"
 
     @Before
@@ -116,7 +119,8 @@ class CoinviewViewModelTest {
             loadAssetRecurringBuysUseCase = loadAssetRecurringBuysUseCase,
             loadQuickActionsUseCase = loadQuickActionsUseCase,
             assetService = assetService,
-            custodialWalletManager = custodialWalletManager
+            custodialWalletManager = custodialWalletManager,
+            recurringBuyService = recurringBuyService
         )
 
         every { cryptoAsset.currency } returns currency

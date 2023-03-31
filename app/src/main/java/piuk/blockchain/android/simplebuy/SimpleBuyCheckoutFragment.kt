@@ -50,6 +50,7 @@ import com.blockchain.payments.googlepay.manager.request.defaultAllowedCardNetwo
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import com.blockchain.presentation.disableBackPress
 import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.secondsToDays
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
@@ -57,6 +58,8 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.isCustodialOnly
 import java.time.ZonedDateTime
+import java.time.format.TextStyle
+import java.util.Locale
 import kotlin.math.max
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -542,10 +545,10 @@ class SimpleBuyCheckoutFragment :
                     title = state.suggestedRecurringBuyExperiment.toRecurringBuySuggestionTitle(requireContext()),
                     subtitle = getString(
                         R.string.checkout_rb_subtitle,
-                        state.suggestedRecurringBuyExperiment.toHumanReadableRecurringBuy(requireContext()).lowercase(),
-                        state.suggestedRecurringBuyExperiment.toHumanReadableRecurringDate(
-                            requireContext(), ZonedDateTime.now()
-                        )
+                        state.amount.toStringWithSymbol(),
+                        ZonedDateTime.now().dayOfWeek
+                            .getDisplayName(TextStyle.FULL, Locale.getDefault())
+                            .toString().capitalizeFirstChar()
                     )
                 )
             } else null,

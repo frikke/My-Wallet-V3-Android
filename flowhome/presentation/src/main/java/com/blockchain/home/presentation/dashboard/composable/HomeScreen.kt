@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.lazylist.paddedItem
@@ -51,12 +50,6 @@ import com.blockchain.home.presentation.allassets.AssetsIntent
 import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewState
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
-import com.blockchain.home.presentation.earn.EarnIntent
-import com.blockchain.home.presentation.earn.EarnNavEvent
-import com.blockchain.home.presentation.earn.EarnType
-import com.blockchain.home.presentation.earn.EarnViewModel
-import com.blockchain.home.presentation.earn.EarnViewState
-import com.blockchain.home.presentation.earn.homeEarnAssets
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
@@ -80,7 +73,6 @@ import com.blockchain.prices.prices.PricesViewState
 import com.blockchain.prices.prices.percentAndPositionOf
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
-import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
@@ -104,7 +96,6 @@ fun HomeScreen(
     openFiatActionDetail: (String) -> Unit,
     openMoreQuickActions: () -> Unit,
     startPhraseRecovery: () -> Unit,
-    openEarnDashboard: () -> Unit,
     processAnnouncementUrl: (String) -> Unit
 ) {
     var menuOptionsHeight: Int by remember { mutableStateOf(0) }
@@ -122,9 +113,6 @@ fun HomeScreen(
 
     val pricesViewModel: PricesViewModel = getViewModel(scope = payloadScope)
     val pricesViewState: PricesViewState by pricesViewModel.viewState.collectAsStateLifecycleAware()
-
-    val earnViewModel: EarnViewModel = getViewModel(scope = payloadScope)
-    val earnViewState: EarnViewState by earnViewModel.viewState.collectAsStateLifecycleAware()
 
     val quickActionsViewModel: QuickActionsViewModel = getViewModel(
         viewModelStoreOwner = LocalContext.current as ViewModelStoreOwner,
@@ -165,7 +153,6 @@ fun HomeScreen(
                 homeAssetsViewModel.onIntent(AssetsIntent.LoadFundLocks)
                 rbViewModel.onIntent(RecurringBuysIntent.LoadRecurringBuys(SectionSize.Limited(MAX_RB_COUNT)))
                 pricesViewModel.onIntent(PricesIntents.LoadData(PricesLoadStrategy.TradableOnly))
-                earnViewModel.onIntent(EarnIntent.LoadEarnAccounts())
                 quickActionsViewModel.onIntent(QuickActionsIntent.LoadActions(maxQuickActions))
                 referralViewModel.onIntent(ReferralIntent.LoadData())
                 custodialActivityViewModel.onIntent(
@@ -180,51 +167,11 @@ fun HomeScreen(
         }
     }
 
-    val navEventsFlowLifecycleAware = remember(earnViewModel.navigationEventFlow, lifecycleOwner) {
-        earnViewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-    }
-
-    // TODO (labreu) this should be done inside homeEarnAssets but it's not a composable
-    LaunchedEffect(key1 = earnViewModel) {
-        navEventsFlowLifecycleAware.collectLatest {
-            when (it) {
-                is EarnNavEvent.Interest -> {
-                    assetActionsNavigation.interestSummary(it.account)
-                    analytics.logEvent(
-                        DashboardAnalyticsEvents.EarnAssetClicked(
-                            currency = it.account.currency.networkTicker,
-                            product = EarnType.INTEREST
-                        )
-                    )
-                }
-                is EarnNavEvent.Staking -> {
-                    assetActionsNavigation.stakingSummary(it.account.currency.networkTicker)
-                    analytics.logEvent(
-                        DashboardAnalyticsEvents.EarnAssetClicked(
-                            currency = it.account.currency.networkTicker,
-                            product = EarnType.STAKING
-                        )
-                    )
-                }
-                is EarnNavEvent.ActiveRewards -> {
-                    assetActionsNavigation.activeRewardsSummary(it.account.currency.networkTicker)
-                    analytics.logEvent(
-                        DashboardAnalyticsEvents.EarnAssetClicked(
-                            currency = it.account.currency.networkTicker,
-                            product = EarnType.ACTIVE
-                        )
-                    )
-                }
-            }
-        }
-    }
-
     LaunchedEffect(key1 = isSwipingToRefresh) {
         if (isSwipingToRefresh) {
             announcementsViewModel.onIntent(AnnouncementsIntent.Refresh)
             homeAssetsViewModel.onIntent(AssetsIntent.Refresh)
             pricesViewModel.onIntent(PricesIntents.Refresh)
-            earnViewModel.onIntent(EarnIntent.Refresh)
             quickActionsViewModel.onIntent(QuickActionsIntent.Refresh)
             pkwActivityViewModel.onIntent(ActivityIntent.Refresh())
             custodialActivityViewModel.onIntent(ActivityIntent.Refresh())
@@ -396,10 +343,6 @@ fun HomeScreen(
                 }
             },
         )
-
-        earnViewState.let { earnState ->
-            homeEarnAssets(earnState = earnState, earnViewModel = earnViewModel, openEarnDashboard = openEarnDashboard)
-        }
 
         walletMode?.let {
             val activityState = when (it) {
