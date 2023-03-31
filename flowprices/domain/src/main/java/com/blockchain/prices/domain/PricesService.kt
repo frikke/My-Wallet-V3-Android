@@ -9,4 +9,6 @@ interface PricesService {
     fun topMoversCount(): Flow<Int>
     fun mostPopularTickers(): Flow<List<String>>
     fun risingFastPercentThreshold(): Flow<Double>
+
+    fun mostPopularAssets(): Flow<DataResource<List<AssetPriceInfo>>>
 }

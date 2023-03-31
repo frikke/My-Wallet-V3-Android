@@ -709,4 +709,11 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
         override fun isValidFor(oldState: SimpleBuyState) = !oldState.hasSeenRecurringBuyOptions
     }
+
+    object LoadAssetUpSellDismissState : SimpleBuyIntent()
+
+    data class AssetUpSellDismissStateLoaded(val dismissed: Boolean) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(shouldUpsellAnotherAsset = dismissed.not())
+    }
 }

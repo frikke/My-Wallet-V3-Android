@@ -23,6 +23,7 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.math.BigDecimal
 import java.util.Calendar
 import kotlin.math.sign
 
@@ -313,3 +314,7 @@ abstract class NonCustodialActivitySummaryItem : CryptoActivitySummaryItem {
 }
 
 typealias ActivitySummaryList = List<ActivitySummaryItem>
+
+fun FiatValue.toStringWithSymbolOrLessThanOnePenny(): String =
+    if (isZero) "<${FiatValue.fromMajor(currency, BigDecimal("0.01")).toStringWithSymbol()}"
+    else toStringWithSymbol()

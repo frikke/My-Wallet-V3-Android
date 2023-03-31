@@ -74,7 +74,7 @@
     <string name="common_share">Share</string>
     <string name="common_max">Max</string>
     <string name="common_launch">Launch</string>
-    <string name="common_maybe_later">Maybe Later</string>
+    <string name="common_maybe_later">Maybe later</string>
     <string name="common_i_understand">I Understand</string>
     <string name="common_did_you_know">Did you know?</string>
     <string name="common_submit">Submit</string>
@@ -2318,7 +2318,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="checkout_rb_weekly_title">Invest Weekly?</string>
     <string name="checkout_rb_biweekly_title">Invest bi-Weekly?</string>
     <string name="checkout_rb_monthly_title">Invest Monthly?</string>
-    <string name="checkout_rb_subtitle">Buy %1$s %2$s. Cancel anytime.</string>
+    <string name="checkout_rb_subtitle">Buy %1$s every %2$s. Cancel anytime.</string>
 
     <!-- New pairing -->
     <string name="pairing_wallet_title">Pair your wallet</string>
@@ -3580,5 +3580,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="not_enough_gas">Not enough %1$s for gas fees</string>
     <string name="allowed_slippage">Allowed Slippage</string>
     <string name="slippage_explanation">Slippage is the max percentage of price you\'re willing to allow for your swap to go through. If price changes beyond that, the swap will revert and your assets will be returned.</string>
+    <string name="asset_upsell_buy_another">Buy Another Asset</string>
+    <string name="asset_upsell_title">Would you like to buy \nanother asset?</string>
+    <string name="asset_upsell_subtitle">People who bought Bitcoin often buy these assets as well.</string>
 
 </resources>

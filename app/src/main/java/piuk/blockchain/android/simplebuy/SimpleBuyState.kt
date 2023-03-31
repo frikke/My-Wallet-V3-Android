@@ -74,6 +74,7 @@ data class SimpleBuyState constructor(
     val featureFlagSet: FeatureFlagsSet = FeatureFlagsSet(),
     val quotePrice: QuotePrice? = null,
     val hasSeenRecurringBuyOptions: Boolean = true,
+    @Transient val shouldUpsellAnotherAsset: Boolean = false,
     @Transient val quickFillButtonData: QuickFillButtonData? = null,
     @Transient val safeConnectTosLink: String? = null,
     @Transient val paymentOptions: PaymentOptions = PaymentOptions(),

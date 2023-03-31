@@ -133,6 +133,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuyPrefsSerializerImpl
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.simplebuy.USDPaymentAccountMapper
+import piuk.blockchain.android.simplebuy.upsell.viewmodel.UpSellAnotherAssetViewModel
 import piuk.blockchain.android.ui.addresses.AccountPresenter
 import piuk.blockchain.android.ui.airdrops.AirdropCentrePresenter
 import piuk.blockchain.android.ui.auth.AuthNavigationImpl
@@ -537,7 +538,8 @@ val applicationModule = module {
                 improvedPaymentUxFF = get(improvedPaymentUxFeatureFlag),
                 remoteConfigRepository = get(),
                 quickFillRoundingService = get(),
-                recurringBuyService = get()
+                recurringBuyService = get(),
+                dismissRecorder = get(),
             )
         }
 
@@ -870,6 +872,14 @@ val applicationModule = module {
             SellViewModel(
                 sellRepository = get(),
                 walletModeService = get(),
+            )
+        }
+
+        viewModel {
+            UpSellAnotherAssetViewModel(
+                pricesService = get(),
+                currencyPrefs = get(),
+                dismissRecorder = get(),
             )
         }
     }

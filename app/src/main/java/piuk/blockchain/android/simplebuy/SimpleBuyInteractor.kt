@@ -105,6 +105,7 @@ import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
 import piuk.blockchain.android.rating.domain.model.APP_RATING_MINIMUM_BUY_ORDERS
+import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
 import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import timber.log.Timber
@@ -143,7 +144,8 @@ class SimpleBuyInteractor(
     private val improvedPaymentUxFF: FeatureFlag,
     private val remoteConfigRepository: RemoteConfigRepository,
     private val quickFillRoundingService: QuickFillRoundingService,
-    private val recurringBuyService: RecurringBuyService
+    private val recurringBuyService: RecurringBuyService,
+    private val dismissRecorder: DismissRecorder,
 ) {
 
     // Hack until we have a proper limits api.
@@ -807,6 +809,9 @@ class SimpleBuyInteractor(
             lastAmount.currency, (nearest * (floor(lastAmount.toFloat() / nearest))).toBigDecimal()
         )
     }
+
+    fun isAssetUpSellBottomSheetDismissed(): Single<Boolean> =
+        Single.just(dismissRecorder[DismissRecorder.UPSELL_ANOTHER_ASSET_DISMISS_KEY].isDismissed)
 
     companion object {
         private const val WEEKLY = "WEEKLY"

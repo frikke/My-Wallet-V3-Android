@@ -758,10 +758,6 @@ fun MultiAppChromeScreen(
                     nftNavigation = nftNavigation,
                     earnNavigation = earnNavigation,
                     processAnnouncementUrl = processAnnouncementUrl,
-                    openEarnDashboard = {
-                        onBottomNavigationItemSelected(ChromeBottomNavigationItem.Earn)
-                        verifyHeaderPositionForNewScreen = true
-                    }
                 )
             }
         }

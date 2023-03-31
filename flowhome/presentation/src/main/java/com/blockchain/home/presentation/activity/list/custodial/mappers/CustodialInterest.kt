@@ -2,12 +2,14 @@ package com.blockchain.home.presentation.activity.list.custodial.mappers
 
 import androidx.annotation.DrawableRes
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
+import com.blockchain.coincore.toStringWithSymbolOrLessThanOnePenny
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.earn.domain.models.EarnRewardsState
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.utils.toFormattedDate
+import info.blockchain.balance.FiatValue
 import info.blockchain.wallet.multiaddress.TransactionSummary
 
 @DrawableRes internal fun CustodialInterestActivitySummaryItem.iconSummary(): Int {
@@ -75,14 +77,18 @@ internal fun CustodialInterestActivitySummaryItem.trailingTitle(): ActivityStack
     }
 
     return ActivityStackView.Text(
-        value = TextValue.StringValue(value.toStringWithSymbol()),
+        value = TextValue.StringValue(
+            fiatValue?.let {
+                (it as FiatValue).toStringWithSymbolOrLessThanOnePenny()
+            } ?: "--"
+        ),
         style = basicTitleStyle.copy(color = color, strikethrough = trailingStrikethrough())
     )
 }
 
 internal fun CustodialInterestActivitySummaryItem.trailingSubtitle(): ActivityStackView {
     return ActivityStackView.Text(
-        value = TextValue.StringValue(fiatValue?.toStringWithSymbol() ?: "--"),
+        value = TextValue.StringValue(value.toStringWithSymbol()),
         style = basicSubtitleStyle.copy(strikethrough = trailingStrikethrough())
     )
 }

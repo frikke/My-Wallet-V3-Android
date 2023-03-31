@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.lifecycleScope
 import com.blockchain.api.NabuApiException
+import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.addTransactionAnimation
 import com.blockchain.commonarch.presentation.base.trackProgress
@@ -34,6 +35,7 @@ import com.blockchain.domain.paymentmethods.model.fromPreferencesValue
 import com.blockchain.domain.paymentmethods.model.toPreferencesValue
 import com.blockchain.extensions.exhaustive
 import com.blockchain.fiatActions.QuestionnaireSheetHost
+import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
@@ -55,6 +57,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
+import org.koin.core.parameter.parametersOf
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.fraud.domain.service.FraudFlow
@@ -62,6 +65,7 @@ import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_BUY
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_REFRESH_REQUIRED
 import piuk.blockchain.android.simplebuy.sheets.CurrencySelectionSheet
+import piuk.blockchain.android.simplebuy.upsell.UpsellAnotherAssetBottomSheet
 import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
@@ -79,7 +83,8 @@ class SimpleBuyActivity :
     QuestionnaireSheetHost,
     RecurringBuyCreatedBottomSheet.Host,
     ErrorSlidingBottomDialog.Host,
-    CurrencySelectionSheet.Host {
+    CurrencySelectionSheet.Host,
+    UpsellAnotherAssetBottomSheet.Host {
     override val alwaysDisableScreenshots: Boolean
         get() = false
 
@@ -152,6 +157,12 @@ class SimpleBuyActivity :
                 popInclusive = true
             )
         }
+    }
+
+    private val assetActionsNavigation: AssetActionsNavigation = payloadScope.get {
+        parametersOf(
+            this
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -601,6 +612,26 @@ class SimpleBuyActivity :
 
     override fun questionnaireSkipped() {
         // no op
+    }
+
+    override fun launchUpSellBottomSheet(assetBoughtTicker: String) {
+        showBottomSheet(UpsellAnotherAssetBottomSheet.newInstance(assetBoughtTicker))
+    }
+
+    override fun launchBuyForAsset(networkTicker: String) {
+        assetCatalogue.assetInfoFromNetworkTicker(networkTicker)?.let { asset ->
+            assetActionsNavigation.buyCrypto(asset)
+            finish()
+        }
+    }
+
+    override fun launchBuy() {
+        assetActionsNavigation.navigate(AssetAction.Buy)
+        finish()
+    }
+
+    override fun onCloseUpsellAnotherAsset() {
+        exitSimpleBuyFlow()
     }
 
     companion object {
