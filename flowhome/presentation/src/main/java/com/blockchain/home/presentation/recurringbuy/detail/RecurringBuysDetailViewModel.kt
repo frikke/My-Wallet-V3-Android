@@ -9,7 +9,6 @@ import com.blockchain.core.recurringbuy.domain.model.FundsAccount
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
-import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.domain.paymentmethods.BankService
@@ -20,15 +19,15 @@ import com.blockchain.domain.paymentmethods.model.RecurringBuyPaymentDetails
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.home.presentation.recurringbuy.list.toHumanReadableRecurringBuy
 import com.blockchain.home.presentation.recurringbuy.list.toHumanReadableRecurringDate
+import com.blockchain.store.filterNotLoading
 import com.blockchain.store.flatMapData
 import com.blockchain.store.mapData
 import com.blockchain.utils.toFormattedDateWithoutYear
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -42,7 +41,7 @@ class RecurringBuysDetailViewModel(
     RecurringBuysDetailIntent,
     RecurringBuyDetailViewState,
     RecurringBuysDetailModelState,
-    HomeNavEvent,
+    RecurringBuysDetailNavEvent,
     ModelConfigArgs.NoArgs>(initialState = RecurringBuysDetailModelState()) {
     private var recurringBuyJob: Job? = null
 
@@ -86,7 +85,8 @@ class RecurringBuysDetailViewModel(
                     ),
                     nextBuy = recurringBuy.nextPaymentDate.toFormattedDateWithoutYear(),
                 )
-            }
+            },
+            cancelationInProgress = cancelationInProgress
         )
     }
 
@@ -97,6 +97,20 @@ class RecurringBuysDetailViewModel(
         when (intent) {
             is RecurringBuysDetailIntent.LoadRecurringBuy -> {
                 loadRecurringBuy(includeInactive = intent.includeInactive)
+            }
+
+            RecurringBuysDetailIntent.CancelRecurringBuy -> {
+                check(modelState.recurringBuy is DataResource.Data)
+
+                updateState {
+                    it.copy(cancelationInProgress = true)
+                }
+
+                recurringBuyService.cancelRecurringBuy(
+                    modelState.recurringBuy.data
+                )
+
+                navigate(RecurringBuysDetailNavEvent.Close)
             }
         }
     }

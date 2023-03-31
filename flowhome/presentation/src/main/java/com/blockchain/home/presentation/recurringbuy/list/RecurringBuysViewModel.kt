@@ -41,12 +41,12 @@ class RecurringBuysViewModel(
     override fun reduce(state: RecurringBuysModelState): RecurringBuysViewState = state.run {
         RecurringBuysViewState(
             recurringBuys = state.recurringBuys
-                .map { it?.take(sectionSize.size) }
                 .map {
                     it?.let { recurringBuys ->
                         RecurringBuyEligibleState.Eligible(
                             recurringBuys = recurringBuys
                                 .sortedBy { it.nextPaymentDate }
+                                .take(100)
                                 .map { recurringBuy ->
                                     RecurringBuyViewState(
                                         id = recurringBuy.id,

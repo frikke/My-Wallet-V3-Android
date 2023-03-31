@@ -8,6 +8,7 @@ import com.blockchain.home.presentation.recurringbuy.list.RecurringBuyViewState
 
 data class RecurringBuyDetailViewState(
     val detail: DataResource<RecurringBuyDetail>,
+    val cancelationInProgress: Boolean
 ) : ViewState
 
 data class RecurringBuyDetail(

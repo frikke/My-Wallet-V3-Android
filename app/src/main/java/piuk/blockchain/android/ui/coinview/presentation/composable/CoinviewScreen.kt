@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
@@ -37,10 +39,13 @@ import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.R
+import com.blockchain.home.presentation.SectionSize
+import com.blockchain.home.presentation.recurringbuy.list.RecurringBuysIntent
 import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.CryptoCurrency
 import org.koin.androidx.compose.get
@@ -65,64 +70,58 @@ fun Coinview(
     viewModel: CoinviewViewModel,
     backOnClick: () -> Unit
 ) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
-        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-    }
-    val viewState: CoinviewViewState? by stateFlowLifecycleAware.collectAsState(null)
+    val viewState: CoinviewViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
-    viewState?.let { state ->
-        CoinviewScreen(
-            backOnClick = backOnClick,
-            asset = state.asset,
-            onContactSupportClick = {
-                viewModel.onIntent(CoinviewIntent.ContactSupport)
-            },
-            price = state.assetPrice,
-            onChartEntryHighlighted = { entry ->
-                viewModel.onIntent(CoinviewIntent.UpdatePriceForChartSelection(entry))
-            },
-            resetPriceInformation = {
-                viewModel.onIntent(CoinviewIntent.ResetPriceSelection)
-            },
-            onNewTimeSpanSelected = { timeSpan ->
-                viewModel.onIntent(CoinviewIntent.NewTimeSpanSelected(timeSpan))
-            },
-            tradeable = state.tradeable,
+    CoinviewScreen(
+        backOnClick = backOnClick,
+        asset = viewState.asset,
+        onContactSupportClick = {
+            viewModel.onIntent(CoinviewIntent.ContactSupport)
+        },
+        price = viewState.assetPrice,
+        onChartEntryHighlighted = { entry ->
+            viewModel.onIntent(CoinviewIntent.UpdatePriceForChartSelection(entry))
+        },
+        resetPriceInformation = {
+            viewModel.onIntent(CoinviewIntent.ResetPriceSelection)
+        },
+        onNewTimeSpanSelected = { timeSpan ->
+            viewModel.onIntent(CoinviewIntent.NewTimeSpanSelected(timeSpan))
+        },
+        tradeable = viewState.tradeable,
 
-            watchlist = state.watchlist,
-            onWatchlistClick = {
-                viewModel.onIntent(CoinviewIntent.ToggleWatchlist)
-            },
+        watchlist = viewState.watchlist,
+        onWatchlistClick = {
+            viewModel.onIntent(CoinviewIntent.ToggleWatchlist)
+        },
 
-            accounts = state.accounts,
-            onAccountClick = { account ->
-                if (account.isClickable)
-                    viewModel.onIntent(CoinviewIntent.AccountSelected(account))
-            },
-            onLockedAccountClick = {
-                viewModel.onIntent(CoinviewIntent.LockedAccountSelected)
-            },
-            quickActionsCenter = state.centerQuickAction,
-            recurringBuys = state.recurringBuys,
-            onRecurringBuyUpsellClick = {
-                viewModel.onIntent(CoinviewIntent.RecurringBuysUpsell)
-            },
-            onRecurringBuyItemClick = { recurringBuyId ->
-                viewModel.onIntent(CoinviewIntent.ShowRecurringBuyDetail(recurringBuyId))
-            },
-            quickActionsBottom = state.bottomQuickAction,
-            onQuickActionClick = { quickAction ->
-                viewModel.onIntent(CoinviewIntent.QuickActionSelected(quickAction.toModelState()))
-            },
-            assetInfo = state.assetInfo,
-            onWebsiteClick = {
-                viewModel.onIntent(CoinviewIntent.VisitAssetWebsite)
-            },
-            pillAlert = state.pillAlert,
-            snackbarAlert = state.snackbarError
-        )
-    }
+        accounts = viewState.accounts,
+        onAccountClick = { account ->
+            if (account.isClickable)
+                viewModel.onIntent(CoinviewIntent.AccountSelected(account))
+        },
+        onLockedAccountClick = {
+            viewModel.onIntent(CoinviewIntent.LockedAccountSelected)
+        },
+        quickActionsCenter = viewState.centerQuickAction,
+        recurringBuys = viewState.recurringBuys,
+        onRecurringBuyUpsellClick = {
+            viewModel.onIntent(CoinviewIntent.RecurringBuysUpsell)
+        },
+        onRecurringBuyItemClick = { recurringBuyId ->
+            viewModel.onIntent(CoinviewIntent.ShowRecurringBuyDetail(recurringBuyId))
+        },
+        quickActionsBottom = viewState.bottomQuickAction,
+        onQuickActionClick = { quickAction ->
+            viewModel.onIntent(CoinviewIntent.QuickActionSelected(quickAction.toModelState()))
+        },
+        assetInfo = viewState.assetInfo,
+        onWebsiteClick = {
+            viewModel.onIntent(CoinviewIntent.VisitAssetWebsite)
+        },
+        pillAlert = viewState.pillAlert,
+        snackbarAlert = viewState.snackbarError
+    )
 }
 
 @Composable

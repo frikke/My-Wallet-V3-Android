@@ -12,8 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
@@ -50,9 +53,17 @@ fun RecurringBuyDashboard(
 ) {
     val viewState: RecurringBuysViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
-    DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(RecurringBuysIntent.LoadRecurringBuys(SectionSize.All))
-        onDispose { }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.onIntent(RecurringBuysIntent.LoadRecurringBuys(SectionSize.All))
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     RecurringBuyDashboardScreen(

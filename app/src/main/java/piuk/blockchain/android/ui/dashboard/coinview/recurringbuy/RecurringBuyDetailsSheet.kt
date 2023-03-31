@@ -1,207 +1,95 @@
 package piuk.blockchain.android.ui.dashboard.coinview.recurringbuy
 
+import android.app.Dialog
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Surface
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.unit.dp
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
+import com.blockchain.commonarch.presentation.mvi_v2.forceExpanded
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.componentlib.theme.AppSurface
+import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.recurringbuy.domain.model.RecurringBuy
 import com.blockchain.core.recurringbuy.domain.model.RecurringBuyState
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.home.presentation.recurringbuy.detail.composable.RecurringBuyDetail
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.toFormattedDateWithoutYear
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetRecurringBuyInfoBinding
+import piuk.blockchain.android.databinding.MobileNoticeDialogBinding
 import piuk.blockchain.android.simplebuy.CheckoutAdapterDelegate
 import piuk.blockchain.android.simplebuy.SimpleBuyCheckoutItem
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringDate
+import piuk.blockchain.android.ui.home.MobileNoticeDialogFragment
 
-class RecurringBuyDetailsSheet : MviBottomSheet<RecurringBuyModel,
-    RecurringBuyIntent, RecurringBuyModelState, DialogSheetRecurringBuyInfoBinding>() {
+class RecurringBuyDetailsSheet : BottomSheetDialogFragment() {
 
     interface Host : SlidingModalBottomDialog.Host {
-        fun onRecurringBuyDeleted(asset: AssetInfo)
+        fun onRecurringBuyDeleted()
     }
 
-    override val host: Host by lazy {
-        super.host as? Host ?: throw IllegalStateException("Host fragment is not a RecurringBuyDetailsSheet.Host")
-    }
-
-    private val listAdapter: CheckoutAdapterDelegate by lazy {
-        CheckoutAdapterDelegate(onToggleChanged = {}, onAction = {})
+    private val host: Host by lazy {
+        activity as? Host ?: throw IllegalStateException("Host fragment is not a RecurringBuyDetailsSheet.Host")
     }
 
     private val recurringBuyId: String by lazy {
         arguments?.getString(RECURRING_BUY_ID, "").orEmpty()
     }
 
-    override val model: RecurringBuyModel by scopedInject()
-
-    override fun initControls(binding: DialogSheetRecurringBuyInfoBinding) {
-        with(binding) {
-            with(rbSheetItems) {
-                adapter = listAdapter
-                layoutManager = LinearLayoutManager(requireContext())
-                addItemDecoration(BlockchainListDividerDecor(requireContext()))
-            }
-
-            rbSheetBack.setOnClickListener {
-                dismiss()
-            }
-            rbSheetCancel.setOnClickListener {
-                // TODO stopgap check while design make their mind up
-                AlertDialog.Builder(requireContext())
-                    .setTitle(R.string.settings_bank_remove_check_title)
-                    .setMessage(R.string.recurring_buy_cancel_dialog_desc)
-                    .setPositiveButton(R.string.common_ok) { di, _ ->
-                        di.dismiss()
-                        model.process(RecurringBuyIntent.DeleteRecurringBuy)
-                    }
-                    .setNegativeButton(R.string.common_cancel) { di, _ ->
-                        di.dismiss()
-                    }.show()
-            }
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return (super.onCreateDialog(savedInstanceState) as BottomSheetDialog).apply {
+            forceExpanded()
         }
-
-        model.process(RecurringBuyIntent.LoadRecurringBuy(recurringBuyId))
     }
 
-    override fun render(newState: RecurringBuyModelState) {
-        if (newState.recurringBuy?.paymentDetails == null) {
-            model.process(RecurringBuyIntent.GetPaymentDetails)
-            return
-        }
-        with(binding) {
-            when (newState.viewState) {
-                RecurringBuyViewState.Loading -> {
-                    rbLoading.visible()
-                    rbInfoGroup.gone()
-                }
-                RecurringBuyViewState.ShowRecurringBuy -> {
-                    rbLoading.gone()
-                    rbInfoGroup.visible()
-                    newState.recurringBuy.let {
-                        when {
-                            it.state == RecurringBuyState.INACTIVE -> {
-                                BlockchainSnackbar.make(
-                                    binding.root,
-                                    getString(R.string.recurring_buy_cancelled_toast),
-                                    type = SnackbarType.Success
-                                ).show()
-                                host.onRecurringBuyDeleted(it.asset)
-                                dismiss()
-                            }
-                            newState.error == RecurringBuyError.RecurringBuyDelete -> {
-                                BlockchainSnackbar.make(
-                                    binding.root,
-                                    getString(R.string.recurring_buy_cancelled_error_toast),
-                                    type = SnackbarType.Error
-                                ).show()
-                            }
-                            newState.error == RecurringBuyError.LoadFailed -> {
-                                BlockchainSnackbar.make(
-                                    binding.root,
-                                    getString(R.string.recurring_buy_failed_loading),
-                                    type = SnackbarType.Error
-                                ).show()
-                            }
-                            newState.error is RecurringBuyError.HttpError -> {
-                                BlockchainSnackbar.make(
-                                    binding.root,
-                                    newState.error.errorMessage,
-                                    type = SnackbarType.Error
-                                ).show()
-                            }
-                            newState.error == RecurringBuyError.UnknownError -> {
-                                BlockchainSnackbar.make(
-                                    binding.root,
-                                    getString(R.string.recurring_buy_failed_loading),
-                                    type = SnackbarType.Error
-                                ).show()
-                            }
-                            else ->
-                                with(binding) {
-                                    rbSheetTitle.text = getString(R.string.recurring_buy_sheet_title_1)
-                                    rbSheetHeader.setDetails(
-                                        getString(
-                                            R.string.recurring_buy_header,
-                                            it.amount.toStringWithSymbol(),
-                                            it.asset.displayTicker
-                                        ),
-                                        ""
-                                    )
-                                    it.renderListItems()
-                                }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        return ComposeView(requireContext()).apply {
+            setContent {
+                Surface(
+                    shape = RoundedCornerShape(
+                        topStart = AppTheme.dimensions.smallSpacing, topEnd = AppTheme.dimensions.smallSpacing
+                    )
+                ) {
+                    RecurringBuyDetail(
+                        recurringBuyId = recurringBuyId,
+                        onCloseClick = {
+                            host.onRecurringBuyDeleted()
+                            dismiss()
                         }
-                    }
+                    )
                 }
             }
         }
     }
-
-    private fun RecurringBuy.renderListItems() {
-        listAdapter.items = listOf(
-            if (paymentMethodType == PaymentMethodType.FUNDS) {
-                SimpleBuyCheckoutItem.SimpleCheckoutItem(
-                    label = getString(R.string.payment_method),
-                    title = amount.currency.name,
-                    hasChanged = false
-                )
-            } else {
-                if (paymentMethodType == PaymentMethodType.PAYMENT_CARD) {
-                    val paymentDetails = (paymentDetails as PaymentMethod.Card)
-                    SimpleBuyCheckoutItem.ComplexCheckoutItem(
-                        label = getString(R.string.payment_method),
-                        title = paymentDetails.uiLabel(),
-                        subtitle = paymentDetails.endDigits
-                    )
-                } else {
-                    val paymentDetails = (paymentDetails as PaymentMethod.Bank)
-                    SimpleBuyCheckoutItem.ComplexCheckoutItem(
-                        label = getString(R.string.payment_method),
-                        title = paymentDetails.bankName,
-                        subtitle = paymentDetails.accountEnding
-                    )
-                }
-            },
-            SimpleBuyCheckoutItem.ComplexCheckoutItem(
-                getString(R.string.recurring_buy_frequency_label_1),
-                recurringBuyFrequency.toHumanReadableRecurringBuy(requireContext()),
-                recurringBuyFrequency.toHumanReadableRecurringDate(
-                    requireContext(),
-                    ZonedDateTime.ofInstant(nextPaymentDate.toInstant(), ZoneId.systemDefault())
-                )
-            ),
-            SimpleBuyCheckoutItem.SimpleCheckoutItem(
-                getString(R.string.recurring_buy_info_purchase_label_1),
-                nextPaymentDate.toFormattedDateWithoutYear(),
-                isImportant = false,
-                hasChanged = false
-            ),
-            SimpleBuyCheckoutItem.SimpleCheckoutItem(
-                getString(R.string.common_total),
-                amount.toStringWithSymbol(),
-                isImportant = true,
-                hasChanged = false
-            )
-        )
-        listAdapter.notifyDataSetChanged()
-    }
-
-    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): DialogSheetRecurringBuyInfoBinding =
-        DialogSheetRecurringBuyInfoBinding.inflate(inflater, container, false)
 
     companion object {
         private const val RECURRING_BUY_ID = "RECURRING_BUY_ID"
