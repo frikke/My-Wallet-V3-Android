@@ -65,7 +65,6 @@ fun MultiAppBottomNavigationHost(
     openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
-    openEarnDashboard: () -> Unit,
     processAnnouncementUrl: (String) -> Unit,
 ) {
 
@@ -129,7 +128,6 @@ fun MultiAppBottomNavigationHost(
                         openFiatActionDetail = openFiatActionDetail,
                         openMoreQuickActions = openMoreQuickActions,
                         startPhraseRecovery = startPhraseRecovery,
-                        openEarnDashboard = openEarnDashboard,
                         processAnnouncementUrl = processAnnouncementUrl,
                     )
                 }

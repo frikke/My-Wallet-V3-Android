@@ -76,7 +76,7 @@ internal fun TradeActivitySummaryItem.trailingTitle(): ActivityStackView {
     }
 
     return ActivityStackView.Text(
-        value = TextValue.StringValue(value.toStringWithSymbol()),
+        value = TextValue.StringValue(fiatValue.toStringWithSymbol()),
         style = basicTitleStyle.copy(color = color, strikethrough = trailingStrikethrough())
     )
 }
@@ -84,7 +84,7 @@ internal fun TradeActivitySummaryItem.trailingTitle(): ActivityStackView {
 internal fun TradeActivitySummaryItem.trailingSubtitle(): ActivityStackView {
     return ActivityStackView.Text(
         value = when {
-            isSwapPair() -> TextValue.StringValue(fiatValue.toStringWithSymbol())
+            isSwapPair() -> TextValue.StringValue(value.toStringWithSymbol())
             isSellingPair() -> TextValue.StringValue(receivingValue.toStringWithSymbol())
             else -> error("unsupported")
         },

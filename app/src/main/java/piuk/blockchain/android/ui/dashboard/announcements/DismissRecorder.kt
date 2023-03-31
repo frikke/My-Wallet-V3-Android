@@ -44,6 +44,11 @@ class DismissRecorder(
         prefs.recordDismissal(prefsKey, DISMISS_INTERVAL_PERIODIC)
     }
 
+    fun dismissPeriodic(prefsKey: String, period: Long) {
+        prefs.deleteDismissalRecord(prefsKey) // In case there is a legacy setting
+        prefs.recordDismissal(prefsKey, clock.now() + period)
+    }
+
     fun dismissForever(prefsKey: String) {
         prefs.deleteDismissalRecord(prefsKey) // In case there is a legacy setting
         prefs.recordDismissal(prefsKey, DISMISS_INTERVAL_FOREVER)
@@ -76,7 +81,10 @@ class DismissRecorder(
         get() = clock.now() + interval
 
     companion object {
-        private const val ONE_WEEK = 7L * 24L * 60L * 60L * 1000L
+        const val UPSELL_ANOTHER_ASSET_DISMISS_KEY = "UPSELL_ANOTHER_ASSET_DISMISSED"
+
+        const val ONE_WEEK = 7L * 24L * 60L * 60L * 1000L
+        const val ONE_MONTH = 30L * 24L * 60L * 60L * 1000L
         private const val DISMISS_INTERVAL_FOREVER = Long.MAX_VALUE
     }
 }

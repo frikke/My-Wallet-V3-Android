@@ -59,15 +59,15 @@ internal fun FiatActivitySummaryItem.trailingTitle(): ActivityStackView {
     }
 
     return ActivityStackView.Text(
-        value = TextValue.StringValue(value.toStringWithSymbol()),
+        value = TextValue.StringValue(fiat.toStringWithSymbol()),
         style = basicTitleStyle.copy(color = color, strikethrough = trailingStrikethrough())
     )
 }
 
 internal fun FiatActivitySummaryItem.trailingSubtitle(): ActivityStackView? {
-    return if (fiat != value) {
+    return if (value != fiat) {
         return ActivityStackView.Text(
-            value = TextValue.StringValue(fiat.toStringWithSymbol()),
+            value = TextValue.StringValue(value.toStringWithSymbol()),
             style = basicSubtitleStyle.copy(strikethrough = trailingStrikethrough())
         )
     } else {

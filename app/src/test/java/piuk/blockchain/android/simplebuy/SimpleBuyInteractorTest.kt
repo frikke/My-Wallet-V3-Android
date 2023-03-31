@@ -50,6 +50,7 @@ import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
+import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
 import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 
@@ -88,6 +89,7 @@ class SimpleBuyInteractorTest {
     private val simpleBuyPrefs: SimpleBuyPrefs = mock()
     private val onboardingPrefs: OnboardingPrefs = mock()
     private val recurringBuyService: RecurringBuyService = mock()
+    private val dismissRecorder: DismissRecorder = mock()
     private val eligibilityService: EligibilityService = mock {
         onBlocking { getStatesList(any(), any()) }.thenReturn(
             Outcome.Success(
@@ -137,7 +139,8 @@ class SimpleBuyInteractorTest {
             quickFillRoundingService = quickFillRoundingService,
             brokerageDataManager = brokerageDataManager,
             improvedPaymentUxFF = improvedPaymentUxFF,
-            recurringBuyService = recurringBuyService
+            recurringBuyService = recurringBuyService,
+            dismissRecorder = dismissRecorder
         )
 
         whenever(quickFillRoundingService.getQuickFillRoundingForAction(AssetAction.Buy)).thenReturn(
