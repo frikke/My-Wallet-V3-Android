@@ -49,7 +49,7 @@ internal class RecurringBuyRepository(
         return rbStore.stream(freshnessStrategy)
             .mapListDataNotNull { recurringBuyDto -> recurringBuyDto.toDomain() }
             .filterListData { recurringBuy ->
-                includeInactive && recurringBuy.isActive() || !includeInactive
+                includeInactive || recurringBuy.isActive()
             }
     }
 

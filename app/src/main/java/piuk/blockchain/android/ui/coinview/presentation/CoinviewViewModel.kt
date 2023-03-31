@@ -16,6 +16,7 @@ import com.blockchain.componentlib.icons.Star
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.core.recurringbuy.domain.model.RecurringBuyState
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.core.watchlist.domain.model.WatchlistToggle
@@ -29,6 +30,7 @@ import com.blockchain.data.map
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.filterNotLoading
+import com.blockchain.store.mapData
 import com.blockchain.utils.toFormattedDateWithoutYear
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
@@ -82,7 +84,8 @@ class CoinviewViewModel(
     private val loadAssetRecurringBuysUseCase: LoadAssetRecurringBuysUseCase,
     private val loadQuickActionsUseCase: LoadQuickActionsUseCase,
     private val assetService: AssetService,
-    private val custodialWalletManager: CustodialWalletManager
+    private val custodialWalletManager: CustodialWalletManager,
+    private val recurringBuyService: RecurringBuyService
 ) : MviViewModel<
     CoinviewIntent,
     CoinviewViewState,
@@ -788,7 +791,15 @@ class CoinviewViewModel(
                 require(modelState.asset != null) { "RecurringBuysUpsell asset not initialized" }
 
                 navigate(
-                    CoinviewNavigationEvent.NavigateToRecurringBuyUpsell(modelState.asset)
+                    if (hasAnyAssetsWithRecurringBuy()) {
+                        CoinviewNavigationEvent.NavigateToBuy(
+                            asset = modelState.asset
+                        )
+                    } else {
+                        CoinviewNavigationEvent.NavigateToRecurringBuyUpsell(
+                            asset = modelState.asset
+                        )
+                    }
                 )
             }
 
@@ -1314,6 +1325,16 @@ class CoinviewViewModel(
                 }
             }
         }
+    }
+
+    private suspend fun hasAnyAssetsWithRecurringBuy(): Boolean {
+        return recurringBuyService.recurringBuys(
+            freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+        )
+            .filterNotLoading()
+            .mapData { it.isNotEmpty() }
+            .firstOrNull()
+            ?.dataOrElse(false) ?: false
     }
 
     // //////////////////////
