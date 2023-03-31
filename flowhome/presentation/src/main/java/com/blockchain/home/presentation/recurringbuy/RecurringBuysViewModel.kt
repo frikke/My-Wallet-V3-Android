@@ -8,7 +8,6 @@ import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency
 import com.blockchain.core.recurringbuy.domain.model.RecurringBuyState
-import com.blockchain.data.dataOrElse
 import com.blockchain.data.mapList
 import com.blockchain.data.updateDataWith
 import com.blockchain.home.presentation.R
