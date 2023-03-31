@@ -77,7 +77,6 @@ import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
-import com.blockchain.koin.payloadScope
 import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.walletmode.WalletMode
@@ -89,7 +88,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
-import org.koin.androidx.compose.getViewModel
 
 @Composable
 private fun rememberToolbarState(modeSwitcherOptions: ChromeModeOptions): CollapsingToolbarState {
@@ -111,7 +109,7 @@ private fun rememberToolbarState(modeSwitcherOptions: ChromeModeOptions): Collap
 
 @Composable
 fun MultiAppChrome(
-    viewModel: MultiAppViewModel = getViewModel(scope = payloadScope),
+    viewModel: MultiAppViewModel,
     analytics: Analytics = get(),
     onModeLongClicked: (WalletMode) -> Unit,
     showDefiOnboarding: () -> Unit,

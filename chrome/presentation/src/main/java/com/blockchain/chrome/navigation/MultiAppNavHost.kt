@@ -8,6 +8,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.chrome.ChromeBottomNavigationItem
+import com.blockchain.chrome.MultiAppIntents
+import com.blockchain.chrome.MultiAppViewModel
 import com.blockchain.chrome.composable.MultiAppChrome
 import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
@@ -25,6 +27,7 @@ import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.home.presentation.navigation.homeGraph
+import com.blockchain.koin.payloadScope
 import com.blockchain.nfts.navigation.ARG_ADDRESS
 import com.blockchain.nfts.navigation.ARG_NFT_ID
 import com.blockchain.nfts.navigation.ARG_PAGE_KEY
@@ -40,6 +43,7 @@ import com.dex.presentation.graph.dexGraph
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 import org.koin.androidx.compose.get
+import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalMaterialNavigationApi::class)
 @Composable
@@ -59,6 +63,8 @@ fun MultiAppNavHost(
     openExternalUrl: (url: String) -> Unit,
     processAnnouncementUrl: (url: String) -> Unit
 ) {
+    val multiAppViewModel: MultiAppViewModel = getViewModel(scope = payloadScope)
+
     val bottomSheetNavigator = rememberBottomSheetNavigator(skipHalfExpanded = true)
     val navController = rememberNavController(bottomSheetNavigator)
 
@@ -94,6 +100,7 @@ fun MultiAppNavHost(
         ) {
             // main chrome
             chrome(
+                viewModel = multiAppViewModel,
                 navController = navController,
                 startPhraseRecovery = startPhraseRecovery,
                 assetActionsNavigation = assetActionsNavigation,
@@ -122,7 +129,9 @@ fun MultiAppNavHost(
                 assetActionsNavigation = assetActionsNavigation,
                 onBackPressed = navController::popBackStack,
                 openDex = {
-                    navController.navigate(ChromeBottomNavigationItem.Dex.route)
+                    multiAppViewModel.onIntent(
+                        MultiAppIntents.BottomNavigationItemSelected(ChromeBottomNavigationItem.Dex)
+                    )
                 }
             )
 
@@ -138,6 +147,7 @@ fun MultiAppNavHost(
 }
 
 private fun NavGraphBuilder.chrome(
+    viewModel: MultiAppViewModel,
     navController: NavHostController,
     startPhraseRecovery: () -> Unit,
     showAppRating: () -> Unit,
@@ -153,6 +163,7 @@ private fun NavGraphBuilder.chrome(
 ) {
     composable(navigationEvent = ChromeDestination.Main) {
         MultiAppChrome(
+            viewModel = viewModel,
             onModeLongClicked = { walletMode ->
                 navController.navigate(
                     HomeDestination.Introduction,
