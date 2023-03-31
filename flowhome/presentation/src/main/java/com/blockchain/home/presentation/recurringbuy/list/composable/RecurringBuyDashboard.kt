@@ -45,6 +45,7 @@ import org.koin.androidx.compose.getViewModel
 fun RecurringBuyDashboard(
     viewModel: RecurringBuysViewModel = getViewModel(scope = payloadScope),
     assetActionsNavigation: AssetActionsNavigation,
+    openRecurringBuyDetail: (id: String) -> Unit,
     onBackPressed: () -> Unit
 ) {
     val viewState: RecurringBuysViewState by viewModel.viewState.collectAsStateLifecycleAware()
@@ -56,6 +57,7 @@ fun RecurringBuyDashboard(
 
     RecurringBuyDashboardScreen(
         recurringBuys = viewState.recurringBuys,
+        openRecurringBuyDetail = openRecurringBuyDetail,
         addOnClick = {
             assetActionsNavigation.navigate(AssetAction.Buy)
         },
@@ -66,6 +68,7 @@ fun RecurringBuyDashboard(
 @Composable
 fun RecurringBuyDashboardScreen(
     recurringBuys: DataResource<RecurringBuyEligibleState>,
+    openRecurringBuyDetail: (id: String) -> Unit,
     addOnClick: () -> Unit,
     onBackPressed: () -> Unit
 ) {
@@ -90,6 +93,7 @@ fun RecurringBuyDashboardScreen(
                 (recurringBuys.data as? RecurringBuyEligibleState.Eligible)?.let {
                     RecurringBuyDashboardData(
                         recurringBuys = it.recurringBuys.toImmutableList(),
+                        openRecurringBuyDetail = openRecurringBuyDetail,
                         addOnClick = addOnClick
                     )
                 } // todo ?: error state
@@ -101,6 +105,7 @@ fun RecurringBuyDashboardScreen(
 @Composable
 fun RecurringBuyDashboardData(
     recurringBuys: ImmutableList<RecurringBuyViewState>,
+    openRecurringBuyDetail: (id: String) -> Unit,
     addOnClick: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -118,7 +123,9 @@ fun RecurringBuyDashboardData(
                             description = recurringBuy.description.value(),
                             status = recurringBuy.status.value(),
                             iconUrl = recurringBuy.iconUrl,
-                            onClick = {}
+                            onClick = {
+                                openRecurringBuyDetail(recurringBuy.id)
+                            }
                         )
                     }
                 )
@@ -175,6 +182,7 @@ fun PreviewRecurringBuyDashboardData() {
                 status = TextValue.StringValue("Next buy on Tue, March 18"),
             )
         ),
+        openRecurringBuyDetail = {},
         addOnClick = {}
     )
 }

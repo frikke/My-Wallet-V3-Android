@@ -25,6 +25,7 @@ import com.google.accompanist.navigation.material.ExperimentalMaterialNavigation
 @OptIn(ExperimentalMaterialNavigationApi::class)
 fun NavGraphBuilder.homeGraph(
     launchApp: () -> Unit,
+    openRecurringBuyDetail: (id: String) -> Unit,
     openDex: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
     onBackPressed: () -> Unit,
@@ -65,6 +66,7 @@ fun NavGraphBuilder.homeGraph(
         ChromeSingleScreen {
             RecurringBuyDashboard(
                 assetActionsNavigation = assetActionsNavigation,
+                openRecurringBuyDetail = openRecurringBuyDetail,
                 onBackPressed = onBackPressed
             )
         }

@@ -123,6 +123,14 @@ fun MultiAppNavHost(
                         }
                     }
                 },
+                openRecurringBuyDetail = { recurringBuyId ->
+                    navController.navigate(
+                        destination = HomeDestination.RecurringBuyDetail,
+                        args = listOf(
+                            NavArgument(key = ARG_RECURRING_BUY_ID, value = recurringBuyId)
+                        )
+                    )
+                },
                 assetActionsNavigation = assetActionsNavigation,
                 onBackPressed = navController::popBackStack,
                 openDex = {
@@ -183,7 +191,7 @@ private fun NavGraphBuilder.chrome(
             openRecurringBuys = {
                 navController.navigate(HomeDestination.RecurringBuys)
             },
-            openRecurringBuyDetail = { recurringBuyId: String ->
+            openRecurringBuyDetail = { recurringBuyId ->
                 navController.navigate(
                     destination = HomeDestination.RecurringBuyDetail,
                     args = listOf(
