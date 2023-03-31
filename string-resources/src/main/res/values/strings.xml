@@ -88,6 +88,7 @@
     <string name="common_important">Important</string>
     <string name="common_go">GO</string>
     <string name="common_important_information">Important information</string>
+    <string name="common_crypto">Crypto</string>
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>

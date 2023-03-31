@@ -18,6 +18,7 @@ import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.home.presentation.navigation.ARG_ACTIVITY_TX_ID
 import com.blockchain.home.presentation.navigation.ARG_FIAT_TICKER
 import com.blockchain.home.presentation.navigation.ARG_IS_FROM_MODE_SWITCH
+import com.blockchain.home.presentation.navigation.ARG_RECURRING_BUY_ID
 import com.blockchain.home.presentation.navigation.ARG_WALLET_MODE
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.HomeDestination
@@ -181,6 +182,14 @@ private fun NavGraphBuilder.chrome(
             },
             openRecurringBuys = {
                 navController.navigate(HomeDestination.RecurringBuys)
+            },
+            openRecurringBuyDetail = { recurringBuyId: String ->
+                navController.navigate(
+                    destination = HomeDestination.RecurringBuyDetail,
+                    args = listOf(
+                        NavArgument(key = ARG_RECURRING_BUY_ID, value = recurringBuyId)
+                    )
+                )
             },
             openActivity = {
                 navController.navigate(HomeDestination.Activity)

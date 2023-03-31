@@ -15,6 +15,7 @@ import com.blockchain.home.presentation.fiat.fundsdetail.composable.FiatFundDeta
 import com.blockchain.home.presentation.onboarding.defi.composable.DeFiOnboarding
 import com.blockchain.home.presentation.onboarding.introduction.composable.IntroductionScreens
 import com.blockchain.home.presentation.quickactions.MoreActions
+import com.blockchain.home.presentation.recurringbuy.detail.composable.RecurringBuyDetail
 import com.blockchain.home.presentation.recurringbuy.list.composable.RecurringBuyDashboard
 import com.blockchain.home.presentation.referral.composable.ReferralCode
 import com.blockchain.home.presentation.swapdexoption.SwapDexOptionScreen
@@ -69,6 +70,18 @@ fun NavGraphBuilder.homeGraph(
         }
     }
 
+    bottomSheet(navigationEvent = HomeDestination.RecurringBuyDetail) { backStackEntry ->
+        val id = backStackEntry.arguments?.getComposeArgument(ARG_RECURRING_BUY_ID).orEmpty()
+
+        ChromeBottomSheet(onBackPressed) {
+            RecurringBuyDetail(
+                recurringBuyId = id,
+                onCloseClick = onBackPressed
+            )
+        }
+    }
+
+
     composable(navigationEvent = HomeDestination.Activity) {
         ChromeSingleScreen {
             Activity(
@@ -94,8 +107,8 @@ fun NavGraphBuilder.homeGraph(
         }
     }
 
-    composable(navigationEvent = HomeDestination.Referral) {
-        ChromeSingleScreen {
+    bottomSheet(navigationEvent = HomeDestination.Referral) {
+        ChromeBottomSheet(onBackPressed) {
             ReferralCode(
                 onBackPressed = onBackPressed
             )
