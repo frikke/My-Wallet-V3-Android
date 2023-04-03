@@ -322,7 +322,8 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         val fiatCurrency: FiatCurrency,
         val selectedPaymentMethodId: String? = null,
         val usePrefilledAmount: Boolean = true,
-        val reloadQuickFillButtons: Boolean = true
+        val reloadQuickFillButtons: Boolean = true,
+        val promptRecurringBuy: Boolean
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(paymentOptions = PaymentOptions(), selectedPaymentMethod = null)
@@ -715,5 +716,15 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     data class AssetUpSellDismissStateLoaded(val dismissed: Boolean) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(shouldUpsellAnotherAsset = dismissed.not())
+    }
+
+    object PromptRecurringBuyIntervals : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(promptRecurringBuyIntervals = true)
+    }
+
+    object RecurringBuyIntervalsShown : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(promptRecurringBuyIntervals = false)
     }
 }

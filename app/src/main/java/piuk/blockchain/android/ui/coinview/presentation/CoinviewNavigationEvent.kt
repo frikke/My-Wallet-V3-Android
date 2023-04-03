@@ -29,6 +29,7 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
 
     data class NavigateToBuy(
         val asset: CryptoAsset,
+        val fromRecurringBuy: Boolean
     ) : CoinviewNavigationEvent
 
     data class NavigateToSell(

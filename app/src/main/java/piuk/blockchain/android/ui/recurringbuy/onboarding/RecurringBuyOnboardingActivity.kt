@@ -109,7 +109,8 @@ class RecurringBuyOnboardingActivity : BlockchainActivity() {
             startActivity(
                 SimpleBuyActivity.newIntent(
                     context = this,
-                    asset = asset
+                    asset = asset,
+                    fromRecurringBuy = true
                 )
             )
         } ?: assetActionsNavigation.navigate(AssetAction.Buy)

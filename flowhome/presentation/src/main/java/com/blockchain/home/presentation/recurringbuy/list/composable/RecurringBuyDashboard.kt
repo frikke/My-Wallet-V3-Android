@@ -70,7 +70,7 @@ fun RecurringBuyDashboard(
         recurringBuys = viewState.recurringBuys,
         openRecurringBuyDetail = openRecurringBuyDetail,
         addOnClick = {
-            assetActionsNavigation.navigate(AssetAction.Buy)
+            assetActionsNavigation.buyCryptoWithRecurringBuy()
         },
         onBackPressed = onBackPressed
     )

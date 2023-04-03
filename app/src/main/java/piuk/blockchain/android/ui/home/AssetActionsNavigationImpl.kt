@@ -71,6 +71,12 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
         return actionsResultContract!!.launch(ActionActivity.ActivityArgs(action = assetAction, null))
     }
 
+    override fun buyCryptoWithRecurringBuy() {
+        return actionsResultContract!!.launch(
+            ActionActivity.ActivityArgs(action = AssetAction.Buy, fromRecurringBuy = true)
+        )
+    }
+
     override fun receive(currency: String) {
         actionsResultContract!!.launch(ActionActivity.ActivityArgs(AssetAction.Receive, cryptoTicker = currency))
     }

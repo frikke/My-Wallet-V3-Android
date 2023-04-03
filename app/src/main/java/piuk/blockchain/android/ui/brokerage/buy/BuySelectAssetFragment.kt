@@ -21,6 +21,7 @@ import org.koin.core.component.KoinScopeComponent
 import org.koin.core.scope.Scope
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
+import piuk.blockchain.android.simplebuy.SimpleBuyCryptoFragment
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.brokerage.buy.composable.BuySelectAsset
@@ -81,10 +82,11 @@ class BuySelectAssetFragment : Fragment(), KoinScopeComponent {
                         is BuySelectAssetNavigation.SimpleBuy -> {
                             startActivity(
                                 SimpleBuyActivity.newIntent(
-                                    activity as Context,
-                                    it.assetInfo,
+                                    context = activity as Context,
+                                    asset = it.assetInfo,
                                     launchFromNavigationBar = true,
-                                    launchKycResume = false
+                                    launchKycResume = false,
+                                    fromRecurringBuy = arguments?.getBoolean(ARG_FROM_RECURRING_BUY) ?: false
                                 )
                             )
                         }
@@ -108,6 +110,14 @@ class BuySelectAssetFragment : Fragment(), KoinScopeComponent {
     }
 
     companion object {
-        fun newInstance() = BuySelectAssetFragment()
+        private const val ARG_FROM_RECURRING_BUY = "ARG_FROM_RECURRING_BUY"
+
+        fun newInstance(
+            fromRecurringBuy: Boolean = false
+        ) = BuySelectAssetFragment().apply {
+            arguments = Bundle().apply {
+                putBoolean(ARG_FROM_RECURRING_BUY, fromRecurringBuy)
+            }
+        }
     }
 }

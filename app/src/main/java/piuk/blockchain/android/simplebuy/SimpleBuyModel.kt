@@ -30,6 +30,7 @@ import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.UndefinedPaymentMethod
+import com.blockchain.domain.paymentmethods.model.realType
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflag.FeatureFlag
@@ -73,6 +74,7 @@ import piuk.blockchain.android.ui.linkbank.domain.openbanking.usecase.GetSafeCon
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import retrofit2.HttpException
 import timber.log.Timber
+import kotlin.test.todo
 
 class SimpleBuyModel(
     fiatCurrenciesService: FiatCurrenciesService,
@@ -345,7 +347,8 @@ class SimpleBuyModel(
                     fiatCurrency = intent.fiatCurrency,
                     preselectedId = intent.selectedPaymentMethodId,
                     previousSelectedId = previousState.selectedPaymentMethod?.id,
-                    usePrefilledAmount = false
+                    usePrefilledAmount = false,
+                    promptRecurringBuy = false
                 )
 
             is SimpleBuyIntent.FetchSuggestedPaymentMethod -> {
@@ -355,7 +358,8 @@ class SimpleBuyModel(
                     fiatCurrency = intent.fiatCurrency,
                     preselectedId = intent.selectedPaymentMethodId ?: lastPaymentMethodId,
                     previousSelectedId = previousState.selectedPaymentMethod?.id,
-                    usePrefilledAmount = intent.usePrefilledAmount
+                    usePrefilledAmount = intent.usePrefilledAmount,
+                    promptRecurringBuy = intent.promptRecurringBuy
                 )
             }
 
@@ -969,7 +973,8 @@ class SimpleBuyModel(
         fiatCurrency: FiatCurrency,
         preselectedId: String?,
         previousSelectedId: String?,
-        usePrefilledAmount: Boolean
+        usePrefilledAmount: Boolean,
+        promptRecurringBuy: Boolean
     ) =
         fetchEligiblePaymentMethods(fiatCurrency)
             .flatMap { paymentMethods ->
@@ -980,14 +985,31 @@ class SimpleBuyModel(
             .subscribeBy(
                 onSuccess = { (availablePaymentMethods, eligibilityNextPaymentList) ->
                     process(SimpleBuyIntent.RecurringBuyEligibilityUpdated(eligibilityNextPaymentList))
+
+                    val idEligibleForRb = availablePaymentMethods.firstOrNull { paymentMethod ->
+                        eligibilityNextPaymentList.flatMap { it.eligibleMethods }.distinct()
+                            .contains(paymentMethod.realType())
+                    }?.id?.takeIf { promptRecurringBuy }
+
                     process(
                         updateSelectedAndAvailablePaymentMethodMethodsIntent(
-                            preselectedId = preselectedId,
+                            preselectedId = idEligibleForRb ?: preselectedId,
                             previousSelectedId = previousSelectedId,
                             availablePaymentMethods = availablePaymentMethods,
                             usePrefilledAmount = usePrefilledAmount
                         )
                     )
+
+                    idEligibleForRb?.let {
+                        process(
+                            SimpleBuyIntent.RecurringBuyIntervalUpdated(RecurringBuyFrequency.WEEKLY)
+                        )
+
+                        process(
+                            SimpleBuyIntent.PromptRecurringBuyIntervals
+
+                        )
+                    }
                 },
                 onError = {
                     processOrderErrors(it)
