@@ -1,12 +1,15 @@
 package com.blockchain.coincore
 
+import com.blockchain.DefiWalletReceiveAddressService
 import com.blockchain.coincore.bch.BchAsset
 import com.blockchain.coincore.btc.BtcAsset
 import com.blockchain.coincore.eth.Erc20DataManagerImpl
 import com.blockchain.coincore.eth.EthAsset
+import com.blockchain.coincore.eth.GasFeeCalculator
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.CoinAddressesStore
+import com.blockchain.coincore.impl.DefiWalletReceiveAddressRepository
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.impl.HotWalletService
 import com.blockchain.coincore.impl.TxProcessorFactory
@@ -212,6 +215,13 @@ val coincoreModule = module {
         }
 
         scoped {
+            DefiWalletReceiveAddressRepository(
+                coincore = get(),
+                assetCatalogue = get()
+            )
+        }.bind(DefiWalletReceiveAddressService::class)
+
+        scoped {
             Erc20DataManagerImpl(
                 ethDataManager = get(),
                 historyCallCache = get(),
@@ -226,6 +236,10 @@ val coincoreModule = module {
                 tradeDataService = get(),
                 sellSwapBrokerageQuoteFF = get(sellSwapBrokerageQuoteFeatureFlag),
             )
+        }
+
+        factory {
+            GasFeeCalculator()
         }
 
         factory {

@@ -75,19 +75,21 @@ class DexAccountsRepository(
         return dexAvailableTokens().flatMapLatest { tokens ->
             activeAccounts().map {
                 it.filterKeys { account ->
-                    account.currency.networkTicker in tokens.map { token -> token.symbol }
+                    account.currency.coinNetwork?.chainId == ETH_CHAIN_ID
                 }.filterValues { balance ->
                     balance.total.isPositive
                 }
             }.map { balancedAccounts ->
-                balancedAccounts.map { (account, balance) ->
+                balancedAccounts.mapNotNull { (account, balance) ->
                     DexAccount(
                         account = account,
                         balance = balance.total,
                         currency = account.currency,
                         fiatBalance = balance.totalFiat,
-                        contractAddress = tokens.first { it.symbol == account.currency.networkTicker }.address,
-                        chainId = tokens.first { it.symbol == account.currency.networkTicker }.chainId
+                        contractAddress = account.currency.l2identifier
+                            ?: tokens.firstOrNull { it.symbol == account.currency.networkTicker }?.address
+                            ?: return@mapNotNull null,
+                        chainId = ETH_CHAIN_ID
                     )
                 }
             }

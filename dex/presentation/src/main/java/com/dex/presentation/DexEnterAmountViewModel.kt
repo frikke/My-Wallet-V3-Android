@@ -12,7 +12,9 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.dex.presentation.R
 import com.blockchain.extensions.safeLet
+import com.blockchain.outcome.getOrNull
 import com.blockchain.preferences.CurrencyPrefs
+import com.dex.domain.AllowanceTransactionProcessor
 import com.dex.domain.DexAccountsService
 import com.dex.domain.DexTransaction
 import com.dex.domain.DexTransactionProcessor
@@ -25,12 +27,15 @@ import info.blockchain.balance.Money
 import info.blockchain.balance.canConvert
 import java.math.BigDecimal
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNot
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class DexEnterAmountViewModel(
     private val currencyPrefs: CurrencyPrefs,
     private val txProcessor: DexTransactionProcessor,
+    private val allowanceProcessor: AllowanceTransactionProcessor,
     private val dexAccountsService: DexAccountsService,
     private val dexSlippageService: SlippageService,
     private val exchangeRatesDataManager: ExchangeRatesDataManager
@@ -93,7 +98,8 @@ class DexEnterAmountViewModel(
             uiFee = uiFee(
                 transaction?.fees,
                 state.feeToFiatExchangeRate
-            )
+            ),
+            previewActionButtonState = ActionButtonState.ENABLED // IMPLEMENT THE LOGIC IN A LATER PR.
         )
     }
 
@@ -130,6 +136,60 @@ class DexEnterAmountViewModel(
                 }
             }
             InputAmountIntent.DisposeTransaction -> {
+            }
+            InputAmountIntent.AllowanceTransactionApproved -> {
+                approveAllowanceTransaction()
+            }
+            InputAmountIntent.BuildAllowanceTransaction -> buildAllowanceTransaction()
+        }
+    }
+
+    private fun buildAllowanceTransaction() {
+        viewModelScope.launch {
+            modelState.transaction?.sourceAccount?.currency?.let {
+                updateState { modelState ->
+                    modelState.copy(
+                        operationInProgress = DexOperation.BUILDING_ALLOWANCE_TX
+                    )
+                }
+
+                allowanceProcessor.buildTx(it).getOrNull()?.let { tx ->
+                    val exchangeRate = exchangeRatesDataManager.exchangeRateToUserFiatFlow(fromAsset = tx.fees.currency)
+                        .filterNot { res -> res == DataResource.Loading }.first() as? DataResource.Data
+                    navigate(
+                        AmountNavigationEvent.ApproveAllowanceTx(
+                            AllowanceTxUiData(
+                                currencyTicker = tx.currencyToAllow.networkTicker,
+                                networkNativeAssetTicker = tx.fees.currency.networkTicker,
+                                fiatFees = (exchangeRate?.data?.convert(tx.fees) ?: tx.fees).toStringWithSymbol()
+                            )
+                        )
+                    )
+                }
+
+                updateState { modelState ->
+                    modelState.copy(
+                        operationInProgress = DexOperation.NONE
+                    )
+                }
+            }
+        }
+    }
+
+    private fun approveAllowanceTransaction() {
+        viewModelScope.launch {
+            updateState {
+                it.copy(operationInProgress = DexOperation.PUSHING_ALLOWANCE_TX)
+            }
+            /**
+             * todo handle failure
+             */
+            val allowanceTx = allowanceProcessor.pushTx()
+
+            updateState {
+                it.copy(
+                    operationInProgress = DexOperation.NONE,
+                )
             }
         }
     }
@@ -173,10 +233,10 @@ class DexEnterAmountViewModel(
         }
 
         viewModelScope.launch {
-            txProcessor.operationInProgress.collectLatest {
+            txProcessor.quoteFetching.collectLatest {
                 updateState { state ->
                     state.copy(
-                        operationInProgress = it
+                        operationInProgress = if (it) DexOperation.PRICE_FETCHING else DexOperation.NONE
                     )
                 }
             }
@@ -272,6 +332,7 @@ class DexEnterAmountViewModel(
                     error.message
                 )
             }
+            DexTxError.TokenNotAllowed -> DexUiError.TokenNotAllowed(sourceAccount.currency)
         }
     }
 }
@@ -281,12 +342,13 @@ sealed class InputAmountViewState : ViewState {
         val sourceCurrency: Currency?,
         val destinationCurrency: Currency?,
         val maxAmount: Money?,
-        val operationInProgress: Boolean,
+        val operationInProgress: DexOperation,
         val destinationAccountBalance: Money?,
         val inputExchangeAmount: Money?,
         val outputExchangeAmount: Money?,
         val outputAmount: Money?,
         val uiFee: UiFee?,
+        val previewActionButtonState: ActionButtonState,
         val error: DexUiError = DexUiError.None
     ) : InputAmountViewState()
 
@@ -302,16 +364,20 @@ data class UiFee(
 data class AmountModelState(
     val canTransact: DataResource<Boolean> = DataResource.Loading,
     val transaction: DexTransaction?,
-    val operationInProgress: Boolean = false,
+    val operationInProgress: DexOperation = DexOperation.NONE,
     val inputToFiatExchangeRate: ExchangeRate?,
     val outputToFiatExchangeRate: ExchangeRate?,
     val feeToFiatExchangeRate: ExchangeRate?,
 ) : ModelState
 
-class AmountNavigationEvent : NavigationEvent
+sealed class AmountNavigationEvent : NavigationEvent {
+    data class ApproveAllowanceTx(val data: AllowanceTxUiData) : AmountNavigationEvent()
+}
 
 sealed class InputAmountIntent : Intent<AmountModelState> {
     object InitTransaction : InputAmountIntent()
+    object AllowanceTransactionApproved : InputAmountIntent()
+    object BuildAllowanceTransaction : InputAmountIntent()
     object DisposeTransaction : InputAmountIntent()
     class AmountUpdated(val amountString: String) : InputAmountIntent()
 }
@@ -323,6 +389,7 @@ sealed class DexUiError {
             context.getString(R.string.not_enough_funds, currency.displayTicker)
     }
 
+    data class TokenNotAllowed(val token: Currency) : DexUiError()
     data class NotEnoughGas(val gasCurrency: Currency) : DexUiError(), AlertError {
         override fun message(context: Context): String =
             context.getString(R.string.not_enough_gas, gasCurrency.displayTicker)
@@ -334,4 +401,19 @@ sealed class DexUiError {
 
 interface AlertError {
     fun message(context: Context): String
+}
+
+enum class DexOperation {
+    NONE, PRICE_FETCHING, PUSHING_ALLOWANCE_TX, BUILDING_ALLOWANCE_TX
+}
+
+@kotlinx.serialization.Serializable
+data class AllowanceTxUiData(
+    val currencyTicker: String,
+    val networkNativeAssetTicker: String,
+    val fiatFees: String
+)
+
+enum class ActionButtonState {
+    INVISIBLE, ENABLED, DISABLED
 }

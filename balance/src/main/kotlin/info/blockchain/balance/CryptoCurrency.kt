@@ -39,7 +39,7 @@ val Currency.isLayer2Token: Boolean
     get() = (this as? AssetInfo)?.l2identifier != null && (this as? AssetInfo)?.coinNetwork != null
 
 fun Currency.isNetworkNativeAsset(): Boolean =
-    (this as? AssetInfo)?.coinNetwork != null && this.l2identifier == null
+    (this as? AssetInfo)?.coinNetwork?.nativeAssetTicker == networkTicker
 
 interface AssetCatalogue {
     val supportedFiatAssets: List<FiatCurrency>

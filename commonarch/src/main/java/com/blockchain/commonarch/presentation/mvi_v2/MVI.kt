@@ -109,7 +109,8 @@ abstract class MviViewModel<TIntent : Intent<TModelState>,
         get() = _modelState.map {
             reduce(it)
         }.stateIn(
-            viewModelScope, SharingStarted.Eagerly,
+            viewModelScope,
+            SharingStarted.Eagerly,
             reduce(initialState).also {
                 Timber.e("Reducing initial state $it for ViewModel ${this.javaClass.simpleName}")
             }

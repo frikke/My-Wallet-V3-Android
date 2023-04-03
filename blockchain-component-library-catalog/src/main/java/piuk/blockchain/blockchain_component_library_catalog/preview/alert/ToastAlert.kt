@@ -86,7 +86,7 @@ fun ErrorToastAlert_Text() {
 fun ErrorToastAlert_TextIcon() {
     AppTheme {
         AppSurface {
-            ErrorToastAlert(text = "Error", startIconDrawableRes = R.drawable.ic_refresh)
+            ErrorToastAlert(text = "Error")
         }
     }
 }

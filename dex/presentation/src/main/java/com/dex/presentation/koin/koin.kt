@@ -1,11 +1,13 @@
 package com.dex.presentation.koin
 
 import com.blockchain.koin.payloadScopeQualifier
+import com.dex.domain.AllowanceTransactionProcessor
 import com.dex.domain.DexTransactionProcessor
 import com.dex.presentation.DexEnterAmountViewModel
 import com.dex.presentation.DexSelectDestinationAccountViewModel
 import com.dex.presentation.DexSourceAccountViewModel
 import com.dex.presentation.SettingsViewModel
+import com.dex.presentation.TokenAllowanceViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -17,6 +19,7 @@ val dexPresentation = module {
                 txProcessor = get(),
                 dexAccountsService = get(),
                 exchangeRatesDataManager = get(),
+                allowanceProcessor = get(),
                 dexSlippageService = get()
             )
         }
@@ -40,10 +43,24 @@ val dexPresentation = module {
             )
         }
 
+        viewModel {
+            TokenAllowanceViewModel(
+                assetCatalogue = get(),
+            )
+        }
+
         scoped {
             DexTransactionProcessor(
                 dexQuotesService = get(),
+                allowanceService = get(),
                 balanceService = get()
+            )
+        }
+
+        factory {
+            AllowanceTransactionProcessor(
+                allowanceService = get(),
+                evmNetworkSigner = get()
             )
         }
     }
