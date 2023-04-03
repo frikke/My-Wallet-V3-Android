@@ -143,7 +143,8 @@ fun MultiAppNavHost(
                 onBackPressed = navController::popBackStack
             )
             dexGraph(
-                onBackPressed = navController::popBackStack
+                onBackPressed = navController::popBackStack,
+                navController = navController
             )
         }
     }

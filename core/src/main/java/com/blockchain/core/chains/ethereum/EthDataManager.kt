@@ -1,7 +1,10 @@
 package com.blockchain.core.chains.ethereum
 
+import com.blockchain.api.selfcustody.SignatureAlgorithm
 import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.FeeLevel
+import com.blockchain.core.chains.dynamicselfcustody.domain.model.PreImage
+import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSignature
 import com.blockchain.core.chains.ethereum.datastores.EthDataStore
 import com.blockchain.core.chains.ethereum.models.CombinedEthModel
 import com.blockchain.core.payload.PayloadDataManager
@@ -54,7 +57,7 @@ class EthDataManager(
     private val lastTxUpdater: LastTxUpdater,
     private val evmNetworksService: EvmNetworksService,
     private val nonCustodialEvmService: NonCustodialEvmService
-) : EthMessageSigner {
+) : EthMessageSigner, EvmNetworkPreImageSigner {
 
     val ehtAccount: EthereumAccount
         get() = ethDataStore.ethWallet?.account ?: throw IllegalStateException("Eth account is not initialised yet")
@@ -306,6 +309,23 @@ class EthDataManager(
             val account = ethDataStore.ethWallet?.account ?: throw IllegalStateException("No Eth wallet defined")
             account.signEthTypedMessage(message, payloadDataManager.masterKey)
         }
+    }
+
+    override fun signPreImage(preImage: PreImage): TransactionSignature {
+        val account = ethDataStore.ethWallet?.account ?: throw IllegalStateException("No Eth wallet defined")
+        if (preImage.signatureAlgorithm != SignatureAlgorithm.SECP256K1) throw java.lang.IllegalArgumentException(
+            "Algorithm not supported"
+        )
+        val signature = account.signRawPreImage(
+            rawPreImage = preImage.rawPreImage,
+            masterKey = payloadDataManager.masterKey
+        )
+        return TransactionSignature(
+            preImage = preImage.rawPreImage,
+            signingKey = preImage.signingKey,
+            signatureAlgorithm = preImage.signatureAlgorithm,
+            signature = signature
+        )
     }
 
     private fun String.decodeHex(): ByteArray {

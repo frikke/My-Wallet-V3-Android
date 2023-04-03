@@ -59,9 +59,11 @@
     <string name="common_search">Search</string>
     <string name="common_approve">Approve</string>
     <string name="common_deny">Deny</string>
+    <string name="common_decline">Decline</string>
     <string name="common_payment">Payment</string>
     <string name="common_unknown">Unknown</string>
     <string name="common_wallets">Wallets</string>
+    <string name="common_wallet">Wallet</string>
     <string name="common_go_back">Go Back</string>
     <string name="common_reset_password">Reset Password</string>
     <string name="common_buy_crypto">Buy Crypto</string>
@@ -1431,6 +1433,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="buy_now">Buy Now</string>
     <string name="buy_asset_now">Buy %1s Now</string>
     <string name="preview_buy">Preview Buy</string>
+    <string name="preview_swap">Preview Swap</string>
     <string name="simple_buy_transfer_details_error">Something went wrong while loading the transfer details.\n\nPlease try again later.</string>
     <string name="payment_methods_bank_transfer">If you\'d prefer to deposit funds directly from your bank account first, follow the instructions on the next screen. Once your deposit arrives in your Blockchain.com account you can come back here to buy crypto.</string>
     <string name="payment_methods_make_deposit">Make A Deposit -></string>
@@ -3583,6 +3586,9 @@ If you want to know more about our verification process visit our <annotation li
     <string name="not_enough_gas">Not enough %1$s for gas fees</string>
     <string name="allowed_slippage">Allowed Slippage</string>
     <string name="slippage_explanation">Slippage is the max percentage of price you\'re willing to allow for your swap to go through. If price changes beyond that, the swap will revert and your assets will be returned.</string>
+    <string name="approve_token">Approve %1$s</string>
+    <string name="allow_bcdc_dex_to_use">Allow Blockchain.com DEX to use your %1$s?</string>
+    <string name="allowance_bcdc_expanation">To complete the swap, give the Blockchain.com Dex smart contracts permission to use your %1$s. You only have to do this once per token.</string>
     <string name="asset_upsell_buy_another">Buy Another Asset</string>
     <string name="asset_upsell_title">Would you like to buy \nanother asset?</string>
     <string name="asset_upsell_subtitle">People who bought Bitcoin often buy these assets as well.</string>

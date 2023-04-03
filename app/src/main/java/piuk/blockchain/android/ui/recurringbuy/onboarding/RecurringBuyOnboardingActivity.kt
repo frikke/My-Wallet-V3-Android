@@ -6,9 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.activity.addCallback
-import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
-import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
@@ -42,7 +40,6 @@ class RecurringBuyOnboardingActivity : BlockchainActivity() {
             assetCatalogue.assetInfoFromNetworkTicker(it)
         }
     }
-
 
     private val assetActionsNavigation: AssetActionsNavigation = payloadScope.get {
         parametersOf(
