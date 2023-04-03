@@ -43,7 +43,9 @@ class LoadQuickActionsUseCase(
                     flowOf(DataResource.Data(CoinviewQuickActions.none()))
                 } else {
                     combine(
-                        userFeaturePermissionService.getAccessForFeatures(Feature.Buy, Feature.Sell),
+                        userFeaturePermissionService.getAccessForFeatures(
+                            Feature.Buy, Feature.Sell, Feature.DepositCrypto, Feature.Swap
+                        ),
                         custodialWalletManager.isCurrencyAvailableForTrading(asset.currency),
                         custodialWalletManager.isAssetSupportedForSwap(asset.currency).toFlowDataResource()
                     ) { featuresAccess, isAvailableForTrading, isSupportedForSwap ->
