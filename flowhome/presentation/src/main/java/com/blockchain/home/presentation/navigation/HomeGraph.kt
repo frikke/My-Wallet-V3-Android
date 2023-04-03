@@ -15,6 +15,7 @@ import com.blockchain.home.presentation.fiat.fundsdetail.composable.FiatFundDeta
 import com.blockchain.home.presentation.onboarding.defi.composable.DeFiOnboarding
 import com.blockchain.home.presentation.onboarding.introduction.composable.IntroductionScreens
 import com.blockchain.home.presentation.quickactions.MoreActions
+import com.blockchain.home.presentation.recurringbuy.composable.RecurringBuyDashboard
 import com.blockchain.home.presentation.referral.composable.ReferralCode
 import com.blockchain.home.presentation.swapdexoption.SwapDexOptionScreen
 import com.blockchain.walletmode.WalletMode
@@ -53,6 +54,15 @@ fun NavGraphBuilder.homeGraph(
     composable(navigationEvent = HomeDestination.CryptoAssets) {
         ChromeSingleScreen {
             CryptoAssets(
+                assetActionsNavigation = assetActionsNavigation,
+                onBackPressed = onBackPressed
+            )
+        }
+    }
+
+    composable(navigationEvent = HomeDestination.RecurringBuys) {
+        ChromeSingleScreen {
+            RecurringBuyDashboard(
                 assetActionsNavigation = assetActionsNavigation,
                 onBackPressed = onBackPressed
             )

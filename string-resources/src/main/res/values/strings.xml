@@ -2467,6 +2467,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="recurring_buy_first_time_success_title">Recurring Buy Started!</string>
     <string name="recurring_buy_first_time_info">Buy %1$s of %2$s every day, week or month with a Recurring Buy. No need to ever time the market.</string>
     <string name="recurring_buy_first_time_success_subtitle">We will buy %1$s of %2$s %3$s at that moment’s market price. Cancel this recurring buy at anytime.</string>
+    <string name="recurring_buy_add">Add Recurring Buy</string>
 
     <!-- Zendesk -->
     <string name="zendesk_window_title">Blockchain.com Live Support</string>
