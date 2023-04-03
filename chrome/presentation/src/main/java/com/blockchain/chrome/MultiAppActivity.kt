@@ -53,6 +53,7 @@ import com.blockchain.home.presentation.navigation.AuthNavigationHost
 import com.blockchain.home.presentation.navigation.HomeLaunch
 import com.blockchain.home.presentation.navigation.HomeLaunch.PENDING_DESTINATION
 import com.blockchain.home.presentation.navigation.QrScanNavigation
+import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
 import com.blockchain.home.presentation.navigation.SettingsDestination
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
@@ -138,6 +139,12 @@ class MultiAppActivity :
         )
     }
 
+    private val recurringBuyNavigation: RecurringBuyNavigation = payloadScope.get {
+        parametersOf(
+            this
+        )
+    }
+
     private val deeplinkProcessor: DeeplinkProcessorV2 by scopedInject()
 
     private lateinit var qrScanNavigation: QrScanNavigation
@@ -205,6 +212,7 @@ class MultiAppActivity :
             MultiAppNavHost(
                 startPhraseRecovery = ::handlePhraseRecovery,
                 assetActionsNavigation = assetActionsNavigation,
+                recurringBuyNavigation = recurringBuyNavigation,
                 showAppRating = ::showAppRating,
                 settingsNavigation = settingsNavigation,
                 pricesNavigation = pricesNavigation,

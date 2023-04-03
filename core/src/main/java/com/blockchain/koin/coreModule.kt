@@ -212,7 +212,8 @@ val coreModule = module {
                 rbStore = get(),
                 rbFrequencyConfigStore = get(),
                 recurringBuyApiService = get(),
-                assetCatalogue = get()
+                assetCatalogue = get(),
+                userFeaturePermissionService = get()
             )
         }
 

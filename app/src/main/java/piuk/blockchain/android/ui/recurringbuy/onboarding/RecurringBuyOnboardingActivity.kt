@@ -6,36 +6,45 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.activity.addCallback
-import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
-import com.blockchain.analytics.Analytics
+import com.blockchain.coincore.AssetAction
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.koin.payloadScope
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import org.koin.android.ext.android.inject
+import org.koin.core.parameter.parametersOf
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityRecurringBuyOnBoardingBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 
-class RecurringBuyOnboardingActivity : AppCompatActivity() {
+class RecurringBuyOnboardingActivity : BlockchainActivity() {
+
+    override val alwaysDisableScreenshots: Boolean = false
+
+    override val statusbarColor: ModeBackgroundColor = ModeBackgroundColor.None
 
     private val binding: ActivityRecurringBuyOnBoardingBinding by lazy {
         ActivityRecurringBuyOnBoardingBinding.inflate(layoutInflater)
     }
 
-    private val analytics: Analytics by inject()
     private val assetCatalogue: AssetCatalogue by inject()
-
-    private val fromCoinView: Boolean by unsafeLazy {
-        intent?.getBooleanExtra(ORIGIN_ON_BOARDING_RBS, true) ?: true
-    }
 
     private val asset: AssetInfo? by unsafeLazy {
         intent?.getStringExtra(ASSET)?.let {
             assetCatalogue.assetInfoFromNetworkTicker(it)
         }
+    }
+
+    private val assetActionsNavigation: AssetActionsNavigation = payloadScope.get {
+        parametersOf(
+            this
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,12 +60,9 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
         with(binding) {
             viewpager.adapter = recurringBuyOnBoardingPagerAdapter
             indicator.setViewPager(viewpager)
-            recurringBuyCta.apply {
-                visibleIf { fromCoinView }
-                recurringBuyCta.setOnClickListener {
-                    goToRecurringSetUpScreen()
-                    finish()
-                }
+            recurringBuyCta.setOnClickListener {
+                goToRecurringSetUpScreen()
+                finish()
             }
             closeBtn.setOnClickListener { finish() }
         }
@@ -99,12 +105,14 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
     }
 
     private fun goToRecurringSetUpScreen() {
-        startActivity(
-            SimpleBuyActivity.newIntent(
-                context = this,
-                asset = asset
+        asset?.let {
+            startActivity(
+                SimpleBuyActivity.newIntent(
+                    context = this,
+                    asset = asset
+                )
             )
-        )
+        } ?: assetActionsNavigation.navigate(AssetAction.Buy)
     }
 
     private fun createListOfRecurringBuyInfo(): List<RecurringBuyInfo> = listOf(
@@ -149,23 +157,12 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
 
     companion object {
         private const val FRAMES_PER_SCREEN = 60
-        private const val ORIGIN_ON_BOARDING_RBS = "FROM_COINVIEW"
         private const val ASSET = "ASSET"
-        fun newInstance(
-            context: Context,
-            fromCoinView: Boolean,
-            asset: AssetInfo? = null
-        ): Intent = Intent(context, RecurringBuyOnboardingActivity::class.java).apply {
-            putExtra(ORIGIN_ON_BOARDING_RBS, fromCoinView)
-            putExtra(ASSET, asset?.networkTicker)
-        }
 
         fun newIntent(
             context: Context,
-            fromCoinView: Boolean,
-            assetTicker: String
+            assetTicker: String?
         ): Intent = Intent(context, RecurringBuyOnboardingActivity::class.java).apply {
-            putExtra(ORIGIN_ON_BOARDING_RBS, fromCoinView)
             putExtra(ASSET, assetTicker)
         }
     }

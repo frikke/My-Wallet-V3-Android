@@ -75,6 +75,7 @@ import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.extensions.safeLet
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.QrScanNavigation
+import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.koin.payloadScope
@@ -118,7 +119,9 @@ fun MultiAppChrome(
     startPhraseRecovery: () -> Unit,
     showAppRating: () -> Unit,
     openCryptoAssets: () -> Unit,
+    openRecurringBuys: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
+    recurringBuyNavigation: RecurringBuyNavigation,
     settingsNavigation: SettingsNavigation,
     pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
@@ -185,6 +188,7 @@ fun MultiAppChrome(
             },
             onModeLongClicked = onModeLongClicked,
             openCryptoAssets = openCryptoAssets,
+            openRecurringBuys = openRecurringBuys,
             openActivity = openActivity,
             openActivityDetail = openActivityDetail,
             openReferral = openReferral,
@@ -193,6 +197,7 @@ fun MultiAppChrome(
             graphNavController = graphNavController,
             openMoreQuickActions = openMoreQuickActions,
             assetActionsNavigation = assetActionsNavigation,
+            recurringBuyNavigation = recurringBuyNavigation,
             settingsNavigation = settingsNavigation,
             pricesNavigation = pricesNavigation,
             qrScanNavigation = qrScanNavigation,
@@ -229,7 +234,9 @@ fun MultiAppChromeScreen(
     onModeSelected: (WalletMode) -> Unit,
     onModeLongClicked: (WalletMode) -> Unit,
     openCryptoAssets: () -> Unit,
+    openRecurringBuys: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
+    recurringBuyNavigation: RecurringBuyNavigation,
     settingsNavigation: SettingsNavigation,
     pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
@@ -739,6 +746,7 @@ fun MultiAppChromeScreen(
                         stopRefresh()
                     },
                     openCryptoAssets = openCryptoAssets,
+                    openRecurringBuys = openRecurringBuys,
                     openActivity = openActivity,
                     openActivityDetail = openActivityDetail,
                     openReferral = openReferral,
@@ -746,6 +754,7 @@ fun MultiAppChromeScreen(
                     openMoreQuickActions = openMoreQuickActions,
                     openFiatActionDetail = openFiatActionDetail,
                     assetActionsNavigation = assetActionsNavigation,
+                    recurringBuyNavigation = recurringBuyNavigation,
                     settingsNavigation = settingsNavigation,
                     pricesNavigation = pricesNavigation,
                     navController = graphNavController,
