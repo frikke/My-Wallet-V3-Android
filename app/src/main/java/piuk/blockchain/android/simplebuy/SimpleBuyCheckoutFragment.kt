@@ -17,6 +17,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.utils.AnnotatedStringUtils
@@ -212,12 +213,6 @@ class SimpleBuyCheckoutFragment :
 
     private var startPolling = true
 
-    private var onQuoteAnimEnd: () -> Unit = {
-        binding.amount.setTextColor(
-            ContextCompat.getColor(binding.amount.context, R.color.grey_800)
-        )
-    }
-
     override fun render(newState: SimpleBuyState) {
         if (newState.featureFlagSet.feynmanCheckoutFF && startPolling) {
             startPolling = false
@@ -236,9 +231,12 @@ class SimpleBuyCheckoutFragment :
                 startCounter(newState.quote, chunksCounter.first())
             }
             if (newState.hasQuoteChanged && !isPendingOrAwaitingFunds(newState.orderState)) {
-                binding.amount.animateChange(
-                    onAnimationEnd = onQuoteAnimEnd
-                )
+                binding.amount.animateChange {
+                    if (!isDestroyed())
+                        binding.amount.setTextColor(
+                            ContextCompat.getColor(binding.amount.context, R.color.grey_800)
+                        )
+                }
                 checkoutAdapterDelegate.items = getCheckoutFields(newState)
             }
         }
@@ -1042,7 +1040,6 @@ class SimpleBuyCheckoutFragment :
     override fun onDestroy() {
         model.process(SimpleBuyIntent.StopPollingBrokerageQuotes)
         countDownTimer?.cancel()
-        onQuoteAnimEnd = {}
         super.onDestroy()
     }
 
@@ -1139,6 +1136,11 @@ class SimpleBuyCheckoutFragment :
             }
             return fragment
         }
+    }
+
+    private fun isDestroyed(): Boolean {
+        val state = lifecycle.currentState
+        return state == Lifecycle.State.DESTROYED
     }
 }
 

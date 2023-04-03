@@ -32,6 +32,7 @@ import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.chains.ethereum.EthLastTxCache
 import com.blockchain.core.chains.ethereum.EthMessageSigner
+import com.blockchain.core.chains.ethereum.EvmNetworkPreImageSigner
 import com.blockchain.core.chains.ethereum.datastores.EthDataStore
 import com.blockchain.core.common.caching.StoreWiperImpl
 import com.blockchain.core.connectivity.SSLPinningEmitter
@@ -273,7 +274,10 @@ val coreModule = module {
                 ethLastTxCache = get(),
                 nonCustodialEvmService = get()
             )
-        }.bind(EthMessageSigner::class)
+        }.apply {
+            bind(EthMessageSigner::class)
+            bind(EvmNetworkPreImageSigner::class)
+        }
 
         scoped {
             L1BalanceStore(

@@ -1,5 +1,6 @@
 apply from: rootProject.file('gradle/local/common-feature-android.gradle')
 apply plugin: 'kotlin-parcelize'
+apply plugin: 'kotlinx-serialization'
 
 android {
     buildTypes {
@@ -47,4 +48,5 @@ dependencies {
     implementation Libraries.accompanistPager
     implementation Libraries.accompanistPagerIndicators
     implementation Libraries.accompanistNavigationMaterial
+    implementation Libraries.kotlinJson
 }

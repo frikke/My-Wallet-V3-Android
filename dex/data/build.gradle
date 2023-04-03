@@ -10,6 +10,7 @@ dependencies {
     implementation project(':core')
     implementation project(":store:caches:persistedjsonsqldelight")
     implementation project(":store:core")
+    implementation project(":unifiedcryptowallet:domain")
     implementation project(':wallet')
 
     // rx

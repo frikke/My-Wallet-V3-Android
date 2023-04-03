@@ -8,8 +8,10 @@ val Icons.Activity: ImageResource.Local
     get() = ImageResource.Local(R.drawable.activity_off)
 val Icons.Airdrop: ImageResource.Local
     get() = ImageResource.Local(R.drawable.airdrop_off)
-val Icons.Alert: ImageResource.Local
+val Icons.AlertOff: ImageResource.Local
     get() = ImageResource.Local(R.drawable.alert_off)
+val Icons.AlertOn: ImageResource.Local
+    get() = ImageResource.Local(R.drawable.alert_on)
 val Icons.Android: ImageResource.Local
     get() = ImageResource.Local(R.drawable.android_off)
 val Icons.Apple: ImageResource.Local
@@ -216,8 +218,10 @@ val Icons.Print: ImageResource.Local
     get() = ImageResource.Local(R.drawable.print_off)
 val Icons.QrCode: ImageResource.Local
     get() = ImageResource.Local(R.drawable.qr_code_off)
-val Icons.Question: ImageResource.Local
+val Icons.QuestionOff: ImageResource.Local
     get() = ImageResource.Local(R.drawable.question_off)
+val Icons.Question: ImageResource.Local
+    get() = ImageResource.Local(R.drawable.question_on)
 val Icons.Receive: ImageResource.Local
     get() = ImageResource.Local(R.drawable.receive_off)
 val Icons.Refresh: ImageResource.Local

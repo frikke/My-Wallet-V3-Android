@@ -1,5 +1,6 @@
 package com.dex.data
 
+import com.blockchain.DefiWalletReceiveAddressService
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.dex.DexQuotesApiService
 import com.blockchain.api.dex.FromCurrency
@@ -11,7 +12,6 @@ import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
 import com.blockchain.outcome.mapError
 import com.blockchain.utils.asFlow
-import com.blockchain.utils.awaitOutcome
 import com.dex.domain.DexAccount
 import com.dex.domain.DexBalanceService
 import com.dex.domain.DexQuote
@@ -30,12 +30,13 @@ import org.web3j.utils.Convert
 class DexQuotesRepository(
     private val dexQuotesApiService: DexQuotesApiService,
     private val coincore: Coincore,
+    private val defiWalletReceiveAddressService: DefiWalletReceiveAddressService,
     private val assetCatalogue: AssetCatalogue
 ) : DexQuotesService, DexBalanceService {
     override suspend fun quote(
         dexQuoteParams: DexQuoteParams
     ): Outcome<DexTxError, DexQuote> {
-        val address = dexQuoteParams.sourceAccount.receiveAddress()
+        val address = defiWalletReceiveAddressService.receiveAddress(dexQuoteParams.sourceAccount.currency)
 
         val nativeCurrency = dexQuoteParams.sourceAccount.currency.coinNetwork?.nativeAssetTicker?.let {
             assetCatalogue.fromNetworkTicker(it)
@@ -57,7 +58,7 @@ class DexQuotesRepository(
                     address = dexQuoteParams.destinationAccount.contractAddress,
                 ),
                 slippage = dexQuoteParams.slippage,
-                address = it
+                address = it.address
             ).map { resp ->
                 DexQuote.ExchangeQuote(
                     amount = dexQuoteParams.amount,
@@ -113,18 +114,6 @@ class DexQuotesRepository(
             nativeCurrency,
             feeInWei
         )
-    }
-
-    private suspend fun DexAccount.receiveAddress(): Outcome<Exception, String> {
-        val nativeAssetTicker = currency.coinNetwork?.nativeAssetTicker ?: currency.networkTicker
-        val currency = assetCatalogue.fromNetworkTicker(nativeAssetTicker) ?: return Outcome.Failure(
-            IllegalStateException("Unknown currency")
-        )
-        return coincore[currency].defaultAccount(AssetFilter.NonCustodial).flatMap { acc ->
-            acc.receiveAddress.map { receiveAddress ->
-                receiveAddress.address
-            }
-        }.awaitOutcome()
     }
 
     override suspend fun networkBalance(account: DexAccount): Money {

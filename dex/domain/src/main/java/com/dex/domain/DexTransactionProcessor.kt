@@ -2,7 +2,9 @@ package com.dex.domain
 
 import com.blockchain.extensions.safeLet
 import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.getOrNull
 import info.blockchain.balance.Money
+import info.blockchain.balance.isNetworkNativeAsset
 import java.math.BigDecimal
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -11,6 +13,8 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -18,30 +22,43 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/*
+* https://medium.com/androiddevelopers/coroutines-patterns-for-work-that-shouldnt-be-cancelled-e26c40f142ad
+* */
 @OptIn(FlowPreview::class)
 class DexTransactionProcessor(
     private val dexQuotesService: DexQuotesService,
-    private val balanceService: DexBalanceService
+    private val balanceService: DexBalanceService,
+    private val allowanceService: AllowanceService
 ) {
+
+    private val _isFetchingQuote: MutableStateFlow<Boolean> = MutableStateFlow(
+        false
+    )
+
+    val quoteFetching: Flow<Boolean>
+        get() = _isFetchingQuote
+
+    private val scope = CoroutineScope(Job() + Dispatchers.IO)
 
     private val _dexTransaction: MutableStateFlow<DexTransaction> = MutableStateFlow(
         EmptyDexTransaction
     )
 
-    private val _operationInProgress: MutableStateFlow<Boolean> = MutableStateFlow(
-        false
-    )
-
-    val operationInProgress: Flow<Boolean>
-        get() = _operationInProgress
-
-    private val scope = CoroutineScope(Job() + Dispatchers.IO)
+    private val _transactionSharedFlow: SharedFlow<DexTransaction> =
+        _dexTransaction.validate()
+            .shareIn(
+                scope = scope,
+                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 1000),
+                replay = 1
+            )
 
     val transaction: Flow<DexTransaction>
-        get() = _dexTransaction.validate()
+        get() = _transactionSharedFlow
 
     fun initTransaction(sourceAccount: DexAccount, destinationAccount: DexAccount?, slippage: Double) {
         _dexTransaction.update {
@@ -61,11 +78,13 @@ class DexTransactionProcessor(
                 .mapLatest {
                     it.quoteParams to it.canBeQuoted()
                 }.filterNotNull()
-                .distinctUntilChanged()
+                .distinctUntilChanged { (oldParams, _), (newParams, _) ->
+                    oldParams == newParams
+                }
                 .debounce(350)
                 .mapLatest { (params, canBeQuoted) ->
                     if (params != null && canBeQuoted) {
-                        _operationInProgress.emit(true)
+                        _isFetchingQuote.emit(true)
                         dexQuotesService.quote(
                             params
                         )
@@ -75,7 +94,7 @@ class DexTransactionProcessor(
                         )
                     }
                 }.onEach {
-                    _operationInProgress.emit(false)
+                    _isFetchingQuote.emit(false)
                 }.collectLatest {
                     when (it) {
                         is Outcome.Success -> updateTxQuote(it.value)
@@ -165,6 +184,8 @@ class DexTransactionProcessor(
         }.validate { tx ->
             tx.validateSufficientFunds()
         }.validate { tx ->
+            tx.validateAllowance()
+        }.validate { tx ->
             tx.validateSufficientNetworkFees()
         }.validate { tx ->
             tx.validateQuoteError()
@@ -189,6 +210,23 @@ class DexTransactionProcessor(
         )
     }
 
+    private suspend fun DexTransaction.validateAllowance(): DexTransaction {
+        return if (destinationAccount == null || !amount.isPositive || sourceAccount.currency.isNetworkNativeAsset()) {
+            this
+        } else {
+            val allowance = allowanceService.tokenAllowance(
+                sourceAccount.currency
+            ).getOrNull()
+            allowance?.let {
+                if (it.allowanceAmount == "0")
+                    return copy(
+                        txError = DexTxError.TokenNotAllowed
+                    )
+                else this
+            } ?: return this
+        }
+    }
+
     private fun DexTransaction.validateSufficientFunds(): DexTransaction {
         return if (sourceAccount.balance >= amount)
             this
@@ -210,7 +248,7 @@ class DexTransactionProcessor(
 }
 
 /**
- * We are able to fetch a quote when amount>0 AND ( no error or error is quote related )
+ * We are able to fetch a quote when amount > 0 AND ( no error or error is quote related )
  */
 private fun DexTransaction.canBeQuoted() =
     amount.isPositive && (
@@ -263,6 +301,7 @@ sealed class DexTxError {
     object NotEnoughFunds : DexTxError()
     object NotEnoughGas : DexTxError()
     data class QuoteError(val title: String, val message: String) : DexTxError()
+    object TokenNotAllowed : DexTxError()
     class FatalTxError(val exception: Exception) : DexTxError()
     object None : DexTxError()
 }

@@ -48,7 +48,11 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavController
+import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
+import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -58,10 +62,12 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.AlertButton
 import com.blockchain.componentlib.button.ButtonLoadingIndicator
 import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.icons.ArrowDown
 import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Question
 import com.blockchain.componentlib.icons.Settings
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.lazylist.paddedItem
@@ -79,9 +85,12 @@ import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.dex.presentation.R
 import com.blockchain.koin.payloadScope
 import com.blockchain.preferences.DexPrefs
+import com.dex.presentation.graph.ARG_ALLOWANCE_TX
 import com.dex.presentation.graph.DexDestination
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.serialization.json.Json
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
@@ -91,6 +100,7 @@ fun DexEnterAmountScreen(
     listState: LazyListState,
     navController: NavController,
     startReceiving: () -> Unit,
+    savedStateHandle: SavedStateHandle?,
     viewModel: DexEnterAmountViewModel = getViewModel(scope = payloadScope),
     dexIntroPrefs: DexPrefs = get()
 ) {
@@ -103,15 +113,52 @@ fun DexEnterAmountScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val lifecycleOwner = LocalLifecycleOwner.current
+
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_CREATE) {
                 viewModel.onIntent(InputAmountIntent.InitTransaction)
             }
+            if (event == Lifecycle.Event.ON_RESUME && savedStateHandle?.contains(
+                    ALLOWANCE_TRANSACTION_APPROVED
+                ) == true
+            ) {
+                savedStateHandle.get<Boolean>(ALLOWANCE_TRANSACTION_APPROVED)?.let {
+                    if (it) {
+                        viewModel.onIntent(InputAmountIntent.AllowanceTransactionApproved)
+                    } else {
+                        /*
+                        * handle decline
+                        * */
+                    }
+                }
+                savedStateHandle.remove<Boolean>(ALLOWANCE_TRANSACTION_APPROVED)
+            }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    val navEventsFlowLifecycleAware = remember(viewModel.navigationEventFlow, lifecycleOwner) {
+        viewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
+
+    LaunchedEffect(key1 = viewModel) {
+        navEventsFlowLifecycleAware.collectLatest { event ->
+            when (event) {
+                is AmountNavigationEvent.ApproveAllowanceTx -> navController.navigate(
+                    DexDestination.TokenAllowanceSheet.routeWithArgs(
+                        listOf(
+                            NavArgument(
+                                key = ARG_ALLOWANCE_TX,
+                                value = Json.encodeToString(AllowanceTxUiData.serializer(), event.data)
+                            ),
+                        )
+                    )
+                )
+            }
         }
     }
 
@@ -146,8 +193,10 @@ fun DexEnterAmountScreen(
                     settingsOnClick = {
                         navController.navigate(DexDestination.Settings.route)
                         keyboardController?.hide()
+                    },
+                    onTokenAllowanceRequested = {
+                        viewModel.onIntent(InputAmountIntent.BuildAllowanceTransaction)
                     }
-
                 )
             }
         }
@@ -226,6 +275,7 @@ private fun NoInputScreen(receive: () -> Unit) {
 fun InputField(
     selectSourceAccount: () -> Unit,
     selectDestinationAccount: () -> Unit,
+    onTokenAllowanceRequested: () -> Unit,
     onValueChanged: (TextFieldValue) -> Unit,
     settingsOnClick: () -> Unit,
     viewState: InputAmountViewState.TransactionInputState
@@ -299,7 +349,7 @@ fun InputField(
                             viewState.outputExchangeAmount?.let {
                                 ExchangeAmount(
                                     money = it,
-                                    isEnabled = !viewState.operationInProgress
+                                    isEnabled = viewState.operationInProgress == DexOperation.NONE
                                 )
                             }
                             viewState.destinationAccountBalance?.takeIf { it.isPositive }?.let {
@@ -314,11 +364,22 @@ fun InputField(
 
         Settings(settingsOnClick)
 
-        viewState.uiFee?.takeIf { !viewState.operationInProgress }?.let { uiFee ->
+        viewState.uiFee?.takeIf { viewState.operationInProgress == DexOperation.NONE }?.let { uiFee ->
             Fee(uiFee)
         }
-        viewState.operationInProgress.takeIf { it }?.let {
+        viewState.operationInProgress.takeIf { it == DexOperation.PRICE_FETCHING }?.let {
             PriceFetching()
+        }
+
+        (viewState.error as? DexUiError.TokenNotAllowed)?.let {
+            TokenAllowance(
+                onClick = onTokenAllowanceRequested,
+                currency = it.token,
+                txInProgress = viewState.operationInProgress in listOf(
+                    DexOperation.PUSHING_ALLOWANCE_TX,
+                    DexOperation.BUILDING_ALLOWANCE_TX
+                )
+            )
         }
 
         (viewState.error as? AlertError)?.let {
@@ -329,7 +390,36 @@ fun InputField(
                 state = ButtonState.Enabled
             )
         }
+
+        viewState.previewActionButtonState.takeIf { it != ActionButtonState.INVISIBLE }?.let {
+            PreviewSwapButton(onClick = {})
+        }
     }
+}
+
+@Composable
+private fun PreviewSwapButton(onClick: () -> Unit) {
+    PrimaryButton(
+        modifier = Modifier
+            .padding(top = dimensionResource(id = R.dimen.small_spacing))
+            .fillMaxWidth(),
+        text = stringResource(id = R.string.preview_swap), onClick = onClick
+    )
+}
+
+@Composable
+private fun TokenAllowance(onClick: () -> Unit, currency: Currency, txInProgress: Boolean) {
+    MinimalButton(
+        modifier = Modifier
+            .padding(top = dimensionResource(id = R.dimen.small_spacing))
+            .background(Color.White, shape = AppTheme.shapes.extraLarge)
+            .fillMaxWidth(),
+        state = if (txInProgress) ButtonState.Loading else ButtonState.Enabled,
+        minHeight = 56.dp,
+        icon = Icons.Question.withTint(AppTheme.colors.primary),
+        text = stringResource(id = R.string.approve_token, currency.displayTicker),
+        onClick = onClick
+    )
 }
 
 @Composable
@@ -605,7 +695,7 @@ private fun CurrencySelection(
 private fun AmountAndCurrencySelection(
     isReadOnly: Boolean,
     input: TextFieldValue,
-    operationInProgress: Boolean,
+    operationInProgress: DexOperation,
     currency: Currency?,
     onValueChanged: (TextFieldValue) -> Unit,
     onClick: () -> Unit
@@ -622,7 +712,7 @@ private fun AmountAndCurrencySelection(
             modifier = Modifier.weight(1f),
             value = input,
             singleLine = true,
-            enabled = if (isReadOnly) !operationInProgress else true,
+            enabled = if (isReadOnly) operationInProgress == DexOperation.NONE else true,
             textStyle = AppTheme.typography.title2Mono,
             readOnly = isReadOnly,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),

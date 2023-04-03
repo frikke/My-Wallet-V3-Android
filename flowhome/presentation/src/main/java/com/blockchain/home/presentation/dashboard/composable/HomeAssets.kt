@@ -20,7 +20,7 @@ import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.Question
+import com.blockchain.componentlib.icons.QuestionOff
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
@@ -63,7 +63,7 @@ fun FundLocksData(
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
 
-            Image(Icons.Question.withTint(Grey400).withSize(14.dp))
+            Image(Icons.QuestionOff.withTint(Grey400).withSize(14.dp))
 
             Spacer(modifier = Modifier.weight(1F))
 
