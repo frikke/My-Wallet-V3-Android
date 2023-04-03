@@ -59,7 +59,7 @@ class AddressFactoryImpl(
      * an empty set
      **/
     override fun parse(address: String): Single<Set<ReceiveAddress>> =
-        coincore.activeAssets().asObservable().firstOrError().map { it.filterIsInstance<CryptoAsset>() }
+        coincore.allActiveAssets().asObservable().firstOrError().map { it.filterIsInstance<CryptoAsset>() }
             .flattenAsObservable {
                 it
             }.flatMapSingle {
@@ -124,6 +124,7 @@ class AddressFactoryImpl(
         // the symbols of the payment protocols like '&'). If the input can't be matched against this formula,
         // we should try to resolve it as a domain given that it can't be an address.
         private val alphaNumericAndAscii = Regex("^[\\p{Alnum}\\p{ASCII}]+")
+
         // The variant selector range as per:
         // https://en.wikipedia.org/wiki/Variation_Selectors_(Unicode_block)
         private val variantSelectorRange = CharRange('\ufe00', '\ufe0f')

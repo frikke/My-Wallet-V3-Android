@@ -371,6 +371,15 @@ class Coincore internal constructor(
         }
     }
 
+    fun allActiveAssets(
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+    ): Flow<List<Asset>> {
+        return flow {
+
+            emitAll(assetLoader.activeAssets(freshnessStrategy))
+        }
+    }
+
     fun allActiveWallets(
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
             RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
