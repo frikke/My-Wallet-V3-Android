@@ -318,7 +318,7 @@ fun HomeScreen(
                 .dataOrElse(null)
                 ?.let { recurringBuys ->
                     homeRecurringBuys(
-                        recurringBuys = recurringBuys,
+                        recurringBuys = listOf(),// recurringBuys,
                         manageOnclick = openRecurringBuys,
                         upsellOnClick = recurringBuyNavigation::openOnboarding,
                         recurringBuyOnClick = openRecurringBuyDetail

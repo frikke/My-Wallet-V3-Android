@@ -9,7 +9,9 @@ import androidx.activity.addCallback
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
+import com.blockchain.componentlib.viewextensions.invisibleIf
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
@@ -27,11 +29,12 @@ class RecurringBuyOnboardingActivity : BlockchainActivity() {
 
     override val alwaysDisableScreenshots: Boolean = false
 
-    override val statusbarColor: ModeBackgroundColor = ModeBackgroundColor.None
-
     private val binding: ActivityRecurringBuyOnBoardingBinding by lazy {
         ActivityRecurringBuyOnBoardingBinding.inflate(layoutInflater)
     }
+
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
 
     private val assetCatalogue: AssetCatalogue by inject()
 
@@ -52,7 +55,10 @@ class RecurringBuyOnboardingActivity : BlockchainActivity() {
         showFullScreen()
         setContentView(binding.root)
 
-        setupBackPress()
+        updateToolbarBackAction {
+            onBackPressedDispatcher.onBackPressed()
+        }
+        updateToolbarTitle(getString(R.string.recurring_buy_toolbar))
 
         val recurringBuyOnBoardingPagerAdapter =
             RecurringBuyOnBoardingPagerAdapter(this, createListOfRecurringBuyInfo())
@@ -60,11 +66,13 @@ class RecurringBuyOnboardingActivity : BlockchainActivity() {
         with(binding) {
             viewpager.adapter = recurringBuyOnBoardingPagerAdapter
             indicator.setViewPager(viewpager)
-            recurringBuyCta.setOnClickListener {
-                goToRecurringSetUpScreen()
-                finish()
+            recurringBuyCta.apply {
+                text = getString(R.string.recurring_buy_cta_1)
+                onClick = {
+                    goToRecurringSetUpScreen()
+                    finish()
+                }
             }
-            closeBtn.setOnClickListener { finish() }
         }
         setupViewPagerListener()
     }
@@ -79,7 +87,7 @@ class RecurringBuyOnboardingActivity : BlockchainActivity() {
 
     private fun showHeader(isShown: Boolean) {
         binding.apply {
-            headerText.visibleIf { isShown }
+            headerText.invisibleIf { !isShown }
         }
     }
 
@@ -113,7 +121,7 @@ class RecurringBuyOnboardingActivity : BlockchainActivity() {
                     fromRecurringBuy = true
                 )
             )
-        } ?: assetActionsNavigation.navigate(AssetAction.Buy)
+        } ?: assetActionsNavigation.buyCryptoWithRecurringBuy()
     }
 
     private fun createListOfRecurringBuyInfo(): List<RecurringBuyInfo> = listOf(
@@ -139,22 +147,6 @@ class RecurringBuyOnboardingActivity : BlockchainActivity() {
             noteLink = R.string.recurring_buy_note
         )
     )
-
-    private fun setupBackPress() {
-        val backPressCallback = onBackPressedDispatcher.addCallback {
-            binding.viewpager.currentItem = binding.viewpager.currentItem - 1
-        }
-
-        binding.viewpager.registerOnPageChangeCallback(object : OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-
-                // when viewpager is not on the first page
-                // enable custom backpress handling to return to previous page
-                backPressCallback.isEnabled = position > 0
-            }
-        })
-    }
 
     companion object {
         private const val FRAMES_PER_SCREEN = 60
