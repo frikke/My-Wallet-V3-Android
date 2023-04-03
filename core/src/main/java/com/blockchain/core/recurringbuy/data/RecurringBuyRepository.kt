@@ -35,10 +35,10 @@ import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
+import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.firstOrNull
-import java.util.Date
 
 internal class RecurringBuyRepository(
     private val rbStore: RecurringBuyStore,

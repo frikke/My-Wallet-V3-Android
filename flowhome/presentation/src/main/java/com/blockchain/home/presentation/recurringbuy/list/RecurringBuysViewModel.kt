@@ -1,6 +1,5 @@
 package com.blockchain.home.presentation.recurringbuy.list
 
-import android.content.Context
 import androidx.annotation.StringRes
 import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
@@ -19,12 +18,12 @@ import com.blockchain.utils.isLastDayOfTheMonth
 import com.blockchain.utils.to12HourFormat
 import com.blockchain.utils.toFormattedDateWithoutYear
 import com.google.protobuf.StringValue
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 import java.time.format.TextStyle
 import java.util.Locale
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class RecurringBuysViewModel(
     private val recurringBuyService: RecurringBuyService
@@ -46,7 +45,7 @@ class RecurringBuysViewModel(
                         RecurringBuyEligibleState.Eligible(
                             recurringBuys = recurringBuys
                                 .sortedBy { it.nextPaymentDate }
-                                .take(100)
+                                .take(sectionSize.size)
                                 .map { recurringBuy ->
                                     RecurringBuyViewState(
                                         id = recurringBuy.id,

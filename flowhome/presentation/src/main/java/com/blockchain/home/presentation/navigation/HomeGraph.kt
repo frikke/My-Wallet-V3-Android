@@ -83,7 +83,6 @@ fun NavGraphBuilder.homeGraph(
         }
     }
 
-
     composable(navigationEvent = HomeDestination.Activity) {
         ChromeSingleScreen {
             Activity(

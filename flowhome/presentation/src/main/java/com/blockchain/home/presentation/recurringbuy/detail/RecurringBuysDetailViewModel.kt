@@ -16,21 +16,19 @@ import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.RecurringBuyPaymentDetails
-import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.home.presentation.recurringbuy.list.toHumanReadableRecurringBuy
 import com.blockchain.home.presentation.recurringbuy.list.toHumanReadableRecurringDate
-import com.blockchain.store.filterNotLoading
 import com.blockchain.store.flatMapData
 import com.blockchain.store.mapData
 import com.blockchain.utils.toFormattedDateWithoutYear
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
-import java.time.ZoneId
-import java.time.ZonedDateTime
 
 class RecurringBuysDetailViewModel(
     private val recurringBuyId: String,
@@ -150,7 +148,8 @@ class RecurringBuysDetailViewModel(
     ): Flow<DataResource<RecurringBuyPaymentDetails>> {
         return when (paymentMethodType) {
             PaymentMethodType.PAYMENT_CARD -> cardService.getCardDetails(
-                paymentMethodId, FreshnessStrategy.Cached(
+                paymentMethodId,
+                FreshnessStrategy.Cached(
                     RefreshStrategy.RefreshIfStale
                 )
             )
@@ -160,10 +159,12 @@ class RecurringBuysDetailViewModel(
 
             PaymentMethodType.FUNDS -> flowOf(DataResource.Data(FundsAccount(currency = originCurrency)))
 
-            else -> flowOf(DataResource.Data(object : RecurringBuyPaymentDetails {
-                override val paymentDetails: PaymentMethodType
-                    get() = paymentMethodType
-            }))
+            else -> flowOf(
+                DataResource.Data(object : RecurringBuyPaymentDetails {
+                    override val paymentDetails: PaymentMethodType
+                        get() = paymentMethodType
+                })
+            )
         }
     }
 }
