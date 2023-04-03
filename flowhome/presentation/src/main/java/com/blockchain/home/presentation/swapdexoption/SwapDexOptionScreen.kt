@@ -81,7 +81,7 @@ fun SwapDexOptionScreen(
             roundedCornersItems(
                 items = items,
             ) {
-                SwapOptionCell(item = it, openDex = openDex, openSwap = openSwap)
+                SwapOptionCell(item = it, openDex = openDex, openSwap = openSwap, close = onBackPressed)
             }
         }
     }
@@ -91,7 +91,8 @@ fun SwapDexOptionScreen(
 private fun SwapOptionCell(
     item: SwapOption,
     openSwap: () -> Unit,
-    openDex: () -> Unit
+    openDex: () -> Unit,
+    close: () -> Unit,
 ) {
     TableRow(
         content = {
@@ -156,6 +157,7 @@ private fun SwapOptionCell(
             )
         },
         onContentClicked = {
+            close()
             when (item.type) {
                 SwapType.BCDC_SWAP -> openSwap()
                 SwapType.DEX -> openDex()
@@ -185,7 +187,7 @@ private fun SwapDexOptionItemPreview() {
                     "Cross-chain, limited token pairs",
                     SwapType.BCDC_SWAP
                 ),
-                {}, {}
+                {}, {}, {}
             )
         }
     }
