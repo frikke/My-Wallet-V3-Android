@@ -1,12 +1,19 @@
 package com.blockchain.home.data.announcements
 
 import com.blockchain.api.announcements.DeviceInfo
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.dataOrElse
 import com.blockchain.domain.experiments.RemoteConfigService
+import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.nabu.api.getuser.domain.UserService
+import com.blockchain.store.mapData
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.rx3.await
 
 interface AnnouncementsCredentials {
     suspend fun apiKey(): String
-    val email: String
+    suspend fun email(): String
     val count: Int
     val platform: String
     suspend fun sdkVersion(): String
@@ -16,7 +23,9 @@ interface AnnouncementsCredentials {
 }
 
 class AnnouncementsCredentialsImpl internal constructor(
-    private val remoteConfigService: RemoteConfigService
+    private val remoteConfigService: RemoteConfigService,
+    private val userService: UserService,
+    private val environmentConfig: EnvironmentConfig,
 ) : AnnouncementsCredentials {
 
     private val apiKey: String? = null
@@ -24,8 +33,12 @@ class AnnouncementsCredentialsImpl internal constructor(
         return apiKey ?: remoteConfigService.getRawJson(KEY_ITERABLE_API_KEY).await()
     }
 
-    override val email: String
-        get() = "lala@blockchain.com"
+    override suspend fun email(): String {
+        return userService.getUserResourceFlow(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
+            .mapData { it.email }
+            .firstOrNull()
+            ?.dataOrElse(null).orEmpty()
+    }
 
     override val count: Int
         get() = 100
@@ -38,7 +51,7 @@ class AnnouncementsCredentialsImpl internal constructor(
     }
 
     override val packageName: String
-        get() = "piuk.blockchain.android.staging"
+        get() = environmentConfig.applicationId
 
     override val deviceId: String
         get() = "TODOOOO"

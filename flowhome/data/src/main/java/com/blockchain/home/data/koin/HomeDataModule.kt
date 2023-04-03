@@ -55,7 +55,9 @@ val homeDataModule = module {
 
         scoped<AnnouncementsCredentials> {
             AnnouncementsCredentialsImpl(
-                remoteConfigService = get()
+                remoteConfigService = get(),
+                userService = get(),
+                environmentConfig = get()
             )
         }
         scoped<AnnouncementsService> {

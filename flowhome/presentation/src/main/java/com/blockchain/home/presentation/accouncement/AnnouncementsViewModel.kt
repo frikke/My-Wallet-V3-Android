@@ -130,7 +130,7 @@ class AnnouncementsViewModel(
                 ).collectLatest { dataResource ->
                     val sorted = dataResource.map {
                         it.sortedWith(
-                            compareByDescending<Announcement> { it.priority }
+                            compareBy<Announcement> { it.priority }
                                 .thenByDescending { it.createdAt }
                         )
                     }

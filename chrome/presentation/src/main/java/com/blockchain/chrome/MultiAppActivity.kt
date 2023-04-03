@@ -61,6 +61,7 @@ import com.blockchain.home.presentation.navigation.WCSessionIntent
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
 import com.blockchain.nfts.navigation.NftNavigation
+import com.blockchain.presentation.checkValidUrlAndOpen
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.navigation.DefiBackupNavigation
 import com.blockchain.presentation.sheets.NoBalanceActionBottomSheet
@@ -251,7 +252,9 @@ class MultiAppActivity :
                             navigateToDeeplinkDestination(result.destination)
                         }
                         is DeepLinkResult.DeepLinkResultUnknownLink -> {
-                            // check url format and open ext link
+                            result.uri?.let { uri ->
+                                checkValidUrlAndOpen(uri)
+                            }
                         }
                     }
                 }
