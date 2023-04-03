@@ -206,13 +206,3 @@ sealed class PaymentMethod(
         private const val UNDEFINED_BANK_ACCOUNT_METHOD_ORDER = 6
     }
 }
-
-fun PaymentMethod.realType() = when (this) {
-    is PaymentMethod.Bank -> PaymentMethodType.BANK_TRANSFER
-    is PaymentMethod.Card -> PaymentMethodType.PAYMENT_CARD
-    is PaymentMethod.Funds -> PaymentMethodType.FUNDS
-    is PaymentMethod.GooglePay -> PaymentMethodType.GOOGLE_PAY
-    is PaymentMethod.UndefinedBankAccount -> PaymentMethodType.UNKNOWN
-    is PaymentMethod.UndefinedBankTransfer -> PaymentMethodType.UNKNOWN
-    is PaymentMethod.UndefinedCard -> PaymentMethodType.UNKNOWN
-}

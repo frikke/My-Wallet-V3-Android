@@ -312,7 +312,7 @@ class SimpleBuyActivity :
                     preselectedFiatTicker = preselectedFiatTicker,
                     launchLinkCard = launchLinkNewCard,
                     launchPaymentMethodSelection = launchSelectNewPaymentMethod,
-                    promptRecurringBuyIntervals = intent.getBooleanExtra(ARG_FROM_RECURRING_BUY, false)
+                    fromRecurringBuy = intent.getBooleanExtra(ARG_FROM_RECURRING_BUY, false)
                 ),
                 SimpleBuyCryptoFragment::class.simpleName
             )

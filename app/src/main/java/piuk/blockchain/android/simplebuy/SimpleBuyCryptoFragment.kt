@@ -172,8 +172,8 @@ class SimpleBuyCryptoFragment :
         arguments?.getBoolean(ARG_LAUNCH_PAYMENT_METHOD_SELECTION, false) ?: false
     }
 
-    private val promptRecurringBuyIntervals: Boolean by lazy {
-        arguments?.getBoolean(ARG_PROMPT_RB_INTERVALS, false) ?: false
+    private val fromRecurringBuy: Boolean by lazy {
+        arguments?.getBoolean(ARG_FROM_RECURRING_BUY, false) ?: false
     }
 
     override fun navigator(): SimpleBuyNavigator =
@@ -217,7 +217,7 @@ class SimpleBuyCryptoFragment :
             SimpleBuyIntent.FetchSuggestedPaymentMethod(
                 fiatCurrency = fiatCurrency,
                 selectedPaymentMethodId = preselectedMethodId,
-                promptRecurringBuy = promptRecurringBuyIntervals
+                promptRecurringBuy = fromRecurringBuy
             )
         )
         model.process(SimpleBuyIntent.FetchEligibility)
@@ -455,7 +455,7 @@ class SimpleBuyCryptoFragment :
     }
 
     override fun render(newState: SimpleBuyState) {
-        if (newState.promptRecurringBuyIntervals && newState.selectedPaymentMethod != null ) {
+        if (newState.promptRecurringBuyIntervals && newState.selectedPaymentMethod != null) {
             model.process(SimpleBuyIntent.RecurringBuyOptionsSeen)
             model.process(SimpleBuyIntent.RecurringBuyIntervalsShown)
             showBottomSheet(RecurringBuySelectionBottomSheet.newInstance())
@@ -1405,7 +1405,7 @@ class SimpleBuyCryptoFragment :
         private const val ARG_LINK_NEW_CARD = "LINK_NEW_CARD"
         private const val ARG_LAUNCH_PAYMENT_METHOD_SELECTION = "LAUNCH_PAYMENT_METHOD_SELECTION"
         private const val ARG_FIAT_CURRENCY = "ARG_FIAT_CURRENCY"
-        private const val ARG_PROMPT_RB_INTERVALS = "ARG_PROMPT_RB_INTERVALS"
+        private const val ARG_FROM_RECURRING_BUY = "ARG_FROM_RECURRING_BUY"
 
         fun newInstance(
             asset: AssetInfo,
@@ -1414,7 +1414,7 @@ class SimpleBuyCryptoFragment :
             launchLinkCard: Boolean = false,
             launchPaymentMethodSelection: Boolean = false,
             preselectedFiatTicker: String? = null,
-            promptRecurringBuyIntervals: Boolean = false
+            fromRecurringBuy: Boolean = false
         ): SimpleBuyCryptoFragment {
             return SimpleBuyCryptoFragment().apply {
                 arguments = Bundle().apply {
@@ -1424,7 +1424,7 @@ class SimpleBuyCryptoFragment :
                     preselectedFiatTicker?.let { putString(ARG_FIAT_CURRENCY, it) }
                     putBoolean(ARG_LINK_NEW_CARD, launchLinkCard)
                     putBoolean(ARG_LAUNCH_PAYMENT_METHOD_SELECTION, launchPaymentMethodSelection)
-                    putBoolean(ARG_PROMPT_RB_INTERVALS, promptRecurringBuyIntervals)
+                    putBoolean(ARG_FROM_RECURRING_BUY, fromRecurringBuy)
                 }
             }
         }

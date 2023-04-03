@@ -30,7 +30,6 @@ import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.UndefinedPaymentMethod
-import com.blockchain.domain.paymentmethods.model.realType
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflag.FeatureFlag
@@ -74,7 +73,6 @@ import piuk.blockchain.android.ui.linkbank.domain.openbanking.usecase.GetSafeCon
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import retrofit2.HttpException
 import timber.log.Timber
-import kotlin.test.todo
 
 class SimpleBuyModel(
     fiatCurrenciesService: FiatCurrenciesService,
@@ -985,6 +983,21 @@ class SimpleBuyModel(
             .subscribeBy(
                 onSuccess = { (availablePaymentMethods, eligibilityNextPaymentList) ->
                     process(SimpleBuyIntent.RecurringBuyEligibilityUpdated(eligibilityNextPaymentList))
+
+                    /**
+                     * for some reason models are using unexpeced types
+                     * like gpay is using card?
+                     * not sure why, so need to extract the real type here
+                     */
+                    fun PaymentMethod.realType() = when (this) {
+                        is PaymentMethod.Bank -> PaymentMethodType.BANK_TRANSFER
+                        is PaymentMethod.Card -> PaymentMethodType.PAYMENT_CARD
+                        is PaymentMethod.Funds -> PaymentMethodType.FUNDS
+                        is PaymentMethod.GooglePay -> PaymentMethodType.GOOGLE_PAY
+                        is PaymentMethod.UndefinedBankAccount -> PaymentMethodType.UNKNOWN
+                        is PaymentMethod.UndefinedBankTransfer -> PaymentMethodType.UNKNOWN
+                        is PaymentMethod.UndefinedCard -> PaymentMethodType.UNKNOWN
+                    }
 
                     val idEligibleForRb = availablePaymentMethods.firstOrNull { paymentMethod ->
                         eligibilityNextPaymentList.flatMap { it.eligibleMethods }.distinct()

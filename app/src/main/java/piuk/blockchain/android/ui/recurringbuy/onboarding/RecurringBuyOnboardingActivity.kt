@@ -5,14 +5,10 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import androidx.activity.addCallback
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
-import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
-import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.viewextensions.invisibleIf
-import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
 import com.blockchain.utils.unsafeLazy

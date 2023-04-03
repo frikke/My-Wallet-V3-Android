@@ -21,7 +21,6 @@ import org.koin.core.component.KoinScopeComponent
 import org.koin.core.scope.Scope
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
-import piuk.blockchain.android.simplebuy.SimpleBuyCryptoFragment
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.brokerage.buy.composable.BuySelectAsset
