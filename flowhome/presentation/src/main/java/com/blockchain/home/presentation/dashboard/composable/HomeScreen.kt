@@ -89,6 +89,7 @@ fun HomeScreen(
     launchQrScanner: () -> Unit,
     openCryptoAssets: () -> Unit,
     openRecurringBuys: () -> Unit,
+    openRecurringBuyDetail: (String) -> Unit,
     openActivity: () -> Unit,
     openActivityDetail: (String, WalletMode) -> Unit,
     openReferral: () -> Unit,
@@ -319,9 +320,8 @@ fun HomeScreen(
                     homeRecurringBuys(
                         recurringBuys = recurringBuys,
                         manageOnclick = openRecurringBuys,
-                        upsellOnClick = {
-                            recurringBuyNavigation.openOnboarding()
-                        }
+                        upsellOnClick = recurringBuyNavigation::openOnboarding,
+                        recurringBuyOnClick = openRecurringBuyDetail
                     )
                 }
         }

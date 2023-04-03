@@ -428,7 +428,7 @@ class CoinViewActivity :
         KycNavHostActivity.startForResult(this, CampaignType.SimpleBuy, SimpleBuyActivity.KYC_STARTED)
     }
 
-    override fun onRecurringBuyDeleted(asset: AssetInfo) {
+    override fun onRecurringBuyDeleted() {
         viewModel.onIntent(CoinviewIntent.RecurringBuyDeleted)
     }
 

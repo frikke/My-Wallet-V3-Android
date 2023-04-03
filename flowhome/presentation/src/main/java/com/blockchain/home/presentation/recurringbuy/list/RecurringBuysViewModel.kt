@@ -13,7 +13,14 @@ import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
+import com.blockchain.utils.capitalizeFirstChar
+import com.blockchain.utils.isLastDayOfTheMonth
+import com.blockchain.utils.to12HourFormat
 import com.blockchain.utils.toFormattedDateWithoutYear
+import com.google.protobuf.StringValue
+import java.time.ZonedDateTime
+import java.time.format.TextStyle
+import java.util.Locale
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -33,12 +40,12 @@ class RecurringBuysViewModel(
     override fun reduce(state: RecurringBuysModelState): RecurringBuysViewState = state.run {
         RecurringBuysViewState(
             recurringBuys = state.recurringBuys
-                .map { it?.take(sectionSize.size) }
                 .map {
                     it?.let { recurringBuys ->
                         RecurringBuyEligibleState.Eligible(
                             recurringBuys = recurringBuys
                                 .sortedBy { it.nextPaymentDate }
+                                .take(sectionSize.size)
                                 .map { recurringBuy ->
                                     RecurringBuyViewState(
                                         id = recurringBuy.id,
@@ -104,15 +111,50 @@ class RecurringBuysViewModel(
             }
         }
     }
+}
 
-    @StringRes private fun RecurringBuyFrequency.toHumanReadableRecurringBuy(): Int {
-        return when (this) {
-            RecurringBuyFrequency.ONE_TIME -> R.string.recurring_buy_one_time_selector
-            RecurringBuyFrequency.DAILY -> R.string.recurring_buy_daily_1
-            RecurringBuyFrequency.WEEKLY -> R.string.recurring_buy_weekly_1
-            RecurringBuyFrequency.BI_WEEKLY -> R.string.recurring_buy_bi_weekly_1
-            RecurringBuyFrequency.MONTHLY -> R.string.recurring_buy_monthly_1
-            else -> R.string.common_unknown
+@StringRes fun RecurringBuyFrequency.toHumanReadableRecurringBuy(): Int {
+    return when (this) {
+        RecurringBuyFrequency.ONE_TIME -> R.string.recurring_buy_one_time_selector
+        RecurringBuyFrequency.DAILY -> R.string.recurring_buy_daily_1
+        RecurringBuyFrequency.WEEKLY -> R.string.recurring_buy_weekly_1
+        RecurringBuyFrequency.BI_WEEKLY -> R.string.recurring_buy_bi_weekly_1
+        RecurringBuyFrequency.MONTHLY -> R.string.recurring_buy_monthly_1
+        else -> R.string.common_unknown
+    }
+}
+
+fun RecurringBuyFrequency.toHumanReadableRecurringDate(dateTime: ZonedDateTime): TextValue {
+    return when (this) {
+        RecurringBuyFrequency.DAILY -> {
+            TextValue.IntResValue(
+                R.string.recurring_buy_frequency_subtitle_each_day,
+                listOf(dateTime.to12HourFormat())
+            )
         }
+        RecurringBuyFrequency.BI_WEEKLY, RecurringBuyFrequency.WEEKLY -> {
+            TextValue.IntResValue(
+                R.string.recurring_buy_frequency_subtitle,
+                listOf(
+                    dateTime.dayOfWeek
+                        .getDisplayName(TextStyle.FULL, Locale.getDefault())
+                        .toString().capitalizeFirstChar()
+                )
+            )
+        }
+        RecurringBuyFrequency.MONTHLY -> {
+            if (dateTime.isLastDayOfTheMonth()) {
+                TextValue.IntResValue(
+                    R.string.recurring_buy_frequency_subtitle_monthly_last_day
+                )
+            } else {
+                TextValue.IntResValue(
+                    R.string.recurring_buy_frequency_subtitle_monthly,
+                    listOf(dateTime.dayOfMonth.toString())
+                )
+            }
+        }
+        RecurringBuyFrequency.ONE_TIME,
+        RecurringBuyFrequency.UNKNOWN -> TextValue.StringValue("")
     }
 }

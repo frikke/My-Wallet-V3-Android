@@ -12,8 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
@@ -45,17 +48,27 @@ import org.koin.androidx.compose.getViewModel
 fun RecurringBuyDashboard(
     viewModel: RecurringBuysViewModel = getViewModel(scope = payloadScope),
     assetActionsNavigation: AssetActionsNavigation,
+    openRecurringBuyDetail: (id: String) -> Unit,
     onBackPressed: () -> Unit
 ) {
     val viewState: RecurringBuysViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
-    DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(RecurringBuysIntent.LoadRecurringBuys(SectionSize.All))
-        onDispose { }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.onIntent(RecurringBuysIntent.LoadRecurringBuys(SectionSize.All))
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     RecurringBuyDashboardScreen(
         recurringBuys = viewState.recurringBuys,
+        openRecurringBuyDetail = openRecurringBuyDetail,
         addOnClick = {
             assetActionsNavigation.navigate(AssetAction.Buy)
         },
@@ -66,6 +79,7 @@ fun RecurringBuyDashboard(
 @Composable
 fun RecurringBuyDashboardScreen(
     recurringBuys: DataResource<RecurringBuyEligibleState>,
+    openRecurringBuyDetail: (id: String) -> Unit,
     addOnClick: () -> Unit,
     onBackPressed: () -> Unit
 ) {
@@ -90,6 +104,7 @@ fun RecurringBuyDashboardScreen(
                 (recurringBuys.data as? RecurringBuyEligibleState.Eligible)?.let {
                     RecurringBuyDashboardData(
                         recurringBuys = it.recurringBuys.toImmutableList(),
+                        openRecurringBuyDetail = openRecurringBuyDetail,
                         addOnClick = addOnClick
                     )
                 } // todo ?: error state
@@ -101,6 +116,7 @@ fun RecurringBuyDashboardScreen(
 @Composable
 fun RecurringBuyDashboardData(
     recurringBuys: ImmutableList<RecurringBuyViewState>,
+    openRecurringBuyDetail: (id: String) -> Unit,
     addOnClick: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -118,7 +134,9 @@ fun RecurringBuyDashboardData(
                             description = recurringBuy.description.value(),
                             status = recurringBuy.status.value(),
                             iconUrl = recurringBuy.iconUrl,
-                            onClick = {}
+                            onClick = {
+                                openRecurringBuyDetail(recurringBuy.id)
+                            }
                         )
                     }
                 )
@@ -175,6 +193,7 @@ fun PreviewRecurringBuyDashboardData() {
                 status = TextValue.StringValue("Next buy on Tue, March 18"),
             )
         ),
+        openRecurringBuyDetail = {},
         addOnClick = {}
     )
 }

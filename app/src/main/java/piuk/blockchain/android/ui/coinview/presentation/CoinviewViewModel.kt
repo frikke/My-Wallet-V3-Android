@@ -27,6 +27,7 @@ import com.blockchain.data.dataOrElse
 import com.blockchain.data.doOnData
 import com.blockchain.data.doOnError
 import com.blockchain.data.map
+import com.blockchain.data.updateDataWith
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.filterNotLoading
@@ -1313,15 +1314,7 @@ class CoinviewViewModel(
         loadRecurringBuyJob = viewModelScope.launch {
             loadAssetRecurringBuysUseCase(asset, freshnessStrategy).collectLatest { dataResource ->
                 updateState {
-                    it.copy(
-                        recurringBuys = if (dataResource is DataResource.Loading &&
-                            it.recurringBuys is DataResource.Data
-                        ) {
-                            it.recurringBuys
-                        } else {
-                            dataResource
-                        }
-                    )
+                    it.copy(recurringBuys = it.recurringBuys.updateDataWith(dataResource))
                 }
             }
         }

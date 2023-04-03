@@ -14,6 +14,7 @@ import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailViewMode
 import com.blockchain.home.presentation.onboarding.defi.DeFiOnboardingViewModel
 import com.blockchain.home.presentation.onboarding.introduction.IntroScreensViewModel
 import com.blockchain.home.presentation.quickactions.QuickActionsViewModel
+import com.blockchain.home.presentation.recurringbuy.detail.RecurringBuysDetailViewModel
 import com.blockchain.home.presentation.recurringbuy.list.RecurringBuysViewModel
 import com.blockchain.home.presentation.referral.ReferralViewModel
 import com.blockchain.koin.activeRewardsAccountFeatureFlag
@@ -93,6 +94,15 @@ val homePresentationModule = module {
         viewModel {
             RecurringBuysViewModel(
                 recurringBuyService = get()
+            )
+        }
+
+        viewModel { (recurringBuyId: String) ->
+            RecurringBuysDetailViewModel(
+                recurringBuyId = recurringBuyId,
+                recurringBuyService = get(),
+                bankService = get(),
+                cardService = get()
             )
         }
 
