@@ -490,24 +490,6 @@ private fun AssetBalance.shouldBeFiltered(state: AssetsModelState): Boolean {
     return filters.all { it.shouldFilterOut(this) }
 }
 
-fun List<DataResource<Money>>.sumAvailableBalances(): DataResource<Money> {
-    var total: DataResource<Money>? = null
-    forEach { money ->
-        total = when (total) {
-            is DataResource.Loading,
-            is DataResource.Error,
-            null -> money
-            is DataResource.Data -> DataResource.Data(
-                (total as DataResource.Data<Money>).data.plus(
-                    (money as? DataResource.Data)?.data
-                        ?: Money.zero((total as DataResource.Data<Money>).data.currency)
-                )
-            )
-        }
-    }
-    return total!!
-}
-
 private fun DataResource<List<SingleAccountBalance>>.withBalancedAccounts(
     balances: Map<SingleAccount, DataResource<AccountBalance>>
 ): DataResource<List<SingleAccountBalance>> {

@@ -10,6 +10,7 @@ import com.blockchain.home.domain.SingleAccountBalance
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.FiatCurrency
+import info.blockchain.balance.Money
 
 data class AssetsModelState(
     val accounts: DataResource<List<SingleAccountBalance>> = DataResource.Loading,
@@ -24,6 +25,9 @@ data class AssetsModelState(
     init {
         _accountsForMode[walletMode] = accounts
     }
+
+    fun accountsForMode(walletMode: WalletMode): DataResource<List<SingleAccountBalance>> =
+        _accountsForMode[walletMode] ?: DataResource.Loading
 
     val assets: DataResource<List<AssetBalance>>
         get() {
@@ -42,7 +46,22 @@ data class AssetsModelState(
                     }
             }
         }
+}
 
-    fun accountsForMode(walletMode: WalletMode): DataResource<List<SingleAccountBalance>> =
-        _accountsForMode[walletMode] ?: DataResource.Loading
+private fun List<DataResource<Money>>.sumAvailableBalances(): DataResource<Money> {
+    var total: DataResource<Money>? = null
+    forEach { money ->
+        total = when (total) {
+            is DataResource.Loading,
+            is DataResource.Error,
+            null -> money
+            is DataResource.Data -> DataResource.Data(
+                (total as DataResource.Data<Money>).data.plus(
+                    (money as? DataResource.Data)?.data
+                        ?: Money.zero((total as DataResource.Data<Money>).data.currency)
+                )
+            )
+        }
+    }
+    return total!!
 }
