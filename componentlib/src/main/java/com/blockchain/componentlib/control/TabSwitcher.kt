@@ -119,6 +119,8 @@ fun TabSwitcher(tabs: ImmutableList<String>, initialTabIndex: Int, onTabChanged:
 @Composable
 fun TabSwitcherLayoutPreview() {
 
+    // Start in Interactive Mode to see it in the preview window
+
     val pagerState = rememberPagerState()
     LaunchedEffect(Unit) {
         pagerState.scrollToPage(0)

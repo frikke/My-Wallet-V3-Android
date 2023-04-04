@@ -34,4 +34,8 @@ dependencies {
     implementation Libraries.rxjava3Coroutines
     implementation Libraries.rxAndroid
     implementation Libraries.rxKotlin
+
+    // Kotlin
+    implementation Libraries.kotlinImmutableCollections
+
 }

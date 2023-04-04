@@ -1022,7 +1022,7 @@
     <string name="activity_state_cleared">Очищено</string>
     <string name="activity_state_rejected">Отклонено</string>
     <string name="activity_state_refunded">Возвращено</string>
-    <string name="activity_wallet_total_balance">Итоговый баланс</string>
+    <string name="common_total_balance">Итоговый баланс</string>
     <string name="card_number">Номер карты</string>
     <string name="name_on_card">Имя на Карте</string>
     <string name="expiry_date">Дата истечения срока действия</string>

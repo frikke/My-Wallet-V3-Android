@@ -50,7 +50,8 @@ val earnPresentationModule = module {
                 assetCatalogue = get(),
                 custodialWalletManager = get(),
                 walletStatusPrefs = get(),
-                activeRewardsFeatureFlag = get(activeRewardsAccountFeatureFlag)
+                activeRewardsFeatureFlag = get(activeRewardsAccountFeatureFlag),
+                currencyPrefs = get()
             )
         }
     }

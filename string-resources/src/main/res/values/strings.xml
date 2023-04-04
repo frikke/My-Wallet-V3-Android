@@ -1471,7 +1471,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="activity_state_cleared">Cleared</string>
     <string name="activity_state_rejected">Rejected</string>
     <string name="activity_state_refunded">Refunded</string>
-    <string name="activity_wallet_total_balance">Total Balance</string>
+    <string name="common_total_balance">Total Balance</string>
 
     <!--Cards-->
     <string name="card_number">Card Number</string>

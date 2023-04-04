@@ -24,6 +24,7 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.store.filterNotLoading
 import com.blockchain.store.flatMapData
@@ -51,6 +52,7 @@ class EarnDashboardViewModel(
     private val assetCatalogue: AssetCatalogue,
     private val custodialWalletManager: CustodialWalletManager,
     private val walletStatusPrefs: WalletStatusPrefs,
+    private val currencyPrefs: CurrencyPrefs,
     private val activeRewardsFeatureFlag: FeatureFlag,
 ) : MviViewModel<EarnDashboardIntent,
     EarnDashboardViewState,
@@ -358,7 +360,11 @@ class EarnDashboardViewModel(
         val earningList = mutableListOf<EarnAsset>()
         val discoverList = mutableListOf<EarnAsset>()
 
+        var totalEarningBalanceFiat = Money.zero(currencyPrefs.selectedFiatCurrency)
+
         data.stakingBalancesWithFiat.map { (asset, balances) ->
+
+            totalEarningBalanceFiat += balances.stakingTotalFiat
 
             val totalBalance = balances.stakingCryptoBalances.totalBalance
 
@@ -400,6 +406,8 @@ class EarnDashboardViewModel(
         }
 
         data.interestBalancesWithFiat.map { (asset, balances) ->
+
+            totalEarningBalanceFiat += balances.interestTotalFiat
 
             val totalBalance = balances.interestCryptoBalances.totalBalance
 
@@ -443,6 +451,9 @@ class EarnDashboardViewModel(
         }
 
         data.activeRewardsBalancesWithFiat.map { (asset, balances) ->
+
+            totalEarningBalanceFiat += balances.activeRewardsTotalFiat
+
             val totalBalance = balances.activeRewardsCryptoBalances.totalBalance
 
             if (totalBalance.isPositive) {
@@ -483,8 +494,9 @@ class EarnDashboardViewModel(
         }
 
         return DashboardState.EarningAndDiscover(
-            earningList.sortListByFilterAndQuery(earningTabFilterBy, earningTabQueryBy).sortByBalance(),
-            discoverList.sortListByFilterAndQuery(discoverTabFilterBy, discoverTabQueryBy).sortByRate(),
+            earning = earningList.sortListByFilterAndQuery(earningTabFilterBy, earningTabQueryBy).sortByBalance(),
+            totalEarningBalanceFiat = totalEarningBalanceFiat.toStringWithSymbol(),
+            discover = discoverList.sortListByFilterAndQuery(discoverTabFilterBy, discoverTabQueryBy).sortByRate(),
             filterList = filterList
         )
     }

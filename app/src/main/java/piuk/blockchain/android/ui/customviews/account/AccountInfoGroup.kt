@@ -50,7 +50,7 @@ class AccountInfoGroup @JvmOverloads constructor(
             accIcon.loadAssetIcon(icon)
             walletName.text = account.label
 
-            assetSubtitle.text = context.getString(R.string.activity_wallet_total_balance)
+            assetSubtitle.text = context.getString(R.string.common_total_balance)
 
             walletBalanceFiat.invisible()
             walletCurrency.gone()

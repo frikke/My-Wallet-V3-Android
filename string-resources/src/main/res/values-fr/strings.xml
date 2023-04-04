@@ -1021,7 +1021,7 @@
     <string name="activity_state_cleared">Effacé</string>
     <string name="activity_state_rejected">Rejeté</string>
     <string name="activity_state_refunded">Remboursé</string>
-    <string name="activity_wallet_total_balance">Solde total</string>
+    <string name="common_total_balance">Solde total</string>
     <string name="card_number">Numéro de carte</string>
     <string name="name_on_card">Nom sur la carte</string>
     <string name="expiry_date">Date d\'expiration</string>

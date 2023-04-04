@@ -1020,7 +1020,7 @@
     <string name="activity_state_cleared">Eliminado</string>
     <string name="activity_state_rejected">Rechazado</string>
     <string name="activity_state_refunded">Reintegrado</string>
-    <string name="activity_wallet_total_balance">Saldo total</string>
+    <string name="common_total_balance">Saldo total</string>
     <string name="card_number">Numeración de la tarjeta</string>
     <string name="name_on_card">Nombre tal y como aparece en la tarjeta</string>
     <string name="expiry_date">Fecha de caducidad</string>

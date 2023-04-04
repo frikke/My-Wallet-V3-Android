@@ -233,7 +233,11 @@ fun MultiAppBottomNavigationHost(
                 },
                 content = { listState, shouldTriggerRefresh ->
                     // todo change the layout so EarnDashboardScreen is rooted with a lazylist to pass listState
-                    EarnDashboardScreen(earnNavigation = earnNavigation)
+                    EarnDashboardScreen(
+                        earnNavigation = earnNavigation,
+                        openSettings = openSettings,
+                        launchQrScanner = launchQrScanner,
+                    )
                 }
             )
         }

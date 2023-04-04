@@ -1020,7 +1020,7 @@
     <string name="activity_state_cleared">Ativado</string>
     <string name="activity_state_rejected">Rejeitado</string>
     <string name="activity_state_refunded">Devolveu</string>
-    <string name="activity_wallet_total_balance">Saldo total</string>
+    <string name="common_total_balance">Saldo total</string>
     <string name="card_number">Número do cartão</string>
     <string name="name_on_card">Nome no cartão</string>
     <string name="expiry_date">Data de validade</string>

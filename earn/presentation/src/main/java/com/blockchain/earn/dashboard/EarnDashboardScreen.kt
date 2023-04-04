@@ -4,7 +4,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -52,20 +51,22 @@ import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.SmallMinimalButton
 import com.blockchain.componentlib.button.SmallSecondaryButton
+import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.control.NonCancelableOutlinedSearch
-import com.blockchain.componentlib.control.TabLayoutLarge
+import com.blockchain.componentlib.control.TabSwitcher
 import com.blockchain.componentlib.divider.HorizontalDivider
-import com.blockchain.componentlib.filter.FilterState
-import com.blockchain.componentlib.filter.LabeledFilterState
-import com.blockchain.componentlib.filter.LabeledFiltersGroup
 import com.blockchain.componentlib.system.LazyRoundedCornersColumnIndexed
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
+import com.blockchain.componentlib.tag.button.TagButtonRow
+import com.blockchain.componentlib.tag.button.TagButtonValue
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallestVerticalSpacer
+import com.blockchain.componentlib.theme.StandardVerticalSpacer
+import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.EarnAnalytics
@@ -83,16 +84,18 @@ import com.blockchain.earn.onboarding.EarnProductOnboarding
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.customviews.EmptyStateView
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowScreen
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.collectLatest
-import okhttp3.internal.immutableListOf
-import okhttp3.internal.toImmutableList
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun EarnDashboardScreen(
     viewModel: EarnDashboardViewModel = getViewModel(scope = payloadScope),
-    earnNavigation: EarnNavigation
+    earnNavigation: EarnNavigation,
+    openSettings: () -> Unit,
+    launchQrScanner: () -> Unit
 ) {
     val viewState: EarnDashboardViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
@@ -120,12 +123,6 @@ fun EarnDashboardScreen(
     ) {
         EarnDashboard(
             state = viewState,
-            earningTabFilterAction = {
-                viewModel.onIntent(EarnDashboardIntent.UpdateEarningTabListFilter(it))
-            },
-            earningTabQueryFilter = {
-                viewModel.onIntent(EarnDashboardIntent.UpdateEarningTabSearchQuery(it))
-            },
             onEarningItemClicked = {
                 viewModel.onIntent(EarnDashboardIntent.EarningItemSelected(it))
             },
@@ -141,7 +138,6 @@ fun EarnDashboardScreen(
             onRefreshData = {
                 viewModel.onIntent(EarnDashboardIntent.LoadEarn)
             },
-            earningTabQueryBy = viewState.earningTabQueryBy,
             discoverTabQueryBy = viewState.discoverTabQueryBy,
             onCompareProductsClicked = {
                 viewModel.onIntent(EarnDashboardIntent.LaunchProductComparator)
@@ -151,7 +147,9 @@ fun EarnDashboardScreen(
             },
             onFinishOnboarding = {
                 viewModel.onIntent(EarnDashboardIntent.FinishOnboarding)
-            }
+            },
+            openSettings = openSettings,
+            launchQrScanner = launchQrScanner,
         )
     }
 }
@@ -159,63 +157,71 @@ fun EarnDashboardScreen(
 @Composable
 fun EarnDashboard(
     state: EarnDashboardViewState,
-    earningTabFilterAction: (EarnDashboardListFilter) -> Unit,
-    earningTabQueryFilter: (String) -> Unit,
     onEarningItemClicked: (EarnAsset) -> Unit,
     discoverTabFilterAction: (EarnDashboardListFilter) -> Unit,
     discoverTabQueryFilter: (String) -> Unit,
     onDiscoverItemClicked: (EarnAsset) -> Unit,
     onRefreshData: () -> Unit,
-    earningTabQueryBy: String,
     discoverTabQueryBy: String,
     onCompareProductsClicked: () -> Unit,
     startKycClicked: () -> Unit,
-    onFinishOnboarding: () -> Unit
+    onFinishOnboarding: () -> Unit,
+    openSettings: () -> Unit,
+    launchQrScanner: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = AppTheme.colors.backgroundMuted)
     ) {
-        when (val s = state.dashboardState) {
-            DashboardState.Loading -> EarnDashboardLoading()
-            DashboardState.ShowKyc -> KycUpgradeNowScreen(startKycClicked = startKycClicked)
-            is DashboardState.ShowIntro -> EarnProductOnboarding(
-                onboardingPages = listOf(EarnOnboardingProductPage.Intro) + s.earnProductsAvailable.map { earnType ->
-                    when (earnType) {
-                        EarnType.Passive -> EarnOnboardingProductPage.Interest
-                        EarnType.Staking -> EarnOnboardingProductPage.Staking
-                        EarnType.Active -> EarnOnboardingProductPage.ActiveRewards
-                    }
-                },
-                onFinishOnboarding = onFinishOnboarding
-            )
-            is DashboardState.ShowError -> EarnLoadError(onRefreshData)
-            is DashboardState.EarningAndDiscover -> EarningAndDiscover(
-                state = s,
-                earningTabFilterBy = state.earningTabFilterBy,
-                earningTabFilterAction = earningTabFilterAction,
-                earningTabQueryFilter = earningTabQueryFilter,
-                discoverTabFilterBy = state.discoverTabFilterBy,
-                discoverTabFilterAction = discoverTabFilterAction,
-                discoverTabQueryFilter = discoverTabQueryFilter,
-                onEarningItemClicked = onEarningItemClicked,
-                onDiscoverItemClicked = onDiscoverItemClicked,
-                earningTabQueryBy = earningTabQueryBy,
-                discoverTabQueryBy = discoverTabQueryBy,
-                onCompareProductsClicked = onCompareProductsClicked
-            )
-            is DashboardState.OnlyDiscover -> DiscoverScreen(
-                queryFilter = discoverTabQueryFilter,
-                filterAction = discoverTabFilterAction,
-                filterBy = state.discoverTabFilterBy,
-                filtersAvailable = s.filterList,
-                discoverAssetList = s.discover.toImmutableList(),
-                onItemClicked = onDiscoverItemClicked,
-                discoverTabQueryBy = discoverTabQueryBy,
-                onOpenProductComparator = onCompareProductsClicked
-            )
+
+        MenuOptionsScreen(
+            openSettings = openSettings,
+            launchQrScanner = launchQrScanner
+        )
+
+        TinyVerticalSpacer()
+
+        Box(modifier = Modifier.padding(horizontal = AppTheme.dimensions.standardSpacing)) {
+            when (val s = state.dashboardState) {
+                DashboardState.Loading -> EarnDashboardLoading()
+                DashboardState.ShowKyc -> KycUpgradeNowScreen(startKycClicked = startKycClicked)
+                is DashboardState.ShowIntro -> EarnProductOnboarding(
+                    onboardingPages = listOf(EarnOnboardingProductPage.Intro) +
+                        s.earnProductsAvailable.map { earnType ->
+                            when (earnType) {
+                                EarnType.Passive -> EarnOnboardingProductPage.Interest
+                                EarnType.Staking -> EarnOnboardingProductPage.Staking
+                                EarnType.Active -> EarnOnboardingProductPage.ActiveRewards
+                            }
+                        },
+                    onFinishOnboarding = onFinishOnboarding
+                )
+                is DashboardState.ShowError -> EarnLoadError(onRefreshData)
+                is DashboardState.EarningAndDiscover -> EarningAndDiscover(
+                    state = s,
+                    discoverTabFilterBy = state.discoverTabFilterBy,
+                    discoverTabFilterAction = discoverTabFilterAction,
+                    discoverTabQueryFilter = discoverTabQueryFilter,
+                    onEarningItemClicked = onEarningItemClicked,
+                    onDiscoverItemClicked = onDiscoverItemClicked,
+                    discoverTabQueryBy = discoverTabQueryBy,
+                    onCompareProductsClicked = onCompareProductsClicked
+                )
+                is DashboardState.OnlyDiscover -> DiscoverScreen(
+                    queryFilter = discoverTabQueryFilter,
+                    filterAction = discoverTabFilterAction,
+                    filterBy = state.discoverTabFilterBy,
+                    filtersAvailable = s.filterList,
+                    discoverAssetList = s.discover.toImmutableList(),
+                    onItemClicked = onDiscoverItemClicked,
+                    discoverTabQueryBy = discoverTabQueryBy,
+                    onOpenProductComparator = onCompareProductsClicked
+                )
+            }
         }
+
+        StandardVerticalSpacer()
     }
 }
 
@@ -223,29 +229,26 @@ fun EarnDashboard(
 fun EarningAndDiscover(
     analytics: Analytics = get(),
     state: DashboardState.EarningAndDiscover,
-    earningTabFilterBy: EarnDashboardListFilter,
-    earningTabFilterAction: (EarnDashboardListFilter) -> Unit,
-    earningTabQueryFilter: (String) -> Unit,
     discoverTabFilterBy: EarnDashboardListFilter,
     discoverTabFilterAction: (EarnDashboardListFilter) -> Unit,
     discoverTabQueryFilter: (String) -> Unit,
     onEarningItemClicked: (EarnAsset) -> Unit,
     onDiscoverItemClicked: (EarnAsset) -> Unit,
-    earningTabQueryBy: String,
     discoverTabQueryBy: String,
     onCompareProductsClicked: () -> Unit
 ) {
     var selectedTab by remember { mutableStateOf(SelectedTab.Earning) }
 
-    Column {
-        TabLayoutLarge(
-            items = listOf(
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        TabSwitcher(
+            tabs = persistentListOf(
                 stringResource(id = R.string.earn_dashboard_tab_earning),
                 stringResource(id = R.string.earn_dashboard_tab_discover)
             ),
-            selectedItemIndex = selectedTab.index,
-            hasBottomShadow = true,
-            onItemSelected = {
+            initialTabIndex = selectedTab.index,
+            onTabChanged = {
                 selectedTab = SelectedTab.fromInt(it)
 
                 if (selectedTab == SelectedTab.Discover) {
@@ -254,16 +257,14 @@ fun EarningAndDiscover(
             }
         )
 
+        StandardVerticalSpacer()
+
         when (selectedTab) {
             SelectedTab.Earning -> {
                 EarningScreen(
-                    queryFilter = earningTabQueryFilter,
-                    filterAction = earningTabFilterAction,
-                    filterBy = earningTabFilterBy,
-                    filtersAvailable = state.filterList,
                     earningAssetList = state.earning.toImmutableList(),
+                    totalEarningBalanceFiat = state.totalEarningBalanceFiat,
                     onItemClicked = onEarningItemClicked,
-                    earningTabQueryBy = earningTabQueryBy,
                     investNowClicked = {
                         selectedTab = SelectedTab.Discover
                     }
@@ -302,8 +303,7 @@ private fun DiscoverScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.backgroundMuted),
-        contentPadding = PaddingValues(AppTheme.dimensions.smallSpacing)
+            .background(AppTheme.colors.backgroundMuted)
     ) {
         item {
             ProductComparatorCta(onOpenProductComparator = onOpenProductComparator)
@@ -327,22 +327,17 @@ private fun DiscoverScreen(
                     )
                 }
 
-                LabeledFiltersGroup(
-                    filters = filtersAvailable.map { filter ->
-                        LabeledFilterState(
-                            text = stringResource(id = filter.title()),
-                            onSelected = { filterAction(filter) },
-                            state = if (filterBy == filter) {
-                                FilterState.SELECTED
-                            } else {
-                                FilterState.UNSELECTED
-                            }
-                        )
-                    },
-                    modifier = Modifier.padding(
-                        vertical = AppTheme.dimensions.tinySpacing
-                    )
+                TinyVerticalSpacer()
+
+                TagButtonRow(
+                    selected = filterBy,
+                    values = filtersAvailable.map {
+                        TagButtonValue(it, stringResource(id = it.title()))
+                    }.toImmutableList(),
+                    onClick = { filter -> filterAction(filter) }
                 )
+
+                TinyVerticalSpacer()
             }
         }
 
@@ -481,7 +476,8 @@ private fun ProductComparatorCta(onOpenProductComparator: () -> Unit) {
                     modifier = Modifier
                         .wrapContentWidth(align = Alignment.End)
                         .padding(start = AppTheme.dimensions.smallSpacing)
-                        .wrapContentWidth(align = Alignment.End).weight(1f)
+                        .wrapContentWidth(align = Alignment.End)
+                        .weight(1f)
                 )
             }
         )
@@ -514,7 +510,7 @@ private fun LearningCarousel(
     analytics: Analytics = get(),
     onLearnMoreClicked: (String) -> Unit
 ) {
-    val listItems = immutableListOf(
+    val listItems = persistentListOf(
         DiscoverCarouselItem(
             type = EarnType.Passive,
             title = R.string.earn_rewards_label_passive,
@@ -605,62 +601,34 @@ private fun LearningCarousel(
 
 @Composable
 private fun EarningScreen(
-    queryFilter: (String) -> Unit,
-    filterAction: (EarnDashboardListFilter) -> Unit,
-    filterBy: EarnDashboardListFilter,
-    filtersAvailable: List<EarnDashboardListFilter>,
     earningAssetList: List<EarnAsset>,
+    totalEarningBalanceFiat: String,
     onItemClicked: (EarnAsset) -> Unit,
-    earningTabQueryBy: String,
     investNowClicked: () -> Unit
 ) {
-    var searchedText by remember { mutableStateOf("") }
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-    Column {
-        Box(modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)) {
-            NonCancelableOutlinedSearch(
-                placeholder = stringResource(R.string.staking_dashboard_search),
-                prePopulatedText = earningTabQueryBy,
-                onValueChange = {
-                    searchedText = it
-                    queryFilter(it)
-                }
-            )
-        }
-
-        LabeledFiltersGroup(
-            filters = filtersAvailable.map { filter ->
-                LabeledFilterState(
-                    text = stringResource(id = filter.title()),
-                    onSelected = { filterAction(filter) },
-                    state = if (filterBy == filter) {
-                        FilterState.SELECTED
-                    } else {
-                        FilterState.UNSELECTED
-                    }
-                )
-            },
-            modifier = Modifier.padding(
-                horizontal = AppTheme.dimensions.smallSpacing,
-                vertical = AppTheme.dimensions.tinySpacing
-            )
+        SimpleText(
+            text = totalEarningBalanceFiat,
+            style = ComposeTypographies.Title1,
+            color = ComposeColors.Title,
+            gravity = ComposeGravities.Centre
         )
 
-        if (searchedText.isNotEmpty() && earningAssetList.isEmpty()) {
+        SmallestVerticalSpacer()
+
+        SimpleText(
+            text = stringResource(id = R.string.common_total_balance),
+            style = ComposeTypographies.Paragraph2,
+            color = ComposeColors.Body,
+            gravity = ComposeGravities.Centre
+        )
+
+        StandardVerticalSpacer()
+
+        if (earningAssetList.isEmpty()) {
             SimpleText(
-                modifier = Modifier
-                    .padding(AppTheme.dimensions.verySmallSpacing)
-                    .align(Alignment.CenterHorizontally),
-                text = stringResource(R.string.earning_dashboard_no_results),
-                style = ComposeTypographies.Body1,
-                color = ComposeColors.Body,
-                gravity = ComposeGravities.Centre
-            )
-        } else if (searchedText.isEmpty() && earningAssetList.isEmpty()) {
-            SimpleText(
-                modifier = Modifier
-                    .padding(AppTheme.dimensions.verySmallSpacing)
-                    .align(Alignment.CenterHorizontally),
+                modifier = Modifier.align(Alignment.CenterHorizontally),
                 text = stringResource(R.string.earning_dashboard_empty_filter),
                 style = ComposeTypographies.Body1,
                 color = ComposeColors.Body,
@@ -668,14 +636,12 @@ private fun EarningScreen(
             )
 
             PrimaryButton(
-                modifier = Modifier
-                    .padding(horizontal = AppTheme.dimensions.smallSpacing)
-                    .align(Alignment.CenterHorizontally),
+                modifier = Modifier.align(Alignment.CenterHorizontally),
                 text = stringResource(R.string.earning_dashboard_empty_filter_cta),
                 onClick = { investNowClicked() }
             )
         } else {
-            Box(modifier = Modifier.padding(horizontal = AppTheme.dimensions.smallSpacing)) {
+            Box {
                 LazyRoundedCornersColumnIndexed(
                     modifier = Modifier.fillMaxSize(),
                     items = earningAssetList,
