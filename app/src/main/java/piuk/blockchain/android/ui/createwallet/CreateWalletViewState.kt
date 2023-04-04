@@ -5,7 +5,7 @@ import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.domain.eligibility.model.Region
 
 data class CreateWalletViewState(
-    val step: CreateWalletStep,
+    val screen: CreateWalletScreen,
 
     val emailInput: String,
     val isShowingInvalidEmailError: Boolean,
