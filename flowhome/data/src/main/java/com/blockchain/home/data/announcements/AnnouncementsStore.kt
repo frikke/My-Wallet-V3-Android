@@ -18,7 +18,7 @@ class AnnouncementsStore(
         fetcher = Fetcher.Keyed.ofSingle {
             announcementsApiService.getAnnouncements(
                 apiKey = announcementsCredentials.apiKey(),
-                email = announcementsCredentials.email,
+                email = announcementsCredentials.email(),
                 count = announcementsCredentials.count,
                 platform = announcementsCredentials.platform,
                 sdkVersion = announcementsCredentials.sdkVersion(),

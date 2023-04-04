@@ -67,7 +67,6 @@ class AnnouncementsRepository(
         }
     }
 
-    // todo names might change
     private fun AnnouncementPayloadDto.eligibleModes(): List<WalletMode> {
         return when (appMode) {
             "custodial" -> listOf(WalletMode.CUSTODIAL)
@@ -87,7 +86,7 @@ class AnnouncementsRepository(
         announcementsApiService.consumeAnnouncement(
             apiKey = announcementsCredentials.apiKey(),
             body = AnnouncementBodyDto.consume(
-                email = announcementsCredentials.email,
+                email = announcementsCredentials.email(),
                 messageId = announcement.id,
                 deleteAction = action.name,
                 deviceInfo = announcementsCredentials.deviceInfo
@@ -104,7 +103,7 @@ class AnnouncementsRepository(
             announcementsApiService.trackSeen(
                 apiKey = announcementsCredentials.apiKey(),
                 body = AnnouncementBodyDto.seen(
-                    email = announcementsCredentials.email,
+                    email = announcementsCredentials.email(),
                     messageId = announcement.id,
                     deviceInfo = announcementsCredentials.deviceInfo
                 )
@@ -116,7 +115,7 @@ class AnnouncementsRepository(
         announcementsApiService.trackClicked(
             apiKey = announcementsCredentials.apiKey(),
             body = AnnouncementBodyDto.click(
-                email = announcementsCredentials.email,
+                email = announcementsCredentials.email(),
                 messageId = announcement.id,
                 clickedUrl = announcement.actionUrl,
                 deviceInfo = announcementsCredentials.deviceInfo
