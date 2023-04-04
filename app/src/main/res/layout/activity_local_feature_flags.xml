@@ -152,6 +152,15 @@
             android:layout_marginBottom="8dp"
             android:text="Reset User store cache" />
 
+        <Button
+            android:id="@+id/btn_reset_store_caches"
+            style="@style/CtaButton.Blue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:text="Reset Store caches" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
