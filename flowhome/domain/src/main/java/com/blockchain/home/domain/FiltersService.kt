@@ -14,24 +14,28 @@ interface FiltersService {
 }
 
 sealed interface AssetFilter {
-    fun shouldFilterOut(modelAccount: ModelAccount): Boolean
+    fun shouldFilterOut(asset: AssetBalance): Boolean
 
     data class ShowSmallBalances(val enabled: Boolean) : AssetFilter {
-        override fun shouldFilterOut(modelAccount: ModelAccount): Boolean =
-            enabled || !modelAccount.isSmallBalance()
+        override fun shouldFilterOut(asset: AssetBalance): Boolean =
+            enabled || !asset.isSmallBalance()
     }
 
     data class SearchFilter(private val query: String = "") : AssetFilter {
-        override fun shouldFilterOut(modelAccount: ModelAccount): Boolean {
+        override fun shouldFilterOut(asset: AssetBalance): Boolean {
             return query.isEmpty() ||
-                modelAccount.singleAccount.currency.name.contains(query, true) ||
-                modelAccount.singleAccount.currency.networkTicker.contains(query, true) ||
-                modelAccount.singleAccount.currency.displayTicker.contains(query, true)
+                asset.singleAccount.currency.name.contains(query, true) ||
+                asset.singleAccount.currency.networkTicker.contains(query, true) ||
+                asset.singleAccount.currency.displayTicker.contains(query, true)
         }
     }
 }
 
-data class ModelAccount(
+/**
+ * balance for each account,
+ * e.g. for custodial BTC might have trading account, staking account, etc..
+ */
+data class SingleAccountBalance(
     val singleAccount: SingleAccount,
     val balance: DataResource<Money>,
     val fiatBalance: DataResource<Money>,
@@ -44,7 +48,19 @@ data class ModelAccount(
         }
 }
 
-fun ModelAccount.isSmallBalance(): Boolean {
+/**
+ * balance for full asset,
+ * e.g. for custodial BTC this combines trading account, staking account, etc..
+ */
+data class AssetBalance(
+    val singleAccount: SingleAccount,
+    val balance: DataResource<Money>,
+    val fiatBalance: DataResource<Money>,
+    val usdBalance: DataResource<Money>,
+    val exchangeRate24hWithDelta: DataResource<Prices24HrWithDelta>
+)
+
+fun AssetBalance.isSmallBalance(): Boolean {
     return (usdBalance as? DataResource.Data<Money>)?.data?.let {
         it < Money.fromMajor(FiatCurrency.Dollars, 1.toBigDecimal())
     } ?: true
