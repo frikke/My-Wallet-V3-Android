@@ -16,6 +16,7 @@ import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Observable
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -66,6 +67,7 @@ class QuickActionsRepository(
         val balanceFlow =
             totalWalletModeBalance(WalletMode.CUSTODIAL, freshnessStrategy)
                 .map { it.totalFiat.isPositive }
+                .catch { emit(false) }
                 .distinctUntilChanged().debounce(200)
 
         val hasFiatBalance =
@@ -178,7 +180,7 @@ class QuickActionsRepository(
 
         val balanceFlow = totalWalletModeBalance(WalletMode.NON_CUSTODIAL, freshnessStrategy).map {
             it.total.isPositive
-        }
+        }.catch { emit(false) }
 
         return combine(sellEnabledFlow, balanceFlow) { sellEligible, balanceIsPositive ->
             listOf(
