@@ -172,6 +172,10 @@ class SimpleBuyCryptoFragment :
         arguments?.getBoolean(ARG_LAUNCH_PAYMENT_METHOD_SELECTION, false) ?: false
     }
 
+    private val fromRecurringBuy: Boolean by lazy {
+        arguments?.getBoolean(ARG_FROM_RECURRING_BUY, false) ?: false
+    }
+
     override fun navigator(): SimpleBuyNavigator =
         (activity as? SimpleBuyNavigator)
             ?: throw IllegalStateException("Parent must implement SimpleBuyNavigator")
@@ -211,8 +215,9 @@ class SimpleBuyCryptoFragment :
         model.process(SimpleBuyIntent.InitialiseSelectedCryptoAndFiat(asset, fiatCurrency))
         model.process(
             SimpleBuyIntent.FetchSuggestedPaymentMethod(
-                fiatCurrency,
-                preselectedMethodId
+                fiatCurrency = fiatCurrency,
+                selectedPaymentMethodId = preselectedMethodId,
+                promptRecurringBuy = fromRecurringBuy
             )
         )
         model.process(SimpleBuyIntent.FetchEligibility)
@@ -450,6 +455,12 @@ class SimpleBuyCryptoFragment :
     }
 
     override fun render(newState: SimpleBuyState) {
+        if (newState.promptRecurringBuyIntervals && newState.selectedPaymentMethod != null) {
+            model.process(SimpleBuyIntent.RecurringBuyOptionsSeen)
+            model.process(SimpleBuyIntent.RecurringBuyIntervalsShown)
+            showBottomSheet(RecurringBuySelectionBottomSheet.newInstance())
+        }
+
         if (newState.shouldRequestNewQuote(lastState)) {
             updateQuote(newState.amount)
         }
@@ -1356,10 +1367,11 @@ class SimpleBuyCryptoFragment :
     private fun updatePaymentMethods(preselectedId: String?) {
         model.process(
             SimpleBuyIntent.FetchSuggestedPaymentMethod(
-                fiatCurrency,
-                preselectedId,
+                fiatCurrency = fiatCurrency,
+                selectedPaymentMethodId = preselectedId,
                 usePrefilledAmount = false,
-                reloadQuickFillButtons = true
+                reloadQuickFillButtons = true,
+                promptRecurringBuy = false
             )
         )
     }
@@ -1393,6 +1405,7 @@ class SimpleBuyCryptoFragment :
         private const val ARG_LINK_NEW_CARD = "LINK_NEW_CARD"
         private const val ARG_LAUNCH_PAYMENT_METHOD_SELECTION = "LAUNCH_PAYMENT_METHOD_SELECTION"
         private const val ARG_FIAT_CURRENCY = "ARG_FIAT_CURRENCY"
+        private const val ARG_FROM_RECURRING_BUY = "ARG_FROM_RECURRING_BUY"
 
         fun newInstance(
             asset: AssetInfo,
@@ -1400,7 +1413,8 @@ class SimpleBuyCryptoFragment :
             preselectedAmount: String? = null,
             launchLinkCard: Boolean = false,
             launchPaymentMethodSelection: Boolean = false,
-            preselectedFiatTicker: String? = null
+            preselectedFiatTicker: String? = null,
+            fromRecurringBuy: Boolean = false
         ): SimpleBuyCryptoFragment {
             return SimpleBuyCryptoFragment().apply {
                 arguments = Bundle().apply {
@@ -1410,6 +1424,7 @@ class SimpleBuyCryptoFragment :
                     preselectedFiatTicker?.let { putString(ARG_FIAT_CURRENCY, it) }
                     putBoolean(ARG_LINK_NEW_CARD, launchLinkCard)
                     putBoolean(ARG_LAUNCH_PAYMENT_METHOD_SELECTION, launchPaymentMethodSelection)
+                    putBoolean(ARG_FROM_RECURRING_BUY, fromRecurringBuy)
                 }
             }
         }

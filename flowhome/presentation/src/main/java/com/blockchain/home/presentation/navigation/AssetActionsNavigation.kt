@@ -19,6 +19,7 @@ interface AssetActionsNavigation : ActivityResultNavigation {
         launchLinkCard: Boolean = false,
         launchNewPaymentMethodSelection: Boolean = false,
     )
+    fun buyCryptoWithRecurringBuy()
 
     fun buyWithPreselectedMethod(paymentMethodId: String?)
     fun settings()

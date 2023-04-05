@@ -100,7 +100,8 @@ data class SimpleBuyState constructor(
     @Transient val openCvvInput: Boolean = false,
     @Transient val hasHandledCvv: Boolean = false,
     @Transient val securityCodePaymentId: String? = null,
-    @Transient val hasAmountComeFromDeeplink: Boolean = false
+    @Transient val hasAmountComeFromDeeplink: Boolean = false,
+    @Transient val promptRecurringBuyIntervals: Boolean = false
 ) : MviState, TransactionFlowStateInfo {
 
     val order: SimpleBuyOrder by unsafeLazy {

@@ -225,7 +225,9 @@ class BuySellFragment :
     fun showBuyOrSell(view: BuySellViewType) {
         childFragmentManager.showFragment(
             fragment = when (view) {
-                BuySellViewType.TYPE_BUY -> BuySelectAssetFragment.newInstance()
+                BuySellViewType.TYPE_BUY -> BuySelectAssetFragment.newInstance(
+                    fromRecurringBuy = arguments?.getBoolean(ARG_FROM_RECURRING_BUY) ?: false
+                )
                 BuySellViewType.TYPE_SELL -> SellIntroFragment.newInstance()
             },
             containerId = binding.buySellFragmentContainer.id,
@@ -243,16 +245,19 @@ class BuySellFragment :
         private const val VIEW_TYPE = "VIEW_TYPE"
         private const val SELECTED_ASSET = "SELECTED_ASSET"
         private const val SB_ACTIVITY = 321
+        private const val ARG_FROM_RECURRING_BUY = "ARG_FROM_RECURRING_BUY"
 
         fun newInstance(
             asset: AssetInfo? = null,
             viewType: BuySellViewType = BuySellViewType.TYPE_BUY,
+            fromRecurringBuy: Boolean = false
         ) = BuySellFragment().apply {
             arguments = Bundle().apply {
                 putSerializable(VIEW_TYPE, viewType)
                 asset?.let {
                     putString(SELECTED_ASSET, it.networkTicker)
                 }
+                putBoolean(ARG_FROM_RECURRING_BUY, fromRecurringBuy)
             }
         }
     }
