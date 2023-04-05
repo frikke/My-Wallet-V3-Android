@@ -59,3 +59,5 @@ app/src/envInternalProd/embrace-config.json
 app/src/envProd/embrace-config.json
 app/src/envStaging/embrace-config.json
 app/src/main/embrace-config.json
+asset-actions/presentation/src/androidTest/java/com/blockchain/assetactions/presentation/ExampleInstrumentedTest.kt
+asset-actions/presentation/src/test/java/com/blockchain/assetactions/presentation/ExampleUnitTest.kt
