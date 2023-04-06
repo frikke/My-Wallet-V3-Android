@@ -283,7 +283,7 @@ class CreateWalletViewModelTest {
             coEvery { referralService.isReferralCodeValid("12345678") } returns Outcome.Success(true)
 
             subject.navigationEventFlow.test {
-                subject.onIntent(CreateWalletIntent.RegionNextClicked)
+                subject.onIntent(CreateWalletIntent.EmailPasswordNextClicked)
                 awaitItem() shouldBeEqualTo CreateWalletNavigation.RecaptchaVerification(RecaptchaActionType.SIGNUP)
                 expectNoEvents()
             }
