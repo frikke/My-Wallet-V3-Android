@@ -30,6 +30,7 @@ import com.blockchain.coincore.xlm.XlmAsset
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.ethereum.EvmNetworksService
 import com.blockchain.koin.activeRewardsBalanceStore
+import com.blockchain.koin.dynamicEthHotWalletAddressFeatureFlag
 import com.blockchain.koin.interestBalanceStore
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
@@ -161,7 +162,9 @@ val coincoreModule = module {
 
         scoped {
             EthHotWalletAddressResolver(
-                hotWalletService = get()
+                hotWalletService = get(),
+                nabuService = get(),
+                dynamicEthHotWalletAddressFF = get(dynamicEthHotWalletAddressFeatureFlag),
             )
         }
 

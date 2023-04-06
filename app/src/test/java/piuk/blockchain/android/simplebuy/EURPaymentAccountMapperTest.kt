@@ -2,7 +2,7 @@ package piuk.blockchain.android.simplebuy
 
 import android.content.res.Resources
 import com.blockchain.nabu.datamanagers.BankDetail
-import com.blockchain.nabu.models.responses.simplebuy.BankAgentResponse
+import com.blockchain.nabu.models.responses.simplebuy.CustodialAccountAgentResponse
 import com.blockchain.nabu.models.responses.simplebuy.CustodialAccountResponse
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -17,7 +17,7 @@ class EURPaymentAccountMapperTest {
 
     private val resources: Resources = mock()
     private val bankAccountResponse: CustodialAccountResponse = mock()
-    private val agent: BankAgentResponse = mock()
+    private val agent: CustodialAccountAgentResponse = mock()
 
     private lateinit var subject: EURPaymentAccountMapper
 

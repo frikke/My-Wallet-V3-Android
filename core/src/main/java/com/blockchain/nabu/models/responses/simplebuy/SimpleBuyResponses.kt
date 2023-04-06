@@ -33,7 +33,7 @@ data class SimpleBuyCurrency(val currency: String)
 @Serializable
 data class CustodialAccountResponse(
     val address: String,
-    val agent: BankAgentResponse,
+    val agent: CustodialAccountAgentResponse,
     val currency: String,
     val state: String?,
     val partner: String?
@@ -45,7 +45,7 @@ data class CustodialAccountResponse(
 }
 
 @Serializable
-data class BankAgentResponse(
+data class CustodialAccountAgentResponse(
     val account: String? = null,
     val address: String? = null,
     val label: String? = null,

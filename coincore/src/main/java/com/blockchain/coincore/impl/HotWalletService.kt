@@ -4,7 +4,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.ExchangeAccount
 import com.blockchain.coincore.TradingAccount
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.isLayer2Token
 import info.blockchain.wallet.api.WalletApi
@@ -46,7 +46,7 @@ class HotWalletService(
 
     private fun getAssetNetworkTicker(currency: Currency) =
         if (currency.isLayer2Token) {
-            CryptoCurrency.ETHER.networkTicker
+            (currency as AssetInfo).coinNetwork!!.networkTicker
         } else {
             currency.networkTicker
         }

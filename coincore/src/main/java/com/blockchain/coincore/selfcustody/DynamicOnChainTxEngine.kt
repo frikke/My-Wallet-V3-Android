@@ -65,7 +65,7 @@ class DynamicOnChainTxEngine(
     }
 
     private val feeOptions: Single<Map<FeeLevel, CryptoValue>> = rxSingleOutcome {
-        nonCustodialService.getFeeOptions(sourceAsset as AssetInfo)
+        nonCustodialService.getFeeOptions(feeCurrency)
             .map {
                 it.mapKeys { (level, _) ->
                     level.toPresentation()
