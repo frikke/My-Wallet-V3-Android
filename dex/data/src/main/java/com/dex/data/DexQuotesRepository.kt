@@ -22,6 +22,7 @@ import com.dex.domain.OutputAmount
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
+import java.math.BigDecimal
 import java.math.BigInteger
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -73,11 +74,20 @@ class DexQuotesRepository(
                                 ?: resp.quote.buyAmount.amount.toBigInteger()
                         )
                     ),
-                    fees = calculateEstimatedQuoteFee(
+                    networkFees = calculateEstimatedQuoteFee(
                         nativeCurrency,
                         resp.transaction.gasLimit.toBigInteger(),
                         resp.transaction.gasPrice.toBigInteger()
+                    ),
+                    price = Money.fromMajor(
+                        dexQuoteParams.destinationAccount.currency,
+                        BigDecimal(resp.quote.price)
+                    ),
+                    blockchainFees = Money.fromMinor(
+                        dexQuoteParams.destinationAccount.currency,
+                        resp.quote.buyTokenFee.takeIf { it.isNotEmpty() }?.toBigInteger() ?: BigInteger.ZERO
                     )
+
                 )
             }
         }.mapError {

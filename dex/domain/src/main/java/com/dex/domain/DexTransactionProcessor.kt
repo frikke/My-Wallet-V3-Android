@@ -112,8 +112,7 @@ class DexTransactionProcessor(
         _dexTransaction.update {
             it.copy(
                 quoteError = failure,
-                outputAmount = null,
-                fees = null
+                quote = null,
             )
         }
     }
@@ -130,13 +129,11 @@ class DexTransactionProcessor(
         _dexTransaction.update {
             when (quote) {
                 is DexQuote.ExchangeQuote -> it.copy(
-                    outputAmount = quote.outputAmount,
-                    fees = quote.fees,
+                    quote = quote,
                     quoteError = null
                 )
                 DexQuote.InvalidQuote -> it.copy(
-                    outputAmount = null,
-                    fees = null,
+                    quote = null,
                     quoteError = null
                 )
             }
@@ -153,6 +150,7 @@ class DexTransactionProcessor(
                         current.toBigDecimal()
                     )
                 },
+                quoteError = null,
                 destinationAccount = if (dexTx.destinationAccount?.currency == sourceAccount.currency) {
                     null
                 } else dexTx.destinationAccount
@@ -163,7 +161,8 @@ class DexTransactionProcessor(
     fun updateDestinationAccount(destinationAccount: DexAccount?) {
         _dexTransaction.update {
             it.copy(
-                destinationAccount = destinationAccount
+                destinationAccount = destinationAccount,
+                quoteError = null,
             )
         }
     }
@@ -236,7 +235,7 @@ class DexTransactionProcessor(
     }
 
     private suspend fun DexTransaction.validateSufficientNetworkFees(): DexTransaction {
-        return fees?.let {
+        return quote?.networkFees?.let {
             val networkBalance = balanceService.networkBalance(sourceAccount)
             if (networkBalance >= it) {
                 this
@@ -258,10 +257,9 @@ private fun DexTransaction.canBeQuoted() =
 
 data class DexTransaction internal constructor(
     private val _amount: Money?,
-    val outputAmount: OutputAmount?,
+    val quote: DexQuote.ExchangeQuote?,
     private val _sourceAccount: DexAccount?,
     val destinationAccount: DexAccount?,
-    val fees: Money?,
     val slippage: Double,
     val maxAvailable: Money?,
     val txError: DexTxError,
@@ -290,17 +288,21 @@ private val EmptyDexTransaction = DexTransaction(
     null,
     null,
     null,
-    null,
     0.toDouble(),
     null,
     DexTxError.None,
-    null
+    null,
 )
 
 sealed class DexTxError {
     object NotEnoughFunds : DexTxError()
     object NotEnoughGas : DexTxError()
-    data class QuoteError(val title: String, val message: String) : DexTxError()
+    data class QuoteError(val title: String, val message: String) : DexTxError() {
+
+        fun isLiquidityError(): Boolean =
+            message.contains("INSUFFICIENT_ASSET_LIQUIDITY", true)
+    }
+
     object TokenNotAllowed : DexTxError()
     class FatalTxError(val exception: Exception) : DexTxError()
     object None : DexTxError()

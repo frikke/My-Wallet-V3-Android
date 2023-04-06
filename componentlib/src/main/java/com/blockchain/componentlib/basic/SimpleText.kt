@@ -29,8 +29,8 @@ import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 
 @Composable
 fun SimpleText(
-    text: String,
     modifier: Modifier = Modifier,
+    text: String,
     style: ComposeTypographies,
     color: ComposeColors,
     gravity: ComposeGravities,

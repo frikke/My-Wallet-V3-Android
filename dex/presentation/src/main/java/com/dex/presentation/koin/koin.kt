@@ -8,6 +8,7 @@ import com.dex.presentation.DexSelectDestinationAccountViewModel
 import com.dex.presentation.DexSourceAccountViewModel
 import com.dex.presentation.SettingsViewModel
 import com.dex.presentation.TokenAllowanceViewModel
+import com.dex.presentation.confirmation.DexConfirmationViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -23,6 +24,15 @@ val dexPresentation = module {
                 dexSlippageService = get()
             )
         }
+
+        viewModel {
+            DexConfirmationViewModel(
+                transactionProcessor = get(),
+                exchangeRatesDataManager = get(),
+                currencyPrefs = get()
+            )
+        }
+
         viewModel {
             DexSourceAccountViewModel(
                 dexService = get(),

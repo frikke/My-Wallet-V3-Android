@@ -38,7 +38,9 @@ data class DexQuoteResponse(
 @kotlinx.serialization.Serializable
 data class QuoteResponse(
     val buyAmount: DexQuoteAmount,
-    val sellAmount: DexQuoteAmount
+    val sellAmount: DexQuoteAmount,
+    val price: String,
+    val buyTokenFee: String,
 )
 
 @kotlinx.serialization.Serializable

@@ -16,8 +16,10 @@ data class DexAccount(
 sealed class DexQuote {
     data class ExchangeQuote(
         val amount: Money,
+        val price: Money,
         val outputAmount: OutputAmount,
-        val fees: Money
+        val networkFees: Money,
+        val blockchainFees: Money
     ) : DexQuote()
 
     object InvalidQuote : DexQuote()
