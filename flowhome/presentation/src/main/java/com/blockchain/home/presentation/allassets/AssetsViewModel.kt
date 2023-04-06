@@ -25,10 +25,11 @@ import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.extensions.minus
 import com.blockchain.extensions.replace
+import com.blockchain.home.domain.AssetBalance
 import com.blockchain.home.domain.AssetFilter
 import com.blockchain.home.domain.FiltersService
 import com.blockchain.home.domain.HomeAccountsService
-import com.blockchain.home.domain.ModelAccount
+import com.blockchain.home.domain.SingleAccountBalance
 import com.blockchain.home.domain.isSmallBalance
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.preferences.CurrencyPrefs
@@ -83,18 +84,18 @@ class AssetsViewModel(
         return with(state) {
             AssetsViewState(
                 balance = accounts.walletBalance(),
-                assets = state.accounts.map { modelAccounts ->
-                    modelAccounts
-                        .filter { modelAccount ->
+                assets = state.assets.map { assets ->
+                    assets
+                        .filter { asset ->
                             // create search term filter predicate
-                            modelAccount.shouldBeFiltered(state) &&
-                                modelAccount.balance !is DataResource.Loading &&
+                            asset.shouldBeFiltered(state) &&
+                                asset.balance !is DataResource.Loading &&
                                 /**
                                  * we need to show all fiats
                                  */
                                 (
-                                    (modelAccount.balance as? DataResource.Data)?.data?.isPositive == true ||
-                                        modelAccount.singleAccount is FiatAccount
+                                    (asset.balance as? DataResource.Data)?.data?.isPositive == true ||
+                                        asset.singleAccount is FiatAccount
                                     )
                         }
                         .toHomeAssets()
@@ -102,10 +103,10 @@ class AssetsViewModel(
                 },
 
                 filters = filters,
-                showNoResults = state.accounts.map { modelAccounts ->
-                    modelAccounts.none { it.shouldBeFiltered(state) } && modelAccounts.isNotEmpty()
+                showNoResults = state.assets.map { assets ->
+                    assets.none { it.shouldBeFiltered(state) } && assets.isNotEmpty()
                 }.dataOrElse(false),
-                showFilterIcon = !state.accounts.allSmallBalances().dataOrElse(true),
+                showFilterIcon = !state.assets.allSmallBalances().dataOrElse(true),
                 fundsLocks = state.fundsLocks.map {
                     it?.takeIf { it.locks.isNotEmpty() && it.onHoldTotalAmount.isPositive }
                 }
@@ -119,21 +120,9 @@ class AssetsViewModel(
         return cryptos.take(sectionSize).plus(fiats)
     }
 
-    private fun List<ModelAccount>.toHomeAssets(): List<HomeAsset> {
-        val grouped = sortedWith(
-            compareByDescending<ModelAccount> { it.singleAccount.currency.index }
-                .thenBy {
-                    it.singleAccount.currency.name
-                }
-        )
-            .groupBy(
-                keySelector = {
-                    it.singleAccount.currency.networkTicker
-                }
-            )
-
-        return grouped.values.map { accounts ->
-            accounts.toHomeAsset()
+    private fun List<AssetBalance>.toHomeAssets(): List<HomeAsset> {
+        return map { asset ->
+            asset.toHomeAsset()
         }.sortedWith(
             object : Comparator<HomeAsset> {
                 override fun compare(p0: HomeAsset, p1: HomeAsset): Int {
@@ -145,35 +134,35 @@ class AssetsViewModel(
         )
     }
 
-    private fun List<ModelAccount>.toHomeAsset(): HomeAsset {
-        require(this.map { it.singleAccount.currency.networkTicker }.distinct().size == 1)
-        return when (val account = first().singleAccount) {
+    private fun AssetBalance.toHomeAsset(): HomeAsset {
+        return when (val account = singleAccount) {
             is NonCustodialAccount -> NonCustodialAssetState(
                 asset = account.currency as AssetInfo,
                 icon = listOfNotNull(
                     account.currency.logo,
-                    (account.currency as? AssetInfo)?.takeIf { it.isLayer2Token }?.coinNetwork?.nativeAssetTicker?.let {
-                        assetCatalogue.fromNetworkTicker(it)?.logo
-                    }
+                    (account.currency as? AssetInfo)?.takeIf { it.isLayer2Token }?.coinNetwork?.nativeAssetTicker
+                        ?.let {
+                            assetCatalogue.fromNetworkTicker(it)?.logo
+                        }
                 ),
                 name = account.currency.name,
-                balance = map { acc -> acc.balance }.sumAvailableBalances(),
-                fiatBalance = map { acc -> acc.fiatBalance }.sumAvailableBalances(),
+                balance = balance,
+                fiatBalance = fiatBalance,
             )
             is FiatAccount -> FiatAssetState(
                 icon = listOf(account.currency.logo),
                 name = account.label,
-                balance = map { acc -> acc.balance }.sumAvailableBalances(),
-                fiatBalance = map { acc -> acc.fiatBalance }.sumAvailableBalances(),
+                balance = balance,
+                fiatBalance = fiatBalance,
                 account = account
             )
             else -> CustodialAssetState(
                 asset = account.currency as AssetInfo,
                 icon = listOf(account.currency.logo),
                 name = account.currency.name,
-                balance = map { acc -> acc.balance }.sumAvailableBalances(),
-                fiatBalance = map { acc -> acc.fiatBalance }.sumAvailableBalances(),
-                change = this.first().exchangeRate24hWithDelta.map { value ->
+                balance = balance,
+                fiatBalance = fiatBalance,
+                change = exchangeRate24hWithDelta.map { value ->
                     ValueChange.fromValue(value.delta24h)
                 }
             )
@@ -366,7 +355,7 @@ class AssetsViewModel(
      */
     private fun updateAccountsIfNeeded(
         accounts: List<SingleAccount>,
-        stateAccounts: DataResource<List<ModelAccount>>
+        stateAccounts: DataResource<List<SingleAccountBalance>>
     ): DataResource<List<SingleAccount>> {
         when (stateAccounts) {
             is DataResource.Loading,
@@ -375,7 +364,7 @@ class AssetsViewModel(
                     it.copy(
                         accounts = DataResource.Data(
                             accounts.map { account ->
-                                ModelAccount(
+                                SingleAccountBalance(
                                     singleAccount = account,
                                     balance = DataResource.Loading,
                                     exchangeRate24hWithDelta = DataResource.Loading,
@@ -401,7 +390,7 @@ class AssetsViewModel(
                         it.copy(
                             accounts = DataResource.Data(
                                 accounts.map { account ->
-                                    ModelAccount(
+                                    SingleAccountBalance(
                                         singleAccount = account,
                                         balance = DataResource.Loading,
                                         exchangeRate24hWithDelta = DataResource.Loading,
@@ -418,13 +407,13 @@ class AssetsViewModel(
         }
     }
 
-    private fun DataResource<Iterable<ModelAccount>>.totalBalance(): DataResource<Money> {
+    private fun DataResource<Iterable<SingleAccountBalance>>.totalBalance(): DataResource<Money> {
         return this.map {
             it.totalAccounts()
         }
     }
 
-    private fun DataResource<Iterable<ModelAccount>>.totalCryptoBalance24hAgo(): DataResource<Money> {
+    private fun DataResource<Iterable<SingleAccountBalance>>.totalCryptoBalance24hAgo(): DataResource<Money> {
         return this.flatMap { accounts ->
             val cryptoAccounts = accounts.filter { it.singleAccount is CryptoAccount }
             val balances = cryptoAccounts.map { it.balance }
@@ -462,7 +451,7 @@ class AssetsViewModel(
         }
     }
 
-    private fun Iterable<ModelAccount>.totalAccounts(): Money {
+    private fun Iterable<SingleAccountBalance>.totalAccounts(): Money {
         return map {
             it.fiatBalance
         }.filterIsInstance<DataResource.Data<Money>>()
@@ -473,7 +462,7 @@ class AssetsViewModel(
             }
     }
 
-    private fun DataResource<Iterable<ModelAccount>>.walletBalance(): WalletBalance {
+    private fun DataResource<Iterable<SingleAccountBalance>>.walletBalance(): WalletBalance {
         val cryptoBalanceNow = filter { it.singleAccount is CryptoAccount }.totalBalance()
         val cryptoBalance24hAgo = totalCryptoBalance24hAgo()
 
@@ -485,14 +474,14 @@ class AssetsViewModel(
     }
 }
 
-private fun DataResource<List<ModelAccount>>.allSmallBalances(): DataResource<Boolean> {
-    return map { accounts ->
-        accounts.all { it.isSmallBalance() }
+private fun DataResource<List<AssetBalance>>.allSmallBalances(): DataResource<Boolean> {
+    return map { assets ->
+        assets.all { it.isSmallBalance() }
     }
 }
 
-private fun ModelAccount.shouldBeFiltered(state: AssetsModelState): Boolean {
-    val filters = if (state.accounts.allSmallBalances().dataOrElse(true)) {
+private fun AssetBalance.shouldBeFiltered(state: AssetsModelState): Boolean {
+    val filters = if (state.assets.allSmallBalances().dataOrElse(true)) {
         state.filters.minus { it is AssetFilter.ShowSmallBalances }
     } else {
         state.filters
@@ -501,27 +490,9 @@ private fun ModelAccount.shouldBeFiltered(state: AssetsModelState): Boolean {
     return filters.all { it.shouldFilterOut(this) }
 }
 
-private fun List<DataResource<Money>>.sumAvailableBalances(): DataResource<Money> {
-    var total: DataResource<Money>? = null
-    forEach { money ->
-        total = when (total) {
-            is DataResource.Loading,
-            is DataResource.Error,
-            null -> money
-            is DataResource.Data -> DataResource.Data(
-                (total as DataResource.Data<Money>).data.plus(
-                    (money as? DataResource.Data)?.data
-                        ?: Money.zero((total as DataResource.Data<Money>).data.currency)
-                )
-            )
-        }
-    }
-    return total!!
-}
-
-private fun DataResource<List<ModelAccount>>.withBalancedAccounts(
+private fun DataResource<List<SingleAccountBalance>>.withBalancedAccounts(
     balances: Map<SingleAccount, DataResource<AccountBalance>>
-): DataResource<List<ModelAccount>> {
+): DataResource<List<SingleAccountBalance>> {
     val accounts = (this as? DataResource.Data)?.data ?: return this
     return DataResource.Data(
         balances.mapNotNull { (account, balance) ->
@@ -536,10 +507,10 @@ private fun DataResource<List<ModelAccount>>.withBalancedAccounts(
     )
 }
 
-private fun DataResource<List<ModelAccount>>.withUsdRate(
+private fun DataResource<List<SingleAccountBalance>>.withUsdRate(
     account: SingleAccount,
     usdRate: DataResource<ExchangeRate>
-): DataResource<List<ModelAccount>> {
+): DataResource<List<SingleAccountBalance>> {
     return this.map { accounts ->
         val oldAccount = accounts.firstOrNull { it.singleAccount == account }
         oldAccount?.let {
@@ -553,10 +524,10 @@ private fun DataResource<List<ModelAccount>>.withUsdRate(
     }
 }
 
-private fun DataResource<List<ModelAccount>>.withPricing(
+private fun DataResource<List<SingleAccountBalance>>.withPricing(
     account: SingleAccount,
     price: DataResource<Prices24HrWithDelta>
-): DataResource<List<ModelAccount>> {
+): DataResource<List<SingleAccountBalance>> {
     return this.map { accounts ->
         val oldAccount = accounts.firstOrNull { it.singleAccount == account }
         oldAccount?.let {
