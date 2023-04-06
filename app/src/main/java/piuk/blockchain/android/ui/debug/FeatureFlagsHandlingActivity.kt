@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.alert.BlockchainSnackbar
@@ -23,8 +24,10 @@ import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SessionPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.storedatasource.StoreWiper
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import kotlinx.coroutines.launch
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import org.koin.android.ext.android.inject
@@ -52,6 +55,7 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
     private val remoteConfigPrefs: RemoteConfigPrefs by inject()
     private val getUserStore: GetUserStore by scopedInject()
     private val kycTiersStore: KycTiersStore by scopedInject()
+    private val storeWiper: StoreWiper by scopedInject()
 
     private val featuresAdapter: FeatureFlagAdapter = FeatureFlagAdapter()
 
@@ -84,6 +88,7 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
             val parent = nestedParent
 
             btnResetUserCache.setOnClickListener { onResetUserCache() }
+            btnResetStoreCaches.setOnClickListener { onResetStoreCaches() }
             btnShowReferralSheet.setOnClickListener { showInviteNow() }
             resetAppRating.setOnClickListener { resetAppRating() }
             btnRndDeviceId.setOnClickListener { onRndDeviceId() }
@@ -158,6 +163,12 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
     private fun onResetUserCache() {
         getUserStore.markAsStale()
         kycTiersStore.invalidate()
+    }
+
+    private fun onResetStoreCaches() {
+        lifecycleScope.launch {
+            storeWiper.wipe()
+        }
     }
 
     private fun showInviteNow() {

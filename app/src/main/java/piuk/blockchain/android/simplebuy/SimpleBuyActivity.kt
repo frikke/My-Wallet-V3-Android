@@ -311,7 +311,8 @@ class SimpleBuyActivity :
                     preselectedAmount = preselectedAmount,
                     preselectedFiatTicker = preselectedFiatTicker,
                     launchLinkCard = launchLinkNewCard,
-                    launchPaymentMethodSelection = launchSelectNewPaymentMethod
+                    launchPaymentMethodSelection = launchSelectNewPaymentMethod,
+                    fromRecurringBuy = intent.getBooleanExtra(ARG_FROM_RECURRING_BUY, false)
                 ),
                 SimpleBuyCryptoFragment::class.simpleName
             )
@@ -647,6 +648,7 @@ class SimpleBuyActivity :
         private const val STARTED_FROM_KYC_RESUME = "started_from_kyc_resume_key"
         private const val LAUNCH_LINK_CARD = "launch_link_card"
         private const val LAUNCH_SELECT_PAYMENT_METHOD = "launch_select_new_method"
+        private const val ARG_FROM_RECURRING_BUY = "ARG_FROM_RECURRING_BUY"
 
         fun newIntent(
             context: Context,
@@ -659,6 +661,7 @@ class SimpleBuyActivity :
             launchFromApprovalDeepLink: Boolean = false,
             launchLinkCard: Boolean = false,
             launchNewPaymentMethodSelection: Boolean = false,
+            fromRecurringBuy: Boolean = false,
         ) = Intent(context, SimpleBuyActivity::class.java).apply {
             putExtra(STARTED_FROM_NAVIGATION_KEY, launchFromNavigationBar)
             putExtra(ASSET_KEY, asset?.networkTicker)
@@ -669,6 +672,7 @@ class SimpleBuyActivity :
             putExtra(STARTED_FROM_APPROVAL_KEY, launchFromApprovalDeepLink)
             putExtra(LAUNCH_LINK_CARD, launchLinkCard)
             putExtra(LAUNCH_SELECT_PAYMENT_METHOD, launchNewPaymentMethodSelection)
+            putExtra(ARG_FROM_RECURRING_BUY, fromRecurringBuy)
         }
     }
 }

@@ -345,7 +345,8 @@ class SimpleBuyModel(
                     fiatCurrency = intent.fiatCurrency,
                     preselectedId = intent.selectedPaymentMethodId,
                     previousSelectedId = previousState.selectedPaymentMethod?.id,
-                    usePrefilledAmount = false
+                    usePrefilledAmount = false,
+                    promptRecurringBuy = false
                 )
 
             is SimpleBuyIntent.FetchSuggestedPaymentMethod -> {
@@ -355,7 +356,8 @@ class SimpleBuyModel(
                     fiatCurrency = intent.fiatCurrency,
                     preselectedId = intent.selectedPaymentMethodId ?: lastPaymentMethodId,
                     previousSelectedId = previousState.selectedPaymentMethod?.id,
-                    usePrefilledAmount = intent.usePrefilledAmount
+                    usePrefilledAmount = intent.usePrefilledAmount,
+                    promptRecurringBuy = intent.promptRecurringBuy
                 )
             }
 
@@ -969,7 +971,8 @@ class SimpleBuyModel(
         fiatCurrency: FiatCurrency,
         preselectedId: String?,
         previousSelectedId: String?,
-        usePrefilledAmount: Boolean
+        usePrefilledAmount: Boolean,
+        promptRecurringBuy: Boolean
     ) =
         fetchEligiblePaymentMethods(fiatCurrency)
             .flatMap { paymentMethods ->
@@ -980,14 +983,46 @@ class SimpleBuyModel(
             .subscribeBy(
                 onSuccess = { (availablePaymentMethods, eligibilityNextPaymentList) ->
                     process(SimpleBuyIntent.RecurringBuyEligibilityUpdated(eligibilityNextPaymentList))
+
+                    /**
+                     * for some reason models are using unexpeced types
+                     * like gpay is using card?
+                     * not sure why, so need to extract the real type here
+                     */
+                    fun PaymentMethod.realType() = when (this) {
+                        is PaymentMethod.Bank -> PaymentMethodType.BANK_TRANSFER
+                        is PaymentMethod.Card -> PaymentMethodType.PAYMENT_CARD
+                        is PaymentMethod.Funds -> PaymentMethodType.FUNDS
+                        is PaymentMethod.GooglePay -> PaymentMethodType.GOOGLE_PAY
+                        is PaymentMethod.UndefinedBankAccount -> PaymentMethodType.UNKNOWN
+                        is PaymentMethod.UndefinedBankTransfer -> PaymentMethodType.UNKNOWN
+                        is PaymentMethod.UndefinedCard -> PaymentMethodType.UNKNOWN
+                    }
+
+                    val idEligibleForRb = availablePaymentMethods.firstOrNull { paymentMethod ->
+                        eligibilityNextPaymentList.flatMap { it.eligibleMethods }.distinct()
+                            .contains(paymentMethod.realType())
+                    }?.id?.takeIf { promptRecurringBuy }
+
                     process(
                         updateSelectedAndAvailablePaymentMethodMethodsIntent(
-                            preselectedId = preselectedId,
+                            preselectedId = idEligibleForRb ?: preselectedId,
                             previousSelectedId = previousSelectedId,
                             availablePaymentMethods = availablePaymentMethods,
                             usePrefilledAmount = usePrefilledAmount
                         )
                     )
+
+                    idEligibleForRb?.let {
+                        process(
+                            SimpleBuyIntent.RecurringBuyIntervalUpdated(RecurringBuyFrequency.WEEKLY)
+                        )
+
+                        process(
+                            SimpleBuyIntent.PromptRecurringBuyIntervals
+
+                        )
+                    }
                 },
                 onError = {
                     processOrderErrors(it)
