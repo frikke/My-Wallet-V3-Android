@@ -92,9 +92,9 @@ fun <T> DataResource<T>.doOnError(f: (Exception) -> Unit): DataResource<T> {
     }
 }
 
-fun <T> List<DataResource<T>>.anyLoading() = any { it is DataResource.Loading }
-fun <T> List<DataResource<T>>.anyError() = any { it is DataResource.Error }
-fun <T> List<DataResource<T>>.getFirstError() = (first { it is DataResource.Error } as DataResource.Error)
+fun <T> Iterable<DataResource<T>>.anyLoading() = any { it is DataResource.Loading }
+fun <T> Iterable<DataResource<T>>.anyError() = any { it is DataResource.Error }
+fun <T> Iterable<DataResource<T>>.getFirstError() = (first { it is DataResource.Error } as DataResource.Error)
 
 fun <T> Flow<DataResource<T>>.onErrorReturn(errorToData: (Exception) -> T): Flow<DataResource<T>> {
     return map { dataResource ->
@@ -104,6 +104,20 @@ fun <T> Flow<DataResource<T>>.onErrorReturn(errorToData: (Exception) -> T): Flow
             }
             else -> dataResource
         }
+    }
+}
+
+fun <T> Iterable<DataResource<T>>.merge(transform: (Iterable<T>) -> T): DataResource<T> {
+    return if (none { it is DataResource.Data }) {
+        if (anyLoading()) DataResource.Loading
+        else getFirstError()
+    } else {
+        DataResource.Data(
+            transform(
+                filterIsInstance<DataResource.Data<T>>()
+                    .map { it.data }
+            )
+        )
     }
 }
 

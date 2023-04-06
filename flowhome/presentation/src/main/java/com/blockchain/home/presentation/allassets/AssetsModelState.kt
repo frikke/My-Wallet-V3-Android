@@ -3,6 +3,7 @@ package com.blockchain.home.presentation.allassets
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
+import com.blockchain.data.merge
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.home.domain.AssetBalance
 import com.blockchain.home.domain.AssetFilter
@@ -11,6 +12,7 @@ import com.blockchain.home.presentation.SectionSize
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
+import info.blockchain.balance.total
 
 data class AssetsModelState(
     val accounts: DataResource<List<SingleAccountBalance>> = DataResource.Loading,
@@ -49,19 +51,5 @@ data class AssetsModelState(
 }
 
 private fun List<DataResource<Money>>.sumAvailableBalances(): DataResource<Money> {
-    var total: DataResource<Money>? = null
-    forEach { money ->
-        total = when (total) {
-            is DataResource.Loading,
-            is DataResource.Error,
-            null -> money
-            is DataResource.Data -> DataResource.Data(
-                (total as DataResource.Data<Money>).data.plus(
-                    (money as? DataResource.Data)?.data
-                        ?: Money.zero((total as DataResource.Data<Money>).data.currency)
-                )
-            )
-        }
-    }
-    return total!!
+    return merge { it.total() }
 }
