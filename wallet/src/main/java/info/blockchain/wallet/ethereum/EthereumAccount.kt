@@ -96,11 +96,12 @@ class EthereumAccount(val ethAccountDto: EthAccountDto) : JsonSerializableAccoun
     }
 
     private fun getSignature(rawPreImage: String, signingKey: ECKey): String {
-        val hash = Sha256Hash.wrap(rawPreImage)
-        val resultSignature = signingKey.sign(hash)
+        val bytes = rawPreImage.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+        val sha256Hash = Sha256Hash.wrap(bytes)
+        val resultSignature = signingKey.sign(sha256Hash)
         val r = resultSignature.r.toPaddedHexString()
         val s = resultSignature.s.toPaddedHexString()
-        val v = "0${signingKey.findRecoveryId(hash, resultSignature)}"
+        val v = "0${signingKey.findRecoveryId(sha256Hash, resultSignature)}"
         return r + s + v
     }
 

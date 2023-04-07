@@ -20,9 +20,12 @@ import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.NetworkType
 import info.blockchain.wallet.dynamicselfcustody.DynamicHDAccount
-import info.blockchain.wallet.keys.SigningKey
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import java.math.BigInteger
+import org.bitcoinj.core.ECKey
+import org.bitcoinj.core.Sha256Hash
+import org.bitcoinj.core.Utils
 import org.spongycastle.util.encoders.Hex
 
 class DynamicNonCustodialAccount(
@@ -85,13 +88,28 @@ class DynamicNonCustodialAccount(
 
     override val hasStaticAddress: Boolean = false
 
-    fun getSigningKey(): SigningKey {
+    fun signedRawPreImage(unsignedPreImage: String): String {
         return if (coinType.network == NetworkType.SOL || coinType.network == NetworkType.XLM) {
-            // TODO(dtverdota): signing preimages with the correct key (internalAccount.bip39Key)
-            internalAccount.signingKey
+            Utils.HEX.encode(internalAccount.signWithBip39Key(Utils.HEX.decode(unsignedPreImage)))
         } else {
-            internalAccount.signingKey
+            getSignature(unsignedPreImage, internalAccount.signingKey.toECKey())
         }
+    }
+
+    private fun getSignature(unsignedPreImage: String, signingKey: ECKey): String {
+        val hash = Sha256Hash.wrap(unsignedPreImage)
+        val resultSignature = signingKey.sign(hash)
+        val r = resultSignature.r.toPaddedHexString()
+        val s = resultSignature.s.toPaddedHexString()
+        val v = "0${signingKey.findRecoveryId(hash, resultSignature)}"
+        return r + s + v
+    }
+
+    private fun BigInteger.toPaddedHexString(): String {
+        val radix = 16 // For digit to character conversion (digit to hexadecimal in this case)
+        val desiredLength = 64
+        val padChar = '0'
+        return toString(radix).padStart(desiredLength, padChar)
     }
 
     override val index: Int

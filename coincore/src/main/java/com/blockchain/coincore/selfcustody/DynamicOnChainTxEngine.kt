@@ -1,7 +1,6 @@
 package com.blockchain.coincore.selfcustody
 
 import com.blockchain.api.selfcustody.BuildTxResponse
-import com.blockchain.api.selfcustody.PreImage
 import com.blockchain.api.selfcustody.PushTxResponse
 import com.blockchain.api.selfcustody.SignatureAlgorithm
 import com.blockchain.coincore.AssetAction
@@ -36,9 +35,6 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import java.math.BigInteger
-import org.bitcoinj.core.ECKey
-import org.bitcoinj.core.Sha256Hash
 
 private fun PendingTx.setMemo(memo: TxConfirmationValue.Memo): PendingTx =
     this.copy(
@@ -101,7 +97,6 @@ class DynamicOnChainTxEngine(
                         )
                     } else null
                 )
-
             )
         )
     }
@@ -214,12 +209,12 @@ class DynamicOnChainTxEngine(
             }
 
     private fun signTransaction(buildTxResponse: BuildTxResponse): List<TransactionSignature> {
-        val signingKey = (sourceAccount as? DynamicNonCustodialAccount)?.getSigningKey()?.toECKey()
-            ?: throw IllegalStateException("Source account is not DynamicNonCustodialAccount")
         return buildTxResponse.preImages.map { unsignedPreImage ->
             when (unsignedPreImage.signatureAlgorithm) {
                 SignatureAlgorithm.SECP256K1 -> {
-                    val signature = getSignature(unsignedPreImage, signingKey)
+                    val signature = (sourceAccount as? DynamicNonCustodialAccount)?.signedRawPreImage(
+                        unsignedPreImage.rawPreImage
+                    ) ?: throw IllegalStateException("Source account is not DynamicNonCustodialAccount")
                     TransactionSignature(
                         preImage = unsignedPreImage.rawPreImage,
                         signingKey = unsignedPreImage.signingKey,
@@ -230,22 +225,6 @@ class DynamicOnChainTxEngine(
                 else -> throw TransactionError.ExecutionFailed
             }
         }
-    }
-
-    private fun getSignature(unsignedPreImage: PreImage, signingKey: ECKey): String {
-        val hash = Sha256Hash.wrap(unsignedPreImage.rawPreImage)
-        val resultSignature = signingKey.sign(hash)
-        val r = resultSignature.r.toPaddedHexString()
-        val s = resultSignature.s.toPaddedHexString()
-        val v = "0${signingKey.findRecoveryId(hash, resultSignature)}"
-        return r + s + v
-    }
-
-    private fun BigInteger.toPaddedHexString(): String {
-        val radix = 16 // For digit to character conversion (digit to hexadecimal in this case)
-        val desiredLength = 64
-        val padChar = '0'
-        return toString(radix).padStart(desiredLength, padChar)
     }
 
     private fun createTransaction(pendingTx: PendingTx) =

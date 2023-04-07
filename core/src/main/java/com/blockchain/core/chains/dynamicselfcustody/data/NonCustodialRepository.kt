@@ -215,7 +215,7 @@ internal class NonCustodialRepository(
                     IllegalArgumentException("Error parsing network fees for ${asset.networkTicker}")
                 )
             }
-            Outcome.Success(mapOf(FeeLevel.HIGH to CryptoValue.fromMinor(asset, amount)))
+            Outcome.Success(mapOf(FeeLevel.NORMAL to CryptoValue.fromMinor(asset, amount)))
         }
     }
 
