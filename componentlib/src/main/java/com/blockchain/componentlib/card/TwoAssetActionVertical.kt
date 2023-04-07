@@ -19,7 +19,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.icons.ArrowDown
-import com.blockchain.componentlib.icons.ArrowRight
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Receive
 import com.blockchain.componentlib.icons.withBackground

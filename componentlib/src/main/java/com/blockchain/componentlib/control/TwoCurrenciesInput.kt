@@ -237,7 +237,9 @@ private fun BoxScope.CurrencyInput(
 }
 
 private class PrefixSuffixTransformation(
-    val value: String, val isPrefix: Boolean, val separateWithSpace: Boolean
+    val value: String,
+    val isPrefix: Boolean,
+    val separateWithSpace: Boolean
 ) : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         return if (isPrefix) {
