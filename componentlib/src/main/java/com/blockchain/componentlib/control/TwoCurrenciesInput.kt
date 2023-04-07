@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,21 +16,18 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
@@ -48,82 +46,55 @@ import com.blockchain.componentlib.utils.clickableNoEffect
 data class CurrencyValue(
     val value: String,
     val ticker: String,
-    val isPrefix: Boolean
+    val isPrefix: Boolean,
+    val separateWithSpace: Boolean
 )
 
 enum class InputCurrency {
     Currency1, Currency2
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
+private fun InputCurrency.flip() = when (this) {
+    InputCurrency.Currency1 -> InputCurrency.Currency2
+    InputCurrency.Currency2 -> InputCurrency.Currency1
+}
+
 @Composable
 fun TwoCurrenciesInput(
     currency1: CurrencyValue,
     onCurrency1ValueChange: (String) -> Unit,
     currency2: CurrencyValue,
-    onCurrency2ValueChange: (String) -> Unit,
-    selected: InputCurrency,
-    onSwitch: () -> Unit
+    onCurrency2ValueChange: (String) -> Unit
 ) {
-    var fullHeight by remember { mutableStateOf(0) }
+    var selected: InputCurrency by remember {
+        mutableStateOf(InputCurrency.Currency1)
+    }
+
     val localDensity = LocalDensity.current
 
-    val scaleAnim1 by animateFloatAsState(
-        targetValue = if (selected == InputCurrency.Currency1) 1F else 0.5F,
-        animationSpec = tween(
-            durationMillis = BALANCE_OFFSET_ANIM_DURATION
-        )
-    )
-    val scaleAnim2 by animateFloatAsState(
-        targetValue = if (selected == InputCurrency.Currency2) 1F else 0.5F,
-        animationSpec = tween(
-            durationMillis = BALANCE_OFFSET_ANIM_DURATION
-        )
-    )
-
-    val translation1 by animateIntAsState(
-        targetValue = if (selected == InputCurrency.Currency1) 0 else (fullHeight * 0.75).toInt(),
-        animationSpec = tween(
-            durationMillis = BALANCE_OFFSET_ANIM_DURATION
-        )
-    )
-    val translation2 by animateIntAsState(
-        targetValue = if (selected == InputCurrency.Currency2) 0 else (fullHeight * 0.75).toInt(),
-        animationSpec = tween(
-            durationMillis = BALANCE_OFFSET_ANIM_DURATION
-        )
-    )
-
-    val color1 by animateColorAsState(
-        targetValue = if (selected == InputCurrency.Currency1) AppTheme.colors.title else AppTheme.colors.body,
-        animationSpec = tween(
-            durationMillis = BALANCE_OFFSET_ANIM_DURATION
-        )
-    )
-    val color2 by animateColorAsState(
-        targetValue = if (selected == InputCurrency.Currency2) AppTheme.colors.title else AppTheme.colors.body,
-        animationSpec = tween(
-            durationMillis = BALANCE_OFFSET_ANIM_DURATION
-        )
-    )
+    var textFieldHeight by remember { mutableStateOf(0) }
 
     val focusRequester1 = remember { FocusRequester() }
-    var isFocused1 = remember { false }
-
     val focusRequester2 = remember { FocusRequester() }
-    var isFocused2 = remember { false }
 
-    val keyboardController = LocalSoftwareKeyboardController.current
+    DisposableEffect(selected) {
+        when (selected) {
+            InputCurrency.Currency1 -> focusRequester1
+            InputCurrency.Currency2 -> focusRequester2
+        }.requestFocus()
+        onDispose { }
+    }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp)
             .then(
-                if (fullHeight > 0) {
+                if (textFieldHeight > 0) {
                     Modifier.height(
                         with(localDensity) {
-                            (fullHeight * 1.5F).toDp()
+                            // bottom one is scaled to 0.5 so full size should be 1.5x
+                            (textFieldHeight * 1.5F).toDp()
                         }
                     )
                 } else {
@@ -132,92 +103,25 @@ fun TwoCurrenciesInput(
             )
     ) {
 
-        val interactionSource1 = remember { MutableInteractionSource() }
-        BasicTextField(
+        CurrencyInput(
             modifier = Modifier
                 .onGloballyPositioned {
-                    if (fullHeight == 0) {
-                        fullHeight = it.size.height
+                    if (textFieldHeight == 0) {
+                        textFieldHeight = it.size.height
                     }
-                }
-                .graphicsLayer {
-                    translationY = translation1.toFloat()
-                    scaleX = scaleAnim1
-                    scaleY = scaleAnim1
-                }
-                .onFocusChanged {
-                    isFocused1 = it.isFocused
-                }
-                .align(Alignment.TopCenter)
-                .focusRequester(focusRequester1)
-                .fillMaxWidth()
-                .padding(horizontal = 40.dp),
-            value = currency1.value,
-            onValueChange = onCurrency1ValueChange,
-            interactionSource = interactionSource1,
-            singleLine = true,
-            textStyle = AppTheme.typography.display.copy(textAlign = TextAlign.Center),
-            readOnly = selected != InputCurrency.Currency1,
-            visualTransformation = PrefixTransformation(currency1.ticker, currency1.isPrefix)
-        ) { innerTextField ->
-            TextFieldDefaults.TextFieldDecorationBox(
-                value = currency1.value,
-                innerTextField = innerTextField,
-                singleLine = true,
-                visualTransformation = VisualTransformation.None,
-                interactionSource = interactionSource1,
-                contentPadding = PaddingValues(0.dp),
-                enabled = true,
-                colors = TextFieldDefaults.textFieldColors(
-                    textColor = color1,
-                    backgroundColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent
-                ),
-            )
-        }
+                },
+            focused = selected == InputCurrency.Currency1,
+            focusRequester = focusRequester1,
+            currency = currency1,
+            onCurrencyValueChange = onCurrency1ValueChange
+        )
 
-        val interactionSource2 = remember { MutableInteractionSource() }
-        BasicTextField(
-            modifier = Modifier
-                .graphicsLayer {
-                    translationY = translation2.toFloat()
-                    scaleX = scaleAnim2
-                    scaleY = scaleAnim2
-                }
-                .onFocusChanged {
-                    isFocused2 = it.isFocused
-                }
-                .align(Alignment.TopCenter)
-                .focusRequester(focusRequester2)
-                .fillMaxWidth()
-                .padding(horizontal = 40.dp),
-            value = currency2.value,
-            onValueChange = onCurrency2ValueChange,
-            interactionSource = interactionSource2,
-            singleLine = true,
-            readOnly = selected != InputCurrency.Currency2,
-            textStyle = AppTheme.typography.display.copy(textAlign = TextAlign.Center),
-            visualTransformation = PrefixTransformation(currency2.ticker, currency2.isPrefix),
-        ) { innerTextField ->
-            TextFieldDefaults.TextFieldDecorationBox(
-                value = currency2.value,
-                innerTextField = innerTextField,
-                singleLine = true,
-                visualTransformation = VisualTransformation.None,
-                interactionSource = interactionSource2,
-                contentPadding = PaddingValues(0.dp),
-                enabled = true,
-                colors = TextFieldDefaults.textFieldColors(
-                    textColor = color2,
-                    backgroundColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent
-                ),
-            )
-        }
+        CurrencyInput(
+            focused = selected == InputCurrency.Currency2,
+            focusRequester = focusRequester2,
+            currency = currency2,
+            onCurrencyValueChange = onCurrency2ValueChange
+        )
 
         var switchHeight by remember { mutableStateOf(0) }
         Box(
@@ -228,8 +132,8 @@ fun TwoCurrenciesInput(
                     }
                 }
                 .graphicsLayer {
-                    if (switchHeight > 0 && fullHeight > 0) {
-                        translationY = ((fullHeight - switchHeight) / 2).toFloat()
+                    if (switchHeight > 0 && textFieldHeight > 0) {
+                        translationY = ((textFieldHeight - switchHeight) / 2).toFloat()
                     }
                 }
                 .align(Alignment.TopEnd)
@@ -237,20 +141,7 @@ fun TwoCurrenciesInput(
             Image(
                 modifier = Modifier
                     .clickableNoEffect {
-                        if (selected == InputCurrency.Currency1) {
-                            if (isFocused1) {
-                                focusRequester1.freeFocus()
-                                focusRequester2.requestFocus()
-                                keyboardController?.show()
-                            }
-                        } else {
-                            if (isFocused2) {
-                                focusRequester1.requestFocus()
-                                focusRequester2.freeFocus()
-                                keyboardController?.show()
-                            }
-                        }
-                        onSwitch()
+                        selected = selected.flip()
                     },
                 imageResource = Icons.run {
                     UnfoldMore.withBackground(
@@ -265,19 +156,108 @@ fun TwoCurrenciesInput(
     }
 }
 
-private class PrefixTransformation(val value: String, val isPrefix: Boolean) : VisualTransformation {
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+private fun BoxScope.CurrencyInput(
+    modifier: Modifier = Modifier,
+    focused: Boolean,
+    focusRequester: FocusRequester,
+    currency: CurrencyValue,
+    onCurrencyValueChange: (String) -> Unit,
+) {
+    var height by remember { mutableStateOf(0) }
+
+    val scaleAnim by animateFloatAsState(
+        targetValue = if (focused) 1F else 0.5F,
+        animationSpec = tween(
+            durationMillis = BALANCE_OFFSET_ANIM_DURATION
+        )
+    )
+
+    val translation by animateIntAsState(
+        // scaled to 0.5 makes it half size and centered in it's 100% space
+        // we want to make it sit right below the top field
+        // i.e. cover the empty 25% space on top
+        // -> basically move it down to <height> and up 25% == 75% of height
+        targetValue = if (focused) 0 else (height * 0.75).toInt(),
+        animationSpec = tween(
+            durationMillis = BALANCE_OFFSET_ANIM_DURATION
+        )
+    )
+
+    val color by animateColorAsState(
+        targetValue = if (focused) AppTheme.colors.title else AppTheme.colors.body,
+        animationSpec = tween(
+            durationMillis = BALANCE_OFFSET_ANIM_DURATION
+        )
+    )
+
+    val interactionSource1 = remember { MutableInteractionSource() }
+    BasicTextField(
+        modifier = modifier
+            .onGloballyPositioned {
+                if (height == 0) {
+                    height = it.size.height
+                }
+            }
+            .graphicsLayer {
+                translationY = translation.toFloat()
+                scaleX = scaleAnim
+                scaleY = scaleAnim
+            }
+            .align(Alignment.TopCenter)
+            .focusRequester(focusRequester)
+            .fillMaxWidth()
+            .padding(horizontal = 40.dp),
+        value = currency.value,
+        onValueChange = onCurrencyValueChange,
+        interactionSource = interactionSource1,
+        singleLine = true,
+        textStyle = AppTheme.typography.display.copy(
+            textAlign = TextAlign.Center,
+            color = color
+        ),
+        readOnly = !focused,
+        visualTransformation = PrefixSuffixTransformation(
+            value = currency.ticker,
+            isPrefix = currency.isPrefix,
+            separateWithSpace = currency.separateWithSpace
+        ),
+    ) { innerTextField ->
+        TextFieldDefaults.TextFieldDecorationBox(
+            value = currency.value,
+            innerTextField = innerTextField,
+            singleLine = true,
+            visualTransformation = VisualTransformation.None,
+            interactionSource = interactionSource1,
+            contentPadding = PaddingValues(0.dp),
+            enabled = true,
+        )
+    }
+}
+
+private class PrefixSuffixTransformation(
+    val value: String, val isPrefix: Boolean, val separateWithSpace: Boolean
+) : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         return if (isPrefix) {
-            prefixFilter(text, value)
+            prefixFilter(text = text, prefix = value, separateWithSpace = separateWithSpace)
         } else {
-            suffixFilter(text, value)
+            suffixFilter(text = text, suffix = value, separateWithSpace = separateWithSpace)
         }
     }
 }
 
-private fun prefixFilter(text: AnnotatedString, prefix: String): TransformedText {
-    val out = prefix + text.text
-    val prefixOffset = prefix.length
+private fun separator(shouldExist: Boolean) = " ".takeIf { shouldExist } ?: ""
+
+private fun prefixFilter(
+    text: AnnotatedString,
+    prefix: String,
+    separateWithSpace: Boolean
+): TransformedText {
+    val prefixWithSeparator = prefix + separator(separateWithSpace)
+    val out = prefixWithSeparator + text.text
+    val prefixOffset = prefixWithSeparator.length
 
     val offsetTranslator = object : OffsetMapping {
         override fun originalToTransformed(offset: Int): Int {
@@ -293,8 +273,13 @@ private fun prefixFilter(text: AnnotatedString, prefix: String): TransformedText
     return TransformedText(AnnotatedString(out), offsetTranslator)
 }
 
-private fun suffixFilter(text: AnnotatedString, suffix: String): TransformedText {
-    val out = text.text + suffix
+private fun suffixFilter(
+    text: AnnotatedString,
+    suffix: String,
+    separateWithSpace: Boolean
+): TransformedText {
+    val suffixWithSeparator = separator(separateWithSpace) + suffix
+    val out = text.text + suffixWithSeparator
     val suffixOffset = text.length
 
     val offsetTranslator = object : OffsetMapping {
@@ -315,27 +300,18 @@ private fun suffixFilter(text: AnnotatedString, suffix: String): TransformedText
 @Preview(backgroundColor = 0x124562, showBackground = true)
 @Composable
 private fun PreviewTwoCurrenciesInput() {
-    var top by remember { mutableStateOf(InputCurrency.Currency1) }
-
-    var c1Value by remember { mutableStateOf("1234567") }
-    var c2Value by remember { mutableStateOf("1234567") }
+    var c1Value by remember { mutableStateOf("2,100.00") }
+    var c2Value by remember { mutableStateOf("1.1292") }
 
     TwoCurrenciesInput(
         currency1 = CurrencyValue(
-            value = c1Value, ticker = "$", isPrefix = true
+            value = c1Value, ticker = "$", isPrefix = true, separateWithSpace = false
         ),
         onCurrency1ValueChange = { c1Value = it },
 
         currency2 = CurrencyValue(
-            value = c2Value, ticker = "ETH", isPrefix = false
+            value = c2Value, ticker = "ETH", isPrefix = false, separateWithSpace = true
         ),
-        onCurrency2ValueChange = { c2Value = it },
-
-        selected = top,
-
-        onSwitch = {
-            top = if (top == InputCurrency.Currency1) InputCurrency.Currency2
-            else InputCurrency.Currency1
-        }
+        onCurrency2ValueChange = { c2Value = it }
     )
 }
