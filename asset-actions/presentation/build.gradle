@@ -1,5 +1,4 @@
 apply from: rootProject.file('gradle/local/common-feature-android.gradle')
-apply plugin: 'kotlin-parcelize'
 
 android {
     buildTypes {
@@ -16,7 +15,7 @@ android {
     }
 
     buildFeatures {
-        compose true
+        compose = true
     }
 
     composeOptions {
@@ -25,10 +24,9 @@ android {
 }
 
 dependencies {
-    // android
-    implementation project(':commonarch')
-    implementation project(':common:interface')
-    implementation project(':common:presentation')
-    implementation project(':componentlib')
-    implementation project(':chrome:common')
+    implementation Libraries.composeUi
+    implementation Libraries.composePreview
+
+    debugImplementation Libraries.composeUiTooling
+    debugImplementation Libraries.composeUiPoolingContainer
 }
