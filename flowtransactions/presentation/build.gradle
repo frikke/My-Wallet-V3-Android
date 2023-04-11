@@ -24,8 +24,19 @@ android {
 }
 
 dependencies {
+    implementation project(':commonarch')
+    implementation project(':common:interface')
+    implementation project(':componentlib')
+    implementation project(':commonarch')
+    implementation project(':chrome:common')
+
     implementation Libraries.composeUi
     implementation Libraries.composePreview
+    implementation Libraries.composeMaterial
+
+    // koin
+    implementation Libraries.koinAndroid
+    implementation Libraries.koinCompose
 
     debugImplementation Libraries.composeUiTooling
     debugImplementation Libraries.composeUiPoolingContainer

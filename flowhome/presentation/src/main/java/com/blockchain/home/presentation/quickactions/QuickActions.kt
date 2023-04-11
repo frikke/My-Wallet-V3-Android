@@ -69,7 +69,8 @@ fun QuickActions(
     quickActionsViewModel: QuickActionsViewModel,
     dashboardState: DashboardState,
     openDexSwapOptions: () -> Unit,
-    openMoreQuickActions: () -> Unit
+    openMoreQuickActions: () -> Unit,
+    openSwap: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -83,7 +84,7 @@ fun QuickActions(
                             QuickActionsNavEvent.Sell -> assetActionsNavigation.navigate(AssetAction.Sell)
                             QuickActionsNavEvent.Receive -> assetActionsNavigation.navigate(AssetAction.Receive)
                             QuickActionsNavEvent.Buy -> assetActionsNavigation.navigate(AssetAction.Buy)
-                            QuickActionsNavEvent.Swap -> assetActionsNavigation.navigate(AssetAction.Swap)
+                            QuickActionsNavEvent.Swap -> openSwap()
                             QuickActionsNavEvent.DexOrSwapOption -> openDexSwapOptions()
                             QuickActionsNavEvent.FiatDeposit -> quickActionsViewModel.onIntent(
                                 QuickActionsIntent.FiatAction(AssetAction.FiatDeposit)

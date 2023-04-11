@@ -97,7 +97,8 @@ fun HomeScreen(
     openFiatActionDetail: (String) -> Unit,
     openMoreQuickActions: () -> Unit,
     startPhraseRecovery: () -> Unit,
-    processAnnouncementUrl: (String) -> Unit
+    processAnnouncementUrl: (String) -> Unit,
+    openSwap: () -> Unit
 ) {
     var menuOptionsHeight: Int by remember { mutableStateOf(0) }
     var balanceOffsetToMenuOption: Float by remember { mutableStateOf(0F) }
@@ -238,6 +239,7 @@ fun HomeScreen(
                         }
                     ),
                     openMoreQuickActions = openMoreQuickActions,
+                    openSwap = openSwap
                 )
             }
         }

@@ -418,6 +418,8 @@ dependencies {
     implementation project(':flowprices:data')
     implementation project(':flowprices:domain')
 
+    implementation project(':flowtransactions:presentation')
+
     implementation project(':fraud:data')
     implementation project(':fraud:domain')
     implementation project(':unifiedcryptowallet:data')
