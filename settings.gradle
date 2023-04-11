@@ -45,4 +45,4 @@ include ':app',
         ':unifiedcryptowallet:domain', ':unifiedcryptowallet:data',
         ':membership:data', ':membership:domain', ':membership:presentation',
         ':fiatActions', ':dex:presentation', ':dex:domain', ':dex:data',
-        ':asset-actions:presentation', ':asset-actions:domain', ':asset-actions:data'
+        ':flowtransactions:presentation', ':flowtransactions:domain', ':flowtransactions:data'
