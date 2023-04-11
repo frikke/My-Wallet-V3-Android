@@ -3,4 +3,6 @@ apply from: rootProject.file('gradle/local/common-feature-domain.gradle')
 
 dependencies {
     implementation project(':common:interface')
+    implementation project(':balance')
+    implementation project(':coincore')
 }

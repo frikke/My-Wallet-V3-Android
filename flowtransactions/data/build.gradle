@@ -4,4 +4,7 @@ apply from: rootProject.file('gradle/local/common-feature-domain.gradle')
 
 dependencies {
     implementation project(':common:interface')
+    implementation project(':flowtransactions:domain')
+    implementation project(':balance')
+    implementation project(':coincore')
 }

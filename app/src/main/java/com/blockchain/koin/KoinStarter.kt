@@ -46,6 +46,7 @@ import com.blockchain.prices.pricesDataModule
 import com.blockchain.serializers.jsonSerializers
 import com.blockchain.store_caches_inmemory.storeCachesInMemoryModule
 import com.blockchain.store_persisters_persistedjsonsqldelight.storePersistersJsonSqlDelightModule
+import com.blockchain.transactions.koin.transactionsDataModule
 import com.blockchain.transactions.koin.transactionsPresentationModule
 import com.blockchain.unifiedcryptowallet.data.koin.unifiedCryptoWalletModule
 import com.blockchain.walletconnect.koin.walletConnectModule
@@ -184,7 +185,7 @@ object KoinStarter {
                     earnDataModule, earnPresentationModule,
                     pricesDataModule,
                     proveModule,
-                    transactionsPresentationModule,
+                    transactionsPresentationModule, transactionsDataModule,
                 )
             )
         }

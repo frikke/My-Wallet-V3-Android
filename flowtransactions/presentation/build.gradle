@@ -24,6 +24,7 @@ android {
 }
 
 dependencies {
+    implementation project(':flowtransactions:domain')
     implementation project(':commonarch')
     implementation project(':common:interface')
     implementation project(':componentlib')

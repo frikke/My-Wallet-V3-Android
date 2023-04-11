@@ -1,11 +1,16 @@
 package com.blockchain.transactions.swap.enteramount
 
+import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.commonarch.presentation.mvi_v2.EmptyNavEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.componentlib.control.CurrencyValue
+import com.blockchain.transactions.swap.SwapService
+import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.FiatCurrency
+import kotlinx.coroutines.launch
 
 /**
  * @property fromTicker if we come from Coinview we should have preset FROM
@@ -13,6 +18,7 @@ import com.blockchain.componentlib.control.CurrencyValue
 class EnterAmountViewModel(
     private val fromTicker: String? = null,
     private val coincore: Coincore,
+    private val swapService: SwapService
 ) : MviViewModel<EnterAmountIntent, EnterAmountViewState, EnterAmountModelState, EmptyNavEvent, ModelConfigArgs.NoArgs>(
     EnterAmountModelState()
 ) {
@@ -50,22 +56,34 @@ class EnterAmountViewModel(
                 check(modelState.fiatAmount != null)
                 check(modelState.cryptoAmount != null)
 
-                updateState {
-                    it.copy(
-                        fiatAmount = it.fiatAmount?.copy(value = intent.amount),
-                        cryptoAmount = it.cryptoAmount?.copy(value = (intent.amount.toDouble() * 2).toString())
+                swapService.fiatToCrypto(intent.amount, FiatCurrency.Dollars, CryptoCurrency.ETHER)
+                viewModelScope.launch {
+                    val cryptoAmount = swapService.fiatToCrypto(
+                        intent.amount, FiatCurrency.Dollars, CryptoCurrency.ETHER
                     )
+                    updateState {
+                        it.copy(
+                            fiatAmount = it.fiatAmount?.copy(value = intent.amount),
+                            cryptoAmount = it.cryptoAmount?.copy(value = cryptoAmount)
+                        )
+                    }
                 }
             }
             is EnterAmountIntent.CryptoAmountChanged -> {
                 check(modelState.fiatAmount != null)
                 check(modelState.cryptoAmount != null)
 
-                updateState {
-                    it.copy(
-                        cryptoAmount = it.cryptoAmount?.copy(value = intent.amount),
-                        fiatAmount = it.fiatAmount?.copy(value = (intent.amount.toDouble() / 2).toString()),
+                viewModelScope.launch {
+                    val fiatAmount = swapService.cryptoToFiat(
+                        intent.amount, FiatCurrency.Dollars, CryptoCurrency.ETHER
                     )
+
+                    updateState {
+                        it.copy(
+                            cryptoAmount = it.cryptoAmount?.copy(value = intent.amount),
+                            fiatAmount = it.fiatAmount?.copy(value = fiatAmount),
+                        )
+                    }
                 }
             }
         }
