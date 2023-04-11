@@ -91,6 +91,11 @@ fun DexEnterAmountScreen(
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
+    DexTxSubscribeScreen(
+        subscribe = { viewModel.onIntent(InputAmountIntent.SubscribeForTxUpdates) },
+        unsubscribe = { viewModel.onIntent(InputAmountIntent.UnSubscribeToTxUpdates) }
+    )
+
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_CREATE) {
@@ -321,7 +326,9 @@ fun InputScreen(
 
         (viewState.error as? AlertError)?.let {
             AlertButton(
-                modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.small_spacing)).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(vertical = dimensionResource(id = R.dimen.small_spacing))
+                    .fillMaxWidth(),
                 text = it.message(LocalContext.current),
                 onClick = { },
                 state = ButtonState.Enabled

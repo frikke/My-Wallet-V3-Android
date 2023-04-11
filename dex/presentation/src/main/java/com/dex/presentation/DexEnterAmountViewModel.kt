@@ -56,6 +56,7 @@ class DexEnterAmountViewModel(
         canTransact = DataResource.Loading
     )
 ) {
+
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
@@ -157,12 +158,13 @@ class DexEnterAmountViewModel(
                     txProcessor.updateTransactionAmount(amount)
                 }
             }
-            InputAmountIntent.DisposeTransaction -> {
-            }
+
             InputAmountIntent.AllowanceTransactionApproved -> {
                 approveAllowanceTransaction()
             }
             InputAmountIntent.BuildAllowanceTransaction -> buildAllowanceTransaction()
+            InputAmountIntent.SubscribeForTxUpdates -> txProcessor.subscribeForTxUpdates()
+            InputAmountIntent.UnSubscribeToTxUpdates -> txProcessor.unsubscribeToTxUpdates()
         }
     }
 
@@ -428,10 +430,10 @@ sealed class InputAmountIntent : Intent<AmountModelState> {
             return modelState.transaction == null
         }
     }
-
+    object SubscribeForTxUpdates : InputAmountIntent()
+    object UnSubscribeToTxUpdates : InputAmountIntent()
     object AllowanceTransactionApproved : InputAmountIntent()
     object BuildAllowanceTransaction : InputAmountIntent()
-    object DisposeTransaction : InputAmountIntent()
     class AmountUpdated(val amountString: String) : InputAmountIntent()
 }
 

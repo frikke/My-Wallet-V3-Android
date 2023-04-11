@@ -38,6 +38,7 @@ import com.blockchain.dex.presentation.R
 import com.blockchain.extensions.safeLet
 import com.blockchain.koin.payloadScope
 import com.dex.presentation.AmountFieldConfig
+import com.dex.presentation.DexTxSubscribeScreen
 import com.dex.presentation.SourceAndDestinationAmountFields
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -53,6 +54,11 @@ fun DexConfirmationScreen(
 ) {
 
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    DexTxSubscribeScreen(
+        subscribe = { viewModel.onIntent(ConfirmationIntent.SubscribeForTxUpdates) },
+        unsubscribe = { viewModel.onIntent(ConfirmationIntent.UnSubscribeToTxUpdates) }
+    )
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -76,7 +82,7 @@ fun DexConfirmationScreen(
         (viewState as? ConfirmationScreenViewState.DataConfirmationViewState)?.let { dataState ->
             SourceAndDestinationAmountFields(
                 modifier = Modifier.padding(
-                    top = AppTheme.dimensions.standardSpacing,
+                    top = AppTheme.dimensions.smallSpacing,
                     start = AppTheme.dimensions.smallSpacing,
                     end = AppTheme.dimensions.smallSpacing,
                 ),

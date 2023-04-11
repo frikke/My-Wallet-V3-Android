@@ -87,6 +87,8 @@ class DexConfirmationViewModel(
     override suspend fun handleIntent(modelState: ConfirmationModelState, intent: ConfirmationIntent) {
         when (intent) {
             ConfirmationIntent.LoadTransactionData -> loadTransactionData()
+            ConfirmationIntent.SubscribeForTxUpdates -> transactionProcessor.subscribeForTxUpdates()
+            ConfirmationIntent.UnSubscribeToTxUpdates -> transactionProcessor.unsubscribeToTxUpdates()
         }
     }
 
@@ -162,6 +164,9 @@ data class ConfirmationModelState(
 
 sealed class ConfirmationIntent : Intent<ConfirmationModelState> {
     object LoadTransactionData : ConfirmationIntent()
+
+    object SubscribeForTxUpdates : ConfirmationIntent()
+    object UnSubscribeToTxUpdates : ConfirmationIntent()
 }
 
 sealed class ConfirmationNavigationEvent : NavigationEvent
