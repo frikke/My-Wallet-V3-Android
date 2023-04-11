@@ -69,3 +69,52 @@ fun PreviewActiveRewardsWithdrawalNotice() {
         ActiveRewardsWithdrawalNotice({})
     }
 }
+
+@Composable
+fun ActiveRewardsTradingWarning(onLearnMorePressed: () -> Unit) {
+    Card(
+        backgroundColor = AppTheme.colors.background,
+        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+        border = BorderStroke(
+            width = 1.dp,
+            color = AppTheme.colors.warning
+        ),
+        elevation = 0.dp,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(AppTheme.dimensions.smallSpacing)
+        ) {
+            SimpleText(
+                text = stringResource(R.string.common_important_information),
+                style = ComposeTypographies.Paragraph2,
+                color = ComposeColors.Warning,
+                gravity = ComposeGravities.Start
+            )
+
+            TinyVerticalSpacer()
+
+            SimpleText(
+                text = stringResource(R.string.earn_trading_disclaimer),
+                style = ComposeTypographies.Caption1, color = ComposeColors.Title,
+                gravity = ComposeGravities.Start
+            )
+
+            SmallVerticalSpacer()
+
+            SecondaryButton(
+                text = stringResource(id = R.string.common_learn_more),
+                onClick = onLearnMorePressed
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun PreviewActiveRewardsTradingWarning() {
+    AppTheme {
+        ActiveRewardsTradingWarning({})
+    }
+}
