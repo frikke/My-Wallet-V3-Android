@@ -110,7 +110,7 @@ object Versions {
 
     // Compose
     const val composeCompiler = "1.2.0"
-    const val compose = "1.4.0-beta01"
+    const val compose = "1.4.1"
     const val composeShowkase = "1.1.1"
     const val coil = "2.2.2"
     const val landscapist = "2.1.3"
@@ -330,8 +330,8 @@ object Libraries {
 
     // Compose
     const val composeFoundation = "androidx.compose.foundation:foundation:${Versions.compose}"
-    const val composeUi = "androidx.compose.ui:ui:${Versions.composeShowkase}"
-    const val composeUiUtil = "androidx.compose.ui:ui-util:${Versions.composeShowkase}"
+    const val composeUi = "androidx.compose.ui:ui:${Versions.compose}"
+    const val composeUiUtil = "androidx.compose.ui:ui-util:${Versions.compose}"
     const val composeMaterial = "androidx.compose.material:material:${Versions.compose}"
     const val composePreview = "androidx.compose.ui:ui-tooling-preview:${Versions.compose}"
     const val composeUiTooling = "androidx.compose.ui:ui-tooling:${Versions.compose}"

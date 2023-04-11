@@ -8,7 +8,7 @@ import org.koin.dsl.module
 val transactionsPresentationModule = module {
     scope(payloadScopeQualifier) {
         viewModel {
-            EnterAmountViewModel()
+            EnterAmountViewModel(coincore = get())
         }
     }
 }

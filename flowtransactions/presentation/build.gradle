@@ -29,6 +29,7 @@ dependencies {
     implementation project(':componentlib')
     implementation project(':commonarch')
     implementation project(':chrome:common')
+    implementation project(':coincore')
 
     implementation Libraries.composeUi
     implementation Libraries.composePreview
