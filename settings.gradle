@@ -44,4 +44,5 @@ include ':app',
         ':fraud:data', ':fraud:domain', ':fraud:sardine',
         ':unifiedcryptowallet:domain', ':unifiedcryptowallet:data',
         ':membership:data', ':membership:domain', ':membership:presentation',
-        ':fiatActions', ':dex:presentation', ':dex:domain', ':dex:data'
+        ':fiatActions', ':dex:presentation', ':dex:domain', ':dex:data',
+        ':flowtransactions:presentation', ':flowtransactions:domain', ':flowtransactions:data'

@@ -1,0 +1,7 @@
+apply plugin: 'kotlinx-serialization'
+apply from: rootProject.file('gradle/local/common-feature-domain.gradle')
+
+
+dependencies {
+    implementation project(':common:interface')
+}
