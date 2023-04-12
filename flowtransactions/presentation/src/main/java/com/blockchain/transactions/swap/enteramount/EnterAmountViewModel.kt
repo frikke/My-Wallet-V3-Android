@@ -1,15 +1,16 @@
 package com.blockchain.transactions.swap.enteramount
 
 import androidx.lifecycle.viewModelScope
-import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.CryptoAsset
 import com.blockchain.commonarch.presentation.mvi_v2.EmptyNavEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.componentlib.control.CurrencyValue
+import com.blockchain.data.DataResource
 import com.blockchain.transactions.swap.SwapService
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
@@ -17,7 +18,6 @@ import kotlinx.coroutines.launch
  */
 class EnterAmountViewModel(
     private val fromTicker: String? = null,
-    private val coincore: Coincore,
     private val swapService: SwapService
 ) : MviViewModel<EnterAmountIntent, EnterAmountViewState, EnterAmountModelState, EmptyNavEvent, ModelConfigArgs.NoArgs>(
     EnterAmountModelState()
@@ -28,8 +28,8 @@ class EnterAmountViewModel(
     override fun reduce(state: EnterAmountModelState): EnterAmountViewState {
         return with(state) {
             EnterAmountViewState(
-                fromAsset = fromAsset?.toViewState(),
-                toAsset = toAsset?.toViewState(),
+                fromAsset = fromAccount?.currency?.toViewState(),
+                toAsset = toAccount?.currency?.toViewState(),
                 fiatAmount = fiatAmount,
                 cryptoAmount = cryptoAmount
             )
@@ -39,17 +39,24 @@ class EnterAmountViewModel(
     override suspend fun handleIntent(modelState: EnterAmountModelState, intent: EnterAmountIntent) {
         when (intent) {
             EnterAmountIntent.LoadData -> {
-                updateState {
-                    it.copy(
-                        fromAsset = coincore["BTC"] as? CryptoAsset,
-                        toAsset = coincore["ETH"] as? CryptoAsset,
-                        fiatAmount = CurrencyValue(
-                            value = "100", ticker = "$", isPrefix = true, separateWithSpace = false
-                        ),
-                        cryptoAmount = CurrencyValue(
-                            value = "200", ticker = "BTC", isPrefix = false, separateWithSpace = true
-                        ),
-                    )
+                viewModelScope.launch {
+                    swapService.sourceAccounts()
+                        .collectLatest {
+                            (it as? DataResource.Data)?.data?.let { accounts->
+                                updateState {
+                                    it.copy(
+                                        fromAccount = accounts.first { it.currency.networkTicker == "BTC" },
+                                        toAccount = accounts.first { it.currency.networkTicker == "DOGE" },
+                                        fiatAmount = CurrencyValue(
+                                            value = "100", ticker = "$", isPrefix = true, separateWithSpace = false
+                                        ),
+                                        cryptoAmount = CurrencyValue(
+                                            value = "200", ticker = "BTC", isPrefix = false, separateWithSpace = true
+                                        ),
+                                    )
+                                }
+                            }
+                        }
                 }
             }
             is EnterAmountIntent.FiatAmountChanged -> {
@@ -90,7 +97,7 @@ class EnterAmountViewModel(
     }
 }
 
-private fun CryptoAsset.toViewState() = EnterAmountAssetState(
-    iconUrl = currency.logo,
-    ticker = currency.displayTicker
+private fun Currency.toViewState() = EnterAmountAssetState(
+    iconUrl =  logo,
+    ticker =  displayTicker
 )

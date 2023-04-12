@@ -9,7 +9,6 @@ val transactionsPresentationModule = module {
     scope(payloadScopeQualifier) {
         viewModel {
             EnterAmountViewModel(
-                coincore = get(),
                 swapService = get()
             )
         }

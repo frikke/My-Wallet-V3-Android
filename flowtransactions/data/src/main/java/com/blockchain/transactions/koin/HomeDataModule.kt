@@ -8,7 +8,10 @@ import org.koin.dsl.module
 val transactionsDataModule = module {
     scope(payloadScopeQualifier) {
         scoped<SwapService> {
-            SwapRepository()
+            SwapRepository(
+                coincore = get(),
+                custodialRepository = get()
+            )
         }
     }
 }
