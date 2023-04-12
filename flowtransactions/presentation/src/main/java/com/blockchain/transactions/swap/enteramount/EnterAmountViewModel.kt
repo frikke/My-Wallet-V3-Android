@@ -63,7 +63,6 @@ class EnterAmountViewModel(
                 check(modelState.fiatAmount != null)
                 check(modelState.cryptoAmount != null)
 
-                swapService.fiatToCrypto(intent.amount, FiatCurrency.Dollars, CryptoCurrency.ETHER)
                 viewModelScope.launch {
                     val cryptoAmount = swapService.fiatToCrypto(
                         intent.amount, FiatCurrency.Dollars, CryptoCurrency.ETHER
