@@ -31,6 +31,7 @@ import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsDto
 import com.blockchain.nabu.models.responses.simplebuy.TransactionsResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferFundsResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferRequest
+import com.blockchain.nabu.models.responses.simplebuy.WireTransferAccountDetailsResponse
 import com.blockchain.nabu.models.responses.simplebuy.WithdrawLocksCheckRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.WithdrawLocksCheckResponse
 import com.blockchain.nabu.models.responses.simplebuy.WithdrawRequestBody
@@ -182,6 +183,11 @@ internal interface Nabu {
         @Query("currency") currency: String? = null,
         @Query("type") type: String?
     ): Single<TransactionsResponse>
+
+    @PUT("payments/accounts/simplebuy")
+    fun getWireTransferAccountDetails(
+        @Body currency: SimpleBuyCurrency
+    ): Single<WireTransferAccountDetailsResponse>
 
     @PUT("payments/accounts/{product}")
     fun getCustodialAccountDetails(

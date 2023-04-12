@@ -5,6 +5,10 @@ import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.compose.material.Surface
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import com.blockchain.api.NabuApiException
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
@@ -78,7 +82,11 @@ class WireTransferAccountDetailsBottomSheet :
                     renderQuestionnaire(questionnaire)
                 },
                 onComplete = {
-                    fetchAndDisplayAccountDetails()
+                    if (fiatCurrency.networkTicker == "USD") {
+                        fetchAndDisplayAccountDetails()
+                    } else {
+                        fetchAndDisplayOldAccountDetails()
+                    }
                 },
                 onError = {
                     val uxError = (it as? NabuApiException)?.getServerSideErrorInfo()
@@ -89,6 +97,56 @@ class WireTransferAccountDetailsBottomSheet :
     }
 
     private fun fetchAndDisplayAccountDetails() {
+        compositeDisposable += custodialWalletManager.getWireTransferDetails(fiatCurrency)
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe {
+                binding.fragmentContainer.gone()
+                binding.loading.visible()
+            }
+            .subscribeBy(
+                onSuccess = { bankAccount ->
+                    binding.loading.gone()
+                    binding.composeView.visible()
+                    binding.composeView.setContent {
+                        Surface(
+                            modifier = Modifier.nestedScroll(rememberNestedScrollInteropConnection())
+                        ) {
+                            WireTransferAccountDetailsScreen(
+                                isForLink = isForLink,
+                                currency = fiatCurrency.networkTicker,
+                                details = bankAccount,
+                                backClicked = {
+                                    dismiss()
+                                },
+                                onEntryCopied = { entry ->
+                                    copyListener.onFieldCopied(entry.title)
+                                },
+                            )
+                        }
+                    }
+
+                    analytics.logEvent(
+                        linkBankEventWithCurrency(
+                            SimpleBuyAnalytics.WIRE_TRANSFER_SCREEN_SHOWN,
+                            fiatCurrency.networkTicker
+                        )
+                    )
+                },
+                onError = {
+                    binding.loading.gone()
+                    val uxError = (it as? NabuApiException)?.getServerSideErrorInfo()
+                    renderErrorUi(uxError)
+                    analytics.logEvent(
+                        linkBankEventWithCurrency(
+                            SimpleBuyAnalytics.WIRE_TRANSFER_LOADING_ERROR,
+                            fiatCurrency.networkTicker
+                        )
+                    )
+                }
+            )
+    }
+
+    private fun fetchAndDisplayOldAccountDetails() {
         compositeDisposable += custodialWalletManager.getBankAccountDetails(fiatCurrency)
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe {
@@ -149,6 +207,7 @@ class WireTransferAccountDetailsBottomSheet :
                 errorTitle.text = uxError?.title ?: getString(R.string.common_oops_bank)
                 errorMessage.text = uxError?.description ?: getString(R.string.unable_to_load_bank_details)
             }
+            composeView.gone()
             title.gone()
             subtitle.gone()
             bankDetails.gone()
@@ -207,7 +266,7 @@ class WireTransferAccountDetailsBottomSheet :
         override fun onFieldCopied(field: String) {
             analytics.logEvent(linkBankFieldCopied(field, fiatCurrency.networkTicker))
             BlockchainSnackbar.make(
-                view = dialog?.window?.decorView ?: binding.root,
+                view = binding.root,
                 message = if (field.isNotEmpty()) {
                     String.format(getString(R.string.simple_buy_copied_to_clipboard), field)
                 } else {

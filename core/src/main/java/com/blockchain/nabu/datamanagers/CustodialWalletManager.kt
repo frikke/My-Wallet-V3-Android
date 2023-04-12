@@ -13,6 +13,7 @@ import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.transactions.CustodialTransactionState
 import com.blockchain.domain.transactions.TransferDirection
+import com.blockchain.domain.wiretransfer.WireTransferDetails
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
@@ -90,6 +91,10 @@ interface CustodialWalletManager {
         product: Product,
         type: String? = null
     ): Observable<List<CryptoTransaction>>
+
+    fun getWireTransferDetails(
+        currency: FiatCurrency
+    ): Single<WireTransferDetails>
 
     fun getBankAccountDetails(
         currency: FiatCurrency

@@ -33,6 +33,7 @@ import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibilityDto
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsDto
 import com.blockchain.nabu.models.responses.simplebuy.TransactionsResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferRequest
+import com.blockchain.nabu.models.responses.simplebuy.WireTransferAccountDetailsResponse
 import com.blockchain.nabu.models.responses.simplebuy.WithdrawLocksCheckRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.WithdrawRequestBody
 import com.blockchain.nabu.models.responses.swap.CreateOrderRequest
@@ -263,6 +264,13 @@ class NabuService internal constructor(
         fiatCurrency: String? = null
     ): Single<SimpleBuyPairsDto> =
         nabu.getSupportedSimpleBuyPairs(fiatCurrency).wrapErrorMessage()
+
+    fun getWireTransferAccountDetails(
+        currency: String,
+    ): Single<WireTransferAccountDetailsResponse> =
+        nabu.getWireTransferAccountDetails(
+            SimpleBuyCurrency(currency)
+        ).wrapErrorMessage()
 
     fun getCustodialAccountDetails(
         product: String,

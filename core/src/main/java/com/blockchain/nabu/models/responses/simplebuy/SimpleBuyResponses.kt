@@ -45,6 +45,43 @@ data class CustodialAccountResponse(
 }
 
 @Serializable
+data class WireTransferAccountDetailsResponse(
+    val address: String,
+    val content: WireTransferDetailsResponse,
+    val currency: String,
+    val state: String?,
+    val partner: String?
+)
+
+@Serializable
+data class WireTransferDetailsResponse(
+    val sections: List<WireTransferDetailsSectionResponse>,
+    val footers: List<WireTransferDetailsFooterResponse>,
+)
+
+@Serializable
+data class WireTransferDetailsSectionResponse(
+    val name: String,
+    val entries: List<WireTransferDetailsSectionEntryResponse>,
+)
+
+@Serializable
+data class WireTransferDetailsSectionEntryResponse(
+    val title: String,
+    val message: String,
+    val isImportant: Boolean?,
+    val help: String?,
+)
+
+@Serializable
+data class WireTransferDetailsFooterResponse(
+    val title: String,
+    val message: String,
+    val icon: String?,
+    val isImportant: Boolean?,
+)
+
+@Serializable
 data class CustodialAccountAgentResponse(
     val account: String? = null,
     val address: String? = null,
