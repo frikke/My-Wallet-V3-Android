@@ -17,9 +17,8 @@ class VeriffLauncher {
         Timber.d("Veriff session token: $sessionToken")
 
         val branding = Branding.Builder()
-            .toolbarIcon(R.drawable.ic_blockchain_logo_with_text)
-            .notificationIcon(R.drawable.ic_blockchain)
-            .themeColor(ContextCompat.getColor(activity, R.color.primary_blue_accent))
+            .logo(R.drawable.ic_blockchain_logo_with_text)
+            .primary(ContextCompat.getColor(activity, R.color.primary_blue_accent))
             .build()
 
         val configuration = Configuration.Builder()
