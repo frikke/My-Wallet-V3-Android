@@ -3,7 +3,7 @@ package com.blockchain.api.dex
 import com.blockchain.api.selfcustody.PreImage
 import kotlinx.serialization.SerialName
 
-class AllowanceApiService(private val api: AllowanceApi) {
+class DexTransactionsApiService(private val api: DexTxApi) {
     suspend fun allowance(
         address: String,
         currencyContract: String,
@@ -22,15 +22,43 @@ class AllowanceApiService(private val api: AllowanceApi) {
         sources: List<PubKeySource>,
         network: String
     ) = api.buildTx(
-        BuildAllowanceTxBodyRequest(
+        BuildDexTxBodyRequest(
             network = network,
-            intent = BuildAllowanceIntent(
+            intent = BuildDexTransactionIntent(
                 type = "TOKEN_APPROVAL",
                 destination = destination,
                 fee = "NORMAL",
                 maxVerificationVersion = 1,
                 spender = ZEROX_EXCHANGE,
                 amount = "MAX",
+                swapTx = null,
+                sources = sources
+            )
+        )
+    )
+
+    suspend fun buildDexSwapTx(
+        destination: String,
+        sources: List<PubKeySource>,
+        network: String,
+        data: String,
+        value: String,
+        gasLimit: String
+    ) = api.buildTx(
+        BuildDexTxBodyRequest(
+            network = network,
+            intent = BuildDexTransactionIntent(
+                type = "SWAP",
+                destination = destination,
+                fee = "NORMAL",
+                maxVerificationVersion = 1,
+                spender = ZEROX_EXCHANGE,
+                amount = null,
+                swapTx = SwapTx(
+                    data = data,
+                    value = value,
+                    gasLimit = gasLimit
+                ),
                 sources = sources
             )
         )
@@ -65,24 +93,32 @@ data class PubKeySource(
 )
 
 @kotlinx.serialization.Serializable
-data class BuildAllowanceTxBodyRequest(
-    val intent: BuildAllowanceIntent,
+data class BuildDexTxBodyRequest(
+    val intent: BuildDexTransactionIntent,
     val network: String
 )
 
 @kotlinx.serialization.Serializable
-data class BuildAllowanceIntent(
+data class BuildDexTransactionIntent(
     val type: String,
     val destination: String,
     val sources: List<PubKeySource>,
     val fee: String,
     val maxVerificationVersion: Int,
     val spender: String,
-    val amount: String
+    val amount: String?,
+    val swapTx: SwapTx?,
 )
 
 @kotlinx.serialization.Serializable
-data class BuildAllowanceTxResponse(
+data class SwapTx(
+    val data: String,
+    val value: String,
+    val gasLimit: String,
+)
+
+@kotlinx.serialization.Serializable
+data class BuiltDexTxResponse(
     @SerialName("rawTx")
     val rawTx: RawTxResponse,
     @SerialName("preImages")
@@ -105,6 +141,7 @@ data class Payload(
     val chainId: Int,
     val data: String
 )
+
 @kotlinx.serialization.Serializable
 data class HexValue(
     val type: String,

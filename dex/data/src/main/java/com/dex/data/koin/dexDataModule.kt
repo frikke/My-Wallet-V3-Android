@@ -5,6 +5,7 @@ import com.dex.data.DexAccountsRepository
 import com.dex.data.DexAllowanceRepository
 import com.dex.data.DexAllowanceStorage
 import com.dex.data.DexQuotesRepository
+import com.dex.data.DexTransactionRepository
 import com.dex.data.stores.DexChainDataStorage
 import com.dex.data.stores.DexTokensDataStorage
 import com.dex.data.stores.SlippageRepository
@@ -12,6 +13,7 @@ import com.dex.domain.AllowanceService
 import com.dex.domain.DexAccountsService
 import com.dex.domain.DexBalanceService
 import com.dex.domain.DexQuotesService
+import com.dex.domain.DexTransactionService
 import com.dex.domain.SlippageService
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -63,6 +65,14 @@ val dexDataModule = module {
                 defiAccountReceiveAddressService = get()
             )
         }.bind(AllowanceService::class)
+
+        scoped {
+            DexTransactionRepository(
+                apiService = get(),
+                networkAccountsService = get(),
+                nonCustodialService = get()
+            )
+        }.bind(DexTransactionService::class)
 
         factory {
             SlippageRepository(

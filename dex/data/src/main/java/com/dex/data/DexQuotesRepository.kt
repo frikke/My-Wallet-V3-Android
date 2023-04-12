@@ -12,7 +12,7 @@ import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
 import com.blockchain.outcome.mapError
 import com.blockchain.utils.asFlow
-import com.blockchain.utils.toFormattedDate
+import com.blockchain.utils.toUtcIso8601
 import com.dex.domain.DexAccount
 import com.dex.domain.DexBalanceService
 import com.dex.domain.DexQuote
@@ -42,7 +42,7 @@ class DexQuotesRepository(
         println(
             "--- Fetching quote with input" +
                 " ${dexQuoteParams.amount.toStringWithSymbol()} ---" +
-                " @${Date().toFormattedDate()} "
+                " @${Date().toUtcIso8601()} "
         )
         val address = defiWalletReceiveAddressService.receiveAddress(dexQuoteParams.sourceAccount.currency)
 
@@ -93,8 +93,11 @@ class DexQuotesRepository(
                     blockchainFees = Money.fromMinor(
                         dexQuoteParams.destinationAccount.currency,
                         resp.quote.buyTokenFee.takeIf { it.isNotEmpty() }?.toBigInteger() ?: BigInteger.ZERO
-                    )
-
+                    ),
+                    data = resp.transaction.data,
+                    gasLimit = resp.transaction.gasLimit,
+                    value = resp.transaction.value,
+                    destinationContractAddress = resp.transaction.to,
                 )
             }
         }.mapError {

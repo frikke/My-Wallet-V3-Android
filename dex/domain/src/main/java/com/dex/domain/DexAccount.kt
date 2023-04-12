@@ -17,6 +17,10 @@ sealed class DexQuote {
     data class ExchangeQuote(
         val amount: Money,
         val price: Money,
+        val value: String,
+        val data: String,
+        val gasLimit: String,
+        val destinationContractAddress: String,
         val outputAmount: OutputAmount,
         val networkFees: Money,
         val blockchainFees: Money

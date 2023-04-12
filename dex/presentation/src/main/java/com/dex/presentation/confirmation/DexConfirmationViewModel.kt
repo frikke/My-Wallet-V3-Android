@@ -89,6 +89,7 @@ class DexConfirmationViewModel(
             ConfirmationIntent.LoadTransactionData -> loadTransactionData()
             ConfirmationIntent.SubscribeForTxUpdates -> transactionProcessor.subscribeForTxUpdates()
             ConfirmationIntent.UnSubscribeToTxUpdates -> transactionProcessor.unsubscribeToTxUpdates()
+            ConfirmationIntent.ConfirmSwap -> transactionProcessor.execute()
         }
     }
 
@@ -164,7 +165,7 @@ data class ConfirmationModelState(
 
 sealed class ConfirmationIntent : Intent<ConfirmationModelState> {
     object LoadTransactionData : ConfirmationIntent()
-
+    object ConfirmSwap : ConfirmationIntent()
     object SubscribeForTxUpdates : ConfirmationIntent()
     object UnSubscribeToTxUpdates : ConfirmationIntent()
 }

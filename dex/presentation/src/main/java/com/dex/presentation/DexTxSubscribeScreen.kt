@@ -12,7 +12,7 @@ fun DexTxSubscribeScreen(subscribe: () -> Unit, unsubscribe: () -> Unit) {
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
+            if (event == Lifecycle.Event.ON_START) {
                 subscribe()
             }
             if (event == Lifecycle.Event.ON_STOP) {

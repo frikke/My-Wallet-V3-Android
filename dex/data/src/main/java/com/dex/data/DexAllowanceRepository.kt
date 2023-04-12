@@ -1,7 +1,7 @@
 package com.dex.data
 
 import com.blockchain.DefiWalletReceiveAddressService
-import com.blockchain.api.dex.AllowanceApiService
+import com.blockchain.api.dex.DexTransactionsApiService
 import com.blockchain.api.dex.PubKeySource
 import com.blockchain.api.dex.RawTxResponse
 import com.blockchain.coincore.eth.GasFeeCalculator
@@ -27,7 +27,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
 class DexAllowanceRepository(
-    private val apiService: AllowanceApiService,
+    private val apiService: DexTransactionsApiService,
     private val dexAllowanceStorage: DexAllowanceStorage,
     private val defiAccountReceiveAddressService: DefiWalletReceiveAddressService,
     private val networkAccountsService: NetworkAccountsService,

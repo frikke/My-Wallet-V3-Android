@@ -1,6 +1,6 @@
 package com.dex.data
 
-import com.blockchain.api.dex.AllowanceApiService
+import com.blockchain.api.dex.DexTransactionsApiService
 import com.blockchain.api.dex.TokenAllowanceResponse
 import com.blockchain.store.CachedData
 import com.blockchain.store.Fetcher
@@ -10,7 +10,7 @@ import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelig
 import java.math.BigInteger
 
 class DexAllowanceStorage(
-    private val apiService: AllowanceApiService,
+    private val apiService: DexTransactionsApiService,
 ) : KeyedStore<AllowanceKey, TokenAllowanceResponse> by PersistedJsonSqlDelightStoreBuilder().buildKeyed(
     storeId = "DexAllowanceStorage",
     fetcher = Fetcher.Keyed.ofOutcome(

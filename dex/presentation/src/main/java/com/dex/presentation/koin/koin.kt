@@ -63,6 +63,8 @@ val dexPresentation = module {
             DexTransactionProcessor(
                 dexQuotesService = get(),
                 allowanceService = get(),
+                evmNetworkSigner = get(),
+                dexTransactionService = get(),
                 balanceService = get()
             )
         }
