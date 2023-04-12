@@ -5,6 +5,7 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.onErrorReturn
 import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.store.mapData
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
@@ -42,6 +43,8 @@ class HomeAccountsRepository(
             Single.just(assetsDataRes).flattenAsObservable { it }.flatMapMaybe { asset ->
                 asset.accountGroup(AssetFilter.NonCustodial).map { grp -> grp.accounts }
             }.reduce { a, l -> a + l }.switchIfEmpty(Single.just(emptyList())).await()
+        }.onErrorReturn {
+            emptyList()
         }
     }
 

@@ -3531,6 +3531,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_active_rewards_withdrawal_blocked">Withdrawals for Active Rewards are not yet enabled. Weekly withdrawal functionality is being finalized and will be enabled in approximately March 2023. Until then, BTC assets in Active Rewards Accounts will be re-subscribed to each week\'s strategy. Blockchain.com does not assume liability for any losses incurred from price fluctuations. Please trade with caution.</string>
     <string name="earn_active_rewards_withdrawal_blocked_warning_title">Active Rewards considerations</string>
     <string name="earn_active_rewards_withdrawal_blocked_warning_subtitle">Price movements may result in a reduction of your asset’s balance. \n\nOnce subscribed, assets are locked until the following week and subject to market volatility. \n\nBlockchain.com does not assume liability for any losses incurred from price fluctuations. Please trade with caution.</string>
+    <string name="earn_trading_disclaimer">Blockchain.com does not assume liability for any losses incurred from price fluctuations. Please trade with caution.</string>
     <string name="start_trading">Start trading</string>
     <string name="welcome_to_dex">Welcome to the DEX</string>
     <string name="welcome_to_dex_subtitle">A decentralized exchange (DEX) is a peer-to-peer marketplace that lets you swap cryptocurrencies.</string>
@@ -3592,5 +3593,12 @@ If you want to know more about our verification process visit our <annotation li
     <string name="asset_upsell_buy_another">Buy Another Asset</string>
     <string name="asset_upsell_title">Would you like to buy \nanother asset?</string>
     <string name="asset_upsell_subtitle">People who bought Bitcoin often buy these assets as well.</string>
+    <string name="confirm_swap">Confirm Swap</string>
+    <string name="min_amount">Min. amount</string>
+    <string name="network_fee">Network fee</string>
+    <string name="bcdc_fee">Blockchain.com fee</string>
+    <string name="min_amount_estimation">Input is estimated. You will receive at least %1$s or the transaction will revert and assets will be returned to your wallet.</string>
+    <string name="unable_to_swap_tokens">Unable to swap these tokens</string>
+    <string name="common_pending_activity">Pending Activity</string>
 
 </resources>

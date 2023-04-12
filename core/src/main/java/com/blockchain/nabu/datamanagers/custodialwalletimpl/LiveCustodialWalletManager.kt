@@ -19,6 +19,10 @@ import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.transactions.TransferDirection
+import com.blockchain.domain.wiretransfer.WireTransferDetails
+import com.blockchain.domain.wiretransfer.WireTransferDetailsFooter
+import com.blockchain.domain.wiretransfer.WireTransferDetailsSection
+import com.blockchain.domain.wiretransfer.WireTransferDetailsSectionEntry
 import com.blockchain.nabu.datamanagers.BankAccount
 import com.blockchain.nabu.datamanagers.BuyOrderList
 import com.blockchain.nabu.datamanagers.BuySellLimits
@@ -53,6 +57,7 @@ import com.blockchain.nabu.models.responses.simplebuy.PaymentStateResponse
 import com.blockchain.nabu.models.responses.simplebuy.ProductTransferRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferRequest
+import com.blockchain.nabu.models.responses.simplebuy.WireTransferAccountDetailsResponse
 import com.blockchain.nabu.models.responses.swap.CreateOrderRequest
 import com.blockchain.nabu.models.responses.swap.CustodialOrderResponse
 import com.blockchain.nabu.service.NabuService
@@ -235,6 +240,11 @@ class LiveCustodialWalletManager(
                     paymentId = it.beneficiaryId
                 )
             }
+        }
+
+    override fun getWireTransferDetails(currency: FiatCurrency): Single<WireTransferDetails> =
+        nabuService.getWireTransferAccountDetails(currency.networkTicker).map { response ->
+            response.toDomain()
         }
 
     override fun getBankAccountDetails(currency: FiatCurrency): Single<BankAccount> =
@@ -580,11 +590,31 @@ class LiveCustodialWalletManager(
     private fun String.toCryptoCurrencyPair(): CurrencyPair? {
         return CurrencyPair.fromRawPair(this, assetCatalogue)
     }
-
-    companion object {
-        private const val ACH_CURRENCY = "USD"
-    }
 }
+
+private fun WireTransferAccountDetailsResponse.toDomain(): WireTransferDetails = WireTransferDetails(
+    sections = content.sections.map { section ->
+        WireTransferDetailsSection(
+            name = section.name,
+            entries = section.entries.map { entry ->
+                WireTransferDetailsSectionEntry(
+                    title = entry.title,
+                    message = entry.message,
+                    isImportant = entry.isImportant == true,
+                    help = entry.help,
+                )
+            }
+        )
+    },
+    footers = content.footers.map { footer ->
+        WireTransferDetailsFooter(
+            title = footer.title,
+            message = footer.message,
+            icon = footer.icon,
+            isImportant = footer.isImportant == true,
+        )
+    },
+)
 
 private fun Product.toRequestString(): String =
     when (this) {

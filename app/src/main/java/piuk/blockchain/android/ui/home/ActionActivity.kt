@@ -98,7 +98,8 @@ class ActionActivity :
                             BuySellViewType.TYPE_BUY
                         }
                     },
-                    asset = cryptoTicker?.let { assetCatalogue.fromNetworkTicker(it) as? AssetInfo }
+                    asset = cryptoTicker?.let { assetCatalogue.fromNetworkTicker(it) as? AssetInfo },
+                    fromRecurringBuy = intent.getBooleanExtra(ARG_FROM_RECURRING_BUY, false)
                 )
             }
             else -> {
@@ -172,17 +173,28 @@ class ActionActivity :
         private const val RESULT_START_BUY_INTRO = "RESULT_START_BUY_INTRO"
         private const val RESULT_VIEW_ACTIVITY = "RESULT_VIEW_ACTIVITY"
         private const val CRYPTO_TICKER = "CRYPTO_TICKER"
+        private const val ARG_FROM_RECURRING_BUY = "ARG_FROM_RECURRING_BUY"
 
-        private fun newIntent(context: Context, action: AssetAction, cryptoTicker: String? = null): Intent =
+        private fun newIntent(
+            context: Context,
+            action: AssetAction,
+            cryptoTicker: String? = null,
+            fromRecurringBuy: Boolean = false
+        ): Intent =
             Intent(context, ActionActivity::class.java).apply {
                 putExtra(ACTION, action)
                 cryptoTicker?.let {
                     putExtra(CRYPTO_TICKER, it)
                 }
+                putExtra(ARG_FROM_RECURRING_BUY, fromRecurringBuy)
             }
     }
 
-    data class ActivityArgs(val action: AssetAction, val cryptoTicker: String? = null)
+    data class ActivityArgs(
+        val action: AssetAction,
+        val cryptoTicker: String? = null,
+        val fromRecurringBuy: Boolean = false
+    )
 
     sealed class ActivityResult {
         object StartKyc : ActivityResult()
@@ -193,7 +205,7 @@ class ActionActivity :
 
     class BlockchainActivityResultContract : ActivityResultContract<ActivityArgs, ActivityResult?>() {
         override fun createIntent(context: Context, input: ActivityArgs): Intent =
-            newIntent(context, input.action, input.cryptoTicker)
+            newIntent(context, input.action, input.cryptoTicker, input.fromRecurringBuy)
 
         override fun parseResult(resultCode: Int, intent: Intent?): ActivityResult? {
             val startKyc = intent?.getBooleanExtra(RESULT_START_KYC, false) ?: false

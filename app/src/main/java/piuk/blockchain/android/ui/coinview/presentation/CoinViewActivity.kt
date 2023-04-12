@@ -158,7 +158,8 @@ class CoinViewActivity :
                 startActivity(
                     SimpleBuyActivity.newIntent(
                         context = this,
-                        asset = navigationEvent.asset.currency
+                        asset = navigationEvent.asset.currency,
+                        fromRecurringBuy = navigationEvent.fromRecurringBuy
                     )
                 )
             }

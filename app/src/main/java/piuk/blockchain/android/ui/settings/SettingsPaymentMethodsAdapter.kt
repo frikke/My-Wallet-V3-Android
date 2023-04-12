@@ -81,7 +81,7 @@ private class CardSettingsViewHolder(
                 is CardRejectionState.AlwaysRejected -> {
                     listOf(
                         TagViewState(
-                            card.cardRejectionState.title
+                            card.cardRejectionState.error?.title
                                 ?: binding.root.context.getString(
                                     R.string.card_issuer_always_rejects_title
                                 ),
@@ -92,9 +92,7 @@ private class CardSettingsViewHolder(
                 is CardRejectionState.MaybeRejected -> {
                     listOf(
                         TagViewState(
-                            card.cardRejectionState.title ?: binding.root.context.getString(
-                                R.string.card_issuer_sometimes_rejects_title
-                            ),
+                            card.cardRejectionState.error.title,
                             TagType.Warning()
                         )
                     )

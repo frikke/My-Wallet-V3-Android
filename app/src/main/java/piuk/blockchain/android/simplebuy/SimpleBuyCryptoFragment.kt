@@ -172,6 +172,10 @@ class SimpleBuyCryptoFragment :
         arguments?.getBoolean(ARG_LAUNCH_PAYMENT_METHOD_SELECTION, false) ?: false
     }
 
+    private val fromRecurringBuy: Boolean by lazy {
+        arguments?.getBoolean(ARG_FROM_RECURRING_BUY, false) ?: false
+    }
+
     override fun navigator(): SimpleBuyNavigator =
         (activity as? SimpleBuyNavigator)
             ?: throw IllegalStateException("Parent must implement SimpleBuyNavigator")
@@ -211,8 +215,9 @@ class SimpleBuyCryptoFragment :
         model.process(SimpleBuyIntent.InitialiseSelectedCryptoAndFiat(asset, fiatCurrency))
         model.process(
             SimpleBuyIntent.FetchSuggestedPaymentMethod(
-                fiatCurrency,
-                preselectedMethodId
+                fiatCurrency = fiatCurrency,
+                selectedPaymentMethodId = preselectedMethodId,
+                promptRecurringBuy = fromRecurringBuy
             )
         )
         model.process(SimpleBuyIntent.FetchEligibility)
@@ -270,27 +275,34 @@ class SimpleBuyCryptoFragment :
 
     override fun onRejectableCardSelected(cardInfo: CardRejectionState) {
         when (cardInfo) {
-            is CardRejectionState.AlwaysRejected ->
-                showCardRejectionInfo(
-                    title = cardInfo.title.orEmpty(),
-                    description = cardInfo.description.orEmpty(),
-                    errorId = cardInfo.errorId,
-                    iconUrl = cardInfo.iconUrl.orEmpty(),
-                    statusIconUrl = cardInfo.statusIconUrl.orEmpty(),
-                    actions = cardInfo.actions,
-                    analyticsCategories = cardInfo.analyticsCategories,
+            is CardRejectionState.AlwaysRejected -> {
+                val error = cardInfo.error ?: ServerSideUxErrorInfo(
+                    id = null,
+                    title = getString(R.string.card_issuer_always_rejects_title),
+                    description = getString(R.string.card_issuer_always_rejects_desc),
+                    iconUrl = "",
+                    statusUrl = "",
+                    actions = emptyList(),
+                    categories = emptyList()
+                )
+                navigator().showErrorInBottomSheet(
+                    title = error.title,
+                    description = error.description,
+                    error = error.id.orEmpty(),
+                    serverSideUxErrorInfo = error,
                     closeFlowOnDeeplinkFallback = true,
                 )
-            is CardRejectionState.MaybeRejected -> showCardRejectionInfo(
-                title = cardInfo.title.orEmpty(),
-                description = cardInfo.description.orEmpty(),
-                errorId = cardInfo.errorId,
-                iconUrl = cardInfo.iconUrl.orEmpty(),
-                statusIconUrl = cardInfo.statusIconUrl.orEmpty(),
-                actions = cardInfo.actions,
-                analyticsCategories = cardInfo.analyticsCategories,
-                closeFlowOnDeeplinkFallback = false,
-            )
+            }
+            is CardRejectionState.MaybeRejected -> {
+                val error = cardInfo.error
+                navigator().showErrorInBottomSheet(
+                    title = error.title,
+                    description = error.description,
+                    error = error.id.orEmpty(),
+                    serverSideUxErrorInfo = error,
+                    closeFlowOnDeeplinkFallback = false,
+                )
+            }
             CardRejectionState.NotRejected -> {
                 // do nothing
             }
@@ -450,6 +462,12 @@ class SimpleBuyCryptoFragment :
     }
 
     override fun render(newState: SimpleBuyState) {
+        if (newState.promptRecurringBuyIntervals && newState.selectedPaymentMethod != null) {
+            model.process(SimpleBuyIntent.RecurringBuyOptionsSeen)
+            model.process(SimpleBuyIntent.RecurringBuyIntervalsShown)
+            showBottomSheet(RecurringBuySelectionBottomSheet.newInstance())
+        }
+
         if (newState.shouldRequestNewQuote(lastState)) {
             updateQuote(newState.amount)
         }
@@ -929,7 +947,7 @@ class SimpleBuyCryptoFragment :
                         secondaryText = null
                         tags = listOf(
                             TagViewState(
-                                cardState.title ?: getString(R.string.card_issuer_sometimes_rejects_title),
+                                cardState.error.title,
                                 TagType.Warning()
                             )
                         )
@@ -976,52 +994,24 @@ class SimpleBuyCryptoFragment :
 
     private fun CardRejectionState.AlwaysRejected.renderAlwaysRejectedCardError() =
         binding.btnError.apply {
+            val error = error ?: ServerSideUxErrorInfo(
+                id = null,
+                title = getString(R.string.card_issuer_always_rejects_title),
+                description = getString(R.string.card_issuer_always_rejects_desc),
+                iconUrl = "",
+                statusUrl = "",
+                actions = emptyList(),
+                categories = emptyList()
+            )
+
             visible()
-            text = title ?: getString(R.string.card_issuer_always_rejects_title)
+            text = error.title
             onClick = {
-                val tryAnotherCardActionTitle = if (actions.isNotEmpty() &&
-                    actions[0].deeplinkPath.isNotEmpty()
-                ) {
-                    actions[0].title
-                } else {
-                    getString(R.string.common_ok)
-                }
-                val learnMoreActionTitle = if (actions.isNotEmpty() &&
-                    actions.size == 2 &&
-                    actions[1].deeplinkPath.isNotEmpty()
-                ) {
-                    actions[1].title
-                } else {
-                    getString(R.string.common_ok)
-                }
-
-                val sheetTitle = title ?: getString(R.string.card_issuer_always_rejects_title)
-                val sheetSubtitle = description ?: getString(
-                    R.string.card_issuer_always_rejects_desc
-                )
-
                 navigator().showErrorInBottomSheet(
-                    title = sheetTitle,
-                    description = sheetSubtitle,
-                    error = errorId.orEmpty(),
-                    serverSideUxErrorInfo = ServerSideUxErrorInfo(
-                        id = errorId,
-                        title = sheetTitle,
-                        description = sheetSubtitle,
-                        iconUrl = iconUrl.orEmpty(),
-                        statusUrl = statusIconUrl.orEmpty(),
-                        actions = listOf(
-                            ServerErrorAction(
-                                title = tryAnotherCardActionTitle,
-                                deeplinkPath = actions[0].deeplinkPath
-                            ),
-                            ServerErrorAction(
-                                title = learnMoreActionTitle,
-                                deeplinkPath = actions[1].deeplinkPath
-                            )
-                        ),
-                        categories = analyticsCategories
-                    )
+                    title = error.title,
+                    description = error.description,
+                    error = error.id.orEmpty(),
+                    serverSideUxErrorInfo = error
                 )
             }
         }
@@ -1356,10 +1346,11 @@ class SimpleBuyCryptoFragment :
     private fun updatePaymentMethods(preselectedId: String?) {
         model.process(
             SimpleBuyIntent.FetchSuggestedPaymentMethod(
-                fiatCurrency,
-                preselectedId,
+                fiatCurrency = fiatCurrency,
+                selectedPaymentMethodId = preselectedId,
                 usePrefilledAmount = false,
-                reloadQuickFillButtons = true
+                reloadQuickFillButtons = true,
+                promptRecurringBuy = false
             )
         )
     }
@@ -1393,6 +1384,7 @@ class SimpleBuyCryptoFragment :
         private const val ARG_LINK_NEW_CARD = "LINK_NEW_CARD"
         private const val ARG_LAUNCH_PAYMENT_METHOD_SELECTION = "LAUNCH_PAYMENT_METHOD_SELECTION"
         private const val ARG_FIAT_CURRENCY = "ARG_FIAT_CURRENCY"
+        private const val ARG_FROM_RECURRING_BUY = "ARG_FROM_RECURRING_BUY"
 
         fun newInstance(
             asset: AssetInfo,
@@ -1400,7 +1392,8 @@ class SimpleBuyCryptoFragment :
             preselectedAmount: String? = null,
             launchLinkCard: Boolean = false,
             launchPaymentMethodSelection: Boolean = false,
-            preselectedFiatTicker: String? = null
+            preselectedFiatTicker: String? = null,
+            fromRecurringBuy: Boolean = false
         ): SimpleBuyCryptoFragment {
             return SimpleBuyCryptoFragment().apply {
                 arguments = Bundle().apply {
@@ -1410,6 +1403,7 @@ class SimpleBuyCryptoFragment :
                     preselectedFiatTicker?.let { putString(ARG_FIAT_CURRENCY, it) }
                     putBoolean(ARG_LINK_NEW_CARD, launchLinkCard)
                     putBoolean(ARG_LAUNCH_PAYMENT_METHOD_SELECTION, launchPaymentMethodSelection)
+                    putBoolean(ARG_FROM_RECURRING_BUY, fromRecurringBuy)
                 }
             }
         }

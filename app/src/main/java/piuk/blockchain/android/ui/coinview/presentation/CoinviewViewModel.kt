@@ -794,7 +794,8 @@ class CoinviewViewModel(
                 navigate(
                     if (hasAnyAssetsWithRecurringBuy()) {
                         CoinviewNavigationEvent.NavigateToBuy(
-                            asset = modelState.asset
+                            asset = modelState.asset,
+                            fromRecurringBuy = true
                         )
                     } else {
                         CoinviewNavigationEvent.NavigateToRecurringBuyUpsell(
@@ -819,7 +820,8 @@ class CoinviewViewModel(
                     is CoinviewQuickAction.Buy -> {
                         navigate(
                             CoinviewNavigationEvent.NavigateToBuy(
-                                asset = modelState.asset
+                                asset = modelState.asset,
+                                fromRecurringBuy = false
                             )
                         )
                     }
@@ -1253,7 +1255,8 @@ class CoinviewViewModel(
 
             AssetAction.Buy -> navigate(
                 CoinviewNavigationEvent.NavigateToBuy(
-                    asset = asset
+                    asset = asset,
+                    fromRecurringBuy = false
                 )
             )
 

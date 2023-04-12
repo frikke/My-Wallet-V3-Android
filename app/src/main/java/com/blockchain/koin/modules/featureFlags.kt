@@ -13,6 +13,7 @@ import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.cardPaymentAsyncFeatureFlag
 import com.blockchain.koin.cowboysPromoFeatureFlag
 import com.blockchain.koin.dexFeatureFlag
+import com.blockchain.koin.dynamicEthHotWalletAddressFeatureFlag
 import com.blockchain.koin.earnTabFeatureFlag
 import com.blockchain.koin.exchangeWAPromptFeatureFlag
 import com.blockchain.koin.feynmanCheckoutFeatureFlag
@@ -273,6 +274,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_iterable_announcements",
                 "Iterable Announcements"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(dynamicEthHotWalletAddressFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_dynamic_eth_hot_wallet_address",
+                "Dynamic ETH HWS Address"
             )
         )
     }.bind(FeatureFlag::class)

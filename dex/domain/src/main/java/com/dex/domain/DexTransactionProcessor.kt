@@ -6,29 +6,31 @@ import com.blockchain.outcome.getOrNull
 import info.blockchain.balance.Money
 import info.blockchain.balance.isNetworkNativeAsset
 import java.math.BigDecimal
+import kotlin.random.Random
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/*
-* https://medium.com/androiddevelopers/coroutines-patterns-for-work-that-shouldnt-be-cancelled-e26c40f142ad
-* */
 @OptIn(FlowPreview::class)
 class DexTransactionProcessor(
     private val dexQuotesService: DexQuotesService,
@@ -72,16 +74,42 @@ class DexTransactionProcessor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
+    private val quoteInput: Flow<Pair<DexQuoteParams?, Boolean>>
+        get() = transaction.mapLatest {
+            it.quoteParams to it.canBeQuoted()
+        }.filterNotNull()
+            .distinctUntilChanged { (oldParams, _), (newParams, _) ->
+                oldParams == newParams
+            }
+            .debounce(350)
+
+    private val _quoteTtl = MutableStateFlow(QuoteTTL())
+    private val activeSubscriptions = MutableStateFlow(0)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val updateQuote: Flow<Unit>
+        get() = _quoteTtl
+            .mapLatest {
+                delay(it.ttl)
+            }
+            .filter { activeSubscriptions.value > 0 }
+            .onStart {
+                emit(Unit)
+            }
+
+    private val hasActiveSubscribers: Flow<Boolean>
+        get() = activeSubscriptions.map { it > 0 }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun startQuotesUpdates() {
         scope.launch {
-            transaction
-                .mapLatest {
-                    it.quoteParams to it.canBeQuoted()
-                }.filterNotNull()
-                .distinctUntilChanged { (oldParams, _), (newParams, _) ->
-                    oldParams == newParams
-                }
-                .debounce(350)
+            combine(
+                quoteInput,
+                updateQuote,
+                hasActiveSubscribers.filter { it }
+            ) { input, _, _ ->
+                input
+            }
                 .mapLatest { (params, canBeQuoted) ->
                     if (params != null && canBeQuoted) {
                         _isFetchingQuote.emit(true)
@@ -97,7 +125,10 @@ class DexTransactionProcessor(
                     _isFetchingQuote.emit(false)
                 }.collectLatest {
                     when (it) {
-                        is Outcome.Success -> updateTxQuote(it.value)
+                        is Outcome.Success -> {
+                            _quoteTtl.emit(QuoteTTL(15000))
+                            updateTxQuote(it.value)
+                        }
                         is Outcome.Failure -> {
                             (it.failure as? DexTxError.QuoteError)?.let { qError ->
                                 updateQuoteError(qError)
@@ -112,8 +143,7 @@ class DexTransactionProcessor(
         _dexTransaction.update {
             it.copy(
                 quoteError = failure,
-                outputAmount = null,
-                fees = null
+                quote = null,
             )
         }
     }
@@ -130,13 +160,11 @@ class DexTransactionProcessor(
         _dexTransaction.update {
             when (quote) {
                 is DexQuote.ExchangeQuote -> it.copy(
-                    outputAmount = quote.outputAmount,
-                    fees = quote.fees,
+                    quote = quote,
                     quoteError = null
                 )
                 DexQuote.InvalidQuote -> it.copy(
-                    outputAmount = null,
-                    fees = null,
+                    quote = null,
                     quoteError = null
                 )
             }
@@ -153,6 +181,7 @@ class DexTransactionProcessor(
                         current.toBigDecimal()
                     )
                 },
+                quoteError = null,
                 destinationAccount = if (dexTx.destinationAccount?.currency == sourceAccount.currency) {
                     null
                 } else dexTx.destinationAccount
@@ -163,7 +192,8 @@ class DexTransactionProcessor(
     fun updateDestinationAccount(destinationAccount: DexAccount?) {
         _dexTransaction.update {
             it.copy(
-                destinationAccount = destinationAccount
+                destinationAccount = destinationAccount,
+                quoteError = null,
             )
         }
     }
@@ -174,6 +204,14 @@ class DexTransactionProcessor(
                 _amount = Money.fromMajor(tx.sourceAccount.currency, amount),
             )
         }
+    }
+
+    suspend fun subscribeForTxUpdates() {
+        activeSubscriptions.emit(activeSubscriptions.value + 1)
+    }
+
+    suspend fun unsubscribeToTxUpdates() {
+        activeSubscriptions.emit(activeSubscriptions.value - 1)
     }
 
     private fun Flow<DexTransaction>.validate(): Flow<DexTransaction> {
@@ -236,7 +274,7 @@ class DexTransactionProcessor(
     }
 
     private suspend fun DexTransaction.validateSufficientNetworkFees(): DexTransaction {
-        return fees?.let {
+        return quote?.networkFees?.let {
             val networkBalance = balanceService.networkBalance(sourceAccount)
             if (networkBalance >= it) {
                 this
@@ -258,10 +296,9 @@ private fun DexTransaction.canBeQuoted() =
 
 data class DexTransaction internal constructor(
     private val _amount: Money?,
-    val outputAmount: OutputAmount?,
+    val quote: DexQuote.ExchangeQuote?,
     private val _sourceAccount: DexAccount?,
     val destinationAccount: DexAccount?,
-    val fees: Money?,
     val slippage: Double,
     val maxAvailable: Money?,
     val txError: DexTxError,
@@ -290,18 +327,32 @@ private val EmptyDexTransaction = DexTransaction(
     null,
     null,
     null,
-    null,
     0.toDouble(),
     null,
     DexTxError.None,
-    null
+    null,
 )
 
 sealed class DexTxError {
     object NotEnoughFunds : DexTxError()
     object NotEnoughGas : DexTxError()
-    data class QuoteError(val title: String, val message: String) : DexTxError()
+    data class QuoteError(val title: String, val message: String) : DexTxError() {
+
+        fun isLiquidityError(): Boolean =
+            message.contains("INSUFFICIENT_ASSET_LIQUIDITY", true)
+    }
+
     object TokenNotAllowed : DexTxError()
     class FatalTxError(val exception: Exception) : DexTxError()
     object None : DexTxError()
+}
+
+private class QuoteTTL(val ttl: Long = 0L) {
+    override fun equals(other: Any?): Boolean {
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return Random.nextInt()
+    }
 }

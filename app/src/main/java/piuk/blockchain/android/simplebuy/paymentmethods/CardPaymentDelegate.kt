@@ -83,7 +83,7 @@ class CardPaymentDelegate(
                             is CardRejectionState.AlwaysRejected -> {
                                 listOf(
                                     TagViewState(
-                                        value = cardState.title ?: context.getString(
+                                        value = cardState.error?.title ?: context.getString(
                                             R.string.card_issuer_always_rejects_title
                                         ),
                                         type = TagType.Error(),
@@ -93,9 +93,7 @@ class CardPaymentDelegate(
                             is CardRejectionState.MaybeRejected -> {
                                 listOf(
                                     TagViewState(
-                                        value = cardState.title ?: context.getString(
-                                            R.string.card_issuer_sometimes_rejects_title
-                                        ),
+                                        value = cardState.error.title,
                                         type = TagType.Warning(),
                                     )
                                 )

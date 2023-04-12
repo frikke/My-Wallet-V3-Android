@@ -231,11 +231,15 @@ fun ActiveRewardsSummarySheet(
                 if (activeRewardsWithdrawalsEnabled.not()) {
                     ActiveRewardsWithdrawalNotice(onLearnMorePressed = withdrawDisabledLearnMore)
                     LargeVerticalSpacer()
-                } else if (state.hasOngoingWithdrawals) {
-                    state.balanceCrypto?.currency?.networkTicker?.let {
-                        ActiveRewardsPendingWithdrawal(it)
-                        LargeVerticalSpacer()
+                } else {
+                    if (state.hasOngoingWithdrawals) {
+                        state.balanceCrypto?.currency?.networkTicker?.let {
+                            ActiveRewardsPendingWithdrawal(it)
+                            LargeVerticalSpacer()
+                        }
                     }
+                    ActiveRewardsTradingWarning(onLearnMorePressed = withdrawDisabledLearnMore)
+                    LargeVerticalSpacer()
                 }
 
                 Row(
@@ -314,7 +318,7 @@ fun TooltipText(tooltipText: String) {
 @Composable
 fun ActiveRewardsPendingWithdrawal(currencyTicker: String) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        TableRowHeader(title = "Recent Activity")
+        TableRowHeader(title = stringResource(R.string.common_pending_activity))
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
         Card(

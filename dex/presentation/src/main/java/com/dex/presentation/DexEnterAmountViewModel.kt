@@ -12,6 +12,7 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.dex.presentation.R
 import com.blockchain.extensions.safeLet
+import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.getOrNull
 import com.blockchain.preferences.CurrencyPrefs
 import com.dex.domain.AllowanceTransactionProcessor
@@ -20,6 +21,7 @@ import com.dex.domain.DexTransaction
 import com.dex.domain.DexTransactionProcessor
 import com.dex.domain.DexTxError
 import com.dex.domain.SlippageService
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
@@ -54,6 +56,7 @@ class DexEnterAmountViewModel(
         canTransact = DataResource.Loading
     )
 ) {
+
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
@@ -83,24 +86,44 @@ class DexEnterAmountViewModel(
             sourceCurrency = transaction?.sourceAccount?.currency,
             destinationCurrency = transaction?.destinationAccount?.currency,
             maxAmount = transaction?.sourceAccount?.balance,
-            error = transaction?.toUiError() ?: DexUiError.None,
+            txAmount = transaction?.amount,
+            error = state.toUiError(),
             inputExchangeAmount = safeLet(transaction?.amount, state.inputToFiatExchangeRate) { amount, rate ->
                 fiatAmount(amount, rate)
             } ?: Money.zero(currencyPrefs.selectedFiatCurrency),
-            outputAmount = transaction?.outputAmount?.expectedOutput,
+            outputAmount = transaction?.quote?.outputAmount?.expectedOutput,
             outputExchangeAmount = safeLet(
-                transaction?.outputAmount?.expectedOutput, state.outputToFiatExchangeRate
+                transaction?.quote?.outputAmount?.expectedOutput, state.outputToFiatExchangeRate
             ) { amount, rate ->
                 fiatAmount(amount, rate)
             } ?: Money.zero(currencyPrefs.selectedFiatCurrency),
             destinationAccountBalance = transaction?.destinationAccount?.balance,
             operationInProgress = state.operationInProgress,
             uiFee = uiFee(
-                transaction?.fees,
+                transaction?.quote?.networkFees,
                 state.feeToFiatExchangeRate
             ),
-            previewActionButtonState = ActionButtonState.ENABLED // IMPLEMENT THE LOGIC IN A LATER PR.
+            previewActionButtonState = actionButtonState(modelState)
         )
+    }
+
+    private fun actionButtonState(modelState: AmountModelState): ActionButtonState {
+        val transaction = modelState.transaction ?: return ActionButtonState.INVISIBLE
+        val hasOperationInProgress = modelState.operationInProgress != DexOperation.NONE
+        val hasValidQuote = transaction.quote != null
+        if (hasOperationInProgress || !hasValidQuote) {
+            return ActionButtonState.DISABLED
+        }
+
+        return when (transaction.txError) {
+            DexTxError.None -> if (transaction.amount.isPositive) return ActionButtonState.ENABLED
+            else ActionButtonState.DISABLED
+            is DexTxError.FatalTxError,
+            DexTxError.NotEnoughFunds,
+            DexTxError.NotEnoughGas,
+            is DexTxError.QuoteError,
+            DexTxError.TokenNotAllowed -> ActionButtonState.INVISIBLE
+        }
     }
 
     private fun uiFee(fees: Money?, feeToFiatExchangeRate: ExchangeRate?): UiFee? {
@@ -135,12 +158,13 @@ class DexEnterAmountViewModel(
                     txProcessor.updateTransactionAmount(amount)
                 }
             }
-            InputAmountIntent.DisposeTransaction -> {
-            }
+
             InputAmountIntent.AllowanceTransactionApproved -> {
                 approveAllowanceTransaction()
             }
             InputAmountIntent.BuildAllowanceTransaction -> buildAllowanceTransaction()
+            InputAmountIntent.SubscribeForTxUpdates -> txProcessor.subscribeForTxUpdates()
+            InputAmountIntent.UnSubscribeToTxUpdates -> txProcessor.unsubscribeToTxUpdates()
         }
     }
 
@@ -184,7 +208,15 @@ class DexEnterAmountViewModel(
             /**
              * todo handle failure
              */
-            val allowanceTx = allowanceProcessor.pushTx()
+            allowanceProcessor.pushTx().doOnSuccess {
+                modelState.transaction?.sourceAccount?.currency?.let { sourceCurrency ->
+                    updateState { state ->
+                        state.copy(
+                            currenciesToConsideredAllowed = state.currenciesToConsideredAllowed.plus(sourceCurrency)
+                        )
+                    }
+                }
+            }
 
             updateState {
                 it.copy(
@@ -251,7 +283,7 @@ class DexEnterAmountViewModel(
             )
         }
 
-        dexTransaction.fees?.currency?.let {
+        dexTransaction.quote?.networkFees?.currency?.let {
             if (modelState.feeToFiatExchangeRate?.from != it) {
                 updateFeeFiatExchangeRate(
                     from = it,
@@ -312,27 +344,38 @@ class DexEnterAmountViewModel(
         }
     }
 
-    private fun DexTransaction.toUiError(): DexUiError {
-        return when (val error = this.txError) {
+    private fun AmountModelState.toUiError(): DexUiError {
+        val error = this.transaction?.txError ?: return DexUiError.None
+        return when (error) {
             DexTxError.None -> DexUiError.None
             DexTxError.NotEnoughFunds -> DexUiError.InsufficientFunds(
-                sourceAccount.currency
+                this.transaction.sourceAccount.currency
             )
             DexTxError.NotEnoughGas -> {
-                val feeCurrency = fees?.currency
+                val feeCurrency = this.transaction.quote?.networkFees?.currency
                 check(feeCurrency != null)
                 DexUiError.NotEnoughGas(
                     feeCurrency
                 )
             }
             is DexTxError.FatalTxError -> DexUiError.UnknownError(error.exception)
-            is DexTxError.QuoteError -> {
-                DexUiError.CommonUiError(
-                    error.title,
-                    error.message
-                )
-            }
-            DexTxError.TokenNotAllowed -> DexUiError.TokenNotAllowed(sourceAccount.currency)
+            is DexTxError.QuoteError ->
+                if (error.isLiquidityError()) DexUiError.LiquidityError
+                else
+                    DexUiError.CommonUiError(
+                        error.title,
+                        error.message
+                    )
+
+            /**
+             * ignore allowance error in case token has been allowed
+             */
+            DexTxError.TokenNotAllowed -> if (transaction.sourceAccount.currency
+                !in modelState.currenciesToConsideredAllowed
+            )
+                DexUiError.TokenNotAllowed(
+                    transaction.sourceAccount.currency
+                ) else DexUiError.None
         }
     }
 }
@@ -342,6 +385,7 @@ sealed class InputAmountViewState : ViewState {
         val sourceCurrency: Currency?,
         val destinationCurrency: Currency?,
         val maxAmount: Money?,
+        val txAmount: Money?,
         val operationInProgress: DexOperation,
         val destinationAccountBalance: Money?,
         val inputExchangeAmount: Money?,
@@ -349,7 +393,7 @@ sealed class InputAmountViewState : ViewState {
         val outputAmount: Money?,
         val uiFee: UiFee?,
         val previewActionButtonState: ActionButtonState,
-        val error: DexUiError = DexUiError.None
+        val error: DexUiError = DexUiError.None,
     ) : InputAmountViewState()
 
     object NoInputViewState : InputAmountViewState()
@@ -367,6 +411,12 @@ data class AmountModelState(
     val operationInProgress: DexOperation = DexOperation.NONE,
     val inputToFiatExchangeRate: ExchangeRate?,
     val outputToFiatExchangeRate: ExchangeRate?,
+    /**
+     * when an allowance tx is getting pushed, this doesnt mean that is confirmed, so BE
+     * might return allowance 0 after for some time after that tx, so we need to ignore this error so user wont
+     * do the same transaction again.
+     */
+    val currenciesToConsideredAllowed: List<AssetInfo> = emptyList(),
     val feeToFiatExchangeRate: ExchangeRate?,
 ) : ModelState
 
@@ -375,10 +425,15 @@ sealed class AmountNavigationEvent : NavigationEvent {
 }
 
 sealed class InputAmountIntent : Intent<AmountModelState> {
-    object InitTransaction : InputAmountIntent()
+    object InitTransaction : InputAmountIntent() {
+        override fun isValidFor(modelState: AmountModelState): Boolean {
+            return modelState.transaction == null
+        }
+    }
+    object SubscribeForTxUpdates : InputAmountIntent()
+    object UnSubscribeToTxUpdates : InputAmountIntent()
     object AllowanceTransactionApproved : InputAmountIntent()
     object BuildAllowanceTransaction : InputAmountIntent()
-    object DisposeTransaction : InputAmountIntent()
     class AmountUpdated(val amountString: String) : InputAmountIntent()
 }
 
@@ -387,6 +442,11 @@ sealed class DexUiError {
     data class InsufficientFunds(val currency: Currency) : DexUiError(), AlertError {
         override fun message(context: Context): String =
             context.getString(R.string.not_enough_funds, currency.displayTicker)
+    }
+
+    object LiquidityError : DexUiError(), AlertError {
+        override fun message(context: Context): String =
+            context.getString(R.string.unable_to_swap_tokens)
     }
 
     data class TokenNotAllowed(val token: Currency) : DexUiError()

@@ -37,4 +37,6 @@ class DynamicHDAccount(
         PrivateKeyFactory.WIF_COMPRESSED,
         address.privateKeyString
     )
+
+    fun signWithBip39Key(data: ByteArray): ByteArray = bip39Key.sign(data)
 }

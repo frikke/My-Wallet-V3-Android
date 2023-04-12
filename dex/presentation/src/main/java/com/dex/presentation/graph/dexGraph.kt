@@ -15,6 +15,7 @@ import com.dex.presentation.SelectDestinationAccountBottomSheet
 import com.dex.presentation.SelectSourceAccountBottomSheet
 import com.dex.presentation.SettingsBottomSheet
 import com.dex.presentation.TokenAllowanceBottomSheet
+import com.dex.presentation.confirmation.DexConfirmationScreen
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import kotlinx.serialization.json.Json
 
@@ -23,6 +24,12 @@ fun NavGraphBuilder.dexGraph(onBackPressed: () -> Unit, navController: NavContro
     composable(navigationEvent = DexDestination.Intro) {
         ChromeSingleScreen {
             DexIntroductionScreens(onBackPressed)
+        }
+    }
+
+    composable(navigationEvent = DexDestination.Confirmation) {
+        ChromeSingleScreen {
+            DexConfirmationScreen(onBackPressed)
         }
     }
 
@@ -69,6 +76,7 @@ sealed class DexDestination(
     object SelectSourceAccount : DexDestination("SelectSourceAccount")
     object SelectDestinationAccount : DexDestination("SelectDestinationAccount")
     object Settings : DexDestination("Settings")
+    object Confirmation : DexDestination("Confirmation")
     object TokenAllowanceSheet : DexDestination(route = "TokenAllowanceSheet/${ARG_ALLOWANCE_TX.wrappedArg()}}")
 }
 

@@ -49,7 +49,6 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
-import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
@@ -695,45 +694,14 @@ class PaymentsRepository(
     override suspend fun updateCvv(paymentId: String, cvv: String): Outcome<Exception, Unit> =
         paymentMethodsService.updateCvv(paymentId, cvv)
 
-    private fun CardRejectionStateResponse.toDomain(): CardRejectionState =
-        when (this.block) {
-            true -> {
-                CardRejectionState.AlwaysRejected(
-                    errorId = this.ux?.id,
-                    title = this.ux?.title,
-                    description = this.ux?.message,
-                    actions = this.ux?.actions.takeUnless { it.isNullOrEmpty() }?.map { data ->
-                        ServerErrorAction(
-                            title = data.title,
-                            deeplinkPath = data.url.orEmpty()
-                        )
-                    }.orEmpty(),
-                    iconUrl = this.ux?.icon?.url,
-                    statusIconUrl = this.ux?.icon?.status?.url,
-                    analyticsCategories = this.ux?.categories.orEmpty()
-                )
-            }
-            false -> {
-                if (this.ux?.actions?.isNotEmpty() == true) {
-                    CardRejectionState.MaybeRejected(
-                        errorId = this.ux?.id,
-                        title = this.ux?.title,
-                        description = this.ux?.message,
-                        actions = this.ux?.actions.takeUnless { it.isNullOrEmpty() }?.map { data ->
-                            ServerErrorAction(
-                                title = data.title,
-                                deeplinkPath = data.url.orEmpty()
-                            )
-                        }.orEmpty(),
-                        iconUrl = this.ux?.icon?.url,
-                        statusIconUrl = this.ux?.icon?.status?.url,
-                        analyticsCategories = this.ux?.categories.orEmpty()
-                    )
-                } else {
-                    CardRejectionState.NotRejected
-                }
-            }
+    private fun CardRejectionStateResponse.toDomain(): CardRejectionState {
+        val error = this.ux
+        return when {
+            this.block -> CardRejectionState.AlwaysRejected(error?.toDomain())
+            error != null -> CardRejectionState.MaybeRejected(error.toDomain())
+            else -> CardRejectionState.NotRejected
         }
+    }
 
     private fun CardResponse.toPaymentMethod(): LinkedPaymentMethod.Card =
         LinkedPaymentMethod.Card(

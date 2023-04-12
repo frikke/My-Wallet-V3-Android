@@ -12,6 +12,7 @@ import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
 import com.blockchain.outcome.mapError
 import com.blockchain.utils.asFlow
+import com.blockchain.utils.toFormattedDate
 import com.dex.domain.DexAccount
 import com.dex.domain.DexBalanceService
 import com.dex.domain.DexQuote
@@ -22,7 +23,9 @@ import com.dex.domain.OutputAmount
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
+import java.math.BigDecimal
 import java.math.BigInteger
+import java.util.Date
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import org.web3j.utils.Convert
@@ -36,6 +39,11 @@ class DexQuotesRepository(
     override suspend fun quote(
         dexQuoteParams: DexQuoteParams
     ): Outcome<DexTxError, DexQuote> {
+        println(
+            "--- Fetching quote with input" +
+                " ${dexQuoteParams.amount.toStringWithSymbol()} ---" +
+                " @${Date().toFormattedDate()} "
+        )
         val address = defiWalletReceiveAddressService.receiveAddress(dexQuoteParams.sourceAccount.currency)
 
         val nativeCurrency = dexQuoteParams.sourceAccount.currency.coinNetwork?.nativeAssetTicker?.let {
@@ -73,11 +81,20 @@ class DexQuotesRepository(
                                 ?: resp.quote.buyAmount.amount.toBigInteger()
                         )
                     ),
-                    fees = calculateEstimatedQuoteFee(
+                    networkFees = calculateEstimatedQuoteFee(
                         nativeCurrency,
                         resp.transaction.gasLimit.toBigInteger(),
                         resp.transaction.gasPrice.toBigInteger()
+                    ),
+                    price = Money.fromMajor(
+                        dexQuoteParams.destinationAccount.currency,
+                        BigDecimal(resp.quote.price)
+                    ),
+                    blockchainFees = Money.fromMinor(
+                        dexQuoteParams.destinationAccount.currency,
+                        resp.quote.buyTokenFee.takeIf { it.isNotEmpty() }?.toBigInteger() ?: BigInteger.ZERO
                     )
+
                 )
             }
         }.mapError {
