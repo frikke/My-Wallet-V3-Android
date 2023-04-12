@@ -275,27 +275,34 @@ class SimpleBuyCryptoFragment :
 
     override fun onRejectableCardSelected(cardInfo: CardRejectionState) {
         when (cardInfo) {
-            is CardRejectionState.AlwaysRejected ->
-                showCardRejectionInfo(
-                    title = cardInfo.title.orEmpty(),
-                    description = cardInfo.description.orEmpty(),
-                    errorId = cardInfo.errorId,
-                    iconUrl = cardInfo.iconUrl.orEmpty(),
-                    statusIconUrl = cardInfo.statusIconUrl.orEmpty(),
-                    actions = cardInfo.actions,
-                    analyticsCategories = cardInfo.analyticsCategories,
+            is CardRejectionState.AlwaysRejected -> {
+                val error = cardInfo.error ?: ServerSideUxErrorInfo(
+                    id = null,
+                    title = getString(R.string.card_issuer_always_rejects_title),
+                    description = getString(R.string.card_issuer_always_rejects_desc),
+                    iconUrl = "",
+                    statusUrl = "",
+                    actions = emptyList(),
+                    categories = emptyList()
+                )
+                navigator().showErrorInBottomSheet(
+                    title = error.title,
+                    description = error.description,
+                    error = error.id.orEmpty(),
+                    serverSideUxErrorInfo = error,
                     closeFlowOnDeeplinkFallback = true,
                 )
-            is CardRejectionState.MaybeRejected -> showCardRejectionInfo(
-                title = cardInfo.title.orEmpty(),
-                description = cardInfo.description.orEmpty(),
-                errorId = cardInfo.errorId,
-                iconUrl = cardInfo.iconUrl.orEmpty(),
-                statusIconUrl = cardInfo.statusIconUrl.orEmpty(),
-                actions = cardInfo.actions,
-                analyticsCategories = cardInfo.analyticsCategories,
-                closeFlowOnDeeplinkFallback = false,
-            )
+            }
+            is CardRejectionState.MaybeRejected -> {
+                val error = cardInfo.error
+                navigator().showErrorInBottomSheet(
+                    title = error.title,
+                    description = error.description,
+                    error = error.id.orEmpty(),
+                    serverSideUxErrorInfo = error,
+                    closeFlowOnDeeplinkFallback = false,
+                )
+            }
             CardRejectionState.NotRejected -> {
                 // do nothing
             }
@@ -940,7 +947,7 @@ class SimpleBuyCryptoFragment :
                         secondaryText = null
                         tags = listOf(
                             TagViewState(
-                                cardState.title ?: getString(R.string.card_issuer_sometimes_rejects_title),
+                                cardState.error.title,
                                 TagType.Warning()
                             )
                         )
@@ -987,52 +994,24 @@ class SimpleBuyCryptoFragment :
 
     private fun CardRejectionState.AlwaysRejected.renderAlwaysRejectedCardError() =
         binding.btnError.apply {
+            val error = error ?: ServerSideUxErrorInfo(
+                id = null,
+                title = getString(R.string.card_issuer_always_rejects_title),
+                description = getString(R.string.card_issuer_always_rejects_desc),
+                iconUrl = "",
+                statusUrl = "",
+                actions = emptyList(),
+                categories = emptyList()
+            )
+
             visible()
-            text = title ?: getString(R.string.card_issuer_always_rejects_title)
+            text = error.title
             onClick = {
-                val tryAnotherCardActionTitle = if (actions.isNotEmpty() &&
-                    actions[0].deeplinkPath.isNotEmpty()
-                ) {
-                    actions[0].title
-                } else {
-                    getString(R.string.common_ok)
-                }
-                val learnMoreActionTitle = if (actions.isNotEmpty() &&
-                    actions.size == 2 &&
-                    actions[1].deeplinkPath.isNotEmpty()
-                ) {
-                    actions[1].title
-                } else {
-                    getString(R.string.common_ok)
-                }
-
-                val sheetTitle = title ?: getString(R.string.card_issuer_always_rejects_title)
-                val sheetSubtitle = description ?: getString(
-                    R.string.card_issuer_always_rejects_desc
-                )
-
                 navigator().showErrorInBottomSheet(
-                    title = sheetTitle,
-                    description = sheetSubtitle,
-                    error = errorId.orEmpty(),
-                    serverSideUxErrorInfo = ServerSideUxErrorInfo(
-                        id = errorId,
-                        title = sheetTitle,
-                        description = sheetSubtitle,
-                        iconUrl = iconUrl.orEmpty(),
-                        statusUrl = statusIconUrl.orEmpty(),
-                        actions = listOf(
-                            ServerErrorAction(
-                                title = tryAnotherCardActionTitle,
-                                deeplinkPath = actions[0].deeplinkPath
-                            ),
-                            ServerErrorAction(
-                                title = learnMoreActionTitle,
-                                deeplinkPath = actions[1].deeplinkPath
-                            )
-                        ),
-                        categories = analyticsCategories
-                    )
+                    title = error.title,
+                    description = error.description,
+                    error = error.id.orEmpty(),
+                    serverSideUxErrorInfo = error
                 )
             }
         }

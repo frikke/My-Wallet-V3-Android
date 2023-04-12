@@ -15,6 +15,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.common.model.ServerErrorAction
+import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.utils.unsafeLazy
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
@@ -295,6 +296,9 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
             ErrorSlidingBottomDialog().apply {
                 arguments = Bundle().apply { putParcelable(ERROR_DIALOG_DATA_KEY, errorDialogData) }
             }
+
+        fun newInstance(uxError: ServerSideUxErrorInfo): ErrorSlidingBottomDialog =
+            newInstance(uxError.toErrorDialogData())
     }
 }
 
@@ -312,6 +316,18 @@ data class ErrorDialogData(
     val statusIconUrl: String? = null,
     val errorId: String? = null
 ) : Parcelable
+
+private fun ServerSideUxErrorInfo.toErrorDialogData(): ErrorDialogData {
+    return ErrorDialogData(
+        errorId = id,
+        title = title,
+        description = description,
+        errorButtonCopies = actions.mapToErrorCopies(),
+        iconUrl = iconUrl,
+        statusIconUrl = statusUrl,
+        analyticsCategories = categories
+    )
+}
 
 fun List<ServerErrorAction>.mapToErrorCopies(): ErrorButtonCopies {
     var buttonCopies = ErrorButtonCopies()

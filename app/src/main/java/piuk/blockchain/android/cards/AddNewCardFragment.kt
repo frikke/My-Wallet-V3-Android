@@ -16,7 +16,7 @@ import com.blockchain.componentlib.utils.VibrationManager
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.domain.common.model.ServerErrorAction
+import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.payments.vgs.VgsCardTokenizerService
@@ -40,8 +40,6 @@ import piuk.blockchain.android.databinding.FragmentAddNewCardBinding
 import piuk.blockchain.android.fraud.domain.service.FraudFlow
 import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
-import piuk.blockchain.android.ui.base.ErrorButtonCopies
-import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.urllinks.URL_CREDIT_CARD_FAILURES
 import piuk.blockchain.android.util.AfterTextChangedWatcher
@@ -403,44 +401,32 @@ class AddNewCardFragment :
                 is CardRejectionState.AlwaysRejected -> {
                     btnNext.buttonState = ButtonState.Disabled
 
-                    val actionTitle = state.title ?: getString(R.string.card_issuer_always_rejects_title)
-                    val ctaCopies = getActionTexts(state.actions)
+                    val error = state.error ?: ServerSideUxErrorInfo(
+                        id = null,
+                        title = getString(R.string.card_issuer_always_rejects_title),
+                        description = getString(R.string.card_issuer_always_rejects_desc),
+                        iconUrl = "",
+                        statusUrl = "",
+                        actions = emptyList(),
+                        categories = emptyList()
+                    )
 
                     VibrationManager.vibrate(requireContext(), intensity = VibrationManager.VibrationIntensity.High)
 
-                    showCardRejectionAlert(title = actionTitle, isError = true)
-                    showCardRejectionLearnMore(
-                        errorId = state.errorId,
-                        title = actionTitle,
-                        description = state.description ?: getString(R.string.card_issuer_always_rejects_desc),
-                        primaryCtaText = ctaCopies.first,
-                        secondaryCtaText = ctaCopies.second,
-                        iconUrl = state.iconUrl,
-                        statusIconUrl = state.statusIconUrl,
-                        analyticsCategories = state.analyticsCategories
-                    )
+                    showCardRejectionAlert(title = error.title, isError = true)
+                    showCardRejectionLearnMore(error)
                 }
                 is CardRejectionState.MaybeRejected -> {
                     if (isCardInfoDataValid()) {
                         btnNext.buttonState = ButtonState.Enabled
                     }
 
-                    val actionTitle = state.title ?: getString(R.string.card_issuer_sometimes_rejects_title)
-                    val ctaCopies = getActionTexts(state.actions)
+                    val error = state.error
 
                     VibrationManager.vibrate(requireContext(), intensity = VibrationManager.VibrationIntensity.Medium)
 
-                    showCardRejectionAlert(title = actionTitle, isError = false)
-                    showCardRejectionLearnMore(
-                        errorId = state.errorId,
-                        title = actionTitle,
-                        description = state.description ?: getString(R.string.card_issuer_sometimes_rejects_desc),
-                        primaryCtaText = ctaCopies.first,
-                        secondaryCtaText = ctaCopies.second,
-                        iconUrl = state.iconUrl,
-                        statusIconUrl = state.statusIconUrl,
-                        analyticsCategories = state.analyticsCategories
-                    )
+                    showCardRejectionAlert(title = error.title, isError = false)
+                    showCardRejectionLearnMore(error)
                 }
                 CardRejectionState.NotRejected -> {
                     resetCardRejectionState()
@@ -451,22 +437,6 @@ class AddNewCardFragment :
                 }
             }
         }
-    }
-
-    private fun getActionTexts(actions: List<ServerErrorAction>): Pair<String, String> {
-        val primaryCtaText = if (actions.isNotEmpty() && actions[0].deeplinkPath.isNotEmpty()) {
-            actions[0].title
-        } else {
-            getString(R.string.common_ok)
-        }
-        val secondaryCtaText = if (actions.isNotEmpty() && actions.size == 2 && actions[1].deeplinkPath.isNotEmpty()) {
-            secondaryCtaLink = actions[1].deeplinkPath
-            actions[1].title
-        } else {
-            getString(R.string.common_ok)
-        }
-
-        return Pair(primaryCtaText, secondaryCtaText)
     }
 
     private fun showCardRejectionAlert(title: String, isError: Boolean) {
@@ -480,16 +450,7 @@ class AddNewCardFragment :
         }
     }
 
-    private fun showCardRejectionLearnMore(
-        errorId: String?,
-        title: String,
-        description: String,
-        primaryCtaText: String,
-        secondaryCtaText: String,
-        iconUrl: String?,
-        statusIconUrl: String?,
-        analyticsCategories: List<String>
-    ) {
+    private fun showCardRejectionLearnMore(error: ServerSideUxErrorInfo) {
         binding.cardInputAlertInfo.apply {
             style = ComposeTypographies.Caption1
             textColor = ComposeColors.Primary
@@ -497,22 +458,7 @@ class AddNewCardFragment :
             text = getString(R.string.common_learn_more)
             isMultiline = false
             onClick = {
-                showBottomSheet(
-                    ErrorSlidingBottomDialog.newInstance(
-                        ErrorDialogData(
-                            errorId = errorId,
-                            title = title,
-                            description = description,
-                            errorButtonCopies = ErrorButtonCopies(
-                                primaryCtaText,
-                                secondaryCtaText
-                            ),
-                            iconUrl = iconUrl,
-                            statusIconUrl = statusIconUrl,
-                            analyticsCategories = analyticsCategories
-                        )
-                    )
-                )
+                showBottomSheet(ErrorSlidingBottomDialog.newInstance(error))
             }
             visible()
         }

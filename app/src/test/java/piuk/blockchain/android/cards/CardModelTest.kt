@@ -5,6 +5,7 @@ import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorCodes
 import com.blockchain.api.payments.data.CardTokenIdResponse
 import com.blockchain.api.services.PaymentsService
+import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.CardStatus
@@ -459,13 +460,15 @@ class CardModelTest {
     fun `when card rejection state returns always rejected then state is updated`() {
         val binNumber = "1234"
         val expectedResult = CardRejectionState.AlwaysRejected(
-            errorId = "errorId",
-            title = "title",
-            description = "description",
-            actions = emptyList(),
-            iconUrl = null,
-            statusIconUrl = null,
-            analyticsCategories = emptyList()
+            ServerSideUxErrorInfo(
+                id = "errorId",
+                title = "title",
+                description = "description",
+                actions = emptyList(),
+                iconUrl = "",
+                statusUrl = "",
+                categories = emptyList()
+            )
         )
         whenever(interactor.checkNewCardRejectionRate(binNumber)).thenReturn(
             Single.just(expectedResult)
@@ -485,13 +488,15 @@ class CardModelTest {
     fun `when card rejection state returns sometimes rejected then state is updated`() {
         val binNumber = "1234"
         val expectedResult = CardRejectionState.MaybeRejected(
-            errorId = "errorId",
-            title = "title",
-            description = "description",
-            actions = emptyList(),
-            iconUrl = null,
-            statusIconUrl = null,
-            analyticsCategories = emptyList()
+            ServerSideUxErrorInfo(
+                id = "errorId",
+                title = "title",
+                description = "description",
+                actions = emptyList(),
+                iconUrl = "",
+                statusUrl = "",
+                categories = emptyList()
+            )
         )
         whenever(interactor.checkNewCardRejectionRate(binNumber)).thenReturn(
             Single.just(expectedResult)
