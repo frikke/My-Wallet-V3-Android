@@ -24,3 +24,15 @@ fun String.abbreviate(startLength: Int, endLength: Int, indicator: String = "...
         this
     }
 }
+
+/**
+ * 01 -> 1
+ * 0.10 -> 0.10
+ */
+fun String.removeLeadingZeros(): String {
+    if(isBlank()) return this
+
+    val parts = split(".")
+    val nonZeroLeading = parts[0].replaceFirst("^0+(?!$)".toRegex(), "")
+    return nonZeroLeading.ifEmpty { "0" } + parts.getOrNull(1)?.let { "." + parts[1] }.orEmpty()
+}

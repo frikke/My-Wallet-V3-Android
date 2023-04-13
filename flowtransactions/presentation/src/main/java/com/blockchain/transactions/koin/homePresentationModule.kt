@@ -9,7 +9,9 @@ val transactionsPresentationModule = module {
     scope(payloadScopeQualifier) {
         viewModel {
             EnterAmountViewModel(
-                swapService = get()
+                swapService = get(),
+                exchangeRates=   get(),
+                currencyPrefs=   get()
             )
         }
     }

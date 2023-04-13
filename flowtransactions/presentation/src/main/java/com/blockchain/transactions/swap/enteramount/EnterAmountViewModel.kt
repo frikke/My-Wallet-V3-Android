@@ -5,20 +5,28 @@ import com.blockchain.commonarch.presentation.mvi_v2.EmptyNavEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.componentlib.control.CurrencyValue
+import com.blockchain.componentlib.control.InputCurrency
+import com.blockchain.componentlib.control.flip
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.transactions.swap.SwapService
-import info.blockchain.balance.CryptoCurrency
+import com.blockchain.utils.removeLeadingZeros
 import info.blockchain.balance.Currency
-import info.blockchain.balance.FiatCurrency
-import kotlinx.coroutines.flow.collectLatest
+import info.blockchain.balance.Money
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 
 /**
  * @property fromTicker if we come from Coinview we should have preset FROM
  */
 class EnterAmountViewModel(
     private val fromTicker: String? = null,
-    private val swapService: SwapService
+    private val swapService: SwapService,
+    private val exchangeRates: ExchangeRatesDataManager,
+    private val currencyPrefs: CurrencyPrefs
 ) : MviViewModel<EnterAmountIntent, EnterAmountViewState, EnterAmountModelState, EmptyNavEvent, ModelConfigArgs.NoArgs>(
     EnterAmountModelState()
 ) {
@@ -28,10 +36,39 @@ class EnterAmountViewModel(
     override fun reduce(state: EnterAmountModelState): EnterAmountViewState {
         return with(state) {
             EnterAmountViewState(
+                selectedInput = selectedInput,
                 fromAsset = fromAccount?.currency?.toViewState(),
                 toAsset = toAccount?.currency?.toViewState(),
-                fiatAmount = fiatAmount,
-                cryptoAmount = cryptoAmount
+                fiatAmount = fiatCurrency?.let {
+                    CurrencyValue(
+                        value = if (selectedInput == InputCurrency.Currency1) {
+                            fiatAmountUserInput
+                        } else {
+//                            fiatAmountUserInput.ifEmpty { "0" }
+                            // format the unfocused value?
+                             fiatAmount?.toStringWithoutSymbol().orEmpty().ifEmpty { "0" }
+                        },
+                        maxFractionDigits = fiatAmount?.userDecimalPlaces ?: 2,
+                        ticker = it.symbol,
+                        isPrefix = true,
+                        separateWithSpace = false
+                    )
+                },
+                cryptoAmount = fromAccount?.currency?.let {
+                    CurrencyValue(
+                        value = if (selectedInput == InputCurrency.Currency2) {
+                            cryptoAmountUserInput
+                        } else {
+//                            cryptoAmountUserInput.ifEmpty { "0" }
+                            // format the unfocused value?
+                             cryptoAmount?.toStringWithoutSymbol().orEmpty().ifEmpty { "0" }
+                        },
+                        maxFractionDigits = cryptoAmount?.userDecimalPlaces ?: 8,
+                        ticker = it.displayTicker,
+                        isPrefix = false,
+                        separateWithSpace = true
+                    )
+                }
             )
         }
     }
@@ -39,57 +76,90 @@ class EnterAmountViewModel(
     override suspend fun handleIntent(modelState: EnterAmountModelState, intent: EnterAmountIntent) {
         when (intent) {
             EnterAmountIntent.LoadData -> {
+                updateState {
+                    it.copy(
+                        fiatCurrency = currencyPrefs.selectedFiatCurrency
+                    )
+                }
+
                 viewModelScope.launch {
-                    swapService.sourceAccounts()
-                        .collectLatest {
-                            (it as? DataResource.Data)?.data?.let { accounts->
-                                updateState {
-                                    it.copy(
-                                        fromAccount = accounts.first { it.currency.networkTicker == "BTC" },
-                                        toAccount = accounts.first { it.currency.networkTicker == "DOGE" },
-                                        fiatAmount = CurrencyValue(
-                                            value = "100", ticker = "$", isPrefix = true, separateWithSpace = false
-                                        ),
-                                        cryptoAmount = CurrencyValue(
-                                            value = "200", ticker = "BTC", isPrefix = false, separateWithSpace = true
-                                        ),
-                                    )
-                                }
-                            }
+                    val accounts = (swapService.sourceAccounts().filter { it is DataResource.Data }
+                        .firstOrNull() as? DataResource.Data)?.data
+
+                    accounts?.let {
+                        updateState {
+                            it.copy(
+                                fromAccount = accounts.first { it.currency.networkTicker == "BTC" },
+                                toAccount = accounts.first { it.currency.networkTicker == "DOGE" },
+                                fiatAmount = Money.fromMajor(currencyPrefs.selectedFiatCurrency, BigDecimal.ZERO),
+                                cryptoAmount = Money.fromMajor(
+                                    accounts.first { it.currency.networkTicker == "BTC" }.currency, BigDecimal.ZERO
+                                ),
+                            )
                         }
+
+                        val exchangeRate = (exchangeRates.exchangeRateToUserFiatFlow(
+                            accounts.first { it.currency.networkTicker == "BTC" }.currency
+                        ).filter { it is DataResource.Data }.firstOrNull() as? DataResource.Data)?.data
+
+                        updateState {
+                            it.copy(
+                                exchangeRate = exchangeRate
+                            )
+                        }
+                    }
+                }
+            }
+            EnterAmountIntent.FlipInputs -> {
+                updateState {
+                    it.copy(
+                        selectedInput = it.selectedInput.flip()
+                    )
                 }
             }
             is EnterAmountIntent.FiatAmountChanged -> {
-                check(modelState.fiatAmount != null)
-                check(modelState.cryptoAmount != null)
+                val fiatCurrency = modelState.fiatCurrency
+                check(fiatCurrency != null)
 
-                viewModelScope.launch {
-                    val cryptoAmount = swapService.fiatToCrypto(
-                        intent.amount, FiatCurrency.Dollars, CryptoCurrency.ETHER
+                val a: Money? = modelState.exchangeRate?.inverse()?.convert(
+                    Money.fromMajor(
+                        currencyPrefs.selectedFiatCurrency,
+                        intent.amount.ifEmpty { "0" }.toBigDecimal()
                     )
-                    updateState {
-                        it.copy(
-                            fiatAmount = it.fiatAmount?.copy(value = intent.amount),
-                            cryptoAmount = it.cryptoAmount?.copy(value = cryptoAmount)
-                        )
-                    }
+                )
+                updateState {
+                    it.copy(
+                        fiatAmountUserInput = intent.amount.removeLeadingZeros(),
+                        fiatAmount = intent.amount.takeIf { it.isNotEmpty() }
+                            ?.let { Money.fromMajor(fiatCurrency, it.toBigDecimal()) },
+                        cryptoAmountUserInput = a?.toBigDecimal()?.stripTrailingZeros()
+                            ?.takeIf { it != BigDecimal.ZERO }
+                            ?.toString().orEmpty(),
+                        cryptoAmount = a
+                    )
                 }
             }
             is EnterAmountIntent.CryptoAmountChanged -> {
-                check(modelState.fiatAmount != null)
-                check(modelState.cryptoAmount != null)
+                val fromCurrency = modelState.fromAccount?.currency
+                check(fromCurrency != null)
 
-                viewModelScope.launch {
-                    val fiatAmount = swapService.cryptoToFiat(
-                        intent.amount, FiatCurrency.Dollars, CryptoCurrency.ETHER
+                val a: Money? = modelState.exchangeRate?.convert(
+                    Money.fromMajor(
+                        fromCurrency,
+                        intent.amount.ifEmpty { "0" }.toBigDecimal()
                     )
+                )
 
-                    updateState {
-                        it.copy(
-                            cryptoAmount = it.cryptoAmount?.copy(value = intent.amount),
-                            fiatAmount = it.fiatAmount?.copy(value = fiatAmount),
-                        )
-                    }
+                updateState {
+                    it.copy(
+                        cryptoAmountUserInput = intent.amount.removeLeadingZeros(),
+                        cryptoAmount = intent.amount.takeIf { it.isNotEmpty() }
+                            ?.let { Money.fromMajor(fromCurrency, it.toBigDecimal()) },
+                        fiatAmountUserInput = a?.toBigDecimal()?.stripTrailingZeros()
+                            ?.takeIf { it != BigDecimal.ZERO }
+                            ?.toString().orEmpty(),
+                        fiatAmount = a
+                    )
                 }
             }
         }
@@ -97,6 +167,6 @@ class EnterAmountViewModel(
 }
 
 private fun Currency.toViewState() = EnterAmountAssetState(
-    iconUrl =  logo,
-    ticker =  displayTicker
+    iconUrl = logo,
+    ticker = displayTicker
 )
