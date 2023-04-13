@@ -30,7 +30,7 @@ fun String.abbreviate(startLength: Int, endLength: Int, indicator: String = "...
  * 0.10 -> 0.10
  */
 fun String.removeLeadingZeros(): String {
-    if(isBlank()) return this
+    if (isBlank()) return this
 
     val parts = split(".")
     val nonZeroLeading = parts[0].replaceFirst("^0+(?!$)".toRegex(), "")

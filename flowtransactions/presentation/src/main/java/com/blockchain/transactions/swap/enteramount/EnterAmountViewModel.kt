@@ -14,10 +14,10 @@ import com.blockchain.transactions.swap.SwapService
 import com.blockchain.utils.removeLeadingZeros
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
+import java.math.BigDecimal
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import java.math.BigDecimal
 
 /**
  * @property fromTicker if we come from Coinview we should have preset FROM
@@ -46,7 +46,7 @@ class EnterAmountViewModel(
                         } else {
 //                            fiatAmountUserInput.ifEmpty { "0" }
                             // format the unfocused value?
-                             fiatAmount?.toStringWithoutSymbol().orEmpty().ifEmpty { "0" }
+                            fiatAmount?.toStringWithoutSymbol().orEmpty().ifEmpty { "0" }
                         },
                         maxFractionDigits = fiatAmount?.userDecimalPlaces ?: 2,
                         ticker = it.symbol,
@@ -61,7 +61,7 @@ class EnterAmountViewModel(
                         } else {
 //                            cryptoAmountUserInput.ifEmpty { "0" }
                             // format the unfocused value?
-                             cryptoAmount?.toStringWithoutSymbol().orEmpty().ifEmpty { "0" }
+                            cryptoAmount?.toStringWithoutSymbol().orEmpty().ifEmpty { "0" }
                         },
                         maxFractionDigits = cryptoAmount?.userDecimalPlaces ?: 8,
                         ticker = it.displayTicker,
@@ -83,8 +83,10 @@ class EnterAmountViewModel(
                 }
 
                 viewModelScope.launch {
-                    val accounts = (swapService.sourceAccounts().filter { it is DataResource.Data }
-                        .firstOrNull() as? DataResource.Data)?.data
+                    val accounts = (
+                        swapService.sourceAccounts().filter { it is DataResource.Data }
+                            .firstOrNull() as? DataResource.Data
+                        )?.data
 
                     accounts?.let {
                         updateState {
@@ -98,9 +100,11 @@ class EnterAmountViewModel(
                             )
                         }
 
-                        val exchangeRate = (exchangeRates.exchangeRateToUserFiatFlow(
-                            accounts.first { it.currency.networkTicker == "BTC" }.currency
-                        ).filter { it is DataResource.Data }.firstOrNull() as? DataResource.Data)?.data
+                        val exchangeRate = (
+                            exchangeRates.exchangeRateToUserFiatFlow(
+                                accounts.first { it.currency.networkTicker == "BTC" }.currency
+                            ).filter { it is DataResource.Data }.firstOrNull() as? DataResource.Data
+                            )?.data
 
                         updateState {
                             it.copy(

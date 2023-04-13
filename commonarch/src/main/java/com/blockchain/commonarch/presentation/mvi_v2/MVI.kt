@@ -37,7 +37,7 @@ interface Intent<TModelState : ModelState> {
  * NavigationEvent represents a navigation event that is triggered by a Model
  */
 interface NavigationEvent
-class EmptyNavEvent : NavigationEvent
+object EmptyNavEvent : NavigationEvent
 
 /**
  * This interface should be implemented by the class that handles the navigation

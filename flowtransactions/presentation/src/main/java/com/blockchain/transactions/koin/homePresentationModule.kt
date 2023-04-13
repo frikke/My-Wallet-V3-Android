@@ -10,8 +10,8 @@ val transactionsPresentationModule = module {
         viewModel {
             EnterAmountViewModel(
                 swapService = get(),
-                exchangeRates=   get(),
-                currencyPrefs=   get()
+                exchangeRates = get(),
+                currencyPrefs = get()
             )
         }
     }

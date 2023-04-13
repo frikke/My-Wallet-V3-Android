@@ -68,7 +68,6 @@ fun EnterAmount(
                 fiatAmount = fiatAmount,
                 onFiatAmountChanged = {
                     viewModel.onIntent(EnterAmountIntent.FiatAmountChanged(it))
-
                 },
                 cryptoAmount = cryptoAmount,
                 onCryptoAmountChanged = {

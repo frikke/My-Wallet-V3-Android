@@ -1,11 +1,9 @@
 package com.blockchain.componentlib.control
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -28,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
@@ -182,13 +179,6 @@ private fun BoxScope.CurrencyInput(
         )
     }
 
-    val scaleAnim by animateFloatAsState(
-        targetValue = if (focused) 1F else 0.5F,
-        animationSpec = tween(
-            durationMillis = BALANCE_OFFSET_ANIM_DURATION
-        )
-    )
-
     val textSizeAnim by animateFloatAsState(
         targetValue = if (focused) 40F else 20F,
         animationSpec = tween(
@@ -197,11 +187,7 @@ private fun BoxScope.CurrencyInput(
     )
 
     val translation by animateIntAsState(
-        // scaled to 0.5 makes it half size and centered in it's 100% space
-        // we want to make it sit right below the top field
-        // i.e. cover the empty 25% space on top
-        // -> basically move it down to <height> and up 25% == 75% of height
-        targetValue = if (focused) 0 else (maxHeight).toInt(),
+        targetValue = if (focused) 0 else maxHeight,
         animationSpec = tween(
             durationMillis = BALANCE_OFFSET_ANIM_DURATION
         )
@@ -214,13 +200,11 @@ private fun BoxScope.CurrencyInput(
         )
     )
 
-    val interactionSource1 = remember { MutableInteractionSource() }
+    val interactionSource = remember { MutableInteractionSource() }
     BasicTextField(
         modifier = modifier
             .graphicsLayer {
                 translationY = translation.toFloat()
-//                scaleX = scaleAnim
-//                scaleY = scaleAnim
             }
             .align(Alignment.TopCenter)
             .focusRequester(focusRequester)
@@ -232,7 +216,7 @@ private fun BoxScope.CurrencyInput(
                 onCurrencyValueChange(it)
             }
         },
-        interactionSource = interactionSource1,
+        interactionSource = interactionSource,
         singleLine = true,
         textStyle = AppTheme.typography.display.copy(
             fontSize = textSizeAnim.sp,
@@ -252,7 +236,7 @@ private fun BoxScope.CurrencyInput(
             innerTextField = innerTextField,
             singleLine = true,
             visualTransformation = VisualTransformation.None,
-            interactionSource = interactionSource1,
+            interactionSource = interactionSource,
             contentPadding = PaddingValues(0.dp),
             enabled = true,
         )
