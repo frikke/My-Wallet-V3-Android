@@ -8,11 +8,13 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxResult
 import com.blockchain.core.settings.SettingsDataManager
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.store.Store
 import com.blockchain.storedatasource.FlushableDataSource
+import com.blockchain.utils.then
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.wallet.api.data.FeeOptions
@@ -55,6 +57,10 @@ abstract class OnChainTxEngineBase(
             .onErrorComplete()
             .doOnComplete {
                 txTarget.onTxCompleted(txResult)
+            }
+            .then {
+                // Refresh balances and ignore any error
+                sourceAccount.balanceRx(FreshnessStrategy.Fresh).firstOrError().ignoreElement().onErrorComplete()
             }
 
     protected fun mapSavedFeeToFeeLevel(feeType: Int?): FeeLevel =

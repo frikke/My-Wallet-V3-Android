@@ -532,7 +532,6 @@ val coreModule = module {
         scoped<NonCustodialService> {
             NonCustodialRepository(
                 dynamicSelfCustodyService = get(),
-                currencyPrefs = get(),
                 assetCatalogue = get(),
                 subscriptionsStore = get(),
                 coinTypeStore = get(),

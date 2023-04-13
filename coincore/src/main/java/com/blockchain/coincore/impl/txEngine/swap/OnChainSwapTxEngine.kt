@@ -20,8 +20,10 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.swap.SwapTransactionsStore
 import com.blockchain.store.Store
 import com.blockchain.storedatasource.FlushableDataSource
+import com.blockchain.utils.then
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Observables
 
@@ -164,4 +166,8 @@ class OnChainSwapTxEngine(
                             .updateOrderStatus(order.id)
                     }
             }
+
+    override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
+        super.doPostExecute(pendingTx, txResult)
+            .then { engine.doPostExecute(pendingTx, txResult) }
 }
