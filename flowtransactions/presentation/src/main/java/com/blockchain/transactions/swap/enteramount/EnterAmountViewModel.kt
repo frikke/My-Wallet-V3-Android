@@ -40,7 +40,7 @@ class EnterAmountViewModel(
         when (intent) {
             EnterAmountIntent.LoadData -> {
                 viewModelScope.launch {
-                    swapService.sourceAccounts()
+                    swapService.custodialSourceAccounts()
                         .collectLatest {
                             (it as? DataResource.Data)?.data?.let { accounts->
                                 updateState {
