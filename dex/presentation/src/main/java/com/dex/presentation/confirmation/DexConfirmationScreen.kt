@@ -135,6 +135,9 @@ fun DexConfirmationScreen(
                     top = AppTheme.dimensions.standardSpacing
                 ),
                 onClick = {
+/*
+                    viewModel.onIntent(ConfirmationIntent.ConfirmSwap)
+*/
                 }
             )
         }

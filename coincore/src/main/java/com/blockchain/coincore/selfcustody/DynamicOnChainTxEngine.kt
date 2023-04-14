@@ -20,6 +20,7 @@ import com.blockchain.coincore.updateTxValidity
 import com.blockchain.coincore.xlm.STATE_MEMO
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSignature
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.extensions.filterNotNullKeys
 import com.blockchain.logging.Logger
 import com.blockchain.nabu.datamanagers.TransactionError
@@ -29,6 +30,7 @@ import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.storedatasource.FlushableDataSource
 import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.utils.then
+import com.blockchain.utils.thenSingle
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -203,6 +205,11 @@ class DynamicOnChainTxEngine(
             .onErrorResumeNext {
                 Logger.e(it)
                 Single.error(TransactionError.ExecutionFailed)
+            }
+            .flatMap { response ->
+                // Refresh the balances
+                sourceAccount.balanceRx(FreshnessStrategy.Fresh).firstOrError().ignoreElement().onErrorComplete()
+                    .thenSingle { Single.just(response) }
             }
             .flatMap {
                 Single.just(TxResult.HashedTxResult(it.txId, pendingTx.amount))

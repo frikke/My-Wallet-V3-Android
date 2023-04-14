@@ -18,6 +18,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.card.TwoAssetAction
 import com.blockchain.componentlib.control.CurrencyValue
+import com.blockchain.componentlib.control.InputCurrency
 import com.blockchain.componentlib.control.TwoCurrenciesInput
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
@@ -61,16 +62,19 @@ fun EnterAmount(
             viewState.cryptoAmount,
         ) { fromAsset, toAsset, fiatAmount, cryptoAmount ->
             EnterAmountScreen(
+                selected = viewState.selectedInput,
                 from = fromAsset,
                 to = toAsset,
                 fiatAmount = fiatAmount,
                 onFiatAmountChanged = {
-                    viewModel.onIntent(EnterAmountIntent.FiatAmountChanged(amount = it))
-
+                    viewModel.onIntent(EnterAmountIntent.FiatAmountChanged(it))
                 },
                 cryptoAmount = cryptoAmount,
                 onCryptoAmountChanged = {
-                    viewModel.onIntent(EnterAmountIntent.CryptoAmountChanged(amount = it))
+                    viewModel.onIntent(EnterAmountIntent.CryptoAmountChanged(it))
+                },
+                onFlipInputs = {
+                    viewModel.onIntent(EnterAmountIntent.FlipInputs)
                 }
             )
         }
@@ -79,12 +83,14 @@ fun EnterAmount(
 
 @Composable
 private fun EnterAmountScreen(
+    selected: InputCurrency,
     from: EnterAmountAssetState,
     to: EnterAmountAssetState,
     fiatAmount: CurrencyValue,
     onFiatAmountChanged: (String) -> Unit,
     cryptoAmount: CurrencyValue,
     onCryptoAmountChanged: (String) -> Unit,
+    onFlipInputs: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -95,10 +101,12 @@ private fun EnterAmountScreen(
         Spacer(modifier = Modifier.weight(1F))
 
         TwoCurrenciesInput(
+            selected = selected,
             currency1 = fiatAmount,
             onCurrency1ValueChange = onFiatAmountChanged,
             currency2 = cryptoAmount,
-            onCurrency2ValueChange = onCryptoAmountChanged
+            onCurrency2ValueChange = onCryptoAmountChanged,
+            onFlipInputs = onFlipInputs,
         )
 
         Spacer(modifier = Modifier.weight(1F))
@@ -128,6 +136,7 @@ private fun EnterAmountScreen(
 @Composable
 private fun PreviewEnterAmountScreen() {
     EnterAmountScreen(
+        selected = InputCurrency.Currency1,
         from = EnterAmountAssetState(
             iconUrl = "",
             ticker = "BTC"
@@ -137,12 +146,13 @@ private fun PreviewEnterAmountScreen() {
             ticker = "ETH"
         ),
         fiatAmount = CurrencyValue(
-            value = "2,100.00", ticker = "$", isPrefix = true, separateWithSpace = false
+            value = "2,100.00", maxFractionDigits = 2, ticker = "$", isPrefix = true, separateWithSpace = false
         ),
         onFiatAmountChanged = {},
         cryptoAmount = CurrencyValue(
-            value = "1.1292", ticker = "ETH", isPrefix = false, separateWithSpace = true
+            value = "1.1292", maxFractionDigits = 8, ticker = "ETH", isPrefix = false, separateWithSpace = true
         ),
-        onCryptoAmountChanged = {}
+        onCryptoAmountChanged = {},
+        onFlipInputs = {}
     )
 }

@@ -1,5 +1,6 @@
 package com.dex.domain
 
+import com.blockchain.core.chains.ethereum.EvmNetworkPreImageSigner
 import com.blockchain.extensions.safeLet
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.getOrNull
@@ -35,6 +36,8 @@ import kotlinx.coroutines.launch
 class DexTransactionProcessor(
     private val dexQuotesService: DexQuotesService,
     private val balanceService: DexBalanceService,
+    private val dexTransactionService: DexTransactionService,
+    private val evmNetworkSigner: EvmNetworkPreImageSigner,
     private val allowanceService: AllowanceService
 ) {
 
@@ -106,7 +109,7 @@ class DexTransactionProcessor(
             combine(
                 quoteInput,
                 updateQuote,
-                hasActiveSubscribers.filter { it }
+                hasActiveSubscribers.debounce(1000).distinctUntilChanged().filter { it }
             ) { input, _, _ ->
                 input
             }
@@ -152,6 +155,22 @@ class DexTransactionProcessor(
         _dexTransaction.update {
             it.copy(
                 slippage = slippage
+            )
+        }
+    }
+
+    suspend fun execute() {
+        val transaction = _dexTransaction.value
+        val coinNetwork = transaction.sourceAccount.currency.coinNetwork
+        check(coinNetwork != null)
+        val builtTx = dexTransactionService.buildTx(_dexTransaction.value).getOrNull()
+        builtTx?.let {
+            dexTransactionService.pushTx(
+                coinNetwork = coinNetwork,
+                rawTx = it.rawTx,
+                signatures = it.preImages.map { unsignedPreImage ->
+                    evmNetworkSigner.signPreImage(unsignedPreImage)
+                }
             )
         }
     }

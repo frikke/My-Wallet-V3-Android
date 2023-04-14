@@ -9,7 +9,6 @@ import com.blockchain.api.selfcustody.TransactionResponse
 import com.blockchain.api.services.DynamicSelfCustodyService
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.FeeLevel
-import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialAccountBalance
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialDerivedAddress
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialTxHistoryItem
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSignature
@@ -21,7 +20,6 @@ import com.blockchain.domain.wallet.CoinType
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.asSingle
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -42,7 +40,6 @@ import org.spongycastle.util.encoders.Hex
 
 internal class NonCustodialRepository(
     private val dynamicSelfCustodyService: DynamicSelfCustodyService,
-    private val currencyPrefs: CurrencyPrefs,
     private val subscriptionsStore: NonCustodialSubscriptionsStore,
     private val assetCatalogue: AssetCatalogue,
     private val coinTypeStore: CoinTypeStore,
@@ -106,22 +103,6 @@ internal class NonCustodialRepository(
             currency = currency
         )
             .map { it.success }
-
-    override suspend fun getBalances(currencies: List<String>):
-        Outcome<Exception, List<NonCustodialAccountBalance>> =
-        dynamicSelfCustodyService.getBalances(
-            currencies = currencies,
-            fiatCurrency = currencyPrefs.selectedFiatCurrency.networkTicker
-        ).map { balancesResponse ->
-            balancesResponse.balances.mapNotNull { balanceResponse ->
-                NonCustodialAccountBalance(
-                    networkTicker = balanceResponse.currency,
-                    amount = balanceResponse.balance?.amount ?: return@mapNotNull null,
-                    pending = balanceResponse.pending?.amount ?: return@mapNotNull null,
-                    price = balanceResponse.price
-                )
-            }
-        }
 
     override suspend fun getAddresses(currencies: List<String>):
         Outcome<Exception, List<NonCustodialDerivedAddress>> =
