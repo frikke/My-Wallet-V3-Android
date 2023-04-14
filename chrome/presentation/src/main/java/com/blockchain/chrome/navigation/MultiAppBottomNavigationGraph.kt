@@ -66,6 +66,7 @@ fun MultiAppBottomNavigationHost(
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
     processAnnouncementUrl: (String) -> Unit,
+    openSwap: () -> Unit
 ) {
 
     val walletMode by get<WalletModeService>(scope = payloadScope)
@@ -129,6 +130,7 @@ fun MultiAppBottomNavigationHost(
                         openMoreQuickActions = openMoreQuickActions,
                         startPhraseRecovery = startPhraseRecovery,
                         processAnnouncementUrl = processAnnouncementUrl,
+                        openSwap = openSwap
                     )
                 }
             )

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -29,12 +30,14 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.chrome.BALANCE_OFFSET_ANIM_DURATION
 import com.blockchain.componentlib.icons.Icons
@@ -42,9 +45,13 @@ import com.blockchain.componentlib.icons.UnfoldMore
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.clickableNoEffect
+import java.text.DecimalFormatSymbols
+import java.util.Locale
+import java.util.regex.Pattern
 
 data class CurrencyValue(
     val value: String,
+    val maxFractionDigits: Int,
     val ticker: String,
     val isPrefix: Boolean,
     val separateWithSpace: Boolean
@@ -54,22 +61,20 @@ enum class InputCurrency {
     Currency1, Currency2
 }
 
-private fun InputCurrency.flip() = when (this) {
+fun InputCurrency.flip() = when (this) {
     InputCurrency.Currency1 -> InputCurrency.Currency2
     InputCurrency.Currency2 -> InputCurrency.Currency1
 }
 
 @Composable
 fun TwoCurrenciesInput(
+    selected: InputCurrency,
     currency1: CurrencyValue,
     onCurrency1ValueChange: (String) -> Unit,
     currency2: CurrencyValue,
-    onCurrency2ValueChange: (String) -> Unit
+    onCurrency2ValueChange: (String) -> Unit,
+    onFlipInputs: () -> Unit,
 ) {
-    var selected: InputCurrency by remember {
-        mutableStateOf(InputCurrency.Currency1)
-    }
-
     val localDensity = LocalDensity.current
 
     var textFieldHeight by remember { mutableStateOf(0) }
@@ -102,7 +107,6 @@ fun TwoCurrenciesInput(
                 }
             )
     ) {
-
         CurrencyInput(
             modifier = Modifier
                 .onGloballyPositioned {
@@ -110,6 +114,7 @@ fun TwoCurrenciesInput(
                         textFieldHeight = it.size.height
                     }
                 },
+            maxHeight = textFieldHeight,
             focused = selected == InputCurrency.Currency1,
             focusRequester = focusRequester1,
             currency = currency1,
@@ -117,6 +122,7 @@ fun TwoCurrenciesInput(
         )
 
         CurrencyInput(
+            maxHeight = textFieldHeight,
             focused = selected == InputCurrency.Currency2,
             focusRequester = focusRequester2,
             currency = currency2,
@@ -141,7 +147,7 @@ fun TwoCurrenciesInput(
             Image(
                 modifier = Modifier
                     .clickableNoEffect {
-                        selected = selected.flip()
+                        onFlipInputs()
                     },
                 imageResource = Icons.run {
                     UnfoldMore.withBackground(
@@ -160,26 +166,28 @@ fun TwoCurrenciesInput(
 @Composable
 private fun BoxScope.CurrencyInput(
     modifier: Modifier = Modifier,
+    maxHeight: Int,
     focused: Boolean,
     focusRequester: FocusRequester,
     currency: CurrencyValue,
     onCurrencyValueChange: (String) -> Unit,
 ) {
-    var height by remember { mutableStateOf(0) }
+    val pattern = remember(currency.maxFractionDigits) {
+        val decimalSeparator = DecimalFormatSymbols(Locale.getDefault()).decimalSeparator.toString()
+        Pattern.compile(
+            "-?\\d{0,100}+((\\$decimalSeparator\\d{0,${currency.maxFractionDigits}})?)||(\\$decimalSeparator)?"
+        )
+    }
 
-    val scaleAnim by animateFloatAsState(
-        targetValue = if (focused) 1F else 0.5F,
+    val textSizeAnim by animateFloatAsState(
+        targetValue = if (focused) 40F else 20F,
         animationSpec = tween(
             durationMillis = BALANCE_OFFSET_ANIM_DURATION
         )
     )
 
     val translation by animateIntAsState(
-        // scaled to 0.5 makes it half size and centered in it's 100% space
-        // we want to make it sit right below the top field
-        // i.e. cover the empty 25% space on top
-        // -> basically move it down to <height> and up 25% == 75% of height
-        targetValue = if (focused) 0 else (height * 0.75).toInt(),
+        targetValue = if (focused) 0 else maxHeight,
         animationSpec = tween(
             durationMillis = BALANCE_OFFSET_ANIM_DURATION
         )
@@ -192,28 +200,26 @@ private fun BoxScope.CurrencyInput(
         )
     )
 
-    val interactionSource1 = remember { MutableInteractionSource() }
+    val interactionSource = remember { MutableInteractionSource() }
     BasicTextField(
         modifier = modifier
-            .onGloballyPositioned {
-                if (height == 0) {
-                    height = it.size.height
-                }
-            }
             .graphicsLayer {
                 translationY = translation.toFloat()
-                scaleX = scaleAnim
-                scaleY = scaleAnim
             }
             .align(Alignment.TopCenter)
             .focusRequester(focusRequester)
             .fillMaxWidth()
             .padding(horizontal = 40.dp),
         value = currency.value,
-        onValueChange = onCurrencyValueChange,
-        interactionSource = interactionSource1,
+        onValueChange = {
+            if (pattern.matcher(it).matches()) {
+                onCurrencyValueChange(it)
+            }
+        },
+        interactionSource = interactionSource,
         singleLine = true,
         textStyle = AppTheme.typography.display.copy(
+            fontSize = textSizeAnim.sp,
             textAlign = TextAlign.Center,
             color = color
         ),
@@ -223,13 +229,14 @@ private fun BoxScope.CurrencyInput(
             isPrefix = currency.isPrefix,
             separateWithSpace = currency.separateWithSpace
         ),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
     ) { innerTextField ->
         TextFieldDefaults.TextFieldDecorationBox(
             value = currency.value,
             innerTextField = innerTextField,
             singleLine = true,
             visualTransformation = VisualTransformation.None,
-            interactionSource = interactionSource1,
+            interactionSource = interactionSource,
             contentPadding = PaddingValues(0.dp),
             enabled = true,
         )
@@ -302,18 +309,25 @@ private fun suffixFilter(
 @Preview(backgroundColor = 0x124562, showBackground = true)
 @Composable
 private fun PreviewTwoCurrenciesInput() {
-    var c1Value by remember { mutableStateOf("2,100.00") }
+    var c1Value by remember { mutableStateOf("2100.00") }
     var c2Value by remember { mutableStateOf("1.1292") }
 
+    var selected: InputCurrency by remember {
+        mutableStateOf(InputCurrency.Currency1)
+    }
+
     TwoCurrenciesInput(
+        selected = selected,
         currency1 = CurrencyValue(
-            value = c1Value, ticker = "$", isPrefix = true, separateWithSpace = false
+            value = c1Value, maxFractionDigits = 2, ticker = "$", isPrefix = true, separateWithSpace = false
         ),
         onCurrency1ValueChange = { c1Value = it },
-
         currency2 = CurrencyValue(
-            value = c2Value, ticker = "ETH", isPrefix = false, separateWithSpace = true
+            value = c2Value, maxFractionDigits = 8, ticker = "ETH", isPrefix = false, separateWithSpace = true
         ),
-        onCurrency2ValueChange = { c2Value = it }
+        onCurrency2ValueChange = { c2Value = it },
+        onFlipInputs = {
+            selected = selected.flip()
+        }
     )
 }

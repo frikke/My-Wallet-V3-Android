@@ -23,6 +23,7 @@ dependencies {
     implementation project(':defiwalletbackup:domain')
     implementation project(':flowhome:presentation')
     implementation project(':flowprices:presentation')
+    implementation project(':flowtransactions:presentation')
     implementation project(':earn:presentation')
     implementation project(':walletconnect')
     implementation project(':appRating:domain')

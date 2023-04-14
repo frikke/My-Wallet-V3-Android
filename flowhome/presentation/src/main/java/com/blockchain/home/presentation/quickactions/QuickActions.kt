@@ -69,7 +69,8 @@ fun QuickActions(
     quickActionsViewModel: QuickActionsViewModel,
     dashboardState: DashboardState,
     openDexSwapOptions: () -> Unit,
-    openMoreQuickActions: () -> Unit
+    openMoreQuickActions: () -> Unit,
+    openSwap: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
