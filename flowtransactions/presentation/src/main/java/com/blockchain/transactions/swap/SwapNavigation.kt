@@ -14,10 +14,10 @@ fun NavGraphBuilder.swapGraph(
     navigation(startDestination = SwapDestination.EnterAmount.route, route = SwapDestination.Main.route) {
         composable(navigationEvent = SwapDestination.EnterAmount) {
             ChromeSingleScreen {
-                /*EnterAmount(
+                EnterAmount(
                     onBackPressed = onBackPressed
-                )*/
-                SelectSourceScreen()
+                )
+//                SelectSourceScreen()
             }
         }
     }

@@ -10,7 +10,9 @@ val transactionsDataModule = module {
         scoped<SwapService> {
             SwapRepository(
                 coincore = get(),
-                custodialRepository = get()
+                custodialRepository = get(),
+                limitsDataManager = get(),
+                walletManager = get()
             )
         }
     }

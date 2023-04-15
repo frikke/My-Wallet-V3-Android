@@ -9,7 +9,8 @@ data class EnterAmountViewState(
     val fromAsset: EnterAmountAssetState?,
     val toAsset: EnterAmountAssetState?,
     val fiatAmount: CurrencyValue?,
-    val cryptoAmount: CurrencyValue?
+    val cryptoAmount: CurrencyValue?,
+    val error: SwapEnterAmountError?,
 ) : ViewState
 
 data class EnterAmountAssetState(

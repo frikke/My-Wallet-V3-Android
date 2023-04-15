@@ -15,11 +15,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.button.AlertButton
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.card.TwoAssetAction
 import com.blockchain.componentlib.control.CurrencyValue
 import com.blockchain.componentlib.control.InputCurrency
 import com.blockchain.componentlib.control.TwoCurrenciesInput
+import com.blockchain.componentlib.control.isEmpty
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
@@ -31,6 +34,7 @@ import com.blockchain.transactions.swap.enteramount.EnterAmountAssetState
 import com.blockchain.transactions.swap.enteramount.EnterAmountIntent
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewState
+import com.blockchain.transactions.swap.enteramount.SwapEnterAmountError
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -75,7 +79,8 @@ fun EnterAmount(
                 },
                 onFlipInputs = {
                     viewModel.onIntent(EnterAmountIntent.FlipInputs)
-                }
+                },
+                error = viewState.error,
             )
         }
     }
@@ -90,7 +95,8 @@ private fun EnterAmountScreen(
     onFiatAmountChanged: (String) -> Unit,
     cryptoAmount: CurrencyValue,
     onCryptoAmountChanged: (String) -> Unit,
-    onFlipInputs: () -> Unit
+    onFlipInputs: () -> Unit,
+    error: SwapEnterAmountError?
 ) {
     Column(
         modifier = Modifier
@@ -122,9 +128,31 @@ private fun EnterAmountScreen(
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
-        PrimaryButton(
+        error?.let {
+            AlertButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = when (error) {
+                    is SwapEnterAmountError.BelowMinimum -> {
+                        stringResource(R.string.minimum_with_value, error.minValue)
+                    }
+                    is SwapEnterAmountError.AboveMaximum -> {
+                        stringResource(R.string.maximum_with_value, error.maxValue)
+                    }
+                    is SwapEnterAmountError.AboveBalance -> {
+                        stringResource(R.string.not_enough_funds, from.ticker)
+                    }
+                },
+                state = ButtonState.Disabled,
+                onClick = {}
+            )
+        } ?: PrimaryButton(
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.preview_swap),
+            state = if (fiatAmount.isEmpty() || cryptoAmount.isEmpty()) {
+                ButtonState.Disabled
+            } else {
+                ButtonState.Enabled
+            },
             onClick = {}
         )
 
@@ -153,6 +181,7 @@ private fun PreviewEnterAmountScreen() {
             value = "1.1292", maxFractionDigits = 8, ticker = "ETH", isPrefix = false, separateWithSpace = true
         ),
         onCryptoAmountChanged = {},
-        onFlipInputs = {}
+        onFlipInputs = {},
+        error = SwapEnterAmountError.BelowMinimum("éjdzjjdz")
     )
 }
