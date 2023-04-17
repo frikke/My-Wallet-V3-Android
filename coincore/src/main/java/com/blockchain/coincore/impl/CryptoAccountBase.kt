@@ -368,6 +368,7 @@ abstract class CryptoNonCustodialAccount(
             AssetAction.Buy,
             AssetAction.FiatWithdraw,
             AssetAction.InterestWithdraw,
+            AssetAction.StakingWithdraw,
             AssetAction.ActiveRewardsWithdraw,
             AssetAction.FiatDeposit,
             AssetAction.Sign -> Single.just(StateAwareAction(ActionState.Unavailable, this))

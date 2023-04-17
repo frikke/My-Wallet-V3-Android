@@ -30,6 +30,7 @@ import com.blockchain.koin.proveFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.sellSwapBrokerageQuoteFeatureFlag
+import com.blockchain.koin.stakingWithdrawalsFeatureFlag
 import com.blockchain.koin.topMoversInBuy
 import com.blockchain.koin.upsellAnotherAssetFeatureFlag
 import com.blockchain.koin.vgsFeatureFlag
@@ -265,6 +266,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_active_rewards_withdrawals",
                 "Active Rewards Withdrawals"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(stakingWithdrawalsFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_staking_withdrawals",
+                "Staking Withdrawals"
             )
         )
     }.bind(FeatureFlag::class)

@@ -61,6 +61,10 @@ class StakingAccountWithdrawWarning : ComposeModalBottomDialog() {
         arguments?.getString(ASSET_ICON_URL)
     }
 
+    private val unbondingDays: Int? by lazy {
+        arguments?.getInt(UNBONDING_DAYS)
+    }
+
     interface Host : HostedBottomSheet.Host {
         fun learnMoreClicked()
         fun onNextClicked()
@@ -75,16 +79,19 @@ class StakingAccountWithdrawWarning : ComposeModalBottomDialog() {
             onLearnMoreClicked = host::learnMoreClicked,
             onNext = host::onNextClicked,
             assetIcon = assetIconUrl?.let { ImageResource.Remote(it) } ?: ImageResource.Local(R.drawable.ic_blockchain),
-            accountTypeIcon = ImageResource.Local(R.drawable.ic_staking_explainer)
+            accountTypeIcon = ImageResource.Local(R.drawable.ic_staking_explainer),
+            unbondingDays = unbondingDays ?: 42
         )
     }
 
     companion object {
         private const val ASSET_ICON_URL = "ASSET_ICON_URL"
-        fun newInstance(assetIconUrl: String?) =
+        private const val UNBONDING_DAYS = "UNBONDING_DAYS"
+        fun newInstance(assetIconUrl: String?, unbondingDays: Int) =
             StakingAccountWithdrawWarning().apply {
                 arguments = Bundle().apply {
                     putString(ASSET_ICON_URL, assetIconUrl)
+                    putInt(UNBONDING_DAYS, unbondingDays)
                 }
             }
     }
@@ -98,9 +105,10 @@ fun StakingAccountInfo(
     onLearnMoreClicked: () -> Unit,
     onNext: () -> Unit,
     assetIcon: ImageResource,
-    accountTypeIcon: ImageResource
+    accountTypeIcon: ImageResource,
+    unbondingDays: Int
 ) {
-    val items = listOf(InfoItem(stringResource(id = R.string.staking_cannot_withdraw_paragraph)))
+    val items = listOf(InfoItem(stringResource(id = R.string.staking_cannot_withdraw_paragraph, unbondingDays)))
     val pagerState = rememberPagerState()
     val coroutineScope = rememberCoroutineScope()
     val scroll = rememberScrollState(0)
@@ -243,7 +251,8 @@ fun StakingInfo() {
                 {},
                 {},
                 ImageResource.Local(R.drawable.ic_blockchain),
-                ImageResource.Local(R.drawable.ic_staking_explainer)
+                ImageResource.Local(R.drawable.ic_staking_explainer),
+                42
             )
         }
     }

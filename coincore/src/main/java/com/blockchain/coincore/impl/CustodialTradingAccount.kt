@@ -179,6 +179,7 @@ class CustodialTradingAccount(
             AssetAction.InterestWithdraw,
             AssetAction.FiatDeposit,
             AssetAction.ActiveRewardsWithdraw,
+            AssetAction.StakingWithdraw,
             AssetAction.Sign -> Single.just(StateAwareAction(ActionState.Unavailable, this))
         }
 

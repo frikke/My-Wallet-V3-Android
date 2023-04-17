@@ -13,7 +13,9 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.EarnRewardsAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.mvi_v2.MVIBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
@@ -37,7 +39,7 @@ class StakingSummaryBottomSheet :
 
     interface Host : MVIBottomSheet.Host {
         fun openExternalUrl(url: String)
-        fun launchStakingWithdrawal(account: EarnRewardsAccount.Staking)
+        fun launchStakingWithdrawal(sourceAccount: BlockchainAccount, targetAccount: CustodialTradingAccount)
         fun launchStakingDeposit(account: EarnRewardsAccount.Staking)
         fun showStakingLoadingError(error: StakingError)
     }
@@ -75,9 +77,9 @@ class StakingSummaryBottomSheet :
                         dismiss()
                         host.showStakingLoadingError(error)
                     },
-                    onWithdrawPressed = { account ->
+                    onWithdrawPressed = { sourceAccount, tradingAccount ->
                         dismiss()
-                        host.launchStakingWithdrawal(account)
+                        host.launchStakingWithdrawal(sourceAccount, tradingAccount)
                     },
                     onDepositPressed = { account ->
                         dismiss()
@@ -121,7 +123,7 @@ fun StakingSummaryScreen(
     viewModel: StakingSummaryViewModel,
     onClosePressed: () -> Unit,
     onLoadError: (StakingError) -> Unit,
-    onWithdrawPressed: (currency: EarnRewardsAccount.Staking) -> Unit,
+    onWithdrawPressed: (sourceAccount: BlockchainAccount, targetAccount: CustodialTradingAccount) -> Unit,
     onDepositPressed: (currency: EarnRewardsAccount.Staking) -> Unit,
     withdrawDisabledLearnMore: () -> Unit,
     onExplainerClicked: (EarnFieldExplainer) -> Unit,

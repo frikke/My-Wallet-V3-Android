@@ -317,7 +317,7 @@ class TransactionFlowActivity :
                 is BlockedReason.TooManyInFlightTransactions,
                 is BlockedReason.InsufficientTier -> KycUpgradeNowSheet.newInstance()
                 is BlockedReason.ShouldAcknowledgeStakingWithdrawal -> StakingAccountWithdrawWarning.newInstance(
-                    featureBlockedReason.assetIconUrl
+                    featureBlockedReason.assetIconUrl, featureBlockedReason.unbondingDays
                 )
                 is BlockedReason.ShouldAcknowledgeActiveRewardsWithdrawalWarning ->
                     ActiveRewardsWithdrawalWarningSheet.newInstance()

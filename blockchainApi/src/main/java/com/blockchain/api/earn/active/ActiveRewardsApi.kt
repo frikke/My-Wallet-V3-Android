@@ -1,11 +1,11 @@
 package com.blockchain.api.earn.active
 
 import com.blockchain.api.earn.EarnRewardsEligibilityDto
+import com.blockchain.api.earn.EarnWithdrawalDto
 import com.blockchain.api.earn.active.data.ActiveRewardsAddressDto
 import com.blockchain.api.earn.active.data.ActiveRewardsBalanceDto
 import com.blockchain.api.earn.active.data.ActiveRewardsLimitsMapDto
 import com.blockchain.api.earn.active.data.ActiveRewardsRatesDto
-import com.blockchain.api.earn.active.data.ActiveRewardsWithdrawalDto
 import com.blockchain.outcome.Outcome
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -35,7 +35,7 @@ internal interface ActiveRewardsApi {
     @GET("earn/withdrawal-requests")
     suspend fun getWithdrawalRequests(
         @Query("product") product: String = "EARN_CC1W"
-    ): Outcome<Exception, List<ActiveRewardsWithdrawalDto>>
+    ): Outcome<Exception, List<EarnWithdrawalDto>>
 
     @GET("payments/accounts/earn_cc1w")
     suspend fun getAddress(

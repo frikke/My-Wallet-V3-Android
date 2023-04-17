@@ -407,6 +407,21 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 )
                 processAction(AssetAction.StakingDeposit)
             }
+            AssetAction.StakingWithdraw -> AssetActionItem(
+                title = getString(R.string.common_cash_out),
+                icon = Icons.Send.id,
+                description = getString(R.string.dashboard_asset_actions_withdraw_dsc_1, asset.displayTicker),
+                asset = asset,
+                action = stateAwareAction
+            ) {
+                analytics.logEvent(
+                    EarnAnalytics.StakingWithdrawalClicked(
+                        currency = asset.networkTicker,
+                        origin = LaunchOrigin.CURRENCY_PAGE
+                    )
+                )
+                processAction(AssetAction.StakingWithdraw)
+            }
             AssetAction.ActiveRewardsDeposit -> AssetActionItem(
                 title = getString(R.string.dashboard_asset_actions_add_title),
                 icon = Icons.Receive.id,

@@ -876,6 +876,14 @@ class CoinviewViewModel(
             is CoinviewIntent.LaunchStakingDepositFlow ->
                 navigate(CoinviewNavigationEvent.NavigateToStakingDeposit(getStakingAccount(modelState.accounts)))
 
+            is CoinviewIntent.LaunchStakingWithdrawFlow ->
+                navigate(
+                    CoinviewNavigationEvent.NavigateToStakingWithdraw(
+                        cvSourceStakingAccount = getStakingAccount(modelState.accounts),
+                        cvTargetCustodialTradingAccount = getCustodialTradingAccount(modelState.accounts)
+                    )
+                )
+
             is CoinviewIntent.LaunchStakingActivity ->
                 navigate(CoinviewNavigationEvent.NavigateToActivity(getStakingAccount(modelState.accounts)))
 

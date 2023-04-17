@@ -475,19 +475,26 @@ class TransactionInteractor(
             Single.just(FeatureAccess.Granted())
         } else {
             when (action) {
-                AssetAction.StakingDeposit -> stakingService.getLimitsForAsset(asset).asSingle().flatMap { limits ->
-                    if (limits.withdrawalsDisabled) {
-                        stakingService.getBalanceForAsset(asset).asSingle().map { accountBalance ->
-                            if (accountBalance.totalBalance.isZero) {
+                AssetAction.StakingDeposit -> {
+                    Single.zip(
+                        stakingService.getLimitsForAsset(asset).asSingle(),
+                        stakingService.getBalanceForAsset(asset).asSingle(),
+                        identity.userAccessForFeature(Feature.DepositStaking)
+                    ) { limits, accountBalance, userAccess ->
+                        if (userAccess is FeatureAccess.Granted) {
+                            if (limits.withdrawalsDisabled) {
+                                FeatureAccess.Blocked(BlockedReason.NotEligible(null))
+                            } else if (accountBalance.totalBalance.isZero) {
                                 FeatureAccess.Blocked(
                                     BlockedReason.ShouldAcknowledgeStakingWithdrawal(
-                                        assetIconUrl = asset.logo
+                                        assetIconUrl = asset.logo,
+                                        unbondingDays = limits.unbondingDays
                                     )
                                 )
                             } else FeatureAccess.Granted()
+                        } else {
+                            userAccess
                         }
-                    } else {
-                        identity.userAccessForFeature(Feature.DepositStaking)
                     }
                 }
                 AssetAction.ActiveRewardsDeposit -> {

@@ -5,8 +5,10 @@ import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.impl.txEngine.interest.TransferData
+import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
 import com.blockchain.earn.domain.models.staking.StakingLimits
 import com.blockchain.earn.domain.service.StakingService
+import com.blockchain.koin.scopedInject
 import com.blockchain.store.asSingle
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
@@ -20,8 +22,10 @@ abstract class StakingBaseEngine(
     private val stakingService: StakingService
 ) : TxEngine() {
 
-    private val sourceAssetInfo: AssetInfo
+    protected val sourceAssetInfo: AssetInfo
         get() = sourceAsset.asAssetInfoOrThrow()
+
+    protected val paymentTransactionHistoryStore: PaymentTransactionHistoryStore by scopedInject()
 
     protected fun modifyEngineConfirmations(
         pendingTx: PendingTx,

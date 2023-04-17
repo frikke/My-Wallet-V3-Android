@@ -100,7 +100,7 @@ sealed class BlockedReason : Serializable {
     }
 
     class TooManyInFlightTransactions(val maxTransactions: Int) : BlockedReason()
-    class ShouldAcknowledgeStakingWithdrawal(val assetIconUrl: String) : BlockedReason()
+    class ShouldAcknowledgeStakingWithdrawal(val assetIconUrl: String, val unbondingDays: Int) : BlockedReason()
     object ShouldAcknowledgeActiveRewardsWithdrawalWarning : BlockedReason()
 }
 

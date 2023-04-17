@@ -1,5 +1,6 @@
 package com.blockchain.earn.data.repository
 
+import com.blockchain.api.earn.EarnWithdrawalDto
 import com.blockchain.api.earn.staking.StakingApiService
 import com.blockchain.api.earn.staking.data.StakingBalanceDto
 import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
@@ -12,10 +13,12 @@ import com.blockchain.earn.data.dataresources.staking.StakingBalanceStore
 import com.blockchain.earn.data.dataresources.staking.StakingEligibilityStore
 import com.blockchain.earn.data.dataresources.staking.StakingLimitsStore
 import com.blockchain.earn.data.dataresources.staking.StakingRatesStore
+import com.blockchain.earn.data.dataresources.staking.StakingWithdrawalsStore
 import com.blockchain.earn.data.mapper.toEarnRewardsActivity
 import com.blockchain.earn.data.mapper.toIneligibilityReason
 import com.blockchain.earn.domain.models.EarnRewardsActivity
 import com.blockchain.earn.domain.models.EarnRewardsFrequency.Companion.toRewardsFrequency
+import com.blockchain.earn.domain.models.EarnWithdrawal
 import com.blockchain.earn.domain.models.StakingRewardsRates
 import com.blockchain.earn.domain.models.staking.StakingAccountBalance
 import com.blockchain.earn.domain.models.staking.StakingLimits
@@ -54,7 +57,8 @@ class StakingRepository(
     private val stakingLimitsStore: StakingLimitsStore,
     private val currencyPrefs: CurrencyPrefs,
     private val stakingApi: StakingApiService,
-    private val historicRateFetcher: HistoricRateFetcher
+    private val historicRateFetcher: HistoricRateFetcher,
+    private val stakingWithdrawalsStore: StakingWithdrawalsStore
 ) : StakingService {
 
     // we use the rates endpoint to determine whether the user has access to staking cryptos
@@ -260,6 +264,17 @@ class StakingRepository(
             mapAssetWithLimits[asset] ?: throw NoSuchElementException("Unable to get limits for ${asset.networkTicker}")
         }
 
+    override suspend fun getOngoingWithdrawals(
+        currency: Currency,
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<List<EarnWithdrawal>>> =
+        stakingWithdrawalsStore.stream(refreshStrategy)
+            .mapData { withdrawalList ->
+                withdrawalList.map {
+                    it.toEarnWithdrawal(currency)
+                }
+            }
+
     private fun StakingBalanceDto.toStakingBalance(currency: Currency): StakingAccountBalance =
         StakingAccountBalance(
             totalBalance = Money.fromMinor(currency, totalBalance.toBigInteger()),
@@ -267,6 +282,17 @@ class StakingRepository(
             pendingDeposit = Money.fromMinor(currency, bondingDeposits.toBigInteger()),
             pendingWithdrawal = Money.fromMinor(currency, unbondingWithdrawals.toBigInteger()),
             totalRewards = Money.fromMinor(currency, totalRewards.toBigInteger())
+        )
+
+    private fun EarnWithdrawalDto.toEarnWithdrawal(currency: Currency): EarnWithdrawal =
+        EarnWithdrawal(
+            product = product,
+            currency = this.currency,
+            userId = userId,
+            maxRequested = maxRequested,
+            amountCrypto = amount?.let { Money.fromMinor(currency, it.toBigInteger()) },
+            unbondingStartDate = unbondingStartDate?.let { it.fromIso8601ToUtc()?.toLocalTime() },
+            unbondingExpiryDate = unbondingExpiry?.let { it.fromIso8601ToUtc()?.toLocalTime() },
         )
 
     companion object {

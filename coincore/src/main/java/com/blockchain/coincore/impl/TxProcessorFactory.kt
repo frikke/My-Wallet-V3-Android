@@ -35,6 +35,7 @@ import com.blockchain.coincore.impl.txEngine.sell.OnChainSellTxEngine
 import com.blockchain.coincore.impl.txEngine.sell.TradingSellTxEngine
 import com.blockchain.coincore.impl.txEngine.staking.StakingDepositOnChainTxEngine
 import com.blockchain.coincore.impl.txEngine.staking.StakingDepositTradingEngine
+import com.blockchain.coincore.impl.txEngine.staking.StakingWithdrawTradingTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.OnChainSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.walletconnect.WalletConnectSignEngine
@@ -94,6 +95,7 @@ class TxProcessorFactory(
             is CustodialTradingAccount -> createTradingProcessor(source, target)
             is CustodialInterestAccount -> createInterestWithdrawalProcessor(source, target, action)
             is CustodialActiveRewardsAccount -> createActiveRewardsWithdrawalProcessor(source, target)
+            is CustodialStakingAccount -> createStakingWithdrawalProcessor(source, target)
             is BankAccount -> createFiatDepositProcessor(source, target, action)
             is FiatAccount -> createFiatWithdrawalProcessor(source, target, action)
             else -> Single.error(NotImplementedError())
@@ -151,6 +153,29 @@ class TxProcessorFactory(
                         engine = ActiveRewardsWithdrawTradingTxEngine(
                             activeRewardsBalanceStore = activeRewardsBalanceStore,
                             activeRewardsService = activeRewardsService,
+                            tradingStore = tradingStore,
+                            walletManager = walletManager
+                        )
+                    )
+                )
+            }
+            else -> Single.error(IllegalStateException("$target is not supported yet"))
+        }
+
+    private fun createStakingWithdrawalProcessor(
+        source: CustodialStakingAccount,
+        target: TransactionTarget,
+    ): Single<TransactionProcessor> =
+        when (target) {
+            is CustodialTradingAccount -> {
+                Single.just(
+                    TransactionProcessor(
+                        exchangeRates = exchangeRates,
+                        sourceAccount = source,
+                        txTarget = target,
+                        engine = StakingWithdrawTradingTxEngine(
+                            stakingBalanceStore = stakingBalanceStore,
+                            stakingService = stakingService,
                             tradingStore = tradingStore,
                             walletManager = walletManager
                         )

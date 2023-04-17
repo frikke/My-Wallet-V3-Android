@@ -3001,7 +3001,7 @@
     <string name="common_select">Выбрать</string>
     <string name="common_max">Максимум</string>
     <string name="other_tokens">Другие токены</string>
-    <string name="earn_active_rewards_withdrawal_pending_title">Запрошен вывод средств</string>
+    <string name="earn_withdrawal_pending_title">Запрошен вывод средств</string>
     <string name="earn_active_rewards_withdrawal_pending_subtitle">Ваш вывод средств будет выполнен после завершения стратегии этой недели.</string>
     <string name="start_trading">Начать торговлю</string>
 </resources>

@@ -705,6 +705,7 @@ class TransactionModel(
         AssetAction.ViewStatement -> throw IllegalStateException("$action is not part of TxFlow")
         AssetAction.InterestWithdraw,
         AssetAction.ActiveRewardsWithdraw,
+        AssetAction.StakingWithdraw,
         AssetAction.Sign -> Maybe.empty()
     }
 

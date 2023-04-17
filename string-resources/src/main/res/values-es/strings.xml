@@ -2995,7 +2995,7 @@
     <string name="common_select">Seleccionar</string>
     <string name="common_max">Máx.</string>
     <string name="other_tokens">Otros tokens</string>
-    <string name="earn_active_rewards_withdrawal_pending_title">Retirada solicitada</string>
+    <string name="earn_withdrawal_pending_title">Retirada solicitada</string>
     <string name="earn_active_rewards_withdrawal_pending_subtitle">Tu retirada se ejecutará una vez completada la estrategia de esta semana.</string>
     <string name="start_trading">Comenzar a operar</string>
 </resources>

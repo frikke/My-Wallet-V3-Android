@@ -182,7 +182,7 @@ fun EarnDashboard(
 
         TinyVerticalSpacer()
 
-        Box(modifier = Modifier.padding(horizontal = AppTheme.dimensions.standardSpacing)) {
+        Box(modifier = Modifier.padding(horizontal = AppTheme.dimensions.smallSpacing)) {
             when (val s = state.dashboardState) {
                 DashboardState.Loading -> EarnDashboardLoading()
                 DashboardState.ShowKyc -> KycUpgradeNowScreen(startKycClicked = startKycClicked)

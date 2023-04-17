@@ -2998,7 +2998,7 @@
     <string name="common_select">Sélectionner</string>
     <string name="common_max">Max</string>
     <string name="other_tokens">Autres jetons</string>
-    <string name="earn_active_rewards_withdrawal_pending_title">Retrait demandé</string>
+    <string name="earn_withdrawal_pending_title">Retrait demandé</string>
     <string name="earn_active_rewards_withdrawal_pending_subtitle">Votre retrait sera exécuté une fois que la stratégie de cette semaine sera terminée.</string>
     <string name="start_trading">Commencez à trader</string>
 </resources>

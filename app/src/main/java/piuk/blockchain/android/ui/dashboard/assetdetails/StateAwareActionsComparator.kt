@@ -48,10 +48,11 @@ class StateAwareActionsComparator : Comparator<StateAwareAction> {
         AssetAction.StakingDeposit -> 7
         AssetAction.ActiveRewardsDeposit -> 8
         AssetAction.InterestWithdraw -> 9
-        AssetAction.ActiveRewardsWithdraw -> 10
-        AssetAction.FiatWithdraw -> 11
-        AssetAction.ViewStatement -> 12
-        AssetAction.ViewActivity -> 13
+        AssetAction.StakingWithdraw -> 10
+        AssetAction.ActiveRewardsWithdraw -> 11
+        AssetAction.FiatWithdraw -> 12
+        AssetAction.ViewStatement -> 13
+        AssetAction.ViewActivity -> 14
         AssetAction.Sign -> Int.MAX_VALUE
     }
 
@@ -67,10 +68,11 @@ class StateAwareActionsComparator : Comparator<StateAwareAction> {
             AssetAction.StakingDeposit -> 7
             AssetAction.ActiveRewardsDeposit -> 8
             AssetAction.InterestWithdraw -> 9
-            AssetAction.ActiveRewardsWithdraw -> 10
-            AssetAction.FiatWithdraw -> 11
-            AssetAction.ViewStatement -> 12
-            AssetAction.ViewActivity -> 13
+            AssetAction.StakingWithdraw -> 10
+            AssetAction.ActiveRewardsWithdraw -> 11
+            AssetAction.FiatWithdraw -> 12
+            AssetAction.ViewStatement -> 13
+            AssetAction.ViewActivity -> 14
             AssetAction.Sign -> Int.MAX_VALUE
         }
     } else {
@@ -85,10 +87,11 @@ class StateAwareActionsComparator : Comparator<StateAwareAction> {
             AssetAction.StakingDeposit -> 7
             AssetAction.ActiveRewardsDeposit -> 8
             AssetAction.InterestWithdraw -> 9
-            AssetAction.ActiveRewardsWithdraw -> 10
-            AssetAction.FiatWithdraw -> 11
-            AssetAction.ViewStatement -> 12
-            AssetAction.ViewActivity -> 13
+            AssetAction.StakingWithdraw -> 10
+            AssetAction.ActiveRewardsWithdraw -> 11
+            AssetAction.FiatWithdraw -> 12
+            AssetAction.ViewStatement -> 13
+            AssetAction.ViewActivity -> 14
             AssetAction.Sign -> Int.MAX_VALUE
         }
     }
