@@ -11,11 +11,5 @@ import kotlinx.coroutines.flow.Flow
 interface SwapService {
     fun sourceAccounts(): Flow<DataResource<List<CryptoAccount>>>
 
-    fun custodialSourceAccountsWithBalances(): Flow<List<DataResource<CryptoAccountWithBalance>>>
-
-    data class CryptoAccountWithBalance(
-        val account: CryptoAccount,
-        val balanceCrypto: Money,
-        val balanceFiat: Money
-    )
+    fun custodialSourceAccountsWithBalances(): Flow<DataResource<List<CryptoAccountWithBalance>>>
 }

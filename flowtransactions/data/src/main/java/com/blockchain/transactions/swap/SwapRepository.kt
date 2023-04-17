@@ -5,16 +5,13 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.data.DataResource
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
-import com.blockchain.transactions.swap.SwapService.CryptoAccountWithBalance
+import com.blockchain.store.flatMapData
 import com.blockchain.utils.toFlowDataResource
 import info.blockchain.balance.CurrencyPair
 import io.reactivex.rxjava3.kotlin.zipWith
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 
 internal class SwapRepository(
@@ -36,31 +33,24 @@ internal class SwapRepository(
         }.toFlowDataResource()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    override fun custodialSourceAccountsWithBalances(): Flow<List<DataResource<CryptoAccountWithBalance>>> {
+    override fun custodialSourceAccountsWithBalances(): Flow<DataResource<List<CryptoAccountWithBalance>>> {
         return sourceAccounts()
-            .filterIsInstance<DataResource.Data<List<CryptoAccount>>>()
-            .flatMapLatest { cryptoAccountsData ->
-                combine(cryptoAccountsData.data.map { account ->
-                    account.balance()
-                        .distinctUntilChanged()
-                        .map { balance ->
-                            DataResource.Data(
+            .flatMapData {
+                combine(
+                    it.map { account ->
+                        account.balance()
+                            .distinctUntilChanged()
+                            .map { balance ->
                                 CryptoAccountWithBalance(
                                     account = account,
                                     balanceCrypto = balance.total,
                                     balanceFiat = balance.totalFiat
                                 )
-                            )
-                        }
-                }) {
-                    it.toList()
-                }
+                            }
+                    }
+                ) { DataResource.Data(it.toList()) }
             }
     }
-
-
-
 
     private fun CryptoAccount.isAvailableToSwapFrom(pairs: List<CurrencyPair>): Boolean =
         pairs.any { it.source == this.currency }

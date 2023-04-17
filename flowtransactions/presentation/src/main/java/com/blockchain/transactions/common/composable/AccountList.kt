@@ -1,47 +1,38 @@
 package com.blockchain.transactions.common.composable
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.divider.HorizontalDivider
-import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.system.LazyRoundedCornersColumnIndexed
-import com.blockchain.componentlib.system.ShimmerLoadingTableRow
+import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.BalanceFiatAndCryptoTableRow
-import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
-import com.blockchain.componentlib.tag.TagType
-import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.data.DataResource
 import com.blockchain.transactions.common.AccountUiElement
 
 @Composable
 fun AccountList(
-    accounts: List<DataResource<AccountUiElement>>,
+    accounts: DataResource<List<AccountUiElement>>,
     onAccountClick: (AccountUiElement) -> Unit
 ) {
-    LazyRoundedCornersColumnIndexed(
-        modifier = Modifier.fillMaxSize(),
-        items = accounts,
-        rowContent = { accountData, index ->
-            Column {
-                if (accountData is DataResource.Data)
-                    accountData.data.also { account ->
+    when (accounts) {
+        DataResource.Loading -> {
+            ShimmerLoadingCard()
+        }
+        is DataResource.Error -> {
+            //todo
+        }
+        is DataResource.Data -> {
+            LazyRoundedCornersColumnIndexed(
+                modifier = Modifier.fillMaxSize(),
+                items = accounts.data,
+                rowContent = { account, index ->
+                    Column {
                         BalanceFiatAndCryptoTableRow(
                             title = account.title,
                             valueCrypto = account.valueCrypto,
@@ -53,7 +44,7 @@ fun AccountList(
                                         ImageResource.Remote(account.icon[0])
                                     )
                                 }
-                                account.icon.size  > 1 -> {
+                                account.icon.size > 1 -> {
                                     StackedIcon.OverlappingPair(
                                         ImageResource.Remote(account.icon[0]),
                                         ImageResource.Remote(account.icon[1])
@@ -62,18 +53,17 @@ fun AccountList(
                                 else -> StackedIcon.None
                             }
                         )
-                    }
-                else
-                    ShimmerLoadingTableRow()
 
-                if (index < accounts.lastIndex) {
-                    HorizontalDivider(
-                        modifier = Modifier.fillMaxWidth(), dividerColor = AppTheme.colors.backgroundMuted
-                    )
+                        if (index < accounts.data.lastIndex) {
+                            HorizontalDivider(
+                                modifier = Modifier.fillMaxWidth(), dividerColor = AppTheme.colors.backgroundMuted
+                            )
+                        }
+                    }
                 }
-            }
+            )
         }
-    )
+    }
 }
 
 /*
