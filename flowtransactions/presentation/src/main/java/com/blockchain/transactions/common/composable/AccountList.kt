@@ -25,7 +25,7 @@ fun AccountList(
             ShimmerLoadingCard()
         }
         is DataResource.Error -> {
-            //todo
+            // todo
         }
         is DataResource.Data -> {
             LazyRoundedCornersColumnIndexed(
