@@ -34,7 +34,7 @@ import com.blockchain.transactions.swap.enteramount.EnterAmountAssetState
 import com.blockchain.transactions.swap.enteramount.EnterAmountIntent
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewState
-import com.blockchain.transactions.swap.enteramount.SwapEnterAmountError
+import com.blockchain.transactions.swap.enteramount.SwapEnterAmountInputError
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -96,7 +96,7 @@ private fun EnterAmountScreen(
     cryptoAmount: CurrencyValue,
     onCryptoAmountChanged: (String) -> Unit,
     onFlipInputs: () -> Unit,
-    error: SwapEnterAmountError?
+    error: SwapEnterAmountInputError?
 ) {
     Column(
         modifier = Modifier
@@ -132,13 +132,13 @@ private fun EnterAmountScreen(
             AlertButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = when (error) {
-                    is SwapEnterAmountError.BelowMinimum -> {
+                    is SwapEnterAmountInputError.BelowMinimum -> {
                         stringResource(R.string.minimum_with_value, error.minValue)
                     }
-                    is SwapEnterAmountError.AboveMaximum -> {
+                    is SwapEnterAmountInputError.AboveMaximum -> {
                         stringResource(R.string.maximum_with_value, error.maxValue)
                     }
-                    is SwapEnterAmountError.AboveBalance -> {
+                    is SwapEnterAmountInputError.AboveBalance -> {
                         stringResource(R.string.not_enough_funds, from.ticker)
                     }
                 },
@@ -182,6 +182,6 @@ private fun PreviewEnterAmountScreen() {
         ),
         onCryptoAmountChanged = {},
         onFlipInputs = {},
-        error = SwapEnterAmountError.BelowMinimum("éjdzjjdz")
+        error = SwapEnterAmountInputError.BelowMinimum("éjdzjjdz")
     )
 }

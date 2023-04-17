@@ -6,12 +6,14 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.data.DataResource
+import com.blockchain.data.dataOrElse
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.store.flatMapData
+import com.blockchain.store.mapData
 import com.blockchain.utils.toFlowDataResource
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
@@ -22,6 +24,8 @@ import io.reactivex.rxjava3.kotlin.zipWith
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.await
 
@@ -65,11 +69,18 @@ internal class SwapRepository(
             }
     }
 
-    override suspend fun limits(
+    override suspend fun highestBalanceSourceAccount(): CryptoAccountWithBalance? {
+        return custodialSourceAccountsWithBalances()
+            .filterIsInstance<DataResource.Data<List<CryptoAccountWithBalance>>>()
+            .map { it.data.maxBy { it.balanceCrypto.toBigDecimal() } }
+            .firstOrNull()
+    }
+
+    override fun limits(
         from: CryptoCurrency,
         to: CryptoCurrency,
         fiat: FiatCurrency
-    ): TxLimits {
+    ): Flow<DataResource<TxLimits>> {
         return limitsDataManager.getLimits(
             outputCurrency = from,
             sourceCurrency = from,
@@ -81,7 +92,7 @@ internal class SwapRepository(
             ).map { it as LegacyLimits },
             sourceAccountType = TransferDirection.INTERNAL.sourceAccountType(),
             targetAccountType = TransferDirection.INTERNAL.targetAccountType()
-        ).await()
+        ).toFlowDataResource()
     }
 
     private fun CryptoAccount.isAvailableToSwapFrom(pairs: List<CurrencyPair>): Boolean =

@@ -14,13 +14,15 @@ interface SwapService {
 
     fun custodialSourceAccountsWithBalances(): Flow<DataResource<List<CryptoAccountWithBalance>>>
 
+    suspend fun highestBalanceSourceAccount(): CryptoAccountWithBalance?
+
     /**
      * returns [TxLimits] which defines min and max
      * needs to be exchanged later to fiat if needed
      */
-    suspend fun limits(
+      fun limits(
         from: CryptoCurrency,
         to: CryptoCurrency,
         fiat: FiatCurrency
-    ): TxLimits
+    ): Flow<DataResource<TxLimits>>
 }
