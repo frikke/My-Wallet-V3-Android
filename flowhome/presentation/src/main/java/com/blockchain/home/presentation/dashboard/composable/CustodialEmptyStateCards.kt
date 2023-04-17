@@ -117,13 +117,16 @@ fun CustodialEmptyStateCardsScreen(
             .padding(vertical = AppTheme.dimensions.smallSpacing)
             .fillMaxWidth()
     ) {
-        BuyProgressCard(
-            totalSteps = steps.size,
-            completedSteps = steps.filter { it.state == DashboardOnboardingStepState.COMPLETE }.size,
-            onboardingLaunch = onStepsClick
-        )
+        if (steps.isNotEmpty()) {
+            BuyProgressCard(
+                totalSteps = steps.size,
+                completedSteps = steps.filter { it.state == DashboardOnboardingStepState.COMPLETE }.size,
+                onboardingLaunch = onStepsClick
+            )
 
-        Spacer(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.standard_spacing)))
+            Spacer(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.standard_spacing)))
+        }
+
         Card(
             backgroundColor = AppTheme.colors.background,
             shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),

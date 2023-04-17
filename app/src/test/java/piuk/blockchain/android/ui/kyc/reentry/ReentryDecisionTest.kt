@@ -1,10 +1,13 @@
 package piuk.blockchain.android.ui.kyc.reentry
 
 import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.data.DataResource
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.domain.dataremediation.model.QuestionnaireNode
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.responses.nabu.Address
 import com.blockchain.nabu.models.responses.nabu.CurrenciesResponse
@@ -14,7 +17,9 @@ import com.blockchain.nabu.models.responses.nabu.TierLevels
 import com.blockchain.nabu.models.responses.nabu.UserState
 import com.blockchain.outcome.Outcome
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.flow.flowOf
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
@@ -28,6 +33,9 @@ class ReentryDecisionTest {
     }
     private val kycService: KycService = mockk {
         coEvery { shouldLaunchProve() } returns Outcome.Success(false)
+    }
+    private val userFeaturePermissionService: UserFeaturePermissionService = mockk {
+        every { isEligibleFor(Feature.Kyc) } returns flowOf(DataResource.Data(true))
     }
 
     @Test
@@ -262,11 +270,34 @@ class ReentryDecisionTest {
         ) `should be` ReentryPoint.MobileEntry
     }
 
+    @Test
+    fun `if user is not eligible for KYC it should show TierCurrentState with KYC Rejected`() {
+        every { userFeaturePermissionService.isEligibleFor(Feature.Kyc) }.returns(flowOf(DataResource.Data(false)))
+        whereNext(
+            createdNabuUser(tier = 0, next = 2).copy(
+                email = "abc@def.com",
+                emailVerified = true,
+                address = Address(
+                    line1 = "",
+                    line2 = "",
+                    city = "",
+                    stateIso = "",
+                    postCode = "",
+                    countryCode = "DE"
+                ),
+                dob = "dob",
+                firstName = "A",
+                lastName = "B"
+            )
+        ) `should be equal to` ReentryPoint.TierCurrentState(KycState.Rejected)
+    }
+
     private fun whereNext(user: NabuUser) =
         TiersReentryDecision(
             custodialWalletManager,
             dataRemediationService,
             kycService,
+            userFeaturePermissionService,
         ).findReentryPoint(user).blockingGet()
 
     private fun createdNabuUser(

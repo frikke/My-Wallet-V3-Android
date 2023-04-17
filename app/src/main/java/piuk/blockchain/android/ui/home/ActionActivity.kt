@@ -25,12 +25,10 @@ import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.swap.SwapFragment
 import piuk.blockchain.android.ui.transfer.receive.ReceiveFragment
 import piuk.blockchain.android.ui.transfer.send.TransferSendFragment
-import piuk.blockchain.android.ui.upsell.UpsellHost
 
 class ActionActivity :
     BlockchainActivity(),
     SlidingModalBottomDialog.Host,
-    UpsellHost,
     SwapFragment.Host,
     BuyPendingOrdersBottomSheet.Host,
     KycUpgradeNowSheet.Host {
@@ -121,10 +119,6 @@ class ActionActivity :
             gone()
             pauseAnimation()
         }
-    }
-
-    override fun startUpsellKyc() {
-        finishWithResult(ActivityResult.StartKyc)
     }
 
     override fun navigateBack() {

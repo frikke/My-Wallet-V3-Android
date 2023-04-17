@@ -15,7 +15,8 @@ class ProductEligibilityResponse(
     val depositCrypto: DefaultEligibilityResponse?,
     val depositInterest: DefaultEligibilityResponse?,
     val withdrawFiat: DefaultEligibilityResponse?,
-    val depositStaking: DefaultEligibilityResponse?
+    val depositStaking: DefaultEligibilityResponse?,
+    val kycVerification: DefaultEligibilityResponse?,
 )
 
 @Serializable

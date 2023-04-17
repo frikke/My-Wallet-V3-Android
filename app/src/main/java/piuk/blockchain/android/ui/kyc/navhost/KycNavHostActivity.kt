@@ -274,14 +274,6 @@ class KycNavHostActivity :
         }
 
         @JvmStatic
-        fun startForResultForCowboys(activity: Activity, campaignType: CampaignType, requestCode: Int) {
-            newIntent(activity, campaignType).apply {
-                putExtra(FROM_COWBOYS, true)
-            }
-                .run { activity.startActivityForResult(this, requestCode) }
-        }
-
-        @JvmStatic
         fun startForResult(
             fragment: Fragment,
             campaignType: CampaignType,

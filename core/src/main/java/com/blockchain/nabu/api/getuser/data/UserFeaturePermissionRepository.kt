@@ -47,6 +47,7 @@ internal class UserFeaturePermissionRepository(
             Feature.DepositStaking,
             Feature.DepositActiveRewards,
             Feature.CustodialAccounts,
+            Feature.Kyc,
             Feature.WithdrawFiat -> {
                 getAccessForFeature(feature, freshnessStrategy).mapData { it is FeatureAccess.Granted }
             }
@@ -151,6 +152,11 @@ internal class UserFeaturePermissionRepository(
 
             Feature.WithdrawFiat -> {
                 eligibilityService.getProductEligibility(EligibleProduct.WITHDRAW_FIAT, freshnessStrategy)
+                    .mapData(ProductEligibility::toFeatureAccess)
+            }
+
+            Feature.Kyc -> {
+                eligibilityService.getProductEligibility(EligibleProduct.KYC, freshnessStrategy)
                     .mapData(ProductEligibility::toFeatureAccess)
             }
 

@@ -30,13 +30,21 @@ class KycLimitsModel(
     }
 
     private fun fetchLimitsAndTiers() = Singles.zip(
-        interactor.fetchLimits(),
-        interactor.fetchHighestApprovedTier(),
-        interactor.fetchIsKycRejected()
+        Singles.zip(
+            interactor.fetchLimits(),
+            interactor.fetchHighestApprovedTier()
+        ),
+        Singles.zip(
+            interactor.fetchIsKycRejected(),
+            interactor.fetchIsEligibleToKyc(),
+        ),
     ).subscribeBy(
-        onSuccess = { (limits, highestApprovedTier, isKycDenied) ->
+        onSuccess = { (limitsAndHighestApprovedTier, isKycDeniedAndIsEligibleToKyc) ->
+            val (limits, highestApprovedTier) = limitsAndHighestApprovedTier
+            val (isKycDenied, isEligibleToKyc) = isKycDeniedAndIsEligibleToKyc
             val header =
-                if (isKycDenied) Header.MAX_TIER_REACHED
+                if (!isEligibleToKyc) Header.MAX_TIER_REACHED
+                else if (isKycDenied) Header.MAX_TIER_REACHED
                 else when (highestApprovedTier) {
                     KycTier.BRONZE -> Header.NEW_KYC
                     KycTier.SILVER -> Header.UPGRADE_TO_GOLD

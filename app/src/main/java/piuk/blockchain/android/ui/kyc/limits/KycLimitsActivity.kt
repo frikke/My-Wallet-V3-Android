@@ -10,9 +10,13 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.utils.schedulers.applySchedulers
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.store.asSingle
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
@@ -29,6 +33,7 @@ class KycLimitsActivity : BlockchainActivity(), KycUpgradeNowSheet.Host {
         get() = binding.toolbar
 
     private val kycService: KycService by scopedInject()
+    private val userFeaturePermissionService: UserFeaturePermissionService by scopedInject()
 
     private val disposables = CompositeDisposable()
 
@@ -45,13 +50,16 @@ class KycLimitsActivity : BlockchainActivity(), KycUpgradeNowSheet.Host {
 
     override fun onResume() {
         super.onResume()
-        disposables += kycService.getHighestApprovedTierLevelLegacy()
+        disposables += Singles.zip(
+            kycService.getHighestApprovedTierLevelLegacy(),
+            userFeaturePermissionService.isEligibleFor(Feature.Kyc).asSingle(),
+        )
             .applySchedulers()
             .doOnSubscribe { showLoading() }
             .doOnTerminate { hideLoading() }
             .subscribeBy(
-                onSuccess = {
-                    if (it == KycTier.GOLD) showLimits()
+                onSuccess = { (tier, isEligibleToKyc) ->
+                    if (tier == KycTier.GOLD || !isEligibleToKyc) showLimits()
                     else showUpgradeNow()
                 },
                 onError = {
