@@ -8,7 +8,9 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
+import com.blockchain.data.mapList
 import com.blockchain.transactions.common.AccountUiElement
+import com.blockchain.transactions.swap.CryptoAccountWithBalance
 import com.blockchain.transactions.swap.SwapService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -25,17 +27,13 @@ class SelectSourceViewModel(
 ) : MviViewModel<SelectSourceIntent, SelectSourceViewState, SelectSourceModelState, EmptyNavEvent, ModelConfigArgs.NoArgs>(
     SelectSourceModelState()
 ) {
-    override fun viewCreated(args: ModelConfigArgs.NoArgs) { }
+    override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
     override fun reduce(state: SelectSourceModelState): SelectSourceViewState {
         return with(state) {
             SelectSourceViewState(
-                accountList = accountListData.map { accountData ->
-                    when(accountData) {
-                        is DataResource.Data -> DataResource.Data(reduceCryptoAccountWithBalance(accountData.data))
-                        is DataResource.Loading -> DataResource.Loading
-                        is DataResource.Error -> DataResource.Error(accountData.error)
-                    }
+                accountList = accountListData.mapList {
+                    it.reduceCryptoAccountWithBalance()
                 }
             )
         }
@@ -70,25 +68,23 @@ class SelectSourceViewModel(
                 }
             )
         }*/
-    private fun reduceCryptoAccountWithBalance(accountWithBalance: SwapService.CryptoAccountWithBalance): AccountUiElement {
-        with(accountWithBalance) {
-            return AccountUiElement(
-                title = balanceCrypto.currency.name,
-                subtitle = "", // do we need this?
-                valueCrypto = balanceCrypto.toStringWithSymbol(),
-                valueFiat = balanceFiat.toStringWithSymbol(),
-                icon = when (account) {
-                    is NonCustodialAccount -> listOfNotNull(
-                        balanceCrypto.currency.logo,
-                        (balanceCrypto.currency as? AssetInfo)?.takeIf { it.isLayer2Token }?.coinNetwork?.nativeAssetTicker
-                            ?.let {
-                                assetCatalogue.fromNetworkTicker(it)?.logo
-                            }
-                    )
-                    else -> listOf(balanceCrypto.currency.logo)
-                }
-            )
-        }
+    private fun CryptoAccountWithBalance.reduceCryptoAccountWithBalance() = run {
+        AccountUiElement(
+            title = balanceCrypto.currency.name,
+            subtitle = "", // do we need this?
+            valueCrypto = balanceCrypto.toStringWithSymbol(),
+            valueFiat = balanceFiat.toStringWithSymbol(),
+            icon = when (account) {
+                is NonCustodialAccount -> listOfNotNull(
+                    balanceCrypto.currency.logo,
+                    (balanceCrypto.currency as? AssetInfo)?.takeIf { it.isLayer2Token }?.coinNetwork?.nativeAssetTicker
+                        ?.let {
+                            assetCatalogue.fromNetworkTicker(it)?.logo
+                        }
+                )
+                else -> listOf(balanceCrypto.currency.logo)
+            }
+        )
     }
 }
 

@@ -6,5 +6,5 @@ import com.blockchain.data.DataResource
 import com.blockchain.transactions.common.AccountUiElement
 
 data class SelectSourceViewState(
-    val accountList: List<DataResource<AccountUiElement>> = emptyList()
+    val accountList: DataResource<List<AccountUiElement>>
 ) : ViewState
