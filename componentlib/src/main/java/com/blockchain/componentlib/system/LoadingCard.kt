@@ -20,7 +20,8 @@ fun ShimmerLoadingCard(
     backgroundColor: Color = AppTheme.colors.background,
     shape: Shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
     elevation: Dp = 0.dp,
-    showEndBlocks: Boolean = true
+    showEndBlocks: Boolean = true,
+    reversed: Boolean = false
 ) {
     Card(
         modifier = modifier,
@@ -30,7 +31,10 @@ fun ShimmerLoadingCard(
     ) {
         Column {
             (0 until itemCount).forEach {
-                ShimmerLoadingTableRow(showEndBlocks = showEndBlocks)
+                ShimmerLoadingTableRow(
+                    showEndBlocks = showEndBlocks,
+                    reversed = reversed
+                )
 
                 if (it < itemCount - 1) Divider(color = Color(0XFFF1F2F7))
             }
@@ -40,6 +44,6 @@ fun ShimmerLoadingCard(
 
 @Preview
 @Composable
-fun PreviewShimmerLoadingCard() {
+private fun PreviewShimmerLoadingCard() {
     ShimmerLoadingCard()
 }

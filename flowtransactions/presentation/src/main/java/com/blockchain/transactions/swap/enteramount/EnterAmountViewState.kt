@@ -3,15 +3,20 @@ package com.blockchain.transactions.swap.enteramount
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.control.CurrencyValue
 import com.blockchain.componentlib.control.InputCurrency
+import com.blockchain.data.DataResource
 
 data class EnterAmountViewState(
     val selectedInput: InputCurrency,
-    val fromAsset: EnterAmountAssetState?,
-    val toAsset: EnterAmountAssetState?,
+    val assets: DataResource<EnterAmountAssets>,
     val fiatAmount: CurrencyValue?,
     val cryptoAmount: CurrencyValue?,
     val error: SwapEnterAmountInputError?,
 ) : ViewState
+
+data class EnterAmountAssets(
+    val from: EnterAmountAssetState,
+    val to: EnterAmountAssetState,
+)
 
 data class EnterAmountAssetState(
     val iconUrl: String,

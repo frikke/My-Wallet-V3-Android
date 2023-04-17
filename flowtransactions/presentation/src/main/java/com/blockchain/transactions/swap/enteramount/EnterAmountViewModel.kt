@@ -1,7 +1,6 @@
 package com.blockchain.transactions.swap.enteramount
 
 import androidx.lifecycle.viewModelScope
-import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.mvi_v2.EmptyNavEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
@@ -9,9 +8,7 @@ import com.blockchain.componentlib.control.CurrencyValue
 import com.blockchain.componentlib.control.InputCurrency
 import com.blockchain.componentlib.control.flip
 import com.blockchain.core.limits.TxLimit
-import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.data.DataResource
 import com.blockchain.data.combineDataResources
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
@@ -20,13 +17,10 @@ import com.blockchain.extensions.safeLet
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.flatMapData
 import com.blockchain.store.mapData
-import com.blockchain.transactions.swap.CryptoAccountWithBalance
 import com.blockchain.transactions.swap.SwapService
 import com.blockchain.utils.removeLeadingZeros
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
-import info.blockchain.balance.ExchangeRate
-import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -35,12 +29,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -88,8 +77,15 @@ class EnterAmountViewModel(
         return with(state) {
             EnterAmountViewState(
                 selectedInput = selectedInput,
-                fromAsset = accounts.map { it.fromAccount.account.currency.toViewState() }.dataOrElse(null),
-                toAsset = accounts.map { it.toAccount.currency.toViewState() }.dataOrElse(null),
+                assets = combineDataResources(
+                    accounts.map { it.fromAccount.account.currency.toViewState() },
+                    accounts.map { it.toAccount.currency.toViewState() }
+                ) { from, to ->
+                    EnterAmountAssets(
+                        from = from,
+                        to = to
+                    )
+                },
                 fiatAmount = accounts.map {
                     CurrencyValue(
                         value = if (selectedInput == InputCurrency.Currency1) {
@@ -135,6 +131,9 @@ class EnterAmountViewModel(
                     "BTC" -> "USDT"
                     else -> "BTC"
                 }
+
+                println("------ fromAccountTicker ${fromAccountTicker}")
+                println("------ fromAccountTicker to ${toAccountTicker}")
 
                 safeLet(
                     fromAccountTicker,

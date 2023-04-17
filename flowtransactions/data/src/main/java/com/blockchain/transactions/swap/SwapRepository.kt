@@ -72,6 +72,13 @@ internal class SwapRepository(
     override suspend fun highestBalanceSourceAccount(): CryptoAccountWithBalance? {
         return custodialSourceAccountsWithBalances()
             .filterIsInstance<DataResource.Data<List<CryptoAccountWithBalance>>>()
+            .map {
+                it.data.forEach {
+                    println("----- iiiiii ${it.account.currency.displayTicker} ---- ${it.balanceCrypto.toBigDecimal()}")
+                    println("-----")
+                }
+                it
+            }
             .map { it.data.maxBy { it.balanceCrypto.toBigDecimal() } }
             .firstOrNull()
     }
