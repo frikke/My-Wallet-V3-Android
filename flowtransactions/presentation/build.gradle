@@ -37,6 +37,7 @@ dependencies {
     implementation Libraries.composeUi
     implementation Libraries.composePreview
     implementation Libraries.composeMaterial
+    implementation Libraries.accompanistNavigationMaterial
 
     // koin
     implementation Libraries.koinAndroid

@@ -1,6 +1,7 @@
 package com.blockchain.componentlib.card
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -65,9 +66,11 @@ fun TwoAssetActionHorizontal(
     startTitle: String,
     startSubtitle: String,
     startIcon: StackedIcon,
+    startOnClick: () -> Unit,
     endTitle: String,
     endSubtitle: String,
     endIcon: StackedIcon,
+    endOnClick: () -> Unit,
 ) {
     TwoAssetActionBody(
         start = {
@@ -79,6 +82,7 @@ fun TwoAssetActionHorizontal(
                     title = startTitle,
                     subtitle = startSubtitle,
                     icon = startIcon,
+                    onClick = startOnClick
                 )
             }
         },
@@ -91,6 +95,7 @@ fun TwoAssetActionHorizontal(
                     title = endTitle,
                     subtitle = endSubtitle,
                     icon = endIcon,
+                    onClick = endOnClick
                 )
             }
         }
@@ -102,7 +107,8 @@ private fun Asset(
     modifier: Modifier = Modifier,
     title: String,
     subtitle: String,
-    icon: StackedIcon
+    icon: StackedIcon,
+    onClick: () -> Unit
 ) {
     Surface(
         modifier = modifier,
@@ -111,6 +117,7 @@ private fun Asset(
     ) {
         Row(
             modifier = Modifier
+                .clickable(onClick = onClick)
                 .padding(AppTheme.dimensions.smallSpacing),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -166,9 +173,11 @@ private fun PreviewTwoAssetAction() {
         startTitle = "From",
         startSubtitle = "ETH",
         startIcon = StackedIcon.SingleIcon(Icons.Receive),
+        startOnClick = {},
         endTitle = "To",
         endSubtitle = "BTC",
-        endIcon = StackedIcon.SingleIcon(Icons.Receive)
+        endIcon = StackedIcon.SingleIcon(Icons.Receive),
+        endOnClick = {}
     )
 }
 

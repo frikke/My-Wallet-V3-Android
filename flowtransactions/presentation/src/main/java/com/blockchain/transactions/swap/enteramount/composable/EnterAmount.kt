@@ -45,6 +45,7 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 fun EnterAmount(
     viewModel: EnterAmountViewModel = getViewModel(scope = payloadScope),
+    openSourceAccounts: () -> Unit,
     onBackPressed: () -> Unit
 ) {
     val viewState: EnterAmountViewState by viewModel.viewState.collectAsStateLifecycleAware()
@@ -79,6 +80,7 @@ fun EnterAmount(
                 viewModel.onIntent(EnterAmountIntent.FlipInputs)
             },
             error = viewState.error,
+            openSourceAccounts = openSourceAccounts
         )
     }
 }
@@ -92,7 +94,8 @@ private fun EnterAmountScreen(
     cryptoAmount: CurrencyValue?,
     onCryptoAmountChanged: (String) -> Unit,
     onFlipInputs: () -> Unit,
-    error: SwapEnterAmountInputError?
+    error: SwapEnterAmountInputError?,
+    openSourceAccounts: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -127,9 +130,11 @@ private fun EnterAmountScreen(
                     startTitle = "From",
                     startSubtitle = assets.data.from.ticker,
                     startIcon = StackedIcon.SingleIcon(ImageResource.Remote(assets.data.from.iconUrl)),
+                    startOnClick = openSourceAccounts,
                     endTitle = "To",
                     endSubtitle = assets.data.to.ticker,
                     endIcon = StackedIcon.SingleIcon(ImageResource.Remote(assets.data.to.iconUrl)),
+                    endOnClick = {}
                 )
             }
             is DataResource.Error -> TODO()
@@ -165,7 +170,7 @@ private fun EnterAmountScreen(
             onClick = {}
         )
 
-        Spacer(modifier = Modifier.weight(4F))
+        Spacer(modifier = Modifier.weight(3F))
     }
 }
 
@@ -195,6 +200,7 @@ private fun PreviewEnterAmountScreen() {
         ),
         onCryptoAmountChanged = {},
         onFlipInputs = {},
-        error = SwapEnterAmountInputError.BelowMinimum("éjdzjjdz")
+        error = SwapEnterAmountInputError.BelowMinimum("éjdzjjdz"),
+        openSourceAccounts = {}
     )
 }

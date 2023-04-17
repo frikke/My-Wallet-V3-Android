@@ -1,38 +1,42 @@
 package com.blockchain.transactions.common.composable
 
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.divider.HorizontalDivider
-import com.blockchain.componentlib.system.LazyRoundedCornersColumnIndexed
+import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.BalanceFiatAndCryptoTableRow
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
-import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
 import com.blockchain.transactions.common.AccountUiElement
 
 @Composable
 fun AccountList(
+    modifier: Modifier = Modifier,
     accounts: DataResource<List<AccountUiElement>>,
-    onAccountClick: (AccountUiElement) -> Unit
+    onAccountClick: (AccountUiElement) -> Unit,
+    bottomSpacer: Dp? = null
 ) {
     when (accounts) {
         DataResource.Loading -> {
-            ShimmerLoadingCard()
+            ShimmerLoadingCard(modifier = modifier)
         }
         is DataResource.Error -> {
             //todo
         }
         is DataResource.Data -> {
-            LazyRoundedCornersColumnIndexed(
-                modifier = Modifier.fillMaxSize(),
-                items = accounts.data,
-                rowContent = { account, index ->
-                    Column {
+            LazyColumn(
+                modifier = modifier.fillMaxSize()
+            ) {
+                roundedCornersItems(
+                    items = accounts.data,
+                    content = { account ->
                         BalanceFiatAndCryptoTableRow(
                             title = account.title,
                             valueCrypto = account.valueCrypto,
@@ -53,15 +57,15 @@ fun AccountList(
                                 else -> StackedIcon.None
                             }
                         )
+                    }
+                )
 
-                        if (index < accounts.data.lastIndex) {
-                            HorizontalDivider(
-                                modifier = Modifier.fillMaxWidth(), dividerColor = AppTheme.colors.backgroundMuted
-                            )
-                        }
+                bottomSpacer?.let {
+                    item {
+                        Spacer(modifier = Modifier.size(bottomSpacer))
                     }
                 }
-            )
+            }
         }
     }
 }
