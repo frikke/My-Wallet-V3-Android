@@ -254,6 +254,8 @@
     <string name="strength_strong">Strong</string>
     <string name="strength_hint">Use at least 8 characters, a mix of letters, numbers and symbols.</string>
     <string name="strength_label">Password Strength</string>
+    <string name="create_wallet_error_title">Unable to process</string>
+    <string name="create_wallet_error_description">We are unable to create your Wallet. Please, try again later.</string>
 
     <string name="btn_continue">Continue</string>
 

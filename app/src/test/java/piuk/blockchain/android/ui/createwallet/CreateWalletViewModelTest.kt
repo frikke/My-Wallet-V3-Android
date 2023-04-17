@@ -203,6 +203,7 @@ class CreateWalletViewModelTest {
     @Test
     fun `whenever an input change the next button state should be recomputed and display the correct state`() =
         runTest {
+            every { formatChecker.isValidEmailAddress(any()) } returns true
             coEvery { eligibilityService.getStatesList("US", GetRegionScope.Signup) } returns Outcome.Success(STATES)
 
             subject.viewState.test {
@@ -221,7 +222,7 @@ class CreateWalletViewModelTest {
                 awaitItem().nextButtonState shouldBeEqualTo ButtonState.Enabled
                 subject.onIntent(CreateWalletIntent.ReferralInputChanged(""))
                 awaitItem().nextButtonState shouldBeEqualTo ButtonState.Enabled
-                subject.onIntent(CreateWalletIntent.NextClicked)
+                subject.onIntent(CreateWalletIntent.RegionNextClicked)
                 awaitItem().nextButtonState shouldBeEqualTo ButtonState.Disabled
 
                 subject.onIntent(CreateWalletIntent.EmailInputChanged("bla@something.com"))
@@ -240,7 +241,7 @@ class CreateWalletViewModelTest {
         populateEmailAndPasswordNextEnabledState()
         subject.viewState.test {
             expectMostRecentItem()
-            subject.onIntent(CreateWalletIntent.NextClicked)
+            subject.onIntent(CreateWalletIntent.EmailPasswordNextClicked)
             awaitItem().isShowingInvalidEmailError shouldBeEqualTo true
         }
         verify { formatChecker.isValidEmailAddress("bla@something.com") }
@@ -253,12 +254,12 @@ class CreateWalletViewModelTest {
         subject.viewState.test {
             subject.onIntent(CreateWalletIntent.PasswordInputChanged("1"))
             expectMostRecentItem()
-            subject.onIntent(CreateWalletIntent.NextClicked)
+            subject.onIntent(CreateWalletIntent.EmailPasswordNextClicked)
             awaitItem().passwordInputError shouldBeEqualTo CreateWalletPasswordError.InvalidPasswordTooShort
 
             subject.onIntent(CreateWalletIntent.PasswordInputChanged("1".repeat(256)))
             expectMostRecentItem()
-            subject.onIntent(CreateWalletIntent.NextClicked)
+            subject.onIntent(CreateWalletIntent.EmailPasswordNextClicked)
             awaitItem().passwordInputError shouldBeEqualTo CreateWalletPasswordError.InvalidPasswordTooLong
 
             mockkStatic(PasswordUtil::class)
@@ -266,7 +267,7 @@ class CreateWalletViewModelTest {
             every { PasswordUtil.getStrength(any()) } returns 49.0
             subject.onIntent(CreateWalletIntent.PasswordInputChanged("1234"))
             expectMostRecentItem()
-            subject.onIntent(CreateWalletIntent.NextClicked)
+            subject.onIntent(CreateWalletIntent.EmailPasswordNextClicked)
             awaitItem().passwordInputError shouldBeEqualTo CreateWalletPasswordError.InvalidPasswordTooWeak
             verify { PasswordUtil.getStrength("1234") }
             unmockkStatic(PasswordUtil::class)
@@ -282,7 +283,7 @@ class CreateWalletViewModelTest {
             coEvery { referralService.isReferralCodeValid("12345678") } returns Outcome.Success(true)
 
             subject.navigationEventFlow.test {
-                subject.onIntent(CreateWalletIntent.NextClicked)
+                subject.onIntent(CreateWalletIntent.EmailPasswordNextClicked)
                 awaitItem() shouldBeEqualTo CreateWalletNavigation.RecaptchaVerification(RecaptchaActionType.SIGNUP)
                 expectNoEvents()
             }
@@ -334,10 +335,10 @@ class CreateWalletViewModelTest {
                         recaptcha
                     )
                 }
-                verify { appUtil.clearCredentialsAndRestart() }
+                verify { appUtil.clearCredentials() }
                 awaitItem().run {
                     isCreateWalletLoading shouldBeEqualTo false
-                    this.error shouldBeEqualTo CreateWalletError.WalletCreationFailed
+                    this.screen shouldBeEqualTo CreateWalletScreen.CREATION_FAILED
                 }
                 expectNoEvents()
             }
@@ -406,7 +407,7 @@ class CreateWalletViewModelTest {
         subject.onIntent(CreateWalletIntent.StateInputChanged(STATE_AK.stateCode))
         coEvery { referralService.isReferralCodeValid("12345678") } returns Outcome.Success(true)
         subject.onIntent(CreateWalletIntent.ReferralInputChanged("12345678"))
-        subject.onIntent(CreateWalletIntent.NextClicked)
+        subject.onIntent(CreateWalletIntent.RegionNextClicked)
     }
 
     companion object {
