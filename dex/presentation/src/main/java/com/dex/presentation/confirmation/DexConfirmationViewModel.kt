@@ -18,6 +18,7 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -103,8 +104,7 @@ class DexConfirmationViewModel(
                 operationInProgress = true
             )
         }
-        val txResult = transactionProcessor.execute()
-        delay(3000)
+        transactionProcessor.execute()
         updateState {
             it.copy(
                 operationInProgress = false

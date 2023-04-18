@@ -3,6 +3,7 @@ package com.dex.domain
 import com.blockchain.core.chains.ethereum.EvmNetworkPreImageSigner
 import com.blockchain.extensions.safeLet
 import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.getOrElse
 import com.blockchain.outcome.getOrNull
@@ -163,16 +164,20 @@ class DexTransactionProcessor(
         }
     }
 
-    suspend fun execute(): Outcome<Exception, String> {
+    suspend fun execute() {
         val transaction = transaction.first()
         val coinNetwork = transaction.sourceAccount.currency.coinNetwork
         check(coinNetwork != null)
-        return dexTransactionService.buildTx(transaction).flatMap {
-            dexTransactionService.pushTx(
-                coinNetwork = coinNetwork,
-                rawTx = it.rawTx,
-                signatures = it.preImages.map { unsignedPreImage ->
-                    evmNetworkSigner.signPreImage(unsignedPreImage)
+        _dexTransaction.update {
+            it.copy(
+                txResult = dexTransactionService.buildTx(transaction).flatMap { builtTx ->
+                    dexTransactionService.pushTx(
+                        coinNetwork = coinNetwork,
+                        rawTx = builtTx.rawTx,
+                        signatures = builtTx.preImages.map { unsignedPreImage ->
+                            evmNetworkSigner.signPreImage(unsignedPreImage)
+                        }
+                    )
                 }
             )
         }
@@ -318,6 +323,7 @@ data class DexTransaction internal constructor(
     val quote: DexQuote.ExchangeQuote?,
     private val _sourceAccount: DexAccount?,
     val destinationAccount: DexAccount?,
+    val txResult: Outcome<Exception, String>?,
     val slippage: Double,
     val txError: DexTxError,
     val quoteError: DexTxError.QuoteError?
@@ -341,6 +347,7 @@ data class DexTransaction internal constructor(
 data class OutputAmount(val expectedOutput: Money, val minOutputAmount: Money)
 
 private val EmptyDexTransaction = DexTransaction(
+    null,
     null,
     null,
     null,
