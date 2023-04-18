@@ -1,25 +1,17 @@
 package com.blockchain.transactions.swap.selectsource
 
-import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.commonarch.presentation.mvi_v2.EmptyNavEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
-import com.blockchain.data.DataResource
-import com.blockchain.data.dataOrElse
-import com.blockchain.data.map
 import com.blockchain.data.mapList
 import com.blockchain.transactions.common.AccountUiElement
 import com.blockchain.transactions.swap.CryptoAccountWithBalance
 import com.blockchain.transactions.swap.SwapService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flatMap
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.map
 
 class SelectSourceViewModel(
     private val swapService: SwapService,
@@ -68,4 +60,3 @@ class SelectSourceViewModel(
         )
     }
 }
-

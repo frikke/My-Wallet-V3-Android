@@ -6,14 +6,12 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.data.DataResource
-import com.blockchain.data.dataOrElse
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.store.flatMapData
-import com.blockchain.store.mapData
 import com.blockchain.utils.toFlowDataResource
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
@@ -27,7 +25,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.rx3.await
 
 internal class SwapRepository(
     private val coincore: Coincore,
@@ -123,4 +120,3 @@ private fun TransferDirection.targetAccountType(): AssetCategory {
         TransferDirection.FROM_USERKEY -> AssetCategory.CUSTODIAL
     }
 }
-

@@ -22,6 +22,7 @@ import com.blockchain.utils.removeLeadingZeros
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
+import java.math.BigDecimal
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -32,7 +33,6 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import java.math.BigDecimal
 
 /**
  * @property fromTicker if we come from Coinview we should have preset FROM
@@ -132,8 +132,8 @@ class EnterAmountViewModel(
                     else -> "BTC"
                 }
 
-                println("------ fromAccountTicker ${fromAccountTicker}")
-                println("------ fromAccountTicker to ${toAccountTicker}")
+                println("------ fromAccountTicker $fromAccountTicker")
+                println("------ fromAccountTicker to $toAccountTicker")
 
                 safeLet(
                     fromAccountTicker,
@@ -252,7 +252,6 @@ class EnterAmountViewModel(
                     )
                 }
             }.collect()
-
         }
     }
 

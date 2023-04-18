@@ -29,7 +29,7 @@ fun AccountList(
             ShimmerLoadingCard(modifier = modifier)
         }
         is DataResource.Error -> {
-            //todo
+            // todo
         }
         is DataResource.Data -> {
             LazyColumn(
