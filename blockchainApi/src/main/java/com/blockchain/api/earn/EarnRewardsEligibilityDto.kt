@@ -1,9 +1,9 @@
 package com.blockchain.api.earn
 
+import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Serializer
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -11,11 +11,14 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.JsonContentPolymorphicSerializer
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.jsonObject
 
 @Serializable
 data class EarnRewardsEligibilityDto(
     @SerialName("eligible")
-    val isEligible: Boolean = false,
+    val isEligible: Boolean,
     @SerialName("ineligibilityReason")
     val reason: String = DEFAULT_REASON_NONE
 ) {
@@ -33,52 +36,46 @@ data class EarnRewardsEligibilityDto(
     }
 }
 
-@Serializable(with = EarnRewardsEligibilityResponseDtoDateSerializer::class)
-sealed class EarnRewardsEligibilityResponseDto {
-    @Serializable
-    class AssetsWithEligibility(
-        val assets: Map<String, EarnRewardsEligibilityDto>
-    ) : EarnRewardsEligibilityResponseDto()
+@Serializable(with = EarnRewardsEligibilityResponseDtoSerializer::class)
+sealed class EarnRewardsEligibilityResponseDto
+@Serializable(with = AssetsWithEligibilityDeserializer::class)
+class AssetsWithEligibility(
+    val assets: Map<String, EarnRewardsEligibilityDto>
+) : EarnRewardsEligibilityResponseDto()
 
-    @Serializable
-    class IneligibleReason(
-        val eligibility: EarnRewardsEligibilityDto
-    ) : EarnRewardsEligibilityResponseDto()
+@Serializable
+class IneligibleReason(
+    val eligibility: EarnRewardsEligibilityDto
+) : EarnRewardsEligibilityResponseDto()
+
+object EarnRewardsEligibilityResponseDtoSerializer :
+    JsonContentPolymorphicSerializer<EarnRewardsEligibilityResponseDto>(EarnRewardsEligibilityResponseDto::class) {
+    override fun selectDeserializer(
+        element: JsonElement
+    ): DeserializationStrategy<out EarnRewardsEligibilityResponseDto> {
+        // We gotta do this because the backend returns a completely different JSON when there's no assets are eligible
+        return when {
+            element.jsonObject.containsKey("eligible") -> IneligibleReason.serializer()
+            else -> AssetsWithEligibilityDeserializer
+        }
+    }
 }
 
-// We gotta do this because the backend returns a completely different JSON when there's no assets are eligible
-@Serializer(EarnRewardsEligibilityResponseDto::class)
-object EarnRewardsEligibilityResponseDtoDateSerializer : KSerializer<EarnRewardsEligibilityResponseDto> {
-    override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor("EarnRewardsEligibilityDto2", PrimitiveKind.STRING)
+object AssetsWithEligibilityDeserializer : KSerializer<AssetsWithEligibility> {
 
     private val assetsWithEligibilitySerializer by lazy {
         MapSerializer(String.serializer(), EarnRewardsEligibilityDto.serializer())
     }
-    private val ineligibleReasonSerializer by lazy {
-        EarnRewardsEligibilityDto.serializer()
-    }
 
-    override fun serialize(encoder: Encoder, value: EarnRewardsEligibilityResponseDto) {
-        when (value) {
-            is EarnRewardsEligibilityResponseDto.AssetsWithEligibility ->
-                encoder.encodeSerializableValue(assetsWithEligibilitySerializer, value.assets)
-            is EarnRewardsEligibilityResponseDto.IneligibleReason ->
-                encoder.encodeSerializableValue(ineligibleReasonSerializer, value.eligibility)
-        }
-    }
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("AssetsWithEligibilityDeserializer", PrimitiveKind.STRING)
 
-    override fun deserialize(decoder: Decoder): EarnRewardsEligibilityResponseDto {
-        val value = try {
-            val decoded = decoder.decodeSerializableValue(ineligibleReasonSerializer)
-            EarnRewardsEligibilityResponseDto.IneligibleReason(
-                eligibility = decoded
-            )
-        } catch (ex: Exception) {
-            EarnRewardsEligibilityResponseDto.AssetsWithEligibility(
-                assets = decoder.decodeSerializableValue(assetsWithEligibilitySerializer)
-            )
-        }
-        return value
+    override fun serialize(encoder: Encoder, value: AssetsWithEligibility) {
+        encoder.encodeSerializableValue(assetsWithEligibilitySerializer, value.assets)
+    }
+    override fun deserialize(decoder: Decoder): AssetsWithEligibility {
+        return AssetsWithEligibility(
+            assets = decoder.decodeSerializableValue(assetsWithEligibilitySerializer)
+        )
     }
 }

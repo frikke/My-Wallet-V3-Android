@@ -1,6 +1,7 @@
 package com.blockchain.earn.data.dataresources.interest
 
 import com.blockchain.api.earn.EarnRewardsEligibilityResponseDto
+import com.blockchain.api.earn.EarnRewardsEligibilityResponseDtoSerializer
 import com.blockchain.api.earn.passive.InterestApiService
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Store
@@ -19,7 +20,7 @@ class InterestEligibilityStore(
                 interestApiService.getTickersEligibility()
             }
         ),
-        dataSerializer = EarnRewardsEligibilityResponseDto.serializer(),
+        dataSerializer = EarnRewardsEligibilityResponseDtoSerializer,
         mediator = FreshnessMediator(Freshness.DURATION_1_HOUR)
     ),
     FlushableDataSource {
