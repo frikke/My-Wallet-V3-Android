@@ -33,7 +33,7 @@ fun DexInProgressTransactionScreen(
         PrimaryButton(
             modifier = Modifier.fillMaxWidth(),
             text = "Well Done",
-            onClick = {}
+            onClick = onBackPressed
         )
     }
 }
