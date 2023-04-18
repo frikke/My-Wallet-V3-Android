@@ -69,18 +69,11 @@ internal class SwapRepository(
     override suspend fun highestBalanceSourceAccount(): CryptoAccountWithBalance? {
         return custodialSourceAccountsWithBalances()
             .filterIsInstance<DataResource.Data<List<CryptoAccountWithBalance>>>()
-            .map {
-                it.data.forEach {
-                    println("----- iiiiii ${it.account.currency.displayTicker} ---- ${it.balanceCrypto.toBigDecimal()}")
-                    println("-----")
-                }
-                it
-            }
             .map { it.data.maxBy { it.balanceCrypto.toBigDecimal() } }
             .firstOrNull()
     }
 
-    override fun limits(
+    override fun limits( // todo support defi
         from: CryptoCurrency,
         to: CryptoCurrency,
         fiat: FiatCurrency
@@ -94,8 +87,8 @@ internal class SwapRepository(
                 Product.TRADE,
                 TransferDirection.INTERNAL
             ).map { it as LegacyLimits },
-            sourceAccountType = TransferDirection.INTERNAL.sourceAccountType(),
-            targetAccountType = TransferDirection.INTERNAL.targetAccountType()
+            sourceAccountType = TransferDirection.INTERNAL.sourceAccountType(), // todo support defi
+            targetAccountType = TransferDirection.INTERNAL.targetAccountType() // todo support defi
         ).toFlowDataResource()
     }
 

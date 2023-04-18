@@ -23,7 +23,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.clickableNoEffect
 
 @Composable
-fun SheetHeader(
+private fun SheetHeader(
     icon: StackedIcon,
     title: String,
     isFloating: Boolean,
