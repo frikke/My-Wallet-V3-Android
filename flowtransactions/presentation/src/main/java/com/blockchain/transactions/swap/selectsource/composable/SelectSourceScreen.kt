@@ -24,13 +24,16 @@ import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun SelectSourceScreen(
-    viewModel: SelectSourceViewModel = getViewModel(scope = payloadScope)
+    viewModel: SelectSourceViewModel = getViewModel(scope = payloadScope),
+    excludeAccountTicker: String? = null,
+    onAccountSelected: (ticker: String) -> Unit,
+    onBackPressed: () -> Unit
 ) {
 
     val viewState: SelectSourceViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(SelectSourceIntent.LoadData)
+        viewModel.onIntent(SelectSourceIntent.LoadData(excludeAccountTicker = excludeAccountTicker))
         onDispose { }
     }
 
@@ -40,8 +43,7 @@ fun SelectSourceScreen(
         SheetFlatHeader(
             icon = StackedIcon.None,
             title = stringResource(R.string.common_swap_from),
-            onCloseClick = {
-            }
+            onCloseClick = onBackPressed
         )
 
         StandardVerticalSpacer()
@@ -51,7 +53,9 @@ fun SelectSourceScreen(
                 horizontal = AppTheme.dimensions.smallSpacing
             ),
             accounts = viewState.accountList,
-            onAccountClick = {},
+            onAccountClick = {
+                onAccountSelected(it.ticker)
+            },
             bottomSpacer = AppTheme.dimensions.smallSpacing
         )
     }
@@ -61,6 +65,9 @@ fun SelectSourceScreen(
 @Composable
 private fun SelectSourceScreenPreview() {
     AppTheme {
-        SelectSourceScreen()
+        SelectSourceScreen(
+            onAccountSelected = {},
+            onBackPressed = {}
+        )
     }
 }

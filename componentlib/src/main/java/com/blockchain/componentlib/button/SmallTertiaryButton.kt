@@ -13,13 +13,14 @@ import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Blue000
 import com.blockchain.componentlib.theme.Blue400
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.Blue700
 import com.blockchain.componentlib.theme.Grey900
 
 @Composable
-fun SmallPrimaryButton(
+fun SmallTertiaryButton(
     text: String,
     onClick: () -> Unit,
     state: ButtonState = ButtonState.Enabled,
@@ -45,14 +46,14 @@ fun SmallPrimaryButton(
         onClick = onClick,
         state = state,
         shape = AppTheme.shapes.extraLarge,
-        defaultTextColor = Color.White,
-        defaultBackgroundLightColor = Blue600,
-        defaultBackgroundDarkColor = Blue600,
+        defaultTextColor = Blue600,
+        defaultBackgroundLightColor = Color.White,
+        defaultBackgroundDarkColor = Color.White,
         disabledTextLightAlpha = 0.7f,
         disabledTextDarkAlpha = 0.4f,
-        disabledBackgroundLightColor = Blue400,
-        disabledBackgroundDarkColor = Grey900,
-        pressedBackgroundColor = Blue700,
+        disabledBackgroundLightColor = Color.White,
+        disabledBackgroundDarkColor = Color.White,
+        pressedBackgroundColor = Blue000,
         modifier = modifier.requiredHeightIn(min = dimensionResource(R.dimen.large_spacing)),
         contentPadding = contentPadding,
         buttonContent = { state: ButtonState, text: String, textColor: Color, textAlpha: Float, _: ImageResource ->
@@ -60,7 +61,8 @@ fun SmallPrimaryButton(
                 state = state,
                 text = text,
                 textColor = textColor,
-                contentAlpha = textAlpha
+                contentAlpha = textAlpha,
+                loadingIconResId = R.drawable.ic_loading_minimal_light
             )
         },
     )
@@ -68,10 +70,10 @@ fun SmallPrimaryButton(
 
 @Preview(name = "Default", group = "Small primary button")
 @Composable
-private fun SmallPrimaryButtonPreview() {
+private fun SmallTertiaryButtonPreview() {
     AppTheme {
         AppSurface {
-            SmallPrimaryButton(
+            SmallTertiaryButton(
                 text = "Click me",
                 onClick = { },
                 state = ButtonState.Enabled
@@ -82,10 +84,10 @@ private fun SmallPrimaryButtonPreview() {
 
 @Preview(name = "Disabled", group = "Small primary button")
 @Composable
-private fun SmallPrimaryButtonDisabledPreview() {
+private fun SmallTertiaryButtonDisabledPreview() {
     AppTheme {
         AppSurface {
-            SmallPrimaryButton(
+            SmallTertiaryButton(
                 text = "Click me",
                 onClick = { },
                 state = ButtonState.Disabled
@@ -96,10 +98,10 @@ private fun SmallPrimaryButtonDisabledPreview() {
 
 @Preview(name = "Loading", group = "Small primary button")
 @Composable
-private fun SmallPrimaryButtonLoadingPreview() {
+private fun SmallTertiaryButtonLoadingPreview() {
     AppTheme {
         AppSurface {
-            SmallPrimaryButton(
+            SmallTertiaryButton(
                 text = "Click me",
                 onClick = { },
                 state = ButtonState.Loading
@@ -110,10 +112,10 @@ private fun SmallPrimaryButtonLoadingPreview() {
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun SmallPrimaryButtonPreview_Dark() {
+private fun SmallTertiaryButtonPreview_Dark() {
     AppTheme {
         AppSurface {
-            SmallPrimaryButton(
+            SmallTertiaryButton(
                 text = "Click me",
                 onClick = { },
                 state = ButtonState.Enabled
@@ -127,7 +129,7 @@ private fun SmallPrimaryButtonPreview_Dark() {
 private fun PrimaryButtonDisabledPreview_Dark() {
     AppTheme {
         AppSurface {
-            SmallPrimaryButton(
+            SmallTertiaryButton(
                 text = "Click me",
                 onClick = { },
                 state = ButtonState.Disabled
@@ -141,7 +143,7 @@ private fun PrimaryButtonDisabledPreview_Dark() {
 private fun PrimaryButtonLoadingPreview_Dark() {
     AppTheme {
         AppSurface {
-            SmallPrimaryButton(
+            SmallTertiaryButton(
                 text = "Click me",
                 onClick = { },
                 state = ButtonState.Loading

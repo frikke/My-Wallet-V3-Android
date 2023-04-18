@@ -6,9 +6,12 @@ import androidx.navigation.navigation
 import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.chrome.composable.ChromeSingleScreen
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationDestination
+import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
 import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
+import com.blockchain.commonarch.presentation.mvi_v2.compose.getComposeArgument
 import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
+import com.blockchain.commonarch.presentation.mvi_v2.compose.wrappedArg
 import com.blockchain.transactions.swap.enteramount.composable.EnterAmount
 import com.blockchain.transactions.swap.selectsource.composable.SelectSourceScreen
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
@@ -22,9 +25,11 @@ fun NavGraphBuilder.swapGraph(
         composable(navigationEvent = SwapDestination.EnterAmount) {
             ChromeSingleScreen {
                 EnterAmount(
-                    openSourceAccounts = {
+                    navControllerProvider = navControllerProvider,
+                    openSourceAccounts = { excludeAccountTicker ->
                         navControllerProvider().navigate(
-                            SwapDestination.SourceAccounts
+                            SwapDestination.SourceAccounts,
+                            args = listOf(NavArgument(ARG_EXCLUDE_ACCOUNT_TICKER, excludeAccountTicker))
                         )
                     },
                     onBackPressed = onBackPressed
@@ -32,18 +37,29 @@ fun NavGraphBuilder.swapGraph(
             }
         }
 
-        bottomSheet(navigationEvent = SwapDestination.SourceAccounts) {
+        bottomSheet(navigationEvent = SwapDestination.SourceAccounts) { backStackEntry ->
             ChromeBottomSheet(onClose = onBackPressed) {
-                SelectSourceScreen()
+                SelectSourceScreen(
+                    excludeAccountTicker = backStackEntry.arguments?.getComposeArgument(ARG_EXCLUDE_ACCOUNT_TICKER),
+                    onAccountSelected = {
+                        navControllerProvider().previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("your_key", it)
+                        onBackPressed()
+                    },
+                    onBackPressed = onBackPressed
+                )
             }
         }
     }
 }
+
+const val ARG_EXCLUDE_ACCOUNT_TICKER = "excludeAccountTicker"
 
 sealed class SwapDestination(
     override val route: String
 ) : ComposeNavigationDestination {
     object Main : SwapDestination("SwapMain")
     object EnterAmount : SwapDestination("SwapEnterAmount")
-    object SourceAccounts : SwapDestination("SwapSourceAccounts")
+    object SourceAccounts : SwapDestination("SwapSourceAccounts/${ARG_EXCLUDE_ACCOUNT_TICKER.wrappedArg()}")
 }
