@@ -30,6 +30,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.IntSize
@@ -47,6 +48,7 @@ import com.blockchain.componentlib.theme.Grey200
 import com.blockchain.componentlib.theme.Grey300
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.theme.Grey900
+import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.dex.presentation.R
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
@@ -106,7 +108,17 @@ fun SourceAndDestinationAmountFields(
                             ExchangeAmount(it, true)
                         }
                         when {
-                            sourceAmountFieldConfig.max != null -> MaxAmount(sourceAmountFieldConfig.max)
+                            sourceAmountFieldConfig.max != null -> MaxAmount(
+                                maxAvailable = sourceAmountFieldConfig.max,
+                                maxClick = {
+                                    val text = sourceAmountFieldConfig.max.toStringWithoutSymbol()
+                                    input = TextFieldValue(
+                                        text = text,
+                                        selection = TextRange(text.length)
+                                    )
+                                    onValueChanged(input)
+                                }
+                            )
                             sourceAmountFieldConfig.balance != null -> BalanceAmount(sourceAmountFieldConfig.balance)
                         }
                     }
@@ -308,7 +320,7 @@ private fun MaskedCircleArrow(parentSize: IntSize) {
 }
 
 @Composable
-private fun RowScope.MaxAmount(maxAvailable: Money) {
+private fun RowScope.MaxAmount(maxAvailable: Money, maxClick: () -> Unit) {
     Row(
         modifier = Modifier
             .padding(
@@ -316,6 +328,7 @@ private fun RowScope.MaxAmount(maxAvailable: Money) {
                 end = AppTheme.dimensions.smallSpacing,
                 bottom = AppTheme.dimensions.smallSpacing
             )
+            .clickableNoEffect { maxClick() }
             .wrapContentSize()
     ) {
         Text(
@@ -382,7 +395,7 @@ private fun RowScope.Balance() {
     }
 }
 
-data class AmountFieldConfig(
+class AmountFieldConfig(
     val isEnabled: Boolean,
     val isReadOnly: Boolean,
     val onCurrencyClicked: () -> Unit,
