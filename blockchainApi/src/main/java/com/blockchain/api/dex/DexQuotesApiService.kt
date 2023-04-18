@@ -8,7 +8,8 @@ class DexQuotesApiService(private val dexQuotesApi: DexQuotesApi) {
         fromCurrency: FromCurrency,
         toCurrency: ToCurrency,
         slippage: Double,
-        address: String
+        address: String,
+        skipValidation: Boolean,
     ): Outcome<Exception, DexQuoteResponse> =
         dexQuotesApi.quote(
             product = DEX_PRODUCT,
@@ -18,7 +19,8 @@ class DexQuotesApiService(private val dexQuotesApi: DexQuotesApi) {
                 toCurrency = toCurrency,
                 takerAddress = address,
                 params = DexQuotesParams(
-                    slippage = slippage.toString()
+                    slippage = slippage.toString(),
+                    skipValidation = skipValidation
                 )
             )
         )
@@ -85,5 +87,6 @@ data class ToCurrency(
 
 @kotlinx.serialization.Serializable
 data class DexQuotesParams(
-    private val slippage: String
+    private val slippage: String,
+    private val skipValidation: Boolean
 )

@@ -16,7 +16,11 @@ import kotlinx.coroutines.flow.collectLatest
 class SelectSourceViewModel(
     private val swapService: SwapService,
     private val assetCatalogue: AssetCatalogue
-) : MviViewModel<SelectSourceIntent, SelectSourceViewState, SelectSourceModelState, EmptyNavEvent, ModelConfigArgs.NoArgs>(
+) : MviViewModel<SelectSourceIntent,
+    SelectSourceViewState,
+    SelectSourceModelState,
+    EmptyNavEvent,
+    ModelConfigArgs.NoArgs>(
     SelectSourceModelState()
 ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}

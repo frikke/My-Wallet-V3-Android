@@ -120,6 +120,17 @@ sealed class EarnAnalytics(
         origin = origin
     )
 
+    class StakingWithdrawalClicked(
+        currency: String,
+        origin: LaunchOrigin
+    ) : EarnAnalytics(
+        event = AnalyticsNames.STAKING_WITHDRAWAL_CLICKED.eventName,
+        mapOf(
+            CURRENCY to currency
+        ),
+        origin = origin
+    )
+
     class ActiveRewardsDepositClicked(
         currency: String,
         origin: LaunchOrigin

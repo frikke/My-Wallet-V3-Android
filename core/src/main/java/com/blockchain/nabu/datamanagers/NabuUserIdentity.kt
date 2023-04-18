@@ -53,6 +53,7 @@ class NabuUserIdentity(
             Feature.DepositStaking,
             Feature.DepositActiveRewards,
             Feature.CustodialAccounts,
+            Feature.Kyc,
             Feature.WithdrawFiat -> userAccessForFeature(feature, freshnessStrategy).map { it is FeatureAccess.Granted }
         }
     }
@@ -72,6 +73,7 @@ class NabuUserIdentity(
             Feature.DepositStaking,
             Feature.DepositActiveRewards,
             Feature.Sell,
+            Feature.Kyc,
             Feature.WithdrawFiat -> throw IllegalArgumentException("Cannot be verified for $feature")
         }.exhaustive
     }
@@ -196,6 +198,13 @@ class NabuUserIdentity(
                 rxSingleOutcome {
                     eligibilityService.getProductEligibilityLegacy(
                         EligibleProduct.USE_CUSTODIAL_ACCOUNTS, freshnessStrategy
+                    )
+                }
+                    .map(ProductEligibility::toFeatureAccess)
+            Feature.Kyc ->
+                rxSingleOutcome {
+                    eligibilityService.getProductEligibilityLegacy(
+                        EligibleProduct.KYC, freshnessStrategy
                     )
                 }
                     .map(ProductEligibility::toFeatureAccess)

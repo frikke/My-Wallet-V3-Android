@@ -155,6 +155,7 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
     }
 
     data class LaunchStakingDepositFlow(val account: EarnRewardsAccount.Staking) : CoinviewIntent
+    object LaunchStakingWithdrawFlow : CoinviewIntent
     data class LaunchStakingActivity(val account: EarnRewardsAccount.Staking) : CoinviewIntent
     object LaunchActiveRewardsDepositFlow : CoinviewIntent
     object LaunchActiveRewardsWithdrawFlow : CoinviewIntent

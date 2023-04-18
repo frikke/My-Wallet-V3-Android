@@ -374,6 +374,7 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
                 AssetAction.Send -> R.string.common_send
                 AssetAction.FiatWithdraw,
                 AssetAction.ActiveRewardsWithdraw,
+                AssetAction.StakingWithdraw,
                 AssetAction.InterestWithdraw -> R.string.common_withdraw
                 AssetAction.Swap -> R.string.common_swap
                 AssetAction.Sell -> R.string.common_sell

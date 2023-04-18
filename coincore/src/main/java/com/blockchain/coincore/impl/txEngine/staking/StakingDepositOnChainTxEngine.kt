@@ -13,7 +13,6 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toCrypto
-import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.earn.domain.service.StakingService
@@ -29,8 +28,6 @@ class StakingDepositOnChainTxEngine(
     stakingService: StakingService,
     private val onChainEngine: OnChainTxEngineBase,
 ) : StakingBaseEngine(stakingService) {
-
-    private val paymentTransactionHistoryStore: PaymentTransactionHistoryStore by scopedInject()
 
     override val flushableDataSources: List<FlushableDataSource>
         get() = listOf(stakingBalanceStore, paymentTransactionHistoryStore)

@@ -53,7 +53,6 @@ import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
-import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 
 class MainInteractor internal constructor(
     private val deepLinkProcessor: DeepLinkProcessor,
@@ -65,7 +64,6 @@ class MainInteractor internal constructor(
     private val bankService: BankService,
     private val simpleBuySync: SimpleBuySyncFactory,
     private val userIdentity: UserIdentity,
-    private val upsellManager: KycUpgradePromptManager,
     private val credentialsWiper: CredentialsWiper,
     private val qrScanResultProcessor: QrScanResultProcessor,
     private val secureChannelService: SecureChannelService,
@@ -136,9 +134,6 @@ class MainInteractor internal constructor(
     fun getSimpleBuySyncLocalState(): SimpleBuyState? = simpleBuySync.currentState()
 
     fun performSimpleBuySync(): Completable = simpleBuySync.performSync()
-
-    fun checkIfShouldUpsell(action: AssetAction, account: BlockchainAccount?): Single<KycUpgradePromptManager.Type> =
-        upsellManager.queryUpsell(action, account)
 
     fun unpairWallet(): Completable =
         Completable.fromAction {

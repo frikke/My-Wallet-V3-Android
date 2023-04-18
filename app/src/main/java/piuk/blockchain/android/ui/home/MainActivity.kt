@@ -109,7 +109,6 @@ import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.scan.ScanAndConnectBottomSheet
 import piuk.blockchain.android.ui.settings.SettingsActivity
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
-import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AndroidUtils
 import timber.log.Timber
 
@@ -458,9 +457,6 @@ class MainActivity :
             }
             is ViewToLaunch.LaunchKyc -> KycNavHostActivity.startForResult(
                 this, view.campaignType, KYC_STARTED
-            )
-            is ViewToLaunch.LaunchUpsellAssetAction -> replaceBottomSheet(
-                KycUpgradePromptManager.getUpsellSheet(view.upsell)
             )
             is ViewToLaunch.LaunchOpenBankingApprovalDepositComplete -> {
                 val currencyCode = view.amount.currencyCode

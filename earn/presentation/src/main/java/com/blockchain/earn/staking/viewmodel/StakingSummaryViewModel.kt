@@ -2,8 +2,9 @@ package com.blockchain.earn.staking.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.EarnRewardsAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
@@ -11,14 +12,17 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.combineDataResources
 import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
+import com.blockchain.earn.domain.models.EarnWithdrawal
 import com.blockchain.earn.domain.models.StakingRewardsRates
 import com.blockchain.earn.domain.models.staking.StakingAccountBalance
 import com.blockchain.earn.domain.models.staking.StakingLimits
 import com.blockchain.earn.domain.service.StakingService
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.utils.combineMore
+import com.blockchain.utils.toFormattedDateTime
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.asFlow
 import kotlinx.parcelize.Parcelize
@@ -26,7 +30,8 @@ import kotlinx.parcelize.Parcelize
 class StakingSummaryViewModel(
     private val coincore: Coincore,
     private val stakingService: StakingService,
-    private val exchangeRatesDataManager: ExchangeRatesDataManager
+    private val exchangeRatesDataManager: ExchangeRatesDataManager,
+    private val stakingWithdrawalsFF: FeatureFlag
 ) : MviViewModel<StakingSummaryIntent,
     StakingSummaryViewState,
     StakingSummaryModelState,
@@ -45,6 +50,7 @@ class StakingSummaryViewModel(
     override fun reduce(state: StakingSummaryModelState): StakingSummaryViewState = state.run {
         StakingSummaryViewState(
             account = account,
+            tradingAccount = tradingAccount,
             isLoading = isLoading,
             errorState = errorState,
             balanceCrypto = balance,
@@ -57,9 +63,10 @@ class StakingSummaryViewModel(
             earnedFiat = totalEarned?.toUserFiat(exchangeRatesDataManager),
             stakingRate = stakingRate,
             commissionRate = stakingCommission,
-            isWithdrawable = isWithdrawable,
             earnFrequency = state.frequency,
-            canDeposit = canDeposit
+            canDeposit = canDeposit,
+            canWithdraw = canWithdraw,
+            pendingWithdrawals = reducePendingWithdrawals(pendingWithdrawals)
         )
     }
 
@@ -80,17 +87,32 @@ class StakingSummaryViewModel(
                 isLoading = true
             )
         }
-        combine(
+
+        val withdrawalsEnabled = stakingWithdrawalsFF.coEnabled()
+
+        combineMore(
             coincore[currency].accountGroup(AssetFilter.Staking).toObservable().map {
-                it.accounts.first() as EarnRewardsAccount.Staking
+                it.accounts.first()
+            }.asFlow(),
+            coincore[currency].accountGroup(AssetFilter.Trading).toObservable().map {
+                it.accounts.first() as CustodialTradingAccount
             }.asFlow(),
             stakingService.getBalanceForAsset(currency),
             stakingService.getLimitsForAsset(currency as AssetInfo),
             stakingService.getRatesForAsset(currency),
-            stakingService.getEligibilityForAsset(currency)
-        ) { account, balance, limits, rate, eligibility ->
-            combineDataResources(DataResource.Data(account), balance, limits, rate, eligibility) { a, b, l, r, e ->
-                StakingSummaryData(a, b, l, r, e)
+            stakingService.getEligibilityForAsset(currency),
+            stakingService.getOngoingWithdrawals(currency)
+        ) { account, tradingAccount, balance, limits, rate, eligibility, withdrawals ->
+            combineDataResources(
+                DataResource.Data(account),
+                DataResource.Data(tradingAccount),
+                balance,
+                limits,
+                rate,
+                eligibility,
+                withdrawals
+            ) { a, t, b, l, r, e, w ->
+                StakingSummaryData(a, t, b, l, r, e, w)
             }
         }.collectLatest { summary ->
             when (summary) {
@@ -98,6 +120,7 @@ class StakingSummaryViewModel(
                     with(summary.data) {
                         it.copy(
                             account = account,
+                            tradingAccount = tradingAccount,
                             errorState = StakingError.None,
                             isLoading = false,
                             balance = balance.totalBalance,
@@ -109,8 +132,11 @@ class StakingSummaryViewModel(
                             stakingRate = rates.rate,
                             stakingCommission = rates.commission,
                             frequency = limits.rewardsFrequency,
-                            isWithdrawable = !limits.withdrawalsDisabled,
-                            canDeposit = eligibility is EarnRewardsEligibility.Eligible
+                            canDeposit = eligibility is EarnRewardsEligibility.Eligible,
+                            canWithdraw = balance.availableBalance.isPositive &&
+                                withdrawalsEnabled &&
+                                !limits.withdrawalsDisabled,
+                            pendingWithdrawals = pendingWithdrawals
                         )
                     }
                 }
@@ -121,6 +147,21 @@ class StakingSummaryViewModel(
             }
         }
     }
+
+    private fun reducePendingWithdrawals(pendingWithdrawals: List<EarnWithdrawal>): List<EarnWithdrawalUiElement> =
+        pendingWithdrawals.map {
+            EarnWithdrawalUiElement(
+                currency = it.currency,
+                amountCrypto = it.amountCrypto?.let { amount ->
+                    "-${amount.toStringWithSymbol()}"
+                } ?: "",
+                amountFiat = it.amountCrypto?.let { amount ->
+                    "-${amount.toUserFiat(exchangeRatesDataManager).toStringWithSymbol()}"
+                } ?: "",
+                unbondingStartDate = it.unbondingStartDate?.toFormattedDateTime() ?: "",
+                unbondingExpiryDate = it.unbondingExpiryDate?.toFormattedDateTime() ?: "",
+            )
+        }
 }
 
 @Parcelize
@@ -129,9 +170,11 @@ data class StakingSummaryArgs(
 ) : ModelConfigArgs.ParcelableArgs
 
 private data class StakingSummaryData(
-    val account: EarnRewardsAccount.Staking,
+    val account: BlockchainAccount,
+    val tradingAccount: CustodialTradingAccount,
     val balance: StakingAccountBalance,
     val limits: StakingLimits,
     val rates: StakingRewardsRates,
     val eligibility: EarnRewardsEligibility,
+    val pendingWithdrawals: List<EarnWithdrawal>
 )

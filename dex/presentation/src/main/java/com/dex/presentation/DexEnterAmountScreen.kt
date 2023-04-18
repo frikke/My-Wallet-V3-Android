@@ -287,7 +287,7 @@ fun InputScreen(
                 max = viewState.maxAmount,
                 onCurrencyClicked = selectSourceAccount,
                 amount = viewState.txAmount,
-                balance = null,
+                balance = viewState.sourceAccountBalance,
                 canChangeCurrency = true
             ),
 

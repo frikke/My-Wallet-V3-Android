@@ -313,6 +313,17 @@ class CoinViewActivity :
                 )
             }
 
+            is CoinviewNavigationEvent.NavigateToStakingWithdraw -> {
+                startActivity(
+                    TransactionFlowActivity.newIntent(
+                        context = this,
+                        action = AssetAction.StakingWithdraw,
+                        sourceAccount = navigationEvent.cvSourceStakingAccount.account,
+                        target = navigationEvent.cvTargetCustodialTradingAccount.account as TransactionTarget
+                    )
+                )
+            }
+
             is CoinviewNavigationEvent.NavigateToActiveRewardsDeposit -> {
                 startActivity(
                     TransactionFlowActivity.newIntent(
@@ -488,15 +499,42 @@ class CoinViewActivity :
         ).show()
     }
 
-    override fun launchStakingWithdrawal(account: EarnRewardsAccount.Staking) {
-        // TODO(EARN) - STAKING - not yet implemented
-    }
-
     override fun launchStakingDeposit(account: EarnRewardsAccount.Staking) {
+        analytics.logEvent(
+            CoinViewAnalytics.RewardsWithdrawOrAddClicked(
+                origin = LaunchOrigin.COIN_VIEW,
+                currency = (account as CryptoAccount).currency.networkTicker,
+                type = CoinViewAnalytics.Companion.Type.ADD
+            )
+        )
+
         viewModel.onIntent(CoinviewIntent.LaunchStakingDepositFlow(account))
     }
 
+    override fun launchStakingWithdrawal(
+        sourceAccount: BlockchainAccount,
+        targetAccount: CustodialTradingAccount
+    ) {
+        analytics.logEvent(
+            CoinViewAnalytics.RewardsWithdrawOrAddClicked(
+                origin = LaunchOrigin.COIN_VIEW,
+                currency = (sourceAccount as CryptoAccount).currency.networkTicker,
+                type = CoinViewAnalytics.Companion.Type.WITHDRAW
+            )
+        )
+
+        viewModel.onIntent(CoinviewIntent.LaunchStakingWithdrawFlow)
+    }
+
     override fun launchActiveRewardsDeposit(account: EarnRewardsAccount.Active) {
+        analytics.logEvent(
+            CoinViewAnalytics.RewardsWithdrawOrAddClicked(
+                origin = LaunchOrigin.COIN_VIEW,
+                currency = (account as CryptoAccount).currency.networkTicker,
+                type = CoinViewAnalytics.Companion.Type.ADD
+            )
+        )
+
         viewModel.onIntent(CoinviewIntent.LaunchActiveRewardsDepositFlow)
     }
 
@@ -504,6 +542,14 @@ class CoinViewActivity :
         sourceAccount: BlockchainAccount,
         targetAccount: CustodialTradingAccount
     ) {
+        analytics.logEvent(
+            CoinViewAnalytics.RewardsWithdrawOrAddClicked(
+                origin = LaunchOrigin.COIN_VIEW,
+                currency = (sourceAccount as CryptoAccount).currency.networkTicker,
+                type = CoinViewAnalytics.Companion.Type.WITHDRAW
+            )
+        )
+
         viewModel.onIntent(CoinviewIntent.LaunchActiveRewardsWithdrawFlow)
     }
 

@@ -5,6 +5,7 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.domain.models.EarnRewardsActivity
+import com.blockchain.earn.domain.models.EarnWithdrawal
 import com.blockchain.earn.domain.models.StakingRewardsRates
 import com.blockchain.earn.domain.models.staking.StakingAccountBalance
 import com.blockchain.earn.domain.models.staking.StakingLimits
@@ -97,4 +98,9 @@ interface StakingService {
             RefreshStrategy.RefreshIfOlderThan(10, TimeUnit.MINUTES)
         )
     ): Flow<DataResource<StakingLimits>>
+
+    suspend fun getOngoingWithdrawals(
+        currency: Currency,
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+    ): Flow<DataResource<List<EarnWithdrawal>>>
 }

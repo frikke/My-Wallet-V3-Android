@@ -85,6 +85,9 @@ enum class AssetAction(
     // Receive to a Staking account
     StakingDeposit(ActionOrigin.FROM_SOURCE),
 
+    // Withdraw from a Staking account
+    StakingWithdraw(ActionOrigin.FROM_SOURCE),
+
     // Receive to an ActiveRewards account
     ActiveRewardsDeposit(ActionOrigin.FROM_SOURCE),
 

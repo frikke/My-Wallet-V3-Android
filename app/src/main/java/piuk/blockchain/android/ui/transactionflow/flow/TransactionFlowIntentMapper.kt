@@ -45,6 +45,9 @@ class TransactionFlowIntentMapper(
             AssetAction.StakingDeposit -> {
                 handleStakingDeposit(passwordRequired)
             }
+            AssetAction.StakingWithdraw -> {
+                handleStakingWithdraw(passwordRequired)
+            }
             AssetAction.ActiveRewardsDeposit -> {
                 handleActiveRewardsDeposit(passwordRequired)
             }
@@ -102,6 +105,20 @@ class TransactionFlowIntentMapper(
             )
             else -> throw IllegalStateException(
                 "Calling staking deposit without source and target is not supported"
+            )
+        }
+
+    private fun handleStakingWithdraw(passwordRequired: Boolean) =
+        when {
+            sourceAccount.isDefinedCryptoAccount() && target.isDefinedTarget() ->
+                TransactionIntent.InitialiseWithSourceAndTargetAccount(
+                    action,
+                    sourceAccount,
+                    target,
+                    passwordRequired
+                )
+            else -> throw IllegalStateException(
+                "Calling staking withdraw without source and target is not supported"
             )
         }
 

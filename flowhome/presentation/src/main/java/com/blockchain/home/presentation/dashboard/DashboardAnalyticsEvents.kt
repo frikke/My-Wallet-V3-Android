@@ -131,6 +131,7 @@ fun AssetAction.eventName() = when (this) {
     AssetAction.InterestWithdraw,
     AssetAction.Sign,
     AssetAction.StakingDeposit,
+    AssetAction.StakingWithdraw,
     AssetAction.ActiveRewardsWithdraw,
     AssetAction.ActiveRewardsDeposit -> null
 }

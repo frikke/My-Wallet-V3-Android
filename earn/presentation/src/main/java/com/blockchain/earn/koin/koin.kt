@@ -7,6 +7,7 @@ import com.blockchain.earn.staking.viewmodel.StakingSummaryViewModel
 import com.blockchain.koin.activeRewardsAccountFeatureFlag
 import com.blockchain.koin.activeRewardsWithdrawalsFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.stakingWithdrawalsFeatureFlag
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -25,7 +26,8 @@ val earnPresentationModule = module {
             StakingSummaryViewModel(
                 coincore = get(),
                 stakingService = get(),
-                exchangeRatesDataManager = get()
+                exchangeRatesDataManager = get(),
+                stakingWithdrawalsFF = get(stakingWithdrawalsFeatureFlag)
             )
         }
 

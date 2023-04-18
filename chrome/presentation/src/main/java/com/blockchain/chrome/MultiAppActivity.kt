@@ -467,8 +467,15 @@ class MultiAppActivity :
         ).show()
     }
 
-    override fun launchStakingWithdrawal(account: EarnRewardsAccount.Staking) {
-        // TODO(EARN) - STAKING - not yet implemented
+    override fun launchStakingWithdrawal(
+        sourceAccount: BlockchainAccount,
+        targetAccount: CustodialTradingAccount
+    ) {
+        transactionFlowNavigation.startTransactionFlow(
+            action = AssetAction.StakingWithdraw,
+            sourceAccount = sourceAccount,
+            target = targetAccount as TransactionTarget
+        )
     }
 
     override fun launchStakingDeposit(account: EarnRewardsAccount.Staking) {

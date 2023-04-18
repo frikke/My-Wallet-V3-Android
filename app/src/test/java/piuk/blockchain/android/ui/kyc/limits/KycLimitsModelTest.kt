@@ -25,6 +25,7 @@ class KycLimitsModelTest {
         on { fetchLimits() }.thenReturn(Single.just(TEST_FEATURE_LIMITS))
         on { fetchHighestApprovedTier() }.thenReturn(Single.just(KycTier.SILVER))
         on { fetchIsKycRejected() }.thenReturn(Single.just(false))
+        on { fetchIsEligibleToKyc() }.thenReturn(Single.just(true))
     }
 
     private lateinit var model: KycLimitsModel

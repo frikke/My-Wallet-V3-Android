@@ -146,6 +146,7 @@ class NoBalanceActionBottomSheet : BottomSheetDialogFragment() {
             }
             AssetAction.InterestWithdraw,
             AssetAction.ActiveRewardsWithdraw,
+            AssetAction.StakingWithdraw,
             AssetAction.FiatWithdraw -> {
                 actionName = getString(R.string.common_withdraw)
                 icon = R.drawable.ic_tx_withdraw

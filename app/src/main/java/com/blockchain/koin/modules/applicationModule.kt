@@ -185,7 +185,6 @@ import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.resources.AssetResourcesImpl
 import piuk.blockchain.android.ui.ssl.SSLVerifyPresenter
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailIntentHelper
-import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.BackupWalletUtil
 import piuk.blockchain.android.util.FormatChecker
@@ -613,7 +612,8 @@ val applicationModule = module {
                 kycService = get(),
                 bankService = get(),
                 cardService = get(),
-                tradeDataService = get()
+                tradeDataService = get(),
+                userFeaturePermissionService = get(),
             )
         }.bind(OnBoardingStepsService::class)
 
@@ -729,11 +729,6 @@ val applicationModule = module {
                 coincore = get(),
                 custodialWalletManager = get(),
                 currencyPrefs = get()
-            )
-        }
-        factory {
-            KycUpgradePromptManager(
-                identity = get()
             )
         }
 

@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarDuration
+import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,6 +38,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -46,11 +49,15 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.control.Checkbox
 import com.blockchain.componentlib.control.CheckboxState
 import com.blockchain.componentlib.controls.OutlinedTextInput
 import com.blockchain.componentlib.controls.TextInputState
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.User
+import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.theme.AppTheme
@@ -84,8 +91,7 @@ fun CreateWalletScreen(
             if (error != null) {
                 when (error) {
                     is CreateWalletError.Unknown,
-                    CreateWalletError.RecaptchaFailed,
-                    CreateWalletError.WalletCreationFailed -> {
+                    CreateWalletError.RecaptchaFailed -> {
                         keyboardController?.hide()
                         scaffoldState.snackbarHostState.showSnackbar(
                             message = error.errorMessage(context),
@@ -109,35 +115,22 @@ fun CreateWalletScreen(
                 onBackButtonClick = { onIntent(CreateWalletIntent.BackClicked) },
             )
 
-            when (state.step) {
-                CreateWalletStep.REGION_AND_REFERRAL -> RegionAndReferralStep(
+            when (state.screen) {
+                CreateWalletScreen.REGION_AND_REFERRAL -> RegionAndReferralStep(
                     state,
                     onIntent,
                     showCountryBottomSheet,
                     showStateBottomSheet,
                 )
-                CreateWalletStep.EMAIL_AND_PASSWORD -> EmailAndPasswordStep(state, onIntent)
+                CreateWalletScreen.EMAIL_AND_PASSWORD -> EmailAndPasswordStep(state, onIntent)
+                CreateWalletScreen.CREATION_FAILED -> CreateWalletFailed(
+                    backOnClick = {
+                        onIntent(CreateWalletIntent.BackClicked)
+                    }
+                )
             }
 
             Spacer(Modifier.weight(1f))
-
-            val ctaText = when (state.step) {
-                CreateWalletStep.REGION_AND_REFERRAL -> R.string.common_next
-                CreateWalletStep.EMAIL_AND_PASSWORD -> R.string.create_wallet_create_account
-            }
-            PrimaryButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = AppTheme.dimensions.smallSpacing,
-                        vertical = AppTheme.dimensions.standardSpacing,
-                    ),
-                text = stringResource(ctaText),
-                state = state.nextButtonState,
-                onClick = {
-                    onIntent(CreateWalletIntent.NextClicked)
-                },
-            )
         }
     }
 }
@@ -292,6 +285,22 @@ private fun RegionAndReferralStep(
             onValueChange = {
                 onIntent(CreateWalletIntent.ReferralInputChanged(it))
             }
+        )
+
+        Spacer(Modifier.weight(1f))
+
+        PrimaryButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = AppTheme.dimensions.smallSpacing,
+                    vertical = AppTheme.dimensions.standardSpacing,
+                ),
+            text = stringResource(R.string.common_next),
+            state = state.nextButtonState,
+            onClick = {
+                onIntent(CreateWalletIntent.RegionNextClicked)
+            },
         )
     }
 }
@@ -453,14 +462,95 @@ private fun EmailAndPasswordStep(
                 }
             )
         }
+
+        Spacer(Modifier.weight(1f))
+
+        PrimaryButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = AppTheme.dimensions.smallSpacing,
+                    vertical = AppTheme.dimensions.standardSpacing,
+                ),
+            text = stringResource(R.string.create_wallet_create_account),
+            state = state.nextButtonState,
+            onClick = {
+                onIntent(CreateWalletIntent.EmailPasswordNextClicked)
+            },
+        )
     }
+}
+
+@Composable
+private fun CreateWalletFailed(
+    backOnClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = AppTheme.dimensions.smallSpacing),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Column(
+            modifier = Modifier.weight(1F),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Image(
+                imageResource = Icons.Filled.User.withTint(Color.White)
+                    .withBackground(
+                        backgroundColor = AppTheme.colors.primary,
+                        iconSize = 40.dp,
+                        backgroundSize = 72.dp
+                    )
+            )
+
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
+
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.create_wallet_error_title),
+                style = AppTheme.typography.title3,
+                color = AppTheme.colors.title,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.create_wallet_error_description),
+                style = AppTheme.typography.body1,
+                color = AppTheme.colors.body,
+                textAlign = TextAlign.Center
+            )
+        }
+
+        MinimalButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = AppTheme.dimensions.smallSpacing,
+                    vertical = AppTheme.dimensions.standardSpacing,
+                ),
+            text = stringResource(R.string.common_go_back),
+
+            onClick = backOnClick,
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewCreateWalletFailed() {
+    CreateWalletFailed({})
 }
 
 @Preview
 @Composable
 private fun Preview_RegionAndReferral() {
     val state = CreateWalletViewState(
-        step = CreateWalletStep.REGION_AND_REFERRAL,
+        screen = CreateWalletScreen.REGION_AND_REFERRAL,
         emailInput = "test@blockchain.com",
         isShowingInvalidEmailError = true,
         passwordInput = "Somepassword",
@@ -486,7 +576,7 @@ private fun Preview_RegionAndReferral() {
 @Composable
 private fun Preview_EmailAndPassword() {
     val state = CreateWalletViewState(
-        step = CreateWalletStep.EMAIL_AND_PASSWORD,
+        screen = CreateWalletScreen.EMAIL_AND_PASSWORD,
         emailInput = "test@blockchain.com",
         isShowingInvalidEmailError = true,
         passwordInput = "Somepassword",
@@ -518,7 +608,6 @@ private val countries = listOf(
 )
 
 private fun CreateWalletError.errorMessage(context: Context): String = when (this) {
-    CreateWalletError.WalletCreationFailed -> context.getString(R.string.hd_error)
     CreateWalletError.RecaptchaFailed -> context.getString(R.string.recaptcha_failed)
     is CreateWalletError.Unknown -> this.message ?: context.getString(R.string.something_went_wrong_try_again)
 }

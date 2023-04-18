@@ -10,7 +10,7 @@ data class StakingAccountBalance(
     val pendingWithdrawal: Money,
     val totalRewards: Money,
 ) {
-    val availableBalance = totalBalance - lockedBalance
+    val availableBalance = totalBalance - lockedBalance - pendingWithdrawal - pendingDeposit
 
     companion object {
         fun zeroBalance(currency: Currency): StakingAccountBalance =

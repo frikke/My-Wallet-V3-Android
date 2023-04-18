@@ -33,6 +33,7 @@ val activeRewardsWithdrawalsFeatureFlag = StringQualifier("android_ff_active_rew
 val iterableAnnouncementsFeatureFlag = StringQualifier("android_ff_iterable_announcements")
 val upsellAnotherAssetFeatureFlag = StringQualifier("android_ff_upsell_another_asset")
 val dynamicEthHotWalletAddressFeatureFlag = StringQualifier("android_ff_dynamic_eth_hot_wallet_address")
+val stakingWithdrawalsFeatureFlag = StringQualifier("android_ff_staking_withdrawals")
 val topMoversInBuy = StringQualifier("blockchain_app_configuration_buy_top_movers_is_enabled")
 val nabu = StringQualifier("nabu")
 val status = StringQualifier("status")

@@ -18,7 +18,6 @@ import info.blockchain.balance.Money
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.simplebuy.SimpleBuyState
-import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 
 data class MainState(
     val viewToLaunch: ViewToLaunch = ViewToLaunch.None,
@@ -61,7 +60,6 @@ sealed class ViewToLaunch {
     object LaunchSimpleBuyFromDeepLinkApproval : ViewToLaunch()
     class LaunchPaymentForCancelledOrder(val state: SimpleBuyState) : ViewToLaunch()
     class CheckForAccountWalletLinkErrors(val walletIdHint: String) : ViewToLaunch()
-    class LaunchUpsellAssetAction(val upsell: KycUpgradePromptManager.Type) : ViewToLaunch()
     class LaunchTransactionFlowWithTargets(val targets: Collection<CryptoTarget>) : ViewToLaunch()
     class ShowTargetScanError(val error: QrScanError) : ViewToLaunch()
     object ShowReferralSheet : ViewToLaunch()

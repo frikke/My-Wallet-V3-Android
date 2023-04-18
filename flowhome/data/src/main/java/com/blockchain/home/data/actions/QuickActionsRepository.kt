@@ -154,7 +154,8 @@ class QuickActionsRepository(
             AssetAction.Sign,
             AssetAction.ActiveRewardsDeposit,
             AssetAction.ActiveRewardsWithdraw,
-            AssetAction.StakingDeposit -> false
+            AssetAction.StakingDeposit,
+            AssetAction.StakingWithdraw -> false
         }
 
     private fun FeatureAccess?.toAvailability(): ActionState {

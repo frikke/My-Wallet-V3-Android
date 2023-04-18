@@ -34,6 +34,7 @@ val kycUiModule = module {
                 custodialWalletManager = get(),
                 dataRemediationService = get(),
                 kycService = get(),
+                userFeaturePermissionService = get(),
             )
         }.bind(ReentryDecision::class)
 
@@ -139,7 +140,8 @@ val kycUiModule = module {
         factory {
             KycLimitsInteractor(
                 limitsDataManager = get(),
-                kycService = get()
+                kycService = get(),
+                userFeaturePermissionService = get(),
             )
         }
     }

@@ -101,6 +101,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Sell -> R.drawable.ic_tx_sell
             AssetAction.FiatWithdraw -> R.drawable.ic_tx_withdraw_w_green_bkgd
             AssetAction.ActiveRewardsWithdraw,
+            AssetAction.StakingWithdraw,
             AssetAction.InterestWithdraw -> R.drawable.ic_tx_withdraw
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
@@ -259,6 +260,7 @@ class TransactionFlowCustomiserImpl(
                 (state.sendingAccount as FiatAccount).currency.displayTicker
             )
             AssetAction.ActiveRewardsWithdraw,
+            AssetAction.StakingWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(
                 R.string.tx_title_withdraw, state.sendingAsset.displayTicker
             )
@@ -275,6 +277,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Swap -> resources.getString(R.string.swap_enter_amount_max)
             AssetAction.Sell -> resources.getString(R.string.sell_enter_amount_max)
             AssetAction.ActiveRewardsWithdraw,
+            AssetAction.StakingWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.withdraw_enter_amount_max)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
@@ -337,6 +340,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.ActiveRewardsDeposit,
             AssetAction.InterestWithdraw,
             AssetAction.ActiveRewardsWithdraw,
+            AssetAction.StakingWithdraw,
             AssetAction.Sell,
             AssetAction.Swap,
             AssetAction.Send -> resources.getString(R.string.send_enter_amount_max_fee)
@@ -366,6 +370,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Sell -> resources.getString(R.string.tx_enter_amount_sell_cta)
             AssetAction.FiatWithdraw,
             AssetAction.ActiveRewardsWithdraw,
+            AssetAction.StakingWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.tx_enter_amount_withdraw_cta)
             AssetAction.InterestDeposit,
             AssetAction.StakingDeposit,
@@ -421,6 +426,7 @@ class TransactionFlowCustomiserImpl(
                 )
             )
             AssetAction.ActiveRewardsWithdraw,
+            AssetAction.StakingWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(
                 R.string.common_parametrised_confirm,
                 resources.getString(
@@ -455,6 +461,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.FiatDeposit -> resources.getString(R.string.deposit_confirmation_cta_button)
             AssetAction.FiatWithdraw,
             AssetAction.ActiveRewardsWithdraw,
+            AssetAction.StakingWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.withdraw_confirmation_cta_button)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
@@ -642,8 +649,9 @@ class TransactionFlowCustomiserImpl(
             AssetAction.InterestWithdraw,
             -> resources.getString(R.string.withdraw_confirmation_success_title, amount)
             AssetAction.Sign -> resources.getString(R.string.signed)
+            AssetAction.StakingWithdraw,
             AssetAction.ActiveRewardsWithdraw ->
-                resources.getString(R.string.earn_active_rewards_withdrawal_pending_title)
+                resources.getString(R.string.earn_withdrawal_pending_title)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
     }
@@ -675,6 +683,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.FiatWithdraw,
             AssetAction.Sign,
             AssetAction.InterestWithdraw -> R.drawable.ic_check_circle
+            AssetAction.StakingWithdraw,
             AssetAction.ActiveRewardsWithdraw -> R.drawable.ic_pending_clock
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
@@ -754,6 +763,9 @@ class TransactionFlowCustomiserImpl(
             AssetAction.FiatWithdraw -> resources.getString(
                 R.string.withdraw_confirmation_success_message,
                 getEstimatedTransactionCompletionTime()
+            )
+            AssetAction.StakingWithdraw -> resources.getString(
+                R.string.earn_staking_withdrawal_pending_subtitle
             )
             AssetAction.InterestWithdraw -> resources.getString(
                 R.string.withdraw_rewards_confirmation_success_message,
@@ -949,6 +961,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.InterestDeposit,
             AssetAction.InterestWithdraw,
             AssetAction.StakingDeposit,
+            AssetAction.StakingWithdraw,
             AssetAction.ActiveRewardsWithdraw,
             AssetAction.ActiveRewardsDeposit -> BalanceAndFeeView(ctx).also { frame.addView(it) }
             AssetAction.Sell,
@@ -1315,6 +1328,7 @@ class TransactionFlowCustomiserImpl(
                 AssetAction.Send -> R.string.common_send
                 AssetAction.FiatWithdraw,
                 AssetAction.ActiveRewardsWithdraw,
+                AssetAction.StakingWithdraw,
                 AssetAction.InterestWithdraw -> R.string.common_withdraw
                 AssetAction.Swap -> R.string.common_swap
                 AssetAction.Sell -> R.string.common_sell

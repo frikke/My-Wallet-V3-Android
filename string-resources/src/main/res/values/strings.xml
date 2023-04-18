@@ -254,6 +254,8 @@
     <string name="strength_strong">Strong</string>
     <string name="strength_hint">Use at least 8 characters, a mix of letters, numbers and symbols.</string>
     <string name="strength_label">Password Strength</string>
+    <string name="create_wallet_error_title">Unable to process</string>
+    <string name="create_wallet_error_description">We are unable to create your Wallet. Please, try again later.</string>
 
     <string name="btn_continue">Continue</string>
 
@@ -3403,7 +3405,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="staking_coming_soon_cta">Go to Web App</string>
 
     <string name="staking_cannot_withdraw_title">Staking Considerations</string>
-    <string name="staking_cannot_withdraw_paragraph">Your staked ETH will start generating rewards after an initial bonding period.\n\nWhile unstaking and withdrawing ETH isn’t currently available, it will be supported in a future upgrade.\n\nThese rules are not specific to Blockchain.com. They’re features of the Ethereum network.</string>
+    <string name="staking_cannot_withdraw_paragraph">Your staked ETH will start generating rewards after an initial bonding period.\n\nUnstaking and withdrawing ETH can take up to %1$d days depending on the network queue.\n\nThese rules are not specific to Blockchain.com. They’re features of the Ethereum network.</string>
     <string name="staking_summary_title">%1$s Staking Rewards</string>
     <string name="staking_summary_total_earned">Total Earned</string>
     <string name="staking_summary_view_activity">View activity</string>
@@ -3456,8 +3458,9 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_active_rewards_on_hold_description">Funds you transfer during the week will be included in the following week\'s strategy at 08:00 AM (UTC).</string>
     <string name="earn_active_rewards_rate_description">Rate perceived by the user if market price is at or lower than the trigger price at the expiration date.</string>
     <string name="earn_active_rewards_trigger_price_description">A price level that results in a debit to your crypto balance if exceeded on the expiration date.</string>
-    <string name="earn_active_rewards_withdrawal_pending_title">Withdrawal requested</string>
+    <string name="earn_withdrawal_pending_title">Withdrawal requested</string>
     <string name="earn_active_rewards_withdrawal_pending_subtitle">Your withdrawal will be executed once this week\'s strategy is complete.</string>
+    <string name="earn_staking_withdrawal_pending_subtitle">Your withdrawal will be executed once the unbonding period finishes. Your funds will be available in your Trading Account.</string>
     <string name="earn_active_rewards_withdrawal_activity">Withdrew all %1$s</string>
 
     <!-- Prove.com -->

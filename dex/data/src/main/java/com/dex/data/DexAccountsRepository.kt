@@ -28,7 +28,10 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.scan
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -93,8 +96,16 @@ class DexAccountsRepository(
                     )
                 }
             }
+        }.onEach {
+            sourceAccountsCache = it
+        }.onStart {
+            if (sourceAccountsCache.isNotEmpty())
+                emit(sourceAccountsCache)
         }
     }
+
+    private var destinationAccountsCache: List<DexAccount> = emptyList()
+    private var sourceAccountsCache: List<DexAccount> = emptyList()
 
     private val allAccounts: Flow<SingleAccountList>
         get() = coincore.allWalletsInMode(WalletMode.NON_CUSTODIAL).map { it.accounts }.asFlow()
@@ -103,52 +114,53 @@ class DexAccountsRepository(
         dexAvailableTokens().flatMapLatest { tokens ->
             val active = activeAccounts().map {
                 it.filterKeys { account ->
-                    account.currency.networkTicker in tokens.map { token -> token.symbol }
+                    account.currency.coinNetwork?.chainId == ETH_CHAIN_ID
                 }
+            }
+            val all = allAccounts.map {
+                it.filter { account -> (account.currency as? AssetInfo)?.coinNetwork?.chainId == ETH_CHAIN_ID }
             }
 
-            val all = allAccounts.map {
-                it.filter { account ->
-                    account.currency.networkTicker in tokens.map { token -> token.symbol }
-                }
-            }
             active.flatMapLatest { activeAcc ->
                 all.map { allAcc ->
                     allAcc.filter {
                         it.currency.networkTicker !in activeAcc.map { acc -> acc.key.currency.networkTicker }
                     }
-                }.map {
-                    it.map { account ->
+                }.mapNotNull { accounts ->
+                    accounts.map { account ->
+                        val accountCurrency = (account.currency as? AssetInfo) ?: return@mapNotNull null
                         DexAccount(
                             account = account,
                             currency = account.currency as AssetInfo,
                             balance = Money.zero(account.currency),
-                            contractAddress = tokens.first { token ->
-                                token.symbol == account.currency.networkTicker
-                            }.address,
-                            chainId = tokens.first { token ->
-                                token.symbol == account.currency.networkTicker
-                            }.chainId,
+                            contractAddress = accountCurrency.l2identifier
+                                ?: tokens.firstOrNull { it.symbol == account.currency.networkTicker }?.address
+                                ?: return@mapNotNull null,
+                            chainId = accountCurrency.coinNetwork?.chainId ?: return@mapNotNull null,
                             fiatBalance = Money.zero(currencyPrefs.selectedFiatCurrency),
                         )
                     }.plus(
                         activeAcc.map { (account, balance) ->
+                            val accountCurrency = (account.currency as? AssetInfo) ?: return@mapNotNull null
                             DexAccount(
                                 account = account,
                                 currency = account.currency,
                                 balance = balance.total,
                                 fiatBalance = balance.totalFiat,
-                                contractAddress = tokens.first { token ->
-                                    token.symbol == account.currency.networkTicker
-                                }.address,
-                                chainId = tokens.first { token ->
-                                    token.symbol == account.currency.networkTicker
-                                }.chainId,
+                                contractAddress = (account.currency as? AssetInfo)?.l2identifier
+                                    ?: tokens.firstOrNull { it.symbol == account.currency.networkTicker }?.address
+                                    ?: return@mapNotNull null,
+                                chainId = accountCurrency.coinNetwork?.chainId ?: return@mapNotNull null,
                             )
                         }
                     )
                 }
+            }.onEach {
+                destinationAccountsCache = it
             }
+        }.onStart {
+            if (destinationAccountsCache.isNotEmpty())
+                emit(destinationAccountsCache)
         }
 
     private fun activeAccounts() =
