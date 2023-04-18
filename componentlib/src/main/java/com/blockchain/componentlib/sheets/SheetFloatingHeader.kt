@@ -34,7 +34,7 @@ fun SheetHeader(
             .padding(if (isFloating) AppTheme.dimensions.tinySpacing else 0.dp)
             .fillMaxWidth(),
         shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium),
-        elevation = if(isFloating) AppTheme.dimensions.borderRadiiSmallest else 0.dp,
+        elevation = if (isFloating) AppTheme.dimensions.borderRadiiSmallest else 0.dp,
         backgroundColor = AppTheme.colors.light
     ) {
         Row(

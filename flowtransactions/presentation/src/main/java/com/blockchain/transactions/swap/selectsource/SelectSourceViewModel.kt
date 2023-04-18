@@ -49,25 +49,6 @@ class SelectSourceViewModel(
         }
     }
 
-    /*private fun reduceCryptoAccountList(accountList: List<CryptoAccountWithBalance>): List<AccountUiElement> {
-        return accountList.map { account ->
-            AccountUiElement(
-                title = account.cryptoBalance.currency.name,
-                subtitle = "", // do we need this?
-                valueCrypto = account.cryptoBalance.toStringWithSymbol(),
-                valueFiat = account.fiatBalance.toStringWithSymbol(),
-                icon = when(account.account) {
-                    is NonCustodialAccount -> listOfNotNull(
-                        account.cryptoBalance.currency.logo,
-                        (account.cryptoBalance.currency as? AssetInfo)?.takeIf { it.isLayer2Token }?.coinNetwork?.nativeAssetTicker
-                            ?.let {
-                                assetCatalogue.fromNetworkTicker(it)?.logo
-                            }
-                    )
-                    else -> listOf(account.cryptoBalance.currency.logo)
-                }
-            )
-        }*/
     private fun CryptoAccountWithBalance.reduceCryptoAccountWithBalance() = run {
         AccountUiElement(
             title = balanceCrypto.currency.name,

@@ -152,7 +152,6 @@ fun TwoAssetActionHorizontalLoading() {
                     showEndBlocks = false,
                 )
             }
-
         },
         end = {
             Box(modifier = Modifier.weight(1F)) {
