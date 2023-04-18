@@ -36,7 +36,16 @@ fun NavGraphBuilder.dexGraph(onBackPressed: () -> Unit, navController: NavContro
 
     composable(navigationEvent = DexDestination.InProgress) {
         ChromeSingleScreen {
-            DexInProgressTransactionScreen(onBackPressed = onBackPressed)
+            DexInProgressTransactionScreen(
+                onBackPressed = navController::popBackStack,
+                closeFlow = {
+                    navController.graph.startDestinationRoute?.let {
+                        navController.popBackStack(
+                            it, false
+                        )
+                    }
+                }
+            )
         }
     }
 

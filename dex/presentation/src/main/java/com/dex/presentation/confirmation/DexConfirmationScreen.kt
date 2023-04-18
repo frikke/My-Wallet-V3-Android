@@ -82,11 +82,7 @@ fun DexConfirmationScreen(
             when (event) {
                 ConfirmationNavigationEvent.TxInProgressNavigationEvent -> navController.navigate(
                     DexDestination.InProgress.route
-                ) {
-                    popUpTo(DexDestination.Confirmation.route) {
-                        inclusive = true
-                    }
-                }
+                )
             }
         }
     }
