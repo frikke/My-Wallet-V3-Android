@@ -1,4 +1,4 @@
-package com.dex.presentation
+package com.dex.presentation.enteramount
 
 import android.content.Context
 import androidx.lifecycle.viewModelScope

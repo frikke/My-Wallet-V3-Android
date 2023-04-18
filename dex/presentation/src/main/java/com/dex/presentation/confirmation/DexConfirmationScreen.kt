@@ -12,7 +12,9 @@ import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -24,6 +26,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.flowWithLifecycle
+import androidx.navigation.NavController
+import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -41,9 +46,15 @@ import com.blockchain.koin.payloadScope
 import com.dex.presentation.AmountFieldConfig
 import com.dex.presentation.DexTxSubscribeScreen
 import com.dex.presentation.SourceAndDestinationAmountFields
+import com.dex.presentation.enteramount.AllowanceTxUiData
+import com.dex.presentation.enteramount.AmountNavigationEvent
+import com.dex.presentation.graph.ARG_ALLOWANCE_TX
+import com.dex.presentation.graph.DexDestination
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.serialization.json.Json
 import java.math.BigDecimal
 import java.math.BigInteger
 import org.koin.androidx.compose.getViewModel
@@ -51,6 +62,7 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 fun DexConfirmationScreen(
     onBackPressed: () -> Unit,
+    navController: NavController,
     viewModel: DexConfirmationViewModel = getViewModel(scope = payloadScope),
 ) {
 
@@ -60,6 +72,20 @@ fun DexConfirmationScreen(
         subscribe = { viewModel.onIntent(ConfirmationIntent.SubscribeForTxUpdates) },
         unsubscribe = { viewModel.onIntent(ConfirmationIntent.UnSubscribeToTxUpdates) }
     )
+
+    val navEventsFlowLifecycleAware = remember(viewModel.navigationEventFlow, lifecycleOwner) {
+        viewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
+
+    LaunchedEffect(key1 = viewModel) {
+        navEventsFlowLifecycleAware.collectLatest { event ->
+            when (event) {
+                ConfirmationNavigationEvent.TxInProgressNavigationEvent -> navController.navigate(
+                    DexDestination.InProgress.route
+                )
+            }
+        }
+    }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
