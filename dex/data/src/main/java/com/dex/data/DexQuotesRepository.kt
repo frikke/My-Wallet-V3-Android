@@ -66,7 +66,8 @@ class DexQuotesRepository(
                     address = dexQuoteParams.destinationAccount.contractAddress,
                 ),
                 slippage = dexQuoteParams.slippage,
-                address = it.address
+                address = it.address,
+                skipValidation = true
             ).map { resp ->
                 DexQuote.ExchangeQuote(
                     amount = dexQuoteParams.amount,

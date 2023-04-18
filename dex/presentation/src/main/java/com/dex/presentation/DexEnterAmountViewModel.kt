@@ -27,6 +27,7 @@ import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import info.blockchain.balance.canConvert
+import info.blockchain.balance.isNetworkNativeAsset
 import java.math.BigDecimal
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNot
@@ -85,7 +86,7 @@ class DexEnterAmountViewModel(
         return InputAmountViewState.TransactionInputState(
             sourceCurrency = transaction?.sourceAccount?.currency,
             destinationCurrency = transaction?.destinationAccount?.currency,
-            maxAmount = transaction?.sourceAccount?.balance,
+            maxAmount = transaction?.sourceAccount?.takeIf { !it.currency.isNetworkNativeAsset() }?.balance,
             txAmount = transaction?.amount,
             error = state.toUiError(),
             inputExchangeAmount = safeLet(transaction?.amount, state.inputToFiatExchangeRate) { amount, rate ->
@@ -98,6 +99,7 @@ class DexEnterAmountViewModel(
                 fiatAmount(amount, rate)
             } ?: Money.zero(currencyPrefs.selectedFiatCurrency),
             destinationAccountBalance = transaction?.destinationAccount?.balance,
+            sourceAccountBalance = transaction?.sourceAccount?.balance,
             operationInProgress = state.operationInProgress,
             uiFee = uiFee(
                 transaction?.quote?.networkFees,
@@ -258,7 +260,7 @@ class DexEnterAmountViewModel(
             }.collectLatest {
                 updateState { state ->
                     state.copy(
-                        transaction = it
+                        transaction = it,
                     )
                 }
             }
@@ -388,6 +390,7 @@ sealed class InputAmountViewState : ViewState {
         val txAmount: Money?,
         val operationInProgress: DexOperation,
         val destinationAccountBalance: Money?,
+        val sourceAccountBalance: Money?,
         val inputExchangeAmount: Money?,
         val outputExchangeAmount: Money?,
         val outputAmount: Money?,

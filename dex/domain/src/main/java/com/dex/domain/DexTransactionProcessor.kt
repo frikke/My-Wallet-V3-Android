@@ -311,10 +311,7 @@ class DexTransactionProcessor(
  * We are able to fetch a quote when amount > 0 AND ( no error or error is quote related )
  */
 private fun DexTransaction.canBeQuoted() =
-    amount.isPositive && (
-        this.txError == DexTxError.None ||
-            this.txError is DexTxError.QuoteError
-        )
+    amount.isPositive && txError.allowsQuotesFetching()
 
 data class DexTransaction internal constructor(
     private val _amount: Money?,
@@ -322,7 +319,6 @@ data class DexTransaction internal constructor(
     private val _sourceAccount: DexAccount?,
     val destinationAccount: DexAccount?,
     val slippage: Double,
-    val maxAvailable: Money?,
     val txError: DexTxError,
     val quoteError: DexTxError.QuoteError?
 ) {
@@ -350,12 +346,15 @@ private val EmptyDexTransaction = DexTransaction(
     null,
     null,
     0.toDouble(),
-    null,
     DexTxError.None,
     null,
 )
 
 sealed class DexTxError {
+    fun allowsQuotesFetching(): Boolean {
+        return this == None || this == TokenNotAllowed || this is QuoteError
+    }
+
     object NotEnoughFunds : DexTxError()
     object NotEnoughGas : DexTxError()
     data class QuoteError(val title: String, val message: String) : DexTxError() {
