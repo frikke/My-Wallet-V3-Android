@@ -9,6 +9,7 @@ import com.dex.presentation.DexSourceAccountViewModel
 import com.dex.presentation.SettingsViewModel
 import com.dex.presentation.TokenAllowanceViewModel
 import com.dex.presentation.confirmation.DexConfirmationViewModel
+import com.dex.presentation.inprogress.DexInProgressTxViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -30,6 +31,12 @@ val dexPresentation = module {
                 transactionProcessor = get(),
                 exchangeRatesDataManager = get(),
                 currencyPrefs = get()
+            )
+        }
+
+        viewModel {
+            DexInProgressTxViewModel(
+                txProcessor = get()
             )
         }
 

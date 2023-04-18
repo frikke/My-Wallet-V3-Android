@@ -23,12 +23,15 @@ import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.dex.presentation.R
+import com.blockchain.koin.payloadScope
+import org.koin.androidx.compose.getViewModel
 
 @Preview
 @Composable
 fun DexInProgressTransactionScreen(
     onBackPressed: () -> Unit = {},
     closeFlow: () -> Unit = {},
+    viewModel: DexInProgressTxViewModel = getViewModel(scope = payloadScope),
 ) {
     Column(
         modifier = Modifier
@@ -112,7 +115,7 @@ private fun ColumnScope.SuccessScreen(
         )
         Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
         SimpleText(
-            text = stringResource(R.string.swapping_with_currencies),
+            text = stringResource(R.string.swapping_with_currencies, sourceCurrency, destinationCurrency),
             style = ComposeTypographies.Title3,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Centre
