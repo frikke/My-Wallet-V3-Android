@@ -36,7 +36,7 @@ fun NavGraphBuilder.dexGraph(onBackPressed: () -> Unit, navController: NavContro
 
     composable(navigationEvent = DexDestination.InProgress) {
         ChromeSingleScreen {
-            DexInProgressTransactionScreen(onBackPressed)
+            DexInProgressTransactionScreen(onBackPressed = onBackPressed)
         }
     }
 
