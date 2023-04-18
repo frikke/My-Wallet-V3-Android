@@ -53,6 +53,7 @@ import org.koin.androidx.compose.getViewModel
 fun EnterAmount(
     viewModel: EnterAmountViewModel = getViewModel(scope = payloadScope),
     navControllerProvider: () -> NavHostController,
+    openSourceAccounts: () -> Unit,
     onBackPressed: () -> Unit
 ) {
     val viewState: EnterAmountViewState by viewModel.viewState.collectAsStateLifecycleAware()
@@ -69,6 +70,7 @@ fun EnterAmount(
         ?.savedStateHandle
         ?.getStateFlow("your_key", null as? String?)
         ?.collectAsStateLifecycleAware()
+
 
     DisposableEffect(key1 = newFrom?.value) {
         newFrom?.value?.let {
@@ -105,7 +107,7 @@ fun EnterAmount(
             },
             error = viewState.error,
             openSourceAccounts = {
-                openSourceAccounts(it)
+                openSourceAccounts()
                 keyboardController?.hide()
             },
             setMaxOnClick = {
@@ -126,6 +128,7 @@ private fun EnterAmountScreen(
     onCryptoAmountChanged: (String) -> Unit,
     onFlipInputs: () -> Unit,
     error: SwapEnterAmountInputError?,
+    openSourceAccounts: () -> Unit,
     setMaxOnClick: () -> Unit
 ) {
     Column(
@@ -171,7 +174,7 @@ private fun EnterAmountScreen(
                     startTitle = "From",
                     startSubtitle = assets.data.from.ticker,
                     startIcon = StackedIcon.SingleIcon(ImageResource.Remote(assets.data.from.iconUrl)),
-                    startOnClick = { openSourceAccounts(assets.data.from.ticker) },
+                    startOnClick = openSourceAccounts,
                     endTitle = "To",
                     endSubtitle = assets.data.to.ticker,
                     endIcon = StackedIcon.SingleIcon(ImageResource.Remote(assets.data.to.iconUrl)),
