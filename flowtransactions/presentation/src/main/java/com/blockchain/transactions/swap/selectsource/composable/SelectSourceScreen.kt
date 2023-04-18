@@ -25,7 +25,6 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 fun SelectSourceScreen(
     viewModel: SelectSourceViewModel = getViewModel(scope = payloadScope),
-    excludeAccountTicker: String? = null,
     onAccountSelected: (ticker: String) -> Unit,
     onBackPressed: () -> Unit
 ) {
@@ -33,7 +32,7 @@ fun SelectSourceScreen(
     val viewState: SelectSourceViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(SelectSourceIntent.LoadData(excludeAccountTicker = excludeAccountTicker))
+        viewModel.onIntent(SelectSourceIntent.LoadData)
         onDispose { }
     }
 

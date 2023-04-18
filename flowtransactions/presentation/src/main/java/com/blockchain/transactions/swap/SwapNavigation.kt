@@ -26,10 +26,9 @@ fun NavGraphBuilder.swapGraph(
             ChromeSingleScreen {
                 EnterAmount(
                     navControllerProvider = navControllerProvider,
-                    openSourceAccounts = { excludeAccountTicker ->
+                    openSourceAccounts = {
                         navControllerProvider().navigate(
-                            SwapDestination.SourceAccounts,
-                            args = listOf(NavArgument(ARG_EXCLUDE_ACCOUNT_TICKER, excludeAccountTicker))
+                            SwapDestination.SourceAccounts
                         )
                     },
                     onBackPressed = onBackPressed
@@ -40,7 +39,6 @@ fun NavGraphBuilder.swapGraph(
         bottomSheet(navigationEvent = SwapDestination.SourceAccounts) { backStackEntry ->
             ChromeBottomSheet(onClose = onBackPressed) {
                 SelectSourceScreen(
-                    excludeAccountTicker = backStackEntry.arguments?.getComposeArgument(ARG_EXCLUDE_ACCOUNT_TICKER),
                     onAccountSelected = {
                         navControllerProvider().previousBackStackEntry
                             ?.savedStateHandle
@@ -54,12 +52,10 @@ fun NavGraphBuilder.swapGraph(
     }
 }
 
-const val ARG_EXCLUDE_ACCOUNT_TICKER = "excludeAccountTicker"
-
 sealed class SwapDestination(
     override val route: String
 ) : ComposeNavigationDestination {
     object Main : SwapDestination("SwapMain")
     object EnterAmount : SwapDestination("SwapEnterAmount")
-    object SourceAccounts : SwapDestination("SwapSourceAccounts/${ARG_EXCLUDE_ACCOUNT_TICKER.wrappedArg()}")
+    object SourceAccounts : SwapDestination("SwapSourceAccounts")
 }

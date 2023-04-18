@@ -42,17 +42,13 @@ class SelectSourceViewModel(
     override suspend fun handleIntent(modelState: SelectSourceModelState, intent: SelectSourceIntent) {
         when (intent) {
             is SelectSourceIntent.LoadData -> {
-                swapService.custodialSourceAccountsWithBalances()
-                    .filterListData {
-                        it.account.currency.networkTicker != intent.excludeAccountTicker
+                swapService.custodialSourceAccountsWithBalances().collectLatest { accountListData ->
+                    updateState {
+                        it.copy(
+                            accountListData = it.accountListData.updateDataWith(accountListData)
+                        )
                     }
-                    .collectLatest { accountListData ->
-                        updateState {
-                            it.copy(
-                                accountListData = it.accountListData.updateDataWith(accountListData)
-                            )
-                        }
-                    }
+                }
             }
         }
     }

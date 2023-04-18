@@ -53,7 +53,6 @@ import org.koin.androidx.compose.getViewModel
 fun EnterAmount(
     viewModel: EnterAmountViewModel = getViewModel(scope = payloadScope),
     navControllerProvider: () -> NavHostController,
-    openSourceAccounts: (excludeAccountTicker: String) -> Unit,
     onBackPressed: () -> Unit
 ) {
     val viewState: EnterAmountViewState by viewModel.viewState.collectAsStateLifecycleAware()
@@ -127,7 +126,6 @@ private fun EnterAmountScreen(
     onCryptoAmountChanged: (String) -> Unit,
     onFlipInputs: () -> Unit,
     error: SwapEnterAmountInputError?,
-    openSourceAccounts: (excludeAccountTicker: String) -> Unit,
     setMaxOnClick: () -> Unit
 ) {
     Column(
