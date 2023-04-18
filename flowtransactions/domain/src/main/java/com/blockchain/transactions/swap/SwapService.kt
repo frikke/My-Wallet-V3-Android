@@ -6,4 +6,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface SwapService {
     fun sourceAccounts(): Flow<DataResource<List<CryptoAccount>>>
+
+    fun custodialSourceAccountsWithBalances(): Flow<DataResource<List<CryptoAccountWithBalance>>>
 }
