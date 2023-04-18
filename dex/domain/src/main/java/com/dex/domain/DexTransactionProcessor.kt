@@ -3,6 +3,8 @@ package com.dex.domain
 import com.blockchain.core.chains.ethereum.EvmNetworkPreImageSigner
 import com.blockchain.extensions.safeLet
 import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.flatMap
+import com.blockchain.outcome.getOrElse
 import com.blockchain.outcome.getOrNull
 import info.blockchain.balance.Money
 import info.blockchain.balance.isNetworkNativeAsset
@@ -18,12 +20,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
@@ -159,12 +163,11 @@ class DexTransactionProcessor(
         }
     }
 
-    suspend fun execute() {
-        val transaction = _dexTransaction.value
+    suspend fun execute(): Outcome<Exception, String> {
+        val transaction = transaction.first()
         val coinNetwork = transaction.sourceAccount.currency.coinNetwork
         check(coinNetwork != null)
-        val builtTx = dexTransactionService.buildTx(_dexTransaction.value).getOrNull()
-        builtTx?.let {
+        return dexTransactionService.buildTx(transaction).flatMap {
             dexTransactionService.pushTx(
                 coinNetwork = coinNetwork,
                 rawTx = it.rawTx,

@@ -7,7 +7,11 @@ import info.blockchain.balance.CoinNetwork
 
 interface DexTransactionService {
     suspend fun buildTx(dexTransaction: DexTransaction): Outcome<Exception, BuiltDexTransaction>
-    suspend fun pushTx(coinNetwork: CoinNetwork, rawTx: String, signatures: List<TransactionSignature>)
+    suspend fun pushTx(
+        coinNetwork: CoinNetwork,
+        rawTx: String,
+        signatures: List<TransactionSignature>
+    ): Outcome<Exception, String>
 }
 
 data class BuiltDexTransaction(

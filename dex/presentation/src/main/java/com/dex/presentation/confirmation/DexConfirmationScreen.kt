@@ -28,6 +28,7 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.tablerow.TableRow
@@ -135,10 +136,10 @@ fun DexConfirmationScreen(
                     top = AppTheme.dimensions.standardSpacing
                 ),
                 onClick = {
-/*
+
                     viewModel.onIntent(ConfirmationIntent.ConfirmSwap)
-*/
-                }
+                },
+                state = if (dataState.operationInProgress) ButtonState.Loading else ButtonState.Enabled
             )
         }
     }
@@ -146,7 +147,11 @@ fun DexConfirmationScreen(
 
 @Preview
 @Composable
-private fun SwapButton(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
+private fun SwapButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
+    state: ButtonState = ButtonState.Enabled
+) {
     Card(
         modifier = modifier.fillMaxWidth(),
         backgroundColor = Color.White,
@@ -161,6 +166,7 @@ private fun SwapButton(modifier: Modifier = Modifier, onClick: () -> Unit = {}) 
             modifier = Modifier.padding(
                 all = AppTheme.dimensions.smallSpacing,
             ),
+            state = state,
             text = stringResource(id = R.string.common_swap),
             onClick = onClick
         )
@@ -329,9 +335,9 @@ private fun ExchangeRateConfirmation(exchangeRate: BigDecimal, inputCurrency: As
             Spacer(modifier = Modifier.weight(1f))
             SimpleText(
                 text = "$exchangeRate ${outputCurrency.displayTicker} / ${
-                Money.fromMajor(
-                    inputCurrency, BigDecimal.ONE
-                ).toStringWithSymbol(includeDecimalsWhenWhole = false)
+                    Money.fromMajor(
+                        inputCurrency, BigDecimal.ONE
+                    ).toStringWithSymbol(includeDecimalsWhenWhole = false)
                 }",
                 style = ComposeTypographies.Paragraph2,
                 color = ComposeColors.Title,

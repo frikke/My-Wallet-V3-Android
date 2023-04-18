@@ -18,6 +18,7 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
+import kotlinx.coroutines.delay
 import java.math.BigDecimal
 import java.math.RoundingMode
 import kotlinx.coroutines.flow.collectLatest
@@ -54,6 +55,7 @@ class DexConfirmationViewModel(
             inputCurrency = transaction.sourceAccount.currency,
             outputCurrency = transaction.destinationAccount?.currency,
             inputBalance = transaction.sourceAccount.balance,
+            operationInProgress = state.operationInProgress,
             outputBalance = transaction.destinationAccount?.balance,
             dexExchangeRate = transaction.quote?.price?.toBigDecimal()?.setScale(2, RoundingMode.HALF_UP),
             slippage = transaction.slippage,
@@ -89,8 +91,26 @@ class DexConfirmationViewModel(
             ConfirmationIntent.LoadTransactionData -> loadTransactionData()
             ConfirmationIntent.SubscribeForTxUpdates -> transactionProcessor.subscribeForTxUpdates()
             ConfirmationIntent.UnSubscribeToTxUpdates -> transactionProcessor.unsubscribeToTxUpdates()
-            ConfirmationIntent.ConfirmSwap -> transactionProcessor.execute()
+            ConfirmationIntent.ConfirmSwap -> {
+                executeTx()
+            }
         }
+    }
+
+    private suspend fun executeTx() {
+        updateState {
+            it.copy(
+                operationInProgress = true
+            )
+        }
+        val txResult = transactionProcessor.execute()
+        delay(3000)
+        updateState {
+            it.copy(
+                operationInProgress = false
+            )
+        }
+        navigate(ConfirmationNavigationEvent.TxInProgressNavigationEvent)
     }
 
     private fun loadTransactionData() {
@@ -107,6 +127,16 @@ class DexConfirmationViewModel(
                 updateState {
                     it.copy(
                         transaction = tx
+                    )
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            transactionProcessor.quoteFetching.collectLatest {
+                updateState { state ->
+                    state.copy(
+                        operationInProgress = it
                     )
                 }
             }
@@ -161,6 +191,7 @@ data class ConfirmationModelState(
     val inputToFiatExchangeRate: ExchangeRate?,
     val outputToFiatExchangeRate: ExchangeRate?,
     val networkFeesToFiatExchangeRate: ExchangeRate?,
+    val operationInProgress: Boolean = false,
 ) : ModelState
 
 sealed class ConfirmationIntent : Intent<ConfirmationModelState> {
@@ -170,7 +201,9 @@ sealed class ConfirmationIntent : Intent<ConfirmationModelState> {
     object UnSubscribeToTxUpdates : ConfirmationIntent()
 }
 
-sealed class ConfirmationNavigationEvent : NavigationEvent
+sealed class ConfirmationNavigationEvent : NavigationEvent {
+    object TxInProgressNavigationEvent : ConfirmationNavigationEvent()
+}
 
 sealed class ConfirmationScreenViewState : ViewState {
     object Loading : ConfirmationScreenViewState()
@@ -183,6 +216,7 @@ sealed class ConfirmationScreenViewState : ViewState {
         val inputCurrency: AssetInfo?,
         val outputCurrency: AssetInfo?,
         val inputBalance: Money?,
+        val operationInProgress: Boolean,
         val outputBalance: Money?,
         val dexExchangeRate: BigDecimal?,
         val slippage: Double?,
