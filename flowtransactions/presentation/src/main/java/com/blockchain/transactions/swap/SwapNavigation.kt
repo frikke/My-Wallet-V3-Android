@@ -27,7 +27,7 @@ fun NavGraphBuilder.swapGraph(
             }
         }
 
-        bottomSheet(navigationEvent = SwapDestination.SourceAccounts) { backStackEntry ->
+        bottomSheet(navigationEvent = SwapDestination.SourceAccounts) {
             ChromeBottomSheet(onClose = onBackPressed) {
                 SelectSourceScreen(
                     navControllerProvider = navControllerProvider,
