@@ -39,11 +39,6 @@ class DexConfirmationViewModel(
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
-    override fun onCleared() {
-        println("LALALA CLEARED! DexConfirmationViewModel")
-        super.onCleared()
-    }
-
     override fun reduce(state: ConfirmationModelState): ConfirmationScreenViewState {
         val transaction = state.transaction ?: return ConfirmationScreenViewState.Loading
         return ConfirmationScreenViewState.DataConfirmationViewState(
