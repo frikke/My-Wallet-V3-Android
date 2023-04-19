@@ -2867,7 +2867,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="coinview_price_label">Current %1$s Price</string>
     <string name="coinview_balance_label">Your Total %1$s</string>
     <string name="coinview_rb_card_title">Recurring Buy</string>
-    <string name="coinview_rb_card_subtitle">Set up your frequency</string>
     <string name="coinview_not_tradeable_title">%1$s (%2$s) is not tradeable.</string>
     <string name="coinview_not_tradeable_subtitle">Add to your Watchlist to be notified when %1$s becomes available to trade.</string>
     <string name="coinview_chart_loading">Loading chart…</string>
