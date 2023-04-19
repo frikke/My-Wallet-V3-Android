@@ -214,7 +214,7 @@ private fun EnterAmountScreen(
             onClick = {}
         )
 
-        Spacer(modifier = Modifier.weight(3F))
+        Spacer(modifier = Modifier.weight(4F))
     }
 }
 
