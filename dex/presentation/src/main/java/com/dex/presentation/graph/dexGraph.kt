@@ -9,13 +9,14 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.commonarch.presentation.mvi_v2.compose.getComposeArgument
 import com.blockchain.commonarch.presentation.mvi_v2.compose.wrappedArg
-import com.dex.presentation.AllowanceTxUiData
 import com.dex.presentation.DexIntroductionScreens
 import com.dex.presentation.SelectDestinationAccountBottomSheet
 import com.dex.presentation.SelectSourceAccountBottomSheet
 import com.dex.presentation.SettingsBottomSheet
 import com.dex.presentation.TokenAllowanceBottomSheet
 import com.dex.presentation.confirmation.DexConfirmationScreen
+import com.dex.presentation.enteramount.AllowanceTxUiData
+import com.dex.presentation.inprogress.DexInProgressTransactionScreen
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import kotlinx.serialization.json.Json
 
@@ -29,7 +30,15 @@ fun NavGraphBuilder.dexGraph(onBackPressed: () -> Unit, navController: NavContro
 
     composable(navigationEvent = DexDestination.Confirmation) {
         ChromeSingleScreen {
-            DexConfirmationScreen(onBackPressed)
+            DexConfirmationScreen(onBackPressed, navController = navController)
+        }
+    }
+
+    composable(navigationEvent = DexDestination.InProgress) {
+        ChromeSingleScreen {
+            DexInProgressTransactionScreen(
+                closeFlow = navController::popBackStack,
+            )
         }
     }
 
@@ -77,6 +86,7 @@ sealed class DexDestination(
     object SelectDestinationAccount : DexDestination("SelectDestinationAccount")
     object Settings : DexDestination("Settings")
     object Confirmation : DexDestination("Confirmation")
+    object InProgress : DexDestination("InProgress")
     object TokenAllowanceSheet : DexDestination(route = "TokenAllowanceSheet/${ARG_ALLOWANCE_TX.wrappedArg()}}")
 }
 

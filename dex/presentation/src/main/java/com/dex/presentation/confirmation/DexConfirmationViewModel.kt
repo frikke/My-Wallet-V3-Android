@@ -20,6 +20,7 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import java.math.BigDecimal
 import java.math.RoundingMode
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -54,6 +55,7 @@ class DexConfirmationViewModel(
             inputCurrency = transaction.sourceAccount.currency,
             outputCurrency = transaction.destinationAccount?.currency,
             inputBalance = transaction.sourceAccount.balance,
+            operationInProgress = state.operationInProgress,
             outputBalance = transaction.destinationAccount?.balance,
             dexExchangeRate = transaction.quote?.price?.toBigDecimal()?.setScale(2, RoundingMode.HALF_UP),
             slippage = transaction.slippage,
@@ -89,12 +91,35 @@ class DexConfirmationViewModel(
             ConfirmationIntent.LoadTransactionData -> loadTransactionData()
             ConfirmationIntent.SubscribeForTxUpdates -> transactionProcessor.subscribeForTxUpdates()
             ConfirmationIntent.UnSubscribeToTxUpdates -> transactionProcessor.unsubscribeToTxUpdates()
-            ConfirmationIntent.ConfirmSwap -> transactionProcessor.execute()
+            ConfirmationIntent.ConfirmSwap -> {
+                executeTx()
+            }
+            ConfirmationIntent.StopListeningForUpdates -> {
+                job?.cancel()
+            }
         }
     }
 
+    private suspend fun executeTx() {
+        updateState {
+            it.copy(
+                operationInProgress = true
+            )
+        }
+        transactionProcessor.execute()
+        updateState {
+            it.copy(
+                operationInProgress = false
+            )
+        }
+        navigate(ConfirmationNavigationEvent.TxInProgressNavigationEvent)
+    }
+
+    var job: Job? = null
+
     private fun loadTransactionData() {
-        viewModelScope.launch {
+        job?.cancel()
+        job = viewModelScope.launch {
             transactionProcessor.transaction.onEach {
                 updateInputFiatExchangeRate(it.sourceAccount.currency, currencyPrefs.selectedFiatCurrency)
                 it.quote?.networkFees?.let { fees ->
@@ -107,6 +132,16 @@ class DexConfirmationViewModel(
                 updateState {
                     it.copy(
                         transaction = tx
+                    )
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            transactionProcessor.quoteFetching.collectLatest {
+                updateState { state ->
+                    state.copy(
+                        operationInProgress = it
                     )
                 }
             }
@@ -161,16 +196,20 @@ data class ConfirmationModelState(
     val inputToFiatExchangeRate: ExchangeRate?,
     val outputToFiatExchangeRate: ExchangeRate?,
     val networkFeesToFiatExchangeRate: ExchangeRate?,
+    val operationInProgress: Boolean = false,
 ) : ModelState
 
 sealed class ConfirmationIntent : Intent<ConfirmationModelState> {
     object LoadTransactionData : ConfirmationIntent()
     object ConfirmSwap : ConfirmationIntent()
+    object StopListeningForUpdates : ConfirmationIntent()
     object SubscribeForTxUpdates : ConfirmationIntent()
     object UnSubscribeToTxUpdates : ConfirmationIntent()
 }
 
-sealed class ConfirmationNavigationEvent : NavigationEvent
+sealed class ConfirmationNavigationEvent : NavigationEvent {
+    object TxInProgressNavigationEvent : ConfirmationNavigationEvent()
+}
 
 sealed class ConfirmationScreenViewState : ViewState {
     object Loading : ConfirmationScreenViewState()
@@ -183,6 +222,7 @@ sealed class ConfirmationScreenViewState : ViewState {
         val inputCurrency: AssetInfo?,
         val outputCurrency: AssetInfo?,
         val inputBalance: Money?,
+        val operationInProgress: Boolean,
         val outputBalance: Money?,
         val dexExchangeRate: BigDecimal?,
         val slippage: Double?,

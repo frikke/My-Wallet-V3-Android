@@ -6,6 +6,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
+import com.dex.presentation.enteramount.AllowanceTxUiData
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 

@@ -61,11 +61,17 @@ class DexTransactionRepository(
         }
     }
 
-    override suspend fun pushTx(coinNetwork: CoinNetwork, rawTx: String, signatures: List<TransactionSignature>) {
-        nonCustodialService.pushTransaction(
+    override suspend fun pushTx(
+        coinNetwork: CoinNetwork,
+        rawTx: String,
+        signatures: List<TransactionSignature>
+    ): Outcome<Exception, String> {
+        return nonCustodialService.pushTransaction(
             signatures = signatures,
             rawTx = Json.decodeFromString(JsonObject.serializer(), rawTx),
             currency = coinNetwork.networkTicker
-        )
+        ).map {
+            it.txId
+        }
     }
 }

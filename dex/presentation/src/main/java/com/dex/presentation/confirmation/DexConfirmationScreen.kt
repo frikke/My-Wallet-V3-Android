@@ -12,7 +12,9 @@ import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -24,10 +26,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.flowWithLifecycle
+import androidx.navigation.NavController
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.tablerow.TableRow
@@ -40,16 +45,19 @@ import com.blockchain.koin.payloadScope
 import com.dex.presentation.AmountFieldConfig
 import com.dex.presentation.DexTxSubscribeScreen
 import com.dex.presentation.SourceAndDestinationAmountFields
+import com.dex.presentation.graph.DexDestination
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import java.math.BigDecimal
 import java.math.BigInteger
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun DexConfirmationScreen(
     onBackPressed: () -> Unit,
+    navController: NavController,
     viewModel: DexConfirmationViewModel = getViewModel(scope = payloadScope),
 ) {
 
@@ -60,10 +68,32 @@ fun DexConfirmationScreen(
         unsubscribe = { viewModel.onIntent(ConfirmationIntent.UnSubscribeToTxUpdates) }
     )
 
+    val navEventsFlowLifecycleAware = remember(viewModel.navigationEventFlow, lifecycleOwner) {
+        viewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
+
+    LaunchedEffect(key1 = viewModel) {
+        navEventsFlowLifecycleAware.collectLatest { event ->
+            when (event) {
+                ConfirmationNavigationEvent.TxInProgressNavigationEvent -> navController.navigate(
+                    route = DexDestination.InProgress.route,
+                    builder = {
+                        popUpTo(navController.graph.startDestinationId) {
+                            inclusive = false
+                        }
+                    }
+                )
+            }
+        }
+    }
+
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_CREATE) {
                 viewModel.onIntent(ConfirmationIntent.LoadTransactionData)
+            }
+            if (event == Lifecycle.Event.ON_STOP) {
+                viewModel.onIntent(ConfirmationIntent.StopListeningForUpdates)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -135,10 +165,10 @@ fun DexConfirmationScreen(
                     top = AppTheme.dimensions.standardSpacing
                 ),
                 onClick = {
-/*
+
                     viewModel.onIntent(ConfirmationIntent.ConfirmSwap)
-*/
-                }
+                },
+                state = if (dataState.operationInProgress) ButtonState.Loading else ButtonState.Enabled
             )
         }
     }
@@ -146,7 +176,11 @@ fun DexConfirmationScreen(
 
 @Preview
 @Composable
-private fun SwapButton(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
+private fun SwapButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
+    state: ButtonState = ButtonState.Enabled
+) {
     Card(
         modifier = modifier.fillMaxWidth(),
         backgroundColor = Color.White,
@@ -161,6 +195,7 @@ private fun SwapButton(modifier: Modifier = Modifier, onClick: () -> Unit = {}) 
             modifier = Modifier.padding(
                 all = AppTheme.dimensions.smallSpacing,
             ),
+            state = state,
             text = stringResource(id = R.string.common_swap),
             onClick = onClick
         )

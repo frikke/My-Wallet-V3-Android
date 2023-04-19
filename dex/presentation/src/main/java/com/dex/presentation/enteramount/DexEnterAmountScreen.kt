@@ -19,7 +19,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -38,7 +37,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavController
 import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
-import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -63,6 +61,16 @@ import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.dex.presentation.R
 import com.blockchain.koin.payloadScope
 import com.blockchain.preferences.DexPrefs
+import com.dex.presentation.enteramount.ActionButtonState
+import com.dex.presentation.enteramount.AlertError
+import com.dex.presentation.enteramount.AllowanceTxUiData
+import com.dex.presentation.enteramount.AmountNavigationEvent
+import com.dex.presentation.enteramount.DexEnterAmountViewModel
+import com.dex.presentation.enteramount.DexOperation
+import com.dex.presentation.enteramount.DexUiError
+import com.dex.presentation.enteramount.InputAmountIntent
+import com.dex.presentation.enteramount.InputAmountViewState
+import com.dex.presentation.enteramount.UiFee
 import com.dex.presentation.graph.ARG_ALLOWANCE_TX
 import com.dex.presentation.graph.DexDestination
 import info.blockchain.balance.Currency

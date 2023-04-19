@@ -155,9 +155,8 @@ fun MultiAppNavHost(
             )
             dexGraph(
                 onBackPressed = navController::popBackStack,
-                navController = navController
+                navController = navController,
             )
-
             swapGraph(
                 navControllerProvider = { navController },
                 onBackPressed = navController::popBackStack,
