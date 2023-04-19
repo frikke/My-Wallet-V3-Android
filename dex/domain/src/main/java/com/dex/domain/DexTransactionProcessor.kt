@@ -67,6 +67,10 @@ class DexTransactionProcessor(
     val transaction: Flow<DexTransaction>
         get() = _transactionSharedFlow
 
+    fun dispose() {
+        job?.cancel()
+    }
+
     fun initTransaction(sourceAccount: DexAccount, destinationAccount: DexAccount?, slippage: Double) {
         _dexTransaction.update {
             EmptyDexTransaction.copy(
@@ -105,9 +109,12 @@ class DexTransactionProcessor(
     private val hasActiveSubscribers: Flow<Boolean>
         get() = activeSubscriptions.map { it > 0 }
 
+    private var job: Job? = null
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun startQuotesUpdates() {
-        scope.launch {
+        job?.cancel()
+        job = scope.launch {
             combine(
                 quoteInput,
                 updateQuote,
@@ -199,7 +206,7 @@ class DexTransactionProcessor(
         _dexTransaction.update { dexTx ->
             dexTx.copy(
                 _sourceAccount = sourceAccount,
-                _amount = dexTx.amount.let { current ->
+                amount = dexTx.amount?.let { current ->
                     Money.fromMajor(
                         sourceAccount.currency,
                         current.toBigDecimal()
@@ -225,7 +232,7 @@ class DexTransactionProcessor(
     fun updateTransactionAmount(amount: BigDecimal) {
         _dexTransaction.update { tx ->
             tx.copy(
-                _amount = Money.fromMajor(tx.sourceAccount.currency, amount),
+                amount = Money.fromMajor(tx.sourceAccount.currency, amount),
             )
         }
     }
@@ -273,7 +280,11 @@ class DexTransactionProcessor(
     }
 
     private suspend fun DexTransaction.validateAllowance(): DexTransaction {
-        return if (destinationAccount == null || !amount.isPositive || sourceAccount.currency.isNetworkNativeAsset()) {
+        return if (
+            destinationAccount == null ||
+            amount?.isPositive == false ||
+            sourceAccount.currency.isNetworkNativeAsset()
+        ) {
             this
         } else {
             val allowance = allowanceService.tokenAllowance(
@@ -290,7 +301,8 @@ class DexTransactionProcessor(
     }
 
     private fun DexTransaction.validateSufficientFunds(): DexTransaction {
-        return if (sourceAccount.balance >= amount)
+        val validationAmount = amount ?: Money.zero(sourceAccount.currency)
+        return if (sourceAccount.balance >= validationAmount)
             this
         else copy(
             txError = DexTxError.NotEnoughFunds
@@ -313,10 +325,10 @@ class DexTransactionProcessor(
  * We are able to fetch a quote when amount > 0 AND ( no error or error is quote related )
  */
 private fun DexTransaction.canBeQuoted() =
-    amount.isPositive && txError.allowsQuotesFetching()
+    this.amount?.isPositive == true && txError.allowsQuotesFetching()
 
 data class DexTransaction internal constructor(
-    private val _amount: Money?,
+    val amount: Money?,
     val quote: DexQuote.ExchangeQuote?,
     private val _sourceAccount: DexAccount?,
     val destinationAccount: DexAccount?,
@@ -326,7 +338,7 @@ data class DexTransaction internal constructor(
     val quoteError: DexTxError.QuoteError?
 ) {
     val quoteParams: DexQuoteParams?
-        get() = safeLet(_sourceAccount, destinationAccount, _amount) { s, d, a ->
+        get() = safeLet(_sourceAccount, destinationAccount, amount) { s, d, a ->
             return DexQuoteParams(
                 sourceAccount = s,
                 destinationAccount = d,
@@ -337,8 +349,9 @@ data class DexTransaction internal constructor(
 
     val sourceAccount: DexAccount
         get() = _sourceAccount ?: throw IllegalStateException("Source Account not initialised")
-    val amount: Money
-        get() = _amount ?: Money.zero(sourceAccount.currency)
+
+    fun hasBeenExecuted() =
+        txResult != null
 }
 
 data class OutputAmount(val expectedOutput: Money, val minOutputAmount: Money)

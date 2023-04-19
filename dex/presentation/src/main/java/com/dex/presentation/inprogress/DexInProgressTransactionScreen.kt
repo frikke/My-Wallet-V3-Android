@@ -9,10 +9,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -22,6 +28,7 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.dex.presentation.R
 import com.blockchain.koin.payloadScope
 import org.koin.androidx.compose.getViewModel
@@ -29,10 +36,25 @@ import org.koin.androidx.compose.getViewModel
 @Preview
 @Composable
 fun DexInProgressTransactionScreen(
-    onBackPressed: () -> Unit = {},
     closeFlow: () -> Unit = {},
     viewModel: DexInProgressTxViewModel = getViewModel(scope = payloadScope),
 ) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_CREATE) {
+                viewModel.onIntent(InProgressIntent.LoadTransactionProgress)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    val viewState: InProgressViewState by viewModel.viewState.collectAsStateLifecycleAware()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -40,12 +62,20 @@ fun DexInProgressTransactionScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        SuccessScreen(
-            doneClicked = { },
-            viewOnExplorer = {},
-            sourceCurrency = "ETH",
-            destinationCurrency = "USDC"
-        )
+        when (val state = viewState) {
+            is InProgressViewState.Success -> SuccessScreen(
+                doneClicked = closeFlow,
+                explorerUrl = state.txExplorerUrl,
+                sourceCurrency = state.sourceCurrency.displayTicker,
+                destinationCurrency = state.destinationCurrency.displayTicker
+            )
+            InProgressViewState.Failure -> FailureScreen(
+                cancelClicked = closeFlow,
+                tryAgain = closeFlow // todo --> add retry
+            )
+            InProgressViewState.Loading -> {
+            }
+        }
     }
 }
 
@@ -78,7 +108,6 @@ private fun ColumnScope.FailureScreen(
             color = ComposeColors.Body,
             gravity = ComposeGravities.Centre
         )
-
     }
     Column(
         modifier = Modifier
@@ -101,10 +130,12 @@ private fun ColumnScope.FailureScreen(
 @Composable
 private fun ColumnScope.SuccessScreen(
     doneClicked: () -> Unit,
-    viewOnExplorer: () -> Unit,
+    explorerUrl: String,
     sourceCurrency: String,
     destinationCurrency: String
 ) {
+    val uriHandler = LocalUriHandler.current
+
     Column(
         modifier = Modifier.weight(1f),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -131,7 +162,6 @@ private fun ColumnScope.SuccessScreen(
             color = ComposeColors.Body,
             gravity = ComposeGravities.Centre
         )
-
     }
     Column(
         modifier = Modifier
@@ -140,7 +170,9 @@ private fun ColumnScope.SuccessScreen(
         MinimalButton(
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(id = R.string.view_on_explorer),
-            onClick = viewOnExplorer
+            onClick = {
+                uriHandler.openUri(explorerUrl)
+            }
         )
         Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
         PrimaryButton(
@@ -150,4 +182,3 @@ private fun ColumnScope.SuccessScreen(
         )
     }
 }
-

@@ -28,7 +28,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavController
-import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -46,17 +45,13 @@ import com.blockchain.koin.payloadScope
 import com.dex.presentation.AmountFieldConfig
 import com.dex.presentation.DexTxSubscribeScreen
 import com.dex.presentation.SourceAndDestinationAmountFields
-import com.dex.presentation.enteramount.AllowanceTxUiData
-import com.dex.presentation.enteramount.AmountNavigationEvent
-import com.dex.presentation.graph.ARG_ALLOWANCE_TX
 import com.dex.presentation.graph.DexDestination
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.serialization.json.Json
 import java.math.BigDecimal
 import java.math.BigInteger
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -81,7 +76,12 @@ fun DexConfirmationScreen(
         navEventsFlowLifecycleAware.collectLatest { event ->
             when (event) {
                 ConfirmationNavigationEvent.TxInProgressNavigationEvent -> navController.navigate(
-                    DexDestination.InProgress.route
+                    route = DexDestination.InProgress.route,
+                    builder = {
+                        popUpTo(navController.graph.startDestinationId) {
+                            inclusive = false
+                        }
+                    }
                 )
             }
         }
@@ -91,6 +91,9 @@ fun DexConfirmationScreen(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_CREATE) {
                 viewModel.onIntent(ConfirmationIntent.LoadTransactionData)
+            }
+            if (event == Lifecycle.Event.ON_STOP) {
+                viewModel.onIntent(ConfirmationIntent.StopListeningForUpdates)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -361,9 +364,9 @@ private fun ExchangeRateConfirmation(exchangeRate: BigDecimal, inputCurrency: As
             Spacer(modifier = Modifier.weight(1f))
             SimpleText(
                 text = "$exchangeRate ${outputCurrency.displayTicker} / ${
-                    Money.fromMajor(
-                        inputCurrency, BigDecimal.ONE
-                    ).toStringWithSymbol(includeDecimalsWhenWhole = false)
+                Money.fromMajor(
+                    inputCurrency, BigDecimal.ONE
+                ).toStringWithSymbol(includeDecimalsWhenWhole = false)
                 }",
                 style = ComposeTypographies.Paragraph2,
                 color = ComposeColors.Title,

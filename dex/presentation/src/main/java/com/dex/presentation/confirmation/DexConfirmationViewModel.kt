@@ -20,6 +20,7 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import java.math.BigDecimal
 import java.math.RoundingMode
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -36,6 +37,11 @@ class DexConfirmationViewModel(
     ModelConfigArgs.NoArgs
     >(initialState = ConfirmationModelState(null, null, null, null)) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
+    }
+
+    override fun onCleared() {
+        println("LALALA CLEARED! DexConfirmationViewModel")
+        super.onCleared()
     }
 
     override fun reduce(state: ConfirmationModelState): ConfirmationScreenViewState {
@@ -93,6 +99,9 @@ class DexConfirmationViewModel(
             ConfirmationIntent.ConfirmSwap -> {
                 executeTx()
             }
+            ConfirmationIntent.StopListeningForUpdates -> {
+                job?.cancel()
+            }
         }
     }
 
@@ -111,8 +120,11 @@ class DexConfirmationViewModel(
         navigate(ConfirmationNavigationEvent.TxInProgressNavigationEvent)
     }
 
+    var job: Job? = null
+
     private fun loadTransactionData() {
-        viewModelScope.launch {
+        job?.cancel()
+        job = viewModelScope.launch {
             transactionProcessor.transaction.onEach {
                 updateInputFiatExchangeRate(it.sourceAccount.currency, currencyPrefs.selectedFiatCurrency)
                 it.quote?.networkFees?.let { fees ->
@@ -195,6 +207,7 @@ data class ConfirmationModelState(
 sealed class ConfirmationIntent : Intent<ConfirmationModelState> {
     object LoadTransactionData : ConfirmationIntent()
     object ConfirmSwap : ConfirmationIntent()
+    object StopListeningForUpdates : ConfirmationIntent()
     object SubscribeForTxUpdates : ConfirmationIntent()
     object UnSubscribeToTxUpdates : ConfirmationIntent()
 }

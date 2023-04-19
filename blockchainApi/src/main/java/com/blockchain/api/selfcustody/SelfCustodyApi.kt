@@ -39,6 +39,6 @@ interface SelfCustodyApi {
     @POST("buildTx")
     suspend fun buildTransaction(@Body request: BuildTxRequest): Outcome<Exception, BuildTxResponse>
 
-    @POST("pushT123x")
+    @POST("pushTx")
     suspend fun pushTransaction(@Body request: PushTxRequest): Outcome<Exception, PushTxResponse>
 }

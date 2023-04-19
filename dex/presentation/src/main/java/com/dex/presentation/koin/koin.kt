@@ -3,12 +3,12 @@ package com.dex.presentation.koin
 import com.blockchain.koin.payloadScopeQualifier
 import com.dex.domain.AllowanceTransactionProcessor
 import com.dex.domain.DexTransactionProcessor
-import com.dex.presentation.enteramount.DexEnterAmountViewModel
 import com.dex.presentation.DexSelectDestinationAccountViewModel
 import com.dex.presentation.DexSourceAccountViewModel
 import com.dex.presentation.SettingsViewModel
 import com.dex.presentation.TokenAllowanceViewModel
 import com.dex.presentation.confirmation.DexConfirmationViewModel
+import com.dex.presentation.enteramount.DexEnterAmountViewModel
 import com.dex.presentation.inprogress.DexInProgressTxViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
