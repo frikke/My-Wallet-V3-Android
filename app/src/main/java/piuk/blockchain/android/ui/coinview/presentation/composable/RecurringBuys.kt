@@ -2,8 +2,10 @@ package piuk.blockchain.android.ui.coinview.presentation.composable
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
@@ -24,6 +26,7 @@ import com.blockchain.componentlib.icons.Sync
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.ButtonTableRow
 import com.blockchain.componentlib.tablerow.DefaultTableRow
+import com.blockchain.componentlib.tablerow.TableRowHeader
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.previewAnalytics
@@ -43,32 +46,41 @@ fun RecurringBuys(
     onRecurringBuyUpsellClick: () -> Unit,
     onRecurringBuyItemClick: (String) -> Unit
 ) {
-    when (data) {
-        DataResource.Loading -> {
-            RecurringBuysLoading()
-        }
+    Column(
+        modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
+    ) {
+        TableRowHeader(
+            title = stringResource(R.string.recurring_buy_toolbar),
+        )
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
-        is DataResource.Error -> {
-            RecurringBuysError()
-        }
+        when (data) {
+            DataResource.Loading -> {
+                RecurringBuysLoading()
+            }
 
-        is DataResource.Data -> {
-            data.data?.let { rbState ->
-                when (rbState) {
-                    CoinviewRecurringBuysState.Upsell -> {
-                        RecurringBuysUpsell(
-                            analytics = analytics,
-                            onRecurringBuyUpsellClick = onRecurringBuyUpsellClick
-                        )
-                    }
+            is DataResource.Error -> {
+                RecurringBuysError()
+            }
 
-                    is CoinviewRecurringBuysState.Data -> {
-                        RecurringBuysData(
-                            analytics = analytics,
-                            data = rbState,
-                            assetTicker = assetTicker,
-                            onRecurringBuyItemClick = onRecurringBuyItemClick
-                        )
+            is DataResource.Data -> {
+                data.data?.let { rbState ->
+                    when (rbState) {
+                        CoinviewRecurringBuysState.Upsell -> {
+                            RecurringBuysUpsell(
+                                analytics = analytics,
+                                onRecurringBuyUpsellClick = onRecurringBuyUpsellClick
+                            )
+                        }
+
+                        is CoinviewRecurringBuysState.Data -> {
+                            RecurringBuysData(
+                                analytics = analytics,
+                                data = rbState,
+                                assetTicker = assetTicker,
+                                onRecurringBuyItemClick = onRecurringBuyItemClick
+                            )
+                        }
                     }
                 }
             }
@@ -81,7 +93,6 @@ fun RecurringBuysLoading() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(AppTheme.dimensions.smallSpacing)
             .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
     ) {
         ShimmerLoadingTableRow()
@@ -93,7 +104,6 @@ fun RecurringBuysError() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(AppTheme.dimensions.smallSpacing)
             .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
     ) {
         CardAlert(
@@ -114,16 +124,15 @@ fun RecurringBuysUpsell(
 ) {
     Surface(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(AppTheme.dimensions.smallSpacing),
+            .fillMaxWidth(),
         shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
     ) {
 
-        val title = stringResource(R.string.coinview_rb_card_title)
+        val title = stringResource(R.string.recurring_buy_automate_title)
 
         ButtonTableRow(
             title = title,
-            subtitle = stringResource(R.string.coinview_rb_card_subtitle),
+            subtitle = stringResource(R.string.recurring_buy_automate_description),
             imageResource = Icons.Filled.Sync.withTint(AppTheme.colors.primary),
             actionText = stringResource(R.string.common_go),
             onClick = {
@@ -145,7 +154,6 @@ fun RecurringBuysData(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(AppTheme.dimensions.smallSpacing)
             .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
     ) {
         data.recurringBuys.forEachIndexed { index, recurringBuy ->
