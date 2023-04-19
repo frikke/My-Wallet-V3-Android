@@ -208,7 +208,6 @@ class EnterAmountViewModel(
                     InputCurrency.Currency2 -> {
                         onIntent(EnterAmountIntent.CryptoInputChanged(amount = userInputBalance))
                     }
-
                 }
             }
         }
