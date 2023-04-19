@@ -40,6 +40,8 @@ fun AlertButton(
         defaultTextColor = Color.White,
         defaultBackgroundLightColor = Grey900,
         defaultBackgroundDarkColor = Dark800,
+        disabledBackgroundLightColor = Grey900,
+        disabledBackgroundDarkColor = Dark800,
         pressedBackgroundColor = Color.Black,
         modifier = modifier.requiredHeightIn(min = 48.dp),
         buttonContent = { state: ButtonState, text: String, color: Color, _: Float, _: ImageResource ->

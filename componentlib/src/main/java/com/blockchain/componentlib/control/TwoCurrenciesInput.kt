@@ -57,6 +57,8 @@ data class CurrencyValue(
     val separateWithSpace: Boolean
 )
 
+fun CurrencyValue.isEmpty() = value.isEmpty()
+
 enum class InputCurrency {
     Currency1, Currency2
 }

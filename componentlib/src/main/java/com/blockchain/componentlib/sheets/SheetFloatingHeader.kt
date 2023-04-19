@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
@@ -22,21 +23,28 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.clickableNoEffect
 
 @Composable
-fun SheetFloatingHeader(
+private fun SheetHeader(
     icon: StackedIcon,
     title: String,
+    isFloating: Boolean,
     onCloseClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
-            .padding(AppTheme.dimensions.tinySpacing)
+            .padding(if (isFloating) AppTheme.dimensions.tinySpacing else 0.dp)
             .fillMaxWidth(),
         shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium),
-        elevation = AppTheme.dimensions.borderRadiiSmallest,
+        elevation = if (isFloating) AppTheme.dimensions.borderRadiiSmallest else 0.dp,
         backgroundColor = AppTheme.colors.light
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = AppTheme.dimensions.tinySpacing),
+            modifier = Modifier.padding(
+                horizontal = if (isFloating) {
+                    AppTheme.dimensions.tinySpacing
+                } else {
+                    AppTheme.dimensions.smallSpacing
+                }
+            ),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
@@ -54,7 +62,13 @@ fun SheetFloatingHeader(
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
                 Text(
-                    modifier = Modifier.padding(vertical = AppTheme.dimensions.verySmallSpacing),
+                    modifier = Modifier.padding(
+                        vertical = if (isFloating) {
+                            AppTheme.dimensions.verySmallSpacing
+                        } else {
+                            AppTheme.dimensions.mediumSpacing
+                        }
+                    ),
                     text = title,
                     style = AppTheme.typography.body2,
                     color = AppTheme.colors.title,
@@ -69,6 +83,34 @@ fun SheetFloatingHeader(
             )
         }
     }
+}
+
+@Composable
+fun SheetFloatingHeader(
+    icon: StackedIcon,
+    title: String,
+    onCloseClick: () -> Unit
+) {
+    SheetHeader(
+        icon = icon,
+        title = title,
+        isFloating = true,
+        onCloseClick = onCloseClick
+    )
+}
+
+@Composable
+fun SheetFlatHeader(
+    icon: StackedIcon,
+    title: String,
+    onCloseClick: () -> Unit
+) {
+    SheetHeader(
+        icon = icon,
+        title = title,
+        isFloating = false,
+        onCloseClick = onCloseClick
+    )
 }
 
 @Preview(backgroundColor = 0xF0F2F7CC, showBackground = true)
@@ -101,6 +143,18 @@ fun PreviewSheetFloatingHeader_SmallTag() {
 @Composable
 fun PreviewSheetFloatingHeader_Single() {
     SheetFloatingHeader(
+        icon = StackedIcon.SingleIcon(
+            ImageResource.Local(R.drawable.ic_close_circle_dark)
+        ),
+        title = "Swapped BTC -> ETH",
+        onCloseClick = {}
+    )
+}
+
+@Preview(backgroundColor = 0xF0F2F7CC, showBackground = true)
+@Composable
+fun PreviewSheetFlatHeader_Single() {
+    SheetFlatHeader(
         icon = StackedIcon.SingleIcon(
             ImageResource.Local(R.drawable.ic_close_circle_dark)
         ),

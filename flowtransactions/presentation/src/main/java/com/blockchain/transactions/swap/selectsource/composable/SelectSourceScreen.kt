@@ -7,13 +7,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.componentlib.sheets.SheetHeader
+import com.blockchain.componentlib.sheets.SheetFlatHeader
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.common.composable.AccountList
+import com.blockchain.transactions.presentation.R
 import com.blockchain.transactions.swap.selectsource.SelectSourceIntent
 import com.blockchain.transactions.swap.selectsource.SelectSourceViewModel
 import com.blockchain.transactions.swap.selectsource.SelectSourceViewState
@@ -32,22 +35,31 @@ fun SelectSourceScreen(
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(AppTheme.dimensions.smallSpacing)
+        modifier = Modifier.fillMaxWidth()
     ) {
-
-        SheetHeader(onClosePress = { /*TODO*/ }, title = "Swap from")
+        SheetFlatHeader(
+            icon = StackedIcon.None,
+            title = stringResource(R.string.common_swap_from),
+            onCloseClick = {
+            }
+        )
 
         StandardVerticalSpacer()
 
-        AccountList(accounts = viewState.accountList, onAccountClick = {})
+        AccountList(
+            modifier = Modifier.padding(
+                horizontal = AppTheme.dimensions.smallSpacing
+            ),
+            accounts = viewState.accountList,
+            onAccountClick = {},
+            bottomSpacer = AppTheme.dimensions.smallSpacing
+        )
     }
 }
 
 @Preview
 @Composable
-fun SelectSourceScreenPreview() {
+private fun SelectSourceScreenPreview() {
     AppTheme {
         SelectSourceScreen()
     }

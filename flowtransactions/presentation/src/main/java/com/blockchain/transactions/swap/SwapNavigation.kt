@@ -1,22 +1,39 @@
 package com.blockchain.transactions.swap
 
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
 import androidx.navigation.navigation
+import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.chrome.composable.ChromeSingleScreen
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationDestination
+import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
+import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
 import com.blockchain.transactions.swap.enteramount.composable.EnterAmount
 import com.blockchain.transactions.swap.selectsource.composable.SelectSourceScreen
+import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 
+@ExperimentalMaterialNavigationApi
 fun NavGraphBuilder.swapGraph(
+    navControllerProvider: () -> NavHostController,
     onBackPressed: () -> Unit
 ) {
     navigation(startDestination = SwapDestination.EnterAmount.route, route = SwapDestination.Main.route) {
         composable(navigationEvent = SwapDestination.EnterAmount) {
             ChromeSingleScreen {
-                /*EnterAmount(
+                EnterAmount(
+                    openSourceAccounts = {
+                        navControllerProvider().navigate(
+                            SwapDestination.SourceAccounts
+                        )
+                    },
                     onBackPressed = onBackPressed
-                )*/
+                )
+            }
+        }
+
+        bottomSheet(navigationEvent = SwapDestination.SourceAccounts) {
+            ChromeBottomSheet(onClose = onBackPressed) {
                 SelectSourceScreen()
             }
         }
@@ -28,4 +45,5 @@ sealed class SwapDestination(
 ) : ComposeNavigationDestination {
     object Main : SwapDestination("SwapMain")
     object EnterAmount : SwapDestination("SwapEnterAmount")
+    object SourceAccounts : SwapDestination("SwapSourceAccounts")
 }

@@ -17,13 +17,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -33,7 +37,8 @@ import com.blockchain.componentlib.theme.Grey100
 fun ShimmerLoadingTableRow(
     showIconLoader: Boolean = true,
     showEndBlocks: Boolean = true,
-    showBottomBlock: Boolean = true
+    showBottomBlock: Boolean = true,
+    reversed: Boolean = false
 ) {
     val transition = rememberInfiniteTransition()
     val translateAnim by transition.animateFloat(
@@ -51,13 +56,18 @@ fun ShimmerLoadingTableRow(
         end = Offset(translateAnim, translateAnim)
     )
 
-    Row(
-        modifier = Modifier.fillMaxWidth()
+    CompositionLocalProvider(
+        LocalLayoutDirection provides if (reversed) LayoutDirection.Rtl else LayoutDirection.Ltr
     ) {
-        if (showIconLoader) {
-            ShimmerIcon(brush = brush)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (showIconLoader) {
+                ShimmerIcon(brush = brush)
+            }
+            ShimmerRow(brush = brush, showEndBlocks = showEndBlocks, showBottomBlock = showBottomBlock)
         }
-        ShimmerRow(brush = brush, showEndBlocks = showEndBlocks, showBottomBlock = showBottomBlock)
     }
 }
 
@@ -68,9 +78,7 @@ fun ShimmerIcon(
     Box(
         modifier = Modifier
             .padding(
-                start = dimensionResource(R.dimen.very_small_spacing),
-                top = dimensionResource(R.dimen.large_spacing),
-                end = dimensionResource(R.dimen.smallest_spacing)
+                start = AppTheme.dimensions.smallSpacing,
             )
             .background(
                 brush = brush,
@@ -88,10 +96,10 @@ fun ShimmerRow(
 ) {
     Column(
         modifier = Modifier.padding(
-            start = dimensionResource(R.dimen.medium_spacing),
-            top = dimensionResource(R.dimen.standard_spacing),
-            end = dimensionResource(R.dimen.standard_spacing),
-            bottom = dimensionResource(R.dimen.standard_spacing)
+            start = AppTheme.dimensions.smallSpacing,
+            top = AppTheme.dimensions.smallSpacing,
+            end = AppTheme.dimensions.smallSpacing,
+            bottom = AppTheme.dimensions.smallSpacing
         )
     ) {
         ShimmerLargeBlock(brush = brush, showEndBlock = showEndBlocks)

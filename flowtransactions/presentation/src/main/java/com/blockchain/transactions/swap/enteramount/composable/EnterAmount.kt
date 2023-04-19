@@ -15,27 +15,37 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.button.AlertButton
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.card.TwoAssetAction
+import com.blockchain.componentlib.card.TwoAssetActionHorizontal
+import com.blockchain.componentlib.card.TwoAssetActionHorizontalLoading
 import com.blockchain.componentlib.control.CurrencyValue
 import com.blockchain.componentlib.control.InputCurrency
 import com.blockchain.componentlib.control.TwoCurrenciesInput
+import com.blockchain.componentlib.control.isEmpty
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.data.DataResource
+import com.blockchain.data.dataOrElse
+import com.blockchain.data.map
 import com.blockchain.extensions.safeLet
 import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.presentation.R
 import com.blockchain.transactions.swap.enteramount.EnterAmountAssetState
+import com.blockchain.transactions.swap.enteramount.EnterAmountAssets
 import com.blockchain.transactions.swap.enteramount.EnterAmountIntent
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewState
+import com.blockchain.transactions.swap.enteramount.SwapEnterAmountInputError
 import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun EnterAmount(
     viewModel: EnterAmountViewModel = getViewModel(scope = payloadScope),
+    openSourceAccounts: () -> Unit,
     onBackPressed: () -> Unit
 ) {
     val viewState: EnterAmountViewState by viewModel.viewState.collectAsStateLifecycleAware()
@@ -55,42 +65,37 @@ fun EnterAmount(
             onBackButtonClick = onBackPressed,
         )
 
-        safeLet(
-            viewState.fromAsset,
-            viewState.toAsset,
-            viewState.fiatAmount,
-            viewState.cryptoAmount,
-        ) { fromAsset, toAsset, fiatAmount, cryptoAmount ->
-            EnterAmountScreen(
-                selected = viewState.selectedInput,
-                from = fromAsset,
-                to = toAsset,
-                fiatAmount = fiatAmount,
-                onFiatAmountChanged = {
-                    viewModel.onIntent(EnterAmountIntent.FiatAmountChanged(it))
-                },
-                cryptoAmount = cryptoAmount,
-                onCryptoAmountChanged = {
-                    viewModel.onIntent(EnterAmountIntent.CryptoAmountChanged(it))
-                },
-                onFlipInputs = {
-                    viewModel.onIntent(EnterAmountIntent.FlipInputs)
-                }
-            )
-        }
+        EnterAmountScreen(
+            selected = viewState.selectedInput,
+            assets = viewState.assets,
+            fiatAmount = viewState.fiatAmount,
+            onFiatAmountChanged = {
+                viewModel.onIntent(EnterAmountIntent.FiatAmountChanged(it))
+            },
+            cryptoAmount = viewState.cryptoAmount,
+            onCryptoAmountChanged = {
+                viewModel.onIntent(EnterAmountIntent.CryptoAmountChanged(it))
+            },
+            onFlipInputs = {
+                viewModel.onIntent(EnterAmountIntent.FlipInputs)
+            },
+            error = viewState.error,
+            openSourceAccounts = openSourceAccounts
+        )
     }
 }
 
 @Composable
 private fun EnterAmountScreen(
     selected: InputCurrency,
-    from: EnterAmountAssetState,
-    to: EnterAmountAssetState,
-    fiatAmount: CurrencyValue,
+    assets: DataResource<EnterAmountAssets>,
+    fiatAmount: CurrencyValue?,
     onFiatAmountChanged: (String) -> Unit,
-    cryptoAmount: CurrencyValue,
+    cryptoAmount: CurrencyValue?,
     onCryptoAmountChanged: (String) -> Unit,
-    onFlipInputs: () -> Unit
+    onFlipInputs: () -> Unit,
+    error: SwapEnterAmountInputError?,
+    openSourceAccounts: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -100,35 +105,72 @@ private fun EnterAmountScreen(
     ) {
         Spacer(modifier = Modifier.weight(1F))
 
-        TwoCurrenciesInput(
-            selected = selected,
-            currency1 = fiatAmount,
-            onCurrency1ValueChange = onFiatAmountChanged,
-            currency2 = cryptoAmount,
-            onCurrency2ValueChange = onCryptoAmountChanged,
-            onFlipInputs = onFlipInputs,
-        )
+        safeLet(
+            fiatAmount,
+            cryptoAmount,
+        ) { fiatAmount, cryptoAmount ->
+            TwoCurrenciesInput(
+                selected = selected,
+                currency1 = fiatAmount,
+                onCurrency1ValueChange = onFiatAmountChanged,
+                currency2 = cryptoAmount,
+                onCurrency2ValueChange = onCryptoAmountChanged,
+                onFlipInputs = onFlipInputs,
+            )
+        }
 
         Spacer(modifier = Modifier.weight(1F))
 
-        TwoAssetAction(
-            startTitle = "From",
-            startSubtitle = from.ticker,
-            startIcon = StackedIcon.SingleIcon(ImageResource.Remote(from.iconUrl)),
-            endTitle = "To",
-            endSubtitle = to.ticker,
-            endIcon = StackedIcon.SingleIcon(ImageResource.Remote(to.iconUrl)),
-        )
+        when (assets) {
+            DataResource.Loading -> {
+                TwoAssetActionHorizontalLoading()
+            }
+            is DataResource.Data -> {
+                TwoAssetActionHorizontal(
+                    startTitle = "From",
+                    startSubtitle = assets.data.from.ticker,
+                    startIcon = StackedIcon.SingleIcon(ImageResource.Remote(assets.data.from.iconUrl)),
+                    startOnClick = openSourceAccounts,
+                    endTitle = "To",
+                    endSubtitle = assets.data.to.ticker,
+                    endIcon = StackedIcon.SingleIcon(ImageResource.Remote(assets.data.to.iconUrl)),
+                    endOnClick = {}
+                )
+            }
+            is DataResource.Error -> TODO()
+        }
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
-        PrimaryButton(
+        error?.let {
+            AlertButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = when (error) {
+                    is SwapEnterAmountInputError.BelowMinimum -> {
+                        stringResource(R.string.minimum_with_value, error.minValue)
+                    }
+                    is SwapEnterAmountInputError.AboveMaximum -> {
+                        stringResource(R.string.maximum_with_value, error.maxValue)
+                    }
+                    is SwapEnterAmountInputError.AboveBalance -> {
+                        stringResource(R.string.not_enough_funds, assets.map { it.from.ticker }.dataOrElse(""))
+                    }
+                },
+                state = ButtonState.Disabled,
+                onClick = {}
+            )
+        } ?: PrimaryButton(
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.preview_swap),
+            state = if (fiatAmount?.isEmpty() == false && cryptoAmount?.isEmpty() == false) {
+                ButtonState.Enabled
+            } else {
+                ButtonState.Disabled
+            },
             onClick = {}
         )
 
-        Spacer(modifier = Modifier.weight(4F))
+        Spacer(modifier = Modifier.weight(3F))
     }
 }
 
@@ -137,13 +179,17 @@ private fun EnterAmountScreen(
 private fun PreviewEnterAmountScreen() {
     EnterAmountScreen(
         selected = InputCurrency.Currency1,
-        from = EnterAmountAssetState(
-            iconUrl = "",
-            ticker = "BTC"
-        ),
-        to = EnterAmountAssetState(
-            iconUrl = "",
-            ticker = "ETH"
+        assets = DataResource.Data(
+            EnterAmountAssets(
+                from = EnterAmountAssetState(
+                    iconUrl = "",
+                    ticker = "BTC"
+                ),
+                to = EnterAmountAssetState(
+                    iconUrl = "",
+                    ticker = "ETH"
+                )
+            )
         ),
         fiatAmount = CurrencyValue(
             value = "2,100.00", maxFractionDigits = 2, ticker = "$", isPrefix = true, separateWithSpace = false
@@ -153,6 +199,8 @@ private fun PreviewEnterAmountScreen() {
             value = "1.1292", maxFractionDigits = 8, ticker = "ETH", isPrefix = false, separateWithSpace = true
         ),
         onCryptoAmountChanged = {},
-        onFlipInputs = {}
+        onFlipInputs = {},
+        error = SwapEnterAmountInputError.BelowMinimum("éjdzjjdz"),
+        openSourceAccounts = {}
     )
 }

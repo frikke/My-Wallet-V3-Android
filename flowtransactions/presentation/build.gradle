@@ -32,10 +32,12 @@ dependencies {
     implementation project(':chrome:common')
     implementation project(':coincore')
     implementation project(':core')
+    implementation project(':store:core')
 
     implementation Libraries.composeUi
     implementation Libraries.composePreview
     implementation Libraries.composeMaterial
+    implementation Libraries.accompanistNavigationMaterial
 
     // koin
     implementation Libraries.koinAndroid
