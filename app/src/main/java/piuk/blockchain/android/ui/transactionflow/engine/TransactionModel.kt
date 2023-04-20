@@ -157,6 +157,7 @@ data class TransactionState(
     val isLoading: Boolean = false,
     val ffImprovedPaymentUxEnabled: Boolean = false,
     val depositTerms: DepositTerms? = null,
+    val showTradingAccounts: Boolean = false
 ) : MviState, TransactionFlowStateInfo {
 
     // workaround for using engine without cryptocurrency source
