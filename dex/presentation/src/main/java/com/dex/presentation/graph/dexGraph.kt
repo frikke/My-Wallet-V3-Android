@@ -1,5 +1,6 @@
 package com.dex.presentation.graph
 
+import androidx.activity.compose.BackHandler
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import com.blockchain.chrome.composable.ChromeBottomSheet
@@ -35,9 +36,19 @@ fun NavGraphBuilder.dexGraph(onBackPressed: () -> Unit, navController: NavContro
     }
 
     composable(navigationEvent = DexDestination.InProgress) {
+        BackHandler(true) {
+        }
         ChromeSingleScreen {
             DexInProgressTransactionScreen(
-                closeFlow = navController::popBackStack,
+                closeFlow = {
+                    navController.popBackStack(
+                        navController.graph.startDestinationId,
+                        inclusive = false
+                    )
+                },
+                retry = {
+                    navController.popBackStack(DexDestination.Confirmation.route, false)
+                }
             )
         }
     }

@@ -13,6 +13,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
@@ -27,16 +28,21 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.icons.Close
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Grey400
+import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.dex.presentation.R
 import com.blockchain.koin.payloadScope
 import org.koin.androidx.compose.getViewModel
 
-@Preview
 @Composable
 fun DexInProgressTransactionScreen(
     closeFlow: () -> Unit = {},
+    retry: () -> Unit = {},
     viewModel: DexInProgressTxViewModel = getViewModel(scope = payloadScope),
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -62,6 +68,16 @@ fun DexInProgressTransactionScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
+        Image(
+            modifier = Modifier
+                .align(Alignment.End)
+                .clickableNoEffect { closeFlow() },
+            imageResource = Icons.Close.withTint(Grey400)
+                .withBackground(
+                    backgroundColor = Color.White,
+                    backgroundSize = AppTheme.dimensions.standardSpacing
+                )
+        )
         when (val state = viewState) {
             is InProgressViewState.Success -> SuccessScreen(
                 doneClicked = closeFlow,
@@ -71,7 +87,7 @@ fun DexInProgressTransactionScreen(
             )
             InProgressViewState.Failure -> FailureScreen(
                 cancelClicked = closeFlow,
-                tryAgain = closeFlow // todo --> add retry
+                tryAgain = retry
             )
             InProgressViewState.Loading -> {
             }
@@ -79,16 +95,18 @@ fun DexInProgressTransactionScreen(
     }
 }
 
+@Preview
 @Composable
 private fun ColumnScope.FailureScreen(
-    cancelClicked: () -> Unit,
-    tryAgain: () -> Unit
+    cancelClicked: () -> Unit = {},
+    tryAgain: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier.weight(1f),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+
         Image(
             imageResource = ImageResource.Local(R.drawable.dex_transaction_failed)
         )
