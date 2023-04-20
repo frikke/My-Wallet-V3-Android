@@ -1,6 +1,8 @@
 package com.dex.presentation.confirmation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,13 +32,18 @@ import androidx.navigation.NavController
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
+import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.icons.Error
+import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.BackgroundMuted
+import com.blockchain.componentlib.theme.Grey000
+import com.blockchain.componentlib.theme.Orange500
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.dex.presentation.R
 import com.blockchain.extensions.safeLet
@@ -218,45 +225,104 @@ fun DexConfirmationScreen(
                         }
                     }
                 }
-                SwapButton(
-                    modifier = Modifier
-                        .align(Alignment.End),
-                    onClick = {
+
+                ConfirmationPinnedBottom(
+                    newPriceAvailableAndNotAccepted = dataState.newPriceAvailable,
+                    confirm = {
                         viewModel.onIntent(ConfirmationIntent.ConfirmSwap)
                     },
-                    state = if (dataState.operationInProgress) ButtonState.Loading else ButtonState.Enabled
+                    accept = {
+                        viewModel.onIntent(ConfirmationIntent.AcceptPrice)
+                    },
+                    state = when {
+                        dataState.operationInProgress -> ButtonState.Loading
+                        dataState.newPriceAvailable -> ButtonState.Disabled
+                        else -> ButtonState.Enabled
+                    }
                 )
             }
         }
     }
 }
 
-@Preview
+@Composable
+private fun ConfirmationPinnedBottom(
+    newPriceAvailableAndNotAccepted: Boolean,
+    confirm: () -> Unit,
+    accept: () -> Unit,
+    state: ButtonState
+) {
+    Column(
+        modifier = Modifier
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(
+                    topStart = AppTheme.dimensions.smallSpacing,
+                    topEnd = AppTheme.dimensions.smallSpacing,
+                    bottomEnd = 0.dp,
+                    bottomStart = 0.dp,
+                )
+            )
+            .padding(
+                all = AppTheme.dimensions.smallSpacing,
+            )
+
+    ) {
+        if (newPriceAvailableAndNotAccepted) {
+            PriceUpdateWarning(accept)
+        }
+        SwapButton(
+            onClick = confirm,
+            state = state
+        )
+    }
+}
+
+@Composable
+private fun PriceUpdateWarning(accept: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = AppTheme.dimensions.smallSpacing)
+            .background(
+                color = Grey000,
+                shape = RoundedCornerShape(AppTheme.dimensions.smallSpacing)
+            )
+            .padding(all = AppTheme.dimensions.smallSpacing),
+        verticalAlignment = CenterVertically
+    ) {
+        Image(
+            imageResource = Icons.Error.withTint(Orange500)
+                .withSize(AppTheme.dimensions.standardSpacing)
+        )
+        SimpleText(
+            modifier = Modifier.padding(start = AppTheme.dimensions.smallSpacing),
+            text = stringResource(id = R.string.price_updated),
+            style = ComposeTypographies.Paragraph2,
+            color = ComposeColors.Title,
+            gravity = ComposeGravities.Centre
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        PrimaryButton(
+            text = stringResource(id = R.string.accept),
+            onClick = accept
+        )
+    }
+}
+
 @Composable
 private fun SwapButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     state: ButtonState = ButtonState.Enabled
 ) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        backgroundColor = Color.White,
-        shape = RoundedCornerShape(
-            topStart = AppTheme.dimensions.smallSpacing,
-            topEnd = AppTheme.dimensions.smallSpacing,
-            bottomEnd = 0.dp,
-            bottomStart = 0.dp,
-        )
-    ) {
-        PrimaryButton(
-            modifier = Modifier.padding(
-                all = AppTheme.dimensions.smallSpacing,
-            ),
-            state = state,
-            text = stringResource(id = R.string.common_swap),
-            onClick = onClick
-        )
-    }
+    PrimaryButton(
+        modifier = Modifier
+            .fillMaxWidth(),
+        state = state,
+        text = stringResource(id = R.string.common_swap),
+        onClick = onClick
+    )
 }
 
 @Composable

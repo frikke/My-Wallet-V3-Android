@@ -41,6 +41,7 @@ val Pink700 = Color(0XFFDE0082)
 val Pink600 = Color(0XFFF00699)
 
 val Orange600 = Color(0XFFD46A00)
+val Orange500 = Color(0XFFFFA133)
 val Orange400 = Color(0XFFFFA133)
 val Orange100 = Color(0XFFFFECD6)
 val Orange000 = Color(0XFFFFF6EB)

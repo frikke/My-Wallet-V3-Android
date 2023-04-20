@@ -1,4 +1,4 @@
-package com.dex.presentation
+package com.dex.presentation.enteramount
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -61,16 +61,10 @@ import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.dex.presentation.R
 import com.blockchain.koin.payloadScope
 import com.blockchain.preferences.DexPrefs
-import com.dex.presentation.enteramount.ActionButtonState
-import com.dex.presentation.enteramount.AlertError
-import com.dex.presentation.enteramount.AllowanceTxUiData
-import com.dex.presentation.enteramount.AmountNavigationEvent
-import com.dex.presentation.enteramount.DexEnterAmountViewModel
-import com.dex.presentation.enteramount.DexOperation
-import com.dex.presentation.enteramount.DexUiError
-import com.dex.presentation.enteramount.InputAmountIntent
-import com.dex.presentation.enteramount.InputAmountViewState
-import com.dex.presentation.enteramount.UiFee
+import com.dex.presentation.ALLOWANCE_TRANSACTION_APPROVED
+import com.dex.presentation.AmountFieldConfig
+import com.dex.presentation.DexTxSubscribeScreen
+import com.dex.presentation.SourceAndDestinationAmountFields
 import com.dex.presentation.graph.ARG_ALLOWANCE_TX
 import com.dex.presentation.graph.DexDestination
 import info.blockchain.balance.Currency

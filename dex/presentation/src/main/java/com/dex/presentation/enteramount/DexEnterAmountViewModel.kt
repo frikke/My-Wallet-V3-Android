@@ -243,7 +243,7 @@ class DexEnterAmountViewModel(
             val selectedSlippage = dexSlippageService.selectedSlippage()
             val preselectedAccount = dexAccountsService.defSourceAccount()
             preselectedAccount?.let { source ->
-                val preselectedDestination = dexAccountsService.defDestinationAccount()
+                val preselectedDestination = dexAccountsService.defDestinationAccount(source)
                 updateState { state ->
                     state.copy(
                         canTransact = DataResource.Data(true)
