@@ -6,12 +6,8 @@ import androidx.navigation.navigation
 import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.chrome.composable.ChromeSingleScreen
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationDestination
-import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
 import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
-import com.blockchain.commonarch.presentation.mvi_v2.compose.getComposeArgument
-import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
-import com.blockchain.commonarch.presentation.mvi_v2.compose.wrappedArg
 import com.blockchain.transactions.swap.enteramount.composable.EnterAmount
 import com.blockchain.transactions.swap.selectsource.composable.SelectSourceScreen
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
@@ -26,25 +22,15 @@ fun NavGraphBuilder.swapGraph(
             ChromeSingleScreen {
                 EnterAmount(
                     navControllerProvider = navControllerProvider,
-                    openSourceAccounts = {
-                        navControllerProvider().navigate(
-                            SwapDestination.SourceAccounts
-                        )
-                    },
                     onBackPressed = onBackPressed
                 )
             }
         }
 
-        bottomSheet(navigationEvent = SwapDestination.SourceAccounts) { backStackEntry ->
+        bottomSheet(navigationEvent = SwapDestination.SourceAccounts) {
             ChromeBottomSheet(onClose = onBackPressed) {
                 SelectSourceScreen(
-                    onAccountSelected = {
-                        navControllerProvider().previousBackStackEntry
-                            ?.savedStateHandle
-                            ?.set("your_key", it)
-                        onBackPressed()
-                    },
+                    navControllerProvider = navControllerProvider,
                     onBackPressed = onBackPressed
                 )
             }

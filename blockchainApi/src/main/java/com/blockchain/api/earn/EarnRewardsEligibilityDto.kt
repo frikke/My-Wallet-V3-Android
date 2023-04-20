@@ -43,7 +43,7 @@ class AssetsWithEligibility(
     val assets: Map<String, EarnRewardsEligibilityDto>
 ) : EarnRewardsEligibilityResponseDto()
 
-@Serializable
+@Serializable(with = IneligibleReasonDeserializer::class)
 class IneligibleReason(
     val eligibility: EarnRewardsEligibilityDto
 ) : EarnRewardsEligibilityResponseDto()
@@ -55,7 +55,7 @@ object EarnRewardsEligibilityResponseDtoSerializer :
     ): DeserializationStrategy<out EarnRewardsEligibilityResponseDto> {
         // We gotta do this because the backend returns a completely different JSON when there's no assets are eligible
         return when {
-            element.jsonObject.containsKey("eligible") -> IneligibleReason.serializer()
+            element.jsonObject.containsKey("eligible") -> IneligibleReasonDeserializer
             else -> AssetsWithEligibilityDeserializer
         }
     }
@@ -76,6 +76,25 @@ object AssetsWithEligibilityDeserializer : KSerializer<AssetsWithEligibility> {
     override fun deserialize(decoder: Decoder): AssetsWithEligibility {
         return AssetsWithEligibility(
             assets = decoder.decodeSerializableValue(assetsWithEligibilitySerializer)
+        )
+    }
+}
+
+object IneligibleReasonDeserializer : KSerializer<IneligibleReason> {
+
+    private val ineligibleReasonSerializer by lazy {
+        EarnRewardsEligibilityDto.serializer()
+    }
+
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("IneligibleReasonDeserializer", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: IneligibleReason) {
+        encoder.encodeSerializableValue(ineligibleReasonSerializer, value.eligibility)
+    }
+    override fun deserialize(decoder: Decoder): IneligibleReason {
+        return IneligibleReason(
+            eligibility = decoder.decodeSerializableValue(ineligibleReasonSerializer)
         )
     }
 }

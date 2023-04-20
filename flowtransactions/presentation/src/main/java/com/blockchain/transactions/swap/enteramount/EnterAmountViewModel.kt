@@ -210,7 +210,6 @@ class EnterAmountViewModel(
                     InputCurrency.Currency2 -> {
                         onIntent(EnterAmountIntent.CryptoInputChanged(amount = userInputBalance))
                     }
-
                 }
             }
         }
@@ -274,7 +273,7 @@ class EnterAmountViewModel(
                         limits
                     ) { exchangeRateData, limitsData ->
                         EnterAmountConfig(
-                            exchangeRate = exchangeRateData,
+                            sourceAccountToFiat = exchangeRateData,
                             limits = limitsData
                         )
                     }
@@ -297,7 +296,7 @@ class EnterAmountViewModel(
         val fiatCurrency = modelState.accounts.map { it.fiatCurrency }.dataOrElse(null)
         check(fiatCurrency != null)
 
-        val a: Money? = modelState.config.map { it.exchangeRate }.dataOrElse(null)?.inverse()?.convert(
+        val a: Money? = modelState.config.map { it.sourceAccountToFiat }.dataOrElse(null)?.inverse()?.convert(
             Money.fromMajor(
                 fiatCurrency,
                 value.ifEmpty { "0" }.toBigDecimal()
@@ -317,7 +316,7 @@ class EnterAmountViewModel(
             modelState.fiatAmount,
             modelState.config.map { it.limits }.dataOrElse(null)?.min?.amount,
             modelState.config.map { it.limits }.dataOrElse(null)?.max,
-            modelState.config.map { it.exchangeRate }.dataOrElse(null)
+            modelState.config.map { it.sourceAccountToFiat }.dataOrElse(null)
         ) { fiatAmount, minAmount, maxAmount, exchangeRate ->
             val minFiatAmount = exchangeRate.convert(minAmount)
 
@@ -356,7 +355,7 @@ class EnterAmountViewModel(
         val fromCurrency = modelState.accounts.map { it.fromAccount.account.currency }.dataOrElse(null)
         check(fromCurrency != null)
 
-        val a: Money? = modelState.config.map { it.exchangeRate }.dataOrElse(null)?.convert(
+        val a: Money? = modelState.config.map { it.sourceAccountToFiat }.dataOrElse(null)?.convert(
             Money.fromMajor(
                 fromCurrency,
                 value.ifEmpty { "0" }.toBigDecimal()

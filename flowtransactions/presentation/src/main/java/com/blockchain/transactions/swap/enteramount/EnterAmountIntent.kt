@@ -19,5 +19,5 @@ sealed interface EnterAmountIntent : Intent<EnterAmountModelState> {
         val ticker: String
     ) : EnterAmountIntent
 
-    object MaxSelected: EnterAmountIntent
+    object MaxSelected : EnterAmountIntent
 }

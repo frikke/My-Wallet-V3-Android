@@ -9,6 +9,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.blockchain.chrome.setResult
 import com.blockchain.componentlib.sheets.SheetFlatHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
@@ -22,10 +25,12 @@ import com.blockchain.transactions.swap.selectsource.SelectSourceViewModel
 import com.blockchain.transactions.swap.selectsource.SelectSourceViewState
 import org.koin.androidx.compose.getViewModel
 
+const val KEY_SWAP_SOURCE_ACCOUNT = "KEY_SWAP_SOURCE_ACCOUNT"
+
 @Composable
 fun SelectSourceScreen(
     viewModel: SelectSourceViewModel = getViewModel(scope = payloadScope),
-    onAccountSelected: (ticker: String) -> Unit,
+    navControllerProvider: () -> NavHostController,
     onBackPressed: () -> Unit
 ) {
 
@@ -53,7 +58,8 @@ fun SelectSourceScreen(
             ),
             accounts = viewState.accountList,
             onAccountClick = {
-                onAccountSelected(it.ticker)
+                navControllerProvider().setResult(KEY_SWAP_SOURCE_ACCOUNT, it.ticker)
+                onBackPressed()
             },
             bottomSpacer = AppTheme.dimensions.smallSpacing
         )
@@ -64,8 +70,9 @@ fun SelectSourceScreen(
 @Composable
 private fun SelectSourceScreenPreview() {
     AppTheme {
+        val nc = rememberNavController()
         SelectSourceScreen(
-            onAccountSelected = {},
+            navControllerProvider = { nc },
             onBackPressed = {}
         )
     }
