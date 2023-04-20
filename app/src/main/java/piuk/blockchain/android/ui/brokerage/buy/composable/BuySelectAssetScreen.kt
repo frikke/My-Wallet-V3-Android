@@ -283,13 +283,7 @@ private fun AssetsData(
                         paddingValues = PaddingValues(horizontal = 16.dp)
                     ) { cryptoAsset ->
                         BalanceChangeTableRow(
-                            name = cryptoAsset.name,
-                            subtitle = cryptoAsset.ticker,
-                            networkTag = cryptoAsset.network,
-                            value = cryptoAsset.currentPrice,
-                            valueChange = cryptoAsset.delta,
-                            showRisingFastTag = cryptoAsset.showRisingFastTag,
-                            imageResource = ImageResource.Remote(cryptoAsset.logo),
+                            data = cryptoAsset.data,
                             onClick = { onAssetClick(cryptoAsset.asset) }
                         )
                     }
@@ -316,13 +310,7 @@ private fun AssetsData(
                         paddingValues = PaddingValues(horizontal = 16.dp)
                     ) { cryptoAsset ->
                         BalanceChangeTableRow(
-                            name = cryptoAsset.name,
-                            subtitle = cryptoAsset.ticker,
-                            networkTag = cryptoAsset.network,
-                            value = cryptoAsset.currentPrice,
-                            valueChange = cryptoAsset.delta,
-                            showRisingFastTag = cryptoAsset.showRisingFastTag,
-                            imageResource = ImageResource.Remote(cryptoAsset.logo),
+                            data = cryptoAsset.data,
                             onClick = { onAssetClick(cryptoAsset.asset) }
                         )
                     }

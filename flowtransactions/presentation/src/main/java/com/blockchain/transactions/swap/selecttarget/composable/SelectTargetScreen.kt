@@ -8,23 +8,15 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.blockchain.chrome.setResult
 import com.blockchain.componentlib.sheets.SheetFlatHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.koin.payloadScope
-import com.blockchain.transactions.common.accounts.composable.AccountList
+import com.blockchain.transactions.common.prices.composable.SelectAssetPricesList
 import com.blockchain.transactions.presentation.R
-import com.blockchain.transactions.swap.selectsource.SelectSourceIntent
-import com.blockchain.transactions.swap.selectsource.SelectSourceViewModel
-import com.blockchain.transactions.swap.selectsource.SelectSourceViewState
-import com.blockchain.transactions.swap.selectsource.composable.KEY_SWAP_SOURCE_ACCOUNT
-import com.blockchain.transactions.swap.selectsource.composable.SelectSourceScreen
 import com.blockchain.transactions.swap.selecttarget.SelectTargetIntent
 import com.blockchain.transactions.swap.selecttarget.SelectTargetViewModel
 import com.blockchain.transactions.swap.selecttarget.SelectTargetViewState
@@ -63,16 +55,15 @@ fun SelectTargetScreen(
 
         StandardVerticalSpacer()
 
-        //        AccountList(
-        //            modifier = Modifier.padding(
-        //                horizontal = AppTheme.dimensions.smallSpacing
-        //            ),
-        //            accounts = viewState.accountList,
-        //            onAccountClick = {
-        //                navControllerProvider().setResult(KEY_SWAP_TARGET_ACCOUNT, it.ticker)
-        //                onBackPressed()
-        //            },
-        //            bottomSpacer = AppTheme.dimensions.smallSpacing
-        //        )
+        SelectAssetPricesList(
+            modifier = Modifier.padding(
+                horizontal = AppTheme.dimensions.smallSpacing
+            ),
+            assets = viewState.prices,
+            onAccountClick = {
+
+            },
+            bottomSpacer = AppTheme.dimensions.smallSpacing
+        )
     }
 }

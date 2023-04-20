@@ -20,6 +20,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.sheets.SheetHeader
+import com.blockchain.componentlib.tablerow.BalanceChange
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.theme.AppTheme
@@ -103,14 +104,8 @@ fun MostPopularAssets(assets: ImmutableList<PriceItemViewState>, onBuyMostPopula
         Column {
             for (cryptoAsset in assets) {
                 BalanceChangeTableRow(
-                    name = cryptoAsset.name,
-                    subtitle = cryptoAsset.ticker,
-                    networkTag = cryptoAsset.network,
-                    value = cryptoAsset.currentPrice,
-                    valueChange = cryptoAsset.delta,
-                    showRisingFastTag = cryptoAsset.showRisingFastTag,
-                    imageResource = ImageResource.Remote(cryptoAsset.logo),
-                    onClick = { onBuyMostPopularAsset(cryptoAsset.ticker) }
+                    data = cryptoAsset.data,
+                    onClick = { onBuyMostPopularAsset(cryptoAsset.data.ticker) }
                 )
             }
         }
@@ -125,43 +120,52 @@ private fun UpSellAnotherAssetScreenPreview() {
             assets = listOf(
                 PriceItemViewState(
                     asset = CryptoCurrency.BTC,
-                    name = "Bitcoin",
-                    ticker = "BTC",
-                    network = null,
-                    logo = "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
-                    delta = DataResource.Data(ValueChange.fromValue(2.5)),
-                    currentPrice = DataResource.Data("$10,000"),
-                    showRisingFastTag = false
+                    data = BalanceChange(
+                        name = "Bitcoin",
+                        ticker = "BTC",
+                        network = null,
+                        logo = "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
+                        delta = DataResource.Data(ValueChange.fromValue(2.5)),
+                        currentPrice = DataResource.Data("$10,000"),
+                        showRisingFastTag = false
+                    )
                 ),
                 PriceItemViewState(
                     asset = CryptoCurrency.ETHER,
-                    name = "Ethereum",
-                    ticker = "ETH",
-                    network = null,
-                    logo = "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
-                    delta = DataResource.Data(ValueChange.fromValue(2.5)),
-                    currentPrice = DataResource.Data("$10,000"),
-                    showRisingFastTag = false
+                    data = BalanceChange(
+                        name = "Ethereum",
+                        ticker = "ETH",
+                        network = null,
+                        logo = "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
+                        delta = DataResource.Data(ValueChange.fromValue(2.5)),
+                        currentPrice = DataResource.Data("$10,000"),
+                        showRisingFastTag = false
+                    )
                 ),
                 PriceItemViewState(
                     asset = CryptoCurrency.XLM,
-                    name = "Litecoin",
-                    ticker = "LTC",
-                    network = null,
-                    logo = "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
-                    delta = DataResource.Data(ValueChange.fromValue(2.5)),
-                    currentPrice = DataResource.Data("$10,000"),
-                    showRisingFastTag = false
+                    data = BalanceChange(
+                        name = "Litecoin",
+                        ticker = "LTC",
+                        network = null,
+                        logo = "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
+                        delta = DataResource.Data(ValueChange.fromValue(2.5)),
+                        currentPrice = DataResource.Data("$10,000"),
+                        showRisingFastTag = false
+                    )
                 ),
                 PriceItemViewState(
                     asset = CryptoCurrency.XLM,
-                    name = "Litecoin",
-                    ticker = "LTC",
-                    network = null,
-                    logo = "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
-                    delta = DataResource.Data(ValueChange.fromValue(2.5)),
-                    currentPrice = DataResource.Data("$10,000"),
-                    showRisingFastTag = false
+                    data = BalanceChange(
+                        name = "Litecoin",
+                        ticker = "LTC",
+                        network = null,
+                        logo = "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
+                        delta = DataResource.Data(ValueChange.fromValue(2.5)),
+                        currentPrice = DataResource.Data("$10,000"),
+                        showRisingFastTag = false
+                    )
+
                 )
             ).toImmutableList(),
             onMaybeLater = { },

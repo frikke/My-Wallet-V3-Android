@@ -29,6 +29,7 @@ val transactionsPresentationModule = module {
                 sourceTicker = sourceTicker,
                 swapService = get(),
                 pricesService = get(),
+                currencyPrefs = get()
             )
         }
     }

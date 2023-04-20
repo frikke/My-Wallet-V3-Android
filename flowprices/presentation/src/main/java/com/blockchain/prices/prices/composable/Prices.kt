@@ -233,13 +233,7 @@ fun ColumnScope.PricesScreenData(
             paddingValues = PaddingValues(horizontal = 16.dp),
             content = { cryptoAsset ->
                 BalanceChangeTableRow(
-                    name = cryptoAsset.name,
-                    subtitle = cryptoAsset.ticker,
-                    networkTag = cryptoAsset.network,
-                    value = cryptoAsset.currentPrice,
-                    valueChange = cryptoAsset.delta,
-                    showRisingFastTag = cryptoAsset.showRisingFastTag,
-                    imageResource = ImageResource.Remote(cryptoAsset.logo),
+                    data = cryptoAsset.data,
                     onClick = { onAssetClick(cryptoAsset.asset) }
                 )
                 if (cryptoPrices.last() != cryptoAsset) {
