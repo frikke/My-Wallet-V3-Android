@@ -49,6 +49,20 @@ fun NavGraphBuilder.swapGraph(
                 )
             }
         }
+
+        bottomSheet(navigationEvent = SwapDestination.TargetAccounts) {
+            ChromeBottomSheet(onClose = onBackPressed) {
+                SelectSourceScreen(
+                    onAccountSelected = {
+                        navControllerProvider().previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("your_key", it)
+                        onBackPressed()
+                    },
+                    onBackPressed = onBackPressed
+                )
+            }
+        }
     }
 }
 
@@ -58,4 +72,5 @@ sealed class SwapDestination(
     object Main : SwapDestination("SwapMain")
     object EnterAmount : SwapDestination("SwapEnterAmount")
     object SourceAccounts : SwapDestination("SwapSourceAccounts")
+    object TargetAccounts : SwapDestination("SwapTargetAccounts")
 }

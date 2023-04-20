@@ -193,6 +193,7 @@ class TransactionInteractor(
         }
     }
 
+    @Deprecated("use SwapService.swapTargets")
     private fun swapTargets(sourceAccount: CryptoAccount): Single<List<SingleAccount>> {
         return custodialRepository.getSwapAvailablePairs().flatMap { pairs ->
             val targetCurrencies =

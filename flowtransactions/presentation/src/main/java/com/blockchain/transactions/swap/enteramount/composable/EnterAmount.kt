@@ -24,6 +24,7 @@ import com.blockchain.componentlib.button.AlertButton
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.SmallTertiaryButton
+import com.blockchain.componentlib.card.HorizontalAssetAction
 import com.blockchain.componentlib.card.TwoAssetActionHorizontal
 import com.blockchain.componentlib.card.TwoAssetActionHorizontalLoading
 import com.blockchain.componentlib.control.CurrencyValue
@@ -171,13 +172,17 @@ private fun EnterAmountScreen(
             }
             is DataResource.Data -> {
                 TwoAssetActionHorizontal(
-                    startTitle = "From",
-                    startSubtitle = assets.data.from.ticker,
-                    startIcon = StackedIcon.SingleIcon(ImageResource.Remote(assets.data.from.iconUrl)),
+                    start = HorizontalAssetAction(
+                        assets.data.from.ticker,
+                        StackedIcon.SingleIcon(ImageResource.Remote(assets.data.from.iconUrl)),
+                    ),
                     startOnClick = openSourceAccounts,
-                    endTitle = "To",
-                    endSubtitle = assets.data.to.ticker,
-                    endIcon = StackedIcon.SingleIcon(ImageResource.Remote(assets.data.to.iconUrl)),
+                    end = assets.data.to?.let {
+                        HorizontalAssetAction(
+                            it.ticker,
+                            StackedIcon.SingleIcon(ImageResource.Remote(it.iconUrl)),
+                        )
+                    },
                     endOnClick = {}
                 )
             }
