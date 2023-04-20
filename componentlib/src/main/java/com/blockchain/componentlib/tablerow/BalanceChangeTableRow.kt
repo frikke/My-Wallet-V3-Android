@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +46,39 @@ import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.theme.Pink700
 import com.blockchain.data.DataResource
 import kotlin.math.absoluteValue
+
+// todo(othman) support logo small tag
+@Stable
+data class BalanceChange(
+    val name: String,
+    val ticker: String,
+    val network: String?,
+    val logo: String,
+    val delta: DataResource<ValueChange>,
+    val currentPrice: DataResource<String>,
+    val showRisingFastTag: Boolean
+)
+
+@Composable
+fun BalanceChangeTableRow(
+    data: BalanceChange,
+    defaultIconSize: Dp = AppTheme.dimensions.standardSpacing,
+    withChevron: Boolean = false,
+    onClick: () -> Unit
+) {
+    BalanceChangeTableRow(
+        name = data.name,
+        subtitle = data.ticker,
+        networkTag = data.network,
+        value = data.currentPrice,
+        valueChange = data.delta,
+        showRisingFastTag = data.showRisingFastTag,
+        imageResource = ImageResource.Remote(data.logo),
+        defaultIconSize = defaultIconSize,
+        withChevron = withChevron,
+        onClick = onClick,
+    )
+}
 
 @Composable
 fun BalanceChangeTableRow(

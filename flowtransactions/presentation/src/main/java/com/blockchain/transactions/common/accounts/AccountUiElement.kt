@@ -1,4 +1,4 @@
-package com.blockchain.transactions.common
+package com.blockchain.transactions.common.accounts
 
 data class AccountUiElement(
     val ticker: String,

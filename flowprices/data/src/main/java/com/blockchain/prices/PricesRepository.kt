@@ -36,13 +36,23 @@ class PricesRepository(
     private val remoteConfigService: RemoteConfigService
 ) : PricesService {
 
+    private sealed interface AssetsLoadStrategy {
+        object All : AssetsLoadStrategy
+        object TradableOnly : AssetsLoadStrategy
+        data class Custom(val tickers: List<String>) : AssetsLoadStrategy
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun assets(tradableOnly: Boolean): Flow<DataResource<List<AssetPriceInfo>>> {
-        val tradableCurrenciesAndPricesFlow = simpleBuyService.getSupportedBuySellCryptoCurrencies()
+    private fun assets(loadStrategy: AssetsLoadStrategy): Flow<DataResource<List<AssetPriceInfo>>> {
+        val currenciesAndPricesFlow = simpleBuyService.getSupportedBuySellCryptoCurrencies()
             .mapListData { it.source.networkTicker }
             .flatMapLatest { tradablePickers ->
                 loadAssetsAndPrices(
-                    filterOnlyPickers = tradablePickers.dataOrElse(emptyList()).takeIf { tradableOnly }
+                    filterOnlyPickers = when (loadStrategy) {
+                        AssetsLoadStrategy.All -> null
+                        AssetsLoadStrategy.TradableOnly -> tradablePickers.dataOrElse(emptyList())
+                        is AssetsLoadStrategy.Custom -> loadStrategy.tickers
+                    }
                 ).map { prices ->
                     tradablePickers to prices
                 }
@@ -52,7 +62,7 @@ class PricesRepository(
             .mapData { (it + defaultWatchlist).distinct() }.mapListData { it.networkTicker }
 
         return combine(
-            tradableCurrenciesAndPricesFlow,
+            currenciesAndPricesFlow,
             watchlistFlow
         ) { (tradableCurrencies, prices), watchlist ->
             prices.map { it.toList() }
@@ -68,16 +78,19 @@ class PricesRepository(
     }
 
     override fun allAssets(): Flow<DataResource<List<AssetPriceInfo>>> {
-        return assets(tradableOnly = false)
+        return assets(AssetsLoadStrategy.All)
     }
 
     override fun tradableAssets(): Flow<DataResource<List<AssetPriceInfo>>> {
-        return assets(tradableOnly = true)
+        return assets(AssetsLoadStrategy.TradableOnly)
+    }
+
+    override fun assets(tickers: List<String>): Flow<DataResource<List<AssetPriceInfo>>> {
+        return assets(AssetsLoadStrategy.Custom(tickers))
     }
 
     override fun mostPopularAssets(): Flow<DataResource<List<AssetPriceInfo>>> =
-        combine(mostPopularTickers(), allAssets()) {
-                mostPopularTickers, allAssetsData ->
+        combine(mostPopularTickers(), allAssets()) { mostPopularTickers, allAssetsData ->
             allAssetsData.map { allAssets ->
                 allAssets.filter { it.assetInfo.networkTicker in mostPopularTickers }
             }

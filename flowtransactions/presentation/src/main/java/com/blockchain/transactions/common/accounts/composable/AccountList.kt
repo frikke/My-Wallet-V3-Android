@@ -1,4 +1,4 @@
-package com.blockchain.transactions.common.composable
+package com.blockchain.transactions.common.accounts.composable
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,7 +15,7 @@ import com.blockchain.componentlib.tablerow.BalanceFiatAndCryptoTableRow
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
-import com.blockchain.transactions.common.AccountUiElement
+import com.blockchain.transactions.common.accounts.AccountUiElement
 
 @Composable
 fun AccountList(

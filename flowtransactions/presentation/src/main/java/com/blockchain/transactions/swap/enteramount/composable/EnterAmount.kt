@@ -19,6 +19,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.blockchain.chrome.getResultFlow
+import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
+import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.AlertButton
 import com.blockchain.componentlib.button.ButtonState
@@ -41,12 +44,16 @@ import com.blockchain.data.map
 import com.blockchain.extensions.safeLet
 import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.presentation.R
+import com.blockchain.transactions.swap.ARG_SOURCE_ACCOUNT_TICKER
+import com.blockchain.transactions.swap.SwapDestination
 import com.blockchain.transactions.swap.enteramount.EnterAmountAssetState
 import com.blockchain.transactions.swap.enteramount.EnterAmountAssets
 import com.blockchain.transactions.swap.enteramount.EnterAmountIntent
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewState
 import com.blockchain.transactions.swap.enteramount.SwapEnterAmountInputError
+import com.blockchain.transactions.swap.selectsource.composable.KEY_SWAP_SOURCE_ACCOUNT
+import com.blockchain.transactions.swap.selecttarget.composable.KEY_SWAP_TARGET_ACCOUNT
 import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -54,7 +61,6 @@ import org.koin.androidx.compose.getViewModel
 fun EnterAmount(
     viewModel: EnterAmountViewModel = getViewModel(scope = payloadScope),
     navControllerProvider: () -> NavHostController,
-    openSourceAccounts: () -> Unit,
     onBackPressed: () -> Unit
 ) {
     val viewState: EnterAmountViewState by viewModel.viewState.collectAsStateLifecycleAware()
@@ -66,16 +72,25 @@ fun EnterAmount(
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val newFrom = navControllerProvider()
-        .currentBackStackEntry
-        ?.savedStateHandle
-        ?.getStateFlow("your_key", null as? String?)
-        ?.collectAsStateLifecycleAware()
+    val newFrom by navControllerProvider()
+        .getResultFlow(KEY_SWAP_SOURCE_ACCOUNT, null as? String?)
+        .collectAsStateLifecycleAware()
 
-
-    DisposableEffect(key1 = newFrom?.value) {
-        newFrom?.value?.let {
+    DisposableEffect(key1 = newFrom) {
+        newFrom?.let {
             viewModel.onIntent(EnterAmountIntent.FromAccountChanged(it))
+        }
+        keyboardController?.show()
+        onDispose { }
+    }
+
+    val newTo by navControllerProvider()
+        .getResultFlow(KEY_SWAP_TARGET_ACCOUNT, null as? String?)
+        .collectAsStateLifecycleAware()
+
+    DisposableEffect(key1 = newTo) {
+        newFrom?.let {
+//            viewModel.onIntent(EnterAmountIntent.FromAccountChanged(it))
         }
         keyboardController?.show()
         onDispose { }
@@ -108,7 +123,14 @@ fun EnterAmount(
             },
             error = viewState.error,
             openSourceAccounts = {
-                openSourceAccounts()
+                navControllerProvider().navigate(SwapDestination.SourceAccounts)
+                keyboardController?.hide()
+            },
+            openTargetAccounts = { sourceTicker ->
+                navControllerProvider().navigate(
+                    SwapDestination.TargetAccounts,
+                    args = listOf(NavArgument(ARG_SOURCE_ACCOUNT_TICKER, sourceTicker))
+                )
                 keyboardController?.hide()
             },
             setMaxOnClick = {
@@ -130,6 +152,7 @@ private fun EnterAmountScreen(
     onFlipInputs: () -> Unit,
     error: SwapEnterAmountInputError?,
     openSourceAccounts: () -> Unit,
+    openTargetAccounts: (sourceTicker: String) -> Unit,
     setMaxOnClick: () -> Unit
 ) {
     Column(
@@ -183,7 +206,7 @@ private fun EnterAmountScreen(
                             StackedIcon.SingleIcon(ImageResource.Remote(it.iconUrl)),
                         )
                     },
-                    endOnClick = {}
+                    endOnClick = { openTargetAccounts(assets.data.from.ticker) }
                 )
             }
             is DataResource.Error -> TODO()
@@ -252,6 +275,7 @@ private fun PreviewEnterAmountScreen() {
         onFlipInputs = {},
         error = SwapEnterAmountInputError.BelowMinimum("éjdzjjdz"),
         openSourceAccounts = {},
+        openTargetAccounts = {},
         setMaxOnClick = {},
     )
 }

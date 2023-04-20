@@ -2,6 +2,7 @@ package com.blockchain.prices.prices
 
 import androidx.annotation.StringRes
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
+import com.blockchain.componentlib.tablerow.BalanceChange
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.tablerow.signedValue
 import com.blockchain.data.DataResource
@@ -28,13 +29,7 @@ data class PricesViewState(
 
 data class PriceItemViewState(
     val asset: AssetInfo,
-    val name: String,
-    val ticker: String,
-    val network: String?,
-    val logo: String,
-    val delta: DataResource<ValueChange>,
-    val currentPrice: DataResource<String>,
-    val showRisingFastTag: Boolean
+    val data: BalanceChange
 )
 
 @StringRes fun PricesFilter.nameRes() = when (this) {
@@ -55,6 +50,6 @@ fun DataResource<List<PriceItemViewState>>.percentAndPositionOf(
 ): Pair<Double, Int>? {
     return flatMap { list ->
         val item = list.first { it.asset == asset }
-        item.delta.map { it.signedValue() to list.indexOf(item) + 1 }
+        item.data.delta.map { it.signedValue() to list.indexOf(item) + 1 }
     }.dataOrElse(null)
 }

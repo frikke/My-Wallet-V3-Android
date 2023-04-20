@@ -2,16 +2,13 @@ package com.blockchain.transactions.swap.selectsource
 
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
-import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.mvi_v2.EmptyNavEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.map
 import com.blockchain.data.mapList
 import com.blockchain.data.updateDataWith
-import com.blockchain.store.filterListData
-import com.blockchain.store.mapData
-import com.blockchain.transactions.common.AccountUiElement
+import com.blockchain.transactions.common.accounts.AccountUiElement
 import com.blockchain.transactions.swap.CryptoAccountWithBalance
 import com.blockchain.transactions.swap.SwapService
 import info.blockchain.balance.AssetCatalogue

@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.rx3.await
 
 // TODO (othman) ref swap stuff to this repo
 
@@ -91,6 +92,17 @@ internal class SwapRepository(
             .filterIsInstance<DataResource.Data<List<CryptoAccountWithBalance>>>()
             .map { it.data.maxBy { it.balanceCrypto.toBigDecimal() } }
             .firstOrNull()
+    }
+
+    override suspend fun targetTickers(sourceTicker: String): List<String> {
+        return custodialRepository.getSwapAvailablePairs()
+            .map { pairs ->
+                pairs.filter {
+                    it.source.networkTicker == sourceTicker
+                }.map {
+                    it.destination.networkTicker
+                }
+            }.await()
     }
 
     override fun targetAccounts(sourceAccount: CryptoAccount): Flow<DataResource<List<CryptoAccount>>> {
