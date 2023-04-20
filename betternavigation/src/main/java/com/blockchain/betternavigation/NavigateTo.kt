@@ -10,6 +10,10 @@ class BetterNavigationContext internal constructor(
     internal val argsHolder: NavigationArgsHolder,
 )
 
+fun BetterNavigationContext.navigateUp() {
+    navController.navigateUp()
+}
+
 fun BetterNavigationContext.navigateTo(
     destination: BetterDestination,
     navOptions: NavOptions? = null,

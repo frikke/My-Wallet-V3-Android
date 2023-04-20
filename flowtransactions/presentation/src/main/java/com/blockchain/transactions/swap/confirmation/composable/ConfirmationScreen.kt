@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -61,6 +63,7 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
+import java.io.Serializable
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -71,7 +74,7 @@ data class ConfirmationArgs(
     val direction: TransferDirection,
     // TODO(aromano): SWAP temp comment, this is only going to be used for NC->* swaps
     val secondPassword: String?,
-)
+) : Serializable
 
 @Composable
 fun ConfirmationScreen(
@@ -86,6 +89,10 @@ fun ConfirmationScreen(
         )
     },
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.viewCreated(ModelConfigArgs.NoArgs)
+    }
+
     val state by viewModel.viewState.collectAsStateLifecycleAware()
 
     Column {

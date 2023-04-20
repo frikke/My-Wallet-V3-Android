@@ -40,8 +40,8 @@ import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.prices.navigation.PricesNavigation
-import com.blockchain.transactions.swap.SwapDestination
-import com.blockchain.transactions.swap.swapGraph
+import com.blockchain.transactions.swap.SwapGraph
+import com.blockchain.transactions.swap.swapGraphHost
 import com.blockchain.walletmode.WalletMode
 import com.dex.presentation.graph.dexGraph
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
@@ -157,10 +157,7 @@ fun MultiAppNavHost(
                 onBackPressed = navController::popBackStack,
                 navController = navController,
             )
-            swapGraph(
-                navControllerProvider = { navController },
-                onBackPressed = navController::popBackStack,
-            )
+            swapGraphHost()
         }
     }
 }
@@ -264,7 +261,8 @@ private fun NavGraphBuilder.chrome(
             earnNavigation = earnNavigation,
             processAnnouncementUrl = processAnnouncementUrl,
             openSwap = {
-                navController.navigate(SwapDestination.Main)
+                // TODO(aromano): navigation TEMP
+                navController.navigate(SwapGraph::class.java.name)
             }
         )
     }

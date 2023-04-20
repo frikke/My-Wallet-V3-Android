@@ -14,6 +14,7 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.io.Serializable
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.rx3.asFlow
@@ -172,7 +173,7 @@ sealed interface EarnRewardsAccount {
 
 typealias SingleAccountList = List<SingleAccount>
 
-interface CryptoAccount : SingleAccount {
+interface CryptoAccount : SingleAccount, Serializable {
     val isArchived: Boolean
         get() = false
 

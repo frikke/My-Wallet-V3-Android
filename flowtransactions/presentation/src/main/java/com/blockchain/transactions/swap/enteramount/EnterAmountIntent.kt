@@ -7,6 +7,8 @@ sealed interface EnterAmountIntent : Intent<EnterAmountModelState> {
 
     object FlipInputs : EnterAmountIntent
 
+    object PreviewClicked : EnterAmountIntent
+
     data class FiatAmountChanged(
         val amount: String
     ) : EnterAmountIntent

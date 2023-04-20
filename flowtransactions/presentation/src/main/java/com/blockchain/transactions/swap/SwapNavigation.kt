@@ -1,49 +1,66 @@
 package com.blockchain.transactions.swap
 
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
-import androidx.navigation.navigation
+import androidx.navigation.compose.composable
+import com.blockchain.betternavigation.BetterDestination
+import com.blockchain.betternavigation.BetterDestinationWithArgs
+import com.blockchain.betternavigation.BetterNavGraph
+import com.blockchain.betternavigation.BetterNavHost
+import com.blockchain.betternavigation.betterDestination
+import com.blockchain.betternavigation.betterSheetDestination
+import com.blockchain.betternavigation.navigateTo
+import com.blockchain.betternavigation.navigateUp
 import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.chrome.composable.ChromeSingleScreen
-import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationDestination
-import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
-import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
+import com.blockchain.transactions.swap.confirmation.composable.ConfirmationArgs
+import com.blockchain.transactions.swap.confirmation.composable.ConfirmationScreen
 import com.blockchain.transactions.swap.enteramount.composable.EnterAmount
 import com.blockchain.transactions.swap.selectsource.composable.SelectSourceScreen
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 
-@ExperimentalMaterialNavigationApi
-fun NavGraphBuilder.swapGraph(
-    navControllerProvider: () -> NavHostController,
-    onBackPressed: () -> Unit
-) {
-    navigation(startDestination = SwapDestination.EnterAmount.route, route = SwapDestination.Main.route) {
-        composable(navigationEvent = SwapDestination.EnterAmount) {
-            ChromeSingleScreen {
-                EnterAmount(
-                    openSourceAccounts = {
-                        navControllerProvider().navigate(
-                            SwapDestination.SourceAccounts
-                        )
-                    },
-                    onBackPressed = onBackPressed
-                )
-            }
-        }
+object SwapGraph : BetterNavGraph() {
+    object EnterAmount : BetterDestination()
+    object SourceAccounts : BetterDestination()
+    object Confirmation : BetterDestinationWithArgs<ConfirmationArgs>()
+}
 
-        bottomSheet(navigationEvent = SwapDestination.SourceAccounts) {
-            ChromeBottomSheet(onClose = onBackPressed) {
-                SelectSourceScreen()
+@ExperimentalMaterialNavigationApi
+fun NavGraphBuilder.swapGraphHost() {
+    // TODO(aromano): navigation TEMP
+    composable(SwapGraph::class.java.name) {
+        BetterNavHost(
+            startDestination = SwapGraph.EnterAmount,
+        ) {
+            betterDestination(SwapGraph.EnterAmount) {
+                ChromeSingleScreen {
+                    EnterAmount(
+                        openSourceAccounts = {
+                            navigateTo(SwapGraph.SourceAccounts)
+                        },
+                        openPreview = { args ->
+                            navigateTo(SwapGraph.Confirmation, args)
+                        },
+                        onBackPressed = {
+                            navigateUp()
+                        }
+                    )
+                }
+            }
+
+            betterSheetDestination(SwapGraph.SourceAccounts) {
+                ChromeBottomSheet(onClose = { navigateUp() }) {
+                    SelectSourceScreen()
+                }
+            }
+
+            betterDestination(SwapGraph.Confirmation) { args ->
+                ChromeSingleScreen {
+                    ConfirmationScreen(
+                        args = args,
+                    )
+                }
             }
         }
     }
-}
-
-sealed class SwapDestination(
-    override val route: String
-) : ComposeNavigationDestination {
-    object Main : SwapDestination("SwapMain")
-    object EnterAmount : SwapDestination("SwapEnterAmount")
-    object SourceAccounts : SwapDestination("SwapSourceAccounts")
 }

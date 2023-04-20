@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,9 +35,11 @@ import com.blockchain.data.map
 import com.blockchain.extensions.safeLet
 import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.presentation.R
+import com.blockchain.transactions.swap.confirmation.composable.ConfirmationArgs
 import com.blockchain.transactions.swap.enteramount.EnterAmountAssetState
 import com.blockchain.transactions.swap.enteramount.EnterAmountAssets
 import com.blockchain.transactions.swap.enteramount.EnterAmountIntent
+import com.blockchain.transactions.swap.enteramount.EnterAmountNavigation
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewState
 import com.blockchain.transactions.swap.enteramount.SwapEnterAmountInputError
@@ -46,6 +49,7 @@ import org.koin.androidx.compose.getViewModel
 fun EnterAmount(
     viewModel: EnterAmountViewModel = getViewModel(scope = payloadScope),
     openSourceAccounts: () -> Unit,
+    openPreview: (ConfirmationArgs) -> Unit,
     onBackPressed: () -> Unit
 ) {
     val viewState: EnterAmountViewState by viewModel.viewState.collectAsStateLifecycleAware()
@@ -53,6 +57,14 @@ fun EnterAmount(
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(EnterAmountIntent.LoadData)
         onDispose { }
+    }
+
+    val navigationEvent by viewModel.navigationEventFlow.collectAsStateLifecycleAware(null)
+    LaunchedEffect(navigationEvent) {
+        when (val event = navigationEvent) {
+            is EnterAmountNavigation.Preview -> openPreview(event.data)
+            null -> {}
+        }
     }
 
     Column(
@@ -80,7 +92,10 @@ fun EnterAmount(
                 viewModel.onIntent(EnterAmountIntent.FlipInputs)
             },
             error = viewState.error,
-            openSourceAccounts = openSourceAccounts
+            openSourceAccounts = openSourceAccounts,
+            previewClicked = {
+                viewModel.onIntent(EnterAmountIntent.PreviewClicked)
+            },
         )
     }
 }
@@ -96,6 +111,7 @@ private fun EnterAmountScreen(
     onFlipInputs: () -> Unit,
     error: SwapEnterAmountInputError?,
     openSourceAccounts: () -> Unit,
+    previewClicked: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -167,7 +183,9 @@ private fun EnterAmountScreen(
             } else {
                 ButtonState.Disabled
             },
-            onClick = {}
+            onClick = {
+                previewClicked()
+            }
         )
 
         Spacer(modifier = Modifier.weight(3F))
@@ -201,6 +219,7 @@ private fun PreviewEnterAmountScreen() {
         onCryptoAmountChanged = {},
         onFlipInputs = {},
         error = SwapEnterAmountInputError.BelowMinimum("éjdzjjdz"),
-        openSourceAccounts = {}
+        openSourceAccounts = {},
+        previewClicked = {},
     )
 }
