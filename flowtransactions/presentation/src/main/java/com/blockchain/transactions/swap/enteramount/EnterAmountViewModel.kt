@@ -64,7 +64,7 @@ class EnterAmountViewModel(
     private val cryptoInputChanges = MutableSharedFlow<String>()
 
     init {
-        loadAccountsAndExchangeRate()
+        loadAccountsAndConfig()
 
         viewModelScope.launch {
             fiatInputChanges.debounce(DEBOUNCE_MS)
@@ -145,7 +145,7 @@ class EnterAmountViewModel(
 
                 val toAccountTicker = when (fromAccountTicker) {
                     "BTC" -> "USDT"
-                    else -> "BTC"
+                    else -> "ETH"
                 }
 
                 println("------ fromAccountTicker $fromAccountTicker")
@@ -236,7 +236,7 @@ class EnterAmountViewModel(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun loadAccountsAndExchangeRate() {
+    private fun loadAccountsAndConfig() {
         val fromAccountFlow = fromAccountTickerFlow.flatMapLatest { fromTicker ->
             swapService.custodialSourceAccountsWithBalances()
                 .mapData {
@@ -267,6 +267,7 @@ class EnterAmountViewModel(
                     )
                 }
             }.onEach { accountsData ->
+                // reset all whenever a new asset is selected
                 updateState {
                     it.copy(
                         accounts = it.accounts.updateDataWith(accountsData),

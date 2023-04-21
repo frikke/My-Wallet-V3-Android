@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -84,12 +83,11 @@ fun EnterAmount(
         .getResultFlow(KEY_SWAP_SOURCE_ACCOUNT, null as? String?)
         .collectAsStateLifecycleAware()
 
-    DisposableEffect(key1 = newFrom) {
+    LaunchedEffect(newFrom) {
         newFrom?.let {
             viewModel.onIntent(EnterAmountIntent.FromAccountChanged(it))
         }
         keyboardController?.show()
-        onDispose { }
     }
 
     Column(
@@ -232,7 +230,7 @@ private fun EnterAmountScreen(
             }
         )
 
-        Spacer(modifier = Modifier.weight(3F))
+        Spacer(modifier = Modifier.weight(4F))
     }
 }
 
