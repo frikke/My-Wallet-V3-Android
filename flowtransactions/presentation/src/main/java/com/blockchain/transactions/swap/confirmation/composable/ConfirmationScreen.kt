@@ -37,6 +37,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.card.TwoAssetAction
 import com.blockchain.componentlib.icons.ArrowDown
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Question
@@ -132,6 +133,11 @@ private fun ConfirmationContent(
     ) {
         Box {
             Column {
+
+//                TwoAssetAction(
+//
+//                )
+
                 BalanceTableRow(
                     titleStart = AnnotatedString(state.sourceAsset.name),
                     titleEnd = AnnotatedString(state.sourceCryptoAmount.toStringWithSymbol()),
