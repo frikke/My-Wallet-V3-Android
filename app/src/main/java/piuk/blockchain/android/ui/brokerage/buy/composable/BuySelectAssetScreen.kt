@@ -27,7 +27,6 @@ import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.icons.Icons

@@ -13,4 +13,3 @@ interface PricesService {
 
     fun mostPopularAssets(): Flow<DataResource<List<AssetPriceInfo>>>
 }
-

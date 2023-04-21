@@ -5,7 +5,6 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.componentlib.tablerow.BalanceChange
 import com.blockchain.componentlib.tablerow.ValueChange
-import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.data.mapList
 import com.blockchain.data.updateDataWith

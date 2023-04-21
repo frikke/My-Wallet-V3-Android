@@ -3,7 +3,6 @@ package com.blockchain.prices.prices
 import androidx.annotation.StringRes
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.tablerow.BalanceChange
-import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.tablerow.signedValue
 import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrElse

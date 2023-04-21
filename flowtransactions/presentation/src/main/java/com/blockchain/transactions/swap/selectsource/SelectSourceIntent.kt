@@ -5,7 +5,7 @@ import com.blockchain.data.DataResource
 
 sealed interface SelectSourceIntent : Intent<SelectSourceModelState> {
     object LoadData : SelectSourceIntent
-    data class AccountSelected(val id: String): SelectSourceIntent{
+    data class AccountSelected(val id: String) : SelectSourceIntent {
         override fun isValidFor(modelState: SelectSourceModelState): Boolean {
             return modelState.accountListData is DataResource.Data
         }

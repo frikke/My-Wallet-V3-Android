@@ -9,7 +9,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.blockchain.componentlib.sheets.SheetFlatHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme

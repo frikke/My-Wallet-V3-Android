@@ -18,7 +18,6 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.isLayer2Token
 import kotlinx.coroutines.flow.collectLatest
-import java.util.UUID
 
 class SelectSourceViewModel(
     private val swapService: SwapService,
@@ -83,10 +82,10 @@ class SelectSourceViewModel(
                 icon = when (account) {
                     is NonCustodialAccount -> listOfNotNull(
                         balanceCrypto.currency.logo,
-                        (balanceCrypto.currency as? AssetInfo)?.takeIf { it.isLayer2Token }?.coinNetwork?.nativeAssetTicker
-                            ?.let {
-                                assetCatalogue.fromNetworkTicker(it)?.logo
-                            }
+                        (balanceCrypto.currency as? AssetInfo)
+                            ?.takeIf { it.isLayer2Token }
+                            ?.coinNetwork?.nativeAssetTicker
+                            ?.let { assetCatalogue.fromNetworkTicker(it)?.logo }
                     )
                     else -> listOf(balanceCrypto.currency.logo)
                 }

@@ -6,19 +6,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.BalanceChange
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
-import com.blockchain.componentlib.tablerow.BalanceFiatAndCryptoTableRow
-import com.blockchain.componentlib.tablerow.custom.StackedIcon
-import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
-import com.blockchain.transactions.common.accounts.AccountUiElement
-import com.blockchain.transactions.common.accounts.composable.AccountList
 
 @Composable
 fun SelectAssetPricesList(
@@ -44,7 +37,6 @@ fun SelectAssetPricesList(
                         BalanceChangeTableRow(
                             data = asset,
                             onClick = {
-
                             }
                         )
                     }
