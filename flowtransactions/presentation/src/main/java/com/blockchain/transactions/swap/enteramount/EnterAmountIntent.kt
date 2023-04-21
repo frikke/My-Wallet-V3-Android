@@ -20,4 +20,6 @@ sealed interface EnterAmountIntent : Intent<EnterAmountModelState> {
     ) : EnterAmountIntent
 
     object MaxSelected : EnterAmountIntent
+
+    object PreviewClicked : EnterAmountIntent
 }

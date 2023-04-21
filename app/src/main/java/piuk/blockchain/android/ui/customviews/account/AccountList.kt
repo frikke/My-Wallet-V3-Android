@@ -12,7 +12,9 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.MultipleCurrenciesAccountGroup
+import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.commonarch.presentation.base.ActivityIndicator
@@ -129,7 +131,9 @@ class AccountList @JvmOverloads constructor(
         accountsLocksSource: Single<List<AccountLocks>>,
         showLoader: Boolean = true,
         showAddNewBankAccount: Single<Boolean> = Single.just(false),
-        assetAction: AssetAction? = null
+        assetAction: AssetAction? = null,
+        showTradingAccounts: Boolean = false,
+        canSwitchBetweenAccountTypes: Boolean = false
     ) {
         val loader = if (showLoader) activityIndicator else null
         disposables += Single.zip(
@@ -151,7 +155,19 @@ class AccountList @JvmOverloads constructor(
             .subscribeBy(
                 onSuccess = {
                     (adapter as? AccountsDelegateAdapter)?.items = it.accountsLocksSource +
-                        it.accountsSource.map { account -> SelectableAccountItem(account, false) } +
+                        it.accountsSource
+                            .filter { accountItem ->
+                                if (canSwitchBetweenAccountTypes) {
+                                    if (showTradingAccounts) {
+                                        accountItem.account is TradingAccount
+                                    } else {
+                                        accountItem.account is NonCustodialAccount
+                                    }
+                                } else {
+                                    true
+                                }
+                            }
+                            .map { account -> SelectableAccountItem(account, false) } +
                         listOfNotNull(if (it.showAddNewBankAccount) AddBankAccountItem else null)
 
                     onListLoaded(it.accountsSource)

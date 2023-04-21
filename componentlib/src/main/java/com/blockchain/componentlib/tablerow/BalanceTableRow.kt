@@ -18,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
@@ -48,9 +50,9 @@ fun BalanceTableRow(
     isInlineTags: Boolean = false,
     tags: List<TagViewState> = emptyList(),
     backgroundColor: Color = AppTheme.colors.background,
+    backgroundShape: Shape = RectangleShape,
     onClick: () -> Unit = {}
 ) {
-
     TableRow(
         modifier = modifier,
         contentStart = {
@@ -131,6 +133,7 @@ fun BalanceTableRow(
             }
         },
         backgroundColor = backgroundColor,
+        backgroundShape = backgroundShape,
         onContentClicked = onClick
     )
 }

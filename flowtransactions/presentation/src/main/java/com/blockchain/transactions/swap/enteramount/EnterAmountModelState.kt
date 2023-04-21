@@ -6,17 +6,18 @@ import com.blockchain.componentlib.control.InputCurrency
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.data.DataResource
 import com.blockchain.transactions.swap.CryptoAccountWithBalance
+import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
-import info.blockchain.balance.Money
+import info.blockchain.balance.FiatValue
 
 data class EnterAmountModelState(
     val accounts: DataResource<EnterAmountAccounts> = DataResource.Loading,
     val config: DataResource<EnterAmountConfig> = DataResource.Loading,
 
-    val fiatAmount: Money? = null,
+    val fiatAmount: FiatValue? = null,
     val fiatAmountUserInput: String = "",
-    val cryptoAmount: Money? = null,
+    val cryptoAmount: CryptoValue? = null,
     val cryptoAmountUserInput: String = "",
 
     val selectedInput: InputCurrency = InputCurrency.Currency1,

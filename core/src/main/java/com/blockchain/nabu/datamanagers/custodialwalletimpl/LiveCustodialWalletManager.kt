@@ -612,6 +612,7 @@ private fun WireTransferAccountDetailsResponse.toDomain(): WireTransferDetails =
             message = footer.message,
             icon = footer.icon,
             isImportant = footer.isImportant == true,
+            actions = footer.actions.orEmpty(),
         )
     },
 )

@@ -34,6 +34,7 @@ import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.dex.presentation.R
 import com.blockchain.extensions.safeLet
 import com.blockchain.koin.payloadScope
+import com.dex.presentation.enteramount.AllowanceTxUiData
 import info.blockchain.balance.AssetInfo
 import org.koin.androidx.compose.getViewModel
 

@@ -82,7 +82,7 @@ class WireTransferAccountDetailsBottomSheet :
                     renderQuestionnaire(questionnaire)
                 },
                 onComplete = {
-                    if (fiatCurrency.networkTicker == "USD") {
+                    if (fiatCurrency.networkTicker in listOf("USD", "GBP")) {
                         fetchAndDisplayAccountDetails()
                     } else {
                         fetchAndDisplayOldAccountDetails()

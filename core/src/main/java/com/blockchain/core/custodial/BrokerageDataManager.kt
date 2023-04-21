@@ -14,13 +14,15 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.domain.paymentmethods.model.SettlementType
 import com.blockchain.domain.transactions.TransferDirection
+import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.map
 import com.blockchain.utils.CurrentTimeProvider
+import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 import java.time.ZonedDateTime
 import piuk.blockchain.android.data.calcSourceToOutputRateFromInputAmountAndResultAmount
-
 class BrokerageDataManager(
     private val brokerageService: BrokerageService,
 ) {
@@ -30,7 +32,7 @@ class BrokerageDataManager(
         amount: Money,
         paymentMethodType: PaymentMethodType,
         paymentMethodId: String?,
-    ): Single<BrokerageQuote> =
+    ): Single<BrokerageQuote> = rxSingleOutcome {
         brokerageService.fetchQuote(
             inputValue = amount.toBigInteger().toString(),
             paymentMethod = paymentMethodType.name,
@@ -40,12 +42,13 @@ class BrokerageDataManager(
         ).map { response ->
             response.toDomainModel(pair, amount)
         }
+    }
 
     fun getSellQuote(
         pair: CurrencyPair,
         amount: Money,
         direction: TransferDirection,
-    ): Single<BrokerageQuote> =
+    ): Single<BrokerageQuote> = rxSingleOutcome {
         brokerageService.fetchQuote(
             inputValue = amount.toBigInteger().toString(),
             paymentMethod = direction.getQuotePaymentMethod(),
@@ -55,12 +58,13 @@ class BrokerageDataManager(
         ).map { response ->
             response.toDomainModel(pair, amount)
         }
+    }
 
-    fun getSwapQuote(
+    suspend fun getSwapQuote(
         pair: CurrencyPair,
         amount: Money,
         direction: TransferDirection,
-    ): Single<BrokerageQuote> =
+    ): Outcome<Exception, BrokerageQuote> =
         brokerageService.fetchQuote(
             inputValue = amount.toBigInteger().toString(),
             paymentMethod = direction.getQuotePaymentMethod(),

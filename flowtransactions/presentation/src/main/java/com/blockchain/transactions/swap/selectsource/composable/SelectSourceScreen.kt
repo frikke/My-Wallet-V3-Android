@@ -9,6 +9,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.blockchain.chrome.setResult
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.chrome.setResult
@@ -30,7 +33,7 @@ const val KEY_SWAP_SOURCE_ACCOUNT = "KEY_SWAP_SOURCE_ACCOUNT"
 @Composable
 fun SelectSourceScreen(
     viewModel: SelectSourceViewModel = getViewModel(scope = payloadScope),
-    navControllerProvider: () -> NavHostController,
+    navControllerProvider: () -> NavController,
     onBackPressed: () -> Unit
 ) {
 

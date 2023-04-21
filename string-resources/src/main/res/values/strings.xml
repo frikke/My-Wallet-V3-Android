@@ -29,6 +29,7 @@
     <string name="common_yes">Yes</string>
     <string name="common_no">No</string>
     <string name="common_ok">OK</string>
+    <string name="common_done">Done</string>
     <string name="common_cancel">Cancel</string>
     <string name="common_total">Total</string>
     <string name="common_remove">Remove</string>
@@ -1846,6 +1847,12 @@ If you want to know more about our verification process visit our <annotation li
     <string name="tx_enter_amount_fee_sheet_swap_available_label">Available to Swap</string>
     <string name="tx_enter_amount_fee_sheet_sell_available_label">Available to Sell</string>
 
+    <!--  Swap Confirmation  -->
+    <string name="swap_confirmation_navbar">Confirm Swap</string>
+    <string name="swap_confirmation_quote_refresh_timer">New quote in</string>
+    <string name="swap_confirmation_exchange_rate_label">Rate</string>
+    <string name="swap_confirmation_exchange_rate_value">1 %1$s = %2$s</string>
+
 
     <!--Tx Flow Info messaging-->
     <string name="not_enough_funds">Not Enough %1$s</string>
@@ -3603,5 +3610,12 @@ If you want to know more about our verification process visit our <annotation li
     <string name="min_amount_estimation">Input is estimated. You will receive at least %1$s or the transaction will revert and assets will be returned to your wallet.</string>
     <string name="unable_to_swap_tokens">Unable to swap these tokens</string>
     <string name="common_pending_activity">Pending Activity</string>
+    <string name="swapping_with_currencies">Swapping %1$s for %2$s</string>
+    <string name="your_swap_is_confirmed">You swap is being confirmed by the network. Track the confirmation on the Explorer or feel free to start a new swap.</string>
+    <string name="view_on_explorer">View on Explorer</string>
+    <string name="swap_failed">Swap failed</string>
+    <string name="swap_failed_message">Your balance hasn\'t been affected. You can try again or cancel.</string>
+    <string name="price_updated">Price updated</string>
+    <string name="accept">Accept</string>
 
 </resources>
