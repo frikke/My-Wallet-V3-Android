@@ -2,7 +2,6 @@ package com.blockchain.transactions.swap.selectsource
 
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
-import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.mvi_v2.EmptyNavEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel

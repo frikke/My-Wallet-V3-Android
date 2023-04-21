@@ -1,9 +1,6 @@
 package com.blockchain.transactions.swap.enteramount
 
 import androidx.lifecycle.viewModelScope
-import com.blockchain.coincore.impl.CryptoNonCustodialAccount
-import com.blockchain.coincore.impl.CustodialTradingAccount
-import com.blockchain.commonarch.presentation.mvi_v2.EmptyNavEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.componentlib.control.CurrencyValue

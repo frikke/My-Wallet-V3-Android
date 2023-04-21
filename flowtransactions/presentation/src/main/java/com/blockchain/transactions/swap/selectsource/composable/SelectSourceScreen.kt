@@ -12,9 +12,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.chrome.setResult
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.blockchain.chrome.setResult
 import com.blockchain.componentlib.sheets.SheetFlatHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme

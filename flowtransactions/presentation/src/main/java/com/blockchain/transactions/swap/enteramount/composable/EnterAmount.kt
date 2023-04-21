@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -22,11 +21,6 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.betternavigation.BetterNavigationContext
 import com.blockchain.betternavigation.navigateTo
 import com.blockchain.chrome.getResultFlow
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import com.blockchain.chrome.clearResult
-import com.blockchain.chrome.getResultFlow
-import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.AlertButton
 import com.blockchain.componentlib.button.ButtonState
