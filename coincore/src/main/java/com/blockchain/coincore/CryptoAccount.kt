@@ -18,6 +18,7 @@ import java.io.Serializable
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.rx3.asFlow
+import java.io.Serializable
 
 data class AccountBalance internal constructor(
     val total: Money,

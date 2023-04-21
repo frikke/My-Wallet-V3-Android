@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -21,6 +22,7 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.common.accounts.composable.AccountList
 import com.blockchain.transactions.presentation.R
 import com.blockchain.transactions.swap.selectsource.SelectSourceIntent
+import com.blockchain.transactions.swap.selectsource.SelectSourceNavigationEvent
 import com.blockchain.transactions.swap.selectsource.SelectSourceViewModel
 import com.blockchain.transactions.swap.selectsource.SelectSourceViewState
 import org.koin.androidx.compose.getViewModel
@@ -41,6 +43,18 @@ fun SelectSourceScreen(
         onDispose { }
     }
 
+    val navigationEvent by viewModel.navigationEventFlow.collectAsStateLifecycleAware(null)
+    LaunchedEffect(navigationEvent) {
+        navigationEvent?.let { navEvent ->
+            when (navEvent) {
+                is SelectSourceNavigationEvent.ConfirmSelection -> {
+                    navControllerProvider().setResult(KEY_SWAP_SOURCE_ACCOUNT, navEvent.account)
+                    onBackPressed()
+                }
+            }
+        }
+    }
+
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -58,8 +72,7 @@ fun SelectSourceScreen(
             ),
             accounts = viewState.accountList,
             onAccountClick = {
-                navControllerProvider().setResult(KEY_SWAP_SOURCE_ACCOUNT, it.ticker)
-                onBackPressed()
+                viewModel.onIntent(SelectSourceIntent.AccountSelected(it.id))
             },
             bottomSpacer = AppTheme.dimensions.smallSpacing
         )

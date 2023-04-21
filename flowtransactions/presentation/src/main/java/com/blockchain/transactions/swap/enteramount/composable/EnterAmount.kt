@@ -43,6 +43,7 @@ import com.blockchain.data.map
 import com.blockchain.extensions.safeLet
 import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.presentation.R
+import com.blockchain.transactions.swap.CryptoAccountWithBalance
 import com.blockchain.transactions.swap.SwapGraph
 import com.blockchain.transactions.swap.enteramount.EnterAmountAssetState
 import com.blockchain.transactions.swap.enteramount.EnterAmountAssets
@@ -82,7 +83,7 @@ fun EnterAmount(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val newFrom by navContextProvider().navController
-        .getResultFlow(KEY_SWAP_SOURCE_ACCOUNT, null as? String?)
+        .getResultFlow(KEY_SWAP_SOURCE_ACCOUNT, null as? CryptoAccountWithBalance?)
         .collectAsStateLifecycleAware()
 
     LaunchedEffect(newFrom) {

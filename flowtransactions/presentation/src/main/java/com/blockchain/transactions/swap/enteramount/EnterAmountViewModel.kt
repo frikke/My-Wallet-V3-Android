@@ -18,6 +18,7 @@ import com.blockchain.extensions.safeLet
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.flatMapData
 import com.blockchain.store.mapData
+import com.blockchain.transactions.swap.CryptoAccountWithBalance
 import com.blockchain.transactions.swap.SwapService
 import com.blockchain.transactions.swap.confirmation.composable.ConfirmationArgs
 import com.blockchain.utils.removeLeadingZeros
@@ -59,8 +60,8 @@ class EnterAmountViewModel(
     EnterAmountModelState()
 ) {
 
-    private val fromAccountTickerFlow = MutableSharedFlow<String>(replay = 1)
-    private val toAccountTickerFlow = MutableSharedFlow<String>(replay = 1)
+    private val fromAccountFlow = MutableSharedFlow<CryptoAccountWithBalance>(replay = 1)
+    private val toAccountTickerFlow = MutableSharedFlow<String>(replay = 1) // accept cryptoaccounts instead of tickers
 
     private val fiatInputChanges = MutableSharedFlow<String>()
     private val cryptoInputChanges = MutableSharedFlow<String>()
@@ -137,19 +138,19 @@ class EnterAmountViewModel(
     override suspend fun handleIntent(modelState: EnterAmountModelState, intent: EnterAmountIntent) {
         when (intent) {
             EnterAmountIntent.LoadData -> {
-                val fromAccountTicker =
-                    fromTicker ?: swapService.highestBalanceSourceAccount()?.account?.currency?.networkTicker
+                // handle predefined from
+                val fromAccount = swapService.highestBalanceSourceAccount()
 
-                val toAccountTicker = when (fromAccountTicker) {
+                val toAccountTicker = when (fromAccount?.account?.currency?.networkTicker) {
                     "BTC" -> "USDT"
                     else -> "BTC"
                 }
 
                 safeLet(
-                    fromAccountTicker,
+                    fromAccount,
                     toAccountTicker
                 ) { from, to ->
-                    fromAccountTickerFlow.emit(from)
+                    fromAccountFlow.emit(from)
                     toAccountTickerFlow.emit(to)
                 } ?: updateState {
                     it.copy(
@@ -197,7 +198,7 @@ class EnterAmountViewModel(
             }
 
             is EnterAmountIntent.FromAccountChanged -> {
-                fromAccountTickerFlow.emit(intent.ticker)
+                fromAccountFlow.emit(intent.account)
             }
 
             EnterAmountIntent.MaxSelected -> {
@@ -233,14 +234,8 @@ class EnterAmountViewModel(
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun loadAccountsAndConfig() {
         viewModelScope.launch {
-            fromAccountTickerFlow
-                .flatMapLatest { fromTicker ->
-                    swapService.custodialSourceAccountsWithBalances()
-                        .mapData {
-                            // or null and show fatal error
-                            it.first { it.account.currency.networkTicker == fromTicker }
-                        }
-                }
+            fromAccountFlow
+                .map { DataResource.Data(it) }
                 .flatMapData { fromAccount ->
                     toAccountTickerFlow.flatMapLatest { toTicker ->
                         swapService.targetAccounts(fromAccount.account)

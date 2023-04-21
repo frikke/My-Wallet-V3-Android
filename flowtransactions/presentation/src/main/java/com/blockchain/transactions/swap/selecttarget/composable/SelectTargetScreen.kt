@@ -62,7 +62,7 @@ fun SelectTargetScreen(
             ),
             assets = viewState.prices,
             onAccountClick = {
-
+                viewModel.onIntent(SelectTargetIntent.AssetSelected(ticker = it.ticker))
             },
             bottomSpacer = AppTheme.dimensions.smallSpacing
         )

@@ -5,4 +5,5 @@ import com.blockchain.transactions.swap.selectsource.SelectSourceModelState
 
 sealed interface SelectTargetIntent : Intent<SelectTargetModelState> {
     object LoadData : SelectTargetIntent
+    data class AssetSelected(val ticker: String) : SelectTargetIntent
 }

@@ -52,6 +52,10 @@ class SelectTargetViewModel(
                         }
                 }
             }
+
+            is SelectTargetIntent.AssetSelected -> {
+                // todo if asset has multiple accounts show account selection
+            }
         }
     }
 

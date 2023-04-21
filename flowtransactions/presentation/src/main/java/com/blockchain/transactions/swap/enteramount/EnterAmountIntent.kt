@@ -1,6 +1,7 @@
 package com.blockchain.transactions.swap.enteramount
 
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
+import com.blockchain.transactions.swap.CryptoAccountWithBalance
 
 sealed interface EnterAmountIntent : Intent<EnterAmountModelState> {
     object LoadData : EnterAmountIntent
@@ -16,7 +17,7 @@ sealed interface EnterAmountIntent : Intent<EnterAmountModelState> {
     ) : EnterAmountIntent
 
     data class FromAccountChanged(
-        val ticker: String
+        val account: CryptoAccountWithBalance
     ) : EnterAmountIntent
 
     object MaxSelected : EnterAmountIntent
