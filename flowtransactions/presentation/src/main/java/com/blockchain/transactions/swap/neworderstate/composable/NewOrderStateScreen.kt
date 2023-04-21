@@ -1,22 +1,36 @@
 package com.blockchain.transactions.swap.neworderstate.composable
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.api.NabuApiException
+import com.blockchain.api.isInternetConnectionError
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.button.SecondaryButton
+import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.icon.SmallTagIcon
+import com.blockchain.componentlib.icons.Alert
 import com.blockchain.componentlib.icons.Check
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Pending
@@ -27,14 +41,24 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.TinyHorizontalSpacer
 import com.blockchain.componentlib.theme.White
+import com.blockchain.deeplinking.navigation.DeeplinkRedirector
+import com.blockchain.deeplinking.processor.DeepLinkResult
+import com.blockchain.domain.common.model.ServerErrorAction
+import com.blockchain.domain.common.model.ServerSideUxErrorInfo
+import com.blockchain.koin.payloadScope
+import com.blockchain.outcome.doOnSuccess
+import com.blockchain.presentation.checkValidUrlAndOpen
 import com.blockchain.transactions.presentation.R
+import com.blockchain.utils.awaitOutcome
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import java.io.Serializable
+import org.koin.androidx.compose.get
 
-enum class NewOrderState {
-    PENDING_DEPOSIT,
-    SUCCEEDED,
+sealed interface NewOrderState {
+    object PendingDeposit : NewOrderState
+    object Succeeded : NewOrderState
+    data class Error(val error: Exception) : NewOrderState
 }
 
 data class NewOrderStateArgs(
@@ -46,6 +70,45 @@ data class NewOrderStateArgs(
 @Composable
 fun NewOrderStateScreen(
     args: NewOrderStateArgs,
+    deeplinkRedirector: DeeplinkRedirector = get(scope = payloadScope),
+    exitSwap: () -> Unit,
+) {
+    val context = LocalContext.current
+    var handleDeeplinkUrl by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(handleDeeplinkUrl) {
+        val url = handleDeeplinkUrl?.appendTickerToDeeplink(args.sourceAmount.currencyCode)
+        handleDeeplinkUrl = null
+        if (url != null) {
+            deeplinkRedirector.processDeeplinkURL(url).awaitOutcome()
+                .doOnSuccess {
+                    if (it is DeepLinkResult.DeepLinkResultUnknownLink) {
+                        it.uri?.let { uri ->
+                            context.checkValidUrlAndOpen(uri)
+                        }
+                    }
+                }
+            exitSwap()
+        }
+    }
+
+    NewOrderStateContent(
+        sourceAmount = args.sourceAmount,
+        targetAmount = args.targetAmount,
+        orderState = args.orderState,
+        handleDeeplinkUrlAndExit = { deeplinkUrl ->
+            handleDeeplinkUrl = deeplinkUrl
+        },
+        exitSwap = exitSwap,
+    )
+}
+
+@Composable
+private fun NewOrderStateContent(
+    sourceAmount: CryptoValue,
+    targetAmount: CryptoValue,
+    orderState: NewOrderState,
+    handleDeeplinkUrlAndExit: (String) -> Unit,
     exitSwap: () -> Unit,
 ) {
     Column(
@@ -63,15 +126,17 @@ fun NewOrderStateScreen(
                     iconSize = 59.dp,
                     backgroundSize = 88.dp
                 )
-            val tagIcon = when (args.orderState) {
-                NewOrderState.PENDING_DEPOSIT ->
+            val tagIcon = when (orderState) {
+                NewOrderState.PendingDeposit ->
                     Icons.Filled.Pending
                         .withTint(AppTheme.colors.muted)
                         .withSize(44.dp)
-                NewOrderState.SUCCEEDED ->
+                NewOrderState.Succeeded ->
                     Icons.Filled.Check
                         .withTint(AppTheme.colors.success)
                         .withSize(44.dp)
+                is NewOrderState.Error ->
+                    errorStatusIcon(orderState)
             }
 
             val stackedIcon = StackedIcon.SmallTag(
@@ -89,11 +154,13 @@ fun NewOrderStateScreen(
 
             SmallVerticalSpacer()
 
-            val title = when (args.orderState) {
-                NewOrderState.PENDING_DEPOSIT ->
-                    stringResource(R.string.swap_neworderstate_pending_deposit_title, args.sourceAmount.currency.name)
-                NewOrderState.SUCCEEDED ->
+            val title = when (orderState) {
+                NewOrderState.PendingDeposit ->
+                    stringResource(R.string.swap_neworderstate_pending_deposit_title, sourceAmount.currency.name)
+                NewOrderState.Succeeded ->
                     stringResource(R.string.swap_neworderstate_succeeded_title)
+                is NewOrderState.Error ->
+                    errorTitle(orderState)
             }
             SimpleText(
                 modifier = Modifier
@@ -107,19 +174,21 @@ fun NewOrderStateScreen(
 
             TinyHorizontalSpacer()
 
-            val description = when (args.orderState) {
-                NewOrderState.PENDING_DEPOSIT -> stringResource(
+            val description = when (orderState) {
+                NewOrderState.PendingDeposit -> stringResource(
                     R.string.swap_neworderstate_pending_deposit_description,
-                    args.sourceAmount.toStringWithSymbol(),
-                    args.targetAmount.toStringWithSymbol(),
+                    sourceAmount.toStringWithSymbol(),
+                    targetAmount.toStringWithSymbol(),
                     // TODO(aromano): usually X minutes
                     "5"
                 )
-                NewOrderState.SUCCEEDED -> stringResource(
+                NewOrderState.Succeeded -> stringResource(
                     R.string.swap_neworderstate_succeeded_description,
-                    args.sourceAmount.toStringWithSymbol(),
-                    args.targetAmount.toStringWithSymbol(),
+                    sourceAmount.toStringWithSymbol(),
+                    targetAmount.toStringWithSymbol(),
                 )
+                is NewOrderState.Error ->
+                    errorDescription(orderState)
             }
             SimpleText(
                 modifier = Modifier
@@ -134,25 +203,108 @@ fun NewOrderStateScreen(
 
         Spacer(Modifier.weight(0.66f))
 
+        if (orderState is NewOrderState.Error) {
+            ErrorCtaButtons(
+                state = orderState,
+                onCtaClicked = { deeplinkUrl ->
+                    handleDeeplinkUrlAndExit(deeplinkUrl)
+                },
+            )
+        } else {
+            PrimaryButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(AppTheme.dimensions.smallSpacing),
+                text = stringResource(R.string.common_done),
+                onClick = exitSwap,
+            )
+        }
+    }
+}
+
+@Composable
+private fun errorStatusIcon(state: NewOrderState.Error): ImageResource {
+    val serverSideError = (state.error as? NabuApiException)?.getServerSideErrorInfo()
+    val serverSideIcon = serverSideError?.statusUrl?.ifEmpty { null }
+
+    return if (serverSideIcon != null) {
+        ImageResource.Remote(
+            url = serverSideIcon,
+            shape = CircleShape,
+            size = 44.dp,
+        )
+    } else {
+        Icons.Filled.Alert
+            .withTint(AppTheme.colors.error)
+            .withSize(44.dp)
+    }
+}
+
+@Composable
+private fun errorTitle(state: NewOrderState.Error): String {
+    val serverSideError = (state.error as? NabuApiException)?.getServerSideErrorInfo()
+    val message = when {
+        serverSideError != null -> serverSideError.title
+        state.error.isInternetConnectionError() -> stringResource(R.string.executing_connection_error)
+        else -> null
+    }?.ifEmpty { null }
+
+    return message ?: stringResource(R.string.something_went_wrong_try_again)
+}
+
+@Composable
+private fun errorDescription(state: NewOrderState.Error): String {
+    val serverSideError = (state.error as? NabuApiException)?.getServerSideErrorInfo()
+    val message = when {
+        serverSideError != null -> serverSideError.description
+        state.error is NabuApiException -> state.error.getErrorDescription()
+        else -> null
+    }?.ifEmpty { null }
+
+    return message ?: stringResource(R.string.order_error_subtitle)
+}
+
+@Composable
+private fun ErrorCtaButtons(
+    state: NewOrderState.Error,
+    onCtaClicked: (deeplinkUrl: String) -> Unit,
+) {
+    val serverSideError = (state.error as? NabuApiException)?.getServerSideErrorInfo()
+    val actions = serverSideError?.actions.orEmpty()
+    val modifier = Modifier
+        .fillMaxWidth()
+        .padding(AppTheme.dimensions.smallSpacing)
+
+    if (actions.isNotEmpty()) {
+        actions.forEachIndexed { index, action ->
+            val title = action.title.ifEmpty { stringResource(R.string.common_ok) }
+            val onClick = { onCtaClicked(action.deeplinkPath) }
+            when (index) {
+                0 -> PrimaryButton(modifier = modifier, text = title, onClick = onClick)
+                1 -> SecondaryButton(modifier = modifier, text = title, onClick = onClick)
+                2 -> TertiaryButton(modifier = modifier, text = title, onClick = onClick)
+            }
+        }
+    } else {
         PrimaryButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(AppTheme.dimensions.smallSpacing),
-            text = stringResource(R.string.common_done),
-            onClick = exitSwap,
+            modifier = modifier,
+            text = stringResource(R.string.common_ok),
+            onClick = { onCtaClicked("") }
         )
     }
 }
 
+private fun String.appendTickerToDeeplink(currencyCode: String): Uri =
+    Uri.parse("$this?code=$currencyCode")
+
 @Preview
 @Composable
 private fun PreviewPendingDeposit() {
-    NewOrderStateScreen(
-        args = NewOrderStateArgs(
-            sourceAmount = CryptoValue.fromMajor(CryptoCurrency.ETHER, 0.5.toBigDecimal()),
-            targetAmount = CryptoValue.fromMajor(CryptoCurrency.BTC, 0.05.toBigDecimal()),
-            orderState = NewOrderState.PENDING_DEPOSIT,
-        ),
+    NewOrderStateContent(
+        sourceAmount = CryptoValue.fromMajor(CryptoCurrency.ETHER, 0.5.toBigDecimal()),
+        targetAmount = CryptoValue.fromMajor(CryptoCurrency.BTC, 0.05.toBigDecimal()),
+        orderState = NewOrderState.PendingDeposit,
+        handleDeeplinkUrlAndExit = {},
         exitSwap = {},
     )
 }
@@ -160,12 +312,45 @@ private fun PreviewPendingDeposit() {
 @Preview
 @Composable
 private fun PreviewSucceeded() {
-    NewOrderStateScreen(
-        args = NewOrderStateArgs(
-            sourceAmount = CryptoValue.fromMajor(CryptoCurrency.ETHER, 0.5.toBigDecimal()),
-            targetAmount = CryptoValue.fromMajor(CryptoCurrency.BTC, 0.05.toBigDecimal()),
-            orderState = NewOrderState.SUCCEEDED,
+    NewOrderStateContent(
+        sourceAmount = CryptoValue.fromMajor(CryptoCurrency.ETHER, 0.5.toBigDecimal()),
+        targetAmount = CryptoValue.fromMajor(CryptoCurrency.BTC, 0.05.toBigDecimal()),
+        orderState = NewOrderState.Succeeded,
+        handleDeeplinkUrlAndExit = {},
+        exitSwap = {},
+    )
+}
+
+@Preview
+@Composable
+private fun PreviewError() {
+    val error = ServerSideUxErrorInfo(
+        id = null,
+        title = "Error title",
+        description = "Error description",
+        iconUrl = "",
+        statusUrl = "",
+        actions = listOf(
+            ServerErrorAction("One", ""),
+            ServerErrorAction("Two", ""),
         ),
+        categories = emptyList(),
+    )
+    val apiException = NabuApiException(
+        message = "some error",
+        httpErrorCode = 400,
+        errorType = null,
+        errorCode = null,
+        errorDescription = "nabu error description",
+        path = null,
+        id = null,
+        serverSideUxError = error,
+    )
+    NewOrderStateContent(
+        sourceAmount = CryptoValue.fromMajor(CryptoCurrency.ETHER, 0.5.toBigDecimal()),
+        targetAmount = CryptoValue.fromMajor(CryptoCurrency.BTC, 0.05.toBigDecimal()),
+        orderState = NewOrderState.Error(apiException),
+        handleDeeplinkUrlAndExit = {},
         exitSwap = {},
     )
 }

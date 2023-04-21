@@ -21,7 +21,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.betternavigation.NavContext
 import com.blockchain.betternavigation.navigateTo
-import com.blockchain.betternavigation.popUpTo
 import com.blockchain.chrome.getResultFlow
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.AlertButton
@@ -73,9 +72,7 @@ fun EnterAmount(
         navigationEvent?.let { navigationEvent ->
             when (navigationEvent) {
                 is EnterAmountNavigationEvent.Preview -> {
-                    navContextProvider().navigateTo(SwapGraph.Confirmation, navigationEvent.data) {
-                        popUpTo(SwapGraph)
-                    }
+                    navContextProvider().navigateTo(SwapGraph.Confirmation, navigationEvent.data)
                 }
             }
         }

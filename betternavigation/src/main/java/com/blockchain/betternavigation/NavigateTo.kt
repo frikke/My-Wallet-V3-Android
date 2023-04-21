@@ -13,6 +13,22 @@ fun NavContext.navigateUp() {
     navController.navigateUp()
 }
 
+fun NavContext.popBackStack() {
+    navController.popBackStack()
+}
+
+fun NavContext.popBackStack(
+    destination: DestinationWithArgs<*>,
+    inclusive: Boolean,
+    saveState: Boolean = false,
+) {
+    navController.popBackStack(
+        destination.route,
+        inclusive,
+        saveState,
+    )
+}
+
 fun NavContext.navigateTo(
     destination: Destination,
     navOptions: (NavOptionsBuilder.() -> Unit)? = null,

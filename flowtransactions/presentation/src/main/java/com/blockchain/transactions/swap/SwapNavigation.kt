@@ -1,5 +1,6 @@
 package com.blockchain.transactions.swap
 
+import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.blockchain.betternavigation.Destination
@@ -8,6 +9,7 @@ import com.blockchain.betternavigation.NavGraph
 import com.blockchain.betternavigation.TypedNavHost
 import com.blockchain.betternavigation.navigateTo
 import com.blockchain.betternavigation.navigateUp
+import com.blockchain.betternavigation.popUpTo
 import com.blockchain.betternavigation.typedBottomSheet
 import com.blockchain.betternavigation.typedComposable
 import com.blockchain.chrome.composable.ChromeBottomSheet
@@ -28,10 +30,11 @@ object SwapGraph : NavGraph() {
 }
 
 @ExperimentalMaterialNavigationApi
-fun NavGraphBuilder.swapGraphHost() {
+fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
     // TODO(aromano): navigation TEMP
     composable(SwapGraph::class.java.name) {
         TypedNavHost(
+            graph = SwapGraph,
             startDestination = SwapGraph.EnterAmount,
         ) {
             typedComposable(SwapGraph.EnterAmount) {
@@ -57,7 +60,9 @@ fun NavGraphBuilder.swapGraphHost() {
                     ConfirmationScreen(
                         args = args,
                         openNewOrderState = { args ->
-                            navigateTo(SwapGraph.NewOrderState, args)
+                            navigateTo(SwapGraph.NewOrderState, args) {
+                                popUpTo(SwapGraph)
+                            }
                         },
                         backClicked = { navigateUp() },
                     )
@@ -68,7 +73,7 @@ fun NavGraphBuilder.swapGraphHost() {
                 ChromeSingleScreen {
                     NewOrderStateScreen(
                         args = args,
-                        exitSwap = { navigateUp() },
+                        exitSwap = { mainNavController.navigateUp() },
                     )
                 }
             }

@@ -25,7 +25,6 @@ import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallHorizontalSpacer
-import com.blockchain.componentlib.theme.SmallestHorizontalSpacer
 import com.blockchain.componentlib.theme.SmallestVerticalSpacer
 
 @Composable

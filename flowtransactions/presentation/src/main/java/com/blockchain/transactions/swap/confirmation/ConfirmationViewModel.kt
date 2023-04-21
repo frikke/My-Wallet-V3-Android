@@ -2,6 +2,7 @@ package com.blockchain.transactions.swap.confirmation
 
 import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
@@ -13,7 +14,6 @@ import com.blockchain.data.doOnData
 import com.blockchain.domain.common.model.toSeconds
 import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.extensions.safeLet
-import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.swap.SwapTransactionsStore
 import com.blockchain.outcome.doOnFailure
@@ -41,7 +41,6 @@ class ConfirmationViewModel(
     private val sourceAccount: CryptoAccount,
     private val targetAccount: CryptoAccount,
     private val sourceCryptoAmount: CryptoValue,
-    private val direction: TransferDirection,
     // TODO(aromano): SWAP temp comment, this is only going to be used for NC->* swaps
     private val secondPassword: String?,
 
@@ -90,7 +89,7 @@ class ConfirmationViewModel(
                 if (secondsUntilQuoteRefresh <= 0) {
                     updateState { it.copy(isFetchQuoteLoading = true) }
                     val pair = CurrencyPair(sourceAccount.currency, targetAccount.currency)
-                    brokerageDataManager.getSwapQuote(pair, sourceCryptoAmount, direction)
+                    brokerageDataManager.getSwapQuote(pair, sourceCryptoAmount, transferDirection)
                         .doOnSuccess { quote ->
                             val targetCryptoAmount = quote.resultAmount as CryptoValue
                             secondsUntilQuoteRefresh = (quote.expiresAt - System.currentTimeMillis()).toSeconds()
@@ -112,16 +111,10 @@ class ConfirmationViewModel(
                             }
                         }
                         .doOnFailure { error ->
-                            updateState {
-                                it.copy(
-                                    isFetchQuoteLoading = false,
-                                    quoteError = error.toConfirmationError()
-                                )
-                            }
+                            navigate(ConfirmationNavigation.NewOrderState(error.toNewOrderStateArgs()))
                             // Quote errors are terminal, we'll show an UxError with actions or a
                             // regular error which will navigate the user out of the Swap flow
                             thisScope.cancel()
-                            // TODO(aromano): SWAP check if UxError is still working
                         }
                 }
                 updateState { it.copy(quoteRefreshRemainingSeconds = secondsUntilQuoteRefresh) }
@@ -165,8 +158,6 @@ class ConfirmationViewModel(
             state.isSubmittingOrderLoading -> ButtonState.Loading
             else -> ButtonState.Enabled
         },
-        quoteError = state.quoteError,
-        createOrderError = state.createOrderError,
     )
 
     override suspend fun handleIntent(modelState: ConfirmationModelState, intent: ConfirmationIntent) {
@@ -175,10 +166,10 @@ class ConfirmationViewModel(
                 val quoteId = modelState.quoteId!!
 
                 // NC->NC
-                val requiresDestinationAddress = direction == TransferDirection.ON_CHAIN
+                val requiresDestinationAddress = transferDirection == TransferDirection.ON_CHAIN
                 // NC->NC or NC->C
-                val requireRefundAddress =
-                    direction == TransferDirection.ON_CHAIN || direction == TransferDirection.FROM_USERKEY
+                val requireRefundAddress = transferDirection == TransferDirection.ON_CHAIN ||
+                    transferDirection == TransferDirection.FROM_USERKEY
 
                 // TODO(aromano): SWAP
 //                if (requireSecondPassword && secondPassword.isEmpty()) {
@@ -190,7 +181,7 @@ class ConfirmationViewModel(
                     targetAccount.receiveAddress::awaitOutcome,
                 ).flatMap { (sourceAddress, targetAddress) ->
                     custodialWalletManager.createCustodialOrder(
-                        direction = direction,
+                        direction = transferDirection,
                         quoteId = quoteId,
                         volume = modelState.sourceCryptoAmount,
                         destinationAddress = if (requiresDestinationAddress) targetAddress.address else null,
@@ -203,28 +194,35 @@ class ConfirmationViewModel(
                     // TODO(aromano): SWAP ANALYTICS
 //                    analyticsHooks.onTransactionSuccess(newState)
 
-                    when (order.state) {
-                        CustodialOrderState.PENDING_DEPOSIT,
-                        CustodialOrderState.FINISHED -> {
-                            val newOrderStateArgs = NewOrderStateArgs(
-                                sourceAmount = order.inputMoney as CryptoValue,
-                                targetAmount = order.outputMoney as CryptoValue,
-                                orderState = if (order.state == CustodialOrderState.PENDING_DEPOSIT) {
-                                    NewOrderState.PENDING_DEPOSIT
-                                } else {
-                                    NewOrderState.SUCCEEDED
-                                }
-                            )
-                            navigate(ConfirmationNavigation.NewOrderState(newOrderStateArgs))
+                    val newOrderStateArgs = NewOrderStateArgs(
+                        sourceAmount = order.inputMoney as CryptoValue,
+                        targetAmount = order.outputMoney as CryptoValue,
+                        orderState = if (modelState.sourceAccount is NonCustodialAccount) {
+                            NewOrderState.PendingDeposit
+                        } else {
+                            NewOrderState.Succeeded
                         }
-                        else -> TODO() // TODO(aromano): SWAP implement
-                    }
+                    )
+                    navigate(ConfirmationNavigation.NewOrderState(newOrderStateArgs))
                 }.doOnFailure { error ->
-                    updateState {
-                        it.copy(createOrderError = error.toConfirmationError())
-                    }
+                    navigate(ConfirmationNavigation.NewOrderState(error.toNewOrderStateArgs()))
                 }
             }
         }
     }
+
+    private val transferDirection: TransferDirection
+        get() = when {
+            sourceAccount is NonCustodialAccount && targetAccount is NonCustodialAccount -> TransferDirection.ON_CHAIN
+            sourceAccount is NonCustodialAccount -> TransferDirection.FROM_USERKEY
+            // TransferDirection.FROM_USERKEY not supported
+            targetAccount is NonCustodialAccount -> throw UnsupportedOperationException()
+            else -> TransferDirection.INTERNAL
+        }
+
+    private fun Exception.toNewOrderStateArgs(): NewOrderStateArgs = NewOrderStateArgs(
+        sourceAmount = modelState.sourceCryptoAmount,
+        targetAmount = modelState.targetCryptoAmount ?: CryptoValue.zero(targetAccount.currency),
+        orderState = NewOrderState.Error(this)
+    )
 }

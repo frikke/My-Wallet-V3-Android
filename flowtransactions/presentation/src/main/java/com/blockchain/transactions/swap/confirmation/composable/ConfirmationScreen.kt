@@ -4,16 +4,13 @@ import android.content.Intent
 import android.net.Uri
 import android.text.format.DateUtils
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.coincore.CryptoAccount
@@ -39,21 +35,16 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.card.TwoAssetAction
-import com.blockchain.componentlib.icons.ArrowDown
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Question
-import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.system.CircularProgressBar
-import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
-import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.utils.AnnotatedStringUtils
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
-import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.urllinks.CHECKOUT_REFUND_POLICY
 import com.blockchain.presentation.urllinks.EXCHANGE_SWAP_RATE_EXPLANATION
@@ -76,7 +67,6 @@ data class ConfirmationArgs(
     val sourceAccount: CryptoAccount,
     val targetAccount: CryptoAccount,
     val sourceCryptoAmount: CryptoValue,
-    val direction: TransferDirection,
     // TODO(aromano): SWAP temp comment, this is only going to be used for NC->* swaps
     val secondPassword: String?,
 ) : Serializable
@@ -89,7 +79,6 @@ fun ConfirmationScreen(
             args.sourceAccount,
             args.targetAccount,
             args.sourceCryptoAmount,
-            args.direction,
             args.secondPassword,
         )
     },
@@ -323,8 +312,6 @@ private fun PreviewInitialState() {
         quoteRefreshRemainingPercentage = null,
         quoteRefreshRemainingSeconds = null,
         submitButtonState = ButtonState.Disabled,
-        quoteError = null,
-        createOrderError = null,
     )
     Column {
         ConfirmationContent(
@@ -353,9 +340,6 @@ private fun PreviewLoadedState() {
         quoteRefreshRemainingPercentage = 0.5f,
         quoteRefreshRemainingSeconds = 45,
         submitButtonState = ButtonState.Enabled,
-        // TODO(aromano): SWAP errors
-        quoteError = null,
-        createOrderError = null,
     )
     Column {
         ConfirmationContent(

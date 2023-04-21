@@ -1,5 +1,6 @@
 package com.blockchain.data
 
+import java.io.Serializable
 import java.util.concurrent.TimeUnit
 
 /**
@@ -11,7 +12,7 @@ import java.util.concurrent.TimeUnit
  *      - should fetch == false: `[Data(cache), Data(future cache change)]`
  *   - [Cached(refreshStrategy=RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))] will get the latest cache, and only fetch if there is no cached data, the mediator decides to fetch or if the cached data is older than the passed time, it will also listen for future cache changes
  */
-sealed class FreshnessStrategy {
+sealed class FreshnessStrategy : Serializable {
     object Fresh : FreshnessStrategy()
     data class Cached(val refreshStrategy: RefreshStrategy) : FreshnessStrategy()
 
@@ -25,7 +26,7 @@ sealed class FreshnessStrategy {
     }
 }
 
-sealed class RefreshStrategy {
+sealed class RefreshStrategy : Serializable {
     object ForceRefresh : RefreshStrategy()
     object RefreshIfStale : RefreshStrategy()
     data class RefreshIfOlderThan(
@@ -40,7 +41,7 @@ sealed class RefreshStrategy {
  * Keyed version of [FreshnessStrategy]
  * See [FreshnessStrategy]  for more detailed documentation.
  */
-sealed class KeyedFreshnessStrategy<out K> {
+sealed class KeyedFreshnessStrategy<out K> : Serializable {
     data class Fresh<out K>(val key: K) : KeyedFreshnessStrategy<K>()
     data class Cached<out K>(val key: K, val refreshStrategy: RefreshStrategy) : KeyedFreshnessStrategy<K>()
 }

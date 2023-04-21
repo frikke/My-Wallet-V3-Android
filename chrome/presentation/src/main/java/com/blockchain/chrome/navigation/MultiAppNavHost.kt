@@ -157,7 +157,7 @@ fun MultiAppNavHost(
                 onBackPressed = navController::popBackStack,
                 navController = navController,
             )
-            swapGraphHost()
+            swapGraphHost(mainNavController = navController)
         }
     }
 }
