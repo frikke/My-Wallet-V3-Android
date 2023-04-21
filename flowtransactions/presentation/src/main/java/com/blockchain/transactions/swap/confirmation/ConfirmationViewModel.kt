@@ -14,12 +14,15 @@ import com.blockchain.domain.common.model.toSeconds
 import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.extensions.safeLet
 import com.blockchain.nabu.datamanagers.CustodialOrder
+import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.swap.SwapTransactionsStore
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.zipOutcomes
+import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateArgs
+import com.blockchain.transactions.swap.neworderstate.composable.NewOrderState
 import com.blockchain.utils.awaitOutcome
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.CurrencyPair
@@ -32,7 +35,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 sealed interface ConfirmationNavigation : NavigationEvent {
-    data class TransactionState(val order: CustodialOrder) : ConfirmationNavigation
+    data class NewOrderState(val args: NewOrderStateArgs) : ConfirmationNavigation
 }
 
 class ConfirmationViewModel(
@@ -198,7 +201,23 @@ class ConfirmationViewModel(
                     tradingStore.invalidate()
                     // TODO(aromano): SWAP ANALYTICS
 //                    analyticsHooks.onTransactionSuccess(newState)
-                    navigate(ConfirmationNavigation.TransactionState(order))
+
+                    when (order.state) {
+                        CustodialOrderState.PENDING_DEPOSIT,
+                        CustodialOrderState.FINISHED -> {
+                            val newOrderStateArgs = NewOrderStateArgs(
+                                sourceAmount = order.inputMoney as CryptoValue,
+                                targetAmount = order.outputMoney as CryptoValue,
+                                orderState = if (order.state == CustodialOrderState.PENDING_DEPOSIT) {
+                                    NewOrderState.PENDING_DEPOSIT
+                                } else {
+                                    NewOrderState.SUCCEEDED
+                                }
+                            )
+                            navigate(ConfirmationNavigation.NewOrderState(newOrderStateArgs))
+                        }
+                        else -> TODO() // TODO(aromano): SWAP implement
+                    }
                 }.doOnFailure { error ->
                     updateState {
                         it.copy(createOrderError = error.toConfirmationError())

@@ -56,8 +56,10 @@ import com.blockchain.presentation.urllinks.CHECKOUT_REFUND_POLICY
 import com.blockchain.presentation.urllinks.EXCHANGE_SWAP_RATE_EXPLANATION
 import com.blockchain.transactions.presentation.R
 import com.blockchain.transactions.swap.confirmation.ConfirmationIntent
+import com.blockchain.transactions.swap.confirmation.ConfirmationNavigation
 import com.blockchain.transactions.swap.confirmation.ConfirmationViewModel
 import com.blockchain.transactions.swap.confirmation.ConfirmationViewState
+import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateArgs
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
@@ -88,9 +90,19 @@ fun ConfirmationScreen(
             args.secondPassword,
         )
     },
+    openNewOrderState: (NewOrderStateArgs) -> Unit,
+    backClicked: () -> Unit,
 ) {
     LaunchedEffect(Unit) {
         viewModel.viewCreated(ModelConfigArgs.NoArgs)
+    }
+
+    val navigationEvent by viewModel.navigationEventFlow.collectAsStateLifecycleAware(null)
+    LaunchedEffect(navigationEvent) {
+        when (val event = navigationEvent) {
+            is ConfirmationNavigation.NewOrderState -> openNewOrderState(event.args)
+            null -> {}
+        }
     }
 
     val state by viewModel.viewState.collectAsStateLifecycleAware()
@@ -98,7 +110,7 @@ fun ConfirmationScreen(
     Column {
         NavigationBar(
             title = stringResource(R.string.swap_confirmation_navbar),
-            onBackButtonClick = { }, // TODO(aromano): SWAP
+            onBackButtonClick = backClicked,
         )
 
         ConfirmationContent(

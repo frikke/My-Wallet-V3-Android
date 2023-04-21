@@ -1,25 +1,25 @@
 package com.blockchain.betternavigation.example.swap
 
 import androidx.navigation.NavGraphBuilder
-import com.blockchain.betternavigation.BetterDestination
-import com.blockchain.betternavigation.BetterDestinationWithArgs
-import com.blockchain.betternavigation.BetterNavGraph
-import com.blockchain.betternavigation.betterDestination
-import com.blockchain.betternavigation.betterNavGraph
+import com.blockchain.betternavigation.Destination
+import com.blockchain.betternavigation.DestinationWithArgs
+import com.blockchain.betternavigation.NavGraph
+import com.blockchain.betternavigation.typedComposable
+import com.blockchain.betternavigation.navGraph
 import com.blockchain.betternavigation.navigateTo
 
-internal object SwapGraph : BetterNavGraph() {
-    object EnterAmount : BetterDestination()
-    object Confirmation : BetterDestinationWithArgs<SwapConfirmationArgs>()
-    object OrderStatus : BetterDestinationWithArgs<SwapOrderStatusArgs>()
+internal object SwapGraph : NavGraph() {
+    object EnterAmount : Destination()
+    object Confirmation : DestinationWithArgs<SwapConfirmationArgs>()
+    object OrderStatus : DestinationWithArgs<SwapOrderStatusArgs>()
 }
 
 internal fun NavGraphBuilder.swapGraph() {
-    betterNavGraph(
+    navGraph(
         graph = SwapGraph,
         startDestination = SwapGraph.EnterAmount,
     ) {
-        betterDestination(SwapGraph.EnterAmount) {
+        typedComposable(SwapGraph.EnterAmount) {
             SwapEnterAmountScreen(
                 navigateToConfirmation = { amount, source, target ->
                     val confirmationArgs = SwapConfirmationArgs(amount, source, target)
@@ -28,7 +28,7 @@ internal fun NavGraphBuilder.swapGraph() {
             )
         }
 
-        betterDestination(SwapGraph.Confirmation) { args ->
+        typedComposable(SwapGraph.Confirmation) { args ->
             SwapConfirmationScreen(
                 args = args,
                 navigateToOrderStatus = { order ->
@@ -38,7 +38,7 @@ internal fun NavGraphBuilder.swapGraph() {
             )
         }
 
-        betterDestination(SwapGraph.OrderStatus) { args ->
+        typedComposable(SwapGraph.OrderStatus) { args ->
             SwapOrderStatusScreen(
                 args = args,
             )

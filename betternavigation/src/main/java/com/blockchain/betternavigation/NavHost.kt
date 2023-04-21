@@ -15,10 +15,10 @@ import timber.log.Timber
 
 @OptIn(ExperimentalMaterialNavigationApi::class)
 @Composable
-fun BetterNavHost(
-    startDestination: BetterDestination,
+fun TypedNavHost(
+    startDestination: Destination,
     modifier: Modifier = Modifier,
-    graph: BetterNavGraph? = null,
+    graph: NavGraph? = null,
     builder: NavGraphBuilder.() -> Unit
 ) {
     val bottomSheetNavigator = rememberBottomSheetNavigator()
@@ -33,7 +33,7 @@ fun BetterNavHost(
             Timber.v("NavBackStack: $readableBackStack")
             val backStackEntriesArgsIds = navController.backQueue.mapNotNull { backStackEntry ->
                 val arguments = backStackEntry.arguments
-                val argsId = arguments?.getString(BetterDestinationWithArgs.KEY_ARGS_ID)
+                val argsId = arguments?.getString(DestinationWithArgs.KEY_ARGS_ID)
                 argsId
             }
 
@@ -46,7 +46,7 @@ fun BetterNavHost(
     }
 
     CompositionLocalProvider(
-        LocalNavigationArgsHolderProvider provides argsHolder,
+        LocalNavArgsHolderProvider provides argsHolder,
         LocalNavControllerProvider provides navController
     ) {
         ModalBottomSheetLayout(bottomSheetNavigator) {
