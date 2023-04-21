@@ -217,6 +217,7 @@ class EnterAmountViewModel(
 
             EnterAmountIntent.PreviewClicked -> {
                 val accounts = (modelState.accounts as DataResource.Data).data
+                check(accounts.toAccount != null)
                 val data = ConfirmationArgs(
                     sourceAccount = accounts.fromAccount.account,
                     targetAccount = accounts.toAccount,
