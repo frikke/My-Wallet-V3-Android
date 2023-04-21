@@ -684,7 +684,8 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
         override fun reduce(oldState: TransactionState) = oldState.copy(
             selectedTarget = NullAddress,
             nextEnabled = false,
-            isLoading = true
+            isLoading = true,
+            showTradingAccounts = showTrading
         )
 
         override fun isValidFor(oldState: TransactionState): Boolean {

@@ -105,7 +105,10 @@ class TransferQuotesEngine private constructor(
                         if (enabled) {
                             when (product) {
                                 Product.SELL -> brokerageDataManager.getSellQuote(pair, amount, direction)
-                                Product.TRADE -> brokerageDataManager.getSwapQuote(pair, amount, direction)
+                                Product.TRADE -> rxSingleOutcome {
+                                    // TODO(aromano): SWAP check UxError
+                                    brokerageDataManager.getSwapQuote(pair, amount, direction)
+                                }
                                 else -> throw UnsupportedOperationException()
                             }
                         } else {

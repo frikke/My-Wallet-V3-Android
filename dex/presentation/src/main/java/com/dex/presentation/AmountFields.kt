@@ -63,9 +63,15 @@ fun SourceAndDestinationAmountFields(
     var input by remember {
         mutableStateOf(
             TextFieldValue(
-                sourceAmountFieldConfig.amount?.takeIf { it.isPositive }?.toStringWithoutSymbol() ?: ""
+                sourceAmountFieldConfig.amount?.takeIf {
+                    it.isPositive
+                }?.toStringWithoutSymbol() ?: ""
             )
         )
+    }
+
+    if (sourceAmountFieldConfig.amount == null && input.text.isNotEmpty()) {
+        input = TextFieldValue("")
     }
 
     var size by remember { mutableStateOf(IntSize.Zero) }

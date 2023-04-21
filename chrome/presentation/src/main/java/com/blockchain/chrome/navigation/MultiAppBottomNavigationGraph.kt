@@ -31,7 +31,7 @@ import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.prices.prices.composable.Prices
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
-import com.dex.presentation.DexEnterAmountScreen
+import com.dex.presentation.enteramount.DexEnterAmountScreen
 import org.koin.androidx.compose.get
 
 @Composable

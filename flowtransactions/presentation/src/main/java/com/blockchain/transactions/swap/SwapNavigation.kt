@@ -1,64 +1,72 @@
 package com.blockchain.transactions.swap
 
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
-import androidx.navigation.navigation
+import androidx.navigation.compose.composable
+import com.blockchain.betternavigation.BetterDestination
+import com.blockchain.betternavigation.BetterDestinationWithArgs
+import com.blockchain.betternavigation.BetterNavGraph
+import com.blockchain.betternavigation.BetterNavHost
+import com.blockchain.betternavigation.betterDestination
+import com.blockchain.betternavigation.betterSheetDestination
+import com.blockchain.betternavigation.navigateUp
 import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.chrome.composable.ChromeSingleScreen
-import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationDestination
-import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
-import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
-import com.blockchain.commonarch.presentation.mvi_v2.compose.getComposeArgument
-import com.blockchain.commonarch.presentation.mvi_v2.compose.wrappedArg
+import com.blockchain.transactions.swap.confirmation.composable.ConfirmationArgs
+import com.blockchain.transactions.swap.confirmation.composable.ConfirmationScreen
 import com.blockchain.transactions.swap.enteramount.composable.EnterAmount
 import com.blockchain.transactions.swap.selectsource.composable.SelectSourceScreen
 import com.blockchain.transactions.swap.selecttarget.composable.SelectTargetScreen
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 
+object SwapGraph : BetterNavGraph() {
+    object EnterAmount : BetterDestination()
+    object SourceAccounts : BetterDestination()
+    object TargetAccounts : BetterDestinationWithArgs<String>()
+    object Confirmation : BetterDestinationWithArgs<ConfirmationArgs>()
+}
+
 @ExperimentalMaterialNavigationApi
-fun NavGraphBuilder.swapGraph(
-    navControllerProvider: () -> NavHostController,
-    onBackPressed: () -> Unit
-) {
-    navigation(startDestination = SwapDestination.EnterAmount.route, route = SwapDestination.Main.route) {
-        composable(navigationEvent = SwapDestination.EnterAmount) {
-            ChromeSingleScreen {
-                EnterAmount(
-                    navControllerProvider = navControllerProvider,
-                    onBackPressed = onBackPressed
-                )
+fun NavGraphBuilder.swapGraphHost() {
+    // TODO(aromano): navigation TEMP
+    composable(SwapGraph::class.java.name) {
+        BetterNavHost(
+            startDestination = SwapGraph.EnterAmount,
+        ) {
+            betterDestination(SwapGraph.EnterAmount) {
+                ChromeSingleScreen {
+                    EnterAmount(
+                        navContextProvider = { this },
+                        onBackPressed = ::navigateUp
+                    )
+                }
             }
-        }
 
-        bottomSheet(navigationEvent = SwapDestination.SourceAccounts) {
-            ChromeBottomSheet(onClose = onBackPressed) {
-                SelectSourceScreen(
-                    navControllerProvider = navControllerProvider,
-                    onBackPressed = onBackPressed
-                )
+            betterSheetDestination(SwapGraph.SourceAccounts) {
+                ChromeBottomSheet(onClose = ::navigateUp) {
+                    SelectSourceScreen(
+                        navControllerProvider = ::navController,
+                        onBackPressed = ::navigateUp
+                    )
+                }
             }
-        }
 
-        bottomSheet(navigationEvent = SwapDestination.TargetAccounts) { backStackEntry ->
-            val sourceTicker = backStackEntry.arguments?.getComposeArgument(ARG_SOURCE_ACCOUNT_TICKER).orEmpty()
-            ChromeBottomSheet(onClose = onBackPressed) {
-                SelectTargetScreen(
-                    sourceTicker = sourceTicker,
-                    navControllerProvider = navControllerProvider,
-                    onBackPressed = onBackPressed
-                )
+            betterSheetDestination(SwapGraph.TargetAccounts) { sourceTicker ->
+                ChromeBottomSheet(onClose = ::navigateUp) {
+                    SelectTargetScreen(
+                        sourceTicker = sourceTicker,
+                        navControllerProvider = ::navController,
+                        onBackPressed = ::navigateUp
+                    )
+                }
+            }
+
+            betterDestination(SwapGraph.Confirmation) { args ->
+                ChromeSingleScreen {
+                    ConfirmationScreen(
+                        args = args,
+                    )
+                }
             }
         }
     }
-}
-
-const val ARG_SOURCE_ACCOUNT_TICKER = "ARG_SOURCE_ACCOUNT_TICKER"
-
-sealed class SwapDestination(
-    override val route: String
-) : ComposeNavigationDestination {
-    object Main : SwapDestination("SwapMain")
-    object EnterAmount : SwapDestination("SwapEnterAmount")
-    object SourceAccounts : SwapDestination("SwapSourceAccounts")
-    object TargetAccounts : SwapDestination("SwapTargetAccounts/${ARG_SOURCE_ACCOUNT_TICKER.wrappedArg()}")
 }

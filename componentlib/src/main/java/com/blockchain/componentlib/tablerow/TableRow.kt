@@ -14,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
@@ -25,7 +27,8 @@ private fun TableRow(
     contentEnd: @Composable (RowScope.() -> Unit)? = null,
     contentBottom: @Composable (() -> Unit)? = null,
     onContentClicked: (() -> Unit)? = null,
-    backgroundColor: Color = AppTheme.colors.background
+    backgroundColor: Color = AppTheme.colors.background,
+    backgroundShape: Shape = RectangleShape,
 ) {
 
     Column(
@@ -39,7 +42,7 @@ private fun TableRow(
                     this
                 }
             }
-            .background(backgroundColor)
+            .background(backgroundColor, backgroundShape)
             .padding(paddingValues)
     ) {
         Row(
@@ -68,7 +71,8 @@ fun TableRow(
     contentEnd: @Composable (RowScope.() -> Unit)? = null,
     contentBottom: @Composable (() -> Unit)? = null,
     onContentClicked: (() -> Unit)? = null,
-    backgroundColor: Color = AppTheme.colors.background
+    backgroundColor: Color = AppTheme.colors.background,
+    backgroundShape: Shape = RectangleShape,
 ) {
     TableRow(
         modifier = modifier,
@@ -78,7 +82,8 @@ fun TableRow(
         contentEnd = contentEnd,
         contentBottom = contentBottom,
         onContentClicked = onContentClicked,
-        backgroundColor = backgroundColor
+        backgroundColor = backgroundColor,
+        backgroundShape = backgroundShape,
     )
 }
 

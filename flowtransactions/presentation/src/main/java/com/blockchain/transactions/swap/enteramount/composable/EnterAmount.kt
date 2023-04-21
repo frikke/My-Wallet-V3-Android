@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -18,10 +18,9 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
+import com.blockchain.betternavigation.BetterNavigationContext
+import com.blockchain.betternavigation.navigateTo
 import com.blockchain.chrome.getResultFlow
-import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
-import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.AlertButton
 import com.blockchain.componentlib.button.ButtonState
@@ -44,11 +43,11 @@ import com.blockchain.data.map
 import com.blockchain.extensions.safeLet
 import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.presentation.R
-import com.blockchain.transactions.swap.ARG_SOURCE_ACCOUNT_TICKER
-import com.blockchain.transactions.swap.SwapDestination
+import com.blockchain.transactions.swap.SwapGraph
 import com.blockchain.transactions.swap.enteramount.EnterAmountAssetState
 import com.blockchain.transactions.swap.enteramount.EnterAmountAssets
 import com.blockchain.transactions.swap.enteramount.EnterAmountIntent
+import com.blockchain.transactions.swap.enteramount.EnterAmountNavigationEvent
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewState
 import com.blockchain.transactions.swap.enteramount.SwapEnterAmountInputError
@@ -60,40 +59,48 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 fun EnterAmount(
     viewModel: EnterAmountViewModel = getViewModel(scope = payloadScope),
-    navControllerProvider: () -> NavHostController,
+    navContextProvider: () -> BetterNavigationContext,
     onBackPressed: () -> Unit
 ) {
     val viewState: EnterAmountViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
-    DisposableEffect(key1 = viewModel) {
+    LaunchedEffect(viewModel) {
         viewModel.onIntent(EnterAmountIntent.LoadData)
-        onDispose { }
+    }
+
+    val navigationEvent by viewModel.navigationEventFlow.collectAsStateLifecycleAware(null)
+    LaunchedEffect(navigationEvent) {
+        navigationEvent?.let { navigationEvent ->
+            when (navigationEvent) {
+                is EnterAmountNavigationEvent.Preview -> {
+                    navContextProvider().navigateTo(SwapGraph.Confirmation, navigationEvent.data)
+                }
+            }
+        }
     }
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val newFrom by navControllerProvider()
+    val newFrom by navContextProvider().navController
         .getResultFlow(KEY_SWAP_SOURCE_ACCOUNT, null as? String?)
         .collectAsStateLifecycleAware()
 
-    DisposableEffect(key1 = newFrom) {
+    LaunchedEffect(newFrom) {
         newFrom?.let {
             viewModel.onIntent(EnterAmountIntent.FromAccountChanged(it))
         }
         keyboardController?.show()
-        onDispose { }
     }
 
-    val newTo by navControllerProvider()
+    val newTo by navContextProvider().navController
         .getResultFlow(KEY_SWAP_TARGET_ACCOUNT, null as? String?)
         .collectAsStateLifecycleAware()
 
-    DisposableEffect(key1 = newTo) {
+    LaunchedEffect(key1 = newTo) {
         newFrom?.let {
 //            viewModel.onIntent(EnterAmountIntent.FromAccountChanged(it))
         }
         keyboardController?.show()
-        onDispose { }
     }
 
     Column(
@@ -123,19 +130,19 @@ fun EnterAmount(
             },
             error = viewState.error,
             openSourceAccounts = {
-                navControllerProvider().navigate(SwapDestination.SourceAccounts)
+                navContextProvider().navigateTo(SwapGraph.SourceAccounts)
                 keyboardController?.hide()
             },
             openTargetAccounts = { sourceTicker ->
-                navControllerProvider().navigate(
-                    SwapDestination.TargetAccounts,
-                    args = listOf(NavArgument(ARG_SOURCE_ACCOUNT_TICKER, sourceTicker))
-                )
+                navContextProvider().navigateTo(SwapGraph.TargetAccounts, sourceTicker)
                 keyboardController?.hide()
             },
             setMaxOnClick = {
                 viewModel.onIntent(EnterAmountIntent.MaxSelected)
-            }
+            },
+            previewClicked = {
+                viewModel.onIntent(EnterAmountIntent.PreviewClicked)
+            },
         )
     }
 }
@@ -153,7 +160,8 @@ private fun EnterAmountScreen(
     error: SwapEnterAmountInputError?,
     openSourceAccounts: () -> Unit,
     openTargetAccounts: (sourceTicker: String) -> Unit,
-    setMaxOnClick: () -> Unit
+    setMaxOnClick: () -> Unit,
+    previewClicked: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -239,7 +247,9 @@ private fun EnterAmountScreen(
             } else {
                 ButtonState.Disabled
             },
-            onClick = {}
+            onClick = {
+                previewClicked()
+            }
         )
 
         Spacer(modifier = Modifier.weight(4F))
@@ -277,5 +287,6 @@ private fun PreviewEnterAmountScreen() {
         openSourceAccounts = {},
         openTargetAccounts = {},
         setMaxOnClick = {},
+        previewClicked = {},
     )
 }

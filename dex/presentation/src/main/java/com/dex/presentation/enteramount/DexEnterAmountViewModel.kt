@@ -1,4 +1,4 @@
-package com.dex.presentation
+package com.dex.presentation.enteramount
 
 import android.content.Context
 import androidx.lifecycle.viewModelScope
@@ -118,8 +118,13 @@ class DexEnterAmountViewModel(
         }
 
         return when (transaction.txError) {
-            DexTxError.None -> if (transaction.amount.isPositive) return ActionButtonState.ENABLED
-            else ActionButtonState.DISABLED
+            DexTxError.None -> {
+                if (transaction.amount?.isPositive == true) {
+                    return ActionButtonState.ENABLED
+                } else {
+                    ActionButtonState.DISABLED
+                }
+            }
             is DexTxError.FatalTxError,
             DexTxError.NotEnoughFunds,
             DexTxError.NotEnoughGas,
@@ -143,6 +148,11 @@ class DexEnterAmountViewModel(
         return exchangeRate.takeIf { it.canConvert(amount) }?.convert(amount) ?: return Money.zero(
             currencyPrefs.selectedFiatCurrency
         )
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        txProcessor.dispose()
     }
 
     override suspend fun handleIntent(modelState: AmountModelState, intent: InputAmountIntent) {
@@ -233,7 +243,7 @@ class DexEnterAmountViewModel(
             val selectedSlippage = dexSlippageService.selectedSlippage()
             val preselectedAccount = dexAccountsService.defSourceAccount()
             preselectedAccount?.let { source ->
-                val preselectedDestination = dexAccountsService.defDestinationAccount()
+                val preselectedDestination = dexAccountsService.defDestinationAccount(source)
                 updateState { state ->
                     state.copy(
                         canTransact = DataResource.Data(true)
@@ -430,9 +440,11 @@ sealed class AmountNavigationEvent : NavigationEvent {
 sealed class InputAmountIntent : Intent<AmountModelState> {
     object InitTransaction : InputAmountIntent() {
         override fun isValidFor(modelState: AmountModelState): Boolean {
-            return modelState.transaction == null
+            return modelState.transaction == null ||
+                modelState.transaction.hasBeenExecuted()
         }
     }
+
     object SubscribeForTxUpdates : InputAmountIntent()
     object UnSubscribeToTxUpdates : InputAmountIntent()
     object AllowanceTransactionApproved : InputAmountIntent()

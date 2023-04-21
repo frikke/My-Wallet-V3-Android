@@ -169,7 +169,9 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                         )
                     }
                 ),
-                accountsLocksSource = Single.just(emptyList())
+                accountsLocksSource = Single.just(emptyList()),
+                showTradingAccounts = newState.showTradingAccounts,
+                canSwitchBetweenAccountTypes = newState.canSwitchBetweenAccountType
             )
         }
     }

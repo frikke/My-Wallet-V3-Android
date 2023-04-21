@@ -38,8 +38,7 @@ fun SelectSourceAccountBottomSheet(
             .background(color = BackgroundMuted)
     ) {
         SheetFloatingHeader(
-            icon =
-            StackedIcon.None,
+            icon = StackedIcon.None,
             title = stringResource(id = R.string.select_token),
             onCloseClick = closeClicked
         )

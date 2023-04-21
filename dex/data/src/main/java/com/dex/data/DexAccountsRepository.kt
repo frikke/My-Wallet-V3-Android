@@ -53,8 +53,10 @@ class DexAccountsRepository(
         }.firstOrNull()
     }
 
-    override suspend fun defDestinationAccount(): DexAccount? {
-        val persistedCurrency = dexPrefs.selectedDestinationCurrencyTicker.takeIf { it.isNotEmpty() } ?: return null
+    override suspend fun defDestinationAccount(source: DexAccount): DexAccount? {
+        val persistedCurrency =
+            dexPrefs.selectedDestinationCurrencyTicker.takeIf { it.isNotEmpty() && it != source.currency.networkTicker }
+                ?: return null
         val currency = assetCatalogue.fromNetworkTicker(persistedCurrency) ?: return null
         return destinationAccounts().firstOrNull()?.firstOrNull { it.currency.networkTicker == currency.networkTicker }
     }

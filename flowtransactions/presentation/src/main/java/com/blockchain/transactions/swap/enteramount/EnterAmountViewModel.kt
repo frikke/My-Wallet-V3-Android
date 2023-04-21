@@ -1,9 +1,6 @@
 package com.blockchain.transactions.swap.enteramount
 
 import androidx.lifecycle.viewModelScope
-import com.blockchain.coincore.impl.CryptoNonCustodialAccount
-import com.blockchain.coincore.impl.CustodialTradingAccount
-import com.blockchain.commonarch.presentation.mvi_v2.EmptyNavEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.componentlib.control.CurrencyValue
@@ -16,14 +13,18 @@ import com.blockchain.data.combineDataResources
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
+import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.extensions.safeLet
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.flatMapData
 import com.blockchain.store.mapData
 import com.blockchain.transactions.swap.SwapService
+import com.blockchain.transactions.swap.confirmation.composable.ConfirmationArgs
 import com.blockchain.utils.removeLeadingZeros
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
+import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import java.math.BigDecimal
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -48,7 +49,13 @@ class EnterAmountViewModel(
     private val swapService: SwapService,
     private val exchangeRates: ExchangeRatesDataManager,
     private val currencyPrefs: CurrencyPrefs
-) : MviViewModel<EnterAmountIntent, EnterAmountViewState, EnterAmountModelState, EmptyNavEvent, ModelConfigArgs.NoArgs>(
+) : MviViewModel<
+    EnterAmountIntent,
+    EnterAmountViewState,
+    EnterAmountModelState,
+    EnterAmountNavigationEvent,
+    ModelConfigArgs.NoArgs
+    >(
     EnterAmountModelState()
 ) {
 
@@ -167,7 +174,7 @@ class EnterAmountViewModel(
                     it.copy(
                         fiatAmountUserInput = intent.amount.removeLeadingZeros(),
                         fiatAmount = intent.amount.takeIf { it.isNotEmpty() }
-                            ?.let { Money.fromMajor(fiatCurrency, it.toBigDecimal()) },
+                            ?.let { FiatValue.fromMajor(fiatCurrency, it.toBigDecimal()) },
                     )
                 }
 
@@ -182,7 +189,7 @@ class EnterAmountViewModel(
                     it.copy(
                         cryptoAmountUserInput = intent.amount.removeLeadingZeros(),
                         cryptoAmount = intent.amount.takeIf { it.isNotEmpty() }
-                            ?.let { Money.fromMajor(fromCurrency, it.toBigDecimal()) },
+                            ?.let { CryptoValue.fromMajor(fromCurrency, it.toBigDecimal()) },
                     )
                 }
 
@@ -206,6 +213,18 @@ class EnterAmountViewModel(
                         onIntent(EnterAmountIntent.CryptoInputChanged(amount = userInputBalance))
                     }
                 }
+            }
+
+            EnterAmountIntent.PreviewClicked -> {
+                val accounts = (modelState.accounts as DataResource.Data).data
+                val data = ConfirmationArgs(
+                    sourceAccount = accounts.fromAccount.account,
+                    targetAccount = accounts.toAccount,
+                    sourceCryptoAmount = modelState.cryptoAmount!!,
+                    direction = TransferDirection.INTERNAL, // TODO(aromano): TEMP
+                    secondPassword = null, // TODO(aromano): TEMP
+                )
+                navigate(EnterAmountNavigationEvent.Preview(data))
             }
         }
     }
@@ -294,12 +313,12 @@ class EnterAmountViewModel(
         val fiatCurrency = modelState.accounts.map { it.fiatCurrency }.dataOrElse(null)
         check(fiatCurrency != null)
 
-        val a: Money? = modelState.config.map { it.sourceAccountToFiat }.dataOrElse(null)?.inverse()?.convert(
-            Money.fromMajor(
+        val a: CryptoValue? = modelState.config.map { it.sourceAccountToFiat }.dataOrElse(null)?.inverse()?.convert(
+            FiatValue.fromMajor(
                 fiatCurrency,
                 value.ifEmpty { "0" }.toBigDecimal()
             )
-        )
+        ) as CryptoValue?
         updateState {
             it.copy(
                 cryptoAmountUserInput = a?.toBigDecimal()?.stripTrailingZeros()
@@ -353,12 +372,12 @@ class EnterAmountViewModel(
         val fromCurrency = modelState.accounts.map { it.fromAccount.account.currency }.dataOrElse(null)
         check(fromCurrency != null)
 
-        val a: Money? = modelState.config.map { it.sourceAccountToFiat }.dataOrElse(null)?.convert(
-            Money.fromMajor(
+        val a: FiatValue? = modelState.config.map { it.sourceAccountToFiat }.dataOrElse(null)?.convert(
+            CryptoValue.fromMajor(
                 fromCurrency,
                 value.ifEmpty { "0" }.toBigDecimal()
             )
-        )
+        ) as FiatValue?
 
         updateState {
             it.copy(

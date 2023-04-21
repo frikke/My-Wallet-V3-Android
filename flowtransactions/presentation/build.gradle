@@ -1,4 +1,4 @@
-apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+apply from: rootProject.file('gradle/local/common-feature-android-presentation.gradle')
 
 android {
     buildTypes {
@@ -27,12 +27,17 @@ dependencies {
     implementation project(':flowtransactions:domain')
     implementation project(':commonarch')
     implementation project(':common:interface')
+    implementation project(':common:presentation')
     implementation project(':componentlib')
     implementation project(':commonarch')
     implementation project(':chrome:common')
     implementation project(':coincore')
     implementation project(':core')
+    implementation project(':blockchainApi')
     implementation project(':store:core')
+    implementation project(':analytics:domain')
+    implementation project(':logging:domain')
+    implementation project(':betternavigation')
     implementation project(':unifiedcryptowallet:domain')
     implementation project(':flowprices:domain')
 
