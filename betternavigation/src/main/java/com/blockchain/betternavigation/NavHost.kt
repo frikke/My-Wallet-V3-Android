@@ -1,15 +1,17 @@
 package com.blockchain.betternavigation
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.blockchain.commonarch.presentation.mvi_v2.compose.rememberBottomSheetNavigator
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
-import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
 import kotlinx.coroutines.flow.collectLatest
 import timber.log.Timber
 
@@ -21,7 +23,7 @@ fun TypedNavHost(
     graph: NavGraph? = null,
     builder: NavGraphBuilder.() -> Unit
 ) {
-    val bottomSheetNavigator = rememberBottomSheetNavigator()
+    val bottomSheetNavigator = rememberBottomSheetNavigator(skipHalfExpanded = true)
     val navController = rememberNavController(bottomSheetNavigator)
     val argsHolder = rememberArgsHolder()
 
@@ -49,7 +51,10 @@ fun TypedNavHost(
         LocalNavArgsHolderProvider provides argsHolder,
         LocalNavControllerProvider provides navController
     ) {
-        ModalBottomSheetLayout(bottomSheetNavigator) {
+        ModalBottomSheetLayout(
+            bottomSheetNavigator,
+            sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+        ) {
             NavHost(
                 navController = navController,
                 startDestination = startDestination.route,

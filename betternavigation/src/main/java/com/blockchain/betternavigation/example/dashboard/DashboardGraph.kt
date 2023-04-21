@@ -3,11 +3,11 @@ package com.blockchain.betternavigation.example.dashboard
 import androidx.navigation.NavGraphBuilder
 import com.blockchain.betternavigation.Destination
 import com.blockchain.betternavigation.DestinationWithArgs
-import com.blockchain.betternavigation.NavGraph
 import com.blockchain.betternavigation.NavContext
-import com.blockchain.betternavigation.typedComposable
+import com.blockchain.betternavigation.NavGraph
 import com.blockchain.betternavigation.navGraph
 import com.blockchain.betternavigation.navigateTo
+import com.blockchain.betternavigation.typedComposable
 
 internal object DashboardGraph : NavGraph() {
     object Overview : Destination()

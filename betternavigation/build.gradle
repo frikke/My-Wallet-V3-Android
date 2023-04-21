@@ -27,7 +27,10 @@ android {
 }
 
 dependencies {
+    implementation project(':commonarch')
+
     implementation Libraries.composeUi
+    implementation Libraries.composeMaterial
     implementation Libraries.composePreview
     implementation Libraries.composeNavigation
     implementation Libraries.accompanistNavigationMaterial

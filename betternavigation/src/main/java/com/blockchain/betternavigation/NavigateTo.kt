@@ -1,14 +1,11 @@
 package com.blockchain.betternavigation
 
 import androidx.navigation.NavController
-import androidx.navigation.NavOptions
 import androidx.navigation.NavOptionsBuilder
-import androidx.navigation.Navigator
-import androidx.navigation.PopUpToBuilder
 import java.io.Serializable
 
 class NavContext internal constructor(
-    internal val navController: NavController,
+    val navController: NavController,
     internal val argsHolder: NavArgsHolder,
 )
 

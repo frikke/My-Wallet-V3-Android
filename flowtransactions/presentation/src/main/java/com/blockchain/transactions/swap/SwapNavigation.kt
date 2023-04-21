@@ -6,11 +6,10 @@ import com.blockchain.betternavigation.Destination
 import com.blockchain.betternavigation.DestinationWithArgs
 import com.blockchain.betternavigation.NavGraph
 import com.blockchain.betternavigation.TypedNavHost
-import com.blockchain.betternavigation.typedComposable
-import com.blockchain.betternavigation.typedBottomSheet
 import com.blockchain.betternavigation.navigateTo
 import com.blockchain.betternavigation.navigateUp
-import com.blockchain.betternavigation.popUpTo
+import com.blockchain.betternavigation.typedBottomSheet
+import com.blockchain.betternavigation.typedComposable
 import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.chrome.composable.ChromeSingleScreen
 import com.blockchain.transactions.swap.confirmation.composable.ConfirmationArgs
@@ -38,24 +37,18 @@ fun NavGraphBuilder.swapGraphHost() {
             typedComposable(SwapGraph.EnterAmount) {
                 ChromeSingleScreen {
                     EnterAmount(
-                        openSourceAccounts = {
-                            navigateTo(SwapGraph.SourceAccounts)
-                        },
-                        openPreview = { args ->
-                            navigateTo(SwapGraph.Confirmation, args) {
-                                popUpTo(SwapGraph)
-                            }
-                        },
-                        onBackPressed = {
-                            navigateUp()
-                        }
+                        navContextProvider = { this },
+                        onBackPressed = { navigateUp() }
                     )
                 }
             }
 
             typedBottomSheet(SwapGraph.SourceAccounts) {
                 ChromeBottomSheet(onClose = { navigateUp() }) {
-                    SelectSourceScreen()
+                    SelectSourceScreen(
+                        navControllerProvider = { this.navController },
+                        onBackPressed = { navigateUp() }
+                    )
                 }
             }
 

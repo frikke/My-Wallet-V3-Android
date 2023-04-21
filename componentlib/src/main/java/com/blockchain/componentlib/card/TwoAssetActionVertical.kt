@@ -24,6 +24,9 @@ import com.blockchain.componentlib.icons.Receive
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.SmallHorizontalSpacer
+import com.blockchain.componentlib.theme.SmallestHorizontalSpacer
+import com.blockchain.componentlib.theme.SmallestVerticalSpacer
 
 @Composable
 fun TwoAssetAction(
@@ -97,7 +100,7 @@ private fun Asset(
         ) {
             CustomStackedIcon(icon = icon)
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+            SmallHorizontalSpacer()
 
             Column(
                 modifier = Modifier.weight(weight = 1F, fill = true),
@@ -107,7 +110,7 @@ private fun Asset(
                     style = AppTheme.typography.paragraph2,
                     color = AppTheme.colors.title
                 )
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+                SmallestVerticalSpacer()
                 Text(
                     text = subtitle,
                     style = AppTheme.typography.paragraph1,
@@ -115,15 +118,17 @@ private fun Asset(
                 )
             }
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+            SmallHorizontalSpacer()
 
-            Column {
+            Column(
+                horizontalAlignment = Alignment.End,
+            ) {
                 Text(
                     text = endTitle,
                     style = AppTheme.typography.paragraph2,
                     color = AppTheme.colors.title
                 )
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+                SmallestVerticalSpacer()
                 Text(
                     text = endSubtitle,
                     style = AppTheme.typography.paragraph1,

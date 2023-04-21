@@ -4,7 +4,9 @@ import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.commonarch.presentation.mvi_v2.EmptyNavEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.data.map
 import com.blockchain.data.mapList
+import com.blockchain.data.updateDataWith
 import com.blockchain.transactions.common.AccountUiElement
 import com.blockchain.transactions.swap.CryptoAccountWithBalance
 import com.blockchain.transactions.swap.SwapService
@@ -28,25 +30,30 @@ class SelectSourceViewModel(
     override fun reduce(state: SelectSourceModelState): SelectSourceViewState {
         return with(state) {
             SelectSourceViewState(
-                accountList = accountListData.mapList {
-                    it.reduceCryptoAccountWithBalance()
-                }
+                accountList = accountListData
+                    .map { it.sortedByDescending { it.balanceFiat } }
+                    .mapList { it.reduceAccounts() }
             )
         }
     }
 
     override suspend fun handleIntent(modelState: SelectSourceModelState, intent: SelectSourceIntent) {
         when (intent) {
-            SelectSourceIntent.LoadData -> {
+            is SelectSourceIntent.LoadData -> {
                 swapService.custodialSourceAccountsWithBalances().collectLatest { accountListData ->
-                    updateState { it.copy(accountListData = accountListData) }
+                    updateState {
+                        it.copy(
+                            accountListData = it.accountListData.updateDataWith(accountListData)
+                        )
+                    }
                 }
             }
         }
     }
 
-    private fun CryptoAccountWithBalance.reduceCryptoAccountWithBalance() = run {
+    private fun CryptoAccountWithBalance.reduceAccounts() = run {
         AccountUiElement(
+            ticker = balanceCrypto.currency.networkTicker,
             title = balanceCrypto.currency.name,
             subtitle = "", // do we need this?
             valueCrypto = balanceCrypto.toStringWithSymbol(),

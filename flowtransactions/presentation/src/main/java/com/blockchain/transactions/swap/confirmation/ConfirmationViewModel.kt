@@ -13,7 +13,6 @@ import com.blockchain.data.doOnData
 import com.blockchain.domain.common.model.toSeconds
 import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.extensions.safeLet
-import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.swap.SwapTransactionsStore
@@ -21,8 +20,8 @@ import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.zipOutcomes
-import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateArgs
 import com.blockchain.transactions.swap.neworderstate.composable.NewOrderState
+import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateArgs
 import com.blockchain.utils.awaitOutcome
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.CurrencyPair
@@ -100,8 +99,10 @@ class ConfirmationViewModel(
                             startUpdatingTargetFiatAmount(targetCryptoAmount)
                             updateState {
                                 it.copy(
+                                    quoteId = quote.id,
                                     isFetchQuoteLoading = false,
                                     targetCryptoAmount = targetCryptoAmount,
+                                    quoteRefreshTotalSeconds = secondsUntilQuoteRefresh,
                                     sourceToTargetExchangeRate = ExchangeRate(
                                         rate = quote.rawPrice.toBigDecimal(),
                                         from = sourceAccount.currency,

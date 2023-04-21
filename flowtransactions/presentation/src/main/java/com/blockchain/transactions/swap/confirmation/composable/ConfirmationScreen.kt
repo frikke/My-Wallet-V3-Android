@@ -5,6 +5,7 @@ import android.net.Uri
 import android.text.format.DateUtils
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -45,10 +46,11 @@ import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.tablerow.BalanceTableRow
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.componentlib.theme.White
-import com.blockchain.componentlib.theme.clickableWithIndication
 import com.blockchain.componentlib.utils.AnnotatedStringUtils
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.domain.transactions.TransferDirection
@@ -131,68 +133,31 @@ private fun ConfirmationContent(
             .background(AppTheme.colors.light)
             .padding(AppTheme.dimensions.smallSpacing)
     ) {
-        Box {
-            Column {
-
-//                TwoAssetAction(
-//
-//                )
-
-                BalanceTableRow(
-                    titleStart = AnnotatedString(state.sourceAsset.name),
-                    titleEnd = AnnotatedString(state.sourceCryptoAmount.toStringWithSymbol()),
-                    bodyStart = AnnotatedString(state.sourceAsset.displayTicker),
-                    bodyEnd = AnnotatedString(state.sourceFiatAmount?.toStringWithSymbol().orEmpty()),
-                    startImageResource = ImageResource.Remote(state.sourceAsset.logo),
-                    backgroundColor = White,
-                    backgroundShape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium),
-                    onClick = {},
-                )
-                TinyVerticalSpacer()
-                BalanceTableRow(
-                    titleStart = AnnotatedString(state.targetAsset.name),
-                    titleEnd = AnnotatedString(state.targetCryptoAmount?.toStringWithSymbol().orEmpty()),
-                    bodyStart = AnnotatedString(state.targetAsset.displayTicker),
-                    bodyEnd = AnnotatedString(state.targetFiatAmount?.toStringWithSymbol().orEmpty()),
-                    startImageResource = ImageResource.Remote(state.targetAsset.logo),
-                    backgroundColor = White,
-                    backgroundShape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium),
-                    onClick = {},
-                )
-            }
-
-            Row(
-                Modifier
-                    .padding(AppTheme.dimensions.tinySpacing)
-                    .border(
-                        width = AppTheme.dimensions.tinySpacing,
-                        color = AppTheme.colors.light,
-                        shape = CircleShape,
-                    )
-                    .padding(AppTheme.dimensions.tinySpacing)
-                    .align(Alignment.Center)
-            ) {
-                Image(
-                    Icons.ArrowDown
-                        .withBackground(
-                            backgroundColor = White,
-                            iconSize = AppTheme.dimensions.standardSpacing,
-                            backgroundSize = AppTheme.dimensions.standardSpacing,
-                        )
-                )
-            }
-        }
-
-        SwapExchangeRate(
-            modifier = Modifier.padding(top = AppTheme.dimensions.standardSpacing),
-            rate = state.sourceToTargetExchangeRate,
+        TwoAssetAction(
+            topTitle = state.sourceAsset.name,
+            topSubtitle = state.sourceAsset.displayTicker,
+            topEndTitle = state.sourceCryptoAmount.toStringWithSymbol(),
+            topEndSubtitle = state.sourceFiatAmount?.toStringWithSymbol().orEmpty(),
+            topIcon = StackedIcon.SingleIcon(ImageResource.Remote(state.sourceAsset.logo)),
+            bottomTitle = state.targetAsset.name,
+            bottomSubtitle = state.targetAsset.displayTicker,
+            bottomEndTitle = state.targetCryptoAmount?.toStringWithSymbol().orEmpty(),
+            bottomEndSubtitle = state.targetFiatAmount?.toStringWithSymbol().orEmpty(),
+            bottomIcon = StackedIcon.SingleIcon(ImageResource.Remote(state.targetAsset.logo)),
         )
 
+        StandardVerticalSpacer()
+
+        SwapExchangeRate(state.sourceToTargetExchangeRate)
+
+        StandardVerticalSpacer()
+
         SwapQuoteTimer(
-            modifier = Modifier.padding(top = AppTheme.dimensions.standardSpacing),
             remainingSeconds = state.quoteRefreshRemainingSeconds ?: 90,
             remainingPercentage = state.quoteRefreshRemainingPercentage ?: 1f,
         )
+
+        StandardVerticalSpacer()
 
         SwapDisclaimer()
 
@@ -218,7 +183,7 @@ fun SwapDisclaimer() {
     )
 
     SimpleText(
-        modifier = Modifier.padding(AppTheme.dimensions.standardSpacing),
+        modifier = Modifier.padding(horizontal = AppTheme.dimensions.standardSpacing),
         text = disclaimer,
         style = ComposeTypographies.Caption1,
         color = ComposeColors.Body,
@@ -273,7 +238,7 @@ private fun SwapExchangeRate(rate: ExchangeRate?, modifier: Modifier = Modifier)
     Column(
         modifier
             .background(White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
-            .clickableWithIndication {
+            .clickable {
                 isExplainerVisible = !isExplainerVisible
             }
             .padding(AppTheme.dimensions.smallSpacing)

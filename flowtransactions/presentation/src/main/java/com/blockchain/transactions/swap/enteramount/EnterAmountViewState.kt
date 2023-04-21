@@ -8,6 +8,7 @@ import com.blockchain.data.DataResource
 data class EnterAmountViewState(
     val selectedInput: InputCurrency,
     val assets: DataResource<EnterAmountAssets>,
+    val accountBalance: String?,
     val fiatAmount: CurrencyValue?,
     val cryptoAmount: CurrencyValue?,
     val error: SwapEnterAmountInputError?,
