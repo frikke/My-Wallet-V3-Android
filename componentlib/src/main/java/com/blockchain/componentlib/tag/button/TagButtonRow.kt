@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -11,12 +12,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.Blockchain
+import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.theme.AppTheme
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
+@Stable
 data class TagButtonValue<T>(
     val obj: T,
+    val icon: ImageResource.Local? = null,
     val stringVal: String
 )
 
@@ -32,6 +38,7 @@ fun <T> TagButtonRow(
         values.forEachIndexed { index, value ->
             TagButton(
                 modifier = Modifier.weight(1F),
+                icon  = value.icon,
                 text = value.stringVal,
                 selected = value.obj == selected,
                 onClick = { onClick(value.obj) }
@@ -50,7 +57,9 @@ fun PreviewTagButtonRow() {
     var selected by remember { mutableStateOf("one") }
     TagButtonRow(
         selected = selected,
-        values = listOf("one", "two", "three").map { TagButtonValue(it, it) }.toImmutableList(),
+        values = listOf("one", "two", "three").mapIndexed { index, item ->
+            TagButtonValue(item, Icons.Filled.Blockchain.takeIf { index == 2 }, item)
+        }.toImmutableList(),
         onClick = { selected = it }
     )
 }

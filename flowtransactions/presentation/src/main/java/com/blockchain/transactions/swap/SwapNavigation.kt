@@ -15,7 +15,7 @@ import com.blockchain.transactions.swap.confirmation.composable.ConfirmationArgs
 import com.blockchain.transactions.swap.confirmation.composable.ConfirmationScreen
 import com.blockchain.transactions.swap.enteramount.composable.EnterAmount
 import com.blockchain.transactions.swap.selectsource.composable.SelectSourceScreen
-import com.blockchain.transactions.swap.selecttarget.composable.SelectTargetScreen
+import com.blockchain.transactions.swap.selecttarget.composable.SelectTarget
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 
 object SwapGraph : BetterNavGraph() {
@@ -52,7 +52,7 @@ fun NavGraphBuilder.swapGraphHost() {
 
             betterSheetDestination(SwapGraph.TargetAccounts) { sourceTicker ->
                 ChromeBottomSheet(onClose = ::navigateUp) {
-                    SelectTargetScreen(
+                    SelectTarget(
                         sourceTicker = sourceTicker,
                         navControllerProvider = ::navController,
                         onBackPressed = ::navigateUp

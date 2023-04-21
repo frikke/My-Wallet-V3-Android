@@ -30,6 +30,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.chrome.titleIcon
+import com.blockchain.chrome.titleSuperApp
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppTheme
@@ -112,20 +114,19 @@ fun ModeSwitcher(
                             else -> minModeAlpha
                         }
                     }
-                    val imageResource = mode.titleIcon()
-                    Image(
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                            .padding(
-                                end = if (imageResource != ImageResource.None)
-                                    AppTheme.dimensions.tinySpacing
-                                else 0.dp
-                            )
-                            .graphicsLayer {
-                                this.alpha = alpha()
-                            },
-                        imageResource = mode.titleIcon(),
-                    )
+
+                    mode.titleIcon()?.let { icon ->
+                        Image(
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .padding(end = AppTheme.dimensions.tinySpacing)
+                                .graphicsLayer {
+                                    this.alpha = alpha()
+                                },
+                            imageResource = icon.withTint(AppTheme.colors.background)
+                        )
+                    }
+
                     Text(
                         modifier = Modifier
                             .align(Alignment.CenterVertically)
