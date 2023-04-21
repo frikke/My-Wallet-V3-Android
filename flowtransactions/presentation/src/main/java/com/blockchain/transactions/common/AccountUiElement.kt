@@ -1,6 +1,7 @@
 package com.blockchain.transactions.common
 
 data class AccountUiElement(
+    val ticker: String,
     val title: String,
     val subtitle: String,
     val valueCrypto: String,

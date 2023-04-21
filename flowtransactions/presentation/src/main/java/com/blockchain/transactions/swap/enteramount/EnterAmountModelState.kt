@@ -34,7 +34,7 @@ data class EnterAmountAccounts(
 )
 
 data class EnterAmountConfig(
-    val exchangeRate: ExchangeRate,
+    val sourceAccountToFiat: ExchangeRate,
     val limits: TxLimits,
 )
 

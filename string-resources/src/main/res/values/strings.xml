@@ -76,6 +76,7 @@
     <string name="common_copied">Copied</string>
     <string name="common_share">Share</string>
     <string name="common_max">Max</string>
+    <string name="common_max_arg">Max: %1$s</string>
     <string name="common_launch">Launch</string>
     <string name="common_maybe_later">Maybe later</string>
     <string name="common_i_understand">I Understand</string>

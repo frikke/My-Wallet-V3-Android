@@ -6,7 +6,7 @@ import androidx.navigation.Navigator
 import java.io.Serializable
 
 class BetterNavigationContext internal constructor(
-    internal val navController: NavController,
+    val navController: NavController,
     internal val argsHolder: NavigationArgsHolder,
 )
 

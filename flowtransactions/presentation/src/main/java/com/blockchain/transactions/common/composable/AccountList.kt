@@ -79,24 +79,27 @@ private fun AccountListPreview() {
             accounts = DataResource.Data(
                 listOf(
                     AccountUiElement(
-                        "Bitcoin",
-                        "BTC",
-                        "0.04936855 BTC",
-                        "\$1,000.00",
+                        ticker = "BTC",
+                        title = "Bitcoin",
+                        subtitle = "BTC",
+                        valueCrypto = "0.04936855 BTC",
+                        valueFiat = "\$1,000.00",
                         icon = listOf()
                     ),
                     AccountUiElement(
-                        "Bitcoin",
-                        "BTC",
-                        "0.04936855 BTC",
-                        "\$1,000.00",
+                        ticker = "BTC",
+                        title = "Bitcoin",
+                        subtitle = "BTC",
+                        valueCrypto = "0.04936855 BTC",
+                        valueFiat = "\$1,000.00",
                         icon = listOf()
                     ),
                     AccountUiElement(
-                        "Bitcoin",
-                        "BTC",
-                        "0.04936855 BTC",
-                        "\$1,000.00",
+                        ticker = "BTC",
+                        title = "Bitcoin",
+                        subtitle = "BTC",
+                        valueCrypto = "0.04936855 BTC",
+                        valueFiat = "\$1,000.00",
                         icon = listOf()
                     )
                 )
