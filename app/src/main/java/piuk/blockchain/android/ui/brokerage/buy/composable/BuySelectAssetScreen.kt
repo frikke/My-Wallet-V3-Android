@@ -66,7 +66,7 @@ import piuk.blockchain.android.ui.brokerage.buy.BuyAnalyticsEvents
 import piuk.blockchain.android.ui.brokerage.buy.BuySelectAssetIntent
 import piuk.blockchain.android.ui.brokerage.buy.BuySelectAssetViewModel
 import piuk.blockchain.android.ui.brokerage.buy.BuySelectAssetViewState
-import piuk.blockchain.android.ui.customviews.CustomEmptyState
+import com.blockchain.componentlib.alert.CustomEmptyState
 import piuk.blockchain.android.ui.customviews.CustomEmptyStateView
 import retrofit2.HttpException
 

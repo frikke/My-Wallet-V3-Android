@@ -6,13 +6,19 @@ import com.blockchain.componentlib.control.InputCurrency
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.data.DataResource
 import com.blockchain.transactions.swap.CryptoAccountWithBalance
+import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 
 data class EnterAmountModelState(
-    val accounts: DataResource<EnterAmountAccounts> = DataResource.Loading,
+    val walletMode: WalletMode? = null,
+
+    val fromAccount: CryptoAccountWithBalance? = null,
+    val toAccount: CryptoAccount? = null,
+    val fiatCurrency: FiatCurrency,
+
     val config: DataResource<EnterAmountConfig> = DataResource.Loading,
 
     val fiatAmount: FiatValue? = null,
@@ -26,15 +32,8 @@ data class EnterAmountModelState(
     val fatalError: SwapEnterAmountFatalError? = null
 ) : ModelState
 
-data class EnterAmountAccounts(
-    // for the FROM account we need to keep reference to the balance to cap the input
-    val fromAccount: CryptoAccountWithBalance,
-    val toAccount: CryptoAccount?,
-    val fiatCurrency: FiatCurrency,
-)
-
 data class EnterAmountConfig(
-    val sourceAccountToFiat: ExchangeRate,
+    val sourceAccountToFiatRate: ExchangeRate,
     val limits: TxLimits,
 )
 

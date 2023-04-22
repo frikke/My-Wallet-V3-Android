@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.betternavigation.BetterNavigationContext
 import com.blockchain.betternavigation.navigateTo
 import com.blockchain.chrome.getResultFlow
+import com.blockchain.componentlib.alert.CustomEmptyState
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.AlertButton
 import com.blockchain.componentlib.button.ButtonState
@@ -33,13 +34,12 @@ import com.blockchain.componentlib.control.CurrencyValue
 import com.blockchain.componentlib.control.InputCurrency
 import com.blockchain.componentlib.control.TwoCurrenciesInput
 import com.blockchain.componentlib.control.isEmpty
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Network
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
-import com.blockchain.data.DataResource
-import com.blockchain.data.dataOrElse
-import com.blockchain.data.map
 import com.blockchain.extensions.safeLet
 import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.presentation.R
@@ -51,6 +51,7 @@ import com.blockchain.transactions.swap.enteramount.EnterAmountIntent
 import com.blockchain.transactions.swap.enteramount.EnterAmountNavigationEvent
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewState
+import com.blockchain.transactions.swap.enteramount.SwapEnterAmountFatalError
 import com.blockchain.transactions.swap.enteramount.SwapEnterAmountInputError
 import com.blockchain.transactions.swap.selectsource.composable.KEY_SWAP_SOURCE_ACCOUNT
 import com.blockchain.transactions.swap.selecttarget.composable.KEY_SWAP_TARGET_ACCOUNT
@@ -99,7 +100,7 @@ fun EnterAmount(
 
     LaunchedEffect(key1 = newTo) {
         newFrom?.let {
-//            viewModel.onIntent(EnterAmountIntent.FromAccountChanged(it))
+            //            viewModel.onIntent(EnterAmountIntent.FromAccountChanged(it))
         }
         keyboardController?.show()
     }
@@ -114,51 +115,61 @@ fun EnterAmount(
             onBackButtonClick = onBackPressed,
         )
 
-        EnterAmountScreen(
-            selected = viewState.selectedInput,
-            assets = viewState.assets,
-            accountBalance = viewState.accountBalance,
-            fiatAmount = viewState.fiatAmount,
-            onFiatAmountChanged = {
-                viewModel.onIntent(EnterAmountIntent.FiatInputChanged(it))
-            },
-            cryptoAmount = viewState.cryptoAmount,
-            onCryptoAmountChanged = {
-                viewModel.onIntent(EnterAmountIntent.CryptoInputChanged(it))
-            },
-            onFlipInputs = {
-                viewModel.onIntent(EnterAmountIntent.FlipInputs)
-            },
-            error = viewState.error,
-            openSourceAccounts = {
-                navContextProvider().navigateTo(SwapGraph.SourceAccounts)
-                keyboardController?.hide()
-            },
-            openTargetAccounts = { sourceTicker ->
-                navContextProvider().navigateTo(SwapGraph.TargetAccounts, sourceTicker)
-                keyboardController?.hide()
-            },
-            setMaxOnClick = {
-                viewModel.onIntent(EnterAmountIntent.MaxSelected)
-            },
-            previewClicked = {
-                viewModel.onIntent(EnterAmountIntent.PreviewClicked)
-            },
-        )
+        when (viewState.fatalError) {
+            SwapEnterAmountFatalError.WalletLoading -> {
+                CustomEmptyState(
+                    icon = Icons.Network.id,
+                    ctaAction = { }
+                )
+            }
+            null -> {
+                EnterAmountScreen(
+                    selected = viewState.selectedInput,
+                    assets = viewState.assets,
+                    accountBalance = viewState.accountBalance,
+                    fiatAmount = viewState.fiatAmount,
+                    onFiatAmountChanged = {
+                        viewModel.onIntent(EnterAmountIntent.FiatInputChanged(it))
+                    },
+                    cryptoAmount = viewState.cryptoAmount,
+                    onCryptoAmountChanged = {
+                        viewModel.onIntent(EnterAmountIntent.CryptoInputChanged(it))
+                    },
+                    onFlipInputs = {
+                        viewModel.onIntent(EnterAmountIntent.FlipInputs)
+                    },
+                    inputError = viewState.inputError,
+                    openSourceAccounts = {
+                        navContextProvider().navigateTo(SwapGraph.SourceAccounts)
+                        keyboardController?.hide()
+                    },
+                    openTargetAccounts = { sourceTicker ->
+                        navContextProvider().navigateTo(SwapGraph.TargetAccounts, sourceTicker)
+                        keyboardController?.hide()
+                    },
+                    setMaxOnClick = {
+                        viewModel.onIntent(EnterAmountIntent.MaxSelected)
+                    },
+                    previewClicked = {
+                        viewModel.onIntent(EnterAmountIntent.PreviewClicked)
+                    },
+                )
+            }
+        }
     }
 }
 
 @Composable
 private fun EnterAmountScreen(
     selected: InputCurrency,
-    assets: DataResource<EnterAmountAssets>,
+    assets: EnterAmountAssets?,
     accountBalance: String?,
     fiatAmount: CurrencyValue?,
     onFiatAmountChanged: (String) -> Unit,
     cryptoAmount: CurrencyValue?,
     onCryptoAmountChanged: (String) -> Unit,
     onFlipInputs: () -> Unit,
-    error: SwapEnterAmountInputError?,
+    inputError: SwapEnterAmountInputError?,
     openSourceAccounts: () -> Unit,
     openTargetAccounts: (sourceTicker: String) -> Unit,
     setMaxOnClick: () -> Unit,
@@ -198,43 +209,37 @@ private fun EnterAmountScreen(
 
         Spacer(modifier = Modifier.weight(1F))
 
-        when (assets) {
-            DataResource.Loading -> {
-                TwoAssetActionHorizontalLoading()
-            }
-            is DataResource.Data -> {
-                TwoAssetActionHorizontal(
-                    start = HorizontalAssetAction(
-                        assets.data.from.ticker,
-                        StackedIcon.SingleIcon(ImageResource.Remote(assets.data.from.iconUrl)),
-                    ),
-                    startOnClick = openSourceAccounts,
-                    end = assets.data.to?.let {
-                        HorizontalAssetAction(
-                            it.ticker,
-                            StackedIcon.SingleIcon(ImageResource.Remote(it.iconUrl)),
-                        )
-                    },
-                    endOnClick = { openTargetAccounts(assets.data.from.ticker) }
-                )
-            }
-            is DataResource.Error -> TODO()
-        }
+        assets?.let {
+            TwoAssetActionHorizontal(
+                start = HorizontalAssetAction(
+                    assets.from.ticker,
+                    StackedIcon.SingleIcon(ImageResource.Remote(assets.from.iconUrl)),
+                ),
+                startOnClick = openSourceAccounts,
+                end = assets.to?.let {
+                    HorizontalAssetAction(
+                        it.ticker,
+                        StackedIcon.SingleIcon(ImageResource.Remote(it.iconUrl)),
+                    )
+                },
+                endOnClick = { openTargetAccounts(assets.from.ticker) }
+            )
+        } ?: TwoAssetActionHorizontalLoading()
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
-        error?.let {
+        inputError?.let {
             AlertButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = when (error) {
+                text = when (inputError) {
                     is SwapEnterAmountInputError.BelowMinimum -> {
-                        stringResource(R.string.minimum_with_value, error.minValue)
+                        stringResource(R.string.minimum_with_value, inputError.minValue)
                     }
                     is SwapEnterAmountInputError.AboveMaximum -> {
-                        stringResource(R.string.maximum_with_value, error.maxValue)
+                        stringResource(R.string.maximum_with_value, inputError.maxValue)
                     }
                     is SwapEnterAmountInputError.AboveBalance -> {
-                        stringResource(R.string.not_enough_funds, assets.map { it.from.ticker }.dataOrElse(""))
+                        stringResource(R.string.not_enough_funds, assets?.from?.ticker.orEmpty())
                     }
                 },
                 state = ButtonState.Disabled,
@@ -262,16 +267,14 @@ private fun EnterAmountScreen(
 private fun PreviewEnterAmountScreen() {
     EnterAmountScreen(
         selected = InputCurrency.Currency1,
-        assets = DataResource.Data(
-            EnterAmountAssets(
-                from = EnterAmountAssetState(
-                    iconUrl = "",
-                    ticker = "BTC"
-                ),
-                to = EnterAmountAssetState(
-                    iconUrl = "",
-                    ticker = "ETH"
-                )
+        assets = EnterAmountAssets(
+            from = EnterAmountAssetState(
+                iconUrl = "",
+                ticker = "BTC"
+            ),
+            to = EnterAmountAssetState(
+                iconUrl = "",
+                ticker = "ETH"
             )
         ),
         accountBalance = "123.00",
@@ -284,7 +287,7 @@ private fun PreviewEnterAmountScreen() {
         ),
         onCryptoAmountChanged = {},
         onFlipInputs = {},
-        error = SwapEnterAmountInputError.BelowMinimum("éjdzjjdz"),
+        inputError = SwapEnterAmountInputError.BelowMinimum("éjdzjjdz"),
         openSourceAccounts = {},
         openTargetAccounts = {},
         setMaxOnClick = {},

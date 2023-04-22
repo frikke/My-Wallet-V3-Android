@@ -44,7 +44,7 @@ class SelectSourceViewModel(
     override suspend fun handleIntent(modelState: SelectSourceModelState, intent: SelectSourceIntent) {
         when (intent) {
             is SelectSourceIntent.LoadData -> {
-                swapService.custodialSourceAccountsWithBalances()
+                swapService.sourceAccountsWithBalances()
                     .mapListData { it.withId() }
                     .collectLatest { accountListData ->
                         updateState {

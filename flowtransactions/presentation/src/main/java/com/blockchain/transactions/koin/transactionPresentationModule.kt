@@ -17,7 +17,8 @@ val transactionsPresentationModule = module {
             EnterAmountViewModel(
                 swapService = get(),
                 exchangeRates = get(),
-                currencyPrefs = get()
+                currencyPrefs = get(),
+                walletModeService = get()
             )
         }
 

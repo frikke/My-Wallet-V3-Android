@@ -9,6 +9,7 @@ dependencies {
     implementation project(':coincore')
     implementation project(':core')
     implementation project(':store:core')
+    implementation project(':unifiedcryptowallet:domain')
 
     implementation Libraries.rxKotlin
     implementation Libraries.rxjava3Coroutines
