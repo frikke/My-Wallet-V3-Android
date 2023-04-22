@@ -39,7 +39,8 @@ fun AccountList(
                     items = accounts.data,
                     content = { account ->
                         BalanceFiatAndCryptoTableRow(
-                            title = account.title,
+                            title = account.assetName,
+                            tag = account.l2Network.orEmpty(),
                             valueCrypto = account.valueCrypto,
                             valueFiat = account.valueFiat,
                             onClick = { onAccountClick(account) },
@@ -50,7 +51,7 @@ fun AccountList(
                                     )
                                 }
                                 account.icon.size > 1 -> {
-                                    StackedIcon.OverlappingPair(
+                                    StackedIcon.SmallTag(
                                         ImageResource.Remote(account.icon[0]),
                                         ImageResource.Remote(account.icon[1])
                                     )
@@ -80,24 +81,23 @@ private fun AccountListPreview() {
                 listOf(
                     AccountUiElement(
                         ticker = "BTC",
-                        title = "Bitcoin",
-                        subtitle = "BTC",
+                        assetName = "Bitcoin",
+                        l2Network = "BTC",
                         valueCrypto = "0.04936855 BTC",
                         valueFiat = "\$1,000.00",
                         icon = listOf()
                     ),
                     AccountUiElement(
                         ticker = "BTC",
-                        title = "Bitcoin",
-                        subtitle = "BTC",
+                        assetName = "Bitcoin",
                         valueCrypto = "0.04936855 BTC",
                         valueFiat = "\$1,000.00",
                         icon = listOf()
                     ),
                     AccountUiElement(
                         ticker = "BTC",
-                        title = "Bitcoin",
-                        subtitle = "BTC",
+                        assetName = "Bitcoin",
+                        l2Network = "BTC",
                         valueCrypto = "0.04936855 BTC",
                         valueFiat = "\$1,000.00",
                         icon = listOf()

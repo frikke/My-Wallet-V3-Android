@@ -19,3 +19,9 @@ fun <T> NavController.getResultFlow(key: String, initialValue: T): StateFlow<T> 
     return currentBackStackEntry?.savedStateHandle?.getStateFlow(key, initialValue)
         ?: MutableStateFlow(initialValue)
 }
+
+fun <T> NavController.clearResult(key: String): T? {
+    return currentBackStackEntry
+        ?.savedStateHandle
+        ?.remove<T>(key)
+}

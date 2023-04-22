@@ -1,6 +1,7 @@
 package com.blockchain.transactions.swap.selectsource
 
 import com.blockchain.coincore.NonCustodialAccount
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.commonarch.presentation.mvi_v2.EmptyNavEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
@@ -53,9 +54,11 @@ class SelectSourceViewModel(
 
     private fun CryptoAccountWithBalance.reduceAccounts() = run {
         AccountUiElement(
-            ticker = balanceCrypto.currency.networkTicker,
-            title = balanceCrypto.currency.name,
-            subtitle = "", // do we need this?
+            ticker = account.currency.networkTicker,
+            assetName = account.currency.name,
+            l2Network = (account as? CryptoNonCustodialAccount)?.currency
+                ?.takeIf { it.isLayer2Token }
+                ?.coinNetwork?.shortName,
             valueCrypto = balanceCrypto.toStringWithSymbol(),
             valueFiat = balanceFiat.toStringWithSymbol(),
             icon = when (account) {
