@@ -1,11 +1,14 @@
 package com.blockchain.prices
 
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.data.mapList
@@ -38,7 +41,9 @@ class PricesRepository(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun assets(tradableOnly: Boolean): Flow<DataResource<List<AssetPriceInfo>>> {
-        val tradableCurrenciesAndPricesFlow = simpleBuyService.getSupportedBuySellCryptoCurrencies()
+        val tradableCurrenciesAndPricesFlow = simpleBuyService.getSupportedBuySellCryptoCurrencies(
+            FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+        )
             .mapListData { it.source.networkTicker }
             .flatMapLatest { tradablePickers ->
                 loadAssetsAndPrices(
@@ -76,8 +81,7 @@ class PricesRepository(
     }
 
     override fun mostPopularAssets(): Flow<DataResource<List<AssetPriceInfo>>> =
-        combine(mostPopularTickers(), allAssets()) {
-                mostPopularTickers, allAssetsData ->
+        combine(mostPopularTickers(), allAssets()) { mostPopularTickers, allAssetsData ->
             allAssetsData.map { allAssets ->
                 allAssets.filter { it.assetInfo.networkTicker in mostPopularTickers }
             }
@@ -123,7 +127,13 @@ class PricesRepository(
         //            }
         //        }
         return flow {
-            coincore.availableCryptoAssets()
+            coincore.allWallets().map {
+                it.accounts.filterIsInstance<CryptoAccount>()
+            }.map {
+                it.map { cryptoAccount ->
+                    cryptoAccount.currency
+                }
+            }
                 .map { allAssets ->
                     filterOnlyPickers?.let {
                         allAssets.filter { filterOnlyPickers.contains(it.networkTicker) }

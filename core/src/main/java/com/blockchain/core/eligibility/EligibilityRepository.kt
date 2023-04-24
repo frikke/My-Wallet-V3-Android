@@ -51,6 +51,7 @@ class EligibilityRepository(
         product: EligibleProduct,
         freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<ProductEligibility>> {
+
         return productsEligibilityStore.stream(freshnessStrategy)
             .mapData { eligibility ->
                 eligibility.products[product] ?: ProductEligibility.asEligible(product)

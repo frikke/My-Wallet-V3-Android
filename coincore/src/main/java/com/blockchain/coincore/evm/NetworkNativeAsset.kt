@@ -7,6 +7,7 @@ import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
+import com.blockchain.coincore.loader.HistoricActiveBalancesRepository
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.ethereum.EthDataManager
@@ -26,6 +27,7 @@ internal class NetworkNativeAsset(
     private val labels: DefaultLabels,
     private val walletPreferences: WalletStatusPrefs,
     private val formatUtils: FormatUtilities,
+    private val historicActiveBalancesRepository: HistoricActiveBalancesRepository,
     private val addressResolver: EthHotWalletAddressResolver,
     private val coinNetwork: CoinNetwork
 ) : CryptoAssetBase() {
@@ -33,12 +35,16 @@ internal class NetworkNativeAsset(
         get() = erc20DataManager.accountHash
 
     private val ethDataManager: EthDataManager by scopedInject()
+    private val SUPPORTED_EVMS = listOf("ETH", "MATIC")
+    override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> {
 
-    override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
-        Single.just(loadNonCustodialAccount())
-
-    private fun loadNonCustodialAccount(): SingleAccountList {
-        return listOf(getNonCustodialAccount(coinNetwork))
+        if (coinNetwork.networkTicker in SUPPORTED_EVMS)
+            return Single.just(listOf(getNonCustodialAccount(coinNetwork)))
+        return historicActiveBalancesRepository.currencyWasFunded(currency).map {
+            if (it)
+                listOf(getNonCustodialAccount(coinNetwork))
+            else emptyList()
+        }
     }
 
     private fun getNonCustodialAccount(evmNetwork: CoinNetwork): L1EvmNonCustodialAccount =

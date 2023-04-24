@@ -5,6 +5,7 @@ import com.blockchain.coincore.IdentityAddressResolver
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.impl.CryptoAssetBase
+import com.blockchain.coincore.loader.HistoricActiveBalancesRepository
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.preferences.WalletStatusPrefs
@@ -19,24 +20,36 @@ internal class DynamicSelfCustodyAsset(
     private val payloadManager: PayloadDataManager,
     private val addressResolver: IdentityAddressResolver,
     private val addressValidation: String? = null,
+    private val historicActiveBalancesRepository: HistoricActiveBalancesRepository,
     private val selfCustodyService: NonCustodialService,
     private val walletPreferences: WalletStatusPrefs
 ) : CryptoAssetBase() {
 
+    /*
+    * The logic is that we support non custodial accounts for STX + any other currency that user has a balance
+    * */
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
-        selfCustodyService.getCoinTypeFor(currency).map {
-            listOf(
-                DynamicNonCustodialAccount(
-                    payloadManager,
-                    currency,
-                    it,
-                    addressResolver,
-                    selfCustodyService,
-                    exchangeRates,
-                    labels.getDefaultNonCustodialWalletLabel(),
-                    walletPreferences
-                )
+        selfCustodyService.getCoinTypeFor(currency).zipWith(
+            historicActiveBalancesRepository.currencyWasFunded(currency).toMaybe()
+        ) { coinType, isFunded ->
+            coinType to isFunded
+        }.map { (coinType, isFunded) ->
+            if (currency.networkTicker.equals(
+                    "STX", true
+                ) || isFunded
             )
+                listOf(
+                    DynamicNonCustodialAccount(
+                        payloadManager,
+                        currency,
+                        coinType,
+                        addressResolver,
+                        selfCustodyService,
+                        exchangeRates,
+                        labels.getDefaultNonCustodialWalletLabel(),
+                        walletPreferences
+                    )
+                ) else emptyList()
         }.onErrorReturn {
             emptyList()
         }.switchIfEmpty(Single.just(emptyList()))
