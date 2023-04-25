@@ -13,7 +13,6 @@ import com.blockchain.data.combineDataResources
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
-import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.extensions.safeLet
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.flatMapData
@@ -223,7 +222,6 @@ class EnterAmountViewModel(
                     sourceAccount = accounts.fromAccount.account,
                     targetAccount = accounts.toAccount,
                     sourceCryptoAmount = modelState.cryptoAmount!!,
-                    direction = TransferDirection.INTERNAL, // TODO(aromano): TEMP
                     secondPassword = null, // TODO(aromano): TEMP
                 )
                 navigate(EnterAmountNavigationEvent.Preview(data))

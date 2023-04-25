@@ -40,6 +40,8 @@ dependencies {
     implementation project(':betternavigation')
     implementation project(':unifiedcryptowallet:domain')
     implementation project(':flowprices:domain')
+    implementation project(':deeplinking')
+    implementation project(':notifications')
 
     implementation Libraries.composeUi
     implementation Libraries.composePreview

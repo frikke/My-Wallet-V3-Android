@@ -14,6 +14,7 @@ import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.impl.HotWalletService
 import com.blockchain.coincore.impl.TxProcessorFactory
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
+import com.blockchain.coincore.loader.ActiveBalancesStore
 import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetLoader
 import com.blockchain.coincore.loader.CoinNetworksStore
@@ -21,6 +22,7 @@ import com.blockchain.coincore.loader.CustodialAssetsStore
 import com.blockchain.coincore.loader.DynamicAssetLoader
 import com.blockchain.coincore.loader.DynamicAssetsService
 import com.blockchain.coincore.loader.EthErc20sStore
+import com.blockchain.coincore.loader.HistoricActiveBalancesRepository
 import com.blockchain.coincore.loader.L1CoinsStore
 import com.blockchain.coincore.loader.NonCustodialL2sDynamicAssetRepository
 import com.blockchain.coincore.loader.OtherNetworksErc20sStore
@@ -131,6 +133,7 @@ val coincoreModule = module {
                 nonCustodialAssets = ncAssets.toSet(), // All the non custodial L1s that we support
                 assetCatalogue = get(),
                 payloadManager = get(),
+                historicActiveBalancesRepository = get(),
                 erc20DataManager = get(),
                 feeDataManager = get(),
                 unifiedBalancesService = lazy { get() },
@@ -215,6 +218,17 @@ val coincoreModule = module {
                 prefs = get(),
                 walletApi = get()
             )
+        }
+
+        scoped {
+            ActiveBalancesStore(
+                currencyPrefs = get(),
+                selfCustodyService = get(),
+            )
+        }
+
+        scoped {
+            HistoricActiveBalancesRepository(activeBalancesStore = get())
         }
 
         scoped {

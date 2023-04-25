@@ -18,6 +18,8 @@ import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.InterestService
@@ -154,7 +156,10 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     }
 
     private val custodialAccountsAccess =
-        userFeaturePermissionService.isEligibleFor(Feature.CustodialAccounts).asSingle()
+        userFeaturePermissionService.isEligibleFor(
+            Feature.CustodialAccounts,
+            FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+        ).asSingle()
 
     private fun loadCustodialAccounts(): Single<SingleAccountList> {
         if (currency.isCustodial.not()) {
