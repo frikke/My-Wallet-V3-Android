@@ -45,6 +45,9 @@ interface SwapService {
         mode: WalletMode
     ): Boolean
 
+    /**
+     * returns the [selectedAssetTicker] target accounts of [sourceTicker]
+     */
     fun accountsWithBalanceOfMode(
         sourceTicker: String,
         selectedAssetTicker: String,

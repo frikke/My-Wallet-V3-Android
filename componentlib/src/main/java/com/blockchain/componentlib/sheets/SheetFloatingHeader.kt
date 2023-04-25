@@ -18,6 +18,8 @@ import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icon.CustomStackedIcon
+import com.blockchain.componentlib.icons.ChevronLeft
+import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.clickableNoEffect
@@ -27,6 +29,7 @@ private fun SheetHeader(
     icon: StackedIcon,
     title: String,
     isFloating: Boolean,
+    backOnClick: (() -> Unit)? = null,
     onCloseClick: () -> Unit
 ) {
     Card(
@@ -47,7 +50,13 @@ private fun SheetHeader(
             ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
+            backOnClick?.let {
+                Image(
+                    modifier = Modifier.clickableNoEffect { backOnClick() },
+                    imageResource = Icons.ChevronLeft
+                )
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+            } ?: Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
 
             Row(
                 modifier = Modifier.weight(1F),
@@ -89,12 +98,14 @@ private fun SheetHeader(
 fun SheetFloatingHeader(
     icon: StackedIcon,
     title: String,
+    backOnClick: (() -> Unit)? = null,
     onCloseClick: () -> Unit
 ) {
     SheetHeader(
         icon = icon,
         title = title,
         isFloating = true,
+        backOnClick = backOnClick,
         onCloseClick = onCloseClick
     )
 }
@@ -103,12 +114,14 @@ fun SheetFloatingHeader(
 fun SheetFlatHeader(
     icon: StackedIcon,
     title: String,
+    backOnClick: (() -> Unit)? = null,
     onCloseClick: () -> Unit
 ) {
     SheetHeader(
         icon = icon,
         title = title,
         isFloating = false,
+        backOnClick = backOnClick,
         onCloseClick = onCloseClick
     )
 }
@@ -122,6 +135,7 @@ fun PreviewSheetFloatingHeader_Overlap() {
             back = ImageResource.Local(R.drawable.ic_close_circle),
         ),
         title = "Swapped BTC -> ETH",
+        backOnClick = {},
         onCloseClick = {}
     )
 }
@@ -159,6 +173,7 @@ fun PreviewSheetFlatHeader_Single() {
             ImageResource.Local(R.drawable.ic_close_circle_dark)
         ),
         title = "Swapped BTC -> ETH",
+        backOnClick = {},
         onCloseClick = {}
     )
 }

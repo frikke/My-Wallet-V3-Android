@@ -7,6 +7,8 @@ import com.blockchain.transactions.swap.confirmation.ConfirmationViewModel
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
 import com.blockchain.transactions.swap.selectsource.SelectSourceViewModel
 import com.blockchain.transactions.swap.selecttarget.SelectTargetViewModel
+import com.blockchain.transactions.swap.selecttargetaccount.SelectTargetAccountViewModel
+import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.CryptoValue
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -36,6 +38,16 @@ val transactionsPresentationModule = module {
                 pricesService = get(),
                 currencyPrefs = get(),
                 walletModeService = get()
+            )
+        }
+
+        viewModel { (sourceTicker: String, targetTicker: String, mode: WalletMode) ->
+            SelectTargetAccountViewModel(
+                sourceTicker = sourceTicker,
+                targetTicker = targetTicker,
+                mode = mode,
+                swapService = get(),
+                assetCatalogue = get()
             )
         }
 

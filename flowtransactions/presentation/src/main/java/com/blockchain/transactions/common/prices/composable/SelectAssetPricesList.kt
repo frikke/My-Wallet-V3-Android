@@ -33,6 +33,8 @@ fun SelectAssetPricesList(
             ) {
                 roundedCornersItems(
                     items = assets.data,
+                    key = { it.ticker },
+                    animateItemPlacement = true,
                     content = { asset ->
                         BalanceChangeTableRow(
                             data = asset,

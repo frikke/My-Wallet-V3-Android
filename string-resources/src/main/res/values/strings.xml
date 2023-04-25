@@ -16,6 +16,7 @@
     <string name="common_rewards">Rewards</string>
     <string name="common_swap">Swap</string>
     <string name="common_swap_from">Swap from</string>
+    <string name="common_swap_select_account">Select %1$s account</string>
     <string name="common_swap_to">Swap to</string>
     <string name="common_add">Add</string>
     <string name="common_add_cash">Add Cash</string>

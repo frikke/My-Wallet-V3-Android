@@ -2,7 +2,9 @@ package com.blockchain.betternavigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
+import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.Navigator
+import androidx.navigation.navOptions
 import java.io.Serializable
 import java.util.*
 
@@ -28,20 +30,20 @@ abstract class BetterDestination : BetterDestinationWithArgs<Nothing>() {
 abstract class BetterDestinationWithArgs<Args : Serializable?> {
     protected open val baseRoute: String = this::class.java.name
 
-    internal open val route
+      open val route
         get() = "$baseRoute?$KEY_ARGS_ID={$KEY_ARGS_ID}"
 
     internal fun navigate(
         navController: NavController,
         argsHolder: NavigationArgsHolder,
         args: Args,
-        navOptions: NavOptions? = null,
-        navigatorExtras: Navigator.Extras? = null
+        navigatorExtras: Navigator.Extras? = null,
+        builder: (NavOptionsBuilder.() -> Unit)? = null
     ) {
         val argsId = UUID.randomUUID().toString()
         argsHolder[argsId] = args
         val routeWithArgs = "$baseRoute?$KEY_ARGS_ID=$argsId"
-        navController.navigate(routeWithArgs, navOptions, navigatorExtras)
+        navController.navigate(routeWithArgs, builder?.let { navOptions(builder) }, navigatorExtras)
     }
 
     companion object {

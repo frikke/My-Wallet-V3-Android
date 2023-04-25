@@ -1,11 +1,11 @@
 package com.blockchain.transactions.swap.selecttarget
 
 import androidx.lifecycle.viewModelScope
-import com.blockchain.commonarch.presentation.mvi_v2.EmptyNavEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.componentlib.tablerow.BalanceChange
 import com.blockchain.componentlib.tablerow.ValueChange
+import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.filter
 import com.blockchain.data.map
@@ -14,7 +14,7 @@ import com.blockchain.data.updateDataWith
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.prices.domain.AssetPriceInfo
 import com.blockchain.prices.domain.PricesService
-import com.blockchain.store.mapListData
+import com.blockchain.transactions.swap.CryptoAccountWithBalance
 import com.blockchain.transactions.swap.SwapService
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -23,6 +23,7 @@ import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
@@ -35,7 +36,7 @@ class SelectTargetViewModel(
 ) : MviViewModel<SelectTargetIntent,
     SelectTargetViewState,
     SelectTargetModelState,
-    EmptyNavEvent,
+    TargetAssetNavigationEvent,
     ModelConfigArgs.NoArgs>(
     SelectTargetModelState()
 ) {
@@ -119,11 +120,15 @@ class SelectTargetViewModel(
                             sourceTicker,
                             intent.ticker,
                             modelState.selectedAssetsModeFilter
-                        ).mapListData {
-                            it.account.currency.networkTicker
-                        }
-                        .collectLatest {
-                            println("-------- ${it.dataOrElse(listOf())}")
+                        )
+                        .filterIsInstance<DataResource.Data<List<CryptoAccountWithBalance>>>()
+                        .firstOrNull()
+                        ?.data?.let {
+                            if (it.count() == 1) {
+                                navigate(TargetAssetNavigationEvent.ConfirmSelection(account = it.first().account))
+                            } else {
+                                navigate(TargetAssetNavigationEvent.SelectAccount(ofTicker = intent.ticker))
+                            }
                         }
                 }
             }

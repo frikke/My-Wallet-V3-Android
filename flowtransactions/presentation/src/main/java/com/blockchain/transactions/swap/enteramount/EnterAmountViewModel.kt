@@ -239,6 +239,16 @@ class EnterAmountViewModel(
                 updateConfig(intent.account.account, toAccount)
             }
 
+            is EnterAmountIntent.ToAccountChanged -> {
+                updateState {
+                    it.copy(
+                        toAccount = intent.account,
+                    )
+                }
+
+                // update limits
+            }
+
             EnterAmountIntent.MaxSelected -> {
                 val userInputBalance = modelState.currencyAwareBalance?.toBigDecimal()?.stripTrailingZeros()
                     ?.takeIf { it != BigDecimal.ZERO }

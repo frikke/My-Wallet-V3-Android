@@ -2,6 +2,7 @@ package com.blockchain.betternavigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
+import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.Navigator
 import java.io.Serializable
 
@@ -25,8 +26,8 @@ fun BetterNavigationContext.navigateTo(
 fun <Args : Serializable?> BetterNavigationContext.navigateTo(
     destination: BetterDestinationWithArgs<Args>,
     args: Args,
-    navOptions: NavOptions? = null,
     navigatorExtras: Navigator.Extras? = null,
+    builder: (NavOptionsBuilder.() -> Unit)? = null
 ) {
-    destination.navigate(navController, argsHolder, args, navOptions, navigatorExtras)
+    destination.navigate(navController, argsHolder, args, navigatorExtras, builder)
 }

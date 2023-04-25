@@ -61,12 +61,14 @@ data class BalanceChange(
 
 @Composable
 fun BalanceChangeTableRow(
+    modifier: Modifier = Modifier,
     data: BalanceChange,
     defaultIconSize: Dp = AppTheme.dimensions.standardSpacing,
     withChevron: Boolean = false,
     onClick: () -> Unit
 ) {
     BalanceChangeTableRow(
+        modifier = modifier,
         name = data.name,
         subtitle = data.ticker,
         networkTag = data.network,
@@ -82,6 +84,7 @@ fun BalanceChangeTableRow(
 
 @Composable
 fun BalanceChangeTableRow(
+    modifier: Modifier = Modifier,
     name: String,
     subtitle: String? = null,
     networkTag: String? = null,
@@ -94,6 +97,7 @@ fun BalanceChangeTableRow(
     onClick: () -> Unit
 ) {
     BalanceChangeTableRow(
+        modifier = modifier,
         name = name,
         subtitle = subtitle,
         networkTag = networkTag,
@@ -113,6 +117,7 @@ fun BalanceChangeTableRow(
 
 @Composable
 fun BalanceChangeTableRow(
+    modifier: Modifier = Modifier,
     name: String,
     subtitle: String? = null,
     networkTag: String? = null,
@@ -126,6 +131,7 @@ fun BalanceChangeTableRow(
 ) {
     if (withChevron) {
         BalanceChangeTableRowWithChevron(
+            modifier = modifier,
             name = name,
             subtitle = subtitle,
             networkTag = networkTag,
@@ -142,6 +148,7 @@ fun BalanceChangeTableRow(
         )
     } else {
         BalanceChangeTableRow(
+            modifier = modifier,
             name = name,
             subtitle = subtitle,
             networkTag = networkTag,
@@ -161,6 +168,7 @@ fun BalanceChangeTableRow(
 
 @Composable
 private fun BalanceChangeTableRow(
+    modifier: Modifier = Modifier,
     name: String,
     subtitle: String? = null,
     networkTag: String? = null,
@@ -172,6 +180,7 @@ private fun BalanceChangeTableRow(
 ) {
 
     TableRow(
+        modifier = modifier,
         contentStart = contentStart,
         content = {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
@@ -284,6 +293,7 @@ private fun BalanceChangeTableRow(
 
 @Composable
 private fun BalanceChangeTableRowWithChevron(
+    modifier: Modifier = Modifier,
     name: String,
     subtitle: String? = null,
     networkTag: String? = null,
@@ -295,6 +305,7 @@ private fun BalanceChangeTableRowWithChevron(
 ) {
 
     TableRow(
+        modifier = modifier,
         contentStart = contentStart,
         content = {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
