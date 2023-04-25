@@ -19,7 +19,9 @@ internal class HistoricActiveBalancesRepository(private val activeBalancesStore:
         }
         return activeBalancesStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)).asSingle()
             .doOnSuccess {
-                activeCurrencies = it.balances.map { balance -> balance.currency }
+                activeCurrencies =
+                    it.balances.filter { entry -> entry.balance?.amount?.signum() == 1 }
+                        .map { balance -> balance.currency }
             }
             .onErrorReturn {
                 BalancesResponse(emptyList())
