@@ -9,18 +9,13 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.filterByActionAndState
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.mvi.MviModel
-import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.walletmode.WalletModeService
-import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Scheduler
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
-import piuk.blockchain.android.domain.usecases.GetAvailableCryptoAssetsUseCase
-import piuk.blockchain.android.domain.usecases.GetReceiveAccountsForAssetUseCase
 import timber.log.Timber
 
 class ReceiveModel(
@@ -28,11 +23,8 @@ class ReceiveModel(
     uiScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger,
-    private val getAvailableCryptoAssetsUseCase: GetAvailableCryptoAssetsUseCase,
     private val walletModeService: WalletModeService,
     private val coincore: Coincore,
-    private val getReceiveAccountsForAssetUseCase: GetReceiveAccountsForAssetUseCase,
-    private val exchangeRatesDataManager: ExchangeRatesDataManager
 ) : MviModel<ReceiveState, ReceiveIntent>(initialState, uiScheduler, environmentConfig, remoteLogger) {
 
     override fun performAction(previousState: ReceiveState, intent: ReceiveIntent): Disposable? {
@@ -56,26 +48,6 @@ class ReceiveModel(
             is ReceiveIntent.UpdateReceiveForAsset -> null
         }
     }
-
-    private fun getAvailableAssets(): Disposable =
-        getAvailableCryptoAssetsUseCase(Unit).flatMap { assets ->
-            Single.concat(
-                assets.map { fetchAssetPrice(it) }
-            ).toList()
-        }
-            .subscribeBy(
-                onSuccess = { assets ->
-                    process(
-                        ReceiveIntent.UpdateAssets(
-                            assets = assets,
-                            loadAccountsForAsset = ::loadAccountsForAsset
-                        )
-                    )
-                },
-                onError = { throwable ->
-                    Timber.e(throwable)
-                }
-            )
 
     private fun getAvailableAccounts(startForTicker: String?): Disposable =
         walletModeService.walletModeSingle.flatMap { coincore.allWalletsInMode(it) }
@@ -110,27 +82,4 @@ class ReceiveModel(
                     Timber.e(it)
                 }
             )
-
-    private fun loadAccountsForAsset(assetInfo: AssetInfo): Single<List<CryptoAccount>> {
-        return getReceiveAccountsForAssetUseCase(assetInfo).map {
-            it.filterIsInstance<CryptoAccount>()
-        }
-    }
-
-    private fun fetchAssetPrice(assetInfo: AssetInfo): Single<ReceiveItem> {
-        return exchangeRatesDataManager.getPricesWith24hDeltaLegacy(assetInfo).firstOrError()
-            .map {
-                ReceiveItem(
-                    assetInfo = assetInfo,
-                    priceWithDelta = it
-                )
-            }
-            .onErrorReturn {
-                Timber.e(it)
-                ReceiveItem(
-                    assetInfo = assetInfo,
-                    priceWithDelta = null
-                )
-            }
-    }
 }

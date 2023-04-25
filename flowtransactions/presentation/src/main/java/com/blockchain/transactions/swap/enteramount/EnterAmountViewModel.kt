@@ -14,7 +14,6 @@ import com.blockchain.data.combineDataResources
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
-import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.extensions.safeLet
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.transactions.swap.SwapService
@@ -255,16 +254,15 @@ class EnterAmountViewModel(
             }
 
             EnterAmountIntent.PreviewClicked -> {
-                //                val accounts = (modelState.accounts as DataResource.Data).data
-                //                check(accounts.toAccount != null)
-                //                val data = ConfirmationArgs(
-                //                    sourceAccount = accounts.fromAccount.account,
-                //                    targetAccount = accounts.toAccount,
-                //                    sourceCryptoAmount = modelState.cryptoAmount!!,
-                //                    direction = TransferDirection.INTERNAL, // TODO(aromano): TEMP
-                //                    secondPassword = null, // TODO(aromano): TEMP
-                //                )
-                //                navigate(EnterAmountNavigationEvent.Preview(data))
+//                val accounts = (modelState.accounts as DataResource.Data).data
+//                check(accounts.toAccount != null)
+//                val data = ConfirmationArgs(
+//                    sourceAccount = accounts.fromAccount.account,
+//                    targetAccount = accounts.toAccount,
+//                    sourceCryptoAmount = modelState.cryptoAmount!!,
+//                    secondPassword = null, // TODO(aromano): TEMP
+//                )
+//                navigate(EnterAmountNavigationEvent.Preview(data))
             }
         }
     }

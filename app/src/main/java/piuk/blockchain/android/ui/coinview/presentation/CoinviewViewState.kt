@@ -191,9 +191,9 @@ sealed interface CoinviewAssetInfoState {
 // Pill alerts
 sealed interface CoinviewPillAlertState {
     val message: Int
-    val icon: ImageResource
+    val icon: ImageResource.Local
 
-    data class Alert(override val message: Int, override val icon: ImageResource) : CoinviewPillAlertState {
+    data class Alert(override val message: Int, override val icon: ImageResource.Local) : CoinviewPillAlertState {
         override fun equals(other: Any?): Boolean {
             return (other as? Alert)?.message == message
         }
@@ -203,7 +203,7 @@ sealed interface CoinviewPillAlertState {
 
     object None : CoinviewPillAlertState {
         override val message: Int get() = error("None error doesn't have message property")
-        override val icon: ImageResource get() = error("None error doesn't have icon property")
+        override val icon: ImageResource.Local get() = error("None error doesn't have icon property")
     }
 }
 

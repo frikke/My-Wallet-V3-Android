@@ -18,13 +18,11 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
-import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentReceiveBinding
 import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
-import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
 
@@ -32,20 +30,12 @@ class ReceiveFragment :
     MviFragment<ReceiveModel, ReceiveIntent, ReceiveState, FragmentReceiveBinding>(),
     KycUpgradeNowSheet.Host {
 
-    private val assetResources: AssetResources by inject()
     private val compositeDisposable = CompositeDisposable()
-
     override val model: ReceiveModel by scopedInject()
 
     private val startForTicker: String? by lazy {
         arguments?.getString(START_FOR_ASSET)
     }
-
-    private val assetsAdapter: ExpandableAssetsAdapter =
-        ExpandableAssetsAdapter(
-            assetResources,
-            compositeDisposable
-        )
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentReceiveBinding =
         FragmentReceiveBinding.inflate(inflater, container, false)

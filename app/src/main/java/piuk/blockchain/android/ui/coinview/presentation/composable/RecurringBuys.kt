@@ -46,6 +46,8 @@ fun RecurringBuys(
     onRecurringBuyUpsellClick: () -> Unit,
     onRecurringBuyItemClick: (String) -> Unit
 ) {
+    if (data is DataResource.Data && data.data == null) return
+
     Column(
         modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
     ) {
