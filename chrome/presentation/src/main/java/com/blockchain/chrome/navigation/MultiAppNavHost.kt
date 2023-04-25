@@ -2,12 +2,15 @@ package com.blockchain.chrome.navigation
 
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.chrome.ChromeBottomNavigationItem
+import com.blockchain.chrome.ChromePill
+import com.blockchain.chrome.LocalChromePillProvider
 import com.blockchain.chrome.MultiAppIntents
 import com.blockchain.chrome.MultiAppViewModel
 import com.blockchain.chrome.composable.MultiAppChrome
@@ -73,91 +76,96 @@ fun MultiAppNavHost(
     val bottomSheetNavigator = rememberBottomSheetNavigator(skipHalfExpanded = true)
     val navController = rememberNavController(bottomSheetNavigator)
 
-    ModalBottomSheetLayout(
-        bottomSheetNavigator,
-        sheetShape = AppTheme.shapes.large.copy(
-            bottomStart = CornerSize(0.dp),
-            bottomEnd = CornerSize(0.dp)
-        )
+    val chromePill: ChromePill = get(scope = payloadScope)
+    CompositionLocalProvider(
+        LocalChromePillProvider provides chromePill
     ) {
-        val popupRoute: String?
-
-        NavHost(
-            navController = navController,
-            startDestination = when {
-                !superAppMvpPrefs.hasSeenEducationalWalletMode && !walletModePrefs.userDefaultedToPKW -> {
-                    // has not seen wallets intro && was not defaulted to defi
-                    popupRoute = HomeDestination.Introduction.route
-                    HomeDestination.Introduction
-                }
-
-                !walletStatusPrefs.hasSeenDefiOnboarding && walletModePrefs.userDefaultedToPKW -> {
-                    // was defaulted to defi && has not seen defi onboarding
-                    popupRoute = HomeDestination.DefiOnboarding.route
-                    HomeDestination.DefiOnboarding
-                }
-
-                else -> {
-                    popupRoute = null
-                    ChromeDestination.Main
-                }
-            }.route
+        ModalBottomSheetLayout(
+            bottomSheetNavigator,
+            sheetShape = AppTheme.shapes.large.copy(
+                bottomStart = CornerSize(0.dp),
+                bottomEnd = CornerSize(0.dp)
+            )
         ) {
-            // main chrome
-            chrome(
-                viewModel = multiAppViewModel,
+            val popupRoute: String?
+
+            NavHost(
                 navController = navController,
-                startPhraseRecovery = startPhraseRecovery,
-                assetActionsNavigation = assetActionsNavigation,
-                recurringBuyNavigation = recurringBuyNavigation,
-                settingsNavigation = settingsNavigation,
-                pricesNavigation = pricesNavigation,
-                qrScanNavigation = qrScanNavigation,
-                supportNavigation = supportNavigation,
-                showAppRating = showAppRating,
-                openExternalUrl = openExternalUrl,
-                nftNavigation = nftNavigation,
-                earnNavigation = earnNavigation,
-                processAnnouncementUrl = processAnnouncementUrl
-            )
-
-            // home screens
-            homeGraph(
-                launchApp = {
-                    navController.navigate(ChromeDestination.Main) {
-                        check(popupRoute != null)
-
-                        popUpTo(popupRoute) {
-                            inclusive = true
-                        }
+                startDestination = when {
+                    !superAppMvpPrefs.hasSeenEducationalWalletMode && !walletModePrefs.userDefaultedToPKW -> {
+                        // has not seen wallets intro && was not defaulted to defi
+                        popupRoute = HomeDestination.Introduction.route
+                        HomeDestination.Introduction
                     }
-                },
-                openRecurringBuyDetail = { recurringBuyId ->
-                    navController.navigate(
-                        destination = HomeDestination.RecurringBuyDetail,
-                        args = listOf(
-                            NavArgument(key = ARG_RECURRING_BUY_ID, value = recurringBuyId)
-                        )
-                    )
-                },
-                assetActionsNavigation = assetActionsNavigation,
-                onBackPressed = navController::popBackStack,
-                openDex = {
-                    multiAppViewModel.onIntent(
-                        MultiAppIntents.BottomNavigationItemSelected(ChromeBottomNavigationItem.Dex)
-                    )
-                }
-            )
 
-            nftGraph(
-                openExternalUrl = openExternalUrl,
-                onBackPressed = navController::popBackStack
-            )
-            dexGraph(
-                onBackPressed = navController::popBackStack,
-                navController = navController,
-            )
-            swapGraphHost()
+                    !walletStatusPrefs.hasSeenDefiOnboarding && walletModePrefs.userDefaultedToPKW -> {
+                        // was defaulted to defi && has not seen defi onboarding
+                        popupRoute = HomeDestination.DefiOnboarding.route
+                        HomeDestination.DefiOnboarding
+                    }
+
+                    else -> {
+                        popupRoute = null
+                        ChromeDestination.Main
+                    }
+                }.route
+            ) {
+                // main chrome
+                chrome(
+                    viewModel = multiAppViewModel,
+                    navController = navController,
+                    startPhraseRecovery = startPhraseRecovery,
+                    assetActionsNavigation = assetActionsNavigation,
+                    recurringBuyNavigation = recurringBuyNavigation,
+                    settingsNavigation = settingsNavigation,
+                    pricesNavigation = pricesNavigation,
+                    qrScanNavigation = qrScanNavigation,
+                    supportNavigation = supportNavigation,
+                    showAppRating = showAppRating,
+                    openExternalUrl = openExternalUrl,
+                    nftNavigation = nftNavigation,
+                    earnNavigation = earnNavigation,
+                    processAnnouncementUrl = processAnnouncementUrl
+                )
+
+                // home screens
+                homeGraph(
+                    launchApp = {
+                        navController.navigate(ChromeDestination.Main) {
+                            check(popupRoute != null)
+
+                            popUpTo(popupRoute) {
+                                inclusive = true
+                            }
+                        }
+                    },
+                    openRecurringBuyDetail = { recurringBuyId ->
+                        navController.navigate(
+                            destination = HomeDestination.RecurringBuyDetail,
+                            args = listOf(
+                                NavArgument(key = ARG_RECURRING_BUY_ID, value = recurringBuyId)
+                            )
+                        )
+                    },
+                    assetActionsNavigation = assetActionsNavigation,
+                    onBackPressed = navController::popBackStack,
+                    openDex = {
+                        multiAppViewModel.onIntent(
+                            MultiAppIntents.BottomNavigationItemSelected(ChromeBottomNavigationItem.Dex)
+                        )
+                    }
+                )
+
+                nftGraph(
+                    openExternalUrl = openExternalUrl,
+                    onBackPressed = navController::popBackStack
+                )
+                dexGraph(
+                    onBackPressed = navController::popBackStack,
+                    navController = navController,
+                )
+                swapGraphHost()
+            }
         }
     }
 }
