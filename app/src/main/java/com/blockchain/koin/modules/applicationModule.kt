@@ -11,6 +11,7 @@ import com.blockchain.biometrics.BiometricAuth
 import com.blockchain.biometrics.BiometricDataRepository
 import com.blockchain.biometrics.CryptographyManager
 import com.blockchain.biometrics.CryptographyManagerImpl
+import com.blockchain.chrome.ChromePill
 import com.blockchain.chrome.navigation.TransactionFlowNavigation
 import com.blockchain.chrome.navigation.WalletLinkAndOpenBankingNavigation
 import com.blockchain.commonarch.presentation.base.AppUtilAPI
@@ -882,6 +883,10 @@ val applicationModule = module {
                 currencyPrefs = get(),
                 dismissRecorder = get(),
             )
+        }
+
+        scoped {
+            ChromePill
         }
     }
 

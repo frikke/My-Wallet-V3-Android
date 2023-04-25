@@ -60,6 +60,7 @@ internal class DynamicAssetLoader(
     private val nonCustodialAssets: Set<CryptoAsset>,
     private val assetCatalogue: AssetCatalogueImpl,
     private val payloadManager: PayloadDataManager,
+    private val historicActiveBalancesRepository: HistoricActiveBalancesRepository,
     private val erc20DataManager: Erc20DataManager,
     private val feeDataManager: FeeDataManager,
     private val walletPreferences: WalletStatusPrefs,
@@ -174,6 +175,7 @@ internal class DynamicAssetLoader(
             labels = labels,
             formatUtils = formatUtils,
             addressResolver = ethHotWalletAddressResolver,
+            historicActiveBalancesRepository = historicActiveBalancesRepository,
             coinNetwork = currency.coinNetwork!!
         )
     }
@@ -271,6 +273,7 @@ internal class DynamicAssetLoader(
         return DynamicSelfCustodyAsset(
             currency = assetInfo,
             payloadManager = payloadManager,
+            historicActiveBalancesRepository = historicActiveBalancesRepository,
             addressValidation = defaultCustodialAddressValidation,
             addressResolver = identityAddressResolver,
             selfCustodyService = selfCustodyService,
@@ -286,6 +289,7 @@ internal class DynamicAssetLoader(
             erc20DataManager = erc20DataManager,
             feeDataManager = feeDataManager,
             labels = labels,
+            historicActiveBalancesRepository = historicActiveBalancesRepository,
             currencyPrefs = currencyPrefs,
             walletPreferences = walletPreferences,
             formatUtils = formatUtils,

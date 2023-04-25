@@ -5,6 +5,8 @@ import com.blockchain.api.services.DynamicAssetProducts
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.filter
+import com.blockchain.data.map
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
 import com.blockchain.store.asSingle
@@ -13,6 +15,7 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CoinNetwork
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
 class UniversalDynamicAssetRepository(
     private val l2sDynamicAssetRepository: NonCustodialL2sDynamicAssetRepository,

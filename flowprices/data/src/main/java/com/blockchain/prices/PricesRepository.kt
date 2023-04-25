@@ -1,11 +1,14 @@
 package com.blockchain.prices
 
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.data.mapList
@@ -44,7 +47,9 @@ class PricesRepository(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun assets(loadStrategy: AssetsLoadStrategy): Flow<DataResource<List<AssetPriceInfo>>> {
-        val currenciesAndPricesFlow = simpleBuyService.getSupportedBuySellCryptoCurrencies()
+        val currenciesAndPricesFlow = simpleBuyService.getSupportedBuySellCryptoCurrencies(
+            FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+        )
             .mapListData { it.source.networkTicker }
             .flatMapLatest { tradablePickers ->
                 loadAssetsAndPrices(
@@ -136,7 +141,13 @@ class PricesRepository(
         //            }
         //        }
         return flow {
-            coincore.availableCryptoAssets()
+            coincore.allWallets().map {
+                it.accounts.filterIsInstance<CryptoAccount>()
+            }.map {
+                it.map { cryptoAccount ->
+                    cryptoAccount.currency
+                }
+            }
                 .map { allAssets ->
                     filterOnlyPickers?.let {
                         allAssets.filter { filterOnlyPickers.contains(it.networkTicker) }

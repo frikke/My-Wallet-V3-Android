@@ -1,16 +1,15 @@
 package com.blockchain.betternavigation
 
 import androidx.navigation.NavController
-import androidx.navigation.NavOptions
-import androidx.navigation.Navigator
+import androidx.navigation.NavOptionsBuilder
 import java.io.Serializable
 import java.util.*
 
-abstract class BetterNavGraph : BetterDestination() {
+abstract class NavGraph : Destination() {
     override val baseRoute: String = this::class.java.name
 }
 
-abstract class BetterDestination : BetterDestinationWithArgs<Nothing>() {
+abstract class Destination : DestinationWithArgs<Nothing>() {
     override val baseRoute: String = this::class.java.name
 
     override val route
@@ -18,14 +17,17 @@ abstract class BetterDestination : BetterDestinationWithArgs<Nothing>() {
 
     internal fun navigate(
         navController: NavController,
-        navOptions: NavOptions? = null,
-        navigatorExtras: Navigator.Extras? = null,
+        navOptions: (NavOptionsBuilder.() -> Unit)? = null,
     ) {
-        navController.navigate(route, navOptions, navigatorExtras)
+        if (navOptions != null) {
+            navController.navigate(route, navOptions)
+        } else {
+            navController.navigate(route)
+        }
     }
 }
 
-abstract class BetterDestinationWithArgs<Args : Serializable?> {
+abstract class DestinationWithArgs<Args : Serializable?> {
     protected open val baseRoute: String = this::class.java.name
 
     internal open val route
@@ -33,15 +35,18 @@ abstract class BetterDestinationWithArgs<Args : Serializable?> {
 
     internal fun navigate(
         navController: NavController,
-        argsHolder: NavigationArgsHolder,
+        argsHolder: NavArgsHolder,
         args: Args,
-        navOptions: NavOptions? = null,
-        navigatorExtras: Navigator.Extras? = null
+        navOptions: (NavOptionsBuilder.() -> Unit)? = null,
     ) {
         val argsId = UUID.randomUUID().toString()
         argsHolder[argsId] = args
         val routeWithArgs = "$baseRoute?$KEY_ARGS_ID=$argsId"
-        navController.navigate(routeWithArgs, navOptions, navigatorExtras)
+        if (navOptions != null) {
+            navController.navigate(routeWithArgs, navOptions)
+        } else {
+            navController.navigate(routeWithArgs)
+        }
     }
 
     companion object {
