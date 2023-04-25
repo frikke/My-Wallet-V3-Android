@@ -1,33 +1,56 @@
 package com.blockchain.betternavigation
 
 import androidx.navigation.NavController
-import androidx.navigation.NavOptions
 import androidx.navigation.NavOptionsBuilder
-import androidx.navigation.Navigator
 import java.io.Serializable
 
-class BetterNavigationContext internal constructor(
+class NavContext internal constructor(
     val navController: NavController,
-    internal val argsHolder: NavigationArgsHolder,
+    internal val argsHolder: NavArgsHolder,
 )
 
-fun BetterNavigationContext.navigateUp() {
+fun NavContext.navigateUp() {
     navController.navigateUp()
 }
 
-fun BetterNavigationContext.navigateTo(
-    destination: BetterDestination,
-    navOptions: NavOptions? = null,
-    navigatorExtras: Navigator.Extras? = null,
-) {
-    destination.navigate(navController, navOptions, navigatorExtras)
+fun NavContext.popBackStack() {
+    navController.popBackStack()
 }
 
-fun <Args : Serializable?> BetterNavigationContext.navigateTo(
-    destination: BetterDestinationWithArgs<Args>,
-    args: Args,
-    navigatorExtras: Navigator.Extras? = null,
-    builder: (NavOptionsBuilder.() -> Unit)? = null
+fun NavContext.popBackStack(
+    destination: DestinationWithArgs<*>,
+    inclusive: Boolean,
+    saveState: Boolean = false,
 ) {
-    destination.navigate(navController, argsHolder, args, navigatorExtras, builder)
+    navController.popBackStack(
+        destination.route,
+        inclusive,
+        saveState,
+    )
+}
+
+fun NavContext.navigateTo(
+    destination: Destination,
+    navOptions: (NavOptionsBuilder.() -> Unit)? = null,
+) {
+    destination.navigate(navController, navOptions)
+}
+
+fun <Args : Serializable?> NavContext.navigateTo(
+    destination: DestinationWithArgs<Args>,
+    args: Args,
+    navOptions: (NavOptionsBuilder.() -> Unit)? = null,
+) {
+    destination.navigate(navController, argsHolder, args, navOptions)
+}
+
+fun NavOptionsBuilder.popUpTo(
+    destination: DestinationWithArgs<*>,
+    inclusive: Boolean = false,
+    saveState: Boolean = false,
+) {
+    popUpTo(destination.route) {
+        this.inclusive = inclusive
+        this.saveState = saveState
+    }
 }

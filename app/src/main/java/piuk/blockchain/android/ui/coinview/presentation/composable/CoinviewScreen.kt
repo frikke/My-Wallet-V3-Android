@@ -25,6 +25,7 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.chrome.composable.ANIMATION_DURATION
 import com.blockchain.componentlib.alert.PillAlert
+import com.blockchain.componentlib.alert.PillAlertType
 import com.blockchain.componentlib.alert.SnackbarAlert
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Icons
@@ -33,6 +34,7 @@ import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -295,8 +297,11 @@ fun CoinviewScreen(
                             y = pillAlertOffsetY
                         )
                     },
-                message = stringResource(it.message),
-                icon = it.icon
+                config = PillAlert(
+                    text = TextValue.IntResValue(it.message),
+                    icon = it.icon,
+                    type = PillAlertType.Info
+                )
             )
         }
 

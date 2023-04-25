@@ -2,7 +2,7 @@ package com.blockchain.betternavigation
 
 import java.io.Serializable
 
-internal class NavigationArgsHolder internal constructor(
+internal class NavArgsHolder internal constructor(
     initialMap: Map<String, Serializable> = mutableMapOf()
 ) {
     internal val backingField = initialMap.toMutableMap()

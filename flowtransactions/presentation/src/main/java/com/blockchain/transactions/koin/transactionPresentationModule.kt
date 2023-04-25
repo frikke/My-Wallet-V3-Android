@@ -1,7 +1,6 @@
 package com.blockchain.transactions.koin
 
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.transactions.swap.confirmation.ConfirmationViewModel
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
@@ -55,14 +54,12 @@ val transactionsPresentationModule = module {
             sourceAccount: CryptoAccount,
             targetAccount: CryptoAccount,
             sourceCryptoAmount: CryptoValue,
-            direction: TransferDirection,
             secondPassword: String?,
         ) ->
             ConfirmationViewModel(
                 sourceAccount = sourceAccount,
                 targetAccount = targetAccount,
                 sourceCryptoAmount = sourceCryptoAmount,
-                direction = direction,
                 secondPassword = secondPassword,
                 brokerageDataManager = get(),
                 exchangeRatesDataManager = get(),

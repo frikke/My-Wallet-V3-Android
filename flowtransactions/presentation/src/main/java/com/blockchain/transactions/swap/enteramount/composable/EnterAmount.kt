@@ -20,9 +20,9 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.betternavigation.NavContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import com.blockchain.betternavigation.BetterNavigationContext
 import com.blockchain.betternavigation.navigateTo
 import com.blockchain.componentlib.alert.CustomEmptyState
 import com.blockchain.componentlib.basic.ImageResource
@@ -61,7 +61,7 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 fun EnterAmount(
     viewModel: EnterAmountViewModel = getViewModel(scope = payloadScope),
-    navContextProvider: () -> BetterNavigationContext,
+    navContextProvider: () -> NavContext,
     onBackPressed: () -> Unit
 ) {
     val viewState: EnterAmountViewState by viewModel.viewState.collectAsStateLifecycleAware()

@@ -1,11 +1,9 @@
 package com.blockchain.transactions.swap.confirmation
 
-import com.blockchain.api.NabuApiException
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
@@ -30,8 +28,8 @@ data class ConfirmationModelState(
     val quoteRefreshRemainingSeconds: Int? = null,
 
     val quoteId: String? = null,
-    val quoteError: ConfirmationError? = null,
-    val createOrderError: ConfirmationError? = null,
+
+    // TODO(aromano): SWAP missing network fee for NonCustodial Swaps
 ) : ModelState
 
 data class ConfirmationViewState(
@@ -52,22 +50,4 @@ data class ConfirmationViewState(
     val quoteRefreshRemainingSeconds: Int?,
 
     val submitButtonState: ButtonState = ButtonState.Disabled,
-
-    val quoteError: ConfirmationError?,
-    val createOrderError: ConfirmationError?,
 ) : ViewState
-
-sealed class ConfirmationError {
-    data class UxError(val error: ServerSideUxErrorInfo) : ConfirmationError()
-    data class Error(val error: Exception) : ConfirmationError()
-}
-
-internal fun Exception.toConfirmationError(): ConfirmationError {
-    val uxError = (this as? NabuApiException)?.getServerSideErrorInfo()
-    val error = if (uxError != null) {
-        ConfirmationError.UxError(uxError)
-    } else {
-        ConfirmationError.Error(this)
-    }
-    return error
-}

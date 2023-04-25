@@ -4,15 +4,13 @@ import android.content.Intent
 import android.net.Uri
 import android.text.format.DateUtils
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.coincore.CryptoAccount
@@ -37,27 +34,26 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.icons.ArrowDown
+import com.blockchain.componentlib.card.TwoAssetAction
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Question
-import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.system.CircularProgressBar
-import com.blockchain.componentlib.tablerow.BalanceTableRow
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.TinyVerticalSpacer
+import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.theme.White
-import com.blockchain.componentlib.theme.clickableWithIndication
 import com.blockchain.componentlib.utils.AnnotatedStringUtils
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
-import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.urllinks.CHECKOUT_REFUND_POLICY
 import com.blockchain.presentation.urllinks.EXCHANGE_SWAP_RATE_EXPLANATION
 import com.blockchain.transactions.presentation.R
 import com.blockchain.transactions.swap.confirmation.ConfirmationIntent
+import com.blockchain.transactions.swap.confirmation.ConfirmationNavigation
 import com.blockchain.transactions.swap.confirmation.ConfirmationViewModel
 import com.blockchain.transactions.swap.confirmation.ConfirmationViewState
+import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateArgs
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
@@ -71,7 +67,6 @@ data class ConfirmationArgs(
     val sourceAccount: CryptoAccount,
     val targetAccount: CryptoAccount,
     val sourceCryptoAmount: CryptoValue,
-    val direction: TransferDirection,
     // TODO(aromano): SWAP temp comment, this is only going to be used for NC->* swaps
     val secondPassword: String?,
 ) : Serializable
@@ -84,13 +79,22 @@ fun ConfirmationScreen(
             args.sourceAccount,
             args.targetAccount,
             args.sourceCryptoAmount,
-            args.direction,
             args.secondPassword,
         )
     },
+    openNewOrderState: (NewOrderStateArgs) -> Unit,
+    backClicked: () -> Unit,
 ) {
     LaunchedEffect(Unit) {
         viewModel.viewCreated(ModelConfigArgs.NoArgs)
+    }
+
+    val navigationEvent by viewModel.navigationEventFlow.collectAsStateLifecycleAware(null)
+    LaunchedEffect(navigationEvent) {
+        when (val event = navigationEvent) {
+            is ConfirmationNavigation.NewOrderState -> openNewOrderState(event.args)
+            null -> {}
+        }
     }
 
     val state by viewModel.viewState.collectAsStateLifecycleAware()
@@ -98,7 +102,7 @@ fun ConfirmationScreen(
     Column {
         NavigationBar(
             title = stringResource(R.string.swap_confirmation_navbar),
-            onBackButtonClick = { }, // TODO(aromano): SWAP
+            onBackButtonClick = backClicked,
         )
 
         ConfirmationContent(
@@ -118,63 +122,31 @@ private fun ConfirmationContent(
             .background(AppTheme.colors.light)
             .padding(AppTheme.dimensions.smallSpacing)
     ) {
-        Box {
-            Column {
-                BalanceTableRow(
-                    titleStart = AnnotatedString(state.sourceAsset.name),
-                    titleEnd = AnnotatedString(state.sourceCryptoAmount.toStringWithSymbol()),
-                    bodyStart = AnnotatedString(state.sourceAsset.displayTicker),
-                    bodyEnd = AnnotatedString(state.sourceFiatAmount?.toStringWithSymbol().orEmpty()),
-                    startImageResource = ImageResource.Remote(state.sourceAsset.logo),
-                    backgroundColor = White,
-                    backgroundShape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium),
-                    onClick = {},
-                )
-                TinyVerticalSpacer()
-                BalanceTableRow(
-                    titleStart = AnnotatedString(state.targetAsset.name),
-                    titleEnd = AnnotatedString(state.targetCryptoAmount?.toStringWithSymbol().orEmpty()),
-                    bodyStart = AnnotatedString(state.targetAsset.displayTicker),
-                    bodyEnd = AnnotatedString(state.targetFiatAmount?.toStringWithSymbol().orEmpty()),
-                    startImageResource = ImageResource.Remote(state.targetAsset.logo),
-                    backgroundColor = White,
-                    backgroundShape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium),
-                    onClick = {},
-                )
-            }
-
-            Row(
-                Modifier
-                    .padding(AppTheme.dimensions.tinySpacing)
-                    .border(
-                        width = AppTheme.dimensions.tinySpacing,
-                        color = AppTheme.colors.light,
-                        shape = CircleShape,
-                    )
-                    .padding(AppTheme.dimensions.tinySpacing)
-                    .align(Alignment.Center)
-            ) {
-                Image(
-                    Icons.ArrowDown
-                        .withBackground(
-                            backgroundColor = White,
-                            iconSize = AppTheme.dimensions.standardSpacing,
-                            backgroundSize = AppTheme.dimensions.standardSpacing,
-                        )
-                )
-            }
-        }
-
-        SwapExchangeRate(
-            modifier = Modifier.padding(top = AppTheme.dimensions.standardSpacing),
-            rate = state.sourceToTargetExchangeRate,
+        TwoAssetAction(
+            topTitle = state.sourceAsset.name,
+            topSubtitle = state.sourceAsset.displayTicker,
+            topEndTitle = state.sourceCryptoAmount.toStringWithSymbol(),
+            topEndSubtitle = state.sourceFiatAmount?.toStringWithSymbol().orEmpty(),
+            topIcon = StackedIcon.SingleIcon(ImageResource.Remote(state.sourceAsset.logo)),
+            bottomTitle = state.targetAsset.name,
+            bottomSubtitle = state.targetAsset.displayTicker,
+            bottomEndTitle = state.targetCryptoAmount?.toStringWithSymbol().orEmpty(),
+            bottomEndSubtitle = state.targetFiatAmount?.toStringWithSymbol().orEmpty(),
+            bottomIcon = StackedIcon.SingleIcon(ImageResource.Remote(state.targetAsset.logo)),
         )
 
+        StandardVerticalSpacer()
+
+        SwapExchangeRate(state.sourceToTargetExchangeRate)
+
+        StandardVerticalSpacer()
+
         SwapQuoteTimer(
-            modifier = Modifier.padding(top = AppTheme.dimensions.standardSpacing),
             remainingSeconds = state.quoteRefreshRemainingSeconds ?: 90,
             remainingPercentage = state.quoteRefreshRemainingPercentage ?: 1f,
         )
+
+        StandardVerticalSpacer()
 
         SwapDisclaimer()
 
@@ -200,7 +172,7 @@ fun SwapDisclaimer() {
     )
 
     SimpleText(
-        modifier = Modifier.padding(AppTheme.dimensions.standardSpacing),
+        modifier = Modifier.padding(horizontal = AppTheme.dimensions.standardSpacing),
         text = disclaimer,
         style = ComposeTypographies.Caption1,
         color = ComposeColors.Body,
@@ -255,7 +227,7 @@ private fun SwapExchangeRate(rate: ExchangeRate?, modifier: Modifier = Modifier)
     Column(
         modifier
             .background(White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
-            .clickableWithIndication {
+            .clickable {
                 isExplainerVisible = !isExplainerVisible
             }
             .padding(AppTheme.dimensions.smallSpacing)
@@ -340,8 +312,6 @@ private fun PreviewInitialState() {
         quoteRefreshRemainingPercentage = null,
         quoteRefreshRemainingSeconds = null,
         submitButtonState = ButtonState.Disabled,
-        quoteError = null,
-        createOrderError = null,
     )
     Column {
         ConfirmationContent(
@@ -370,9 +340,6 @@ private fun PreviewLoadedState() {
         quoteRefreshRemainingPercentage = 0.5f,
         quoteRefreshRemainingSeconds = 45,
         submitButtonState = ButtonState.Enabled,
-        // TODO(aromano): SWAP errors
-        quoteError = null,
-        createOrderError = null,
     )
     Column {
         ConfirmationContent(
