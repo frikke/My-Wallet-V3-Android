@@ -12,7 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.betternavigation.BetterNavigationContext
+import com.blockchain.betternavigation.NavContext
 import com.blockchain.betternavigation.navigateTo
 import com.blockchain.chrome.titleIcon
 import com.blockchain.chrome.titleSuperApp
@@ -50,7 +50,7 @@ fun SelectTargetAsset(
         parameters = { parametersOf(sourceTicker) }
     ),
     accountSelected: (CryptoAccount) -> Unit,
-    navContextProvider: () -> BetterNavigationContext,
+    navContextProvider: () -> NavContext,
     onClosePressed: () -> Unit
 ) {
     val viewState: SelectTargetViewState by viewModel.viewState.collectAsStateLifecycleAware()

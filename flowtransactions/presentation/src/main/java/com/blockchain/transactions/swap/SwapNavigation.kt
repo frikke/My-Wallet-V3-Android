@@ -9,6 +9,7 @@ import com.blockchain.betternavigation.NavGraph
 import com.blockchain.betternavigation.TypedNavHost
 import com.blockchain.betternavigation.navigateTo
 import com.blockchain.betternavigation.navigateUp
+import com.blockchain.betternavigation.popBackStack
 import com.blockchain.betternavigation.popUpTo
 import com.blockchain.betternavigation.typedBottomSheet
 import com.blockchain.betternavigation.typedComposable
@@ -94,7 +95,7 @@ fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
                             viewModel.onIntent(EnterAmountIntent.ToAccountChanged(it))
                         },
                         onClosePressed = {
-                            navController.popBackStack(SwapGraph.EnterAmount.route, false)
+                            popBackStack(SwapGraph.EnterAmount, false )
                         },
                         onBackPressed = ::navigateUp
                     )

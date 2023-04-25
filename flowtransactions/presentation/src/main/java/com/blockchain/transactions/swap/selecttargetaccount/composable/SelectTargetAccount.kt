@@ -12,7 +12,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
-import com.blockchain.betternavigation.BetterNavigationContext
 import com.blockchain.betternavigation.navigateTo
 import com.blockchain.chrome.setResult
 import com.blockchain.coincore.CryptoAccount
