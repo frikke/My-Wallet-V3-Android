@@ -8,7 +8,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.navigation.NavHostController
 import java.io.Serializable
 
-internal val LocalNavigationArgsHolderProvider = compositionLocalOf<NavigationArgsHolder> {
+internal val LocalNavArgsHolderProvider = compositionLocalOf<NavArgsHolder> {
     error("No navigation args holder controller provided.")
 }
 
@@ -17,16 +17,16 @@ val LocalNavControllerProvider = staticCompositionLocalOf<NavHostController> {
 }
 
 @Composable
-internal fun rememberArgsHolder(): NavigationArgsHolder {
+internal fun rememberArgsHolder(): NavArgsHolder {
     return rememberSaveable(
         saver = mapSaver(
             save = { value -> value.backingField },
             restore = { value ->
                 @Suppress("UNCHECKED_CAST")
-                NavigationArgsHolder(value as MutableMap<String, Serializable>)
+                NavArgsHolder(value as MutableMap<String, Serializable>)
             },
         )
     ) {
-        NavigationArgsHolder()
+        NavArgsHolder()
     }
 }
