@@ -60,6 +60,7 @@ import com.blockchain.chrome.ChromeAnalyticsEvents
 import com.blockchain.chrome.ChromeBackgroundColors
 import com.blockchain.chrome.ChromeBottomNavigationItem
 import com.blockchain.chrome.ChromeModeOptions
+import com.blockchain.chrome.LocalChromePillProvider
 import com.blockchain.chrome.MultiAppIntents
 import com.blockchain.chrome.MultiAppNavigationEvent
 import com.blockchain.chrome.MultiAppViewModel
@@ -68,6 +69,7 @@ import com.blockchain.chrome.navigation.MultiAppBottomNavigationHost
 import com.blockchain.chrome.toolbar.CollapsingToolbarState
 import com.blockchain.chrome.toolbar.EnterAlwaysCollapsedState
 import com.blockchain.chrome.toolbar.ScrollState
+import com.blockchain.componentlib.alert.PillAlert
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
@@ -362,7 +364,7 @@ fun MultiAppChromeScreen(
 
     /**
      * true if the balance is the target to show.
-     * once it's shown and [REVEAL_BALANCE_DELAY_MS] is over,
+     * once it's shown and [REVEAL_DELAY_MS] is over,
      * it will be false to revert back to the switcher
      */
     var isRevealingTargetBalance by remember { mutableStateOf(false) }
@@ -406,7 +408,7 @@ fun MultiAppChromeScreen(
             onBalanceRevealed()
 
             coroutineScopeBalanceReveal.launch {
-                delay(REVEAL_BALANCE_DELAY_MS)
+                delay(REVEAL_DELAY_MS)
                 revealSwitcher()
             }
         }
@@ -559,6 +561,32 @@ fun MultiAppChromeScreen(
             durationMillis = ANIMATION_DURATION
         )
     )
+    // //////////////////////////////////////////////
+
+    // //////////////////////////////////////////////
+    // pill alert
+    val pillAlert by LocalChromePillProvider.current.alert.collectAsStateLifecycleAware(null)
+    var showPill by remember { mutableStateOf(false) }
+    LaunchedEffect(pillAlert) {
+        pillAlert?.let {
+            showPill = true
+            delay(REVEAL_DELAY_MS)
+            showPill = false
+        }
+    }
+    val pillAlertOffsetY by animateFloatAsState(
+        targetValue = if (showPill) 0F else -300F,
+        animationSpec = tween(
+            durationMillis = ANIMATION_DURATION
+        )
+    )
+    fun pillAlphaInterpolator(value: Float): Float {
+        val x1 = 0f
+        val x2 = -300f
+        val y1 = 1f
+        val y2 = 0.5f
+        return (value - x1) * (y2 - y1) / (x2 - x1) + y1
+    }
     // //////////////////////////////////////////////
 
     // this container has the following format
@@ -773,6 +801,20 @@ fun MultiAppChromeScreen(
                     earnNavigation = earnNavigation,
                     processAnnouncementUrl = processAnnouncementUrl,
                     openSwap = openSwap,
+                )
+            }
+
+            // error pill
+            pillAlert?.let {
+                PillAlert(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(AppTheme.dimensions.tinySpacing)
+                        .graphicsLayer {
+                            translationY = pillAlertOffsetY
+                            alpha = pillAlphaInterpolator(pillAlertOffsetY)
+                        },
+                    config = it
                 )
             }
         }

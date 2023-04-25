@@ -7,6 +7,7 @@ import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
+import com.blockchain.coincore.loader.HistoricActiveBalancesRepository
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.ethereum.EvmNetworksService
@@ -33,6 +34,7 @@ internal class Erc20Asset(
     private val labels: DefaultLabels,
     private val currencyPrefs: CurrencyPrefs,
     private val formatUtils: FormatUtilities,
+    private val historicActiveBalancesRepository: HistoricActiveBalancesRepository,
     private val addressResolver: EthHotWalletAddressResolver,
 ) : CryptoAssetBase() {
     private val erc20address
@@ -45,11 +47,16 @@ internal class Erc20Asset(
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> {
         if (AssetCategory.NON_CUSTODIAL !in currency.categories) return Single.just(emptyList())
-        return evmNetworksService.allEvmNetworks().map { networks ->
-            networks.firstOrNull { network -> network.networkTicker == coinNetwork.networkTicker }?.let {
-                listOf(getNonCustodialAccount(it))
-            } ?: emptyList()
-        }
+        return evmNetworksService.allEvmNetworks()
+            .zipWith(historicActiveBalancesRepository.currencyWasFunded(currency)) { networks, isFunded ->
+                networks to isFunded
+            }.map { (networks, isFunded) ->
+                networks.firstOrNull { network -> network.networkTicker == coinNetwork.networkTicker }?.let { network ->
+                    if (network.networkTicker in listOf("MATIC", "ETH") || isFunded)
+                        listOf(getNonCustodialAccount(network))
+                    else emptyList()
+                } ?: emptyList()
+            }
     }
 
     private fun getNonCustodialAccount(evmNetwork: CoinNetwork): Erc20NonCustodialAccount =

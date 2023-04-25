@@ -8,7 +8,7 @@ import com.blockchain.walletmode.WalletMode
 import java.util.concurrent.TimeUnit
 
 const val ANIMATION_DURATION = 400
-val REVEAL_BALANCE_DELAY_MS = TimeUnit.SECONDS.toMillis(3)
+val REVEAL_DELAY_MS = TimeUnit.SECONDS.toMillis(3)
 
 @StringRes
 fun WalletMode.titleSuperApp(): Int = when (this) {
