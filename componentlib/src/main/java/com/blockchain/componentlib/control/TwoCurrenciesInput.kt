@@ -4,7 +4,6 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -20,6 +19,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,16 +29,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Green
-import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -53,7 +53,6 @@ import com.blockchain.componentlib.icons.UnfoldMore
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.clickableNoEffect
-import com.google.common.io.Files.append
 import java.text.DecimalFormatSymbols
 import java.util.Locale
 import java.util.regex.Pattern
@@ -94,6 +93,16 @@ fun TwoCurrenciesInput(
     val focusRequester1 = remember { FocusRequester() }
     val focusRequester2 = remember { FocusRequester() }
 
+    var c1Value by remember { mutableStateOf(TextFieldValue("")) }
+    LaunchedEffect(currency1.value) {
+        c1Value = c1Value.copy(text = currency1.value)
+    }
+
+    var c2Value by remember { mutableStateOf(TextFieldValue("")) }
+    LaunchedEffect(currency2.value) {
+        c2Value = c2Value.copy(text = currency2.value)
+    }
+    
     DisposableEffect(selected) {
         when (selected) {
             InputCurrency.Currency1 -> focusRequester1
@@ -130,7 +139,11 @@ fun TwoCurrenciesInput(
             focused = selected == InputCurrency.Currency1,
             focusRequester = focusRequester1,
             currency = currency1,
-            onCurrencyValueChange = onCurrency1ValueChange
+            value = c1Value,
+            onCurrencyValueChange = {
+                onCurrency1ValueChange(it.text)
+                c1Value = it
+            }
         )
 
         CurrencyInput(
@@ -138,7 +151,11 @@ fun TwoCurrenciesInput(
             focused = selected == InputCurrency.Currency2,
             focusRequester = focusRequester2,
             currency = currency2,
-            onCurrencyValueChange = onCurrency2ValueChange
+            value = c2Value,
+            onCurrencyValueChange = {
+                onCurrency2ValueChange(it.text)
+                c2Value = it
+            }
         )
 
         var switchHeight by remember { mutableStateOf(0) }
@@ -159,6 +176,16 @@ fun TwoCurrenciesInput(
             Image(
                 modifier = Modifier.clickableNoEffect {
                     onFlipInputs()
+
+                    when (selected.flip()) {
+                        InputCurrency.Currency1 -> {
+                            c1Value = c1Value.copy(selection = TextRange(0, c1Value.text.length))
+                        }
+                        InputCurrency.Currency2 -> {
+                            c2Value = c2Value.copy(selection = TextRange(0, c2Value.text.length))
+                        }
+                    }
+
                 },
                 imageResource = Icons.UnfoldMore.withBackground(
                     backgroundColor = AppTheme.colors.background,
@@ -179,7 +206,8 @@ private fun BoxScope.CurrencyInput(
     focused: Boolean,
     focusRequester: FocusRequester,
     currency: CurrencyValue,
-    onCurrencyValueChange: (String) -> Unit,
+    value: TextFieldValue,
+    onCurrencyValueChange: (TextFieldValue) -> Unit,
 ) {
     val pattern = remember(currency.maxFractionDigits) {
         val decimalSeparator = DecimalFormatSymbols(Locale.getDefault()).decimalSeparator.toString()
@@ -210,6 +238,7 @@ private fun BoxScope.CurrencyInput(
     )
 
     val interactionSource = remember { MutableInteractionSource() }
+
     BasicTextField(
         modifier = modifier
             .graphicsLayer {
@@ -219,9 +248,9 @@ private fun BoxScope.CurrencyInput(
             .focusRequester(focusRequester)
             .fillMaxWidth()
             .padding(horizontal = 40.dp),
-        value = currency.value,
+        value = value,
         onValueChange = {
-            if (pattern.matcher(it).matches()) {
+            if (pattern.matcher(it.text).matches()) {
                 onCurrencyValueChange(it)
             }
         },
@@ -241,7 +270,7 @@ private fun BoxScope.CurrencyInput(
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
     ) { innerTextField ->
         TextFieldDefaults.TextFieldDecorationBox(
-            value = currency.value,
+            value = value.text,
             innerTextField = innerTextField,
             singleLine = true,
             visualTransformation = VisualTransformation.None,
