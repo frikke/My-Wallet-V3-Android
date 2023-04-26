@@ -272,11 +272,23 @@ private fun PreviewEnterAmountScreen() {
         ),
         accountBalance = "123.00",
         fiatAmount = CurrencyValue(
-            value = "2,100.00", maxFractionDigits = 2, ticker = "$", isPrefix = true, separateWithSpace = false
+            value = "2,100.00",
+            maxFractionDigits = 2,
+            ticker = "$",
+            isPrefix = true,
+            separateWithSpace = false,
+            zeroHint = "0"
+
         ),
         onFiatAmountChanged = {},
         cryptoAmount = CurrencyValue(
-            value = "1.1292", maxFractionDigits = 8, ticker = "ETH", isPrefix = false, separateWithSpace = true
+            value = "1.1292",
+            maxFractionDigits = 8,
+            ticker = "ETH",
+            isPrefix = false,
+            separateWithSpace = true,
+            zeroHint = "0"
+
         ),
         onCryptoAmountChanged = {},
         onFlipInputs = {},

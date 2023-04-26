@@ -116,7 +116,8 @@ class EnterAmountViewModel(
                 maxFractionDigits = fiatAmount?.userDecimalPlaces ?: 2,
                 ticker = fiatCurrency.symbol,
                 isPrefix = true,
-                separateWithSpace = false
+                separateWithSpace = false,
+                zeroHint = "0.00"
             ),
             cryptoAmount = fromAccount?.let {
                 CurrencyValue(
@@ -130,7 +131,8 @@ class EnterAmountViewModel(
                     maxFractionDigits = cryptoAmount?.userDecimalPlaces ?: 8,
                     ticker = fromAccount.account.currency.displayTicker,
                     isPrefix = false,
-                    separateWithSpace = true
+                    separateWithSpace = true,
+                    zeroHint = "0"
                 )
             },
             inputError = inputError,

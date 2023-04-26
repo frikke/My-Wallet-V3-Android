@@ -4,6 +4,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -15,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -26,15 +28,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Green
+import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,6 +53,7 @@ import com.blockchain.componentlib.icons.UnfoldMore
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.clickableNoEffect
+import com.google.common.io.Files.append
 import java.text.DecimalFormatSymbols
 import java.util.Locale
 import java.util.regex.Pattern
@@ -54,7 +63,8 @@ data class CurrencyValue(
     val maxFractionDigits: Int,
     val ticker: String,
     val isPrefix: Boolean,
-    val separateWithSpace: Boolean
+    val separateWithSpace: Boolean, 
+    val zeroHint: String
 )
 
 fun CurrencyValue.isEmpty() = value.isEmpty()
@@ -147,18 +157,15 @@ fun TwoCurrenciesInput(
                 .align(Alignment.TopEnd)
         ) {
             Image(
-                modifier = Modifier
-                    .clickableNoEffect {
-                        onFlipInputs()
-                    },
-                imageResource = Icons.run {
-                    UnfoldMore.withBackground(
-                        backgroundColor = AppTheme.colors.background,
-                        iconSize = 24.dp,
-                        backgroundSize = 24.dp,
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                }
+                modifier = Modifier.clickableNoEffect {
+                    onFlipInputs()
+                },
+                imageResource = Icons.UnfoldMore.withBackground(
+                    backgroundColor = AppTheme.colors.background,
+                    iconSize = 24.dp,
+                    backgroundSize = 24.dp,
+                    shape = RoundedCornerShape(8.dp)
+                )
             )
         }
     }
@@ -241,7 +248,40 @@ private fun BoxScope.CurrencyInput(
             interactionSource = interactionSource,
             contentPadding = PaddingValues(0.dp),
             enabled = true,
+            placeholder = {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = currency.zeroHint(),
+                    style = AppTheme.typography.display.copy(
+                        fontSize = textSizeAnim.sp,
+                    ),
+                    textAlign = TextAlign.Center
+                )
+            }
+
         )
+    }
+}
+
+@Composable
+private fun CurrencyValue.zeroHint(): AnnotatedString {
+    @Composable
+    fun color(visible: Boolean): Color {
+        return if (visible) AppTheme.colors.dark else AppTheme.colors.backgroundMuted
+    }
+
+    return buildAnnotatedString {
+        withStyle(style = SpanStyle(color = color(!isPrefix))) {
+            append(zeroHint + separator(separateWithSpace && !isPrefix))
+        }
+
+        withStyle(style = SpanStyle(color = AppTheme.colors.title)) {
+            append(ticker)
+        }
+
+        withStyle(style = SpanStyle(color = color(isPrefix))) {
+            append(separator(separateWithSpace && isPrefix) + zeroHint)
+        }
     }
 }
 
@@ -308,7 +348,7 @@ private fun suffixFilter(
 }
 
 // run preview on emulator to see the right layout and animations
-@Preview(backgroundColor = 0x124562, showBackground = true)
+@Preview(backgroundColor = 0XFFF1F2F7, showBackground = true)
 @Composable
 private fun PreviewTwoCurrenciesInput() {
     var c1Value by remember { mutableStateOf("2100.00") }
@@ -321,11 +361,21 @@ private fun PreviewTwoCurrenciesInput() {
     TwoCurrenciesInput(
         selected = selected,
         currency1 = CurrencyValue(
-            value = c1Value, maxFractionDigits = 2, ticker = "$", isPrefix = true, separateWithSpace = false
+            value = c1Value,
+            maxFractionDigits = 2,
+            ticker = "$",
+            isPrefix = true,
+            separateWithSpace = false,
+            zeroHint = "0"
         ),
         onCurrency1ValueChange = { c1Value = it },
         currency2 = CurrencyValue(
-            value = c2Value, maxFractionDigits = 8, ticker = "ETH", isPrefix = false, separateWithSpace = true
+            value = c2Value,
+            maxFractionDigits = 8,
+            ticker = "ETH",
+            isPrefix = false,
+            separateWithSpace = true,
+            zeroHint = "0"
         ),
         onCurrency2ValueChange = { c2Value = it },
         onFlipInputs = {
