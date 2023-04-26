@@ -62,10 +62,10 @@ fun TopMoversScreen(
             ) {
                 items(topMovers) { assetPrice ->
                     BalanceChangeSmallCard(
-                        name = assetPrice.ticker,
-                        price = assetPrice.currentPrice,
-                        valueChange = assetPrice.delta,
-                        imageResource = ImageResource.Remote(assetPrice.logo),
+                        name = assetPrice.data.ticker,
+                        price = assetPrice.data.currentPrice,
+                        valueChange = assetPrice.data.delta,
+                        imageResource = ImageResource.Remote(assetPrice.data.logo),
                         onClick = { assetOnClick(assetPrice.asset) }
                     )
                 }

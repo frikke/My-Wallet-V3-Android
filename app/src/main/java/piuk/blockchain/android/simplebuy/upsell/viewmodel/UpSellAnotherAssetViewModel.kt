@@ -3,6 +3,7 @@ package piuk.blockchain.android.simplebuy.upsell.viewmodel
 import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.componentlib.tablerow.BalanceChange
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.data.filter
 import com.blockchain.data.map
@@ -89,15 +90,17 @@ class UpSellAnotherAssetViewModel(
     private fun AssetPriceInfo.toPriceItemViewState(): PriceItemViewState {
         return PriceItemViewState(
             asset = assetInfo,
-            name = assetInfo.name,
-            ticker = assetInfo.displayTicker,
-            network = null,
-            logo = assetInfo.logo,
-            delta = price.map { ValueChange.fromValue(it.delta24h) },
-            currentPrice = price.map {
-                it.currentRate.price.format(currencyPrefs.selectedFiatCurrency)
-            },
-            showRisingFastTag = false
+            data = BalanceChange(
+                name = assetInfo.name,
+                ticker = assetInfo.displayTicker,
+                network = null,
+                logo = assetInfo.logo,
+                delta = price.map { ValueChange.fromValue(it.delta24h) },
+                currentPrice = price.map {
+                    it.currentRate.price.format(currencyPrefs.selectedFiatCurrency)
+                },
+                showRisingFastTag = false
+            )
         )
     }
 }

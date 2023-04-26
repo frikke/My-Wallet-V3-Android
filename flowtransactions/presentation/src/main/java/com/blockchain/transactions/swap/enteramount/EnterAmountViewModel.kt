@@ -17,6 +17,7 @@ import com.blockchain.extensions.safeLet
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.flatMapData
 import com.blockchain.store.mapData
+import com.blockchain.transactions.swap.CryptoAccountWithBalance
 import com.blockchain.transactions.swap.SwapService
 import com.blockchain.transactions.swap.confirmation.composable.ConfirmationArgs
 import com.blockchain.utils.removeLeadingZeros
@@ -34,6 +35,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
@@ -56,8 +59,8 @@ class EnterAmountViewModel(
     EnterAmountModelState()
 ) {
 
-    private val fromAccountTickerFlow = MutableSharedFlow<String>()
-    private val toAccountTickerFlow = MutableSharedFlow<String>()
+    private val fromAccountFlow = MutableSharedFlow<CryptoAccountWithBalance>(replay = 1)
+    private val toAccountTickerFlow = MutableSharedFlow<String>(replay = 1) // accept cryptoaccounts instead of tickers
 
     private val fiatInputChanges = MutableSharedFlow<String>()
     private val cryptoInputChanges = MutableSharedFlow<String>()
@@ -82,79 +85,71 @@ class EnterAmountViewModel(
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: EnterAmountModelState): EnterAmountViewState {
-        return with(state) {
-            EnterAmountViewState(
-                selectedInput = selectedInput,
-                assets = combineDataResources(
-                    accounts.map { it.fromAccount.account.currency.toViewState() },
-                    accounts.map { it.toAccount.currency.toViewState() }
-                ) { from, to ->
-                    EnterAmountAssets(
-                        from = from,
-                        to = to
-                    )
-                },
-                accountBalance = state.accounts.map {
-                    when (state.selectedInput) {
-                        InputCurrency.Currency1 -> it.fromAccount.balanceFiat
-                        InputCurrency.Currency2 -> it.fromAccount.balanceCrypto
-                    }.toStringWithSymbol()
-                }.dataOrElse(null),
-                fiatAmount = accounts.map {
-                    CurrencyValue(
-                        value = if (selectedInput == InputCurrency.Currency1) {
-                            fiatAmountUserInput
-                        } else {
-                            //                            fiatAmountUserInput.ifEmpty { "0" }
-                            // format the unfocused value?
-                            fiatAmount?.toStringWithoutSymbol().orEmpty().ifEmpty { "0" }
-                        },
-                        maxFractionDigits = fiatAmount?.userDecimalPlaces ?: 2,
-                        ticker = it.fiatCurrency.symbol,
-                        isPrefix = true,
-                        separateWithSpace = false
-                    )
-                }.dataOrElse(null),
-                cryptoAmount = accounts.map {
-                    CurrencyValue(
-                        value = if (selectedInput == InputCurrency.Currency2) {
-                            cryptoAmountUserInput
-                        } else {
-                            //                            cryptoAmountUserInput.ifEmpty { "0" }
-                            // format the unfocused value?
-                            cryptoAmount?.toStringWithoutSymbol().orEmpty().ifEmpty { "0" }
-                        },
-                        maxFractionDigits = cryptoAmount?.userDecimalPlaces ?: 8,
-                        ticker = it.fromAccount.account.currency.displayTicker,
-                        isPrefix = false,
-                        separateWithSpace = true
-                    )
-                }.dataOrElse(null),
-                error = inputError
-            )
-        }
+    override fun reduce(state: EnterAmountModelState) = state.run {
+        EnterAmountViewState(
+            selectedInput = selectedInput,
+            assets = accounts.map {
+                EnterAmountAssets(
+                    from = it.fromAccount.account.currency.toViewState(),
+                    to = it.toAccount?.currency?.toViewState()
+                )
+            },
+            accountBalance = state.accounts.map {
+                when (state.selectedInput) {
+                    InputCurrency.Currency1 -> it.fromAccount.balanceFiat
+                    InputCurrency.Currency2 -> it.fromAccount.balanceCrypto
+                }.toStringWithSymbol()
+            }.dataOrElse(null),
+            fiatAmount = accounts.map {
+                CurrencyValue(
+                    value = if (selectedInput == InputCurrency.Currency1) {
+                        fiatAmountUserInput
+                    } else {
+                        //                            fiatAmountUserInput.ifEmpty { "0" }
+                        // format the unfocused value?
+                        fiatAmount?.toStringWithoutSymbol().orEmpty().ifEmpty { "0" }
+                    },
+                    maxFractionDigits = fiatAmount?.userDecimalPlaces ?: 2,
+                    ticker = it.fiatCurrency.symbol,
+                    isPrefix = true,
+                    separateWithSpace = false
+                )
+            }.dataOrElse(null),
+            cryptoAmount = accounts.map {
+                CurrencyValue(
+                    value = if (selectedInput == InputCurrency.Currency2) {
+                        cryptoAmountUserInput
+                    } else {
+                        //                            cryptoAmountUserInput.ifEmpty { "0" }
+                        // format the unfocused value?
+                        cryptoAmount?.toStringWithoutSymbol().orEmpty().ifEmpty { "0" }
+                    },
+                    maxFractionDigits = cryptoAmount?.userDecimalPlaces ?: 8,
+                    ticker = it.fromAccount.account.currency.displayTicker,
+                    isPrefix = false,
+                    separateWithSpace = true
+                )
+            }.dataOrElse(null),
+            error = inputError
+        )
     }
 
     override suspend fun handleIntent(modelState: EnterAmountModelState, intent: EnterAmountIntent) {
         when (intent) {
             EnterAmountIntent.LoadData -> {
-                val fromAccountTicker =
-                    fromTicker ?: swapService.highestBalanceSourceAccount()?.account?.currency?.networkTicker
+                // handle predefined from
+                val fromAccount = swapService.highestBalanceSourceAccount()
 
-                val toAccountTicker = when (fromAccountTicker) {
+                val toAccountTicker = when (fromAccount?.account?.currency?.networkTicker) {
                     "BTC" -> "USDT"
-                    else -> "ETH"
+                    else -> "BTC"
                 }
 
-                println("------ fromAccountTicker $fromAccountTicker")
-                println("------ fromAccountTicker to $toAccountTicker")
-
                 safeLet(
-                    fromAccountTicker,
+                    fromAccount,
                     toAccountTicker
                 ) { from, to ->
-                    fromAccountTickerFlow.emit(from)
+                    fromAccountFlow.emit(from)
                     toAccountTickerFlow.emit(to)
                 } ?: updateState {
                     it.copy(
@@ -202,7 +197,7 @@ class EnterAmountViewModel(
             }
 
             is EnterAmountIntent.FromAccountChanged -> {
-                fromAccountTickerFlow.emit(intent.ticker)
+                fromAccountFlow.emit(intent.account)
             }
 
             EnterAmountIntent.MaxSelected -> {
@@ -222,6 +217,7 @@ class EnterAmountViewModel(
 
             EnterAmountIntent.PreviewClicked -> {
                 val accounts = (modelState.accounts as DataResource.Data).data
+                check(accounts.toAccount != null)
                 val data = ConfirmationArgs(
                     sourceAccount = accounts.fromAccount.account,
                     targetAccount = accounts.toAccount,
@@ -235,74 +231,71 @@ class EnterAmountViewModel(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun loadAccountsAndConfig() {
-        val fromAccountFlow = fromAccountTickerFlow.flatMapLatest { fromTicker ->
-            swapService.custodialSourceAccountsWithBalances()
-                .mapData {
-                    it.first { it.account.currency.networkTicker == fromTicker }
-                }
-        }
-
-        val toAccountFlow = toAccountTickerFlow.flatMapLatest { toTicker ->
-            swapService.sourceAccounts()
-                .mapData {
-                    it.first { it.currency.networkTicker == toTicker }
-                }
-        }
-
         viewModelScope.launch {
-            combine(
-                fromAccountFlow,
-                toAccountFlow
-            ) { fromAccount, toAccount ->
-                combineDataResources(
-                    fromAccount,
-                    toAccount
-                ) { fromAccountData, toAccountData ->
-                    EnterAmountAccounts(
-                        fromAccount = fromAccountData,
-                        toAccount = toAccountData,
-                        fiatCurrency = currencyPrefs.selectedFiatCurrency,
-                    )
-                }
-            }.onEach { accountsData ->
-                // reset all whenever a new asset is selected
-                updateState {
-                    it.copy(
-                        accounts = it.accounts.updateDataWith(accountsData),
-                        fiatAmount = null,
-                        fiatAmountUserInput = "",
-                        cryptoAmount = null,
-                        cryptoAmountUserInput = "",
-                        inputError = null,
-                        fatalError = null
-                    )
-                }
-            }.flatMapData { accounts ->
-                combine(
-                    exchangeRates.exchangeRateToUserFiatFlow(accounts.fromAccount.account.currency),
-                    swapService.limits(
-                        from = accounts.fromAccount.account.currency as CryptoCurrency,
-                        to = accounts.toAccount.currency as CryptoCurrency,
-                        fiat = accounts.fiatCurrency
-                    )
-                ) { exchangeRate, limits ->
-                    combineDataResources(
-                        exchangeRate,
-                        limits
-                    ) { exchangeRateData, limitsData ->
-                        EnterAmountConfig(
-                            sourceAccountToFiat = exchangeRateData,
-                            limits = limitsData
-                        )
+            fromAccountFlow
+                .map { DataResource.Data(it) }
+                .flatMapData { fromAccount ->
+                    toAccountTickerFlow.flatMapLatest { toTicker ->
+                        swapService.targetAccounts(fromAccount.account)
+                            .mapData {
+                                it.firstOrNull { it.currency.networkTicker == toTicker }
+                            }
+                    }.map {
+                        it.map { toAccount ->
+                            EnterAmountAccounts(
+                                fromAccount = fromAccount,
+                                toAccount = toAccount,
+                                fiatCurrency = currencyPrefs.selectedFiatCurrency,
+                            )
+                        }
                     }
                 }
-            }.onEach { configData ->
-                updateState {
-                    it.copy(
-                        config = it.config.updateDataWith(configData)
-                    )
-                }
-            }.collect()
+                .onEach { accountsData ->
+                    // reset all whenever a new asset is selected
+                    updateState {
+                        it.copy(
+                            accounts = it.accounts.updateDataWith(accountsData),
+                            fiatAmount = null,
+                            fiatAmountUserInput = "",
+                            cryptoAmount = null,
+                            cryptoAmountUserInput = "",
+                            inputError = null,
+                            fatalError = null
+                        )
+                    }
+                }.flatMapData { accounts ->
+                    if (accounts.toAccount == null) {
+                        updateState {
+                            it.copy(config = DataResource.Loading)
+                        }
+                        return@flatMapData flowOf(DataResource.Loading)
+                    }
+
+                    combine(
+                        exchangeRates.exchangeRateToUserFiatFlow(accounts.fromAccount.account.currency),
+                        swapService.limits(
+                            from = accounts.fromAccount.account.currency as CryptoCurrency,
+                            to = accounts.toAccount.currency as CryptoCurrency,
+                            fiat = accounts.fiatCurrency
+                        )
+                    ) { exchangeRate, limits ->
+                        combineDataResources(
+                            exchangeRate,
+                            limits
+                        ) { exchangeRateData, limitsData ->
+                            EnterAmountConfig(
+                                sourceAccountToFiat = exchangeRateData,
+                                limits = limitsData
+                            )
+                        }
+                    }
+                }.onEach { configData ->
+                    updateState {
+                        it.copy(
+                            config = it.config.updateDataWith(configData)
+                        )
+                    }
+                }.collect()
         }
     }
 

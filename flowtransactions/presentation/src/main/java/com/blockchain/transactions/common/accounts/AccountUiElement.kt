@@ -1,7 +1,7 @@
-package com.blockchain.transactions.common
+package com.blockchain.transactions.common.accounts
 
 data class AccountUiElement(
-    val ticker: String,
+    val id: String,
     val assetName: String,
     val l2Network: String? = null,
     val valueCrypto: String,

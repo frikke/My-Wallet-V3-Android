@@ -27,7 +27,6 @@ import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.icons.Icons
@@ -283,13 +282,7 @@ private fun AssetsData(
                         paddingValues = PaddingValues(horizontal = 16.dp)
                     ) { cryptoAsset ->
                         BalanceChangeTableRow(
-                            name = cryptoAsset.name,
-                            subtitle = cryptoAsset.ticker,
-                            networkTag = cryptoAsset.network,
-                            value = cryptoAsset.currentPrice,
-                            valueChange = cryptoAsset.delta,
-                            showRisingFastTag = cryptoAsset.showRisingFastTag,
-                            imageResource = ImageResource.Remote(cryptoAsset.logo),
+                            data = cryptoAsset.data,
                             onClick = { onAssetClick(cryptoAsset.asset) }
                         )
                     }
@@ -316,13 +309,7 @@ private fun AssetsData(
                         paddingValues = PaddingValues(horizontal = 16.dp)
                     ) { cryptoAsset ->
                         BalanceChangeTableRow(
-                            name = cryptoAsset.name,
-                            subtitle = cryptoAsset.ticker,
-                            networkTag = cryptoAsset.network,
-                            value = cryptoAsset.currentPrice,
-                            valueChange = cryptoAsset.delta,
-                            showRisingFastTag = cryptoAsset.showRisingFastTag,
-                            imageResource = ImageResource.Remote(cryptoAsset.logo),
+                            data = cryptoAsset.data,
                             onClick = { onAssetClick(cryptoAsset.asset) }
                         )
                     }

@@ -29,7 +29,7 @@ data class EnterAmountModelState(
 data class EnterAmountAccounts(
     // for the FROM account we need to keep reference to the balance to cap the input
     val fromAccount: CryptoAccountWithBalance,
-    val toAccount: CryptoAccount,
+    val toAccount: CryptoAccount?,
     val fiatCurrency: FiatCurrency,
 )
 

@@ -14,18 +14,19 @@ import com.blockchain.betternavigation.typedBottomSheet
 import com.blockchain.betternavigation.typedComposable
 import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.chrome.composable.ChromeSingleScreen
-import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.transactions.swap.confirmation.composable.ConfirmationArgs
 import com.blockchain.transactions.swap.confirmation.composable.ConfirmationScreen
 import com.blockchain.transactions.swap.enteramount.composable.EnterAmount
 import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateArgs
 import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateScreen
 import com.blockchain.transactions.swap.selectsource.composable.SelectSourceScreen
+import com.blockchain.transactions.swap.selecttarget.composable.SelectTargetScreen
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 
 object SwapGraph : NavGraph() {
     object EnterAmount : Destination()
     object SourceAccounts : Destination()
+    object TargetAccounts : DestinationWithArgs<String>()
     object Confirmation : DestinationWithArgs<ConfirmationArgs>()
     object NewOrderState : DestinationWithArgs<NewOrderStateArgs>()
 }
@@ -42,16 +43,26 @@ fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
                 ChromeSingleScreen {
                     EnterAmount(
                         navContextProvider = { this },
-                        onBackPressed = { navigateUp() }
+                        onBackPressed = ::navigateUp
                     )
                 }
             }
 
             typedBottomSheet(SwapGraph.SourceAccounts) {
-                ChromeBottomSheet(onClose = { navigateUp() }) {
+                ChromeBottomSheet(onClose = ::navigateUp) {
                     SelectSourceScreen(
-                        navControllerProvider = { this.navController },
-                        onBackPressed = { navigateUp() }
+                        navControllerProvider = ::navController,
+                        onBackPressed = ::navigateUp
+                    )
+                }
+            }
+
+            typedBottomSheet(SwapGraph.TargetAccounts) { sourceTicker ->
+                ChromeBottomSheet(onClose = ::navigateUp) {
+                    SelectTargetScreen(
+                        sourceTicker = sourceTicker,
+                        navControllerProvider = ::navController,
+                        onBackPressed = ::navigateUp
                     )
                 }
             }

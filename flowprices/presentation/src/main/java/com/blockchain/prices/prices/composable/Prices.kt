@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.Analytics
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.lazylist.paddedItem
@@ -233,13 +232,7 @@ fun ColumnScope.PricesScreenData(
             paddingValues = PaddingValues(horizontal = 16.dp),
             content = { cryptoAsset ->
                 BalanceChangeTableRow(
-                    name = cryptoAsset.name,
-                    subtitle = cryptoAsset.ticker,
-                    networkTag = cryptoAsset.network,
-                    value = cryptoAsset.currentPrice,
-                    valueChange = cryptoAsset.delta,
-                    showRisingFastTag = cryptoAsset.showRisingFastTag,
-                    imageResource = ImageResource.Remote(cryptoAsset.logo),
+                    data = cryptoAsset.data,
                     onClick = { onAssetClick(cryptoAsset.asset) }
                 )
                 if (cryptoPrices.last() != cryptoAsset) {

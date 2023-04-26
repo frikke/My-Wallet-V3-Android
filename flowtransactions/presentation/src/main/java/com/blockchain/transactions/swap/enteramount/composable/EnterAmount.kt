@@ -26,6 +26,7 @@ import com.blockchain.componentlib.button.AlertButton
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.SmallTertiaryButton
+import com.blockchain.componentlib.card.HorizontalAssetAction
 import com.blockchain.componentlib.card.TwoAssetActionHorizontal
 import com.blockchain.componentlib.card.TwoAssetActionHorizontalLoading
 import com.blockchain.componentlib.control.CurrencyValue
@@ -42,6 +43,7 @@ import com.blockchain.data.map
 import com.blockchain.extensions.safeLet
 import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.presentation.R
+import com.blockchain.transactions.swap.CryptoAccountWithBalance
 import com.blockchain.transactions.swap.SwapGraph
 import com.blockchain.transactions.swap.enteramount.EnterAmountAssetState
 import com.blockchain.transactions.swap.enteramount.EnterAmountAssets
@@ -51,6 +53,7 @@ import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewState
 import com.blockchain.transactions.swap.enteramount.SwapEnterAmountInputError
 import com.blockchain.transactions.swap.selectsource.composable.KEY_SWAP_SOURCE_ACCOUNT
+import com.blockchain.transactions.swap.selecttarget.composable.KEY_SWAP_TARGET_ACCOUNT
 import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -80,12 +83,23 @@ fun EnterAmount(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val newFrom by navContextProvider().navController
-        .getResultFlow(KEY_SWAP_SOURCE_ACCOUNT, null as? String?)
+        .getResultFlow(KEY_SWAP_SOURCE_ACCOUNT, null as? CryptoAccountWithBalance?)
         .collectAsStateLifecycleAware()
 
     LaunchedEffect(newFrom) {
         newFrom?.let {
             viewModel.onIntent(EnterAmountIntent.FromAccountChanged(it))
+        }
+        keyboardController?.show()
+    }
+
+    val newTo by navContextProvider().navController
+        .getResultFlow(KEY_SWAP_TARGET_ACCOUNT, null as? String?)
+        .collectAsStateLifecycleAware()
+
+    LaunchedEffect(key1 = newTo) {
+        newFrom?.let {
+//            viewModel.onIntent(EnterAmountIntent.FromAccountChanged(it))
         }
         keyboardController?.show()
     }
@@ -120,6 +134,10 @@ fun EnterAmount(
                 navContextProvider().navigateTo(SwapGraph.SourceAccounts)
                 keyboardController?.hide()
             },
+            openTargetAccounts = { sourceTicker ->
+                navContextProvider().navigateTo(SwapGraph.TargetAccounts, sourceTicker)
+                keyboardController?.hide()
+            },
             setMaxOnClick = {
                 viewModel.onIntent(EnterAmountIntent.MaxSelected)
             },
@@ -142,6 +160,7 @@ private fun EnterAmountScreen(
     onFlipInputs: () -> Unit,
     error: SwapEnterAmountInputError?,
     openSourceAccounts: () -> Unit,
+    openTargetAccounts: (sourceTicker: String) -> Unit,
     setMaxOnClick: () -> Unit,
     previewClicked: () -> Unit,
 ) {
@@ -185,14 +204,18 @@ private fun EnterAmountScreen(
             }
             is DataResource.Data -> {
                 TwoAssetActionHorizontal(
-                    startTitle = "From",
-                    startSubtitle = assets.data.from.ticker,
-                    startIcon = StackedIcon.SingleIcon(ImageResource.Remote(assets.data.from.iconUrl)),
+                    start = HorizontalAssetAction(
+                        assets.data.from.ticker,
+                        StackedIcon.SingleIcon(ImageResource.Remote(assets.data.from.iconUrl)),
+                    ),
                     startOnClick = openSourceAccounts,
-                    endTitle = "To",
-                    endSubtitle = assets.data.to.ticker,
-                    endIcon = StackedIcon.SingleIcon(ImageResource.Remote(assets.data.to.iconUrl)),
-                    endOnClick = {}
+                    end = assets.data.to?.let {
+                        HorizontalAssetAction(
+                            it.ticker,
+                            StackedIcon.SingleIcon(ImageResource.Remote(it.iconUrl)),
+                        )
+                    },
+                    endOnClick = { openTargetAccounts(assets.data.from.ticker) }
                 )
             }
             is DataResource.Error -> TODO()
@@ -263,6 +286,7 @@ private fun PreviewEnterAmountScreen() {
         onFlipInputs = {},
         error = SwapEnterAmountInputError.BelowMinimum("éjdzjjdz"),
         openSourceAccounts = {},
+        openTargetAccounts = {},
         setMaxOnClick = {},
         previewClicked = {},
     )

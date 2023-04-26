@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
+import com.blockchain.componentlib.tablerow.BalanceChange
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrElse
@@ -105,7 +106,7 @@ class PricesViewModel(
                 }
                 .map {
                     it.groupBy {
-                        if (it.ticker in state.mostPopularTickers) PricesOutputGroup.MostPopular
+                        if (it.data.ticker in state.mostPopularTickers) PricesOutputGroup.MostPopular
                         else PricesOutputGroup.Others
                     }
                 },
@@ -134,15 +135,17 @@ class PricesViewModel(
     ): PriceItemViewState {
         return PriceItemViewState(
             asset = assetInfo,
-            name = assetInfo.name,
-            ticker = assetInfo.displayTicker,
-            network = assetInfo.takeIf { it.isLayer2Token }?.coinNetwork?.shortName?.takeIf { withNetwork },
-            logo = assetInfo.logo,
-            delta = price.map { ValueChange.fromValue(it.delta24h) },
-            currentPrice = price.map {
-                it.currentRate.price.format(currencyPrefs.selectedFiatCurrency)
-            },
-            showRisingFastTag = price.map { it.delta24h >= risingFastPercent }.dataOrElse(false)
+            data = BalanceChange(
+                name = assetInfo.name,
+                ticker = assetInfo.displayTicker,
+                network = assetInfo.takeIf { it.isLayer2Token }?.coinNetwork?.shortName?.takeIf { withNetwork },
+                logo = assetInfo.logo,
+                delta = price.map { ValueChange.fromValue(it.delta24h) },
+                currentPrice = price.map {
+                    it.currentRate.price.format(currencyPrefs.selectedFiatCurrency)
+                },
+                showRisingFastTag = price.map { it.delta24h >= risingFastPercent }.dataOrElse(false)
+            )
         )
     }
 

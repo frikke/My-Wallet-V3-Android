@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.icons.ArrowRight
+import com.blockchain.componentlib.icons.Coins
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Receive
 import com.blockchain.componentlib.icons.withBackground
@@ -61,15 +62,16 @@ private fun TwoAssetActionBody(
     }
 }
 
+data class HorizontalAssetAction(
+    val assetName: String,
+    val icon: StackedIcon,
+)
+
 @Composable
 fun TwoAssetActionHorizontal(
-    startTitle: String,
-    startSubtitle: String,
-    startIcon: StackedIcon,
+    start: HorizontalAssetAction,
     startOnClick: () -> Unit,
-    endTitle: String,
-    endSubtitle: String,
-    endIcon: StackedIcon,
+    end: HorizontalAssetAction?,
     endOnClick: () -> Unit,
 ) {
     TwoAssetActionBody(
@@ -77,24 +79,31 @@ fun TwoAssetActionHorizontal(
             CompositionLocalProvider(
                 LocalLayoutDirection provides LayoutDirection.Ltr
             ) {
-                Asset(
-                    modifier = Modifier.weight(1F),
-                    title = startTitle,
-                    subtitle = startSubtitle,
-                    icon = startIcon,
-                    onClick = startOnClick
-                )
+                start.run {
+                    Asset(
+                        modifier = Modifier.weight(1F),
+                        title = "From",
+                        subtitle = assetName,
+                        icon = icon,
+                        onClick = startOnClick
+                    )
+                }
             }
         },
         end = {
             CompositionLocalProvider(
                 LocalLayoutDirection provides LayoutDirection.Rtl
             ) {
-                Asset(
+                end?.run {
+                    Asset(
+                        modifier = Modifier.weight(1F),
+                        title = "To",
+                        subtitle = assetName,
+                        icon = icon,
+                        onClick = endOnClick
+                    )
+                } ?: NoAsset(
                     modifier = Modifier.weight(1F),
-                    title = endTitle,
-                    subtitle = endSubtitle,
-                    icon = endIcon,
                     onClick = endOnClick
                 )
             }
@@ -143,6 +152,20 @@ private fun Asset(
 }
 
 @Composable
+fun NoAsset(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Asset(
+        modifier = modifier,
+        title = "To",
+        subtitle = "Select",
+        icon = StackedIcon.SingleIcon(Icons.Filled.Coins),
+        onClick = onClick
+    )
+}
+
+@Composable
 fun TwoAssetActionHorizontalLoading() {
     TwoAssetActionBody(
         start = {
@@ -169,13 +192,29 @@ fun TwoAssetActionHorizontalLoading() {
 @Composable
 private fun PreviewTwoAssetAction() {
     TwoAssetActionHorizontal(
-        startTitle = "From",
-        startSubtitle = "ETH",
-        startIcon = StackedIcon.SingleIcon(Icons.Receive),
+        start = HorizontalAssetAction(
+            assetName = "ETH",
+            StackedIcon.SingleIcon(Icons.Receive),
+        ),
         startOnClick = {},
-        endTitle = "To",
-        endSubtitle = "BTC",
-        endIcon = StackedIcon.SingleIcon(Icons.Receive),
+        end = HorizontalAssetAction(
+            assetName = "BTC",
+            StackedIcon.SingleIcon(Icons.Receive),
+        ),
+        endOnClick = {}
+    )
+}
+
+@Preview(showBackground = true, backgroundColor = 0XFFF1F2F7)
+@Composable
+private fun PreviewTwoAssetAction_Select() {
+    TwoAssetActionHorizontal(
+        start = HorizontalAssetAction(
+            assetName = "ETH",
+            StackedIcon.SingleIcon(Icons.Receive),
+        ),
+        startOnClick = {},
+        end = null,
         endOnClick = {}
     )
 }

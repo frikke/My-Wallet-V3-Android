@@ -1,11 +1,17 @@
 package com.blockchain.transactions.swap
 
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.EarnRewardsAccount
+import com.blockchain.coincore.ExchangeAccount
+import com.blockchain.coincore.SingleAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.data.DataResource
+import com.blockchain.data.dataOrElse
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -18,6 +24,7 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.asFiatCurrencyOrThrow
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -25,6 +32,11 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.rx3.await
+
+// TODO (othman) ref swap stuff to this repo
 
 internal class SwapRepository(
     private val coincore: Coincore,
@@ -32,6 +44,9 @@ internal class SwapRepository(
     private val limitsDataManager: LimitsDataManager,
     private val walletManager: CustodialWalletManager,
 ) : SwapService {
+
+    private var fromAccountsCache: List<CryptoAccountWithBalance>? = null
+    private var toAccountsCache: List<CryptoAccount>? = null
 
     override fun sourceAccounts(): Flow<DataResource<List<CryptoAccount>>> {
         return coincore.walletsWithAction(
@@ -64,6 +79,12 @@ internal class SwapRepository(
                     }
                 ) { DataResource.Data(it.toList()) }
             }
+            .onStart {
+                fromAccountsCache?.let { emit(DataResource.Data(it)) }
+            }
+            .onEach {
+                it.dataOrElse(null)?.let { fromAccountsCache = it }
+            }
     }
 
     override suspend fun highestBalanceSourceAccount(): CryptoAccountWithBalance? {
@@ -71,6 +92,50 @@ internal class SwapRepository(
             .filterIsInstance<DataResource.Data<List<CryptoAccountWithBalance>>>()
             .map { it.data.maxBy { it.balanceCrypto.toBigDecimal() } }
             .firstOrNull()
+    }
+
+    override suspend fun targetTickers(sourceTicker: String): List<String> {
+        return custodialRepository.getSwapAvailablePairs()
+            .map { pairs ->
+                pairs.filter {
+                    it.source.networkTicker == sourceTicker
+                }.map {
+                    it.destination.networkTicker
+                }
+            }.await()
+    }
+
+    override fun targetAccounts(sourceAccount: CryptoAccount): Flow<DataResource<List<CryptoAccount>>> {
+        return custodialRepository.getSwapAvailablePairs().flatMap { pairs ->
+            val targetCurrencies = pairs.filter {
+                it.source.networkTicker == sourceAccount.currency.networkTicker
+            }.map {
+                it.destination
+            }
+
+            val assets = targetCurrencies.map { coincore[it] }
+
+            Single.just(assets).flattenAsObservable { it }.flatMapSingle { asset ->
+                asset.accountGroup(AssetFilter.All).map { it.accounts }.switchIfEmpty(Single.just(emptyList()))
+            }.reduce { t1, t2 ->
+                t1 + t2
+            }.switchIfEmpty(Single.just(emptyList()))
+                .map {
+                    it.filterIsInstance<CryptoAccount>()
+                        .filterNot { account ->
+                            account is EarnRewardsAccount || account is ExchangeAccount
+                        }
+                        .filter { cryptoAccount ->
+                            sourceAccount.isTargetAvailableForSwap(target = cryptoAccount)
+                        }
+                }
+        }.toFlowDataResource()
+            .onStart {
+                toAccountsCache?.let { emit(DataResource.Data(it)) }
+            }
+            .onEach {
+                it.dataOrElse(null)?.let { toAccountsCache = it }
+            }
     }
 
     override fun limits( // todo support defi
@@ -113,3 +178,12 @@ private fun TransferDirection.targetAccountType(): AssetCategory {
         TransferDirection.FROM_USERKEY -> AssetCategory.CUSTODIAL
     }
 }
+
+/**
+ * When wallet is in Universal mode, you can swap from Trading to Trading, from PK to PK and from PK to Trading
+ * In any other case, swap is only allowed to same Type accounts
+ */
+private fun SingleAccount.isTargetAvailableForSwap(
+    target: CryptoAccount
+): Boolean =
+    if (this is CustodialTradingAccount) target is CustodialTradingAccount else true

@@ -16,7 +16,7 @@ data class EnterAmountViewState(
 
 data class EnterAmountAssets(
     val from: EnterAmountAssetState,
-    val to: EnterAmountAssetState,
+    val to: EnterAmountAssetState?,
 )
 
 data class EnterAmountAssetState(

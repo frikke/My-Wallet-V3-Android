@@ -39,6 +39,7 @@ dependencies {
     implementation project(':logging:domain')
     implementation project(':betternavigation')
     implementation project(':unifiedcryptowallet:domain')
+    implementation project(':flowprices:domain')
     implementation project(':deeplinking')
     implementation project(':notifications')
 

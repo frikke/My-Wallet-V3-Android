@@ -14,6 +14,10 @@ interface SwapService {
 
     suspend fun highestBalanceSourceAccount(): CryptoAccountWithBalance?
 
+    suspend fun targetTickers(sourceTicker: String): List<String>
+
+    fun targetAccounts(sourceAccount: CryptoAccount): Flow<DataResource<List<CryptoAccount>>>
+
     /**
      * returns [TxLimits] which defines min and max
      * needs to be exchanged later to fiat if needed
