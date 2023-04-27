@@ -92,6 +92,9 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
         model.process(TransactionIntent.FetchConfirmationRates)
         model.process(TransactionIntent.LoadImprovedPaymentUxFeatureFlag)
         model.process(TransactionIntent.LoadDepositTerms)
+        if (assetAction == AssetAction.ActiveRewardsWithdraw || assetAction == AssetAction.StakingWithdraw) {
+            model.process(TransactionIntent.LoadRewardsWithdrawalUnbondingDays)
+        }
     }
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentTxFlowConfirmBinding =
