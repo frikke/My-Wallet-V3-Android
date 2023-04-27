@@ -332,7 +332,7 @@ private fun DiscoverScreen(
                 TagButtonRow(
                     selected = filterBy,
                     values = filtersAvailable.map {
-                        TagButtonValue(it, stringResource(id = it.title()))
+                        TagButtonValue(obj = it, stringVal = stringResource(id = it.title()))
                     }.toImmutableList(),
                     onClick = { filter -> filterAction(filter) }
                 )

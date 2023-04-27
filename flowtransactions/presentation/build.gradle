@@ -48,6 +48,8 @@ dependencies {
     implementation Libraries.composeMaterial
     implementation Libraries.accompanistNavigationMaterial
 
+    implementation Libraries.kotlinImmutableCollections
+
     // koin
     implementation Libraries.koinAndroid
     implementation Libraries.koinCompose

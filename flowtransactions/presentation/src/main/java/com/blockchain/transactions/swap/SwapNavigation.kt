@@ -20,7 +20,7 @@ import com.blockchain.transactions.swap.enteramount.composable.EnterAmount
 import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateArgs
 import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateScreen
 import com.blockchain.transactions.swap.selectsource.composable.SelectSourceScreen
-import com.blockchain.transactions.swap.selecttarget.composable.SelectTargetScreen
+import com.blockchain.transactions.swap.selecttarget.composable.SelectTarget
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 
 object SwapGraph : NavGraph() {
@@ -59,7 +59,7 @@ fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
 
             typedBottomSheet(SwapGraph.TargetAccounts) { sourceTicker ->
                 ChromeBottomSheet(onClose = ::navigateUp) {
-                    SelectTargetScreen(
+                    SelectTarget(
                         sourceTicker = sourceTicker,
                         navControllerProvider = ::navController,
                         onBackPressed = ::navigateUp

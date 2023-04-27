@@ -172,7 +172,9 @@ fun ColumnScope.PricesScreenData(
 
         TagButtonRow(
             selected = selectedFilter,
-            values = filters.map { TagButtonValue(it, stringResource(it.nameRes())) }.toImmutableList(),
+            values = filters.map {
+                TagButtonValue(obj = it, stringVal = stringResource(it.nameRes()))
+            }.toImmutableList(),
             onClick = { filter -> onFilterSelected(filter) }
         )
     }
