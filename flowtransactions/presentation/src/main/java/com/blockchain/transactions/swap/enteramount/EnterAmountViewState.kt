@@ -3,7 +3,6 @@ package com.blockchain.transactions.swap.enteramount
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.control.CurrencyValue
 import com.blockchain.componentlib.control.InputCurrency
-import com.blockchain.data.DataResource
 
 data class EnterAmountViewState(
     val selectedInput: InputCurrency,
