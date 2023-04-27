@@ -134,8 +134,8 @@ fun EarnPendingWithdrawals(pendingWithdrawals: List<EarnWithdrawalUiElement>) {
                         contentEnd = {
                             Column {
                                 SimpleText(
-                                    text = pendingWithdrawal.amountFiat,
-                                    style = ComposeTypographies.Paragraph2,
+                                    text = pendingWithdrawal.unbondingStartDate,
+                                    style = ComposeTypographies.Caption1,
                                     color = ComposeColors.Body,
                                     gravity = ComposeGravities.End,
                                 )
@@ -170,6 +170,7 @@ fun PreviewEarnPendingWithdrawals() {
                     amountFiat = "-£0.01",
                     unbondingStartDate = "2021-05-01",
                     unbondingExpiryDate = "2021-05-02",
+                    null
                 ),
                 EarnWithdrawalUiElement(
                     currency = "BTC",
@@ -177,6 +178,7 @@ fun PreviewEarnPendingWithdrawals() {
                     amountFiat = "-£0.01",
                     unbondingStartDate = "2021-05-01",
                     unbondingExpiryDate = "2021-05-02",
+                    null
                 ),
                 EarnWithdrawalUiElement(
                     currency = "BTC",
@@ -184,6 +186,7 @@ fun PreviewEarnPendingWithdrawals() {
                     amountFiat = "-£0.01",
                     unbondingStartDate = "2021-05-01",
                     unbondingExpiryDate = "2021-05-02",
+                    null
                 )
             )
         )

@@ -9,8 +9,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.coincore.BlockchainAccount
@@ -135,7 +138,7 @@ fun StakingSummaryScreen(
     val viewState: StakingSummaryViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     viewState?.let { state ->
-        Column {
+        Column(modifier = Modifier.nestedScroll(rememberNestedScrollInteropConnection())) {
             when {
                 state.isLoading -> {
                     SummarySheetLoading()

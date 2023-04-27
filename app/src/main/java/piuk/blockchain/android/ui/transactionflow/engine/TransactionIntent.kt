@@ -755,6 +755,17 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
     class UpdateStakingWithdrawalSeen(val networkTicker: String) : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState = oldState
     }
+
+    object LoadRewardsWithdrawalUnbondingDays : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState = oldState
+    }
+
+    class RewardsWithdrawalUnbondingDaysLoaded(val unbondingDays: Int) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                earnWithdrawalUnbondingDays = unbondingDays
+            )
+    }
 }
 
 private fun ValidationState.mapToTransactionError() =

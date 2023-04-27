@@ -4,17 +4,19 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,18 +35,14 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.divider.HorizontalDivider
-import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.sheets.SheetHeader
+import com.blockchain.componentlib.system.CircularProgressBarWithSmallText
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
-import com.blockchain.componentlib.tablerow.FlexibleTableRow
-import com.blockchain.componentlib.tablerow.TableRowHeader
-import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tablerow.custom.TextWithTooltipTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.LargeVerticalSpacer
-import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
-import com.blockchain.componentlib.theme.SmallestVerticalSpacer
+import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.theme.TinyHorizontalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.earn.R
@@ -54,6 +52,7 @@ import com.blockchain.earn.domain.models.EarnRewardsFrequency
 import com.blockchain.earn.staking.viewmodel.StakingError
 import com.blockchain.earn.staking.viewmodel.StakingSummaryViewState
 import com.blockchain.extensions.safeLet
+import kotlinx.coroutines.delay
 
 @Composable
 fun StakingSummarySheet(
@@ -161,14 +160,64 @@ fun StakingSummarySheet(
 
                 LargeVerticalSpacer()
 
+                val hasPendingWithdrawals by remember(state.pendingWithdrawals) {
+                    mutableStateOf(state.pendingWithdrawals.isNotEmpty())
+                }
+
+                var withdrawalsLocked by remember { mutableStateOf(false) }
+
                 if (state.shouldShowWithdrawWarning())
                     StakingWithdrawalNotice(onLearnMorePressed = withdrawDisabledLearnMore)
-                else if (state.pendingWithdrawals.isNotEmpty()) {
-                    EarnPendingWithdrawals(pendingWithdrawals = state.pendingWithdrawals)
+                else {
+                    if (hasPendingWithdrawals) {
+                        EarnPendingWithdrawals(pendingWithdrawals = state.pendingWithdrawals)
+                        StandardVerticalSpacer()
+                    }
+
+                    StakingWithdrawalQueueNotice(
+                        unbondingDays = state.unbondingDays,
+                        onLearnMorePressed = withdrawDisabledLearnMore
+                    )
                     LargeVerticalSpacer()
                 }
 
                 LargeVerticalSpacer()
+
+                if (hasPendingWithdrawals) {
+                    val withdrawalTimestamp = state.pendingWithdrawals.last().withdrawalTimestamp?.time ?: 0L
+                    val timeBetweenWithdrawals = 5 * 60 * 1000 // 5 minutes in milliseconds
+                    val unlockTime = withdrawalTimestamp + timeBetweenWithdrawals
+
+                    val timeUntilUnlock = remember {
+                        mutableStateOf(unlockTime - System.currentTimeMillis())
+                    }
+
+                    LaunchedEffect(Unit) {
+                        withdrawalsLocked = true
+                        while (true) {
+                            delay(1000L)
+                            val newTimeUntilUnlock = unlockTime - System.currentTimeMillis()
+                            if (newTimeUntilUnlock != timeUntilUnlock.value) {
+                                timeUntilUnlock.value = newTimeUntilUnlock
+                            }
+                        }
+                    }
+
+                    if (timeUntilUnlock.value > 0) {
+                        val progress = (timeUntilUnlock.value.toFloat() / timeBetweenWithdrawals.toFloat())
+                            .coerceIn(0f, 1f)
+                        CircularProgressBarWithSmallText(
+                            progress = progress,
+                            text = stringResource(
+                                id = R.string.earn_staking_withdrawal_locked_countdown_message,
+                                formatDuration(timeUntilUnlock.value)
+                            )
+                        )
+                        SmallVerticalSpacer()
+                    } else {
+                        withdrawalsLocked = false
+                    }
+                }
 
                 Row(
                     modifier = Modifier
@@ -178,7 +227,8 @@ fun StakingSummarySheet(
                         modifier = Modifier.weight(1F),
                         text = stringResource(id = R.string.common_withdraw),
                         icon = ImageResource.Local(R.drawable.send_off, colorFilter = ColorFilter.tint(Color.White)),
-                        state = if (state.canWithdraw) ButtonState.Enabled else ButtonState.Disabled,
+                        state = if (state.canWithdraw && !withdrawalsLocked) ButtonState.Enabled
+                        else ButtonState.Disabled,
                         onClick = {
                             safeLet(state.account, state.tradingAccount) { account, tradingAccount ->
                                 onWithdrawPressed(account, tradingAccount)
@@ -227,6 +277,7 @@ fun StakingSummarySheetPreview() {
                 canDeposit = true,
                 canWithdraw = true,
                 pendingWithdrawals = emptyList(),
+                unbondingDays = 2
             ),
             onWithdrawPressed = { _, _ -> },
             onDepositPressed = {},
@@ -287,6 +338,43 @@ fun StakingWithdrawalNoticePreview() {
 }
 
 @Composable
+fun StakingWithdrawalQueueNotice(unbondingDays: Int, onLearnMorePressed: () -> Unit) {
+    Card(
+        backgroundColor = AppTheme.colors.background,
+        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+        elevation = 0.dp,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(AppTheme.dimensions.smallSpacing)
+        ) {
+            SimpleText(
+                text = stringResource(R.string.earn_staking_withdrawal_queue_notice_title),
+                style = ComposeTypographies.Paragraph2,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Start
+            )
+
+            TinyVerticalSpacer()
+
+            SimpleText(
+                text = stringResource(R.string.earn_staking_withdrawal_queue_notice_description, unbondingDays),
+                style = ComposeTypographies.Caption1, color = ComposeColors.Title,
+                gravity = ComposeGravities.Start
+            )
+
+            SmallVerticalSpacer()
+
+            SecondaryButton(
+                text = stringResource(id = R.string.common_learn_more),
+                onClick = onLearnMorePressed
+            )
+        }
+    }
+}
+
+@Composable
 fun SummarySheetLoading() {
     Column {
         ShimmerLoadingTableRow(false)
@@ -295,77 +383,12 @@ fun SummarySheetLoading() {
     }
 }
 
-@Composable
-fun StakingPendingWithdrawals(currencyTicker: String) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        TableRowHeader(title = "Recent Activity")
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-
-        Card(
-            modifier = Modifier
-                .fillMaxWidth(),
-            shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-            elevation = 0.dp,
-        ) {
-            FlexibleTableRow(
-                paddingValues = PaddingValues(AppTheme.dimensions.smallSpacing),
-                contentStart = {
-                    CustomStackedIcon(icon = StackedIcon.SingleIcon(ImageResource.Local(R.drawable.send_off)))
-                },
-                content = {
-                    SmallHorizontalSpacer()
-
-                    Column {
-                        SimpleText(
-                            text = "Withdrew $currencyTicker",
-                            style = ComposeTypographies.Body2,
-                            color = ComposeColors.Title,
-                            gravity = ComposeGravities.Start
-                        )
-
-                        SmallestVerticalSpacer()
-
-                        SimpleText(
-                            text = "Unbonding",
-                            style = ComposeTypographies.Paragraph1,
-                            color = ComposeColors.Primary,
-                            gravity = ComposeGravities.Start
-                        )
-                    }
-                },
-                contentEnd = {
-                    Column {
-                        SimpleText(
-                            text = "-\$645.02",
-                            style = ComposeTypographies.Body2,
-                            color = ComposeColors.Title,
-                            gravity = ComposeGravities.Start
-                        )
-
-                        SmallestVerticalSpacer()
-
-                        SimpleText(
-                            text = "-0.10071512 ETH",
-                            style = ComposeTypographies.Paragraph1,
-                            color = ComposeColors.Body,
-                            gravity = ComposeGravities.Start
-                        )
-                    }
-                },
-                onContentClicked = {}
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun EarnPendingWithdrawal2Preview() {
-    AppTheme {
-        // EarnPendingWithdrawal2("ETH")
-    }
-}
-
 private fun StakingSummaryViewState.shouldShowWithdrawWarning(): Boolean =
     // TODO (labreu): remove hardcoded ETH once staking is available for other networks
     !canWithdraw && balanceCrypto?.currency?.networkTicker == "ETH"
+
+private fun formatDuration(duration: Long): String {
+    val minutes = (duration / 1000) / 60
+    val seconds = (duration / 1000) % 60
+    return String.format("%02d:%02d", minutes, seconds)
+}
