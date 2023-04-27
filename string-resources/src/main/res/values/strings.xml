@@ -3445,11 +3445,14 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earning_dashboard_empty_filter_cta">Start earning</string>
     <string name="discover_dashboard_empty_filter">We don\'t have any offering here at the moment - check back soon!</string>
     <string name="earn_rewards_label_passive">Passive Rewards</string>
+    <string name="earn_rewards_label_passive_short">Passive</string>
     <string name="earn_rewards_carousel_passive_desc">Monthly rewards for\nholding crypto with us.</string>
     <string name="earn_rewards_label_staking">Staking Rewards</string>
+    <string name="earn_rewards_label_staking_short">Staking</string>
     <string name="earn_rewards_carousel_staking_desc">Daily rewards for\nsecuring networks.</string>
     <string name="earn_rewards_carousel_active_desc">Weekly rewards for\nforecasting the market.</string>
     <string name="earn_rewards_label_active">Active Rewards</string>
+    <string name="earn_rewards_label_active_short">Active</string>
     <string name="earn_dashboard_tab_earning">Earning</string>
     <string name="earn_dashboard_tab_discover">Discover</string>
     <string name="earn_dashboard_error_title">Couldn\'t load Earn</string>
