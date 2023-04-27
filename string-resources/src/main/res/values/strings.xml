@@ -674,13 +674,13 @@
     <string name="tx_title_swapped">Swapped %1$s → %2$s</string>
     <string name="tx_title_transferred">Transferred %s</string>
     <string name="tx_title_fee">Fee %s</string>
-    <string name="tx_title_rewards">%s Rewards Earned</string>
+    <string name="tx_title_rewards">Earned %s</string>
     <string name="tx_title_add_with_ticker">Add %s</string>
     <string name="tx_title_stake_with_ticker">Stake %s</string>
     <string name="tx_title_added">Added %s</string>
-    <string name="tx_title_earned">%s Earned</string>
+    <string name="tx_title_earned">Earned %s</string>
     <string name="tx_title_debited">%s Debited</string>
-    <string name="tx_title_stake_withdrawn">%s Unstaked</string>
+    <string name="tx_title_stake_withdrawn">Unstaked %s</string>
     <string name="tx_title_staked">Staked %s</string>
 
     <!-- SECURITY CENTRE -->
