@@ -182,6 +182,8 @@ class TransactionFlowCustomiserImpl(
             AssetAction.StakingDeposit -> resources.getString(R.string.common_stake)
             AssetAction.Swap -> resources.getString(R.string.common_swap_to)
             AssetAction.FiatWithdraw -> resources.getString(R.string.common_cash_out)
+            AssetAction.ActiveRewardsWithdraw,
+            AssetAction.StakingWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.select_withdraw_target_title)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
@@ -599,6 +601,8 @@ class TransactionFlowCustomiserImpl(
                 amount
             )
             AssetAction.FiatWithdraw,
+            AssetAction.ActiveRewardsWithdraw,
+            AssetAction.StakingWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(
                 R.string.withdraw_confirmation_progress_title,
                 amount
@@ -624,6 +628,8 @@ class TransactionFlowCustomiserImpl(
             AssetAction.FiatDeposit -> resources.getString(R.string.deposit_confirmation_progress_message)
             AssetAction.Sign -> resources.getString(R.string.sign_confirmation_progress_message)
             AssetAction.FiatWithdraw,
+            AssetAction.ActiveRewardsWithdraw,
+            AssetAction.StakingWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.withdraw_confirmation_progress_message)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
@@ -808,6 +814,8 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Sell -> resources.getString(R.string.common_sell)
             AssetAction.FiatDeposit -> resources.getString(R.string.common_deposit)
             AssetAction.FiatWithdraw,
+            AssetAction.ActiveRewardsWithdraw,
+            AssetAction.StakingWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.withdraw_target_select_title)
             else -> resources.getString(R.string.select_a_wallet)
         }

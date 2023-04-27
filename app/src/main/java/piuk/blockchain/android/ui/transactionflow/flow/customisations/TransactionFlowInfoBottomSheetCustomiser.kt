@@ -519,6 +519,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
             AssetAction.FiatDeposit -> resources.getString(R.string.common_deposit)
             AssetAction.FiatWithdraw,
             AssetAction.StakingWithdraw,
+            AssetAction.ActiveRewardsWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.common_withdraw)
             else -> throw IllegalArgumentException("Action not supported by this customiser")
         }
