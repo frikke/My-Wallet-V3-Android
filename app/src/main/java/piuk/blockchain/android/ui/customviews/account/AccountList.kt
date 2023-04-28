@@ -41,6 +41,7 @@ import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
+import timber.log.Timber
 
 typealias StatusDecorator = (BlockchainAccount) -> CellDecorator
 
@@ -96,6 +97,8 @@ class AccountList @JvmOverloads constructor(
         shouldShowSelectionStatus: Boolean = false,
         shouldShowAddNewBankAccount: Single<Boolean> = Single.just(false),
         assetAction: AssetAction? = null,
+        showTradingAccounts: Boolean = false,
+        canSwitchBetweenAccountTypes: Boolean = false
     ) {
         removeAllHeaderDecorations()
 
@@ -122,7 +125,9 @@ class AccountList @JvmOverloads constructor(
             accountsSource = source,
             accountsLocksSource = accountsLocks,
             showAddNewBankAccount = shouldShowAddNewBankAccount,
-            assetAction = assetAction
+            assetAction = assetAction,
+            showTradingAccounts = showTradingAccounts,
+            canSwitchBetweenAccountTypes = canSwitchBetweenAccountTypes
         )
     }
 
@@ -154,6 +159,7 @@ class AccountList @JvmOverloads constructor(
             .trackProgress(loader)
             .subscribeBy(
                 onSuccess = {
+                    Timber.d("Account List: Updating list with ${it.accountsSource.size}) selectable accounts")
                     (adapter as? AccountsDelegateAdapter)?.items = it.accountsLocksSource +
                         it.accountsSource
                             .filter { accountItem ->
