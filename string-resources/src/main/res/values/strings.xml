@@ -3625,6 +3625,11 @@ If you want to know more about our verification process visit our <annotation li
     <string name="swap_failed_message">Your balance hasn\'t been affected. You can try again or cancel.</string>
     <string name="price_updated">Price updated</string>
     <string name="accept">Accept</string>
+    <string name="approval_for_token_failed">%1$s approval failed</string>
+    <string name="approval_for_token_completed">Approved %1$s</string>
+    <string name="tx_in_process">Transaction in process</string>
+    <string name="not_accurate_balance">Your balances may not be accurate.
+        Once the transaction is confirmed, your balances will update.</string>
     <string name="earn_staking_withdrawal_queue_notice_title">Unstaking Information</string>
     <string name="earn_staking_withdrawal_queue_notice_description">The unbonding period depends on the network queue. The current unbonding period is %1$s days.</string>
     <string name="earn_staking_withdrawal_locked_countdown_message">You will be able to request another withdrawal in %1$s min.</string>
