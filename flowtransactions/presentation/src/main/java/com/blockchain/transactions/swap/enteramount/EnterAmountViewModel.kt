@@ -266,15 +266,20 @@ class EnterAmountViewModel(
             }
 
             EnterAmountIntent.PreviewClicked -> {
-//                val accounts = (modelState.accounts as DataResource.Data).data
-//                check(accounts.toAccount != null)
-//                val data = ConfirmationArgs(
-//                    sourceAccount = accounts.fromAccount.account,
-//                    targetAccount = accounts.toAccount,
-//                    sourceCryptoAmount = modelState.cryptoAmount!!,
-//                    secondPassword = null, // TODO(aromano): TEMP
-//                )
-//                navigate(EnterAmountNavigationEvent.Preview(data))
+                val fromAccount = modelState.fromAccount?.account
+                check(fromAccount != null)
+                val toAccount = modelState.toAccount
+                check(toAccount != null)
+                val cryptoAmount = modelState.cryptoAmount
+                check(cryptoAmount != null)
+
+                val data = ConfirmationArgs(
+                    sourceAccount = fromAccount,
+                    targetAccount = toAccount,
+                    sourceCryptoAmount = cryptoAmount,
+                    secondPassword = null, // TODO(aromano): TEMP
+                )
+                navigate(EnterAmountNavigationEvent.Preview(data))
             }
         }
     }
