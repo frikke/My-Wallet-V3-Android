@@ -21,6 +21,7 @@ import com.blockchain.componentlib.icons.Star
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
+import com.blockchain.componentlib.theme.Green700
 import com.blockchain.componentlib.theme.Red400
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.value
@@ -38,6 +39,7 @@ enum class PillAlertType(
 ) {
     Info(bgColor = Dark800, textColor = Color.White),
     Error(bgColor = Dark800, textColor = Red400),
+    Success(bgColor = Dark800, textColor = Green700),
     // todo add more types
 }
 

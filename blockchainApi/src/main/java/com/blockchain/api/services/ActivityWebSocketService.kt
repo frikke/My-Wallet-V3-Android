@@ -104,7 +104,7 @@ class ActivityWebSocketService(
                 params = ActivityRequestParams(
                     timeZone = timeZone,
                     fiatCurrency = fiatCurrency,
-                    locales = acceptLanguage // "en-GB;q=1.0, en"
+                    locales = acceptLanguage
                 ),
                 action = UNIFIED_ACTIVITY_WS_ACTION,
                 channel = UNIFIED_ACTIVITY_WS_CHANNEL

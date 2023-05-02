@@ -1,7 +1,10 @@
 package com.dex.presentation.enteramount
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -19,6 +22,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -30,13 +34,17 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavController
+import com.blockchain.chrome.LocalChromePillProvider
 import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
+import com.blockchain.componentlib.alert.PillAlert
+import com.blockchain.componentlib.alert.PillAlertType
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -49,14 +57,24 @@ import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.TertiaryButton
+import com.blockchain.componentlib.icons.Alert
+import com.blockchain.componentlib.icons.Check
+import com.blockchain.componentlib.icons.Close
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Question
 import com.blockchain.componentlib.icons.Settings
+import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Green700
+import com.blockchain.componentlib.theme.Grey000
+import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Grey900
+import com.blockchain.componentlib.theme.Orange600
+import com.blockchain.componentlib.theme.Red400
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
+import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.dex.presentation.R
 import com.blockchain.koin.payloadScope
@@ -69,6 +87,7 @@ import com.dex.presentation.graph.ARG_ALLOWANCE_TX
 import com.dex.presentation.graph.DexDestination
 import info.blockchain.balance.Currency
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
@@ -92,11 +111,14 @@ fun DexEnterAmountScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val lifecycleOwner = LocalLifecycleOwner.current
+    val context = LocalContext.current
+    val chromePillProvider = LocalChromePillProvider.current
 
     DexTxSubscribeScreen(
         subscribe = { viewModel.onIntent(InputAmountIntent.SubscribeForTxUpdates) },
         unsubscribe = { viewModel.onIntent(InputAmountIntent.UnSubscribeToTxUpdates) }
     )
+    val scope = rememberCoroutineScope()
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -111,9 +133,7 @@ fun DexEnterAmountScreen(
                     if (it) {
                         viewModel.onIntent(InputAmountIntent.AllowanceTransactionApproved)
                     } else {
-                        /*
-                        * handle decline
-                        * */
+                        viewModel.onIntent(InputAmountIntent.AllowanceTransactionDeclined)
                     }
                 }
                 savedStateHandle.remove<Boolean>(ALLOWANCE_TRANSACTION_APPROVED)
@@ -142,6 +162,38 @@ fun DexEnterAmountScreen(
                         )
                     )
                 )
+                is AmountNavigationEvent.AllowanceTxFailed -> {
+                    scope.launch {
+                        chromePillProvider.show(
+                            PillAlert(
+                                text = TextValue.StringValue(
+                                    context.getString(
+                                        R.string.approval_for_token_failed,
+                                        event.currencyTicker
+                                    )
+                                ),
+                                icon = Icons.Filled.Alert.withTint(Red400),
+                                type = PillAlertType.Error
+                            )
+                        )
+                    }
+                }
+                is AmountNavigationEvent.AllowanceTxCompleted -> {
+                    scope.launch {
+                        chromePillProvider.show(
+                            PillAlert(
+                                text = TextValue.StringValue(
+                                    context.getString(
+                                        R.string.approval_for_token_completed,
+                                        event.currencyTicker
+                                    )
+                                ),
+                                icon = Icons.Filled.Check.withTint(Green700),
+                                type = PillAlertType.Success
+                            )
+                        )
+                    }
+                }
             }
         }
     }
@@ -184,10 +236,17 @@ fun DexEnterAmountScreen(
                     onPreviewClicked = {
                         navController.navigate(DexDestination.Confirmation.route)
                         keyboardController?.hide()
+                    },
+                    txInProgressDismiss = {
+                        viewModel.onIntent(InputAmountIntent.IgnoreTxInProcessError)
+                    },
+                    revokeAllowance = {
+                        viewModel.onIntent(InputAmountIntent.RevokeSourceCurrencyAllowance)
                     }
                 )
             }
         }
+
         (viewState as? InputAmountViewState.NoInputViewState)?.let {
             paddedItem(paddingValues = PaddingValues(spacing)) {
                 NoInputScreen(
@@ -265,8 +324,10 @@ fun InputScreen(
     selectDestinationAccount: () -> Unit,
     onTokenAllowanceRequested: () -> Unit,
     onPreviewClicked: () -> Unit,
+    revokeAllowance: () -> Unit,
     onValueChanged: (TextFieldValue) -> Unit,
     settingsOnClick: () -> Unit,
+    txInProgressDismiss: () -> Unit,
     viewState: InputAmountViewState.TransactionInputState
 ) {
 
@@ -276,7 +337,21 @@ fun InputScreen(
     ) {
 
         (viewState.error as? DexUiError.CommonUiError)?.let {
-            UiError(it)
+            UiError(
+                modifier = Modifier.padding(bottom = AppTheme.dimensions.smallSpacing),
+                title = it.title,
+                description = it.description,
+                close = null
+            )
+        }
+
+        (viewState.error as? DexUiError.TransactionInProgressError)?.let {
+            UiError(
+                modifier = Modifier.padding(bottom = AppTheme.dimensions.smallSpacing),
+                title = stringResource(id = R.string.tx_in_process),
+                description = stringResource(id = R.string.not_accurate_balance),
+                close = txInProgressDismiss
+            )
         }
 
         SourceAndDestinationAmountFields(
@@ -290,7 +365,7 @@ fun InputScreen(
                 onCurrencyClicked = selectSourceAccount,
                 amount = viewState.txAmount,
                 balance = viewState.sourceAccountBalance,
-                canChangeCurrency = true
+                canChangeCurrency = viewState.canChangeInputCurrency()
             ),
 
             destinationAmountFieldConfig = AmountFieldConfig(
@@ -323,6 +398,16 @@ fun InputScreen(
                     DexOperation.PUSHING_ALLOWANCE_TX,
                     DexOperation.BUILDING_ALLOWANCE_TX
                 )
+            )
+        }
+
+        viewState.allowanceCanBeRevoked.takeIf { it }?.let {
+            PrimaryButton(
+                state = if (viewState.operationInProgress == DexOperation.PUSHING_ALLOWANCE_TX)
+                    ButtonState.Loading else ButtonState.Enabled,
+                modifier = Modifier.padding(all = AppTheme.dimensions.standardSpacing),
+                text = "Revoke allowance for ${viewState.sourceCurrency?.displayTicker}",
+                onClick = revokeAllowance
             )
         }
 
@@ -372,27 +457,58 @@ private fun TokenAllowance(onClick: () -> Unit, currency: Currency, txInProgress
     )
 }
 
+@Preview
 @Composable
-private fun UiError(dexUiError: DexUiError.CommonUiError) {
-    TableRow(
-        modifier = Modifier
-            .padding(bottom = AppTheme.dimensions.smallSpacing)
-            .clip(shape = RoundedCornerShape(AppTheme.dimensions.smallSpacing)),
-        content = {
-            Column {
-                Text(
-                    text = dexUiError.title,
-                    style = AppTheme.typography.paragraph2,
-                    color = AppTheme.colors.title
+private fun UiError(
+    modifier: Modifier = Modifier,
+    title: String = "Transaction In progress",
+    description: String = "Your balances may not be accurate. " +
+        "Once the transaction is confirmed, your balances will update.",
+    close: (() -> Unit)? = {}
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(
+                shape = RoundedCornerShape(AppTheme.dimensions.smallSpacing),
+                color = Color.White
+            )
+            .border(
+                width = 1.dp,
+                color = Orange600,
+                shape = RoundedCornerShape(AppTheme.dimensions.smallSpacing)
+            )
+    ) {
+        Column(Modifier.padding(AppTheme.dimensions.smallSpacing)) {
+            Row {
+                SimpleText(
+                    text = title,
+                    style = ComposeTypographies.Paragraph2,
+                    color = ComposeColors.Warning,
+                    gravity = ComposeGravities.Centre
                 )
-                Text(
-                    text = dexUiError.description,
-                    style = AppTheme.typography.caption1,
-                    color = AppTheme.colors.body
-                )
+                Spacer(modifier = Modifier.weight(1f))
+                if (close != null) {
+                    Image(
+                        modifier = Modifier.clickable { close() },
+                        imageResource = Icons.Close.withTint(Grey400)
+                            .withBackground(
+                                backgroundColor = Grey000,
+                                backgroundSize = AppTheme.dimensions.standardSpacing
+                            )
+                    )
+                }
             }
+
+            SimpleText(
+                modifier = Modifier.padding(top = AppTheme.dimensions.smallestSpacing),
+                text = description,
+                style = ComposeTypographies.Caption1,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Start
+            )
         }
-    )
+    }
 }
 
 @Composable

@@ -84,8 +84,8 @@ fun QuickActions(
                             QuickActionsNavEvent.Sell -> assetActionsNavigation.navigate(AssetAction.Sell)
                             QuickActionsNavEvent.Receive -> assetActionsNavigation.navigate(AssetAction.Receive)
                             QuickActionsNavEvent.Buy -> assetActionsNavigation.navigate(AssetAction.Buy)
-                            QuickActionsNavEvent.Swap -> openSwap()
-                            QuickActionsNavEvent.DexOrSwapOption -> openSwap()
+                            QuickActionsNavEvent.Swap -> assetActionsNavigation.navigate(AssetAction.Swap)
+                            QuickActionsNavEvent.DexOrSwapOption -> openDexSwapOptions()
                             QuickActionsNavEvent.FiatDeposit -> quickActionsViewModel.onIntent(
                                 QuickActionsIntent.FiatAction(AssetAction.FiatDeposit)
                             )

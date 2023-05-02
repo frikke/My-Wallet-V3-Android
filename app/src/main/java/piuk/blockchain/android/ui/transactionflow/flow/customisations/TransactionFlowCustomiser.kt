@@ -182,6 +182,8 @@ class TransactionFlowCustomiserImpl(
             AssetAction.StakingDeposit -> resources.getString(R.string.common_stake)
             AssetAction.Swap -> resources.getString(R.string.common_swap_to)
             AssetAction.FiatWithdraw -> resources.getString(R.string.common_cash_out)
+            AssetAction.ActiveRewardsWithdraw,
+            AssetAction.StakingWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.select_withdraw_target_title)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
@@ -503,10 +505,31 @@ class TransactionFlowCustomiserImpl(
                     context = context
                 )
             }
-            AssetAction.InterestWithdraw -> resources.getString(
-                R.string.checkout_rewards_confirmation_disclaimer, state.sendingAsset.displayTicker,
-                state.selectedTarget.label
+            AssetAction.StakingWithdraw,
+            AssetAction.InterestWithdraw -> {
+
+                val cryptoAmount = state.amount.toStringWithSymbol()
+                val fiatAmount = state.fiatRate?.convert(state.amount)?.toStringWithSymbol(false)
+                    ?: ""
+                val accountType = resources.getString(
+                    (state.sendingAccount as EarnRewardsAccount).getAccountTypeStringResource()
+                )
+                val unbondingDays = state.earnWithdrawalUnbondingDays
+
+                resources.getString(
+                    R.string.checkout_rewards_confirmation_disclaimer,
+                    fiatAmount,
+                    cryptoAmount,
+                    accountType,
+                    unbondingDays,
+                    accountType
+                )
+            }
+            AssetAction.ActiveRewardsWithdraw -> resources.getString(
+                R.string.checkout_active_rewards_confirmation_disclaimer,
+                state.amount.currency.name
             )
+
             AssetAction.FiatDeposit -> {
                 if (state.pendingTx?.engineState?.containsKey(WITHDRAW_LOCKS) == true) {
                     val days = resources.getString(
@@ -535,6 +558,8 @@ class TransactionFlowCustomiserImpl(
             when (assetAction) {
                 AssetAction.Swap,
                 AssetAction.FiatDeposit,
+                AssetAction.StakingWithdraw,
+                AssetAction.ActiveRewardsWithdraw,
                 AssetAction.InterestWithdraw,
                 AssetAction.Sell -> true
                 else -> false
@@ -576,6 +601,8 @@ class TransactionFlowCustomiserImpl(
                 amount
             )
             AssetAction.FiatWithdraw,
+            AssetAction.ActiveRewardsWithdraw,
+            AssetAction.StakingWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(
                 R.string.withdraw_confirmation_progress_title,
                 amount
@@ -601,6 +628,8 @@ class TransactionFlowCustomiserImpl(
             AssetAction.FiatDeposit -> resources.getString(R.string.deposit_confirmation_progress_message)
             AssetAction.Sign -> resources.getString(R.string.sign_confirmation_progress_message)
             AssetAction.FiatWithdraw,
+            AssetAction.ActiveRewardsWithdraw,
+            AssetAction.StakingWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.withdraw_confirmation_progress_message)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
@@ -785,6 +814,8 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Sell -> resources.getString(R.string.common_sell)
             AssetAction.FiatDeposit -> resources.getString(R.string.common_deposit)
             AssetAction.FiatWithdraw,
+            AssetAction.ActiveRewardsWithdraw,
+            AssetAction.StakingWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.withdraw_target_select_title)
             else -> resources.getString(R.string.select_a_wallet)
         }
@@ -1612,3 +1643,10 @@ data class FiatDepositErrorContent(
     val title: String,
     val message: String,
 )
+
+fun EarnRewardsAccount.getAccountTypeStringResource(): Int =
+    when (this) {
+        is EarnRewardsAccount.Interest -> R.string.earn_dashboard_filter_interest
+        is EarnRewardsAccount.Staking -> R.string.earn_dashboard_filter_staking
+        is EarnRewardsAccount.Active -> R.string.earn_rewards_label_active
+    }

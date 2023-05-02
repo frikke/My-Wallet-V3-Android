@@ -157,7 +157,8 @@ data class TransactionState(
     val isLoading: Boolean = false,
     val ffImprovedPaymentUxEnabled: Boolean = false,
     val depositTerms: DepositTerms? = null,
-    val showTradingAccounts: Boolean = false
+    val showTradingAccounts: Boolean = false,
+    val earnWithdrawalUnbondingDays: Int = 2,
 ) : MviState, TransactionFlowStateInfo {
 
     // workaround for using engine without cryptocurrency source
@@ -390,6 +391,11 @@ class TransactionModel(
                     shouldShowPkwOnTrading = interactor.shouldShowPkwOnTradingMode()
                 )
             }
+            is TransactionIntent.LoadRewardsWithdrawalUnbondingDays ->
+                processLoadRewardsWithdrawalUnbondingDays(
+                    (previousState.sendingAccount as CryptoAccount).currency,
+                    previousState.sendingAccount as EarnRewardsAccount
+                )
             is TransactionIntent.LinkBankInfoSuccess,
             is TransactionIntent.LinkBankFailed,
             is TransactionIntent.ClearBackStack,
@@ -429,6 +435,7 @@ class TransactionModel(
             is TransactionIntent.UpdatePasswordNotValidated,
             is TransactionIntent.PrepareTransaction,
             is TransactionIntent.AvailableSourceAccountsListUpdated,
+            is TransactionIntent.RewardsWithdrawalUnbondingDaysLoaded,
             is TransactionIntent.UpdatePrivateKeyAccountsFilterState -> null
         }
     }
@@ -962,6 +969,15 @@ class TransactionModel(
             },
             onError = { Timber.e(it) }
         )
+
+    private fun processLoadRewardsWithdrawalUnbondingDays(asset: AssetInfo, account: EarnRewardsAccount) =
+        interactor.getRewardsWithdrawalUnbondingDays(asset, account)
+            .subscribeBy(
+                onSuccess = {
+                    process(TransactionIntent.RewardsWithdrawalUnbondingDaysLoaded(it))
+                },
+                onError = { Timber.e(it) }
+            )
 
     override fun distinctIntentFilter(
         previousIntent: TransactionIntent,

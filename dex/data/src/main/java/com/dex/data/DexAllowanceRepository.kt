@@ -18,11 +18,14 @@ import com.blockchain.store.firstOutcome
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
 import com.dex.domain.AllowanceService
 import com.dex.domain.AllowanceTransaction
+import com.dex.domain.AllowanceTransactionState
 import com.dex.domain.TokenAllowance
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CoinNetwork
+import info.blockchain.balance.Money
 import java.math.BigInteger
+import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
@@ -59,7 +62,10 @@ class DexAllowanceRepository(
         }
     }
 
-    override suspend fun buildAllowanceTransaction(assetInfo: AssetInfo): Outcome<Exception, AllowanceTransaction> {
+    override suspend fun buildAllowanceTransaction(
+        assetInfo: AssetInfo,
+        amount: Money?
+    ): Outcome<Exception, AllowanceTransaction> {
         val address = defiAccountReceiveAddressService.receiveAddress(assetInfo)
         val contractAddress = assetInfo.l2identifier
         val coinNetwork = assetInfo.coinNetwork
@@ -82,6 +88,7 @@ class DexAllowanceRepository(
                         descriptor = "legacy"
                     )
                 },
+                amount = amount?.toBigInteger()?.toString() ?: "MAX",
                 network = coinNetwork.networkTicker
             ).map { buildTxResponse ->
                 val gasPrice = BigInteger(buildTxResponse.rawTx.payload.gasPrice.hex.removePrefix("0x"), 16)
@@ -111,7 +118,7 @@ class DexAllowanceRepository(
     override suspend fun pushAllowanceTransaction(
         network: CoinNetwork,
         rawTx: String,
-        signatures: List<TransactionSignature>
+        signatures: List<TransactionSignature>,
     ): Outcome<Exception, String> =
         nonCustodialService.pushTransaction(
             currency = network.nativeAssetTicker,
@@ -120,4 +127,32 @@ class DexAllowanceRepository(
         ).map {
             it.txId
         }
+
+    private suspend fun pollForAllowanceState(
+        assetInfo: AssetInfo,
+        checkState: (TokenAllowance) -> Boolean
+    ): AllowanceTransactionState {
+        val startTimeMillis = System.currentTimeMillis()
+        val timeoutMillis = 320_000L
+        var elapsedTimeMillis = 0L
+        while (elapsedTimeMillis < timeoutMillis) {
+            val allowance = tokenAllowance(assetInfo)
+            (allowance as? Outcome.Success)?.value?.let {
+                if (checkState(it)) {
+                    return AllowanceTransactionState.COMPLETED
+                }
+            }
+            delay(1000L)
+            elapsedTimeMillis = System.currentTimeMillis() - startTimeMillis
+        }
+        return AllowanceTransactionState.PENDING
+    }
+
+    override suspend fun allowanceTransactionProgress(assetInfo: AssetInfo): AllowanceTransactionState {
+        return pollForAllowanceState(assetInfo) { it.isTokenAllowed }
+    }
+
+    override suspend fun revokeAllowanceTransactionProgress(assetInfo: AssetInfo): AllowanceTransactionState {
+        return pollForAllowanceState(assetInfo) { !it.isTokenAllowed }
+    }
 }

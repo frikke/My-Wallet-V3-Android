@@ -36,8 +36,6 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
 
 // TODO (othman) ref swap stuff to this repo
 
@@ -48,23 +46,20 @@ internal class SwapRepository(
     private val walletManager: CustodialWalletManager,
 ) : SwapService {
 
-    private fun Flow<DataResource<List<CryptoAccount>>>.withBalance()
-        : Flow<DataResource<List<CryptoAccountWithBalance>>> {
-        return flatMapData {
-            combine(
-                it.map { account ->
-                    account.balance()
-                        .distinctUntilChanged()
-                        .map { balance ->
-                            CryptoAccountWithBalance(
-                                account = account,
-                                balanceCrypto = balance.total,
-                                balanceFiat = balance.totalFiat
-                            )
-                        }
-                }
-            ) { DataResource.Data(it.toList()) }
-        }
+    private fun Flow<DataResource<List<CryptoAccount>>>.withBalance() = flatMapData {
+        combine(
+            it.map { account ->
+                account.balance()
+                    .distinctUntilChanged()
+                    .map { balance ->
+                        CryptoAccountWithBalance(
+                            account = account,
+                            balanceCrypto = balance.total,
+                            balanceFiat = balance.totalFiat
+                        )
+                    }
+            }
+        ) { DataResource.Data(it.toList()) }
     }
 
     private fun sourceAccounts(): Flow<DataResource<List<CryptoAccount>>> {

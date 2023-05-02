@@ -406,13 +406,13 @@ private fun DiscoverScreen(
                                     TagViewState(
                                         when (item.type) {
                                             EarnType.Passive -> stringResource(
-                                                id = R.string.earn_rewards_label_passive
+                                                id = R.string.earn_rewards_label_passive_short
                                             )
                                             EarnType.Staking -> stringResource(
-                                                id = R.string.earn_rewards_label_staking
+                                                id = R.string.earn_rewards_label_staking_short
                                             )
                                             EarnType.Active -> stringResource(
-                                                id = R.string.earn_rewards_label_active
+                                                id = R.string.earn_rewards_label_active_short
                                             )
                                         },
                                         TagType.Default()
@@ -661,9 +661,15 @@ private fun EarningScreen(
                                 tags = listOf(
                                     TagViewState(
                                         when (asset.type) {
-                                            EarnType.Passive -> stringResource(id = R.string.earn_rewards_label_passive)
-                                            EarnType.Staking -> stringResource(id = R.string.earn_rewards_label_staking)
-                                            EarnType.Active -> stringResource(id = R.string.earn_rewards_label_active)
+                                            EarnType.Passive -> stringResource(
+                                                id = R.string.earn_rewards_label_passive_short
+                                            )
+                                            EarnType.Staking -> stringResource(
+                                                id = R.string.earn_rewards_label_staking_short
+                                            )
+                                            EarnType.Active -> stringResource(
+                                                id = R.string.earn_rewards_label_active_short
+                                            )
                                         },
                                         TagType.Default()
                                     )

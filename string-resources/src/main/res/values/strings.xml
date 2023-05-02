@@ -675,13 +675,13 @@
     <string name="tx_title_swapped">Swapped %1$s → %2$s</string>
     <string name="tx_title_transferred">Transferred %s</string>
     <string name="tx_title_fee">Fee %s</string>
-    <string name="tx_title_rewards">%s Rewards Earned</string>
+    <string name="tx_title_rewards">Earned %s</string>
     <string name="tx_title_add_with_ticker">Add %s</string>
     <string name="tx_title_stake_with_ticker">Stake %s</string>
     <string name="tx_title_added">Added %s</string>
-    <string name="tx_title_earned">%s Earned</string>
+    <string name="tx_title_earned">Earned %s</string>
     <string name="tx_title_debited">%s Debited</string>
-    <string name="tx_title_stake_withdrawn">%s Unstaked</string>
+    <string name="tx_title_stake_withdrawn">Unstaked %s</string>
     <string name="tx_title_staked">Staked %s</string>
 
     <!-- SECURITY CENTRE -->
@@ -2333,7 +2333,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="learn_more_annotated"><annotation link="learn_more_link">Learn more.</annotation></string>
     <string name="checkout_fee_free">When using Blockchain.com Accounts, there are no network fees</string>
     <string name="private_key_wallet_explanation">%s DeFi wallets, send, and receive are not supported at this time.</string>
-    <string name="checkout_rewards_confirmation_disclaimer">After confirming this withdrawal, you will not continue to earn rewards on the amount withdrawn.\n\nYour %1$s will be available in your \"%2$s\" Account within 2 days.</string>
+    <string name="checkout_rewards_confirmation_disclaimer">You are requesting to withdraw %1$s (%2$s) from your %3$s Rewards Account. This balance will be available in your Trading Account after %4$d days. After confirming this withdrawal, you will not continue to earn %5$s rewards on the amount withdrawn.</string>
+    <string name="checkout_active_rewards_confirmation_disclaimer">You are requesting to withdraw your funds from your Active Rewards Account. Requesting a withdrawal will send your total balance to your %1$s Trading Account. \n\nThis balance will be available in your Trading Account on Saturday at 08:00 AM UTC, and may vary depending on the outcome of this week\'s strategy.</string>
     <string name="checkout_rb_weekly_title">Invest Weekly?</string>
     <string name="checkout_rb_biweekly_title">Invest bi-Weekly?</string>
     <string name="checkout_rb_monthly_title">Invest Monthly?</string>
@@ -3445,11 +3446,14 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earning_dashboard_empty_filter_cta">Start earning</string>
     <string name="discover_dashboard_empty_filter">We don\'t have any offering here at the moment - check back soon!</string>
     <string name="earn_rewards_label_passive">Passive Rewards</string>
+    <string name="earn_rewards_label_passive_short">Passive</string>
     <string name="earn_rewards_carousel_passive_desc">Monthly rewards for\nholding crypto with us.</string>
     <string name="earn_rewards_label_staking">Staking Rewards</string>
+    <string name="earn_rewards_label_staking_short">Staking</string>
     <string name="earn_rewards_carousel_staking_desc">Daily rewards for\nsecuring networks.</string>
     <string name="earn_rewards_carousel_active_desc">Weekly rewards for\nforecasting the market.</string>
     <string name="earn_rewards_label_active">Active Rewards</string>
+    <string name="earn_rewards_label_active_short">Active</string>
     <string name="earn_dashboard_tab_earning">Earning</string>
     <string name="earn_dashboard_tab_discover">Discover</string>
     <string name="earn_dashboard_error_title">Couldn\'t load Earn</string>
@@ -3622,5 +3626,12 @@ If you want to know more about our verification process visit our <annotation li
     <string name="swap_failed_message">Your balance hasn\'t been affected. You can try again or cancel.</string>
     <string name="price_updated">Price updated</string>
     <string name="accept">Accept</string>
-
+    <string name="approval_for_token_failed">%1$s approval failed</string>
+    <string name="approval_for_token_completed">Approved %1$s</string>
+    <string name="tx_in_process">Transaction in process</string>
+    <string name="not_accurate_balance">Your balances may not be accurate.
+        Once the transaction is confirmed, your balances will update.</string>
+    <string name="earn_staking_withdrawal_queue_notice_title">Unstaking Information</string>
+    <string name="earn_staking_withdrawal_queue_notice_description">The unbonding period depends on the network queue. The current unbonding period is %1$s days.</string>
+    <string name="earn_staking_withdrawal_locked_countdown_message">You will be able to request another withdrawal in %1$s min.</string>
 </resources>
