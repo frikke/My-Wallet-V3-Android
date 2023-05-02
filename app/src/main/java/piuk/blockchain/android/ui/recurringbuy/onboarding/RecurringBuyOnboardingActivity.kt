@@ -10,6 +10,7 @@ import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.invisibleIf
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.home.presentation.recurringbuy.RecurringBuysAnalyticsEvents
 import com.blockchain.koin.payloadScope
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetCatalogue
@@ -71,6 +72,8 @@ class RecurringBuyOnboardingActivity : BlockchainActivity() {
             }
         }
         setupViewPagerListener()
+
+        analytics.logEvent(RecurringBuysAnalyticsEvents.OnboardingViewed)
     }
 
     private fun showFullScreen() {

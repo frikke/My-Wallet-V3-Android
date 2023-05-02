@@ -13,6 +13,7 @@ data class RecurringBuyDetail(
     val iconUrl: String,
     val amount: String,
     val assetName: String,
+    val assetTicker: String,
     val paymentMethod: String,
     val frequency: TextValue,
     val nextBuy: String,

@@ -49,6 +49,7 @@ class RecurringBuysViewModel(
                                 .map { recurringBuy ->
                                     RecurringBuyViewState(
                                         id = recurringBuy.id,
+                                        assetTicker = recurringBuy.asset.networkTicker,
                                         iconUrl = recurringBuy.asset.logo,
                                         description = TextValue.IntResValue(
                                             R.string.dashboard_recurring_buy_item_title_1,
