@@ -71,7 +71,8 @@ fun SelectTargetAsset(
                 is TargetAssetNavigationEvent.SelectAccount -> {
                     check(viewState.selectedModeFilter != null)
                     navContextProvider().navigateTo(
-                        SwapGraph.TargetAccount, SelectTargetAccountArgs(
+                        SwapGraph.TargetAccount,
+                        SelectTargetAccountArgs(
                             sourceTicker = sourceTicker,
                             targetTicker = navEvent.ofTicker,
                             mode = viewState.selectedModeFilter!!
