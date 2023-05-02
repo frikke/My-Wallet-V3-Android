@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -17,8 +18,12 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
+import com.blockchain.componentlib.basic.Image
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.icon.CustomStackedIcon
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Verified
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tag.DefaultTag
 import com.blockchain.componentlib.theme.AppTheme
@@ -28,6 +33,7 @@ import com.blockchain.componentlib.theme.SmallestVerticalSpacer
 @Composable
 fun BalanceFiatAndCryptoTableRow(
     title: String,
+    titleIcon: ImageResource? = null,
     subtitle: String = "",
     tag: String = "",
     valueCrypto: String,
@@ -40,6 +46,7 @@ fun BalanceFiatAndCryptoTableRow(
         title = title,
         subtitle = subtitle,
         tag = tag,
+        titleIcon = titleIcon,
         valueCrypto = valueCrypto,
         valueFiat = valueFiat,
         contentStart = {
@@ -58,6 +65,7 @@ private fun BalanceFiatAndCryptoTableRow(
     subtitle: String = "",
     tag: String = "",
     valueCrypto: String,
+    titleIcon: ImageResource?,
     valueFiat: String,
     contentStart: @Composable (RowScope.() -> Unit)? = null,
     onClick: () -> Unit
@@ -77,12 +85,20 @@ private fun BalanceFiatAndCryptoTableRow(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.Start
                 ) {
-                    SimpleText(
-                        text = title,
-                        style = ComposeTypographies.Paragraph2,
-                        color = ComposeColors.Title,
-                        gravity = ComposeGravities.Start
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        SimpleText(
+                            text = title,
+                            style = ComposeTypographies.Paragraph2,
+                            color = ComposeColors.Title,
+                            gravity = ComposeGravities.Start
+                        )
+                        titleIcon?.let {
+                            Image(
+                                modifier = Modifier.padding(start = AppTheme.dimensions.smallestSpacing),
+                                imageResource = titleIcon
+                            )
+                        }
+                    }
 
                     Spacer(
                         modifier = Modifier.size(
@@ -143,6 +159,7 @@ fun PreviewBalanceFiatAndCryptoTableRow() {
     AppTheme {
         BalanceFiatAndCryptoTableRow(
             title = "Bitcoin",
+            titleIcon = Icons.Verified,
             valueCrypto = "1",
             valueFiat = "1232222",
             onClick = {}

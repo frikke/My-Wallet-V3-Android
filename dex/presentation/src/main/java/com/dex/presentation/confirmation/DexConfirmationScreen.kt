@@ -21,7 +21,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -29,21 +31,26 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavController
+import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.button.AlertButton
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.icons.Error
 import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Question
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.BackgroundMuted
 import com.blockchain.componentlib.theme.Grey000
+import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Orange500
+import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.dex.presentation.R
 import com.blockchain.extensions.safeLet
@@ -51,12 +58,17 @@ import com.blockchain.koin.payloadScope
 import com.dex.presentation.AmountFieldConfig
 import com.dex.presentation.DexTxSubscribeScreen
 import com.dex.presentation.SourceAndDestinationAmountFields
+import com.dex.presentation.graph.ARG_INFO_DESCRIPTION
+import com.dex.presentation.graph.ARG_INFO_TITLE
 import com.dex.presentation.graph.DexDestination
+import com.dex.presentation.uierrors.AlertError
+import com.dex.presentation.uierrors.DexUiError
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.util.Base64
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.getViewModel
 
@@ -183,13 +195,28 @@ fun DexConfirmationScreen(
                     }
                     dataState.minAmount?.let { minAmount ->
                         item {
-                            MinAmountConfirmation(minAmount)
+                            MinAmountConfirmation(
+                                minAmount = minAmount,
+                                slippage = dataState.slippage ?: 0.0,
+                                extraInfoOnClick = { destination ->
+                                    navController.navigate(
+                                        destination
+                                    )
+                                }
+                            )
                             Divider(color = BackgroundMuted)
                         }
                     }
                     dataState.networkFee?.let { networkFee ->
                         item {
-                            NetworkFee(networkFee)
+                            NetworkFee(
+                                networkFee = networkFee,
+                                extraInfoOnClick = { destination ->
+                                    navController.navigate(
+                                        destination
+                                    )
+                                }
+                            )
                             Divider(color = BackgroundMuted)
                         }
                     }
@@ -203,7 +230,14 @@ fun DexConfirmationScreen(
                                 ),
                                 elevation = 0.dp
                             ) {
-                                BlockchainFee(blockFee)
+                                BlockchainFee(
+                                    fee = blockFee,
+                                    extraInfoOnClick = { destination ->
+                                        navController.navigate(
+                                            destination
+                                        )
+                                    }
+                                )
                             }
                         }
                     }
@@ -237,8 +271,10 @@ fun DexConfirmationScreen(
                     state = when {
                         dataState.operationInProgress -> ButtonState.Loading
                         dataState.newPriceAvailable -> ButtonState.Disabled
+                        dataState.error != DexUiError.None -> ButtonState.Disabled
                         else -> ButtonState.Enabled
-                    }
+                    },
+                    alertMessage = (dataState.error as? AlertError)?.message(LocalContext.current)
                 )
             }
         }
@@ -250,7 +286,8 @@ private fun ConfirmationPinnedBottom(
     newPriceAvailableAndNotAccepted: Boolean,
     confirm: () -> Unit,
     accept: () -> Unit,
-    state: ButtonState
+    state: ButtonState,
+    alertMessage: String?,
 ) {
     Column(
         modifier = Modifier
@@ -271,10 +308,22 @@ private fun ConfirmationPinnedBottom(
         if (newPriceAvailableAndNotAccepted) {
             PriceUpdateWarning(accept)
         }
-        SwapButton(
-            onClick = confirm,
-            state = state
-        )
+
+        if (alertMessage != null) {
+            AlertButton(
+                modifier = Modifier
+                    .padding(vertical = dimensionResource(id = R.dimen.small_spacing))
+                    .fillMaxWidth(),
+                text = alertMessage,
+                onClick = { },
+                state = ButtonState.Enabled
+            )
+        } else {
+            SwapButton(
+                onClick = confirm,
+                state = state
+            )
+        }
     }
 }
 
@@ -326,92 +375,179 @@ private fun SwapButton(
 }
 
 @Composable
-private fun NetworkFee(networkFee: ConfirmationScreenExchangeAmount) {
+private fun NetworkFee(networkFee: ConfirmationScreenExchangeAmount, extraInfoOnClick: (String) -> Unit) {
+    val extraInfoTitle = stringResource(id = R.string.network_fee)
+    val extraInfoDescription =
+        stringResource(id = R.string.network_fee_info_description, networkFee.value.currency.displayTicker)
     TableRow(
         content = {
-            SimpleText(
-                modifier = Modifier.align(CenterVertically),
-                text = stringResource(id = R.string.network_fee),
-                style = ComposeTypographies.Paragraph2,
-                color = ComposeColors.Body,
-                gravity = ComposeGravities.Start
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Column(horizontalAlignment = Alignment.End) {
-                SimpleText(
-                    text = networkFee.value.toStringWithSymbol(),
-                    style = ComposeTypographies.Paragraph2,
-                    color = ComposeColors.Title,
-                    gravity = ComposeGravities.End
-                )
-                SimpleText(
-                    text = "~ ${networkFee.exchange.toStringWithSymbol()}",
-                    style = ComposeTypographies.Paragraph2,
-                    color = ComposeColors.Title,
-                    gravity = ComposeGravities.End
-                )
+            Row(Modifier.fillMaxWidth(), verticalAlignment = CenterVertically) {
+                Row(verticalAlignment = CenterVertically) {
+                    SimpleText(
+                        modifier = Modifier.align(CenterVertically),
+                        text = stringResource(id = R.string.network_fee),
+                        style = ComposeTypographies.Paragraph2,
+                        color = ComposeColors.Body,
+                        gravity = ComposeGravities.Start
+                    )
+
+                    ExtraInfoIndicator {
+                        val destination = extraInfoDestination(
+                            title = extraInfoTitle,
+                            description = extraInfoDescription
+                        )
+                        extraInfoOnClick(
+                            destination
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                Column(horizontalAlignment = Alignment.End) {
+                    SimpleText(
+                        text = networkFee.value.toStringWithSymbol(),
+                        style = ComposeTypographies.Paragraph2,
+                        color = ComposeColors.Title,
+                        gravity = ComposeGravities.End
+                    )
+                    SimpleText(
+                        text = "~ ${networkFee.exchange.toStringWithSymbol()}",
+                        style = ComposeTypographies.Paragraph2,
+                        color = ComposeColors.Title,
+                        gravity = ComposeGravities.End
+                    )
+                }
             }
         }
     )
 }
 
 @Composable
-private fun BlockchainFee(fee: ConfirmationScreenExchangeAmount) {
+private fun BlockchainFee(
+    fee: ConfirmationScreenExchangeAmount,
+    extraInfoOnClick: (String) -> Unit
+) {
+    val extraInfoTitle = stringResource(id = R.string.bcdc_fee)
+    val extraInfoDescription = stringResource(id = R.string.bcdc_fee_extra_info_description)
     TableRow(
         content = {
-            SimpleText(
-                modifier = Modifier.align(CenterVertically),
-                text = stringResource(id = R.string.bcdc_fee),
-                style = ComposeTypographies.Paragraph2,
-                color = ComposeColors.Body,
-                gravity = ComposeGravities.Start
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Column(horizontalAlignment = Alignment.End) {
-                SimpleText(
-                    text = fee.value.toStringWithSymbol(),
-                    style = ComposeTypographies.Paragraph2,
-                    color = ComposeColors.Title,
-                    gravity = ComposeGravities.End
-                )
-                SimpleText(
-                    text = "~ ${fee.exchange.toStringWithSymbol()}",
-                    style = ComposeTypographies.Paragraph2,
-                    color = ComposeColors.Title,
-                    gravity = ComposeGravities.End
-                )
+            Row(Modifier.fillMaxWidth(), verticalAlignment = CenterVertically) {
+                Row(verticalAlignment = CenterVertically) {
+                    SimpleText(
+                        modifier = Modifier.align(CenterVertically),
+                        text = stringResource(id = R.string.bcdc_fee),
+                        style = ComposeTypographies.Paragraph2,
+                        color = ComposeColors.Body,
+                        gravity = ComposeGravities.Start
+                    )
+
+                    ExtraInfoIndicator {
+                        val destination = extraInfoDestination(
+                            title = extraInfoTitle,
+                            description = extraInfoDescription
+                        )
+                        extraInfoOnClick(
+                            destination
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                Column(horizontalAlignment = Alignment.End) {
+                    SimpleText(
+                        text = fee.value.toStringWithSymbol(),
+                        style = ComposeTypographies.Paragraph2,
+                        color = ComposeColors.Title,
+                        gravity = ComposeGravities.End
+                    )
+                    SimpleText(
+                        text = "~ ${fee.exchange.toStringWithSymbol()}",
+                        style = ComposeTypographies.Paragraph2,
+                        color = ComposeColors.Title,
+                        gravity = ComposeGravities.End
+                    )
+                }
             }
         }
     )
 }
 
 @Composable
-private fun MinAmountConfirmation(minAmount: ConfirmationScreenExchangeAmount) {
+private fun MinAmountConfirmation(
+    minAmount: ConfirmationScreenExchangeAmount,
+    slippage: Double,
+    extraInfoOnClick: (String) -> Unit
+) {
+    val extraInfoTitle = stringResource(id = R.string.minimum_amount)
+    val extraInfoDescription = stringResource(id = R.string.minimum_amount_extra_info, slippage.toPercentageString())
+
     TableRow(
         content = {
-            SimpleText(
-                modifier = Modifier.align(CenterVertically),
-                text = stringResource(id = R.string.min_amount),
-                style = ComposeTypographies.Paragraph2,
-                color = ComposeColors.Body,
-                gravity = ComposeGravities.Start
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Column(horizontalAlignment = Alignment.End) {
-                SimpleText(
-                    text = minAmount.value.toStringWithSymbol(),
-                    style = ComposeTypographies.Paragraph2,
-                    color = ComposeColors.Title,
-                    gravity = ComposeGravities.End
-                )
-                SimpleText(
-                    text = "~ ${minAmount.exchange.toStringWithSymbol()}",
-                    style = ComposeTypographies.Paragraph2,
-                    color = ComposeColors.Title,
-                    gravity = ComposeGravities.End
-                )
+            Row(Modifier.fillMaxWidth(), verticalAlignment = CenterVertically) {
+                Row(verticalAlignment = CenterVertically) {
+                    SimpleText(
+                        modifier = Modifier.align(CenterVertically),
+                        text = stringResource(id = R.string.min_amount),
+                        style = ComposeTypographies.Paragraph2,
+                        color = ComposeColors.Body,
+                        gravity = ComposeGravities.Start
+                    )
+
+                    ExtraInfoIndicator {
+                        val destination = extraInfoDestination(
+                            title = extraInfoTitle,
+                            description = extraInfoDescription
+                        )
+                        extraInfoOnClick(
+                            destination
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+                Column(horizontalAlignment = Alignment.End) {
+                    SimpleText(
+                        text = minAmount.value.toStringWithSymbol(),
+                        style = ComposeTypographies.Paragraph2,
+                        color = ComposeColors.Title,
+                        gravity = ComposeGravities.End
+                    )
+                    SimpleText(
+                        text = "~ ${minAmount.exchange.toStringWithSymbol()}",
+                        style = ComposeTypographies.Paragraph2,
+                        color = ComposeColors.Title,
+                        gravity = ComposeGravities.End
+                    )
+                }
             }
         }
+    )
+}
+
+@Composable
+private fun ExtraInfoIndicator(
+    onClick: () -> Unit
+) {
+    Image(
+        modifier = Modifier
+            .padding(horizontal = AppTheme.dimensions.smallestSpacing)
+            .clickableNoEffect { onClick() },
+        imageResource = Icons.Question.withTint(Grey400).withSize(14.dp)
+    )
+}
+
+private fun extraInfoDestination(title: String, description: String): String {
+    return DexDestination.DexConfirmationExtraInfoSheet.routeWithArgs(
+        listOf(
+            NavArgument(
+                key = ARG_INFO_TITLE,
+                value = title
+            ),
+            NavArgument(
+                key = ARG_INFO_DESCRIPTION,
+                value = Base64.getUrlEncoder().encodeToString(
+                    description.toByteArray()
+                )
+            ),
+        ),
     )
 }
 
@@ -467,10 +603,11 @@ fun MinAmountPreview() {
     AppTheme {
         MinAmountConfirmation(
             minAmount = ConfirmationScreenExchangeAmount(
-                value = Money.fromMinor(CryptoCurrency.ETHER, BigInteger("2312312312")),
+                value = Money.fromMinor(CryptoCurrency.ETHER, BigInteger("23123122312")),
                 exchange = Money.fromMinor(CryptoCurrency.ETHER, BigInteger("2312"))
-            )
-        )
+            ),
+            slippage = 1.0
+        ) { _ -> }
     }
 }
 

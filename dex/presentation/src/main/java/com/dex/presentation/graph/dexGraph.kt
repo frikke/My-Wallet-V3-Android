@@ -15,10 +15,12 @@ import com.dex.presentation.SelectDestinationAccountBottomSheet
 import com.dex.presentation.SelectSourceAccountBottomSheet
 import com.dex.presentation.SettingsBottomSheet
 import com.dex.presentation.TokenAllowanceBottomSheet
+import com.dex.presentation.confirmation.DexConfirmationInfoSheet
 import com.dex.presentation.confirmation.DexConfirmationScreen
 import com.dex.presentation.enteramount.AllowanceTxUiData
 import com.dex.presentation.inprogress.DexInProgressTransactionScreen
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
+import java.util.Base64
 import kotlinx.serialization.json.Json
 
 @OptIn(ExperimentalMaterialNavigationApi::class)
@@ -61,6 +63,18 @@ fun NavGraphBuilder.dexGraph(onBackPressed: () -> Unit, navController: NavContro
         }
     }
 
+    bottomSheet(navigationEvent = DexDestination.DexConfirmationExtraInfoSheet) {
+        val title = it.arguments?.getComposeArgument(ARG_INFO_TITLE) ?: throw IllegalArgumentException(
+            "You must provide title"
+        )
+        val description = String(Base64.getUrlDecoder().decode(it.arguments?.getComposeArgument(ARG_INFO_DESCRIPTION)))
+        DexConfirmationInfoSheet(
+            closeClicked = onBackPressed,
+            title = title,
+            description = description
+        )
+    }
+
     bottomSheet(navigationEvent = DexDestination.SelectDestinationAccount) {
         ChromeBottomSheet(onBackPressed) {
             SelectDestinationAccountBottomSheet(
@@ -99,6 +113,11 @@ sealed class DexDestination(
     object Confirmation : DexDestination("Confirmation")
     object InProgress : DexDestination("InProgress")
     object TokenAllowanceSheet : DexDestination(route = "TokenAllowanceSheet/${ARG_ALLOWANCE_TX.wrappedArg()}}")
+    object DexConfirmationExtraInfoSheet : DexDestination(
+        route = "DexConfirmationExtraInfoSheet/${ARG_INFO_TITLE.wrappedArg()}/${ARG_INFO_DESCRIPTION.wrappedArg()}}"
+    )
 }
 
 const val ARG_ALLOWANCE_TX = "ARG_ALLOWANCE_TX"
+const val ARG_INFO_TITLE = "ARG_INFO_TITLE"
+const val ARG_INFO_DESCRIPTION = "ARG_INFO_DESCRIPTION"

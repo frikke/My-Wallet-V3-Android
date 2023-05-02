@@ -9,6 +9,7 @@ val START_DEFI = Color(0XFF7137BB)
 val END_DEFI = Color(0XFF2960D0)
 
 val BackgroundMuted = Color(0XFFF1F2F7)
+val BasePrimaryMuted = Color(0XFF65A5FF)
 
 val GOOGLE_PAY_BUTTON_BORDER = Color(0x7FFFFFFF)
 val GOOGLE_PAY_BUTTON_DIVIDER = Color(0xFF3C4043)

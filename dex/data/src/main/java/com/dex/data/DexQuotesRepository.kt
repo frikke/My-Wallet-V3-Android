@@ -55,15 +55,15 @@ class DexQuotesRepository(
         return address.flatMap {
             dexQuotesApiService.quote(
                 fromCurrency = FromCurrency(
-                    chainId = dexQuoteParams.sourceAccount.chainId,
+                    chainId = dexQuoteParams.sourceAccount.currency.chainId,
                     symbol = dexQuoteParams.sourceAccount.currency.networkTicker,
-                    address = dexQuoteParams.sourceAccount.contractAddress,
+                    address = dexQuoteParams.sourceAccount.currency.contractAddress,
                     amount = dexQuoteParams.amount.toBigInteger().toString()
                 ),
                 toCurrency = ToCurrency(
-                    chainId = dexQuoteParams.destinationAccount.chainId,
+                    chainId = dexQuoteParams.destinationAccount.currency.chainId,
                     symbol = dexQuoteParams.destinationAccount.currency.networkTicker,
-                    address = dexQuoteParams.destinationAccount.contractAddress,
+                    address = dexQuoteParams.destinationAccount.currency.contractAddress,
                 ),
                 slippage = dexQuoteParams.slippage,
                 address = it.address,
@@ -104,9 +104,7 @@ class DexQuotesRepository(
         }.mapError {
             if (it is NabuApiException) {
                 DexTxError.QuoteError(
-                    title = it.getServerSideErrorInfo()?.title.orEmpty().plus(" --- ").plus(
-                        it.getErrorType()
-                    ),
+                    title = it.getServerSideErrorInfo()?.title.orEmpty(),
                     message = it.getErrorDescription().plus(" ").plus(" ")
                         .plus(it.getServerSideErrorInfo()?.description.orEmpty())
                 )

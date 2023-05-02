@@ -3613,8 +3613,12 @@ If you want to know more about our verification process visit our <annotation li
     <string name="asset_upsell_subtitle">People who bought Bitcoin often buy these assets as well.</string>
     <string name="confirm_swap">Confirm Swap</string>
     <string name="min_amount">Min. amount</string>
+    <string name="minimum_amount">Minimum amount</string>
+    <string name="minimum_amount_extra_info">The minimum amount you are guaranteed to receive. If the price changes more than %1$s, your transaction will revert.</string>
     <string name="network_fee">Network fee</string>
+    <string name="network_fee_info_description">A fee paid to process your transaction.This must be paid in %1$s.</string>
     <string name="bcdc_fee">Blockchain.com fee</string>
+    <string name="bcdc_fee_extra_info_description">This is a small fee for using the Blockchain.com DEX service.</string>
     <string name="min_amount_estimation">Input is estimated. You will receive at least %1$s or the transaction will revert and assets will be returned to your wallet.</string>
     <string name="unable_to_swap_tokens">Unable to swap these tokens</string>
     <string name="common_pending_activity">Pending Activity</string>
