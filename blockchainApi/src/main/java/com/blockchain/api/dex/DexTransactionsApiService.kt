@@ -20,7 +20,8 @@ class DexTransactionsApiService(private val api: DexTxApi) {
     suspend fun buildAllowanceTx(
         destination: String,
         sources: List<PubKeySource>,
-        network: String
+        network: String,
+        amount: String,
     ) = api.buildTx(
         BuildDexTxBodyRequest(
             network = network,
@@ -30,7 +31,7 @@ class DexTransactionsApiService(private val api: DexTxApi) {
                 fee = "NORMAL",
                 maxVerificationVersion = 1,
                 spender = ZEROX_EXCHANGE,
-                amount = "MAX",
+                amount = amount,
                 swapTx = null,
                 sources = sources
             )

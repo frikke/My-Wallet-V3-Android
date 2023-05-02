@@ -124,16 +124,16 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
 
             listLoadingProgress.visibleIf { newState.isLoading && newState.availableTargets.isEmpty() }
 
+            if (newState.canSwitchBetweenAccountType && accountTypeSwitcher.isVisible().not()) {
+                showAccountTypeSwitch()
+            }
+
             if (sourceSlot == null) {
                 sourceSlot = customiser.installAddressSheetSource(requireContext(), fromDetails, newState)
                 setupLabels(newState)
                 setupTransferList(newState)
                 showSendNetworkWarning(newState)
                 showDomainCardAlert(newState)
-            }
-
-            if (newState.canSwitchBetweenAccountType && accountTypeSwitcher.isVisible().not()) {
-                showAccountTypeSwitch()
             }
 
             updateList(newState)
@@ -158,7 +158,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
     }
 
     private fun updateList(newState: TransactionState) {
-        if (newState.selectedTarget == NullAddress) {
+        if (newState.selectedTarget == NullAddress && newState.availableTargets.isNotEmpty()) {
             binding.walletSelect.loadItems(
                 accountsSource = Single.just(
                     newState.availableTargets.filterIsInstance<SingleAccount>().map {
@@ -297,7 +297,9 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                     status = customiser.selectTargetStatusDecorator(state, it),
                     shouldShowSelectionStatus = true,
                     shouldShowAddNewBankAccount = nabuUserIdentity.isArgentinian(),
-                    assetAction = state.action
+                    assetAction = state.action,
+                    showTradingAccounts = state.showTradingAccounts,
+                    canSwitchBetweenAccountTypes = state.canSwitchBetweenAccountType
                 )
 
                 onAddNewBankAccountClicked = {

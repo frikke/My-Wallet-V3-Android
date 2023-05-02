@@ -4,17 +4,34 @@ import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSig
 import com.blockchain.outcome.Outcome
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CoinNetwork
+import info.blockchain.balance.Money
 
 interface AllowanceService {
     suspend fun tokenAllowance(assetInfo: AssetInfo): Outcome<Exception, TokenAllowance>
-    suspend fun buildAllowanceTransaction(assetInfo: AssetInfo): Outcome<Exception, AllowanceTransaction>
+    suspend fun buildAllowanceTransaction(
+        assetInfo: AssetInfo,
+        amount: Money?
+    ): Outcome<Exception, AllowanceTransaction>
+
     suspend fun pushAllowanceTransaction(
         network: CoinNetwork,
         rawTx: String,
-        signatures: List<TransactionSignature>
+        signatures: List<TransactionSignature>,
     ): Outcome<Exception, String>
+
+    suspend fun allowanceTransactionProgress(assetInfo: AssetInfo): AllowanceTransactionState
+    suspend fun revokeAllowanceTransactionProgress(assetInfo: AssetInfo): AllowanceTransactionState
 }
 
 data class TokenAllowance(
-    val allowanceAmount: String
-)
+    private val allowanceAmount: String
+) {
+    val isTokenAllowed: Boolean
+        get() = allowanceAmount != "0"
+}
+
+enum class AllowanceTransactionState {
+    PENDING, FAILED, COMPLETED
+}
+
+private const val MAX_AMOUNT = "MAX"

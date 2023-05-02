@@ -37,7 +37,6 @@ class UnifiedActivityRepository(
 ) : UnifiedActivityService {
 
     override fun getAllActivity(): Flow<DataResource<List<UnifiedActivityItem>>> {
-
         return flow {
             emit(DataResource.Loading)
             activityWebSocketService.open(fiatCurrency = currencyPrefs.selectedFiatCurrency.networkTicker)

@@ -82,7 +82,8 @@ val dexDataModule = module {
 
         scoped {
             DexAllowanceStorage(
-                apiService = get()
+                apiService = get(),
+                environmentConfig = get()
             )
         }
     }

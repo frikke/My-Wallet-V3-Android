@@ -9,6 +9,7 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.outcome.Outcome
 import info.blockchain.balance.AssetInfo
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 
 interface RecurringBuyService {
@@ -16,25 +17,31 @@ interface RecurringBuyService {
 
     fun recurringBuys(
         includeInactive: Boolean = false,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
+            RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
+        )
     ): Flow<DataResource<List<RecurringBuy>>>
 
     fun recurringBuys(
         asset: AssetInfo,
         includeInactive: Boolean = false,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
+            RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
+        )
     ): Flow<DataResource<List<RecurringBuy>>>
 
     fun recurringBuy(
         id: String,
         includeInactive: Boolean = false,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
+            RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
+        )
     ): Flow<DataResource<RecurringBuy>>
 
     suspend fun cancelRecurringBuy(recurringBuy: RecurringBuy)
 
     fun frequencyConfig(
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
     ): Flow<DataResource<List<EligibleAndNextPaymentRecurringBuy>>>
 
     suspend fun createOrder(
