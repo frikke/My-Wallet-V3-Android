@@ -14,12 +14,14 @@ import com.blockchain.data.updateDataWith
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.prices.domain.AssetPriceInfo
 import com.blockchain.prices.domain.PricesService
+import com.blockchain.store.mapListData
 import com.blockchain.transactions.swap.SwapService
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -49,6 +51,8 @@ class SelectTargetViewModel(
             }
         }
     }
+
+    private var pricesJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
@@ -87,16 +91,7 @@ class SelectTargetViewModel(
     override suspend fun handleIntent(modelState: SelectTargetModelState, intent: SelectTargetIntent) {
         when (intent) {
             is SelectTargetIntent.LoadData -> {
-                swapService.targetTickers(sourceTicker).let { tickers ->
-                    pricesService.assets(tickers)
-                        .collectLatest { pricesData ->
-                            updateState {
-                                it.copy(
-                                    prices = it.prices.updateDataWith(pricesData)
-                                )
-                            }
-                        }
-                }
+                loadPrices()
             }
 
             is SelectTargetIntent.FilterSearch -> {
@@ -113,10 +108,42 @@ class SelectTargetViewModel(
                         selectedAssetsModeFilter = intent.selected
                     )
                 }
+                loadPrices()
             }
 
             is SelectTargetIntent.AssetSelected -> {
-                // todo if asset has multiple accounts show account selection
+                check(modelState.selectedAssetsModeFilter != null)
+                viewModelScope.launch {
+                    swapService
+                        .accountsWithBalanceOfMode(
+                            sourceTicker,
+                            intent.ticker,
+                            modelState.selectedAssetsModeFilter
+                        ).mapListData {
+                            it.account.currency.networkTicker
+                        }
+                        .collectLatest {
+                            println("-------- ${it.dataOrElse(listOf())}")
+                        }
+                }
+            }
+        }
+    }
+
+    private fun loadPrices() {
+        pricesJob?.cancel()
+        pricesJob = modelState.selectedAssetsModeFilter?.let { selectedAssetsModeFilter ->
+            viewModelScope.launch {
+                swapService.targetTickersForMode(sourceTicker, selectedAssetsModeFilter).let { tickers ->
+                    pricesService.assets(tickers)
+                        .collectLatest { pricesData ->
+                            updateState {
+                                it.copy(
+                                    prices = it.prices.updateDataWith(pricesData)
+                                )
+                            }
+                        }
+                }
             }
         }
     }

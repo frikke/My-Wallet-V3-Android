@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
 import com.blockchain.commonarch.presentation.base.ComposeModalBottomDialog
+import com.blockchain.componentlib.alert.CustomEmptyState
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.User
 import com.blockchain.componentlib.sheets.BottomSheetButton

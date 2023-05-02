@@ -37,6 +37,7 @@ fun SelectAssetPricesList(
                         BalanceChangeTableRow(
                             data = asset,
                             onClick = {
+                                onAccountClick(asset)
                             }
                         )
                     }

@@ -4,9 +4,8 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.EarnRewardsAccount
-import com.blockchain.coincore.ExchangeAccount
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimits
@@ -17,8 +16,12 @@ import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
+import com.blockchain.store.filterListData
 import com.blockchain.store.flatMapData
+import com.blockchain.store.mapData
+import com.blockchain.store.mapListData
 import com.blockchain.utils.toFlowDataResource
+import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CurrencyPair
@@ -29,12 +32,10 @@ import io.reactivex.rxjava3.kotlin.zipWith
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.rx3.await
 
 // TODO (othman) ref swap stuff to this repo
 
@@ -45,73 +46,132 @@ internal class SwapRepository(
     private val walletManager: CustodialWalletManager,
 ) : SwapService {
 
-    private var fromAccountsCache: List<CryptoAccountWithBalance>? = null
-    private var toAccountsCache: List<CryptoAccount>? = null
-
-    override fun sourceAccounts(): Flow<DataResource<List<CryptoAccount>>> {
-        return coincore.walletsWithAction(
-            action = AssetAction.Swap
-        ).zipWith(
-            custodialRepository.getSwapAvailablePairs()
-        ).map { (accounts, pairs) ->
-            accounts.filter { account ->
-                (account as? CryptoAccount)?.isAvailableToSwapFrom(pairs) ?: false
+    private fun Flow<DataResource<List<CryptoAccount>>>.withBalance() = flatMapData {
+        combine(
+            it.map { account ->
+                account.balance()
+                    .distinctUntilChanged()
+                    .map { balance ->
+                        CryptoAccountWithBalance(
+                            account = account,
+                            balanceCrypto = balance.total,
+                            balanceFiat = balance.totalFiat
+                        )
+                    }
             }
-        }.map {
-            it.map { account -> account as CryptoAccount }
-        }.toFlowDataResource()
+        ) { DataResource.Data(it.toList()) }
     }
 
-    override fun custodialSourceAccountsWithBalances(): Flow<DataResource<List<CryptoAccountWithBalance>>> {
+    private fun sourceAccounts(): Flow<DataResource<List<CryptoAccount>>> {
+        return coincore.walletsWithAction(action = AssetAction.Swap)
+            .map {
+                it.filterIsInstance<CryptoAccount>()
+            }
+            .zipWith(
+                custodialRepository.getSwapAvailablePairs()
+            )
+            .map { (accounts, pairs) ->
+                accounts.filter { account ->
+                    account.isAvailableToSwapFrom(pairs)
+                }
+            }
+            .toFlowDataResource()
+    }
+
+    override fun sourceAccountsWithBalances(): Flow<DataResource<List<CryptoAccountWithBalance>>> {
         return sourceAccounts()
-            .flatMapData {
-                combine(
-                    it.map { account ->
-                        account.balance()
-                            .distinctUntilChanged()
-                            .map { balance ->
-                                CryptoAccountWithBalance(
-                                    account = account,
-                                    balanceCrypto = balance.total,
-                                    balanceFiat = balance.totalFiat
-                                )
-                            }
-                    }
-                ) { DataResource.Data(it.toList()) }
-            }
-            .onStart {
-                fromAccountsCache?.let { emit(DataResource.Data(it)) }
-            }
-            .onEach {
-                it.dataOrElse(null)?.let { fromAccountsCache = it }
-            }
+            .withBalance()
     }
 
     override suspend fun highestBalanceSourceAccount(): CryptoAccountWithBalance? {
-        return custodialSourceAccountsWithBalances()
+        return sourceAccountsWithBalances()
             .filterIsInstance<DataResource.Data<List<CryptoAccountWithBalance>>>()
             .map { it.data.maxBy { it.balanceCrypto.toBigDecimal() } }
             .firstOrNull()
     }
 
-    override suspend fun targetTickers(sourceTicker: String): List<String> {
-        return custodialRepository.getSwapAvailablePairs()
-            .map { pairs ->
-                pairs.filter {
-                    it.source.networkTicker == sourceTicker
-                }.map {
-                    it.destination.networkTicker
-                }
-            }.await()
+    override suspend fun targetTickersForMode(
+        sourceTicker: String,
+        mode: WalletMode
+    ): List<String> {
+        return targetAccountsForMode(sourceTicker = sourceTicker, mode = mode)
+            .mapListData {
+                it.currency.networkTicker
+            }
+            .mapData {
+                it.distinct()
+            }
+            .filter { it is DataResource.Data<List<String>> }
+            .firstOrNull()?.dataOrElse(emptyList()) ?: emptyList()
     }
 
-    override fun targetAccounts(sourceAccount: CryptoAccount): Flow<DataResource<List<CryptoAccount>>> {
+    private fun targetAccountsForMode(
+        sourceTicker: String,
+        mode: WalletMode
+    ): Flow<DataResource<List<CryptoAccount>>> {
+        return custodialRepository.getSwapAvailablePairs()
+            .flatMap { pairs ->
+                val targetCurrencies = pairs.filter { it.source.networkTicker == sourceTicker }
+                    .map { it.destination }
+
+                val assets = targetCurrencies.map { coincore[it] }
+
+                Single.just(assets).flattenAsObservable { it }
+                    .flatMapSingle { asset ->
+                        asset.accountGroup(AssetFilter.All).map { it.accounts }.switchIfEmpty(Single.just(emptyList()))
+                    }
+                    .reduce { t1, t2 ->
+                        t1 + t2
+                    }
+                    .switchIfEmpty(Single.just(emptyList()))
+                    .map {
+                        when (mode) {
+                            WalletMode.CUSTODIAL -> it.filterIsInstance<CustodialTradingAccount>()
+                            WalletMode.NON_CUSTODIAL -> it.filterIsInstance<CryptoNonCustodialAccount>()
+                        }
+                    }
+            }.toFlowDataResource()
+    }
+
+    override suspend fun bestTargetAccountForMode(
+        sourceTicker: String,
+        targetTicker: String,
+        mode: WalletMode
+    ): CryptoAccount? {
+        // 1. get all target accounts of sourceTicker for mode
+        // 2. filter only accounts of targetTicker
+        // 3. get their balances
+        // 4. ignore loading/error
+        // 5. get highest balance
+        // 6. return or null if nothing found
+        return targetAccountsForMode(sourceTicker = sourceTicker, mode = mode)
+            .filterListData { it.currency.networkTicker == targetTicker }
+            .withBalance()
+            .filterIsInstance<DataResource.Data<List<CryptoAccountWithBalance>>>()
+            .map { it.data.maxBy { it.balanceCrypto.toBigDecimal() }.account }
+            .firstOrNull()
+    }
+
+    override suspend fun isAccountValidForSource(
+        account: CryptoAccount,
+        sourceTicker: String,
+        mode: WalletMode
+    ): Boolean {
+        return targetAccountsForMode(sourceTicker = sourceTicker, mode = mode)
+            .filterIsInstance<DataResource.Data<List<CryptoAccount>>>()
+            .map { it.data.contains(account) }
+            .firstOrNull() ?: false
+    }
+
+    override fun accountsWithBalanceOfMode(
+        sourceTicker: String,
+        selectedAssetTicker: String,
+        mode: WalletMode
+    ): Flow<DataResource<List<CryptoAccountWithBalance>>> {
         return custodialRepository.getSwapAvailablePairs().flatMap { pairs ->
-            val targetCurrencies = pairs.filter {
-                it.source.networkTicker == sourceAccount.currency.networkTicker
-            }.map {
-                it.destination
-            }
+            val targetCurrencies = pairs
+                .filter { it.source.networkTicker == sourceTicker }
+                .map { it.destination }
 
             val assets = targetCurrencies.map { coincore[it] }
 
@@ -121,21 +181,16 @@ internal class SwapRepository(
                 t1 + t2
             }.switchIfEmpty(Single.just(emptyList()))
                 .map {
-                    it.filterIsInstance<CryptoAccount>()
-                        .filterNot { account ->
-                            account is EarnRewardsAccount || account is ExchangeAccount
-                        }
-                        .filter { cryptoAccount ->
-                            sourceAccount.isTargetAvailableForSwap(target = cryptoAccount)
-                        }
+                    it.filter { it.currency.networkTicker == selectedAssetTicker }
+                }
+                .map {
+                    when (mode) {
+                        WalletMode.CUSTODIAL -> it.filterIsInstance<CustodialTradingAccount>()
+                        WalletMode.NON_CUSTODIAL -> it.filterIsInstance<CryptoNonCustodialAccount>()
+                    }
                 }
         }.toFlowDataResource()
-            .onStart {
-                toAccountsCache?.let { emit(DataResource.Data(it)) }
-            }
-            .onEach {
-                it.dataOrElse(null)?.let { toAccountsCache = it }
-            }
+            .withBalance()
     }
 
     override fun limits( // todo support defi

@@ -1,22 +1,55 @@
 package com.blockchain.transactions.swap
 
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.data.DataResource
+import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatCurrency
 import kotlinx.coroutines.flow.Flow
 
 interface SwapService {
-    fun sourceAccounts(): Flow<DataResource<List<CryptoAccount>>>
-
-    fun custodialSourceAccountsWithBalances(): Flow<DataResource<List<CryptoAccountWithBalance>>>
+    fun sourceAccountsWithBalances(): Flow<DataResource<List<CryptoAccountWithBalance>>>
 
     suspend fun highestBalanceSourceAccount(): CryptoAccountWithBalance?
 
-    suspend fun targetTickers(sourceTicker: String): List<String>
+    suspend fun targetTickersForMode(
+        sourceTicker: String,
+        mode: WalletMode
+    ): List<String>
 
-    fun targetAccounts(sourceAccount: CryptoAccount): Flow<DataResource<List<CryptoAccount>>>
+    /**
+     * returns the highest balance account of [targetTicker]
+     * that is eligible for swap with [sourceTicker]
+     *
+     * [mode] defines which account type: [CustodialTradingAccount] or [CryptoNonCustodialAccount]
+     *
+     * needed for defi accounts like BTC or BCH where we can have multiple accounts
+     *
+     * quick tip: open coinview for btc or bch on defi and see how many accounts
+     */
+    suspend fun bestTargetAccountForMode(
+        sourceTicker: String,
+        targetTicker: String,
+        mode: WalletMode
+    ): CryptoAccount?
+
+    /**
+     * check if [account] is a valid target for [sourceTicker]
+     */
+    suspend fun isAccountValidForSource(
+        account: CryptoAccount,
+        sourceTicker: String,
+        mode: WalletMode
+    ): Boolean
+
+    fun accountsWithBalanceOfMode(
+        sourceTicker: String,
+        selectedAssetTicker: String,
+        mode: WalletMode
+    ): Flow<DataResource<List<CryptoAccountWithBalance>>>
 
     /**
      * returns [TxLimits] which defines min and max

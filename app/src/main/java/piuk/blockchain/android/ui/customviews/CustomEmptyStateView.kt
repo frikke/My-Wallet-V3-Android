@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.blockchain.componentlib.alert.CustomEmptyState
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.User
 import com.blockchain.componentlib.theme.AppSurface

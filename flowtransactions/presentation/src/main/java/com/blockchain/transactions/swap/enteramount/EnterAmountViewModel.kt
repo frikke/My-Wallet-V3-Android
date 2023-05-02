@@ -1,6 +1,7 @@
 package com.blockchain.transactions.swap.enteramount
 
 import androidx.lifecycle.viewModelScope
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.componentlib.control.CurrencyValue
@@ -15,29 +16,22 @@ import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.extensions.safeLet
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.flatMapData
-import com.blockchain.store.mapData
-import com.blockchain.transactions.swap.CryptoAccountWithBalance
 import com.blockchain.transactions.swap.SwapService
-import com.blockchain.transactions.swap.confirmation.composable.ConfirmationArgs
 import com.blockchain.utils.removeLeadingZeros
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import java.math.BigDecimal
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 /**
@@ -48,7 +42,8 @@ class EnterAmountViewModel(
     private val fromTicker: String? = null,
     private val swapService: SwapService,
     private val exchangeRates: ExchangeRatesDataManager,
-    private val currencyPrefs: CurrencyPrefs
+    private val walletModeService: WalletModeService,
+    currencyPrefs: CurrencyPrefs
 ) : MviViewModel<
     EnterAmountIntent,
     EnterAmountViewState,
@@ -56,18 +51,25 @@ class EnterAmountViewModel(
     EnterAmountNavigationEvent,
     ModelConfigArgs.NoArgs
     >(
-    EnterAmountModelState()
+    EnterAmountModelState(fiatCurrency = currencyPrefs.selectedFiatCurrency)
 ) {
 
-    private val fromAccountFlow = MutableSharedFlow<CryptoAccountWithBalance>(replay = 1)
-    private val toAccountTickerFlow = MutableSharedFlow<String>(replay = 1) // accept cryptoaccounts instead of tickers
+    init {
+        viewModelScope.launch {
+            val walletMode = walletModeService.walletMode.firstOrNull()
+            updateState {
+                it.copy(
+                    walletMode = walletMode,
+                )
+            }
+        }
+    }
 
+    private var configJob: Job? = null
     private val fiatInputChanges = MutableSharedFlow<String>()
     private val cryptoInputChanges = MutableSharedFlow<String>()
 
     init {
-        loadAccountsAndConfig()
-
         viewModelScope.launch {
             fiatInputChanges.debounce(DEBOUNCE_MS)
                 .collectLatest {
@@ -88,74 +90,84 @@ class EnterAmountViewModel(
     override fun reduce(state: EnterAmountModelState) = state.run {
         EnterAmountViewState(
             selectedInput = selectedInput,
-            assets = accounts.map {
+            assets = fromAccount?.let {
                 EnterAmountAssets(
-                    from = it.fromAccount.account.currency.toViewState(),
-                    to = it.toAccount?.currency?.toViewState()
+                    from = fromAccount.account.currency.toViewState(),
+                    to = toAccount?.currency?.toViewState()
                 )
             },
-            accountBalance = state.accounts.map {
+            accountBalance = fromAccount?.let {
                 when (state.selectedInput) {
-                    InputCurrency.Currency1 -> it.fromAccount.balanceFiat
-                    InputCurrency.Currency2 -> it.fromAccount.balanceCrypto
+                    InputCurrency.Currency1 -> fromAccount.balanceFiat
+                    InputCurrency.Currency2 -> fromAccount.balanceCrypto
                 }.toStringWithSymbol()
-            }.dataOrElse(null),
-            fiatAmount = accounts.map {
-                CurrencyValue(
-                    value = if (selectedInput == InputCurrency.Currency1) {
-                        fiatAmountUserInput
-                    } else {
-                        //                            fiatAmountUserInput.ifEmpty { "0" }
-                        // format the unfocused value?
-                        fiatAmount?.toStringWithoutSymbol().orEmpty().ifEmpty { "0" }
-                    },
-                    maxFractionDigits = fiatAmount?.userDecimalPlaces ?: 2,
-                    ticker = it.fiatCurrency.symbol,
-                    isPrefix = true,
-                    separateWithSpace = false
-                )
-            }.dataOrElse(null),
-            cryptoAmount = accounts.map {
+            },
+            fiatAmount = CurrencyValue(
+                value = if (selectedInput == InputCurrency.Currency1) {
+                    fiatAmountUserInput
+                } else {
+                    // fiatAmountUserInput.ifEmpty { "0" }
+                    // format the unfocused value?
+                    fiatAmount?.toStringWithoutSymbol().orEmpty().ifEmpty { "0" }
+                },
+                maxFractionDigits = fiatAmount?.userDecimalPlaces ?: 2,
+                ticker = fiatCurrency.symbol,
+                isPrefix = true,
+                separateWithSpace = false
+            ),
+            cryptoAmount = fromAccount?.let {
                 CurrencyValue(
                     value = if (selectedInput == InputCurrency.Currency2) {
                         cryptoAmountUserInput
                     } else {
-                        //                            cryptoAmountUserInput.ifEmpty { "0" }
+                        // cryptoAmountUserInput.ifEmpty { "0" }
                         // format the unfocused value?
                         cryptoAmount?.toStringWithoutSymbol().orEmpty().ifEmpty { "0" }
                     },
                     maxFractionDigits = cryptoAmount?.userDecimalPlaces ?: 8,
-                    ticker = it.fromAccount.account.currency.displayTicker,
+                    ticker = fromAccount.account.currency.displayTicker,
                     isPrefix = false,
                     separateWithSpace = true
                 )
-            }.dataOrElse(null),
-            error = inputError
+            },
+            inputError = inputError,
+            fatalError = fatalError
         )
     }
 
     override suspend fun handleIntent(modelState: EnterAmountModelState, intent: EnterAmountIntent) {
         when (intent) {
             EnterAmountIntent.LoadData -> {
-                // handle predefined from
+                check(modelState.walletMode != null)
+
+                // get highest balance account as the primary FROM
                 val fromAccount = swapService.highestBalanceSourceAccount()
 
-                val toAccountTicker = when (fromAccount?.account?.currency?.networkTicker) {
-                    "BTC" -> "USDT"
-                    else -> "BTC"
+                // if no account found -> fatal error loading accounts
+                if (fromAccount == null) {
+                    updateState {
+                        it.copy(
+                            fatalError = SwapEnterAmountFatalError.WalletLoading
+                        )
+                    }
+                    return
                 }
 
-                safeLet(
-                    fromAccount,
-                    toAccountTicker
-                ) { from, to ->
-                    fromAccountFlow.emit(from)
-                    toAccountTickerFlow.emit(to)
-                } ?: updateState {
+                val fromAccountTicker = fromAccount.account.currency.networkTicker
+                val toAccount = swapService.bestTargetAccountForMode(
+                    sourceTicker = fromAccountTicker,
+                    targetTicker = initialTargetAccountRule(fromAccountTicker),
+                    mode = modelState.walletMode
+                )
+
+                updateState {
                     it.copy(
-                        fatalError = SwapEnterAmountFatalError.WalletLoading
+                        fromAccount = fromAccount,
+                        toAccount = toAccount,
                     )
                 }
+
+                updateConfig(fromAccount.account, toAccount)
             }
 
             EnterAmountIntent.FlipInputs -> {
@@ -167,8 +179,7 @@ class EnterAmountViewModel(
             }
 
             is EnterAmountIntent.FiatInputChanged -> {
-                val fiatCurrency = modelState.accounts.map { it.fiatCurrency }.dataOrElse(null)
-                check(fiatCurrency != null)
+                val fiatCurrency = modelState.fiatCurrency
 
                 updateState {
                     it.copy(
@@ -182,7 +193,7 @@ class EnterAmountViewModel(
             }
 
             is EnterAmountIntent.CryptoInputChanged -> {
-                val fromCurrency = modelState.accounts.map { it.fromAccount.account.currency }.dataOrElse(null)
+                val fromCurrency = modelState.fromAccount?.account?.currency
                 check(fromCurrency != null)
 
                 updateState {
@@ -197,7 +208,31 @@ class EnterAmountViewModel(
             }
 
             is EnterAmountIntent.FromAccountChanged -> {
-                fromAccountFlow.emit(intent.account)
+                check(modelState.walletMode != null)
+
+                // verify if current TO account is still valid
+                val isToAccountStillValid = modelState.toAccount?.let {
+                    swapService.isAccountValidForSource(
+                        account = it,
+                        sourceTicker = intent.account.account.currency.networkTicker,
+                        mode = modelState.walletMode
+                    )
+                } ?: false
+                val toAccount = modelState.toAccount?.takeIf { isToAccountStillValid }
+
+                updateState {
+                    it.copy(
+                        fromAccount = intent.account,
+                        toAccount = toAccount,
+                        fiatAmountUserInput = "",
+                        cryptoAmount = null,
+                        cryptoAmountUserInput = "",
+                        inputError = null,
+                        fatalError = null
+                    )
+                }
+
+                updateConfig(intent.account.account, toAccount)
             }
 
             EnterAmountIntent.MaxSelected -> {
@@ -216,109 +251,150 @@ class EnterAmountViewModel(
             }
 
             EnterAmountIntent.PreviewClicked -> {
-                val accounts = (modelState.accounts as DataResource.Data).data
-                check(accounts.toAccount != null)
-                val data = ConfirmationArgs(
-                    sourceAccount = accounts.fromAccount.account,
-                    targetAccount = accounts.toAccount,
-                    sourceCryptoAmount = modelState.cryptoAmount!!,
-                    secondPassword = null, // TODO(aromano): TEMP
-                )
-                navigate(EnterAmountNavigationEvent.Preview(data))
+//                val accounts = (modelState.accounts as DataResource.Data).data
+//                check(accounts.toAccount != null)
+//                val data = ConfirmationArgs(
+//                    sourceAccount = accounts.fromAccount.account,
+//                    targetAccount = accounts.toAccount,
+//                    sourceCryptoAmount = modelState.cryptoAmount!!,
+//                    secondPassword = null, // TODO(aromano): TEMP
+//                )
+//                navigate(EnterAmountNavigationEvent.Preview(data))
             }
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private fun loadAccountsAndConfig() {
-        viewModelScope.launch {
-            fromAccountFlow
-                .map { DataResource.Data(it) }
-                .flatMapData { fromAccount ->
-                    toAccountTickerFlow.flatMapLatest { toTicker ->
-                        swapService.targetAccounts(fromAccount.account)
-                            .mapData {
-                                it.firstOrNull { it.currency.networkTicker == toTicker }
-                            }
-                    }.map {
-                        it.map { toAccount ->
-                            EnterAmountAccounts(
-                                fromAccount = fromAccount,
-                                toAccount = toAccount,
-                                fiatCurrency = currencyPrefs.selectedFiatCurrency,
-                            )
-                        }
-                    }
-                }
-                .onEach { accountsData ->
-                    // reset all whenever a new asset is selected
-                    updateState {
-                        it.copy(
-                            accounts = it.accounts.updateDataWith(accountsData),
-                            fiatAmount = null,
-                            fiatAmountUserInput = "",
-                            cryptoAmount = null,
-                            cryptoAmountUserInput = "",
-                            inputError = null,
-                            fatalError = null
-                        )
-                    }
-                }.flatMapData { accounts ->
-                    if (accounts.toAccount == null) {
-                        updateState {
-                            it.copy(config = DataResource.Loading)
-                        }
-                        return@flatMapData flowOf(DataResource.Loading)
-                    }
+    private fun updateConfig(fromAccount: CryptoAccount, toAccount: CryptoAccount?) {
+        configJob?.cancel()
 
-                    combine(
-                        exchangeRates.exchangeRateToUserFiatFlow(accounts.fromAccount.account.currency),
-                        swapService.limits(
-                            from = accounts.fromAccount.account.currency as CryptoCurrency,
-                            to = accounts.toAccount.currency as CryptoCurrency,
-                            fiat = accounts.fiatCurrency
-                        )
-                    ) { exchangeRate, limits ->
-                        combineDataResources(
-                            exchangeRate,
-                            limits
-                        ) { exchangeRateData, limitsData ->
-                            EnterAmountConfig(
-                                sourceAccountToFiat = exchangeRateData,
-                                limits = limitsData
-                            )
-                        }
-                    }
-                }.onEach { configData ->
-                    updateState {
-                        it.copy(
-                            config = it.config.updateDataWith(configData)
-                        )
-                    }
-                }.collect()
+        if (toAccount == null) {
+            updateState {
+                it.copy(config = DataResource.Loading)
+            }
+            return
+        }
+
+        configJob = viewModelScope.launch {
+            combine(
+                exchangeRates.exchangeRateToUserFiatFlow(fromAccount.currency),
+                swapService.limits(
+                    from = fromAccount.currency as CryptoCurrency,
+                    to = toAccount.currency as CryptoCurrency,
+                    fiat = modelState.fiatCurrency
+                )
+            ) { exchangeRate, limits ->
+                combineDataResources(
+                    exchangeRate,
+                    limits
+                ) { exchangeRateData, limitsData ->
+                    EnterAmountConfig(
+                        sourceAccountToFiatRate = exchangeRateData,
+                        limits = limitsData
+                    )
+                }
+            }.collectLatest { configData ->
+                updateState {
+                    it.copy(
+                        config = it.config.updateDataWith(configData)
+                    )
+                }
+            }
         }
     }
+
+    //    @OptIn(ExperimentalCoroutinesApi::class)
+    //    private fun loadAccountsAndConfig() {
+    //        viewModelScope.launch {
+    //            fromAccountFlow
+    //                .map { DataResource.Data(it) }
+    //                .flatMapData { fromAccount ->
+    //                    toAccountFlow.flatMapLatest { toTicker ->
+    //                        swapService.bestTargetAccountForMode(
+    //                            sourceTicker = fromAccount.account.currency.networkTicker,
+    //                            targetTicker = toTicker,
+    //                            WalletMode.CUSTODIAL
+    //                        )
+    //                    }.map {
+    //                        it.map { toAccount ->
+    //                            EnterAmountAccounts(
+    //                                fromAccount = fromAccount,
+    //                                toAccount = toAccount,
+    //                                fiatCurrency = currencyPrefs.selectedFiatCurrency,
+    //                            )
+    //                        }
+    //                    }
+    //                }
+    //                .onEach { accountsData ->
+    //                    // reset all whenever a new asset is selected
+    //                    updateState {
+    //                        it.copy(
+    //                            accounts = it.accounts.updateDataWith(accountsData),
+    //                            fiatAmount = null,
+    //                            fiatAmountUserInput = "",
+    //                            cryptoAmount = null,
+    //                            cryptoAmountUserInput = "",
+    //                            inputError = null,
+    //                            fatalError = null
+    //                        )
+    //                    }
+    //                }.flatMapData { accounts ->
+    //                    if (accounts.toAccount == null) {
+    //                        updateState {
+    //                            it.copy(config = DataResource.Loading)
+    //                        }
+    //                        return@flatMapData flowOf(DataResource.Loading)
+    //                    }
+    //
+    //                    combine(
+    //                        exchangeRates.exchangeRateToUserFiatFlow(accounts.fromAccount.account.currency),
+    //                        swapService.limits(
+    //                            from = accounts.fromAccount.account.currency as CryptoCurrency,
+    //                            to = accounts.toAccount.currency as CryptoCurrency,
+    //                            fiat = accounts.fiatCurrency
+    //                        )
+    //                    ) { exchangeRate, limits ->
+    //                        combineDataResources(
+    //                            exchangeRate,
+    //                            limits
+    //                        ) { exchangeRateData, limitsData ->
+    //                            EnterAmountConfig(
+    //                                sourceAccountToFiat = exchangeRateData,
+    //                                limits = limitsData
+    //                            )
+    //                        }
+    //                    }
+    //                }.onEach { configData ->
+    //                    updateState {
+    //                        it.copy(
+    //                            config = it.config.updateDataWith(configData)
+    //                        )
+    //                    }
+    //                }.collect()
+    //        }
+    //    }
 
     /**
      * update the crypto value based on the fiat value input
      * and update input errors
      */
     private fun onFiatInputChanged(value: String) {
-        val fiatCurrency = modelState.accounts.map { it.fiatCurrency }.dataOrElse(null)
-        check(fiatCurrency != null)
+        val fiatCurrency = modelState.fiatCurrency
 
-        val a: CryptoValue? = modelState.config.map { it.sourceAccountToFiat }.dataOrElse(null)?.inverse()?.convert(
-            FiatValue.fromMajor(
-                fiatCurrency,
-                value.ifEmpty { "0" }.toBigDecimal()
-            )
-        ) as CryptoValue?
+        val cryptoAmount: CryptoValue? = modelState.config.map { it.sourceAccountToFiatRate }.dataOrElse(null)
+            ?.inverse()
+            ?.convert(
+                FiatValue.fromMajor(
+                    fiatCurrency,
+                    value.ifEmpty { "0" }.toBigDecimal()
+                )
+            ) as CryptoValue?
+
         updateState {
             it.copy(
-                cryptoAmountUserInput = a?.toBigDecimal()?.stripTrailingZeros()
+                cryptoAmountUserInput = cryptoAmount?.toBigDecimal()?.stripTrailingZeros()
                     ?.takeIf { it != BigDecimal.ZERO }
                     ?.toString().orEmpty(),
-                cryptoAmount = a
+                cryptoAmount = cryptoAmount
             )
         }
 
@@ -327,7 +403,7 @@ class EnterAmountViewModel(
             modelState.fiatAmount,
             modelState.config.map { it.limits }.dataOrElse(null)?.min?.amount,
             modelState.config.map { it.limits }.dataOrElse(null)?.max,
-            modelState.config.map { it.sourceAccountToFiat }.dataOrElse(null)
+            modelState.config.map { it.sourceAccountToFiatRate }.dataOrElse(null)
         ) { fiatAmount, minAmount, maxAmount, exchangeRate ->
             val minFiatAmount = exchangeRate.convert(minAmount)
 
@@ -344,8 +420,7 @@ class EnterAmountViewModel(
                             )
                         }
 
-                        modelState.accounts.map { fiatAmount > it.fromAccount.balanceFiat }
-                            .dataOrElse(false) -> {
+                        (modelState.fromAccount?.balanceFiat?.let { fiatAmount > it } ?: false) -> {
                             SwapEnterAmountInputError.AboveBalance
                         }
 
@@ -363,10 +438,10 @@ class EnterAmountViewModel(
      * and update input errors
      */
     private fun onCryptoInputChanged(value: String) {
-        val fromCurrency = modelState.accounts.map { it.fromAccount.account.currency }.dataOrElse(null)
+        val fromCurrency = modelState.fromAccount?.account?.currency
         check(fromCurrency != null)
 
-        val a: FiatValue? = modelState.config.map { it.sourceAccountToFiat }.dataOrElse(null)?.convert(
+        val fiatAmount: FiatValue? = modelState.config.map { it.sourceAccountToFiatRate }.dataOrElse(null)?.convert(
             CryptoValue.fromMajor(
                 fromCurrency,
                 value.ifEmpty { "0" }.toBigDecimal()
@@ -375,10 +450,10 @@ class EnterAmountViewModel(
 
         updateState {
             it.copy(
-                fiatAmountUserInput = a?.toBigDecimal()?.stripTrailingZeros()
+                fiatAmountUserInput = fiatAmount?.toBigDecimal()?.stripTrailingZeros()
                     ?.takeIf { it != BigDecimal.ZERO }
                     ?.toString().orEmpty(),
-                fiatAmount = a
+                fiatAmount = fiatAmount
             )
         }
 
@@ -399,8 +474,7 @@ class EnterAmountViewModel(
                             SwapEnterAmountInputError.AboveMaximum(maxValue = maxAmount.amount.toStringWithSymbol())
                         }
 
-                        modelState.accounts.map { cryptoAmount > it.fromAccount.balanceCrypto }
-                            .dataOrElse(false) -> {
+                        (modelState.fromAccount?.balanceCrypto?.let { cryptoAmount > it } ?: false) -> {
                             SwapEnterAmountInputError.AboveBalance
                         }
 
@@ -424,9 +498,14 @@ private fun Currency.toViewState() = EnterAmountAssetState(
 )
 
 private val EnterAmountModelState.currencyAwareBalance: Money?
-    get() = accounts.map {
+    get() = fromAccount?.let {
         when (selectedInput) {
-            InputCurrency.Currency1 -> it.fromAccount.balanceFiat
-            InputCurrency.Currency2 -> it.fromAccount.balanceCrypto
+            InputCurrency.Currency1 -> fromAccount.balanceFiat
+            InputCurrency.Currency2 -> fromAccount.balanceCrypto
         }
-    }.dataOrElse(null)
+    }
+
+private fun initialTargetAccountRule(fromTicker: String) = when (fromTicker) {
+    "BTC" -> "USDT"
+    else -> "BTC"
+}
