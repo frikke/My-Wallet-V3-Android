@@ -17,6 +17,7 @@ import com.blockchain.walletmode.WalletMode
 import com.dex.data.stores.DexTokensDataStorage
 import com.dex.domain.DexAccount
 import com.dex.domain.DexAccountsService
+import com.dex.domain.DexCurrency
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
@@ -86,15 +87,19 @@ class DexAccountsRepository(
                 }
             }.map { balancedAccounts ->
                 balancedAccounts.mapNotNull { (account, balance) ->
+                    val token = tokens.firstOrNull { it.symbol == account.currency.networkTicker }
                     DexAccount(
                         account = account,
                         balance = balance.total,
-                        currency = account.currency,
+                        currency = DexCurrency(
+                            account.currency,
+                            contractAddress = account.currency.l2identifier
+                                ?: token?.address
+                                ?: return@mapNotNull null,
+                            chainId = ETH_CHAIN_ID,
+                            isVerified = token?.isVerified ?: false
+                        ),
                         fiatBalance = balance.totalFiat,
-                        contractAddress = account.currency.l2identifier
-                            ?: tokens.firstOrNull { it.symbol == account.currency.networkTicker }?.address
-                            ?: return@mapNotNull null,
-                        chainId = ETH_CHAIN_ID
                     )
                 }
             }
@@ -130,29 +135,38 @@ class DexAccountsRepository(
                     }
                 }.mapNotNull { accounts ->
                     accounts.map { account ->
+                        val token = tokens.firstOrNull { it.symbol == account.currency.networkTicker }
                         val accountCurrency = (account.currency as? AssetInfo) ?: return@mapNotNull null
                         DexAccount(
                             account = account,
-                            currency = account.currency as AssetInfo,
                             balance = Money.zero(account.currency),
-                            contractAddress = accountCurrency.l2identifier
-                                ?: tokens.firstOrNull { it.symbol == account.currency.networkTicker }?.address
-                                ?: return@mapNotNull null,
-                            chainId = accountCurrency.coinNetwork?.chainId ?: return@mapNotNull null,
                             fiatBalance = Money.zero(currencyPrefs.selectedFiatCurrency),
+                            currency = DexCurrency(
+                                account.currency as AssetInfo,
+                                contractAddress = accountCurrency.l2identifier
+                                    ?: token?.address
+                                    ?: return@mapNotNull null,
+                                chainId = accountCurrency.coinNetwork?.chainId ?: return@mapNotNull null,
+                                isVerified = token?.isVerified ?: false
+                            ),
                         )
                     }.plus(
                         activeAcc.map { (account, balance) ->
                             val accountCurrency = (account.currency as? AssetInfo) ?: return@mapNotNull null
+                            val token = tokens.firstOrNull { it.symbol == accountCurrency.networkTicker }
+
                             DexAccount(
                                 account = account,
-                                currency = account.currency,
+                                currency = DexCurrency(
+                                    account.currency,
+                                    contractAddress = (account.currency as? AssetInfo)?.l2identifier
+                                        ?: token?.address
+                                        ?: return@mapNotNull null,
+                                    chainId = accountCurrency.coinNetwork?.chainId ?: return@mapNotNull null,
+                                    isVerified = token?.isVerified ?: false
+                                ),
                                 balance = balance.total,
                                 fiatBalance = balance.totalFiat,
-                                contractAddress = (account.currency as? AssetInfo)?.l2identifier
-                                    ?: tokens.firstOrNull { it.symbol == account.currency.networkTicker }?.address
-                                    ?: return@mapNotNull null,
-                                chainId = accountCurrency.coinNetwork?.chainId ?: return@mapNotNull null,
                             )
                         }
                     )

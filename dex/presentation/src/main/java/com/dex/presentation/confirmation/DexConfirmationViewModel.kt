@@ -13,7 +13,8 @@ import com.blockchain.extensions.safeLet
 import com.blockchain.preferences.CurrencyPrefs
 import com.dex.domain.DexTransaction
 import com.dex.domain.DexTransactionProcessor
-import com.dex.presentation.enteramount.DexUiError
+import com.dex.presentation.uierrors.DexUiError
+import com.dex.presentation.uierrors.toUiError
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
@@ -86,6 +87,10 @@ class DexConfirmationViewModel(
                     exchange = exchangeRate.convert(amount),
                 )
             },
+            /*
+            * Ignore this error in the confirmation screen
+            * */
+            error = transaction.toUiError().takeIf { it != DexUiError.TransactionInProgressError } ?: DexUiError.None,
             newPriceAvailable = state.priceUpdatedAndNotAccepted
         )
     }
@@ -141,7 +146,7 @@ class DexConfirmationViewModel(
                 updateState {
                     it.copy(
                         transaction = tx,
-                        priceUpdatedAndNotAccepted = it.transaction != null &&
+                        priceUpdatedAndNotAccepted = it.transaction?.quote != null &&
                             it.transaction.quote?.price != tx.quote?.price
                     )
                 }

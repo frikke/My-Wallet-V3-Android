@@ -3,7 +3,6 @@ package com.dex.domain
 import com.blockchain.core.chains.ethereum.EvmNetworkPreImageSigner
 import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrElse
-import com.blockchain.data.map
 import com.blockchain.extensions.safeLet
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap

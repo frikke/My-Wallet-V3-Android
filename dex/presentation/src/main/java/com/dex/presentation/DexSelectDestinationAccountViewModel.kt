@@ -39,9 +39,10 @@ class DexSelectDestinationAccountViewModel(
                         account.currency.networkTicker.contains(searchFilter, true) ||
                         account.currency.displayTicker.contains(searchFilter, true) ||
                         account.currency.name.contains(searchFilter, true)
-                }.sortedByDescending {
-                    it.fiatBalance
-                }
+                }.sortedWith(
+                    compareByDescending<DexAccount> { it.fiatBalance }
+                        .thenBy { it.currency.name }
+                )
             )
         }
     }

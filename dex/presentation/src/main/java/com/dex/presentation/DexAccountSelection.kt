@@ -2,19 +2,19 @@ package com.dex.presentation
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -28,7 +28,7 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.icons.ChevronRight
 import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.lazylist.paddedItem
+import com.blockchain.componentlib.icons.Verified
 import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.tablerow.BalanceFiatAndCryptoTableRow
 import com.blockchain.componentlib.tablerow.TableRow
@@ -36,6 +36,7 @@ import com.blockchain.componentlib.tablerow.TableRowHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tag.DefaultTag
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.BasePrimaryMuted
 import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 import com.blockchain.componentlib.theme.SmallestVerticalSpacer
 import com.blockchain.dex.presentation.R
@@ -63,15 +64,12 @@ fun DexAccountSelection(
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(AppTheme.dimensions.mediumSpacing))
         ) {
             if (accounts.any { it.balance.isPositive }) {
                 if (!accounts.all { it.balance.isPositive }) {
-                    paddedItem(
-                        paddingValues = PaddingValues(horizontal = 16.dp)
-                    ) {
+                    item {
                         TableRowHeader(
-                            title = stringResource(com.blockchain.componentlib.R.string.your_assets),
+                            title = stringResource(com.blockchain.componentlib.R.string.all_tokens),
                         )
                         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
                     }
@@ -84,6 +82,9 @@ fun DexAccountSelection(
                     content = { dexAccount ->
                         BalanceFiatAndCryptoTableRow(
                             title = dexAccount.currency.name,
+                            titleIcon = dexAccount.currency.isVerified.takeIf { it }?.let {
+                                Icons.Filled.Verified.withTint(BasePrimaryMuted).withSize(14.dp)
+                            },
                             tag = dexAccount.currency.takeIf { it.isLayer2Token }?.coinNetwork?.shortName ?: "",
                             valueCrypto = dexAccount.balance.toStringWithSymbol(),
                             valueFiat = dexAccount.fiatBalance.toStringWithSymbol(),
@@ -106,10 +107,7 @@ fun DexAccountSelection(
             }
             if (accounts.any { it.balance.isZero }) {
                 if (!accounts.all { it.balance.isZero }) {
-
-                    paddedItem(
-                        paddingValues = PaddingValues(horizontal = 16.dp)
-                    ) {
+                    item {
                         TableRowHeader(
                             title = stringResource(com.blockchain.componentlib.R.string.all_tokens),
                         )
@@ -130,7 +128,31 @@ fun DexAccountSelection(
                     }
                 )
             }
+            if (accounts.isEmpty()) {
+                item {
+                    NoResults()
+                }
+            }
         }
+    }
+}
+
+@Composable
+private fun NoResults() {
+    Card(
+        backgroundColor = AppTheme.colors.background,
+        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+        elevation = 0.dp
+    ) {
+        SimpleText(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(all = AppTheme.dimensions.smallSpacing),
+            text = stringResource(R.string.assets_no_result),
+            style = ComposeTypographies.Body2,
+            color = ComposeColors.Title,
+            gravity = ComposeGravities.Centre
+        )
     }
 }
 
@@ -157,12 +179,18 @@ private fun NoBalanceDexAccountTableRow(dexAccount: DexAccount, onAccountSelecte
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.Start
                 ) {
-                    SimpleText(
-                        text = dexAccount.currency.name,
-                        style = ComposeTypographies.Paragraph2,
-                        color = ComposeColors.Title,
-                        gravity = ComposeGravities.Start
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        SimpleText(
+                            text = dexAccount.currency.name,
+                            style = ComposeTypographies.Paragraph2,
+                            color = ComposeColors.Title,
+                            gravity = ComposeGravities.Start
+                        )
+                        Image(
+                            modifier = Modifier.padding(start = AppTheme.dimensions.smallestSpacing),
+                            imageResource = Icons.Filled.Verified.withTint(BasePrimaryMuted).withSize(14.dp)
+                        )
+                    }
 
                     if (dexAccount.currency.isLayer2Token) {
                         SmallestVerticalSpacer()
