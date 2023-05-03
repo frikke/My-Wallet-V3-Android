@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
@@ -32,6 +33,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.home.presentation.recurringbuy.RecurringBuysAnalyticsEvents
 import com.blockchain.home.presentation.recurringbuy.list.RecurringBuyEligibleState
 import com.blockchain.home.presentation.recurringbuy.list.RecurringBuyViewState
 import com.blockchain.home.presentation.recurringbuy.list.RecurringBuysIntent
@@ -41,6 +43,7 @@ import com.blockchain.koin.payloadScope
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -114,6 +117,7 @@ fun RecurringBuyDashboardScreen(
 
 @Composable
 fun RecurringBuyDashboardData(
+    analytics: Analytics = get(),
     recurringBuys: ImmutableList<RecurringBuyViewState>,
     openRecurringBuyDetail: (id: String) -> Unit,
     addOnClick: () -> Unit,
@@ -135,6 +139,9 @@ fun RecurringBuyDashboardData(
                             iconUrl = recurringBuy.iconUrl,
                             onClick = {
                                 openRecurringBuyDetail(recurringBuy.id)
+                                analytics.logEvent(
+                                    RecurringBuysAnalyticsEvents.DashboardDetailClicked(recurringBuy.assetTicker)
+                                )
                             }
                         )
                     }
@@ -147,7 +154,10 @@ fun RecurringBuyDashboardData(
                 .padding(AppTheme.dimensions.standardSpacing)
                 .fillMaxWidth(),
             text = stringResource(R.string.recurring_buy_add),
-            onClick = addOnClick,
+            onClick = {
+                addOnClick()
+                analytics.logEvent(RecurringBuysAnalyticsEvents.DashboardAddClicked)
+            },
             state = ButtonState.Enabled
         )
     }
@@ -175,18 +185,21 @@ fun PreviewRecurringBuyDashboardData() {
         recurringBuys = persistentListOf(
             RecurringBuyViewState(
                 id = "1",
+                assetTicker = "",
                 iconUrl = "",
                 description = TextValue.StringValue("20 every Tuesday"),
                 status = TextValue.StringValue("Next buy on Tue, March 18"),
             ),
             RecurringBuyViewState(
                 id = "2",
+                assetTicker = "",
                 iconUrl = "",
                 description = TextValue.StringValue("20 every Tuesday"),
                 status = TextValue.StringValue("Next buy on Tue, March 18"),
             ),
             RecurringBuyViewState(
                 id = "3",
+                assetTicker = "",
                 iconUrl = "",
                 description = TextValue.StringValue("20 every Tuesday"),
                 status = TextValue.StringValue("Next buy on Tue, March 18"),
