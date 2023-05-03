@@ -10,12 +10,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,6 +39,10 @@ fun SearchPickerItemScreen(
     items: List<PickerItem>,
     onItemClicked: (PickerItem) -> Unit,
 ) {
+    val searchFocusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        searchFocusRequester.requestFocus()
+    }
     var searchInput by remember { mutableStateOf("") }
 
     @Suppress("RememberReturnType")
@@ -52,7 +59,8 @@ fun SearchPickerItemScreen(
         OutlinedTextInput(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = AppTheme.dimensions.smallSpacing),
+                .padding(bottom = AppTheme.dimensions.smallSpacing)
+                .focusRequester(searchFocusRequester),
             value = searchInput,
             onValueChange = { searchInput = it },
             singleLine = true,
