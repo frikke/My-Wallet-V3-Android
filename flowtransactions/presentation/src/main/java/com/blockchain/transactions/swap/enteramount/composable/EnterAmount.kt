@@ -75,6 +75,7 @@ fun EnterAmount(
 
     LaunchedEffect(viewModel) {
         viewModel.onIntent(EnterAmountIntent.LoadData)
+        analytics.logEvent(SwapAnalyticsEvents.EnterAmountViewed)
     }
 
     val navigationEvent by viewModel.navigationEventFlow.collectAsStateLifecycleAware(null)
