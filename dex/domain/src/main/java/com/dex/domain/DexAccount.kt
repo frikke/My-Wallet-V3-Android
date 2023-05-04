@@ -6,11 +6,9 @@ import info.blockchain.balance.Money
 
 data class DexAccount(
     val account: SingleAccount,
-    val currency: AssetInfo,
+    val currency: DexCurrency,
     val balance: Money,
     val fiatBalance: Money,
-    val contractAddress: String,
-    val chainId: Int
 )
 
 sealed class DexQuote {
@@ -35,3 +33,10 @@ data class DexQuoteParams(
     val amount: Money,
     val slippage: Double
 )
+
+data class DexCurrency(
+    private val currency: AssetInfo,
+    val isVerified: Boolean,
+    val chainId: Int,
+    val contractAddress: String
+) : AssetInfo by currency

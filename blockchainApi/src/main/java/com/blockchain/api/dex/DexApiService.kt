@@ -44,8 +44,11 @@ data class DexTokenResponse(
     val address: String,
     val decimals: Int,
     val isNative: Boolean?,
-    val verifiedBy: Int
-)
+    private val verifiedBy: Int
+) {
+    val isVerified: Boolean
+        get() = verifiedBy > 0
+}
 
 @Serializable
 data class DexTokensRequest(

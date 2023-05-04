@@ -38,7 +38,7 @@ fun <T> TagButtonRow(
         values.forEachIndexed { index, value ->
             TagButton(
                 modifier = Modifier.weight(1F),
-                icon  = value.icon,
+                icon = value.icon,
                 text = value.stringVal,
                 selected = value.obj == selected,
                 onClick = { onClick(value.obj) }

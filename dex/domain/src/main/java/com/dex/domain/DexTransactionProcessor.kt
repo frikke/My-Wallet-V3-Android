@@ -1,10 +1,13 @@
 package com.dex.domain
 
 import com.blockchain.core.chains.ethereum.EvmNetworkPreImageSigner
+import com.blockchain.data.DataResource
+import com.blockchain.data.dataOrElse
 import com.blockchain.extensions.safeLet
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.getOrNull
+import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
 import info.blockchain.balance.Money
 import info.blockchain.balance.isNetworkNativeAsset
 import java.math.BigDecimal
@@ -38,6 +41,7 @@ import kotlinx.coroutines.launch
 class DexTransactionProcessor(
     private val dexQuotesService: DexQuotesService,
     private val balanceService: DexBalanceService,
+    private val unifiedActivityService: UnifiedActivityService,
     private val dexTransactionService: DexTransactionService,
     private val evmNetworkSigner: EvmNetworkPreImageSigner,
     private val allowanceService: AllowanceService
@@ -56,8 +60,12 @@ class DexTransactionProcessor(
         EmptyDexTransaction
     )
 
+    private val revalidateSignal = MutableStateFlow(Revalidate())
+
     private val _transactionSharedFlow: SharedFlow<DexTransaction> =
-        _dexTransaction.validate()
+        combine(_dexTransaction, revalidateSignal) { tx, _ ->
+            tx
+        }.validate()
             .shareIn(
                 scope = scope,
                 started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 1000),
@@ -118,7 +126,7 @@ class DexTransactionProcessor(
             combine(
                 quoteInput,
                 updateQuote,
-                hasActiveSubscribers.debounce(1000).distinctUntilChanged().filter { it }
+                hasActiveSubscribers.debounce(1000).distinctUntilChanged().filter { it },
             ) { input, _, _ ->
                 input
             }
@@ -158,6 +166,10 @@ class DexTransactionProcessor(
                 quote = null,
             )
         }
+    }
+
+    suspend fun revalidate() {
+        revalidateSignal.emit(Revalidate())
     }
 
     fun updateSlippage(slippage: Double) {
@@ -258,6 +270,8 @@ class DexTransactionProcessor(
             tx.validateSufficientNetworkFees()
         }.validate { tx ->
             tx.validateQuoteError()
+        }.validate { tx ->
+            tx.validateTransactionInProcess()
         }
         /* add rest off validations*/
     }
@@ -279,6 +293,18 @@ class DexTransactionProcessor(
         )
     }
 
+    private suspend fun DexTransaction.validateTransactionInProcess(): DexTransaction {
+        val txNetwork = sourceAccount.currency.coinNetwork?.networkTicker ?: return this
+        val transactions =
+            unifiedActivityService.getAllActivity().filter { it != DataResource.Loading }.first().dataOrElse(
+                emptyList()
+            ).filter { it.network == txNetwork }
+
+        return if (transactions.any { it.status == "PENDING" }) {
+            copy(txError = DexTxError.TxInProgress)
+        } else this
+    }
+
     private suspend fun DexTransaction.validateAllowance(): DexTransaction {
         return if (
             destinationAccount == null ||
@@ -291,7 +317,7 @@ class DexTransactionProcessor(
                 sourceAccount.currency
             ).getOrNull()
             allowance?.let {
-                if (it.allowanceAmount == "0")
+                if (!it.isTokenAllowed)
                     return copy(
                         txError = DexTxError.TokenNotAllowed
                     )
@@ -369,7 +395,7 @@ private val EmptyDexTransaction = DexTransaction(
 
 sealed class DexTxError {
     fun allowsQuotesFetching(): Boolean {
-        return this == None || this == TokenNotAllowed || this is QuoteError
+        return this == None || this == TokenNotAllowed || this is QuoteError || this == TxInProgress
     }
 
     object NotEnoughFunds : DexTxError()
@@ -383,9 +409,20 @@ sealed class DexTxError {
     object TokenNotAllowed : DexTxError()
     class FatalTxError(val exception: Exception) : DexTxError()
     object None : DexTxError()
+    object TxInProgress : DexTxError()
 }
 
 private class QuoteTTL(val ttl: Long = 0L) {
+    override fun equals(other: Any?): Boolean {
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return Random.nextInt()
+    }
+}
+
+private class Revalidate {
     override fun equals(other: Any?): Boolean {
         return false
     }

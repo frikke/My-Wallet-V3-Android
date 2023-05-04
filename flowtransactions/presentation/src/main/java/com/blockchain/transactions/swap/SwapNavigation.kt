@@ -95,7 +95,7 @@ fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
                             viewModel.onIntent(EnterAmountIntent.ToAccountChanged(it))
                         },
                         onClosePressed = {
-                            popBackStack(SwapGraph.EnterAmount, false )
+                            popBackStack(SwapGraph.EnterAmount, false)
                         },
                         onBackPressed = ::navigateUp
                     )

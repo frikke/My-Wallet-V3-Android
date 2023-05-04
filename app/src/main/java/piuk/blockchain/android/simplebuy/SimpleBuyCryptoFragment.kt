@@ -47,6 +47,7 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethod.UndefinedCard.Ca
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.UndefinedPaymentMethod
 import com.blockchain.extensions.exhaustive
+import com.blockchain.home.presentation.recurringbuy.RecurringBuysAnalyticsEvents
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData
 import com.blockchain.presentation.complexcomponents.QuickFillRow
@@ -826,18 +827,26 @@ class SimpleBuyCryptoFragment :
         }
 
         if (state.isSelectedPaymentMethodRecurringBuyEligible()) {
-            enableRecurringBuyCta(showIndicator = !state.hasSeenRecurringBuyOptions)
+            enableRecurringBuyCta(
+                ticker = state.selectedCryptoAsset?.networkTicker.orEmpty(),
+                showIndicator = !state.hasSeenRecurringBuyOptions
+            )
         } else {
             disableRecurringBuyCta(state.selectedPaymentMethodDetails?.canBeUsedForPaying() ?: false)
         }
     }
 
-    private fun enableRecurringBuyCta(showIndicator: Boolean) {
+    private fun enableRecurringBuyCta(
+        ticker: String,
+        showIndicator: Boolean
+    ) {
         binding.recurringBuyCta.apply {
             switcherState = SwitcherState.Enabled
             indicator = SwitcherItemIndicator(color = Pink700).takeIf { showIndicator }
             onClick = {
                 model.process(SimpleBuyIntent.RecurringBuyOptionsSeen)
+                analytics.logEvent(RecurringBuysAnalyticsEvents.BuyFrequencyClicked(ticker))
+                analytics.logEvent(RecurringBuysAnalyticsEvents.BuyFrequencyViewed(ticker))
                 showBottomSheet(RecurringBuySelectionBottomSheet.newInstance())
             }
         }

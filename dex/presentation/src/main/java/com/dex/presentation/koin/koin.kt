@@ -19,6 +19,8 @@ val dexPresentation = module {
             DexEnterAmountViewModel(
                 currencyPrefs = get(),
                 txProcessor = get(),
+                enviromentConfig = get(),
+                dexAllowanceService = get(),
                 dexAccountsService = get(),
                 exchangeRatesDataManager = get(),
                 allowanceProcessor = get(),
@@ -71,6 +73,7 @@ val dexPresentation = module {
                 dexQuotesService = get(),
                 allowanceService = get(),
                 evmNetworkSigner = get(),
+                unifiedActivityService = get(),
                 dexTransactionService = get(),
                 balanceService = get()
             )

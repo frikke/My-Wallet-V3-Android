@@ -54,6 +54,7 @@ class RecurringBuysDetailViewModel(
                     iconUrl = recurringBuy.asset.logo,
                     amount = recurringBuy.amount.toStringWithSymbol(),
                     assetName = recurringBuy.asset.name,
+                    assetTicker = recurringBuy.asset.networkTicker,
                     paymentMethod = when (recurringBuy.paymentMethodType) {
                         PaymentMethodType.FUNDS -> {
                             recurringBuy.amount.currency.name

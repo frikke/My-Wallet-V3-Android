@@ -11,9 +11,10 @@ class AllowanceTransactionProcessor(
     private val evmNetworkSigner: EvmNetworkPreImageSigner
 ) {
     private lateinit var transaction: AllowanceTransaction
-    suspend fun buildTx(assetInfo: AssetInfo): Outcome<Exception, AllowanceTransaction> {
+    suspend fun buildTx(assetInfo: AssetInfo, amount: Money? = null): Outcome<Exception, AllowanceTransaction> {
         val transactionOutcome = allowanceService.buildAllowanceTransaction(
-            assetInfo = assetInfo
+            assetInfo = assetInfo,
+            amount = amount
         )
         (transactionOutcome as? Outcome.Success)?.value?.let {
             transaction = it
@@ -33,6 +34,22 @@ class AllowanceTransactionProcessor(
             signatures = transactionSignatures,
             rawTx = transaction.rawTx
         )
+    }
+
+    suspend fun revokeAllowance(assetInfo: AssetInfo) {
+        val build = buildTx(assetInfo, Money.zero(assetInfo))
+        (build as? Outcome.Success)?.value?.let { builtTx ->
+            val transactionSignatures = builtTx.preImages.map { unsignedPreImage ->
+                evmNetworkSigner.signPreImage(unsignedPreImage)
+            }
+            val network = builtTx.currencyToAllow.coinNetwork
+            require(network != null)
+            allowanceService.pushAllowanceTransaction(
+                network = network,
+                signatures = transactionSignatures,
+                rawTx = builtTx.rawTx
+            )
+        }
     }
 }
 

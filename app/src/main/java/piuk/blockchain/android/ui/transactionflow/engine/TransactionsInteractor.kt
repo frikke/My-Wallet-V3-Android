@@ -511,6 +511,21 @@ class TransactionInteractor(
             }
         }
 
+    fun getRewardsWithdrawalUnbondingDays(asset: AssetInfo, account: EarnRewardsAccount): Single<Int> =
+        when (account) {
+            is EarnRewardsAccount.Staking -> {
+                stakingService.getLimitsForAsset(asset).asSingle().map { it.unbondingDays }
+            }
+
+            is EarnRewardsAccount.Active -> {
+                activeRewardsService.getLimitsForAsset(asset).asSingle().map { it.unbondingDays }
+            }
+
+            else -> {
+                Single.just(2)
+            }
+        }
+
     fun updateStakingExplainerAcknowledged(networkTicker: String) {}
 
     fun getRoundingDataForAction(action: AssetAction): Single<List<QuickFillRoundingData>> =

@@ -76,6 +76,64 @@ fun CircularProgressBar(
     }
 }
 
+@Composable
+fun CircularProgressBarWithSmallText(
+    modifier: Modifier = Modifier,
+    text: String? = null,
+    progress: Float? = null,
+) {
+    val color = AppTheme.colors.primary
+    val backgroundColor = Grey000
+    val fontStyle = AppTheme.typography.micro1
+
+    val textHeight = with(LocalDensity.current) {
+        fontStyle.lineHeight.toDp()
+    }
+
+    val boxModifier = if (text != null) {
+        Modifier.size(textHeight)
+    } else {
+        Modifier
+    }
+
+    Row(modifier = modifier, horizontalArrangement = Arrangement.Center) {
+        Box(boxModifier) {
+            CircularProgressIndicator(
+                color = backgroundColor,
+                progress = 1f,
+                strokeWidth = 2.dp
+            )
+            if (progress != null) {
+                CircularProgressIndicator(
+                    color = color,
+                    progress = progress,
+                    strokeWidth = 2.dp
+                )
+            } else {
+                CircularProgressIndicator(
+                    color = color,
+                    strokeWidth = 2.dp
+                )
+            }
+        }
+
+        if (text != null) {
+            Text(
+                modifier = Modifier
+                    .padding(start = 25.dp)
+                    .align(Alignment.Bottom),
+                text = buildAnnotatedString {
+                    withStyle(SpanStyle(fontFeatureSettings = "tnum")) {
+                        append(text)
+                    }
+                },
+                style = fontStyle,
+                color = Grey600
+            )
+        }
+    }
+}
+
 @Preview
 @Composable
 fun CircularProgressBarPreview() {

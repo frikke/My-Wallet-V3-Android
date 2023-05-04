@@ -19,7 +19,7 @@ import com.blockchain.earn.domain.models.staking.StakingLimits
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.utils.combineMore
-import com.blockchain.utils.toFormattedDateTime
+import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import kotlinx.coroutines.flow.collectLatest
@@ -66,7 +66,8 @@ class StakingSummaryViewModel(
             earnFrequency = state.frequency,
             canDeposit = canDeposit,
             canWithdraw = canWithdraw,
-            pendingWithdrawals = reducePendingWithdrawals(pendingWithdrawals)
+            pendingWithdrawals = reducePendingWithdrawals(pendingWithdrawals),
+            unbondingDays = unbondingDays
         )
     }
 
@@ -136,7 +137,8 @@ class StakingSummaryViewModel(
                             canWithdraw = balance.availableBalance.isPositive &&
                                 withdrawalsEnabled &&
                                 !limits.withdrawalsDisabled,
-                            pendingWithdrawals = pendingWithdrawals
+                            pendingWithdrawals = pendingWithdrawals,
+                            unbondingDays = limits.unbondingDays
                         )
                     }
                 }
@@ -158,8 +160,9 @@ class StakingSummaryViewModel(
                 amountFiat = it.amountCrypto?.let { amount ->
                     "-${amount.toUserFiat(exchangeRatesDataManager).toStringWithSymbol()}"
                 } ?: "",
-                unbondingStartDate = it.unbondingStartDate?.toFormattedDateTime() ?: "",
-                unbondingExpiryDate = it.unbondingExpiryDate?.toFormattedDateTime() ?: "",
+                unbondingStartDate = it.unbondingStartDate?.toFormattedDate() ?: "",
+                unbondingExpiryDate = it.unbondingExpiryDate?.toFormattedDate() ?: "",
+                withdrawalTimestamp = it.unbondingStartDate
             )
         }
 }

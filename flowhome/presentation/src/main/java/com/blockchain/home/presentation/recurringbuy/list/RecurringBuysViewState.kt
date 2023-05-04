@@ -18,6 +18,7 @@ sealed interface RecurringBuyEligibleState {
 
 data class RecurringBuyViewState(
     val id: String,
+    val assetTicker: String,
     val iconUrl: String,
     val description: TextValue,
     val status: TextValue

@@ -1,7 +1,6 @@
 package com.blockchain.chrome
 
 import androidx.annotation.StringRes
-import androidx.compose.ui.graphics.Color
 import com.blockchain.chrome.common.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Blockchain

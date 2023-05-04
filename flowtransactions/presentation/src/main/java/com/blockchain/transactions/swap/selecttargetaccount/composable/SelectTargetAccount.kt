@@ -6,37 +6,28 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.NavController
-import com.blockchain.betternavigation.navigateTo
-import com.blockchain.chrome.setResult
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.componentlib.sheets.SheetFlatHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
-import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.common.accounts.AccountUiElement
 import com.blockchain.transactions.common.accounts.composable.AccountList
 import com.blockchain.transactions.presentation.R
-import com.blockchain.transactions.swap.SwapGraph
-import com.blockchain.transactions.swap.selectsource.SelectSourceIntent
-import com.blockchain.transactions.swap.selecttarget.TargetAssetNavigationEvent
 import com.blockchain.transactions.swap.selecttargetaccount.SelectTargetAccountIntent
 import com.blockchain.transactions.swap.selecttargetaccount.SelectTargetAccountViewModel
 import com.blockchain.transactions.swap.selecttargetaccount.SelectTargetAccountViewState
 import com.blockchain.transactions.swap.selecttargetaccount.TargetAccountNavigationEvent
 import com.blockchain.walletmode.WalletMode
-import info.blockchain.balance.CryptoValue
+import java.io.Serializable
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
-import java.io.Serializable
 
 data class SelectTargetAccountArgs(
     val sourceTicker: String,
