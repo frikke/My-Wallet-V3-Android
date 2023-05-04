@@ -1,6 +1,5 @@
 package com.dex.presentation.enteramount
 
-import android.content.Context
 import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
@@ -10,7 +9,6 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
-import com.blockchain.dex.presentation.R
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.safeLet
 import com.blockchain.outcome.Outcome
@@ -24,6 +22,8 @@ import com.dex.domain.DexTransaction
 import com.dex.domain.DexTransactionProcessor
 import com.dex.domain.DexTxError
 import com.dex.domain.SlippageService
+import com.dex.presentation.uierrors.DexUiError
+import com.dex.presentation.uierrors.toUiError
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
@@ -93,7 +93,7 @@ class DexEnterAmountViewModel(
             destinationCurrency = transaction?.destinationAccount?.currency,
             maxAmount = transaction?.sourceAccount?.takeIf { !it.currency.isNetworkNativeAsset() }?.balance,
             txAmount = transaction?.amount,
-            error = state.toUiError(),
+            error = state.transaction?.takeIf { it.txError !in state.ignoredTxErrors }?.toUiError() ?: DexUiError.None,
             inputExchangeAmount = safeLet(transaction?.amount, state.inputToFiatExchangeRate) { amount, rate ->
                 fiatAmount(amount, rate)
             } ?: Money.zero(currencyPrefs.selectedFiatCurrency),
@@ -461,40 +461,6 @@ class DexEnterAmountViewModel(
             }
         }
     }
-
-    private fun AmountModelState.toUiError(): DexUiError {
-        val error = this.transaction?.txError ?: return DexUiError.None
-        if (error in ignoredTxErrors) return DexUiError.None
-        return when (error) {
-            DexTxError.None -> DexUiError.None
-            DexTxError.NotEnoughFunds -> DexUiError.InsufficientFunds(
-                this.transaction.sourceAccount.currency
-            )
-            DexTxError.NotEnoughGas -> {
-                val feeCurrency = this.transaction.quote?.networkFees?.currency
-                check(feeCurrency != null)
-                DexUiError.NotEnoughGas(
-                    feeCurrency
-                )
-            }
-            is DexTxError.FatalTxError -> DexUiError.UnknownError(error.exception)
-            is DexTxError.TxInProgress -> DexUiError.TransactionInProgressError
-            is DexTxError.QuoteError ->
-                if (error.isLiquidityError()) DexUiError.LiquidityError
-                else
-                    DexUiError.CommonUiError(
-                        error.title,
-                        error.message
-                    )
-
-            /**
-             * ignore allowance error in case token has been allowed
-             */
-            DexTxError.TokenNotAllowed -> DexUiError.TokenNotAllowed(
-                transaction.sourceAccount.currency
-            )
-        }
-    }
 }
 
 sealed class InputAmountViewState : ViewState {
@@ -566,33 +532,6 @@ sealed class InputAmountIntent : Intent<AmountModelState> {
     object IgnoreTxInProcessError : InputAmountIntent()
     object RevokeSourceCurrencyAllowance : InputAmountIntent()
     class AmountUpdated(val amountString: String) : InputAmountIntent()
-}
-
-sealed class DexUiError {
-    object None : DexUiError()
-    data class InsufficientFunds(val currency: Currency) : DexUiError(), AlertError {
-        override fun message(context: Context): String =
-            context.getString(R.string.not_enough_funds, currency.displayTicker)
-    }
-
-    object LiquidityError : DexUiError(), AlertError {
-        override fun message(context: Context): String =
-            context.getString(R.string.unable_to_swap_tokens)
-    }
-
-    data class TokenNotAllowed(val token: Currency) : DexUiError()
-    data class NotEnoughGas(val gasCurrency: Currency) : DexUiError(), AlertError {
-        override fun message(context: Context): String =
-            context.getString(R.string.not_enough_gas, gasCurrency.displayTicker)
-    }
-
-    data class CommonUiError(val title: String, val description: String) : DexUiError()
-    object TransactionInProgressError : DexUiError()
-    data class UnknownError(val exception: Exception) : DexUiError()
-}
-
-interface AlertError {
-    fun message(context: Context): String
 }
 
 enum class DexOperation {

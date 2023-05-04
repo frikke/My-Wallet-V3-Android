@@ -85,6 +85,8 @@ import com.dex.presentation.DexTxSubscribeScreen
 import com.dex.presentation.SourceAndDestinationAmountFields
 import com.dex.presentation.graph.ARG_ALLOWANCE_TX
 import com.dex.presentation.graph.DexDestination
+import com.dex.presentation.uierrors.AlertError
+import com.dex.presentation.uierrors.DexUiError
 import info.blockchain.balance.Currency
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch

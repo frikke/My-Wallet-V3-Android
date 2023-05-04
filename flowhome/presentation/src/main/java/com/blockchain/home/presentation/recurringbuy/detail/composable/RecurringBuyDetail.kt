@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -22,6 +21,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.TertiaryButton
@@ -36,6 +36,7 @@ import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.componentlib.utils.value
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.R
+import com.blockchain.home.presentation.recurringbuy.RecurringBuysAnalyticsEvents
 import com.blockchain.home.presentation.recurringbuy.detail.RecurringBuyDetail
 import com.blockchain.home.presentation.recurringbuy.detail.RecurringBuyDetailViewState
 import com.blockchain.home.presentation.recurringbuy.detail.RecurringBuysDetailIntent
@@ -43,6 +44,7 @@ import com.blockchain.home.presentation.recurringbuy.detail.RecurringBuysDetailN
 import com.blockchain.home.presentation.recurringbuy.detail.RecurringBuysDetailViewModel
 import com.blockchain.koin.payloadScope
 import kotlinx.coroutines.flow.collectLatest
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -69,9 +71,8 @@ fun RecurringBuyDetail(
     }
 
     val viewState: RecurringBuyDetailViewState by viewModel.viewState.collectAsStateLifecycleAware()
-    DisposableEffect(key1 = viewModel) {
+    LaunchedEffect(key1 = viewModel) {
         viewModel.onIntent(RecurringBuysDetailIntent.LoadRecurringBuy())
-        onDispose { }
     }
 
     RecurringBuyDetailScreen(
@@ -129,10 +130,15 @@ private fun RecurringBuyDetailScreen(
 
 @Composable
 private fun RecurringBuyDetailData(
+    analytics: Analytics = get(),
     recurringBuy: RecurringBuyDetail,
     cancelationInProgress: Boolean,
     removeOnClick: () -> Unit
 ) {
+    LaunchedEffect(null) {
+        analytics.logEvent(RecurringBuysAnalyticsEvents.DetailViewed(recurringBuy.assetTicker))
+    }
+
     val data = recurringBuy.build().toList()
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -161,7 +167,10 @@ private fun RecurringBuyDetailData(
                 .fillMaxWidth(),
             text = stringResource(R.string.common_remove),
             textColor = AppTheme.colors.error,
-            onClick = removeOnClick,
+            onClick = {
+                removeOnClick()
+                analytics.logEvent(RecurringBuysAnalyticsEvents.CancelClicked(recurringBuy.assetTicker))
+            },
             state = if (cancelationInProgress) ButtonState.Loading else ButtonState.Enabled
         )
     }

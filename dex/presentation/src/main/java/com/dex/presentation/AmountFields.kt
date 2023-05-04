@@ -70,7 +70,12 @@ fun SourceAndDestinationAmountFields(
         )
     }
 
-    if (sourceAmountFieldConfig.amount == null && input.text.isNotEmpty()) {
+    /**
+     * ensure that model amount and ui amount are in sync
+     */
+    if (sourceAmountFieldConfig.amount == null &&
+        input.text.toBigDecimalOrNull()?.signum() == 1
+    ) {
         input = TextFieldValue("")
     }
 

@@ -141,14 +141,14 @@ abstract class Money : Serializable, Comparable<Money> {
 
         fun fromMinor(currency: Currency, value: BigInteger): Money =
             when (currency) {
-                is CryptoCurrency -> CryptoValue.fromMinor(currency, value)
+                is AssetInfo -> CryptoValue.fromMinor(currency, value)
                 is FiatCurrency -> FiatValue.fromMinor(currency, value)
                 else -> throw IllegalArgumentException("Unsupported type")
             }
 
         fun fromMajor(currency: Currency, value: BigDecimal): Money =
             when (currency) {
-                is CryptoCurrency -> CryptoValue.fromMajor(currency, value)
+                is AssetInfo -> CryptoValue.fromMajor(currency, value)
                 is FiatCurrency -> FiatValue.fromMajor(currency, value)
                 else -> throw IllegalArgumentException("Unsupported type")
             }

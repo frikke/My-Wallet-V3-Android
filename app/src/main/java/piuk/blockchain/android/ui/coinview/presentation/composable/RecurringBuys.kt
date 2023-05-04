@@ -32,6 +32,7 @@ import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.componentlib.utils.value
 import com.blockchain.data.DataResource
+import com.blockchain.home.presentation.recurringbuy.RecurringBuysAnalyticsEvents
 import org.koin.androidx.compose.get
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState
@@ -140,6 +141,7 @@ fun RecurringBuysUpsell(
             onClick = {
                 analytics.logEvent(RecurringBuyAnalytics.RecurringBuyLearnMoreClicked(LaunchOrigin.CURRENCY_PAGE))
                 analytics.logEvent(RecurringBuyAnalytics.RecurringBuyLearnMoreXSellClicked(dcaTitle = title))
+                analytics.logEvent(RecurringBuysAnalyticsEvents.CoinviewCtaClicked)
                 onRecurringBuyUpsellClick()
             }
         )

@@ -405,6 +405,21 @@ enum class AnalyticsNames(val eventName: String) {
     TOP_MOVER_DASHBOARD_CLICKED("Wallet Dashboard top mover card clicked"),
     TOP_MOVER_PRICES_CLICKED("Prices Tab Top Mover Card Clicked"),
     TOP_MOVER_BUY_CLICKED("Buy List Top Mover Card Clicked"),
+
+    // recurring buys
+    RB_COINVIEW_CTA_CLICKED("Wallet Coinview Recurring Buy CTA clicked"),
+    RB_HOME_CTA_CLICKED("Wallet Home Recurring Buy CTA clicked"),
+    RB_ONBOARDING_VIEWED("Wallet Recurring Buy Onboarding viewed"),
+    RB_HOME_DETAIL_CLICKED("Wallet Home Recurring Buy Detail Clicked"),
+    RB_DASHBOARD_DETAIL_CLICKED("Wallet Recurring Buys Dashboard Detail Clicked"),
+    RB_HOME_MANAGE_CLICKED("Wallet Home Recurring Buy Manage Clicked"),
+    RB_DASHBOARD_ADD_CLICKED("Wallet Recurring Buys Dashboard CTA Clicked"),
+    RB_DETAIL_VIEWED("Wallet Recurring Buys Detail Viewed"),
+    RB_DETAIL_CANCEL_CLICKED("Wallet Recurring Buys Detail Cancel"),
+    RB_BUY_TOGGLE_CLICKED("Wallet Buys Confirmation Screen Recurring Buy Toggle Clicked"),
+    RB_BUY_FREQUENCY_CLICKED("Wallet Buys Recurring Frequency Selection Clicked"),
+    RB_BUY_FREQUENCY_VIEWED("Wallet Buys Recurring Frequency Selection Viewed"),
+
     ;
 }
 

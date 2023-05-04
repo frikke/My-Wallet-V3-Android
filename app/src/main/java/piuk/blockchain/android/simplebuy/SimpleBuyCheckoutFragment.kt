@@ -40,6 +40,7 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethod.Companion.GOOGLE
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.extensions.exhaustive
+import com.blockchain.home.presentation.recurringbuy.RecurringBuysAnalyticsEvents
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.payments.googlepay.interceptor.OnGooglePayDataReceivedListener
 import com.blockchain.payments.googlepay.interceptor.response.PaymentDataResponse
@@ -103,8 +104,16 @@ class SimpleBuyCheckoutFragment :
 
     private var lastState: SimpleBuyState? = null
     private val checkoutAdapterDelegate = CheckoutAdapterDelegate(
-        onToggleChanged = {
-            model.process(SimpleBuyIntent.ToggleRecurringBuy(it))
+        onToggleChanged = { isToggleOn ->
+            model.process(SimpleBuyIntent.ToggleRecurringBuy(isToggleOn))
+            lastState?.selectedCryptoAsset?.let {
+                analytics.logEvent(
+                    RecurringBuysAnalyticsEvents.BuyToggleClicked(
+                        ticker = it.networkTicker,
+                        toggle = isToggleOn
+                    )
+                )
+            }
         },
         onAction = {
             when (it) {
