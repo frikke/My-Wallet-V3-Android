@@ -5,6 +5,7 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
+import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.data.mapList
 import com.blockchain.data.updateDataWith
@@ -36,7 +37,13 @@ class SelectSourceViewModel(
             SelectSourceViewState(
                 accountList = accountListData
                     .map { it.sortedByDescending { it.data.balanceFiat } }
-                    .mapList { it.reduceAccounts() }
+                    .mapList {
+                        it.reduceAccounts(
+                            includeLabel = accountListData.containsMultipleAccountsOf(
+                                it.data.account.currency.networkTicker
+                            )
+                        )
+                    }
             )
         }
     }
@@ -69,11 +76,12 @@ class SelectSourceViewModel(
         }
     }
 
-    private fun WithId<CryptoAccountWithBalance>.reduceAccounts() = run {
+    private fun WithId<CryptoAccountWithBalance>.reduceAccounts(includeLabel: Boolean) = run {
         with(data) {
             AccountUiElement(
                 id = id,
                 title = account.currency.name,
+                subtitle = account.label.takeIf { includeLabel },
                 l2Network = (account as? CryptoNonCustodialAccount)?.currency
                     ?.takeIf { it.isLayer2Token }
                     ?.coinNetwork?.shortName,
@@ -92,4 +100,12 @@ class SelectSourceViewModel(
             )
         }
     }
+}
+
+private fun DataResource<List<WithId<CryptoAccountWithBalance>>>.containsMultipleAccountsOf(
+    ticker: String
+): Boolean {
+    return map {
+        it.count { it.data.account.currency.networkTicker == ticker }
+    }.dataOrElse(0) > 1
 }
