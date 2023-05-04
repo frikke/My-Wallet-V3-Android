@@ -5,7 +5,7 @@ import com.blockchain.componentlib.tablerow.BalanceChange
 import com.blockchain.data.DataResource
 import com.blockchain.walletmode.WalletMode
 
-data class SelectTargetViewState(
+data class TargetAssetsViewState(
     val showModeFilter: Boolean,
     val selectedModeFilter: WalletMode?,
     val prices: DataResource<List<BalanceChange>>

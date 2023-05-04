@@ -36,6 +36,13 @@ sealed class SwapAnalyticsEvents(
         params = mapOf(CURRENCY to ticker)
     )
 
+    data class DestinationAccountSelected(
+        val ticker: String
+    ) : SwapAnalyticsEvents(
+        event = AnalyticsNames.SWAP_DESTINATION_SELECTED.eventName,
+        params = mapOf(CURRENCY to ticker)
+    )
+
     object ConfirmationViewed : SwapAnalyticsEvents(
         event = AnalyticsNames.SWAP_CONFIRMATION_VIEWED.eventName
     )

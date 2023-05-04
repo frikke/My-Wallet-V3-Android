@@ -5,7 +5,7 @@ import com.blockchain.transactions.swap.confirmation.ConfirmationViewModel
 import com.blockchain.transactions.swap.confirmation.composable.ConfirmationArgs
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
 import com.blockchain.transactions.swap.sourceaccounts.SourceAccountsViewModel
-import com.blockchain.transactions.swap.targetassets.SelectTargetViewModel
+import com.blockchain.transactions.swap.targetassets.TargetAssetsViewModel
 import com.blockchain.transactions.swap.targetaccounts.SelectTargetAccountViewModel
 import com.blockchain.walletmode.WalletMode
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -42,7 +42,7 @@ val transactionsPresentationModule = module {
         }
 
         viewModel { (sourceTicker: String) ->
-            SelectTargetViewModel(
+            TargetAssetsViewModel(
                 sourceTicker = sourceTicker,
                 swapService = get(),
                 pricesService = get(),

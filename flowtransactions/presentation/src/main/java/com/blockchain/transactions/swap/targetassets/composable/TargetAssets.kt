@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.analytics.Analytics
 import com.blockchain.betternavigation.NavContext
 import com.blockchain.betternavigation.navigateTo
 import com.blockchain.chrome.titleIcon
@@ -30,32 +31,35 @@ import com.blockchain.data.DataResource
 import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.common.prices.composable.SelectAssetPricesList
 import com.blockchain.transactions.presentation.R
+import com.blockchain.transactions.swap.SwapAnalyticsEvents
 import com.blockchain.transactions.swap.SwapGraph
-import com.blockchain.transactions.swap.targetassets.SelectTargetIntent
-import com.blockchain.transactions.swap.targetassets.SelectTargetViewModel
-import com.blockchain.transactions.swap.targetassets.SelectTargetViewState
-import com.blockchain.transactions.swap.targetassets.TargetAssetNavigationEvent
+import com.blockchain.transactions.swap.targetassets.TargetAssetsIntent
+import com.blockchain.transactions.swap.targetassets.TargetAssetsViewModel
+import com.blockchain.transactions.swap.targetassets.TargetAssetsViewState
+import com.blockchain.transactions.swap.targetassets.TargetAssetsNavigationEvent
 import com.blockchain.transactions.swap.targetaccounts.composable.SelectTargetAccountArgs
 import com.blockchain.walletmode.WalletMode
 import kotlinx.collections.immutable.toImmutableList
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
-fun SelectTargetAsset(
+fun TargetAssets(
     sourceTicker: String,
-    viewModel: SelectTargetViewModel = getViewModel(
+    viewModel: TargetAssetsViewModel = getViewModel(
         scope = payloadScope,
         key = sourceTicker,
         parameters = { parametersOf(sourceTicker) }
     ),
+    analytics: Analytics = get(),
     accountSelected: (CryptoAccount) -> Unit,
     navContextProvider: () -> NavContext,
     onClosePressed: () -> Unit
 ) {
-    val viewState: SelectTargetViewState by viewModel.viewState.collectAsStateLifecycleAware()
+    val viewState: TargetAssetsViewState by viewModel.viewState.collectAsStateLifecycleAware()
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(SelectTargetIntent.LoadData)
+        viewModel.onIntent(TargetAssetsIntent.LoadData)
         onDispose { }
     }
 
@@ -63,12 +67,17 @@ fun SelectTargetAsset(
     LaunchedEffect(navigationEvent) {
         navigationEvent?.let { navEvent ->
             when (navEvent) {
-                is TargetAssetNavigationEvent.ConfirmSelection -> {
+                is TargetAssetsNavigationEvent.ConfirmSelection -> {
                     accountSelected(navEvent.account)
+                    analytics.logEvent(
+                        SwapAnalyticsEvents.DestinationAccountSelected(
+                            ticker = navEvent.account.currency.networkTicker
+                        )
+                    )
                     onClosePressed()
                 }
 
-                is TargetAssetNavigationEvent.SelectAccount -> {
+                is TargetAssetsNavigationEvent.SelectAccount -> {
                     check(viewState.selectedModeFilter != null)
                     navContextProvider().navigateTo(
                         SwapGraph.TargetAccount,
@@ -83,25 +92,25 @@ fun SelectTargetAsset(
         }
     }
 
-    SelectTargetScreen(
+    TargetAssetsScreen(
         onSearchTermEntered = { term ->
-            viewModel.onIntent(SelectTargetIntent.FilterSearch(term = term))
+            viewModel.onIntent(TargetAssetsIntent.FilterSearch(term = term))
         },
         showModeFilter = viewState.showModeFilter,
         selectedMode = viewState.selectedModeFilter,
         onFilterSelected = {
-            viewModel.onIntent(SelectTargetIntent.ModeFilterSelected(it))
+            viewModel.onIntent(TargetAssetsIntent.ModeFilterSelected(it))
         },
         assets = viewState.prices,
         accountOnClick = {
-            viewModel.onIntent(SelectTargetIntent.AssetSelected(ticker = it.ticker))
+            viewModel.onIntent(TargetAssetsIntent.AssetSelected(ticker = it.ticker))
         },
         onBackPressed = onClosePressed
     )
 }
 
 @Composable
-fun SelectTargetScreen(
+fun TargetAssetsScreen(
     onSearchTermEntered: (String) -> Unit,
     showModeFilter: Boolean,
     selectedMode: WalletMode?,
@@ -156,7 +165,7 @@ fun SelectTargetScreen(
 @Preview(showBackground = true, backgroundColor = 0XFFF1F2F7)
 @Composable
 private fun PreviewSelectTargetScreen() {
-    SelectTargetScreen(
+    TargetAssetsScreen(
         onSearchTermEntered = {},
         showModeFilter = false,
         selectedMode = WalletMode.CUSTODIAL,
@@ -191,7 +200,7 @@ private fun PreviewSelectTargetScreen() {
 @Preview(showBackground = true, backgroundColor = 0XFFF1F2F7)
 @Composable
 private fun PreviewSelectTargetScreen_WithFilter() {
-    SelectTargetScreen(
+    TargetAssetsScreen(
         onSearchTermEntered = {},
         showModeFilter = true,
         selectedMode = WalletMode.NON_CUSTODIAL,

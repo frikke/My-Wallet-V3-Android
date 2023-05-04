@@ -10,6 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.sheets.SheetFlatHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
@@ -18,15 +19,18 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.common.accounts.composable.AccountList
 import com.blockchain.transactions.presentation.R
 import com.blockchain.transactions.swap.CryptoAccountWithBalance
+import com.blockchain.transactions.swap.SwapAnalyticsEvents
 import com.blockchain.transactions.swap.sourceaccounts.SourceAccountsIntent
 import com.blockchain.transactions.swap.sourceaccounts.SourceAccountsNavigationEvent
 import com.blockchain.transactions.swap.sourceaccounts.SourceAccountsViewModel
 import com.blockchain.transactions.swap.sourceaccounts.SourceAccountsViewState
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun SourceAccounts(
     viewModel: SourceAccountsViewModel = getViewModel(scope = payloadScope),
+    analytics: Analytics = get(),
     accountSelected: (CryptoAccountWithBalance) -> Unit,
     onBackPressed: () -> Unit
 ) {
@@ -43,6 +47,11 @@ fun SourceAccounts(
             when (navEvent) {
                 is SourceAccountsNavigationEvent.ConfirmSelection -> {
                     accountSelected(navEvent.account)
+                    analytics.logEvent(
+                        SwapAnalyticsEvents.SourceAccountSelected(
+                            ticker = navEvent.account.account.currency.networkTicker
+                        )
+                    )
                     onBackPressed()
                 }
             }

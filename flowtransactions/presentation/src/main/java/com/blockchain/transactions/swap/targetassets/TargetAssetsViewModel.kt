@@ -27,18 +27,18 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
-class SelectTargetViewModel(
+class TargetAssetsViewModel(
     private val sourceTicker: String,
     private val swapService: SwapService,
     private val pricesService: PricesService,
     private val currencyPrefs: CurrencyPrefs,
     private val walletModeService: WalletModeService
-) : MviViewModel<SelectTargetIntent,
-    SelectTargetViewState,
-    SelectTargetModelState,
-    TargetAssetNavigationEvent,
+) : MviViewModel<TargetAssetsIntent,
+    TargetAssetsViewState,
+    TargetAssetsModelState,
+    TargetAssetsNavigationEvent,
     ModelConfigArgs.NoArgs>(
-    SelectTargetModelState()
+    TargetAssetsModelState()
 ) {
 
     init {
@@ -57,8 +57,8 @@ class SelectTargetViewModel(
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: SelectTargetModelState) = state.run {
-        SelectTargetViewState(
+    override fun reduce(state: TargetAssetsModelState) = state.run {
+        TargetAssetsViewState(
             showModeFilter = walletMode == WalletMode.NON_CUSTODIAL,
             selectedModeFilter = selectedAssetsModeFilter,
             prices = prices
@@ -89,13 +89,13 @@ class SelectTargetViewModel(
         )
     }
 
-    override suspend fun handleIntent(modelState: SelectTargetModelState, intent: SelectTargetIntent) {
+    override suspend fun handleIntent(modelState: TargetAssetsModelState, intent: TargetAssetsIntent) {
         when (intent) {
-            is SelectTargetIntent.LoadData -> {
+            is TargetAssetsIntent.LoadData -> {
                 loadPrices()
             }
 
-            is SelectTargetIntent.FilterSearch -> {
+            is TargetAssetsIntent.FilterSearch -> {
                 updateState {
                     it.copy(
                         filterTerm = intent.term
@@ -103,7 +103,7 @@ class SelectTargetViewModel(
                 }
             }
 
-            is SelectTargetIntent.ModeFilterSelected -> {
+            is TargetAssetsIntent.ModeFilterSelected -> {
                 updateState {
                     it.copy(
                         selectedAssetsModeFilter = intent.selected
@@ -112,7 +112,7 @@ class SelectTargetViewModel(
                 loadPrices()
             }
 
-            is SelectTargetIntent.AssetSelected -> {
+            is TargetAssetsIntent.AssetSelected -> {
                 check(modelState.selectedAssetsModeFilter != null)
                 viewModelScope.launch {
                     swapService
@@ -125,9 +125,9 @@ class SelectTargetViewModel(
                         .firstOrNull()
                         ?.data?.let {
                             if (it.count() == 1) {
-                                navigate(TargetAssetNavigationEvent.ConfirmSelection(account = it.first().account))
+                                navigate(TargetAssetsNavigationEvent.ConfirmSelection(account = it.first().account))
                             } else {
-                                navigate(TargetAssetNavigationEvent.SelectAccount(ofTicker = intent.ticker))
+                                navigate(TargetAssetsNavigationEvent.SelectAccount(ofTicker = intent.ticker))
                             }
                         }
                 }

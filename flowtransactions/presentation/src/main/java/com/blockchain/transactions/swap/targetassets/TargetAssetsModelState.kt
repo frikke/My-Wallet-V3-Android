@@ -5,7 +5,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.prices.domain.AssetPriceInfo
 import com.blockchain.walletmode.WalletMode
 
-data class SelectTargetModelState(
+data class TargetAssetsModelState(
     val walletMode: WalletMode? = null,
     val selectedAssetsModeFilter: WalletMode? = null,
     val prices: DataResource<List<AssetPriceInfo>> = DataResource.Loading,

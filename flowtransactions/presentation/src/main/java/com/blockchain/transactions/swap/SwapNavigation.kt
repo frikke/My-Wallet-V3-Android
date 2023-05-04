@@ -25,7 +25,7 @@ import com.blockchain.transactions.swap.enteramount.composable.EnterAmount
 import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateArgs
 import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateScreen
 import com.blockchain.transactions.swap.sourceaccounts.composable.SourceAccounts
-import com.blockchain.transactions.swap.targetassets.composable.SelectTargetAsset
+import com.blockchain.transactions.swap.targetassets.composable.TargetAssets
 import com.blockchain.transactions.swap.targetaccounts.composable.SelectTargetAccount
 import com.blockchain.transactions.swap.targetaccounts.composable.SelectTargetAccountArgs
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
@@ -81,7 +81,7 @@ fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
             // support nested graph navigation(...)
             typedBottomSheet(SwapGraph.TargetAsset) { sourceTicker ->
                 ChromeBottomSheet(onClose = ::navigateUp) {
-                    SelectTargetAsset(
+                    TargetAssets(
                         sourceTicker = sourceTicker,
                         accountSelected = {
                             viewModel.onIntent(EnterAmountIntent.ToAccountChanged(it))
