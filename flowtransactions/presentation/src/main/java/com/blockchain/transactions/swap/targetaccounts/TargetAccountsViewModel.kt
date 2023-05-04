@@ -20,24 +20,24 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.isLayer2Token
 import kotlinx.coroutines.flow.collectLatest
 
-class SelectTargetAccountViewModel(
+class TargetAccountsViewModel(
     private val sourceTicker: String,
     private val targetTicker: String,
     private val mode: WalletMode,
     private val swapService: SwapService,
     private val assetCatalogue: AssetCatalogue
-) : MviViewModel<SelectTargetAccountIntent,
-    SelectTargetAccountViewState,
-    SelectTargetAccountModelState,
-    TargetAccountNavigationEvent,
+) : MviViewModel<TargetAccountsIntent,
+    TargetAccountsViewState,
+    TargetAccountsModelState,
+    TargetAccountsNavigationEvent,
     ModelConfigArgs.NoArgs>(
-    SelectTargetAccountModelState()
+    TargetAccountsModelState()
 ) {
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: SelectTargetAccountModelState) = state.run {
-        SelectTargetAccountViewState(
+    override fun reduce(state: TargetAccountsModelState) = state.run {
+        TargetAccountsViewState(
             accountList = accountListData
                 .map { it.sortedByDescending { it.data.balanceFiat } }
                 .mapList { it.reduceAccounts() }
@@ -45,11 +45,11 @@ class SelectTargetAccountViewModel(
     }
 
     override suspend fun handleIntent(
-        modelState: SelectTargetAccountModelState,
-        intent: SelectTargetAccountIntent
+        modelState: TargetAccountsModelState,
+        intent: TargetAccountsIntent
     ) {
         when (intent) {
-            is SelectTargetAccountIntent.LoadData -> {
+            is TargetAccountsIntent.LoadData -> {
                 swapService
                     .accountsWithBalanceOfMode(
                         sourceTicker = sourceTicker,
@@ -66,12 +66,12 @@ class SelectTargetAccountViewModel(
                     }
             }
 
-            is SelectTargetAccountIntent.AccountSelected -> {
+            is TargetAccountsIntent.AccountSelected -> {
                 check(modelState.accountListData is DataResource.Data)
                 modelState.accountListData.data.run {
                     check(any { it.id == intent.id })
                     navigate(
-                        TargetAccountNavigationEvent.ConfirmSelection(
+                        TargetAccountsNavigationEvent.ConfirmSelection(
                             account = first { it.id == intent.id }.data.account
                         )
                     )

@@ -26,8 +26,8 @@ import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateAr
 import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateScreen
 import com.blockchain.transactions.swap.sourceaccounts.composable.SourceAccounts
 import com.blockchain.transactions.swap.targetassets.composable.TargetAssets
-import com.blockchain.transactions.swap.targetaccounts.composable.SelectTargetAccount
-import com.blockchain.transactions.swap.targetaccounts.composable.SelectTargetAccountArgs
+import com.blockchain.transactions.swap.targetaccounts.composable.TargetAccounts
+import com.blockchain.transactions.swap.targetaccounts.composable.TargetAccountsArgs
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import org.koin.androidx.compose.getViewModel
 
@@ -35,7 +35,7 @@ object SwapGraph : NavGraph() {
     object EnterAmount : Destination()
     object SourceAccounts : Destination()
     object TargetAsset : DestinationWithArgs<String>()
-    object TargetAccount : DestinationWithArgs<SelectTargetAccountArgs>()
+    object TargetAccount : DestinationWithArgs<TargetAccountsArgs>()
     object Confirmation : Destination()
     object NewOrderState : DestinationWithArgs<NewOrderStateArgs>()
 }
@@ -94,7 +94,7 @@ fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
 
             typedBottomSheet(SwapGraph.TargetAccount) { args ->
                 ChromeBottomSheet(onClose = ::navigateUp) {
-                    SelectTargetAccount(
+                    TargetAccounts(
                         sourceTicker = args.sourceTicker,
                         targetTicker = args.targetTicker,
                         mode = args.mode,

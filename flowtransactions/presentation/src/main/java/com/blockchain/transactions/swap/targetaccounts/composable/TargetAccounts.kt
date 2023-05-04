@@ -10,6 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.componentlib.sheets.SheetFlatHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
@@ -20,58 +21,66 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.common.accounts.AccountUiElement
 import com.blockchain.transactions.common.accounts.composable.AccountList
 import com.blockchain.transactions.presentation.R
-import com.blockchain.transactions.swap.targetaccounts.SelectTargetAccountIntent
-import com.blockchain.transactions.swap.targetaccounts.SelectTargetAccountViewModel
-import com.blockchain.transactions.swap.targetaccounts.SelectTargetAccountViewState
-import com.blockchain.transactions.swap.targetaccounts.TargetAccountNavigationEvent
+import com.blockchain.transactions.swap.SwapAnalyticsEvents
+import com.blockchain.transactions.swap.targetaccounts.TargetAccountsIntent
+import com.blockchain.transactions.swap.targetaccounts.TargetAccountsViewModel
+import com.blockchain.transactions.swap.targetaccounts.TargetAccountsViewState
+import com.blockchain.transactions.swap.targetaccounts.TargetAccountsNavigationEvent
 import com.blockchain.walletmode.WalletMode
+import org.koin.androidx.compose.get
 import java.io.Serializable
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
 
-data class SelectTargetAccountArgs(
+data class TargetAccountsArgs(
     val sourceTicker: String,
     val targetTicker: String,
     val mode: WalletMode,
 ) : Serializable
 
 @Composable
-fun SelectTargetAccount(
+fun TargetAccounts(
     sourceTicker: String,
     targetTicker: String,
     mode: WalletMode,
-    viewModel: SelectTargetAccountViewModel = getViewModel(
+    viewModel: TargetAccountsViewModel = getViewModel(
         scope = payloadScope,
         key = sourceTicker + targetTicker,
         parameters = { parametersOf(sourceTicker, targetTicker, mode) }
     ),
+    analytics: Analytics = get(),
     accountSelected: (CryptoAccount) -> Unit,
     onClosePressed: () -> Unit,
     onBackPressed: () -> Unit
 ) {
 
-    val viewState: SelectTargetAccountViewState by viewModel.viewState.collectAsStateLifecycleAware()
+    val viewState: TargetAccountsViewState by viewModel.viewState.collectAsStateLifecycleAware()
     LaunchedEffect(key1 = viewModel) {
-        viewModel.onIntent(SelectTargetAccountIntent.LoadData)
+        viewModel.onIntent(TargetAccountsIntent.LoadData)
     }
 
     val navigationEvent by viewModel.navigationEventFlow.collectAsStateLifecycleAware(null)
     LaunchedEffect(navigationEvent) {
         navigationEvent?.let { navEvent ->
             when (navEvent) {
-                is TargetAccountNavigationEvent.ConfirmSelection -> {
+                is TargetAccountsNavigationEvent.ConfirmSelection -> {
                     accountSelected(navEvent.account)
+                    analytics.logEvent(
+                        SwapAnalyticsEvents.DestinationAccountSelected(
+                            ticker = navEvent.account.currency.networkTicker
+                        )
+                    )
                     onClosePressed()
                 }
             }
         }
     }
 
-    SelectTargetAccountScreen(
+    TargetAccountsScreen(
         targetTicker = targetTicker,
         accounts = viewState.accountList,
         accountSelected = {
-            viewModel.onIntent(SelectTargetAccountIntent.AccountSelected(it.id))
+            viewModel.onIntent(TargetAccountsIntent.AccountSelected(it.id))
         },
         onClosePressed = onClosePressed,
         onBackPressed = onBackPressed,
@@ -79,7 +88,7 @@ fun SelectTargetAccount(
 }
 
 @Composable
-private fun SelectTargetAccountScreen(
+private fun TargetAccountsScreen(
     targetTicker: String,
     accounts: DataResource<List<AccountUiElement>>,
     accountSelected: (AccountUiElement) -> Unit,

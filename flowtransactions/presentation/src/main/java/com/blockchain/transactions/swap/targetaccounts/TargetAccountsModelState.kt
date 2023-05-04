@@ -5,6 +5,6 @@ import com.blockchain.data.DataResource
 import com.blockchain.transactions.common.WithId
 import com.blockchain.transactions.swap.CryptoAccountWithBalance
 
-data class SelectTargetAccountModelState(
+data class TargetAccountsModelState(
     val accountListData: DataResource<List<WithId<CryptoAccountWithBalance>>> = DataResource.Loading
 ) : ModelState

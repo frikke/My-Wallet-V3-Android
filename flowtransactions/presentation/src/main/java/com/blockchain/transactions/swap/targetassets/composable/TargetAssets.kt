@@ -37,7 +37,7 @@ import com.blockchain.transactions.swap.targetassets.TargetAssetsIntent
 import com.blockchain.transactions.swap.targetassets.TargetAssetsViewModel
 import com.blockchain.transactions.swap.targetassets.TargetAssetsViewState
 import com.blockchain.transactions.swap.targetassets.TargetAssetsNavigationEvent
-import com.blockchain.transactions.swap.targetaccounts.composable.SelectTargetAccountArgs
+import com.blockchain.transactions.swap.targetaccounts.composable.TargetAccountsArgs
 import com.blockchain.walletmode.WalletMode
 import kotlinx.collections.immutable.toImmutableList
 import org.koin.androidx.compose.get
@@ -81,7 +81,7 @@ fun TargetAssets(
                     check(viewState.selectedModeFilter != null)
                     navContextProvider().navigateTo(
                         SwapGraph.TargetAccount,
-                        SelectTargetAccountArgs(
+                        TargetAccountsArgs(
                             sourceTicker = sourceTicker,
                             targetTicker = navEvent.ofTicker,
                             mode = viewState.selectedModeFilter!!
