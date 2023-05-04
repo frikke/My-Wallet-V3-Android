@@ -5,7 +5,11 @@ import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.transactions.swap.CryptoAccountWithBalance
 
 sealed interface EnterAmountIntent : Intent<EnterAmountModelState> {
-    object LoadData : EnterAmountIntent
+    object LoadData : EnterAmountIntent {
+        override fun isValidFor(modelState: EnterAmountModelState): Boolean {
+            return modelState.fromAccount == null
+        }
+    }
 
     object FlipInputs : EnterAmountIntent
 

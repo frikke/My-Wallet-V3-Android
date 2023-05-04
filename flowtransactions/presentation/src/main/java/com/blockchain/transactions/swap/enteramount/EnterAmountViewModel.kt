@@ -16,6 +16,7 @@ import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.extensions.safeLet
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.transactions.koin.swapFlowScope
 import com.blockchain.transactions.swap.SwapService
 import com.blockchain.transactions.swap.confirmation.composable.ConfirmationArgs
 import com.blockchain.utils.removeLeadingZeros
@@ -25,7 +26,6 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import java.math.BigDecimal
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 
 /**
  * @property fromTicker if we come from Coinview we should have preset FROM
@@ -44,7 +45,7 @@ class EnterAmountViewModel(
     private val swapService: SwapService,
     private val exchangeRates: ExchangeRatesDataManager,
     private val walletModeService: WalletModeService,
-    currencyPrefs: CurrencyPrefs
+    currencyPrefs: CurrencyPrefs,
 ) : MviViewModel<
     EnterAmountIntent,
     EnterAmountViewState,
@@ -239,13 +240,15 @@ class EnterAmountViewModel(
             }
 
             is EnterAmountIntent.ToAccountChanged -> {
+                val fromAccount = modelState.fromAccount?.account
+                check(fromAccount != null)
                 updateState {
                     it.copy(
                         toAccount = intent.account,
                     )
                 }
 
-                // update limits
+                updateConfig(fromAccount, intent.account)
             }
 
             EnterAmountIntent.MaxSelected -> {
@@ -277,7 +280,9 @@ class EnterAmountViewModel(
                     sourceCryptoAmount = cryptoAmount,
                     secondPassword = null, // TODO(aromano): TEMP
                 )
-                navigate(EnterAmountNavigationEvent.Preview(data))
+                swapFlowScope.declare(data)
+
+                navigate(EnterAmountNavigationEvent.Preview)
             }
         }
     }
@@ -319,77 +324,6 @@ class EnterAmountViewModel(
             }
         }
     }
-
-    //    @OptIn(ExperimentalCoroutinesApi::class)
-    //    private fun loadAccountsAndConfig() {
-    //        viewModelScope.launch {
-    //            fromAccountFlow
-    //                .map { DataResource.Data(it) }
-    //                .flatMapData { fromAccount ->
-    //                    toAccountFlow.flatMapLatest { toTicker ->
-    //                        swapService.bestTargetAccountForMode(
-    //                            sourceTicker = fromAccount.account.currency.networkTicker,
-    //                            targetTicker = toTicker,
-    //                            WalletMode.CUSTODIAL
-    //                        )
-    //                    }.map {
-    //                        it.map { toAccount ->
-    //                            EnterAmountAccounts(
-    //                                fromAccount = fromAccount,
-    //                                toAccount = toAccount,
-    //                                fiatCurrency = currencyPrefs.selectedFiatCurrency,
-    //                            )
-    //                        }
-    //                    }
-    //                }
-    //                .onEach { accountsData ->
-    //                    // reset all whenever a new asset is selected
-    //                    updateState {
-    //                        it.copy(
-    //                            accounts = it.accounts.updateDataWith(accountsData),
-    //                            fiatAmount = null,
-    //                            fiatAmountUserInput = "",
-    //                            cryptoAmount = null,
-    //                            cryptoAmountUserInput = "",
-    //                            inputError = null,
-    //                            fatalError = null
-    //                        )
-    //                    }
-    //                }.flatMapData { accounts ->
-    //                    if (accounts.toAccount == null) {
-    //                        updateState {
-    //                            it.copy(config = DataResource.Loading)
-    //                        }
-    //                        return@flatMapData flowOf(DataResource.Loading)
-    //                    }
-    //
-    //                    combine(
-    //                        exchangeRates.exchangeRateToUserFiatFlow(accounts.fromAccount.account.currency),
-    //                        swapService.limits(
-    //                            from = accounts.fromAccount.account.currency as CryptoCurrency,
-    //                            to = accounts.toAccount.currency as CryptoCurrency,
-    //                            fiat = accounts.fiatCurrency
-    //                        )
-    //                    ) { exchangeRate, limits ->
-    //                        combineDataResources(
-    //                            exchangeRate,
-    //                            limits
-    //                        ) { exchangeRateData, limitsData ->
-    //                            EnterAmountConfig(
-    //                                sourceAccountToFiat = exchangeRateData,
-    //                                limits = limitsData
-    //                            )
-    //                        }
-    //                    }
-    //                }.onEach { configData ->
-    //                    updateState {
-    //                        it.copy(
-    //                            config = it.config.updateDataWith(configData)
-    //                        )
-    //                    }
-    //                }.collect()
-    //        }
-    //    }
 
     /**
      * update the crypto value based on the fiat value input

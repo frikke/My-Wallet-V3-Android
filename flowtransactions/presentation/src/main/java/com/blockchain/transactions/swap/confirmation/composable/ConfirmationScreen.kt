@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.componentlib.basic.ComposeColors
@@ -49,6 +50,7 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.urllinks.CHECKOUT_REFUND_POLICY
 import com.blockchain.presentation.urllinks.EXCHANGE_SWAP_RATE_EXPLANATION
 import com.blockchain.transactions.presentation.R
+import com.blockchain.transactions.swap.SwapAnalyticsEvents
 import com.blockchain.transactions.swap.confirmation.ConfirmationIntent
 import com.blockchain.transactions.swap.confirmation.ConfirmationNavigation
 import com.blockchain.transactions.swap.confirmation.ConfirmationViewModel
@@ -59,6 +61,7 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
+import org.koin.androidx.compose.get
 import java.io.Serializable
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
@@ -73,20 +76,14 @@ data class ConfirmationArgs(
 
 @Composable
 fun ConfirmationScreen(
-    args: ConfirmationArgs,
-    viewModel: ConfirmationViewModel = getViewModel(scope = payloadScope) {
-        parametersOf(
-            args.sourceAccount,
-            args.targetAccount,
-            args.sourceCryptoAmount,
-            args.secondPassword,
-        )
-    },
+    viewModel: ConfirmationViewModel = getViewModel(scope = payloadScope),
+    analytics: Analytics = get(),
     openNewOrderState: (NewOrderStateArgs) -> Unit,
     backClicked: () -> Unit,
 ) {
     LaunchedEffect(Unit) {
         viewModel.viewCreated(ModelConfigArgs.NoArgs)
+        analytics.logEvent(SwapAnalyticsEvents.ConfirmationViewed)
     }
 
     val navigationEvent by viewModel.navigationEventFlow.collectAsStateLifecycleAware(null)

@@ -1,5 +1,6 @@
 package com.blockchain.transactions.swap
 
+import androidx.compose.runtime.DisposableEffect
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
@@ -16,7 +17,7 @@ import com.blockchain.betternavigation.typedComposable
 import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.chrome.composable.ChromeSingleScreen
 import com.blockchain.koin.payloadScope
-import com.blockchain.transactions.swap.confirmation.composable.ConfirmationArgs
+import com.blockchain.transactions.koin.swapFlowScope
 import com.blockchain.transactions.swap.confirmation.composable.ConfirmationScreen
 import com.blockchain.transactions.swap.enteramount.EnterAmountIntent
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
@@ -33,10 +34,9 @@ import org.koin.androidx.compose.getViewModel
 object SwapGraph : NavGraph() {
     object EnterAmount : Destination()
     object SourceAccounts : Destination()
-    object SelectTarget : DestinationWithArgs<String>()
     object TargetAsset : DestinationWithArgs<String>()
     object TargetAccount : DestinationWithArgs<SelectTargetAccountArgs>()
-    object Confirmation : DestinationWithArgs<ConfirmationArgs>()
+    object Confirmation : Destination()
     object NewOrderState : DestinationWithArgs<NewOrderStateArgs>()
 }
 
@@ -44,6 +44,13 @@ object SwapGraph : NavGraph() {
 fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
     // TODO(aromano): navigation TEMP
     composable(SwapGraph::class.java.name) {
+
+        DisposableEffect(Unit) {
+            onDispose {
+                swapFlowScope.close()
+            }
+        }
+
         val viewModel: EnterAmountViewModel = getViewModel(scope = payloadScope)
 
         TypedNavHost(
@@ -102,10 +109,9 @@ fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
                 }
             }
 
-            typedComposable(SwapGraph.Confirmation) { args ->
+            typedComposable(SwapGraph.Confirmation) {
                 ChromeSingleScreen {
                     ConfirmationScreen(
-                        args = args,
                         openNewOrderState = { args ->
                             navigateTo(SwapGraph.NewOrderState, args) {
                                 popUpTo(SwapGraph)
