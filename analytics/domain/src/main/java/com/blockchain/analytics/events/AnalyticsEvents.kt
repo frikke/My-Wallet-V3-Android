@@ -420,6 +420,19 @@ enum class AnalyticsNames(val eventName: String) {
     RB_BUY_FREQUENCY_CLICKED("Wallet Buys Recurring Frequency Selection Clicked"),
     RB_BUY_FREQUENCY_VIEWED("Wallet Buys Recurring Frequency Selection Viewed"),
 
+    // new swap
+    SWAP_ENTER_AMOUNT_VIEWED("Wallet Swap Amount Screen Viewed"),
+    SWAP_ENTER_AMOUNT_MAX_CLICKED("Wallet Swap Amount Screen Max Clicked"),
+    SWAP_ENTER_AMOUNT_PREVIEW_CLICKED("Wallet Swap Amount Screen Preview Swap Clicked"),
+    SWAP_ENTER_AMOUNT_SOURCE_CLICKED("Wallet Swap Amount Screen Change Input Clicked"),
+    SWAP_ENTER_AMOUNT_DESTINATION_CLICKED("Wallet Swap Amount Screen Change Output Clicked"),
+    SWAP_SOURCE_SELECTED("Wallet Swap Input List Token Selected"),
+    SWAP_DESTINATION_SELECTED("Wallet Swap Output List Token Selected"),
+    SWAP_CONFIRMATION_VIEWED("Wallet Swap Confirmation Screen Viewed"),
+    SWAP_CONFIRMATION_SWAP_CLICKED("Wallet Swap Confirmation Screen Confirm Swap Clicked"),
+    SWAP_CONFIRMATION_PENDING_VIEWED("Wallet Swap Post Confirmation Pending Viewed"),
+    SWAP_CONFIRMATION_SUCCESS_VIEWED("Wallet Swap Post Confirmation Success Viewed"),
+
     ;
 }
 

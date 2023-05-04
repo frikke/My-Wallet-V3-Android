@@ -152,16 +152,20 @@ fun EnterAmount(
                     openSourceAccounts = {
                         navContextProvider().navigateTo(SwapGraph.SourceAccounts)
                         keyboardController?.hide()
+                        analytics.logEvent(SwapAnalyticsEvents.SelectSourceClicked)
                     },
                     openTargetAccounts = { sourceTicker ->
                         navContextProvider().navigateTo(SwapGraph.TargetAsset, sourceTicker)
                         keyboardController?.hide()
+                        analytics.logEvent(SwapAnalyticsEvents.SelectDestinationClicked)
                     },
                     setMaxOnClick = {
                         viewModel.onIntent(EnterAmountIntent.MaxSelected)
+                        analytics.logEvent(SwapAnalyticsEvents.MaxClicked)
                     },
                     previewClicked = {
                         viewModel.onIntent(EnterAmountIntent.PreviewClicked)
+                        analytics.logEvent(SwapAnalyticsEvents.PreviewClicked)
                     },
                 )
             }
