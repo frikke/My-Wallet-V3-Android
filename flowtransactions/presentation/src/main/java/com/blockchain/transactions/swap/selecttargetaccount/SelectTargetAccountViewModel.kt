@@ -1,4 +1,4 @@
-package com.blockchain.transactions.swap.selectsource
+package com.blockchain.transactions.swap.selecttargetaccount
 
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
@@ -14,54 +14,65 @@ import com.blockchain.transactions.common.accounts.AccountUiElement
 import com.blockchain.transactions.common.withId
 import com.blockchain.transactions.swap.CryptoAccountWithBalance
 import com.blockchain.transactions.swap.SwapService
+import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.isLayer2Token
 import kotlinx.coroutines.flow.collectLatest
 
-class SelectSourceViewModel(
+class SelectTargetAccountViewModel(
+    private val sourceTicker: String,
+    private val targetTicker: String,
+    private val mode: WalletMode,
     private val swapService: SwapService,
     private val assetCatalogue: AssetCatalogue
-) : MviViewModel<SelectSourceIntent,
-    SelectSourceViewState,
-    SelectSourceModelState,
-    SelectSourceNavigationEvent,
+) : MviViewModel<SelectTargetAccountIntent,
+    SelectTargetAccountViewState,
+    SelectTargetAccountModelState,
+    TargetAccountNavigationEvent,
     ModelConfigArgs.NoArgs>(
-    SelectSourceModelState()
+    SelectTargetAccountModelState()
 ) {
+
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: SelectSourceModelState): SelectSourceViewState {
-        return with(state) {
-            SelectSourceViewState(
-                accountList = accountListData
-                    .map { it.sortedByDescending { it.data.balanceFiat } }
-                    .mapList { it.reduceAccounts() }
-            )
-        }
+    override fun reduce(state: SelectTargetAccountModelState) = state.run {
+        SelectTargetAccountViewState(
+            accountList = accountListData
+                .map { it.sortedByDescending { it.data.balanceFiat } }
+                .mapList { it.reduceAccounts() }
+        )
     }
 
-    override suspend fun handleIntent(modelState: SelectSourceModelState, intent: SelectSourceIntent) {
+    override suspend fun handleIntent(
+        modelState: SelectTargetAccountModelState,
+        intent: SelectTargetAccountIntent
+    ) {
         when (intent) {
-            is SelectSourceIntent.LoadData -> {
-                swapService.sourceAccountsWithBalances()
+            is SelectTargetAccountIntent.LoadData -> {
+                swapService
+                    .accountsWithBalanceOfMode(
+                        sourceTicker = sourceTicker,
+                        selectedAssetTicker = targetTicker,
+                        mode = mode
+                    )
                     .mapListData { it.withId() }
-                    .collectLatest { accountListData ->
+                    .collectLatest { accountsData ->
                         updateState {
                             it.copy(
-                                accountListData = it.accountListData.updateDataWith(accountListData)
+                                accountListData = it.accountListData.updateDataWith(accountsData)
                             )
                         }
                     }
             }
 
-            is SelectSourceIntent.AccountSelected -> {
+            is SelectTargetAccountIntent.AccountSelected -> {
                 check(modelState.accountListData is DataResource.Data)
                 modelState.accountListData.data.run {
                     check(any { it.id == intent.id })
                     navigate(
-                        SelectSourceNavigationEvent.ConfirmSelection(
-                            account = first { it.id == intent.id }.data
+                        TargetAccountNavigationEvent.ConfirmSelection(
+                            account = first { it.id == intent.id }.data.account
                         )
                     )
                 }
@@ -73,7 +84,8 @@ class SelectSourceViewModel(
         with(data) {
             AccountUiElement(
                 id = id,
-                title = account.currency.name,
+                title = account.label,
+                subtitle = account.currency.name,
                 l2Network = (account as? CryptoNonCustodialAccount)?.currency
                     ?.takeIf { it.isLayer2Token }
                     ?.coinNetwork?.shortName,

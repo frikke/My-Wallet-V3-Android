@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.lazylist
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,7 @@ fun <T> LazyListScope.roundedCornersItems(
     items: List<T>,
     key: ((item: T) -> Any)? = null,
     dividerColor: Color? = BackgroundMuted,
+    animateItemPlacement: Boolean = false,
     content: @Composable (T) -> Unit,
 ) {
     paddedRoundedCornersItems(
@@ -28,15 +30,18 @@ fun <T> LazyListScope.roundedCornersItems(
         key = key,
         dividerColor = dividerColor,
         paddingValues = PaddingValues(),
+        animateItemPlacement = animateItemPlacement,
         content = content
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 fun <T> LazyListScope.paddedRoundedCornersItems(
     items: List<T>,
     key: ((item: T) -> Any)? = null,
     dividerColor: Color? = BackgroundMuted,
     paddingValues: PaddingValues,
+    animateItemPlacement: Boolean = false,
     content: @Composable (T) -> Unit,
 ) {
     items(
@@ -46,6 +51,10 @@ fun <T> LazyListScope.paddedRoundedCornersItems(
         Box(
             modifier = Modifier
                 .padding(paddingValues)
+                .then(
+                    if (animateItemPlacement) Modifier.animateItemPlacement()
+                    else Modifier
+                ),
         ) {
             when {
                 items.size == 1 -> Card(
@@ -90,15 +99,24 @@ fun <T> LazyListScope.paddedRoundedCornersItems(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 fun LazyListScope.paddedItem(
     key: Any? = null,
     paddingValues: PaddingValues,
+    animateItemPlacement: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     item(
         key = key,
     ) {
-        Column(modifier = Modifier.padding(paddingValues)) {
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .then(
+                    if (animateItemPlacement) Modifier.animateItemPlacement()
+                    else Modifier
+                )
+        ) {
             content()
         }
     }

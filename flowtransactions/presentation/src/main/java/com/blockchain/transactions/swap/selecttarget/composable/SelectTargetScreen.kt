@@ -7,13 +7,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavController
+import com.blockchain.betternavigation.NavContext
+import com.blockchain.betternavigation.navigateTo
 import com.blockchain.chrome.titleIcon
 import com.blockchain.chrome.titleSuperApp
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.sheets.SheetFlatHeader
 import com.blockchain.componentlib.tablerow.BalanceChange
@@ -27,33 +30,57 @@ import com.blockchain.data.DataResource
 import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.common.prices.composable.SelectAssetPricesList
 import com.blockchain.transactions.presentation.R
+import com.blockchain.transactions.swap.SwapGraph
 import com.blockchain.transactions.swap.selecttarget.SelectTargetIntent
 import com.blockchain.transactions.swap.selecttarget.SelectTargetViewModel
 import com.blockchain.transactions.swap.selecttarget.SelectTargetViewState
+import com.blockchain.transactions.swap.selecttarget.TargetAssetNavigationEvent
+import com.blockchain.transactions.swap.selecttargetaccount.composable.SelectTargetAccountArgs
 import com.blockchain.walletmode.WalletMode
 import kotlinx.collections.immutable.toImmutableList
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
 
-const val KEY_SWAP_TARGET_ACCOUNT = "KEY_SWAP_TARGET_ACCOUNT"
-
 @Composable
-fun SelectTarget(
+fun SelectTargetAsset(
     sourceTicker: String,
     viewModel: SelectTargetViewModel = getViewModel(
         scope = payloadScope,
         key = sourceTicker,
         parameters = { parametersOf(sourceTicker) }
     ),
-    navControllerProvider: () -> NavController,
-    onBackPressed: () -> Unit
+    accountSelected: (CryptoAccount) -> Unit,
+    navContextProvider: () -> NavContext,
+    onClosePressed: () -> Unit
 ) {
-
     val viewState: SelectTargetViewState by viewModel.viewState.collectAsStateLifecycleAware()
-
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(SelectTargetIntent.LoadData)
         onDispose { }
+    }
+
+    val navigationEvent by viewModel.navigationEventFlow.collectAsStateLifecycleAware(null)
+    LaunchedEffect(navigationEvent) {
+        navigationEvent?.let { navEvent ->
+            when (navEvent) {
+                is TargetAssetNavigationEvent.ConfirmSelection -> {
+                    accountSelected(navEvent.account)
+                    onClosePressed()
+                }
+
+                is TargetAssetNavigationEvent.SelectAccount -> {
+                    check(viewState.selectedModeFilter != null)
+                    navContextProvider().navigateTo(
+                        SwapGraph.TargetAccount,
+                        SelectTargetAccountArgs(
+                            sourceTicker = sourceTicker,
+                            targetTicker = navEvent.ofTicker,
+                            mode = viewState.selectedModeFilter!!
+                        )
+                    )
+                }
+            }
+        }
     }
 
     SelectTargetScreen(
@@ -69,7 +96,7 @@ fun SelectTarget(
         accountOnClick = {
             viewModel.onIntent(SelectTargetIntent.AssetSelected(ticker = it.ticker))
         },
-        onBackPressed = onBackPressed
+        onBackPressed = onClosePressed
     )
 }
 

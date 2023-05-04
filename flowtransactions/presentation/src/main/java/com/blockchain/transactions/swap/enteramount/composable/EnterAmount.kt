@@ -9,18 +9,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.betternavigation.NavContext
 import com.blockchain.betternavigation.navigateTo
-import com.blockchain.chrome.getResultFlow
 import com.blockchain.componentlib.alert.CustomEmptyState
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.AlertButton
@@ -43,7 +46,6 @@ import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.extensions.safeLet
 import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.presentation.R
-import com.blockchain.transactions.swap.CryptoAccountWithBalance
 import com.blockchain.transactions.swap.SwapGraph
 import com.blockchain.transactions.swap.enteramount.EnterAmountAssetState
 import com.blockchain.transactions.swap.enteramount.EnterAmountAssets
@@ -53,8 +55,6 @@ import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewState
 import com.blockchain.transactions.swap.enteramount.SwapEnterAmountFatalError
 import com.blockchain.transactions.swap.enteramount.SwapEnterAmountInputError
-import com.blockchain.transactions.swap.selectsource.composable.KEY_SWAP_SOURCE_ACCOUNT
-import com.blockchain.transactions.swap.selecttarget.composable.KEY_SWAP_TARGET_ACCOUNT
 import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -83,26 +83,19 @@ fun EnterAmount(
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val newFrom by navContextProvider().navController
-        .getResultFlow(KEY_SWAP_SOURCE_ACCOUNT, null as? CryptoAccountWithBalance?)
-        .collectAsStateLifecycleAware()
-
-    LaunchedEffect(newFrom) {
-        newFrom?.let {
-            viewModel.onIntent(EnterAmountIntent.FromAccountChanged(it))
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> keyboardController?.show()
+                Lifecycle.Event.ON_PAUSE -> keyboardController?.hide()
+                else -> {}
+            }
         }
-        keyboardController?.show()
-    }
-
-    val newTo by navContextProvider().navController
-        .getResultFlow(KEY_SWAP_TARGET_ACCOUNT, null as? String?)
-        .collectAsStateLifecycleAware()
-
-    LaunchedEffect(key1 = newTo) {
-        newFrom?.let {
-            //            viewModel.onIntent(EnterAmountIntent.FromAccountChanged(it))
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
-        keyboardController?.show()
     }
 
     Column(
@@ -144,7 +137,7 @@ fun EnterAmount(
                         keyboardController?.hide()
                     },
                     openTargetAccounts = { sourceTicker ->
-                        navContextProvider().navigateTo(SwapGraph.TargetAccounts, sourceTicker)
+                        navContextProvider().navigateTo(SwapGraph.TargetAsset, sourceTicker)
                         keyboardController?.hide()
                     },
                     setMaxOnClick = {

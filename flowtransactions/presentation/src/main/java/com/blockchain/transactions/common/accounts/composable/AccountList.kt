@@ -37,7 +37,8 @@ fun AccountList(
                     items = accounts.data,
                     content = { account ->
                         BalanceFiatAndCryptoTableRow(
-                            title = account.assetName,
+                            title = account.title,
+                            subtitle = account.subtitle.orEmpty(),
                             tag = account.l2Network.orEmpty(),
                             valueCrypto = account.valueCrypto,
                             valueFiat = account.valueFiat,
