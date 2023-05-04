@@ -1,15 +1,13 @@
 package com.blockchain.transactions.koin
 
-import com.blockchain.coincore.CryptoAccount
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.transactions.swap.confirmation.ConfirmationViewModel
 import com.blockchain.transactions.swap.confirmation.composable.ConfirmationArgs
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
-import com.blockchain.transactions.swap.selectsource.SelectSourceViewModel
-import com.blockchain.transactions.swap.selecttarget.SelectTargetViewModel
-import com.blockchain.transactions.swap.selecttargetaccount.SelectTargetAccountViewModel
+import com.blockchain.transactions.swap.sourceaccounts.SourceAccountsViewModel
+import com.blockchain.transactions.swap.targetassets.SelectTargetViewModel
+import com.blockchain.transactions.swap.targetaccounts.SelectTargetAccountViewModel
 import com.blockchain.walletmode.WalletMode
-import info.blockchain.balance.CryptoValue
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.core.scope.Scope
@@ -37,7 +35,7 @@ val transactionsPresentationModule = module {
         }
 
         viewModel {
-            SelectSourceViewModel(
+            SourceAccountsViewModel(
                 swapService = get(),
                 assetCatalogue = get()
             )

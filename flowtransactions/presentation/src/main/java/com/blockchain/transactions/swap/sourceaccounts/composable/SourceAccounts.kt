@@ -1,4 +1,4 @@
-package com.blockchain.transactions.swap.selectsource.composable
+package com.blockchain.transactions.swap.sourceaccounts.composable
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,30 +18,30 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.common.accounts.composable.AccountList
 import com.blockchain.transactions.presentation.R
 import com.blockchain.transactions.swap.CryptoAccountWithBalance
-import com.blockchain.transactions.swap.selectsource.SelectSourceIntent
-import com.blockchain.transactions.swap.selectsource.SelectSourceNavigationEvent
-import com.blockchain.transactions.swap.selectsource.SelectSourceViewModel
-import com.blockchain.transactions.swap.selectsource.SelectSourceViewState
+import com.blockchain.transactions.swap.sourceaccounts.SourceAccountsIntent
+import com.blockchain.transactions.swap.sourceaccounts.SourceAccountsNavigationEvent
+import com.blockchain.transactions.swap.sourceaccounts.SourceAccountsViewModel
+import com.blockchain.transactions.swap.sourceaccounts.SourceAccountsViewState
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun SelectSourceScreen(
-    viewModel: SelectSourceViewModel = getViewModel(scope = payloadScope),
+fun SourceAccounts(
+    viewModel: SourceAccountsViewModel = getViewModel(scope = payloadScope),
     accountSelected: (CryptoAccountWithBalance) -> Unit,
     onBackPressed: () -> Unit
 ) {
 
-    val viewState: SelectSourceViewState by viewModel.viewState.collectAsStateLifecycleAware()
+    val viewState: SourceAccountsViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     LaunchedEffect(key1 = viewModel) {
-        viewModel.onIntent(SelectSourceIntent.LoadData)
+        viewModel.onIntent(SourceAccountsIntent.LoadData)
     }
 
     val navigationEvent by viewModel.navigationEventFlow.collectAsStateLifecycleAware(null)
     LaunchedEffect(navigationEvent) {
         navigationEvent?.let { navEvent ->
             when (navEvent) {
-                is SelectSourceNavigationEvent.ConfirmSelection -> {
+                is SourceAccountsNavigationEvent.ConfirmSelection -> {
                     accountSelected(navEvent.account)
                     onBackPressed()
                 }
@@ -66,7 +66,7 @@ fun SelectSourceScreen(
             ),
             accounts = viewState.accountList,
             onAccountClick = {
-                viewModel.onIntent(SelectSourceIntent.AccountSelected(it.id))
+                viewModel.onIntent(SourceAccountsIntent.AccountSelected(it.id))
             },
             bottomSpacer = AppTheme.dimensions.smallSpacing
         )

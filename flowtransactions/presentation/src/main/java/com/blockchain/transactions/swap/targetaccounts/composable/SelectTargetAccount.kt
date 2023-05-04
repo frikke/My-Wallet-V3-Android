@@ -1,4 +1,4 @@
-package com.blockchain.transactions.swap.selecttargetaccount.composable
+package com.blockchain.transactions.swap.targetaccounts.composable
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,10 +20,10 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.common.accounts.AccountUiElement
 import com.blockchain.transactions.common.accounts.composable.AccountList
 import com.blockchain.transactions.presentation.R
-import com.blockchain.transactions.swap.selecttargetaccount.SelectTargetAccountIntent
-import com.blockchain.transactions.swap.selecttargetaccount.SelectTargetAccountViewModel
-import com.blockchain.transactions.swap.selecttargetaccount.SelectTargetAccountViewState
-import com.blockchain.transactions.swap.selecttargetaccount.TargetAccountNavigationEvent
+import com.blockchain.transactions.swap.targetaccounts.SelectTargetAccountIntent
+import com.blockchain.transactions.swap.targetaccounts.SelectTargetAccountViewModel
+import com.blockchain.transactions.swap.targetaccounts.SelectTargetAccountViewState
+import com.blockchain.transactions.swap.targetaccounts.TargetAccountNavigationEvent
 import com.blockchain.walletmode.WalletMode
 import java.io.Serializable
 import org.koin.androidx.compose.getViewModel

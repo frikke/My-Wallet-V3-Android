@@ -1,4 +1,4 @@
-package com.blockchain.transactions.swap.selecttarget.composable
+package com.blockchain.transactions.swap.targetassets.composable
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -31,11 +31,11 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.common.prices.composable.SelectAssetPricesList
 import com.blockchain.transactions.presentation.R
 import com.blockchain.transactions.swap.SwapGraph
-import com.blockchain.transactions.swap.selecttarget.SelectTargetIntent
-import com.blockchain.transactions.swap.selecttarget.SelectTargetViewModel
-import com.blockchain.transactions.swap.selecttarget.SelectTargetViewState
-import com.blockchain.transactions.swap.selecttarget.TargetAssetNavigationEvent
-import com.blockchain.transactions.swap.selecttargetaccount.composable.SelectTargetAccountArgs
+import com.blockchain.transactions.swap.targetassets.SelectTargetIntent
+import com.blockchain.transactions.swap.targetassets.SelectTargetViewModel
+import com.blockchain.transactions.swap.targetassets.SelectTargetViewState
+import com.blockchain.transactions.swap.targetassets.TargetAssetNavigationEvent
+import com.blockchain.transactions.swap.targetaccounts.composable.SelectTargetAccountArgs
 import com.blockchain.walletmode.WalletMode
 import kotlinx.collections.immutable.toImmutableList
 import org.koin.androidx.compose.getViewModel

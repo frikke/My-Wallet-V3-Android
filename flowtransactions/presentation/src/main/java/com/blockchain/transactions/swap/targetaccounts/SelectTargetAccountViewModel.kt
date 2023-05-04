@@ -1,4 +1,4 @@
-package com.blockchain.transactions.swap.selecttargetaccount
+package com.blockchain.transactions.swap.targetaccounts
 
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount

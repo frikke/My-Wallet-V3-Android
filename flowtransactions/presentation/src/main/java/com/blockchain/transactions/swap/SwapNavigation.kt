@@ -24,10 +24,10 @@ import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
 import com.blockchain.transactions.swap.enteramount.composable.EnterAmount
 import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateArgs
 import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateScreen
-import com.blockchain.transactions.swap.selectsource.composable.SelectSourceScreen
-import com.blockchain.transactions.swap.selecttarget.composable.SelectTargetAsset
-import com.blockchain.transactions.swap.selecttargetaccount.composable.SelectTargetAccount
-import com.blockchain.transactions.swap.selecttargetaccount.composable.SelectTargetAccountArgs
+import com.blockchain.transactions.swap.sourceaccounts.composable.SourceAccounts
+import com.blockchain.transactions.swap.targetassets.composable.SelectTargetAsset
+import com.blockchain.transactions.swap.targetaccounts.composable.SelectTargetAccount
+import com.blockchain.transactions.swap.targetaccounts.composable.SelectTargetAccountArgs
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import org.koin.androidx.compose.getViewModel
 
@@ -69,7 +69,7 @@ fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
 
             typedBottomSheet(SwapGraph.SourceAccounts) {
                 ChromeBottomSheet(onClose = ::navigateUp) {
-                    SelectSourceScreen(
+                    SourceAccounts(
                         accountSelected = {
                             viewModel.onIntent(EnterAmountIntent.FromAccountChanged(it))
                         },

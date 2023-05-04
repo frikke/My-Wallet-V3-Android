@@ -1,4 +1,4 @@
-package com.blockchain.transactions.swap.selecttarget
+package com.blockchain.transactions.swap.targetassets
 
 import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
