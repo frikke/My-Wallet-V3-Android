@@ -23,7 +23,6 @@ import com.blockchain.domain.wiretransfer.WireTransferDetails
 import com.blockchain.domain.wiretransfer.WireTransferDetailsFooter
 import com.blockchain.domain.wiretransfer.WireTransferDetailsSection
 import com.blockchain.domain.wiretransfer.WireTransferDetailsSectionEntry
-import com.blockchain.nabu.datamanagers.BankAccount
 import com.blockchain.nabu.datamanagers.BuyOrderList
 import com.blockchain.nabu.datamanagers.BuySellLimits
 import com.blockchain.nabu.datamanagers.BuySellOrder
@@ -50,7 +49,6 @@ import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
 import com.blockchain.nabu.models.responses.nabu.State
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
 import com.blockchain.nabu.models.responses.simplebuy.ConfirmOrderRequestBody
-import com.blockchain.nabu.models.responses.simplebuy.CustodialAccountResponse
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.PaymentAttributesResponse
 import com.blockchain.nabu.models.responses.simplebuy.PaymentStateResponse
@@ -90,7 +88,6 @@ class LiveCustodialWalletManager(
     private val simpleBuyService: SimpleBuyService,
     private val transactionsCache: TransactionsStore,
     private val paymentMethodsEligibilityStore: PaymentMethodsEligibilityStore,
-    private val paymentAccountMapperMappers: Map<String, PaymentAccountMapper>,
     private val currencyPrefs: CurrencyPrefs,
     private val custodialRepository: CustodialRepository,
     private val transactionErrorMapper: TransactionErrorMapper,
@@ -245,12 +242,6 @@ class LiveCustodialWalletManager(
     override fun getWireTransferDetails(currency: FiatCurrency): Single<WireTransferDetails> =
         nabuService.getWireTransferAccountDetails(currency.networkTicker).map { response ->
             response.toDomain()
-        }
-
-    override fun getBankAccountDetails(currency: FiatCurrency): Single<BankAccount> =
-        nabuService.getCustodialAccountDetails("simplebuy", currency.networkTicker).map { response ->
-            paymentAccountMapperMappers[currency.networkTicker]?.map(response)
-                ?: throw IllegalStateException("Not valid Account returned")
         }
 
     override fun getCustodialAccountAddress(
@@ -726,16 +717,3 @@ private fun PaymentCardAcquirerResponse.toPaymentCardAcquirer() =
         cardAcquirerAccountCodes = cardAcquirerAccountCodes,
         apiKey = apiKey
     )
-
-private fun PaymentMethodResponse.isEligibleCard() =
-    eligible && type.toPaymentMethodType() == PaymentMethodType.PAYMENT_CARD
-
-interface PaymentAccountMapper {
-    fun map(bankAccountResponse: CustodialAccountResponse): BankAccount?
-}
-
-private data class CustodialFiatBalance(
-    val currency: FiatCurrency,
-    val available: Boolean,
-    val balance: Money,
-)

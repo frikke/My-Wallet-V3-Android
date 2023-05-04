@@ -96,10 +96,6 @@ interface CustodialWalletManager {
         currency: FiatCurrency
     ): Single<WireTransferDetails>
 
-    fun getBankAccountDetails(
-        currency: FiatCurrency
-    ): Single<BankAccount>
-
     fun getCustodialAccountAddress(product: Product, asset: Currency): Single<String>
 
     @Deprecated("use flow isCurrencyAvailableForTrading - remove when CoinView is migrated")

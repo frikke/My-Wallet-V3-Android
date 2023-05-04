@@ -41,14 +41,11 @@ import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.keyboard.InputKeyboard
 import com.blockchain.koin.applicationScope
-import com.blockchain.koin.ars
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.cardPaymentAsyncFeatureFlag
-import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.feynmanCheckoutFeatureFlag
 import com.blockchain.koin.feynmanEnterAmountFeatureFlag
-import com.blockchain.koin.gbp
 import com.blockchain.koin.improvedPaymentUxFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kotlinJsonAssetTicker
@@ -58,12 +55,10 @@ import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.sellOrder
-import com.blockchain.koin.usd
 import com.blockchain.koin.vgsFeatureFlag
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.logging.DigitalTrust
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentAccountMapper
 import com.blockchain.network.websocket.Options
 import com.blockchain.network.websocket.autoRetry
 import com.blockchain.network.websocket.debugLog
@@ -121,20 +116,16 @@ import piuk.blockchain.android.scan.QRCodeEncoder
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.scan.data.QrCodeDataRepository
 import piuk.blockchain.android.scan.domain.QrCodeDataService
-import piuk.blockchain.android.simplebuy.ARSPaymentAccountMapper
 import piuk.blockchain.android.simplebuy.BankBuyNavigationImpl
 import piuk.blockchain.android.simplebuy.BankPartnerCallbackProviderImpl
 import piuk.blockchain.android.simplebuy.BuyFlowNavigator
 import piuk.blockchain.android.simplebuy.CreateBuyOrderUseCase
-import piuk.blockchain.android.simplebuy.EURPaymentAccountMapper
-import piuk.blockchain.android.simplebuy.GBPPaymentAccountMapper
 import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
 import piuk.blockchain.android.simplebuy.SimpleBuyModel
 import piuk.blockchain.android.simplebuy.SimpleBuyPrefsSerializer
 import piuk.blockchain.android.simplebuy.SimpleBuyPrefsSerializerImpl
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
-import piuk.blockchain.android.simplebuy.USDPaymentAccountMapper
 import piuk.blockchain.android.simplebuy.upsell.viewmodel.UpSellAnotherAssetViewModel
 import piuk.blockchain.android.ui.addresses.AccountPresenter
 import piuk.blockchain.android.ui.airdrops.AirdropCentrePresenter
@@ -348,22 +339,6 @@ val applicationModule = module {
                 intercomEnabledFF = get(intercomChatFeatureFlag)
             )
         }
-
-        factory(gbp) {
-            GBPPaymentAccountMapper(resources = get())
-        }.bind(PaymentAccountMapper::class)
-
-        factory(eur) {
-            EURPaymentAccountMapper(resources = get())
-        }.bind(PaymentAccountMapper::class)
-
-        factory(usd) {
-            USDPaymentAccountMapper(resources = get())
-        }.bind(PaymentAccountMapper::class)
-
-        factory(ars) {
-            ARSPaymentAccountMapper(resources = get())
-        }.bind(PaymentAccountMapper::class)
 
         factory {
             OkHttpClient()

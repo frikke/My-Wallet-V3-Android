@@ -111,9 +111,6 @@ val nabuModule = module {
             LiveCustodialWalletManager(
                 assetCatalogue = get(),
                 nabuService = get(),
-                paymentAccountMapperMappers = mapOf(
-                    "EUR" to get(eur), "GBP" to get(gbp), "USD" to get(usd), "ARS" to get(ars)
-                ),
                 transactionsCache = get(),
                 custodialRepository = get(),
                 transactionErrorMapper = get(),
