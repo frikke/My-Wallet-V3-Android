@@ -47,7 +47,35 @@ sealed class SwapAnalyticsEvents(
         event = AnalyticsNames.SWAP_CONFIRMATION_VIEWED.eventName
     )
 
-    companion object{
+    // todo get usd rate
+    data class SwapClicked(
+        val fromTicker: String,
+        val fromAmount: String,
+        val fromAmountUsd: String,
+        val toTicker: String
+    ) : SwapAnalyticsEvents(
+        event = AnalyticsNames.SWAP_CONFIRMATION_SWAP_CLICKED.eventName,
+        params = mapOf(
+            INPUT_CURRENCY to fromTicker,
+            INPUT_AMOUNT to fromAmount,
+            INPUT_AMOUNT_USD to fromAmountUsd,
+            OUTPUT_CURRENCY to toTicker,
+        )
+    )
+
+    object PendingViewed : SwapAnalyticsEvents(
+        event = AnalyticsNames.SWAP_CONFIRMATION_PENDING_VIEWED.eventName
+    )
+
+    object SuccessViewed : SwapAnalyticsEvents(
+        event = AnalyticsNames.SWAP_CONFIRMATION_SUCCESS_VIEWED.eventName
+    )
+
+    companion object {
         private const val CURRENCY = "currency"
+        private const val INPUT_CURRENCY = "input_currency"
+        private const val INPUT_AMOUNT = "input_amount"
+        private const val INPUT_AMOUNT_USD = "input_amount_usd"
+        private const val OUTPUT_CURRENCY = "output_currency"
     }
 }
