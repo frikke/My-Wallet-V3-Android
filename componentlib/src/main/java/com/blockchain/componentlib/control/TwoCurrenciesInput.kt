@@ -62,7 +62,7 @@ data class CurrencyValue(
     val maxFractionDigits: Int,
     val ticker: String,
     val isPrefix: Boolean,
-    val separateWithSpace: Boolean, 
+    val separateWithSpace: Boolean,
     val zeroHint: String
 )
 
@@ -102,7 +102,7 @@ fun TwoCurrenciesInput(
     LaunchedEffect(currency2.value) {
         c2Value = c2Value.copy(text = currency2.value)
     }
-    
+
     DisposableEffect(selected) {
         when (selected) {
             InputCurrency.Currency1 -> focusRequester1
@@ -185,7 +185,6 @@ fun TwoCurrenciesInput(
                             c2Value = c2Value.copy(selection = TextRange(0, c2Value.text.length))
                         }
                     }
-
                 },
                 imageResource = Icons.UnfoldMore.withBackground(
                     backgroundColor = AppTheme.colors.background,
