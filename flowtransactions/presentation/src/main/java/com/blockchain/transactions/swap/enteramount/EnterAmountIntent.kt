@@ -23,11 +23,19 @@ sealed interface EnterAmountIntent : Intent<EnterAmountModelState> {
 
     data class FromAccountChanged(
         val account: CryptoAccountWithBalance
-    ) : EnterAmountIntent
+    ) : EnterAmountIntent {
+        override fun isValidFor(modelState: EnterAmountModelState): Boolean {
+            return modelState.fromAccount?.account?.matches(account.account) != true
+        }
+    }
 
     data class ToAccountChanged(
         val account: CryptoAccount
-    ) : EnterAmountIntent
+    ) : EnterAmountIntent {
+        override fun isValidFor(modelState: EnterAmountModelState): Boolean {
+            return modelState.toAccount?.matches(account) != true
+        }
+    }
 
     object MaxSelected : EnterAmountIntent
 

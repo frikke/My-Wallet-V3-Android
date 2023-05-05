@@ -99,7 +99,7 @@ fun NewOrderStateScreen(
         when (args.orderState) {
             NewOrderState.PendingDeposit -> analytics.logEvent(SwapAnalyticsEvents.PendingViewed)
             NewOrderState.Succeeded -> analytics.logEvent(SwapAnalyticsEvents.SuccessViewed)
-            is NewOrderState.Error -> TODO()
+            is NewOrderState.Error -> { /* n/a for now */ }
         }
     }
 

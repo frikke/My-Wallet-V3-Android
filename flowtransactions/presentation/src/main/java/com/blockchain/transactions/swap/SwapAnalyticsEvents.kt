@@ -2,7 +2,6 @@ package com.blockchain.transactions.swap
 
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
-import com.blockchain.walletmode.WalletMode
 
 sealed class SwapAnalyticsEvents(
     override val event: String,

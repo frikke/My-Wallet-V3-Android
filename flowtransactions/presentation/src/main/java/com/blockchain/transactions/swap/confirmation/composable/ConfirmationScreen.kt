@@ -61,10 +61,9 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
-import org.koin.androidx.compose.get
 import java.io.Serializable
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
-import org.koin.core.parameter.parametersOf
 
 data class ConfirmationArgs(
     val sourceAccount: CryptoAccount,

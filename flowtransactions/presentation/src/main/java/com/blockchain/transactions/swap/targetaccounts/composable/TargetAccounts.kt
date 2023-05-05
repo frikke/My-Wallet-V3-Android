@@ -23,12 +23,12 @@ import com.blockchain.transactions.common.accounts.composable.AccountList
 import com.blockchain.transactions.presentation.R
 import com.blockchain.transactions.swap.SwapAnalyticsEvents
 import com.blockchain.transactions.swap.targetaccounts.TargetAccountsIntent
+import com.blockchain.transactions.swap.targetaccounts.TargetAccountsNavigationEvent
 import com.blockchain.transactions.swap.targetaccounts.TargetAccountsViewModel
 import com.blockchain.transactions.swap.targetaccounts.TargetAccountsViewState
-import com.blockchain.transactions.swap.targetaccounts.TargetAccountsNavigationEvent
 import com.blockchain.walletmode.WalletMode
-import org.koin.androidx.compose.get
 import java.io.Serializable
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
 

@@ -5,8 +5,8 @@ import com.blockchain.transactions.swap.confirmation.ConfirmationViewModel
 import com.blockchain.transactions.swap.confirmation.composable.ConfirmationArgs
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
 import com.blockchain.transactions.swap.sourceaccounts.SourceAccountsViewModel
-import com.blockchain.transactions.swap.targetassets.TargetAssetsViewModel
 import com.blockchain.transactions.swap.targetaccounts.TargetAccountsViewModel
+import com.blockchain.transactions.swap.targetassets.TargetAssetsViewModel
 import com.blockchain.walletmode.WalletMode
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.named

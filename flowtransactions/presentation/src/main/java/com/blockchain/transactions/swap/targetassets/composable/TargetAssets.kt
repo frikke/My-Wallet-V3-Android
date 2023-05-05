@@ -33,11 +33,11 @@ import com.blockchain.transactions.common.prices.composable.SelectAssetPricesLis
 import com.blockchain.transactions.presentation.R
 import com.blockchain.transactions.swap.SwapAnalyticsEvents
 import com.blockchain.transactions.swap.SwapGraph
+import com.blockchain.transactions.swap.targetaccounts.composable.TargetAccountsArgs
 import com.blockchain.transactions.swap.targetassets.TargetAssetsIntent
+import com.blockchain.transactions.swap.targetassets.TargetAssetsNavigationEvent
 import com.blockchain.transactions.swap.targetassets.TargetAssetsViewModel
 import com.blockchain.transactions.swap.targetassets.TargetAssetsViewState
-import com.blockchain.transactions.swap.targetassets.TargetAssetsNavigationEvent
-import com.blockchain.transactions.swap.targetaccounts.composable.TargetAccountsArgs
 import com.blockchain.walletmode.WalletMode
 import kotlinx.collections.immutable.toImmutableList
 import org.koin.androidx.compose.get

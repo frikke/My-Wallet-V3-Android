@@ -25,9 +25,9 @@ import com.blockchain.transactions.swap.enteramount.composable.EnterAmount
 import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateArgs
 import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateScreen
 import com.blockchain.transactions.swap.sourceaccounts.composable.SourceAccounts
-import com.blockchain.transactions.swap.targetassets.composable.TargetAssets
 import com.blockchain.transactions.swap.targetaccounts.composable.TargetAccounts
 import com.blockchain.transactions.swap.targetaccounts.composable.TargetAccountsArgs
+import com.blockchain.transactions.swap.targetassets.composable.TargetAssets
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import org.koin.androidx.compose.getViewModel
 

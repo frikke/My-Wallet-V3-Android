@@ -26,6 +26,7 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import java.math.BigDecimal
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -34,7 +35,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import java.math.BigDecimal
 
 /**
  * @property fromTicker if we come from Coinview we should have preset FROM
