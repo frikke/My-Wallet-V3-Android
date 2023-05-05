@@ -146,7 +146,9 @@ class DexTransactionProcessor(
                 }.collectLatest {
                     when (it) {
                         is Outcome.Success -> {
-                            _quoteTtl.emit(QuoteTTL(15000))
+                            (it.value as? DexQuote.ExchangeQuote)?.let { exchangeQuote ->
+                                _quoteTtl.emit(QuoteTTL(exchangeQuote.quoteTtl))
+                            }
                             updateTxQuote(it.value)
                         }
                         is Outcome.Failure -> {
@@ -260,37 +262,25 @@ class DexTransactionProcessor(
     private fun Flow<DexTransaction>.validate(): Flow<DexTransaction> {
         return map { tx ->
             tx.copy(
-                txError = DexTxError.None
+                txErrors = emptyList()
             )
-        }.validate { tx ->
+        }.map { tx ->
             tx.validateSufficientFunds()
-        }.validate { tx ->
+        }.map { tx ->
             tx.validateAllowance()
-        }.validate { tx ->
+        }.map { tx ->
             tx.validateSufficientNetworkFees()
-        }.validate { tx ->
+        }.map { tx ->
             tx.validateQuoteError()
-        }.validate { tx ->
+        }.map { tx ->
             tx.validateTransactionInProcess()
-        }
-        /* add rest off validations*/
-    }
-
-    private fun Flow<DexTransaction>.validate(validation: suspend (DexTransaction) -> DexTransaction):
-        Flow<DexTransaction> {
-        return map {
-            if (it.txError == DexTxError.None)
-                validation(it)
-            else it
         }
     }
 
     private fun DexTransaction.validateQuoteError(): DexTransaction {
         return if (quoteError == null)
             this
-        else copy(
-            txError = quoteError
-        )
+        else copy(txErrors = txErrors.plus(quoteError))
     }
 
     private suspend fun DexTransaction.validateTransactionInProcess(): DexTransaction {
@@ -301,7 +291,7 @@ class DexTransactionProcessor(
             ).filter { it.network == txNetwork }
 
         return if (transactions.any { it.status == "PENDING" }) {
-            copy(txError = DexTxError.TxInProgress)
+            copy(txErrors = txErrors.plus(DexTxError.TxInProgress))
         } else this
     }
 
@@ -319,7 +309,7 @@ class DexTransactionProcessor(
             allowance?.let {
                 if (!it.isTokenAllowed)
                     return copy(
-                        txError = DexTxError.TokenNotAllowed
+                        txErrors = txErrors.plus(DexTxError.TokenNotAllowed)
                     )
                 else this
             } ?: return this
@@ -331,7 +321,7 @@ class DexTransactionProcessor(
         return if (sourceAccount.balance >= validationAmount)
             this
         else copy(
-            txError = DexTxError.NotEnoughFunds
+            txErrors = txErrors.plus(DexTxError.NotEnoughFunds)
         )
     }
 
@@ -341,7 +331,7 @@ class DexTransactionProcessor(
             if (networkBalance >= it) {
                 this
             } else copy(
-                txError = DexTxError.NotEnoughGas
+                txErrors = txErrors.plus(DexTxError.NotEnoughGas)
             )
         } ?: this
     }
@@ -351,7 +341,7 @@ class DexTransactionProcessor(
  * We are able to fetch a quote when amount > 0 AND ( no error or error is quote related )
  */
 private fun DexTransaction.canBeQuoted() =
-    this.amount?.isPositive == true && txError.allowsQuotesFetching()
+    this.amount?.isPositive == true && txErrors.all { it.allowsQuotesFetching }
 
 data class DexTransaction internal constructor(
     val amount: Money?,
@@ -360,7 +350,7 @@ data class DexTransaction internal constructor(
     val destinationAccount: DexAccount?,
     val txResult: Outcome<Exception, String>?,
     val slippage: Double,
-    val txError: DexTxError,
+    val txErrors: List<DexTxError>,
     val quoteError: DexTxError.QuoteError?
 ) {
     val quoteParams: DexQuoteParams?
@@ -389,27 +379,46 @@ private val EmptyDexTransaction = DexTransaction(
     null,
     null,
     0.toDouble(),
-    DexTxError.None,
+    listOf(),
     null,
 )
 
 sealed class DexTxError {
-    fun allowsQuotesFetching(): Boolean {
-        return this == None || this == TokenNotAllowed || this is QuoteError || this == TxInProgress
+
+    abstract val allowsQuotesFetching: Boolean
+
+    object NotEnoughFunds : DexTxError() {
+        override val allowsQuotesFetching: Boolean
+            get() = false
     }
 
-    object NotEnoughFunds : DexTxError()
-    object NotEnoughGas : DexTxError()
-    data class QuoteError(val title: String, val message: String) : DexTxError() {
+    object NotEnoughGas : DexTxError() {
+        override val allowsQuotesFetching: Boolean
+            get() = true
+    }
 
+    data class QuoteError(val title: String?, val message: String?) : DexTxError() {
         fun isLiquidityError(): Boolean =
-            message.contains("INSUFFICIENT_ASSET_LIQUIDITY", true)
+            message?.contains("INSUFFICIENT_ASSET_LIQUIDITY", true) == true
+
+        override val allowsQuotesFetching: Boolean
+            get() = true
     }
 
-    object TokenNotAllowed : DexTxError()
-    class FatalTxError(val exception: Exception) : DexTxError()
-    object None : DexTxError()
-    object TxInProgress : DexTxError()
+    object TokenNotAllowed : DexTxError() {
+        override val allowsQuotesFetching: Boolean
+            get() = true
+    }
+
+    class FatalTxError(val exception: Exception) : DexTxError() {
+        override val allowsQuotesFetching: Boolean
+            get() = false
+    }
+
+    object TxInProgress : DexTxError() {
+        override val allowsQuotesFetching: Boolean
+            get() = true
+    }
 }
 
 private class QuoteTTL(val ttl: Long = 0L) {

@@ -34,7 +34,8 @@ data class DexQuoteResponse(
     val type: String,
     val quote: QuoteResponse,
     @SerialName("tx")
-    val transaction: DexTransactionResponse
+    val transaction: DexTransactionResponse,
+    val quoteTtl: Long
 )
 
 @kotlinx.serialization.Serializable

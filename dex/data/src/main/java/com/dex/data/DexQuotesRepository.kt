@@ -96,21 +96,22 @@ class DexQuotesRepository(
                         resp.quote.buyTokenFee.takeIf { it.isNotEmpty() }?.toBigInteger() ?: BigInteger.ZERO
                     ),
                     data = resp.transaction.data,
+                    quoteTtl = resp.quoteTtl,
                     gasLimit = resp.transaction.gasLimit,
                     value = resp.transaction.value,
                     destinationContractAddress = resp.transaction.to,
                 )
             }
         }.mapError {
-            if (it is NabuApiException) {
-                DexTxError.QuoteError(
-                    title = it.getServerSideErrorInfo()?.title.orEmpty(),
-                    message = it.getErrorDescription().plus(" ").plus(" ")
-                        .plus(it.getServerSideErrorInfo()?.description.orEmpty())
-                )
-            } else {
-                DexTxError.FatalTxError(it)
-            }
+            DexTxError.QuoteError(
+                title = (it as? NabuApiException)?.let { nabuException ->
+                    nabuException.getServerSideErrorInfo()?.title.orEmpty()
+                },
+                message = (it as? NabuApiException)?.let { nabuException ->
+                    nabuException.getErrorDescription().plus(" ").plus(" ")
+                        .plus(nabuException.getServerSideErrorInfo()?.description.orEmpty())
+                }
+            )
         }
     }
 

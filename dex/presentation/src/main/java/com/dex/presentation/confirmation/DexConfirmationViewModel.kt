@@ -14,8 +14,9 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.dex.domain.DexQuote
 import com.dex.domain.DexTransaction
 import com.dex.domain.DexTransactionProcessor
+import com.dex.presentation.uierrors.AlertError
 import com.dex.presentation.uierrors.DexUiError
-import com.dex.presentation.uierrors.toUiError
+import com.dex.presentation.uierrors.toUiErrors
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
@@ -91,7 +92,7 @@ class DexConfirmationViewModel(
             /*
             * Ignore this error in the confirmation screen
             * */
-            error = transaction.toUiError().takeIf { it != DexUiError.TransactionInProgressError } ?: DexUiError.None,
+            errors = transaction.toUiErrors().filter { it != DexUiError.TransactionInProgressError },
             newPriceAvailable = state.priceUpdatedAndNotAccepted
         )
     }
@@ -267,11 +268,17 @@ sealed class ConfirmationScreenViewState : ViewState {
         val outputBalance: Money?,
         val dexExchangeRate: BigDecimal?,
         val slippage: Double?,
-        val error: DexUiError = DexUiError.None,
+        val errors: List<DexUiError> = emptyList(),
         val minAmount: ConfirmationScreenExchangeAmount?,
         val networkFee: ConfirmationScreenExchangeAmount?,
         val blockchainFee: ConfirmationScreenExchangeAmount?,
-    ) : ConfirmationScreenViewState()
+    ) : ConfirmationScreenViewState() {
+        val alertError: AlertError?
+            get() = errors.filterIsInstance<AlertError>().firstOrNull()
+
+        val commonUiError: DexUiError.CommonUiError?
+            get() = errors.filterIsInstance<DexUiError.CommonUiError>().firstOrNull()
+    }
 }
 
 data class ConfirmationScreenExchangeAmount(

@@ -22,8 +22,9 @@ import com.dex.domain.DexTransaction
 import com.dex.domain.DexTransactionProcessor
 import com.dex.domain.DexTxError
 import com.dex.domain.SlippageService
+import com.dex.presentation.uierrors.AlertError
 import com.dex.presentation.uierrors.DexUiError
-import com.dex.presentation.uierrors.toUiError
+import com.dex.presentation.uierrors.toUiErrors
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
@@ -93,7 +94,7 @@ class DexEnterAmountViewModel(
             destinationCurrency = transaction?.destinationAccount?.currency,
             maxAmount = transaction?.sourceAccount?.takeIf { !it.currency.isNetworkNativeAsset() }?.balance,
             txAmount = transaction?.amount,
-            error = state.transaction?.takeIf { it.txError !in state.ignoredTxErrors }?.toUiError() ?: DexUiError.None,
+            errors = state.transaction?.toUiErrors()?.filter { it !in state.ignoredTxErrors } ?: emptyList(),
             inputExchangeAmount = safeLet(transaction?.amount, state.inputToFiatExchangeRate) { amount, rate ->
                 fiatAmount(amount, rate)
             } ?: Money.zero(currencyPrefs.selectedFiatCurrency),
@@ -121,24 +122,24 @@ class DexEnterAmountViewModel(
             modelState.operationInProgress != DexOperation.NONE
         val hasValidQuote = transaction.quote != null
 
-        if ((hasOperationInProgress || !hasValidQuote) && transaction.txError == DexTxError.None) {
+        if ((hasOperationInProgress || !hasValidQuote) && transaction.txErrors.isEmpty()) {
             return ActionButtonState.DISABLED
         }
 
-        return when (transaction.txError) {
-            DexTxError.None -> {
-                if (transaction.amount?.isPositive == true) {
-                    return ActionButtonState.ENABLED
-                } else {
-                    ActionButtonState.DISABLED
-                }
+        return when {
+            transaction.txErrors.isEmpty() -> if (transaction.amount?.isPositive == true) {
+                return ActionButtonState.ENABLED
+            } else {
+                ActionButtonState.DISABLED
             }
-            is DexTxError.FatalTxError,
-            DexTxError.NotEnoughFunds,
-            DexTxError.NotEnoughGas,
-            is DexTxError.QuoteError,
-            DexTxError.TokenNotAllowed -> ActionButtonState.INVISIBLE
-            DexTxError.TxInProgress -> ActionButtonState.ENABLED
+            transaction.txErrors.any {
+                it is DexTxError.FatalTxError ||
+                    it == DexTxError.NotEnoughFunds ||
+                    it == DexTxError.NotEnoughGas ||
+                    it is DexTxError.QuoteError ||
+                    it == DexTxError.TokenNotAllowed
+            } -> ActionButtonState.INVISIBLE
+            else -> ActionButtonState.ENABLED
         }
     }
 
@@ -189,7 +190,7 @@ class DexEnterAmountViewModel(
             InputAmountIntent.UnSubscribeToTxUpdates -> txProcessor.unsubscribeToTxUpdates()
             InputAmountIntent.IgnoreTxInProcessError -> {
                 updateState {
-                    it.copy(ignoredTxErrors = it.ignoredTxErrors.plus(DexTxError.TxInProgress))
+                    it.copy(ignoredTxErrors = it.ignoredTxErrors.plus(DexUiError.TransactionInProgressError))
                 }
             }
             InputAmountIntent.AllowanceTransactionDeclined -> {
@@ -478,9 +479,21 @@ sealed class InputAmountViewState : ViewState {
         val allowanceCanBeRevoked: Boolean,
         val uiFee: UiFee?,
         val previewActionButtonState: ActionButtonState,
-        val error: DexUiError = DexUiError.None,
+        private val errors: List<DexUiError> = emptyList(),
     ) : InputAmountViewState() {
         fun canChangeInputCurrency() = operationInProgress != DexOperation.PUSHING_ALLOWANCE_TX
+
+        val topScreenUiError: DexUiError.CommonUiError?
+            get() = errors.filterIsInstance<DexUiError.CommonUiError>().firstOrNull()
+
+        val txInProgressWarning: DexUiError.TransactionInProgressError?
+            get() = errors.filterIsInstance<DexUiError.TransactionInProgressError>().firstOrNull()
+
+        val noTokenAllowanceError: DexUiError.TokenNotAllowed?
+            get() = errors.filterIsInstance<DexUiError.TokenNotAllowed>().firstOrNull()
+
+        val alertError: AlertError?
+            get() = errors.filterIsInstance<AlertError>().firstOrNull()
     }
 
     object NoInputViewState : InputAmountViewState()
@@ -495,7 +508,7 @@ data class UiFee(
 data class AmountModelState(
     val canTransact: DataResource<Boolean> = DataResource.Loading,
     val transaction: DexTransaction?,
-    val ignoredTxErrors: List<DexTxError> = emptyList(),
+    val ignoredTxErrors: List<DexUiError> = emptyList(),
     val operationInProgress: DexOperation = DexOperation.NONE,
     val inputToFiatExchangeRate: ExchangeRate?,
     val outputToFiatExchangeRate: ExchangeRate?,

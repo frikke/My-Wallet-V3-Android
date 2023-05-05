@@ -85,8 +85,6 @@ import com.dex.presentation.DexTxSubscribeScreen
 import com.dex.presentation.SendAndReceiveAmountFields
 import com.dex.presentation.graph.ARG_ALLOWANCE_TX
 import com.dex.presentation.graph.DexDestination
-import com.dex.presentation.uierrors.AlertError
-import com.dex.presentation.uierrors.DexUiError
 import info.blockchain.balance.Currency
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -338,16 +336,16 @@ fun InputScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        (viewState.error as? DexUiError.CommonUiError)?.let {
+        viewState.topScreenUiError?.let {
             UiError(
                 modifier = Modifier.padding(bottom = AppTheme.dimensions.smallSpacing),
-                title = it.title,
-                description = it.description,
+                title = it.title ?: stringResource(id = R.string.common_http_error_title),
+                description = it.description ?: stringResource(id = R.string.common_http_error_description),
                 close = null
             )
         }
 
-        (viewState.error as? DexUiError.TransactionInProgressError)?.let {
+        viewState.txInProgressWarning?.let {
             UiError(
                 modifier = Modifier.padding(bottom = AppTheme.dimensions.smallSpacing),
                 title = stringResource(id = R.string.tx_in_process),
@@ -392,7 +390,7 @@ fun InputScreen(
             PriceFetching()
         }
 
-        (viewState.error as? DexUiError.TokenNotAllowed)?.let {
+        viewState.noTokenAllowanceError?.let {
             TokenAllowance(
                 onClick = onTokenAllowanceRequested,
                 currency = it.token,
@@ -413,7 +411,7 @@ fun InputScreen(
             )
         }
 
-        (viewState.error as? AlertError)?.let {
+        viewState.alertError?.let {
             AlertButton(
                 modifier = Modifier
                     .padding(vertical = dimensionResource(id = R.dimen.small_spacing))

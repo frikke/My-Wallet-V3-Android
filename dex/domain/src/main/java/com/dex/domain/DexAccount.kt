@@ -18,6 +18,7 @@ sealed class DexQuote {
         val value: String,
         val data: String,
         val gasLimit: String,
+        val quoteTtl: Long,
         val destinationContractAddress: String,
         val outputAmount: OutputAmount,
         val networkFees: Money,

@@ -64,8 +64,6 @@ import com.dex.presentation.SendAndReceiveAmountFields
 import com.dex.presentation.graph.ARG_INFO_DESCRIPTION
 import com.dex.presentation.graph.ARG_INFO_TITLE
 import com.dex.presentation.graph.DexDestination
-import com.dex.presentation.uierrors.AlertError
-import com.dex.presentation.uierrors.DexUiError
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
@@ -283,10 +281,21 @@ fun DexConfirmationScreen(
                     state = when {
                         dataState.operationInProgress -> ButtonState.Loading
                         dataState.newPriceAvailable -> ButtonState.Disabled
-                        dataState.error != DexUiError.None -> ButtonState.Disabled
+                        dataState.errors.isNotEmpty() -> ButtonState.Disabled
                         else -> ButtonState.Enabled
                     },
-                    alertMessage = (dataState.error as? AlertError)?.message(LocalContext.current)
+                    alertMessage = (dataState.alertError)?.message(
+                        LocalContext.current
+                    ) ?: (dataState.commonUiError)?.let {
+                        StringBuilder()
+                            .appendLine(
+                                it.title ?: stringResource(id = R.string.common_http_error_title)
+                            )
+                            .append(
+                                it.description ?: stringResource(id = R.string.common_http_error_description)
+                            )
+                            .toString()
+                    }
                 )
             }
         }

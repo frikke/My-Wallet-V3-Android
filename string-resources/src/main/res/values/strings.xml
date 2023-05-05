@@ -2103,6 +2103,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="executing_transaction_error">Oops! Something went wrong while executing the %1$s on-chain transaction.</string>
     <string name="executing_connection_error">Looks like there is an issue with your internet connection. Please check and try again.</string>
     <string name="common_http_error_with_message">Oops! Something went wrong %1$s.</string>
+    <string name="common_http_error_description">Something went wrong.</string>
+    <string name="common_http_error_title">Oops!</string>
     <string name="common_http_error_with_new_line_message">Oops! Something went wrong.\n%1$s</string>
     <string name="invalid_domain_address">Invalid domain Address</string>
     <string name="trading_ineligible_for_swap">Oops! This service isn’t currently available. Please contact support.</string>

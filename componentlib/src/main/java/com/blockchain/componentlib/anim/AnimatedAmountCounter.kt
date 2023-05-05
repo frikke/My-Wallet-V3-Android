@@ -133,9 +133,24 @@ private fun AnimatedTextContent(
 }
 
 private fun createBetweenNumbersList(startInt: Int, endInt: Int): List<Int> {
-    return if (startInt <= endInt) {
+    val list = if (startInt <= endInt) {
         (startInt..endInt).toList()
     } else {
         (endInt..startInt).toList().reversed()
+    }
+    return list.withOnlyImportantSteps()
+}
+
+/*
+* if the number of the animation steps is bigger than
+* 5 then we keep first, last and every second, so animation looks smoother
+* */
+private fun List<Int>.withOnlyImportantSteps(): List<Int> {
+    return if (size > 5) {
+        (listOf(first()) + slice(2 until size - 1 step 2) + listOf(this[size - 2], last()))
+            .toSet()
+            .toList()
+    } else {
+        this
     }
 }

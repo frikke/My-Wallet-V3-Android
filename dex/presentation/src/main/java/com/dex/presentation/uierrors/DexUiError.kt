@@ -7,7 +7,6 @@ import com.dex.domain.DexTxError
 import info.blockchain.balance.Currency
 
 sealed class DexUiError {
-    object None : DexUiError()
     data class InsufficientFunds(val currency: Currency) : DexUiError(), AlertError {
         override fun message(context: Context): String =
             context.getString(R.string.not_enough_funds, currency.displayTicker)
@@ -24,7 +23,10 @@ sealed class DexUiError {
             context.getString(R.string.not_enough_gas, gasCurrency.displayTicker)
     }
 
-    data class CommonUiError(val title: String, val description: String) : DexUiError()
+    /**
+     * In some rare cases like timeout exceptions, there is no title or description.
+     */
+    data class CommonUiError(val title: String?, val description: String?) : DexUiError()
     object TransactionInProgressError : DexUiError()
     data class UnknownError(val exception: Exception) : DexUiError()
 }
@@ -33,30 +35,28 @@ interface AlertError {
     fun message(context: Context): String
 }
 
-fun DexTransaction.toUiError(): DexUiError {
-    return when (val error = txError) {
-        DexTxError.None -> DexUiError.None
-        DexTxError.NotEnoughFunds -> DexUiError.InsufficientFunds(
-            sourceAccount.currency
-        )
-        DexTxError.NotEnoughGas -> {
-            val feeCurrency = quote?.networkFees?.currency
-            check(feeCurrency != null)
-            DexUiError.NotEnoughGas(
-                feeCurrency
+fun DexTransaction.toUiErrors(): List<DexUiError> {
+    return txErrors.map {
+        when (it) {
+            DexTxError.NotEnoughFunds -> DexUiError.InsufficientFunds(sourceAccount.currency)
+            DexTxError.NotEnoughGas -> {
+                val feeCurrency = quote?.networkFees?.currency
+                check(feeCurrency != null)
+                DexUiError.NotEnoughGas(
+                    feeCurrency
+                )
+            }
+            is DexTxError.FatalTxError -> DexUiError.UnknownError(it.exception)
+            is DexTxError.TxInProgress -> DexUiError.TransactionInProgressError
+            is DexTxError.QuoteError ->
+                if (it.isLiquidityError()) DexUiError.LiquidityError
+                else DexUiError.CommonUiError(
+                    it.title,
+                    it.message
+                )
+            DexTxError.TokenNotAllowed -> DexUiError.TokenNotAllowed(
+                sourceAccount.currency
             )
         }
-        is DexTxError.FatalTxError -> DexUiError.UnknownError(error.exception)
-        is DexTxError.TxInProgress -> DexUiError.TransactionInProgressError
-        is DexTxError.QuoteError ->
-            if (error.isLiquidityError()) DexUiError.LiquidityError
-            else
-                DexUiError.CommonUiError(
-                    error.title,
-                    error.message
-                )
-        DexTxError.TokenNotAllowed -> DexUiError.TokenNotAllowed(
-            sourceAccount.currency
-        )
     }
 }

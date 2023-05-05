@@ -17,4 +17,7 @@ interface DexApi {
         @Query("queryBy") queryBy: String,
         @Query("limit") limit: Int = Int.MAX_VALUE,
     ): Outcome<Exception, List<DexTokenResponse>>
+
+    @GET("dex/eligible")
+    suspend fun eligibility(): Outcome<Exception, DexEligibilityResponse>
 }
