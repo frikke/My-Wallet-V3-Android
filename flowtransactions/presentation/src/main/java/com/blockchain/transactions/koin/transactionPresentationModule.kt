@@ -16,7 +16,7 @@ import org.koin.dsl.module
 import org.koin.java.KoinJavaComponent
 
 private var _swapFlowScope: Scope? = null
-val swapFlowScope: Scope
+internal val swapFlowScope: Scope
     get() {
         return _swapFlowScope?.takeIf { !it.closed }
             ?: KoinJavaComponent.getKoin().createScope("swap", named<ScopeID>())
