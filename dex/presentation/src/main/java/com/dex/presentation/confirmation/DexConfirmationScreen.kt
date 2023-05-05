@@ -16,7 +16,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -32,6 +34,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavController
 import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
+import com.blockchain.componentlib.anim.AnimatedAmountCounter
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -57,7 +60,7 @@ import com.blockchain.extensions.safeLet
 import com.blockchain.koin.payloadScope
 import com.dex.presentation.AmountFieldConfig
 import com.dex.presentation.DexTxSubscribeScreen
-import com.dex.presentation.SourceAndDestinationAmountFields
+import com.dex.presentation.SendAndReceiveAmountFields
 import com.dex.presentation.graph.ARG_INFO_DESCRIPTION
 import com.dex.presentation.graph.ARG_INFO_TITLE
 import com.dex.presentation.graph.DexDestination
@@ -123,6 +126,15 @@ fun DexConfirmationScreen(
         val viewState: ConfirmationScreenViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
         (viewState as? ConfirmationScreenViewState.DataConfirmationViewState)?.let { dataState ->
+
+            var animatedState by remember {
+                mutableStateOf(dataState.toAnimatedState())
+            }
+
+            LaunchedEffect(key1 = dataState) {
+                animatedState = dataState.toAnimatedState()
+            }
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -139,9 +151,9 @@ fun DexConfirmationScreen(
                         .fillMaxWidth()
                 ) {
                     item {
-                        SourceAndDestinationAmountFields(
+                        SendAndReceiveAmountFields(
                             onValueChanged = { },
-                            sourceAmountFieldConfig = AmountFieldConfig(
+                            sendAmountFieldConfig = AmountFieldConfig(
                                 isReadOnly = true,
                                 isEnabled = true,
                                 exchange = dataState.exchangeInputAmount,
@@ -153,9 +165,10 @@ fun DexConfirmationScreen(
                                 balance = dataState.inputBalance,
                             ),
 
-                            destinationAmountFieldConfig = AmountFieldConfig(
+                            receiveAmountFieldConfig = AmountFieldConfig(
                                 isReadOnly = true,
                                 isEnabled = true,
+                                shouldAnimateChanges = true,
                                 canChangeCurrency = false,
                                 exchange = dataState.outputExchangeAmount,
                                 currency = dataState.outputCurrency,
@@ -169,10 +182,8 @@ fun DexConfirmationScreen(
                     item {
                         Spacer(modifier = Modifier.height(AppTheme.dimensions.standardSpacing))
                     }
-                    safeLet(
-                        dataState.dexExchangeRate, dataState.inputCurrency, dataState.outputCurrency
-                    ) { rate, inputCurrency, outputCurrency ->
-                        item {
+                    item {
+                        animatedState.confirmationExchangeRate?.let {
                             Card(
                                 backgroundColor = AppTheme.colors.background,
                                 shape = RoundedCornerShape(
@@ -182,21 +193,23 @@ fun DexConfirmationScreen(
                                 modifier = Modifier.padding(bottom = 1.dp),
                                 elevation = 0.dp
                             ) {
-                                ExchangeRateConfirmation(rate, inputCurrency, outputCurrency)
+                                ExchangeRateConfirmation(it)
                                 Divider(color = BackgroundMuted)
                             }
                         }
                     }
+
                     dataState.slippage?.let { sl ->
                         item {
                             SlippageConfirmation(sl)
                             Divider(color = BackgroundMuted)
                         }
                     }
-                    dataState.minAmount?.let { minAmount ->
-                        item {
+
+                    item {
+                        animatedState.minAmount?.let {
                             MinAmountConfirmation(
-                                minAmount = minAmount,
+                                minAmount = it,
                                 slippage = dataState.slippage ?: 0.0,
                                 extraInfoOnClick = { destination ->
                                     navController.navigate(
@@ -207,10 +220,10 @@ fun DexConfirmationScreen(
                             Divider(color = BackgroundMuted)
                         }
                     }
-                    dataState.networkFee?.let { networkFee ->
-                        item {
+                    item {
+                        animatedState.networkFee?.let {
                             NetworkFee(
-                                networkFee = networkFee,
+                                networkFee = it,
                                 extraInfoOnClick = { destination ->
                                     navController.navigate(
                                         destination
@@ -220,8 +233,8 @@ fun DexConfirmationScreen(
                             Divider(color = BackgroundMuted)
                         }
                     }
-                    dataState.blockchainFee?.let { blockFee ->
-                        item {
+                    item {
+                        animatedState.bcdcFee?.let {
                             Card(
                                 backgroundColor = AppTheme.colors.background,
                                 shape = RoundedCornerShape(
@@ -231,7 +244,7 @@ fun DexConfirmationScreen(
                                 elevation = 0.dp
                             ) {
                                 BlockchainFee(
-                                    fee = blockFee,
+                                    fee = it,
                                     extraInfoOnClick = { destination ->
                                         navController.navigate(
                                             destination
@@ -259,7 +272,6 @@ fun DexConfirmationScreen(
                         }
                     }
                 }
-
                 ConfirmationPinnedBottom(
                     newPriceAvailableAndNotAccepted = dataState.newPriceAvailable,
                     confirm = {
@@ -279,6 +291,21 @@ fun DexConfirmationScreen(
             }
         }
     }
+}
+
+private fun ConfirmationScreenViewState.DataConfirmationViewState.toAnimatedState(): AnimatedConfirmationState {
+    return AnimatedConfirmationState(
+        confirmationExchangeRate = safeLet(dexExchangeRate, inputCurrency, outputCurrency) { rate, input, output ->
+            ConfirmationExchangeRate(
+                rate = rate,
+                inputCurrency = input,
+                outputCurrency = output
+            )
+        },
+        minAmount = minAmount,
+        networkFee = networkFee,
+        bcdcFee = blockchainFee,
+    )
 }
 
 @Composable
@@ -366,7 +393,7 @@ private fun SwapButton(
     state: ButtonState = ButtonState.Enabled
 ) {
     PrimaryButton(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth(),
         state = state,
         text = stringResource(id = R.string.common_swap),
@@ -375,7 +402,10 @@ private fun SwapButton(
 }
 
 @Composable
-private fun NetworkFee(networkFee: ConfirmationScreenExchangeAmount, extraInfoOnClick: (String) -> Unit) {
+private fun NetworkFee(
+    networkFee: ConfirmationScreenExchangeAmount,
+    extraInfoOnClick: (String) -> Unit
+) {
     val extraInfoTitle = stringResource(id = R.string.network_fee)
     val extraInfoDescription =
         stringResource(id = R.string.network_fee_info_description, networkFee.value.currency.displayTicker)
@@ -403,14 +433,14 @@ private fun NetworkFee(networkFee: ConfirmationScreenExchangeAmount, extraInfoOn
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 Column(horizontalAlignment = Alignment.End) {
-                    SimpleText(
-                        text = networkFee.value.toStringWithSymbol(),
+                    AnimatedAmountCounter(
+                        amountText = networkFee.value.toStringWithSymbol(),
                         style = ComposeTypographies.Paragraph2,
                         color = ComposeColors.Title,
                         gravity = ComposeGravities.End
                     )
-                    SimpleText(
-                        text = "~ ${networkFee.exchange.toStringWithSymbol()}",
+                    AnimatedAmountCounter(
+                        amountText = "~ ${networkFee.exchange.toStringWithSymbol()}",
                         style = ComposeTypographies.Paragraph2,
                         color = ComposeColors.Title,
                         gravity = ComposeGravities.End
@@ -452,14 +482,14 @@ private fun BlockchainFee(
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 Column(horizontalAlignment = Alignment.End) {
-                    SimpleText(
-                        text = fee.value.toStringWithSymbol(),
+                    AnimatedAmountCounter(
+                        amountText = fee.value.toStringWithSymbol(),
                         style = ComposeTypographies.Paragraph2,
                         color = ComposeColors.Title,
                         gravity = ComposeGravities.End
                     )
-                    SimpleText(
-                        text = "~ ${fee.exchange.toStringWithSymbol()}",
+                    AnimatedAmountCounter(
+                        amountText = "~ ${fee.exchange.toStringWithSymbol()}",
                         style = ComposeTypographies.Paragraph2,
                         color = ComposeColors.Title,
                         gravity = ComposeGravities.End
@@ -504,14 +534,14 @@ private fun MinAmountConfirmation(
 
                 Spacer(modifier = Modifier.weight(1f))
                 Column(horizontalAlignment = Alignment.End) {
-                    SimpleText(
-                        text = minAmount.value.toStringWithSymbol(),
+                    AnimatedAmountCounter(
+                        amountText = minAmount.value.toStringWithSymbol(),
                         style = ComposeTypographies.Paragraph2,
                         color = ComposeColors.Title,
                         gravity = ComposeGravities.End
                     )
-                    SimpleText(
-                        text = "~ ${minAmount.exchange.toStringWithSymbol()}",
+                    AnimatedAmountCounter(
+                        amountText = "~ ${minAmount.exchange.toStringWithSymbol()}",
                         style = ComposeTypographies.Paragraph2,
                         color = ComposeColors.Title,
                         gravity = ComposeGravities.End
@@ -552,7 +582,7 @@ private fun extraInfoDestination(title: String, description: String): String {
 }
 
 @Composable
-private fun ExchangeRateConfirmation(exchangeRate: BigDecimal, inputCurrency: AssetInfo, outputCurrency: AssetInfo) {
+private fun ExchangeRateConfirmation(confirmationExchangeRate: ConfirmationExchangeRate) {
     TableRow(
         content = {
             SimpleText(
@@ -562,12 +592,13 @@ private fun ExchangeRateConfirmation(exchangeRate: BigDecimal, inputCurrency: As
                 gravity = ComposeGravities.Start
             )
             Spacer(modifier = Modifier.weight(1f))
-            SimpleText(
-                text = "$exchangeRate ${outputCurrency.displayTicker} / ${
-                Money.fromMajor(
-                    inputCurrency, BigDecimal.ONE
-                ).toStringWithSymbol(includeDecimalsWhenWhole = false)
-                }",
+            AnimatedAmountCounter(
+                amountText = "${confirmationExchangeRate.rate} " +
+                    "${confirmationExchangeRate.outputCurrency.displayTicker} / ${
+                    Money.fromMajor(
+                        confirmationExchangeRate.inputCurrency, BigDecimal.ONE
+                    ).toStringWithSymbol(includeDecimalsWhenWhole = false)
+                    }",
                 style = ComposeTypographies.Paragraph2,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.End
@@ -615,3 +646,16 @@ private fun Double.toPercentageString(): String {
     val percentage = this * 100.0
     return "%,.2f%%".format(percentage)
 }
+
+private data class ConfirmationExchangeRate(
+    val rate: BigDecimal,
+    val inputCurrency: AssetInfo,
+    val outputCurrency: AssetInfo
+)
+
+private data class AnimatedConfirmationState(
+    val confirmationExchangeRate: ConfirmationExchangeRate?,
+    val minAmount: ConfirmationScreenExchangeAmount?,
+    val networkFee: ConfirmationScreenExchangeAmount?,
+    val bcdcFee: ConfirmationScreenExchangeAmount?,
+)

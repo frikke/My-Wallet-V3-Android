@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -35,8 +36,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.anim.AnimatedAmountCounter
+import com.blockchain.componentlib.basic.ComposeColors
+import com.blockchain.componentlib.basic.ComposeGravities
+import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.icons.ArrowDown
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.withBackground
@@ -44,7 +50,6 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.BackgroundMuted
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.Grey000
-import com.blockchain.componentlib.theme.Grey200
 import com.blockchain.componentlib.theme.Grey300
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.theme.Grey900
@@ -54,16 +59,16 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 
 @Composable
-fun SourceAndDestinationAmountFields(
+fun SendAndReceiveAmountFields(
     modifier: Modifier = Modifier,
     onValueChanged: (TextFieldValue) -> Unit,
-    sourceAmountFieldConfig: AmountFieldConfig,
-    destinationAmountFieldConfig: AmountFieldConfig,
+    sendAmountFieldConfig: AmountFieldConfig,
+    receiveAmountFieldConfig: AmountFieldConfig,
 ) {
     var input by remember {
         mutableStateOf(
             TextFieldValue(
-                sourceAmountFieldConfig.amount?.takeIf {
+                sendAmountFieldConfig.amount?.takeIf {
                     it.isPositive
                 }?.toStringWithoutSymbol() ?: ""
             )
@@ -73,7 +78,7 @@ fun SourceAndDestinationAmountFields(
     /**
      * ensure that model amount and ui amount are in sync
      */
-    if (sourceAmountFieldConfig.amount == null &&
+    if (sendAmountFieldConfig.amount == null &&
         input.text.toBigDecimalOrNull()?.signum() == 1
     ) {
         input = TextFieldValue("")
@@ -95,34 +100,34 @@ fun SourceAndDestinationAmountFields(
             ) {
                 Column {
                     AmountAndCurrencySelection(
-                        isReadOnly = sourceAmountFieldConfig.isReadOnly,
-                        input = if (sourceAmountFieldConfig.isReadOnly) {
+                        isReadOnly = sendAmountFieldConfig.isReadOnly,
+                        input = if (sendAmountFieldConfig.isReadOnly) {
                             TextFieldValue(
-                                sourceAmountFieldConfig.amount?.toStringWithoutSymbol().orEmpty()
+                                sendAmountFieldConfig.amount?.toStringWithoutSymbol().orEmpty()
                             )
                         } else input,
                         onValueChanged = {
-                            if (!sourceAmountFieldConfig.isReadOnly &&
+                            if (!sendAmountFieldConfig.isReadOnly &&
                                 (it.text.isEmpty() || it.text.toDoubleOrNull() != null)
                             ) {
                                 input = it
                                 onValueChanged(it)
                             }
                         },
-                        onClick = sourceAmountFieldConfig.onCurrencyClicked,
-                        currency = sourceAmountFieldConfig.currency,
-                        enabled = sourceAmountFieldConfig.isEnabled,
-                        canChangeCurrency = sourceAmountFieldConfig.canChangeCurrency
+                        onClick = sendAmountFieldConfig.onCurrencyClicked,
+                        currency = sendAmountFieldConfig.currency,
+                        enabled = sendAmountFieldConfig.isEnabled,
+                        canChangeCurrency = sendAmountFieldConfig.canChangeCurrency
                     )
                     Row {
-                        sourceAmountFieldConfig.exchange?.let {
+                        sendAmountFieldConfig.exchange?.let {
                             ExchangeAmount(it, true)
                         }
                         when {
-                            sourceAmountFieldConfig.max != null -> MaxAmount(
-                                maxAvailable = sourceAmountFieldConfig.max,
+                            sendAmountFieldConfig.max != null -> MaxAmount(
+                                maxAvailable = sendAmountFieldConfig.max,
                                 maxClick = {
-                                    val text = sourceAmountFieldConfig.max.toStringWithoutSymbol()
+                                    val text = sendAmountFieldConfig.max.toStringWithoutSymbol()
                                     input = TextFieldValue(
                                         text = text,
                                         selection = TextRange(text.length)
@@ -130,7 +135,7 @@ fun SourceAndDestinationAmountFields(
                                     onValueChanged(input)
                                 }
                             )
-                            sourceAmountFieldConfig.balance != null -> BalanceAmount(sourceAmountFieldConfig.balance)
+                            sendAmountFieldConfig.balance != null -> BalanceAmount(sendAmountFieldConfig.balance)
                         }
                     }
                 }
@@ -144,23 +149,23 @@ fun SourceAndDestinationAmountFields(
                     )
             ) {
                 Column {
-                    AmountAndCurrencySelection(
-                        isReadOnly = destinationAmountFieldConfig.isReadOnly,
-                        input = TextFieldValue(destinationAmountFieldConfig.amount?.toStringWithoutSymbol().orEmpty()),
-                        onValueChanged = {},
-                        onClick = destinationAmountFieldConfig.onCurrencyClicked,
-                        currency = destinationAmountFieldConfig.currency,
-                        enabled = destinationAmountFieldConfig.isEnabled,
-                        canChangeCurrency = destinationAmountFieldConfig.canChangeCurrency
+                    ReceiveAmountAndCurrencySelection(
+                        input = receiveAmountFieldConfig.amount?.toStringWithoutSymbol().orEmpty(),
+                        onClick = receiveAmountFieldConfig.onCurrencyClicked,
+                        currency = receiveAmountFieldConfig.currency,
+                        enabled = receiveAmountFieldConfig.isEnabled,
+                        animate = receiveAmountFieldConfig.shouldAnimateChanges,
+                        canChangeCurrency = receiveAmountFieldConfig.canChangeCurrency
                     )
                     Row {
-                        destinationAmountFieldConfig.exchange?.let {
+                        receiveAmountFieldConfig.exchange?.let {
                             ExchangeAmount(
                                 money = it,
-                                isEnabled = destinationAmountFieldConfig.isEnabled
+                                isEnabled = receiveAmountFieldConfig.isEnabled,
+                                shouldAnimateChanges = receiveAmountFieldConfig.shouldAnimateChanges
                             )
                         }
-                        destinationAmountFieldConfig.balance?.takeIf { it.isPositive }?.let {
+                        receiveAmountFieldConfig.balance?.takeIf { it.isPositive }?.let {
                             BalanceAmount(it)
                         }
                     }
@@ -168,6 +173,65 @@ fun SourceAndDestinationAmountFields(
             }
         }
         MaskedCircleArrow(size)
+    }
+}
+
+@Composable
+private fun ReceiveAmountAndCurrencySelection(
+    input: String,
+    enabled: Boolean,
+    canChangeCurrency: Boolean,
+    onClick: () -> Unit,
+    currency: Currency?,
+    animate: Boolean
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                end = AppTheme.dimensions.smallSpacing,
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        val modifier = Modifier
+            .weight(1f)
+            .padding(
+                start = AppTheme.dimensions.smallSpacing,
+                top = AppTheme.dimensions.smallSpacing
+            )
+            .defaultMinSize(
+                minWidth = TextFieldDefaults.MinWidth,
+                minHeight = TextFieldDefaults.MinHeight
+            )
+        val text = input.ifEmpty { "0" }
+        val color = when {
+            input.isEmpty() -> ComposeColors.Body
+            !enabled -> ComposeColors.Dark
+            else -> ComposeColors.Title
+        }
+        if (animate) {
+            AnimatedAmountCounter(
+                modifier = modifier,
+                amountText = text,
+                color = color,
+                duration = 1000L,
+                style = ComposeTypographies.Title2Mono,
+                gravity = ComposeGravities.Start
+            )
+        } else {
+            SimpleText(
+                modifier = modifier,
+                text = text,
+                style = ComposeTypographies.Title2Mono,
+                color = color,
+                gravity = ComposeGravities.Start
+            )
+        }
+        CurrencySelection(
+            onClick = onClick,
+            enabled = canChangeCurrency,
+            currency = currency,
+        )
     }
 }
 
@@ -224,18 +288,34 @@ private fun AmountAndCurrencySelection(
 }
 
 @Composable
-private fun RowScope.ExchangeAmount(money: Money, isEnabled: Boolean) {
-    Text(
-        modifier = Modifier
-            .padding(
-                start = AppTheme.dimensions.smallSpacing,
-                bottom = AppTheme.dimensions.smallSpacing
-            )
-            .weight(1f),
-        text = money.toStringWithSymbol(),
-        style = AppTheme.typography.bodyMono,
-        color = if (isEnabled) Grey700 else Grey200
-    )
+private fun RowScope.ExchangeAmount(money: Money, isEnabled: Boolean, shouldAnimateChanges: Boolean = false) {
+    val modifier = Modifier
+        .padding(
+            start = AppTheme.dimensions.smallSpacing,
+            bottom = AppTheme.dimensions.smallSpacing
+        )
+        .weight(1f)
+    val color = if (isEnabled) ComposeColors.Body else ComposeColors.Dark
+
+    val style = ComposeTypographies.BodyMono
+    val gravity = ComposeGravities.Start
+    if (shouldAnimateChanges) {
+        AnimatedAmountCounter(
+            modifier = modifier,
+            amountText = money.toStringWithSymbol(),
+            style = style,
+            color = color,
+            gravity = gravity
+        )
+    } else {
+        SimpleText(
+            modifier = modifier,
+            text = money.toStringWithSymbol(),
+            style = style,
+            color = color,
+            gravity = gravity
+        )
+    }
 }
 
 @Composable
@@ -408,6 +488,7 @@ private fun RowScope.Balance() {
 
 class AmountFieldConfig(
     val isEnabled: Boolean,
+    val shouldAnimateChanges: Boolean = false,
     val isReadOnly: Boolean,
     val onCurrencyClicked: () -> Unit,
     val canChangeCurrency: Boolean,

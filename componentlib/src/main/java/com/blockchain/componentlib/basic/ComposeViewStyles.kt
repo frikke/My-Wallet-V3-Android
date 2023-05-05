@@ -53,6 +53,7 @@ enum class ComposeTypographies {
     Caption2,
     Overline,
     Micro1,
+    Title2Mono,
     Micro2;
 
     @Composable
@@ -75,6 +76,7 @@ enum class ComposeTypographies {
             Overline -> AppTheme.typography.overline
             Micro1 -> AppTheme.typography.micro1
             Micro2 -> AppTheme.typography.micro2
+            Title2Mono -> AppTheme.typography.title2Mono
         }
 }
 

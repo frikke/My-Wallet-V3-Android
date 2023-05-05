@@ -82,7 +82,7 @@ import com.blockchain.preferences.DexPrefs
 import com.dex.presentation.ALLOWANCE_TRANSACTION_APPROVED
 import com.dex.presentation.AmountFieldConfig
 import com.dex.presentation.DexTxSubscribeScreen
-import com.dex.presentation.SourceAndDestinationAmountFields
+import com.dex.presentation.SendAndReceiveAmountFields
 import com.dex.presentation.graph.ARG_ALLOWANCE_TX
 import com.dex.presentation.graph.DexDestination
 import com.dex.presentation.uierrors.AlertError
@@ -356,9 +356,9 @@ fun InputScreen(
             )
         }
 
-        SourceAndDestinationAmountFields(
+        SendAndReceiveAmountFields(
             onValueChanged = onValueChanged,
-            sourceAmountFieldConfig = AmountFieldConfig(
+            sendAmountFieldConfig = AmountFieldConfig(
                 isReadOnly = false,
                 isEnabled = true,
                 exchange = viewState.inputExchangeAmount,
@@ -370,7 +370,7 @@ fun InputScreen(
                 canChangeCurrency = viewState.canChangeInputCurrency()
             ),
 
-            destinationAmountFieldConfig = AmountFieldConfig(
+            receiveAmountFieldConfig = AmountFieldConfig(
                 isReadOnly = true,
                 isEnabled = viewState.operationInProgress == DexOperation.NONE,
                 exchange = viewState.outputExchangeAmount,

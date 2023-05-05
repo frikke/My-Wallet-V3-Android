@@ -11,6 +11,7 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.extensions.safeLet
 import com.blockchain.preferences.CurrencyPrefs
+import com.dex.domain.DexQuote
 import com.dex.domain.DexTransaction
 import com.dex.domain.DexTransactionProcessor
 import com.dex.presentation.uierrors.DexUiError
@@ -37,7 +38,7 @@ class DexConfirmationViewModel(
     ConfirmationModelState,
     ConfirmationNavigationEvent,
     ModelConfigArgs.NoArgs
-    >(initialState = ConfirmationModelState(null, null, null, false, null)) {
+    >(initialState = ConfirmationModelState(null, null, null, false, emptyList(), null)) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
@@ -107,8 +108,13 @@ class DexConfirmationViewModel(
                 job?.cancel()
             }
             ConfirmationIntent.AcceptPrice -> {
-                updateState {
-                    it.copy(priceUpdatedAndNotAccepted = false)
+                updateState { state ->
+                    state.copy(
+                        priceUpdatedAndNotAccepted = false,
+                        acceptedQuoteRates = state.transaction?.quote?.price?.let {
+                            state.acceptedQuoteRates.plus(it)
+                        } ?: state.acceptedQuoteRates
+                    )
                 }
             }
         }
@@ -143,11 +149,19 @@ class DexConfirmationViewModel(
                     updateOutputFiatExchangeRate(currency, currencyPrefs.selectedFiatCurrency)
                 }
             }.collectLatest { tx ->
-                updateState {
-                    it.copy(
+                updateState { state ->
+                    val priceAccepted = tx.quote?.let {
+                        priceHasBeenAccepted(it, state.acceptedQuoteRates)
+                    } ?: false
+
+                    state.copy(
                         transaction = tx,
-                        priceUpdatedAndNotAccepted = it.transaction?.quote != null &&
-                            it.transaction.quote?.price != tx.quote?.price
+                        priceUpdatedAndNotAccepted = !priceAccepted && tx.quote != null,
+                        acceptedQuoteRates = if (priceAccepted) {
+                            tx.quote?.price?.let {
+                                state.acceptedQuoteRates.plus(it)
+                            } ?: state.acceptedQuoteRates
+                        } else state.acceptedQuoteRates
                     )
                 }
             }
@@ -162,6 +176,13 @@ class DexConfirmationViewModel(
                 }
             }
         }
+    }
+
+    private fun priceHasBeenAccepted(quote: DexQuote.ExchangeQuote, acceptedQuoteRates: List<Money>): Boolean {
+        /*
+        * we assume that 1st quote is accepted
+        * */
+        return acceptedQuoteRates.isEmpty() || acceptedQuoteRates.contains(quote.price)
     }
 
     private fun updateNetworkFeesExchangeRate(currency: Currency, selectedFiatCurrency: FiatCurrency) {
@@ -212,6 +233,7 @@ data class ConfirmationModelState(
     val inputToFiatExchangeRate: ExchangeRate?,
     val outputToFiatExchangeRate: ExchangeRate?,
     val priceUpdatedAndNotAccepted: Boolean,
+    val acceptedQuoteRates: List<Money> = emptyList(),
     val networkFeesToFiatExchangeRate: ExchangeRate?,
     val operationInProgress: Boolean = false,
 ) : ModelState
