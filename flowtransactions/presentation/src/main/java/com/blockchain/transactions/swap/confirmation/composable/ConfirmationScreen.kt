@@ -61,17 +61,23 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
-import java.io.Serializable
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
-data class ConfirmationArgs(
-    val sourceAccount: CryptoAccount,
-    val targetAccount: CryptoAccount,
-    val sourceCryptoAmount: CryptoValue,
+class ConfirmationArgs(
+    var sourceAccount: CryptoAccount? = null,
+    var targetAccount: CryptoAccount? = null,
+    var sourceCryptoAmount: CryptoValue? = null,
     // TODO(aromano): SWAP temp comment, this is only going to be used for NC->* swaps
-    val secondPassword: String?,
-) : Serializable
+    var secondPassword: String? = null,
+) {
+    fun reset() {
+        sourceAccount = null
+        targetAccount = null
+        sourceCryptoAmount = null
+        secondPassword = null
+    }
+}
 
 @Composable
 fun ConfirmationScreen(

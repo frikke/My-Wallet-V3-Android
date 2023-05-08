@@ -9,19 +9,7 @@ import com.blockchain.transactions.swap.targetaccounts.TargetAccountsViewModel
 import com.blockchain.transactions.swap.targetassets.TargetAssetsViewModel
 import com.blockchain.walletmode.WalletMode
 import org.koin.androidx.viewmodel.dsl.viewModel
-import org.koin.core.qualifier.named
-import org.koin.core.scope.Scope
-import org.koin.core.scope.ScopeID
 import org.koin.dsl.module
-import org.koin.java.KoinJavaComponent
-
-private var _swapFlowScope: Scope? = null
-internal val swapFlowScope: Scope
-    get() {
-        return _swapFlowScope?.takeIf { !it.closed }
-            ?: KoinJavaComponent.getKoin().createScope("swap", named<ScopeID>())
-                .also { _swapFlowScope = it }
-    }
 
 val transactionsPresentationModule = module {
     scope(payloadScopeQualifier) {
@@ -31,6 +19,7 @@ val transactionsPresentationModule = module {
                 exchangeRates = get(),
                 currencyPrefs = get(),
                 walletModeService = get(),
+                confirmationArgs = get(),
             )
         }
 
@@ -61,12 +50,21 @@ val transactionsPresentationModule = module {
             )
         }
 
+        scoped {
+            ConfirmationArgs()
+        }
         viewModel {
-            val args: ConfirmationArgs = swapFlowScope.get()
+            val args: ConfirmationArgs = get()
+            val sourceAccount = args.sourceAccount
+            val targetAccount = args.targetAccount
+            val sourceCryptoAmount = args.sourceCryptoAmount
+            check(sourceAccount != null)
+            check(targetAccount != null)
+            check(sourceCryptoAmount != null)
             ConfirmationViewModel(
-                sourceAccount = args.sourceAccount,
-                targetAccount = args.targetAccount,
-                sourceCryptoAmount = args.sourceCryptoAmount,
+                sourceAccount = sourceAccount,
+                targetAccount = targetAccount,
+                sourceCryptoAmount = sourceCryptoAmount,
                 secondPassword = args.secondPassword,
                 brokerageDataManager = get(),
                 exchangeRatesDataManager = get(),

@@ -17,7 +17,7 @@ import com.blockchain.betternavigation.typedComposable
 import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.chrome.composable.ChromeSingleScreen
 import com.blockchain.koin.payloadScope
-import com.blockchain.transactions.koin.swapFlowScope
+import com.blockchain.transactions.swap.confirmation.composable.ConfirmationArgs
 import com.blockchain.transactions.swap.confirmation.composable.ConfirmationScreen
 import com.blockchain.transactions.swap.enteramount.EnterAmountIntent
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
@@ -29,6 +29,7 @@ import com.blockchain.transactions.swap.targetaccounts.composable.TargetAccounts
 import com.blockchain.transactions.swap.targetaccounts.composable.TargetAccountsArgs
 import com.blockchain.transactions.swap.targetassets.composable.TargetAssets
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 object SwapGraph : NavGraph() {
@@ -45,9 +46,10 @@ fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
     // TODO(aromano): navigation TEMP
     composable(SwapGraph::class.java.name) {
 
+        val confirmationArgs = get<ConfirmationArgs>(scope = payloadScope)
         DisposableEffect(Unit) {
             onDispose {
-                swapFlowScope.close()
+                confirmationArgs.reset()
             }
         }
 
