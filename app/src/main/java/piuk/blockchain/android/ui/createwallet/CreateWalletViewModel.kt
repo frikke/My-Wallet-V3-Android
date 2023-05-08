@@ -302,10 +302,11 @@ class CreateWalletViewModel(
                     intent.recaptchaToken
                 ).awaitOutcome()
                     .doOnSuccess { wallet ->
-                        val countryIso =
-                            (modelState.countryInputState as CountryInputState.Loaded).selected!!.countryCode
+                        val countryName =
+                            (modelState.countryInputState as CountryInputState.Loaded).selected!!.name
+                        val countryIso = modelState.countryInputState.selected!!.countryCode
                         val stateIso = (modelState.stateInputState as? StateInputState.Loaded)?.selected?.stateCode
-                        analytics.logEvent(WalletCreationAnalytics.WalletSignUp(countryIso, stateIso))
+                        analytics.logEvent(WalletCreationAnalytics.WalletSignUp(countryName, stateIso))
 
                         walletStatusPrefs.apply {
                             isNewlyCreated = true
