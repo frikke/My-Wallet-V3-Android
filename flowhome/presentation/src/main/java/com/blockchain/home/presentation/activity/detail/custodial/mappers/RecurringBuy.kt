@@ -270,25 +270,32 @@ private fun RecurringBuyActivitySummaryItem.statusStyle(): ActivityTagStyle = wh
 }
 
 internal fun RecurringBuyActivitySummaryItem.buildActivityDetail(
-    recurringBuy: RecurringBuy,
+    recurringBuy: RecurringBuy?,
     paymentDetails: PaymentDetails
-) = CustodialActivityDetail(
-    activity = this,
-    extras = mapOf(
-        CustodialActivityDetailExtraKey.NextPaymentDate to CustodialActivityDetailExtra(
-            title = TextValue.IntResValue(R.string.recurring_buy_details_next_payment),
-            value = TextValue.StringValue(recurringBuy.nextPaymentDate.toFormattedString())
-        ),
-        CustodialActivityDetailExtraKey.Frequency to CustodialActivityDetailExtra(
-            title = TextValue.IntResValue(R.string.recurring_buy_frequency_label_1),
-            value = TextValue.IntResValue(
-                value = R.string.common_spaced_strings,
-                args = listOf(
-                    recurringBuy.recurringBuyFrequency.title(),
-                    recurringBuy.recurringBuyFrequency.value(recurringBuy.nextPaymentDate)
+): CustodialActivityDetail {
+    val rbExtras = recurringBuy?.let {
+        mapOf(
+            CustodialActivityDetailExtraKey.NextPaymentDate to CustodialActivityDetailExtra(
+                title = TextValue.IntResValue(R.string.recurring_buy_details_next_payment),
+                value = TextValue.StringValue(recurringBuy.nextPaymentDate.toFormattedString())
+            ),
+            CustodialActivityDetailExtraKey.Frequency to CustodialActivityDetailExtra(
+                title = TextValue.IntResValue(R.string.recurring_buy_frequency_label_1),
+                value = TextValue.IntResValue(
+                    value = R.string.common_spaced_strings,
+                    args = listOf(
+                        recurringBuy.recurringBuyFrequency.title(),
+                        recurringBuy.recurringBuyFrequency.value(recurringBuy.nextPaymentDate)
+                    )
                 )
-            )
-        ),
-        CustodialActivityDetailExtraKey.PaymentDetail to paymentDetails.toExtra()
+            ),
+        )
+    } ?: emptyMap()
+
+    val paymentExtras = mapOf(CustodialActivityDetailExtraKey.PaymentDetail to paymentDetails.toExtra())
+
+    return CustodialActivityDetail(
+        activity = this,
+        extras = rbExtras + paymentExtras
     )
-)
+}
