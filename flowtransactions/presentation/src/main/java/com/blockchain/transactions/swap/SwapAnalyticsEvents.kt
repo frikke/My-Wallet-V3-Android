@@ -2,6 +2,8 @@ package com.blockchain.transactions.swap
 
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 
 sealed class SwapAnalyticsEvents(
     override val event: String,
@@ -25,7 +27,7 @@ sealed class SwapAnalyticsEvents(
     )
 
     object SelectDestinationClicked : SwapAnalyticsEvents(
-        event = AnalyticsNames.SWAP_ENTER_AMOUNT_DESTINATION_CLICKED.eventName
+        event = AnalyticsNames.SWAP_ENTER_AMOUNT_TARGET_CLICKED.eventName
     )
 
     data class SourceAccountSelected(
@@ -38,7 +40,7 @@ sealed class SwapAnalyticsEvents(
     data class DestinationAccountSelected(
         val ticker: String
     ) : SwapAnalyticsEvents(
-        event = AnalyticsNames.SWAP_DESTINATION_SELECTED.eventName,
+        event = AnalyticsNames.SWAP_TARGET_SELECTED.eventName,
         params = mapOf(CURRENCY to ticker)
     )
 
@@ -46,19 +48,18 @@ sealed class SwapAnalyticsEvents(
         event = AnalyticsNames.SWAP_CONFIRMATION_VIEWED.eventName
     )
 
-    // todo get usd rate
     data class SwapClicked(
         val fromTicker: String,
         val fromAmount: String,
-        val fromAmountUsd: String,
-        val toTicker: String
+        val toTicker: String,
+        val destination: AccountType
     ) : SwapAnalyticsEvents(
         event = AnalyticsNames.SWAP_CONFIRMATION_SWAP_CLICKED.eventName,
         params = mapOf(
             INPUT_CURRENCY to fromTicker,
             INPUT_AMOUNT to fromAmount,
-            INPUT_AMOUNT_USD to fromAmountUsd,
             OUTPUT_CURRENCY to toTicker,
+            DESTINATION to destination.name,
         )
     )
 
@@ -70,11 +71,19 @@ sealed class SwapAnalyticsEvents(
         event = AnalyticsNames.SWAP_CONFIRMATION_SUCCESS_VIEWED.eventName
     )
 
+    enum class AccountType {
+        USERKEY, TRADING
+    }
+
     companion object {
         private const val CURRENCY = "currency"
         private const val INPUT_CURRENCY = "input_currency"
         private const val INPUT_AMOUNT = "input_amount"
-        private const val INPUT_AMOUNT_USD = "input_amount_usd"
         private const val OUTPUT_CURRENCY = "output_currency"
+        private const val DESTINATION = "destination"
+
+        fun CryptoAccount.accountType(): AccountType {
+            return if (this is CustodialTradingAccount) AccountType.TRADING else AccountType.USERKEY
+        }
     }
 }

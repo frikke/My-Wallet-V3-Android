@@ -51,6 +51,7 @@ import com.blockchain.presentation.urllinks.CHECKOUT_REFUND_POLICY
 import com.blockchain.presentation.urllinks.EXCHANGE_SWAP_RATE_EXPLANATION
 import com.blockchain.transactions.presentation.R
 import com.blockchain.transactions.swap.SwapAnalyticsEvents
+import com.blockchain.transactions.swap.SwapAnalyticsEvents.Companion.accountType
 import com.blockchain.transactions.swap.confirmation.ConfirmationIntent
 import com.blockchain.transactions.swap.confirmation.ConfirmationNavigation
 import com.blockchain.transactions.swap.confirmation.ConfirmationViewModel
@@ -101,6 +102,8 @@ fun ConfirmationScreen(
 
     val state by viewModel.viewState.collectAsStateLifecycleAware()
 
+    val confirmationArgs: ConfirmationArgs = get(scope = payloadScope)
+
     Column {
         NavigationBar(
             title = stringResource(R.string.swap_confirmation_navbar),
@@ -109,7 +112,24 @@ fun ConfirmationScreen(
 
         ConfirmationContent(
             state = state,
-            onIntent = viewModel::onIntent,
+            submitOnClick = {
+                viewModel.onIntent(ConfirmationIntent.SubmitClicked)
+
+                val sourceAccount = confirmationArgs.sourceAccount
+                val targetAccount = confirmationArgs.targetAccount
+                val sourceCryptoAmount = confirmationArgs.sourceCryptoAmount
+                check(sourceAccount != null)
+                check(targetAccount != null)
+                check(sourceCryptoAmount != null)
+                analytics.logEvent(
+                    SwapAnalyticsEvents.SwapClicked(
+                        fromTicker = sourceAccount.currency.networkTicker,
+                        fromAmount = sourceCryptoAmount.toStringWithSymbol(),
+                        toTicker = targetAccount.currency.networkTicker,
+                        destination = targetAccount.accountType()
+                    )
+                )
+            },
         )
     }
 }
@@ -117,7 +137,7 @@ fun ConfirmationScreen(
 @Composable
 private fun ConfirmationContent(
     state: ConfirmationViewState,
-    onIntent: (ConfirmationIntent) -> Unit,
+    submitOnClick: () -> Unit,
 ) {
     Column(
         Modifier
@@ -158,7 +178,7 @@ private fun ConfirmationContent(
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.common_swap),
             state = state.submitButtonState,
-            onClick = { onIntent(ConfirmationIntent.SubmitClicked) },
+            onClick = submitOnClick,
         )
     }
 }
@@ -318,7 +338,7 @@ private fun PreviewInitialState() {
     Column {
         ConfirmationContent(
             state = state,
-            onIntent = {},
+            submitOnClick = {},
         )
     }
 }
@@ -346,7 +366,7 @@ private fun PreviewLoadedState() {
     Column {
         ConfirmationContent(
             state = state,
-            onIntent = {},
+            submitOnClick = {},
         )
     }
 }
