@@ -20,7 +20,6 @@ import com.blockchain.componentlib.icons.Sync
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey800
-import com.blockchain.componentlib.utils.clickableNoEffect
 
 @Composable
 fun ButtonTableRow(
@@ -102,14 +101,13 @@ private fun ButtonTableRow(
             Text(
                 modifier = Modifier
                     .background(Grey800, RoundedCornerShape(AppTheme.dimensions.borderRadiiLarge))
-                    .padding(horizontal = 12.dp, vertical = 8.dp)
-                    .clickableNoEffect(onClick),
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
                 text = actionText,
                 style = AppTheme.typography.paragraph2,
                 color = AppTheme.colors.background
             )
         },
-        onContentClicked = null
+        onContentClicked = onClick
     )
 }
 
