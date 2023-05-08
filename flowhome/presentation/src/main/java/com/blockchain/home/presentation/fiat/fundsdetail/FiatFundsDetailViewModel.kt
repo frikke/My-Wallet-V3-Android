@@ -12,9 +12,11 @@ import com.blockchain.fiatActions.fiatactions.FiatActionsUseCase
 import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.fiat.actions.hasAvailableAction
+import com.blockchain.outcome.getOrDefault
 import com.blockchain.store.filterDataIsInstance
 import com.blockchain.store.flatMapData
 import com.blockchain.store.mapData
+import com.blockchain.utils.awaitOutcome
 import com.blockchain.walletmode.WalletMode
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -106,7 +108,7 @@ class FiatFundsDetailViewModel(
                 .flatMapData { fiatAccount ->
                     combine(
                         fiatAccount.balance().map { it.total },
-                        flowOf(fiatAccount.stateAwareActions.await())
+                        flowOf(fiatAccount.stateAwareActions.awaitOutcome().getOrDefault(emptySet()))
                     ) { balance, actions ->
                         DataResource.Data(
                             FiatFundsDetailData(

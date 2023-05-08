@@ -16,7 +16,6 @@ import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
-import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate

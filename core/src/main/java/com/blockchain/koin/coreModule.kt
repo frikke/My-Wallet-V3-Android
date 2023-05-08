@@ -56,7 +56,6 @@ import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.LimitsDataManagerImpl
 import com.blockchain.core.mercuryexperiments.MercuryExperimentsRepository
 import com.blockchain.core.nftwaitlist.data.NftWailslitRepository
-import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.core.payload.DataManagerPayloadDecrypt
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.payload.PayloadDataManagerSeedAccessAdapter

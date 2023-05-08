@@ -2,7 +2,6 @@ package com.blockchain.core.nftwaitlist.data.repository
 
 import com.blockchain.api.services.NftWaitlistApiService
 import com.blockchain.core.nftwaitlist.data.NftWailslitRepository
-import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.outcome.Outcome

@@ -20,8 +20,10 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.fiatActions.fiatactions.FiatActionsUseCase
 import com.blockchain.home.actions.QuickActionsService
 import com.blockchain.home.presentation.R
+import com.blockchain.outcome.getOrNull
 import com.blockchain.presentation.pulltorefresh.PullToRefresh
 import com.blockchain.utils.CurrentTimeProvider
+import com.blockchain.utils.awaitOutcome
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -177,15 +179,16 @@ class QuickActionsViewModel(
     private fun handleFiatAction(action: AssetAction) {
         fiatActionJob?.cancel()
         fiatActionJob = viewModelScope.launch {
-            val account = coincore.allFiats()
-                .map {
-                    (
-                        it.firstOrNull { acc ->
-                            acc.currency.networkTicker == fiatCurrenciesService.selectedTradingCurrency.networkTicker
-                        } ?: NullFiatAccount
-                        ) as FiatAccount
-                }
-                .await()
+
+            val accountOutcome = coincore.allFiats().map {
+                (
+                    it.firstOrNull { acc ->
+                        acc.currency.networkTicker == fiatCurrenciesService.selectedTradingCurrency.networkTicker
+                    } ?: NullFiatAccount
+                    ) as FiatAccount
+            }
+                .awaitOutcome()
+            val account = accountOutcome.getOrNull() ?: return@launch
 
             when {
                 account == NullFiatAccount -> fiatActions.noEligibleAccount(
