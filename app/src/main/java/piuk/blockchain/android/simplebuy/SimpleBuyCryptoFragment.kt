@@ -11,9 +11,11 @@ import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.lifecycleScope
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.fiat.isOpenBankingCurrency
@@ -31,6 +33,7 @@ import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Pink700
 import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency
@@ -47,7 +50,9 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethod.UndefinedCard.Ca
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.UndefinedPaymentMethod
 import com.blockchain.extensions.exhaustive
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.home.presentation.recurringbuy.RecurringBuysAnalyticsEvents
+import com.blockchain.koin.buyIntercomBotFeatureFlag
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData
 import com.blockchain.presentation.complexcomponents.QuickFillRow
@@ -62,12 +67,16 @@ import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import io.intercom.android.sdk.Intercom
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 import java.time.format.TextStyle
 import java.util.Locale
+import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -118,6 +127,8 @@ class SimpleBuyCryptoFragment :
     TransactionFlowInfoHost,
     PaymentMethodChooserBottomSheet.Host,
     KycUpgradeNowSheet.Host {
+
+    private val buyIntercomBotFF: FeatureFlag by inject(buyIntercomBotFeatureFlag)
 
     private val imm: InputMethodManager by lazy {
         requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -255,6 +266,15 @@ class SimpleBuyCryptoFragment :
         }
 
         shouldShowPaymentMethodSheet = launchSelectPaymentMethod
+
+        // intercom bot
+        lifecycleScope.launch {
+            if (buyIntercomBotFF.coEnabled()) {
+                delay(TimeUnit.SECONDS.toMillis(40))
+                (requireActivity() as? AppCompatActivity)?.hideKeyboard()
+                Intercom.client().logEvent(INTERCOM_BOT_TRIGGER_EVENT)
+            }
+        }
     }
 
     private fun updateQuote(amount: Money) {
@@ -1387,6 +1407,8 @@ class SimpleBuyCryptoFragment :
     }
 
     companion object {
+        private const val INTERCOM_BOT_TRIGGER_EVENT = "buyflow_enter_amount_initiated"
+
         private const val ARG_CRYPTO_ASSET = "CRYPTO"
         private const val ARG_PAYMENT_METHOD_ID = "PAYMENT_METHOD_ID"
         private const val ARG_AMOUNT = "AMOUNT"
