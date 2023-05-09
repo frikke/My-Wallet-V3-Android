@@ -1,6 +1,5 @@
 package com.blockchain.transactions.swap.confirmation
 
-import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.button.ButtonState
@@ -13,10 +12,6 @@ data class ConfirmationModelState(
     val isFetchQuoteLoading: Boolean = true,
     val isSubmittingOrderLoading: Boolean = false,
 
-    val sourceAccount: CryptoAccount,
-    val targetAccount: CryptoAccount,
-
-    val sourceCryptoAmount: CryptoValue,
     val sourceFiatAmount: FiatValue? = null,
 
     val targetCryptoAmount: CryptoValue? = null,

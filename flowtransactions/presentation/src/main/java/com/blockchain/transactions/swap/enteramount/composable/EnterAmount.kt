@@ -25,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.blockchain.analytics.Analytics
 import com.blockchain.betternavigation.NavContext
 import com.blockchain.betternavigation.navigateTo
 import com.blockchain.componentlib.alert.CustomEmptyState
@@ -49,6 +50,7 @@ import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.extensions.safeLet
 import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.presentation.R
+import com.blockchain.transactions.swap.SwapAnalyticsEvents
 import com.blockchain.transactions.swap.SwapGraph
 import com.blockchain.transactions.swap.enteramount.EnterAmountAssetState
 import com.blockchain.transactions.swap.enteramount.EnterAmountAssets
@@ -58,12 +60,14 @@ import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewState
 import com.blockchain.transactions.swap.enteramount.SwapEnterAmountFatalError
 import com.blockchain.transactions.swap.enteramount.SwapEnterAmountInputError
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EnterAmount(
     viewModel: EnterAmountViewModel = getViewModel(scope = payloadScope),
+    analytics: Analytics = get(),
     navContextProvider: () -> NavContext,
     onBackPressed: () -> Unit
 ) {
@@ -71,6 +75,7 @@ fun EnterAmount(
 
     LaunchedEffect(viewModel) {
         viewModel.onIntent(EnterAmountIntent.LoadData)
+        analytics.logEvent(SwapAnalyticsEvents.EnterAmountViewed)
     }
 
     val navigationEvent by viewModel.navigationEventFlow.collectAsStateLifecycleAware(null)
@@ -78,7 +83,7 @@ fun EnterAmount(
         navigationEvent?.let { navigationEvent ->
             when (navigationEvent) {
                 is EnterAmountNavigationEvent.Preview -> {
-                    navContextProvider().navigateTo(SwapGraph.Confirmation, navigationEvent.data)
+                    navContextProvider().navigateTo(SwapGraph.Confirmation)
                 }
             }
         }
@@ -147,16 +152,20 @@ fun EnterAmount(
                     openSourceAccounts = {
                         navContextProvider().navigateTo(SwapGraph.SourceAccounts)
                         keyboardController?.hide()
+                        analytics.logEvent(SwapAnalyticsEvents.SelectSourceClicked)
                     },
                     openTargetAccounts = { sourceTicker ->
                         navContextProvider().navigateTo(SwapGraph.TargetAsset, sourceTicker)
                         keyboardController?.hide()
+                        analytics.logEvent(SwapAnalyticsEvents.SelectDestinationClicked)
                     },
                     setMaxOnClick = {
                         viewModel.onIntent(EnterAmountIntent.MaxSelected)
+                        analytics.logEvent(SwapAnalyticsEvents.MaxClicked)
                     },
                     previewClicked = {
                         viewModel.onIntent(EnterAmountIntent.PreviewClicked)
+                        analytics.logEvent(SwapAnalyticsEvents.PreviewClicked)
                     },
                 )
             }

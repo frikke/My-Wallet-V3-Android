@@ -7,6 +7,7 @@ import com.blockchain.analytics.AnalyticsLocalPersistence
 import com.blockchain.analytics.NabuAnalyticsEvent
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.api.services.AnalyticsService
+import com.blockchain.koin.payloadScope
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.logging.RemoteLogger
@@ -18,6 +19,8 @@ import com.blockchain.utils.emptySubscribe
 import com.blockchain.utils.then
 import com.blockchain.utils.toJsonElement
 import com.blockchain.utils.toUtcIso8601
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -52,10 +55,14 @@ class NabuAnalytics(
     }
 
     override fun logEvent(analyticsEvent: AnalyticsEvent) {
-        val nabuEvent = analyticsEvent.toNabuAnalyticsEvent()
         logEventInTerminal(analyticsEvent)
 
-        compositeDisposable += localAnalyticsPersistence.save(nabuEvent)
+        compositeDisposable += payloadScope.get<WalletModeService>().walletModeSingle
+            .flatMapCompletable { walletMode ->
+                localAnalyticsPersistence.save(
+                    analyticsEvent.toNabuAnalyticsEvent().withWalletMode(walletMode)
+                )
+            }
             .subscribeOn(Schedulers.computation())
             .doOnError {
                 remoteLogger.logException(it)
@@ -161,9 +168,20 @@ private fun AnalyticsEvent.toNabuAnalyticsEvent(): NabuAnalyticsEvent =
         }.plusOriginIfAvailable(this.origin)
     )
 
+private fun NabuAnalyticsEvent.withWalletMode(walletMode: WalletMode) = copy(
+    properties = properties.plus("app_mode" to walletMode.toTraitsString().toJsonElement())
+)
+
 private fun Map<String, JsonElement>.plusOriginIfAvailable(launchOrigin: LaunchOrigin?): Map<String, JsonElement> {
     val origin = launchOrigin ?: return this
     return this.toMutableMap().apply {
         this["origin"] = JsonPrimitive(origin.name)
     }.toMap()
+}
+
+private fun WalletMode.toTraitsString(): String {
+    return when (this) {
+        WalletMode.CUSTODIAL -> "TRADING"
+        WalletMode.NON_CUSTODIAL -> "PKW"
+    }
 }

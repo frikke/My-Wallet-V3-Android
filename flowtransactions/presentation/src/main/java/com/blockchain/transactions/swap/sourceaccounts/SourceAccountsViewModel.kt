@@ -1,4 +1,4 @@
-package com.blockchain.transactions.swap.selectsource
+package com.blockchain.transactions.swap.sourceaccounts
 
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
@@ -20,21 +20,21 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.isLayer2Token
 import kotlinx.coroutines.flow.collectLatest
 
-class SelectSourceViewModel(
+class SourceAccountsViewModel(
     private val swapService: SwapService,
     private val assetCatalogue: AssetCatalogue
-) : MviViewModel<SelectSourceIntent,
-    SelectSourceViewState,
-    SelectSourceModelState,
-    SelectSourceNavigationEvent,
+) : MviViewModel<SourceAccountsIntent,
+    SourceAccountsViewState,
+    SourceAccountsModelState,
+    SourceAccountsNavigationEvent,
     ModelConfigArgs.NoArgs>(
-    SelectSourceModelState()
+    SourceAccountsModelState()
 ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: SelectSourceModelState): SelectSourceViewState {
+    override fun reduce(state: SourceAccountsModelState): SourceAccountsViewState {
         return with(state) {
-            SelectSourceViewState(
+            SourceAccountsViewState(
                 accountList = accountListData
                     .map { it.sortedByDescending { it.data.balanceFiat } }
                     .mapList {
@@ -48,9 +48,9 @@ class SelectSourceViewModel(
         }
     }
 
-    override suspend fun handleIntent(modelState: SelectSourceModelState, intent: SelectSourceIntent) {
+    override suspend fun handleIntent(modelState: SourceAccountsModelState, intent: SourceAccountsIntent) {
         when (intent) {
-            is SelectSourceIntent.LoadData -> {
+            is SourceAccountsIntent.LoadData -> {
                 swapService.sourceAccountsWithBalances()
                     .mapListData { it.withId() }
                     .collectLatest { accountListData ->
@@ -62,12 +62,12 @@ class SelectSourceViewModel(
                     }
             }
 
-            is SelectSourceIntent.AccountSelected -> {
+            is SourceAccountsIntent.AccountSelected -> {
                 check(modelState.accountListData is DataResource.Data)
                 modelState.accountListData.data.run {
                     check(any { it.id == intent.id })
                     navigate(
-                        SelectSourceNavigationEvent.ConfirmSelection(
+                        SourceAccountsNavigationEvent.ConfirmSelection(
                             account = first { it.id == intent.id }.data
                         )
                     )

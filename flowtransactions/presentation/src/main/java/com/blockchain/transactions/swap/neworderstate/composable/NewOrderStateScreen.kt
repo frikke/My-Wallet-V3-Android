@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.analytics.Analytics
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.isInternetConnectionError
 import com.blockchain.componentlib.basic.ComposeColors
@@ -49,6 +50,7 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.presentation.checkValidUrlAndOpen
 import com.blockchain.transactions.presentation.R
+import com.blockchain.transactions.swap.SwapAnalyticsEvents
 import com.blockchain.utils.awaitOutcome
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -69,6 +71,7 @@ data class NewOrderStateArgs(
 
 @Composable
 fun NewOrderStateScreen(
+    analytics: Analytics = get(),
     args: NewOrderStateArgs,
     deeplinkRedirector: DeeplinkRedirector = get(scope = payloadScope),
     exitSwap: () -> Unit,
@@ -89,6 +92,14 @@ fun NewOrderStateScreen(
                     }
                 }
             exitSwap()
+        }
+    }
+
+    LaunchedEffect(args.orderState) {
+        when (args.orderState) {
+            NewOrderState.PendingDeposit -> analytics.logEvent(SwapAnalyticsEvents.PendingViewed)
+            NewOrderState.Succeeded -> analytics.logEvent(SwapAnalyticsEvents.SuccessViewed)
+            is NewOrderState.Error -> { /* n/a for now */ }
         }
     }
 

@@ -5,7 +5,11 @@ import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.transactions.swap.CryptoAccountWithBalance
 
 sealed interface EnterAmountIntent : Intent<EnterAmountModelState> {
-    object LoadData : EnterAmountIntent
+    object LoadData : EnterAmountIntent {
+        override fun isValidFor(modelState: EnterAmountModelState): Boolean {
+            return modelState.fromAccount == null
+        }
+    }
 
     object FlipInputs : EnterAmountIntent
 
@@ -19,11 +23,19 @@ sealed interface EnterAmountIntent : Intent<EnterAmountModelState> {
 
     data class FromAccountChanged(
         val account: CryptoAccountWithBalance
-    ) : EnterAmountIntent
+    ) : EnterAmountIntent {
+        override fun isValidFor(modelState: EnterAmountModelState): Boolean {
+            return modelState.fromAccount?.account?.matches(account.account) != true
+        }
+    }
 
     data class ToAccountChanged(
         val account: CryptoAccount
-    ) : EnterAmountIntent
+    ) : EnterAmountIntent {
+        override fun isValidFor(modelState: EnterAmountModelState): Boolean {
+            return modelState.toAccount?.matches(account) != true
+        }
+    }
 
     object MaxSelected : EnterAmountIntent
 

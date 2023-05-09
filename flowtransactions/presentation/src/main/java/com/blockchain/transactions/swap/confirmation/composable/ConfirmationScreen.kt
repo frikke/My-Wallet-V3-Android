@@ -24,7 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.coincore.CryptoAccount
+import com.blockchain.analytics.Analytics
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
@@ -49,44 +49,32 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.urllinks.CHECKOUT_REFUND_POLICY
 import com.blockchain.presentation.urllinks.EXCHANGE_SWAP_RATE_EXPLANATION
 import com.blockchain.transactions.presentation.R
+import com.blockchain.transactions.swap.SwapAnalyticsEvents
+import com.blockchain.transactions.swap.SwapAnalyticsEvents.Companion.accountType
 import com.blockchain.transactions.swap.confirmation.ConfirmationIntent
 import com.blockchain.transactions.swap.confirmation.ConfirmationNavigation
 import com.blockchain.transactions.swap.confirmation.ConfirmationViewModel
 import com.blockchain.transactions.swap.confirmation.ConfirmationViewState
+import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
 import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateArgs
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
-import java.io.Serializable
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
-import org.koin.core.parameter.parametersOf
-
-data class ConfirmationArgs(
-    val sourceAccount: CryptoAccount,
-    val targetAccount: CryptoAccount,
-    val sourceCryptoAmount: CryptoValue,
-    // TODO(aromano): SWAP temp comment, this is only going to be used for NC->* swaps
-    val secondPassword: String?,
-) : Serializable
 
 @Composable
 fun ConfirmationScreen(
-    args: ConfirmationArgs,
-    viewModel: ConfirmationViewModel = getViewModel(scope = payloadScope) {
-        parametersOf(
-            args.sourceAccount,
-            args.targetAccount,
-            args.sourceCryptoAmount,
-            args.secondPassword,
-        )
-    },
+    viewModel: ConfirmationViewModel = getViewModel(scope = payloadScope),
+    analytics: Analytics = get(),
     openNewOrderState: (NewOrderStateArgs) -> Unit,
     backClicked: () -> Unit,
 ) {
     LaunchedEffect(Unit) {
         viewModel.viewCreated(ModelConfigArgs.NoArgs)
+        analytics.logEvent(SwapAnalyticsEvents.ConfirmationViewed)
     }
 
     val navigationEvent by viewModel.navigationEventFlow.collectAsStateLifecycleAware(null)
@@ -99,6 +87,8 @@ fun ConfirmationScreen(
 
     val state by viewModel.viewState.collectAsStateLifecycleAware()
 
+    val confirmationArgs: SwapConfirmationArgs = get(scope = payloadScope)
+
     Column {
         NavigationBar(
             title = stringResource(R.string.swap_confirmation_navbar),
@@ -107,7 +97,18 @@ fun ConfirmationScreen(
 
         ConfirmationContent(
             state = state,
-            onIntent = viewModel::onIntent,
+            submitOnClick = {
+                viewModel.onIntent(ConfirmationIntent.SubmitClicked)
+
+                analytics.logEvent(
+                    SwapAnalyticsEvents.SwapClicked(
+                        fromTicker = confirmationArgs.sourceAccount.currency.networkTicker,
+                        fromAmount = confirmationArgs.sourceCryptoAmount.toStringWithSymbol(),
+                        toTicker = confirmationArgs.targetAccount.currency.networkTicker,
+                        destination = confirmationArgs.targetAccount.accountType()
+                    )
+                )
+            },
         )
     }
 }
@@ -115,7 +116,7 @@ fun ConfirmationScreen(
 @Composable
 private fun ConfirmationContent(
     state: ConfirmationViewState,
-    onIntent: (ConfirmationIntent) -> Unit,
+    submitOnClick: () -> Unit,
 ) {
     Column(
         Modifier
@@ -156,7 +157,7 @@ private fun ConfirmationContent(
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.common_swap),
             state = state.submitButtonState,
-            onClick = { onIntent(ConfirmationIntent.SubmitClicked) },
+            onClick = submitOnClick,
         )
     }
 }
@@ -316,7 +317,7 @@ private fun PreviewInitialState() {
     Column {
         ConfirmationContent(
             state = state,
-            onIntent = {},
+            submitOnClick = {},
         )
     }
 }
@@ -344,7 +345,7 @@ private fun PreviewLoadedState() {
     Column {
         ConfirmationContent(
             state = state,
-            onIntent = {},
+            submitOnClick = {},
         )
     }
 }
