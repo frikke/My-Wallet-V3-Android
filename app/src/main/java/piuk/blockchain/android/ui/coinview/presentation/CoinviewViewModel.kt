@@ -64,6 +64,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPriceHistor
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickActions
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewRecurringBuys
 import piuk.blockchain.android.ui.coinview.domain.model.isActiveRewardsAccount
 import piuk.blockchain.android.ui.coinview.domain.model.isInterestAccount
 import piuk.blockchain.android.ui.coinview.domain.model.isStakingAccount
@@ -451,11 +452,11 @@ class CoinviewViewModel(
 
     private fun reduceRecurringBuys(
         state: CoinviewModelState
-    ): DataResource<CoinviewRecurringBuysState?> = state.run {
+    ): DataResource<CoinviewRecurringBuysState> = state.run {
         recurringBuys.map {
             if (isTradeableAsset == false || walletMode == WalletMode.NON_CUSTODIAL) {
                 // not supported for non custodial
-                null
+                CoinviewRecurringBuysState.Data(emptyList())
             } else {
                 check(asset != null) { "asset not initialized" }
 
@@ -466,7 +467,7 @@ class CoinviewViewModel(
                         }
 
                         data.isEmpty() -> {
-                            null
+                            CoinviewRecurringBuysState.Data(emptyList())
                         }
 
                         else -> CoinviewRecurringBuysState.Data(
@@ -617,7 +618,6 @@ class CoinviewViewModel(
                 onIntent(CoinviewIntent.LoadPriceData)
                 onIntent(CoinviewIntent.LoadAccountsData)
                 onIntent(CoinviewIntent.LoadWatchlistData)
-                loadRecurringBuysData(asset = modelState.asset)
                 onIntent(CoinviewIntent.LoadAssetInfo)
             }
 
@@ -1129,13 +1129,18 @@ class CoinviewViewModel(
                                     )
                                 )
                             }
+                            modelState.asset?.let {
+                                loadRecurringBuysData(it)
+                            }
                         }
 
                         is CoinviewAssetDetail.NonTradeable -> {
-                            // cancel flows
-                            loadAccountsJob?.cancel()
-                            loadQuickActionsJob?.cancel()
-                            loadRecurringBuyJob?.cancel()
+                            updateState {
+                                it.copy(
+                                    quickActions = DataResource.Data(CoinviewQuickActions.none()),
+                                    recurringBuys = DataResource.Data(CoinviewRecurringBuys(emptyList(), false))
+                                )
+                            }
                         }
                     }
                 }

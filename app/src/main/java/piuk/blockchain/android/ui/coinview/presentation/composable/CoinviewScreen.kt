@@ -143,7 +143,7 @@ fun CoinviewScreen(
 
     quickActionsCenter: DataResource<List<CoinviewQuickActionState>>,
 
-    recurringBuys: DataResource<CoinviewRecurringBuysState?>,
+    recurringBuys: DataResource<CoinviewRecurringBuysState>,
     onRecurringBuyUpsellClick: () -> Unit,
     onRecurringBuyItemClick: (String) -> Unit,
 
@@ -235,10 +235,6 @@ fun CoinviewScreen(
                                 onQuickActionClick = onQuickActionClick
                             )
 
-                            NonTradeableAsset(
-                                data = tradeable
-                            )
-
                             AssetAccounts(
                                 analytics = analytics,
                                 data = accounts,
@@ -250,7 +246,7 @@ fun CoinviewScreen(
 
                             RecurringBuys(
                                 analytics = analytics,
-                                data = recurringBuys,
+                                rBuysState = recurringBuys,
                                 assetTicker = asset.data.asset.networkTicker,
                                 onRecurringBuyUpsellClick = onRecurringBuyUpsellClick,
                                 onRecurringBuyItemClick = onRecurringBuyItemClick

@@ -42,34 +42,29 @@ import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 @Composable
 fun RecurringBuys(
     analytics: Analytics = get(),
-    data: DataResource<CoinviewRecurringBuysState?>,
+    rBuysState: DataResource<CoinviewRecurringBuysState>,
     assetTicker: String,
     onRecurringBuyUpsellClick: () -> Unit,
     onRecurringBuyItemClick: (String) -> Unit
 ) {
-    if (data is DataResource.Data && data.data == null) return
-
     Column(
         modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
     ) {
-        TableRowHeader(
-            title = stringResource(R.string.recurring_buy_toolbar),
-        )
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
-        when (data) {
+        when (rBuysState) {
             DataResource.Loading -> {
+                RecurringBuysTitle()
                 RecurringBuysLoading()
             }
-
             is DataResource.Error -> {
+                RecurringBuysTitle()
                 RecurringBuysError()
             }
-
             is DataResource.Data -> {
-                data.data?.let { rbState ->
+                rBuysState.data.let { rbState ->
                     when (rbState) {
                         CoinviewRecurringBuysState.Upsell -> {
+                            RecurringBuysTitle()
                             RecurringBuysUpsell(
                                 analytics = analytics,
                                 onRecurringBuyUpsellClick = onRecurringBuyUpsellClick
@@ -77,6 +72,8 @@ fun RecurringBuys(
                         }
 
                         is CoinviewRecurringBuysState.Data -> {
+                            if (rbState.recurringBuys.isNotEmpty())
+                                RecurringBuysTitle()
                             RecurringBuysData(
                                 analytics = analytics,
                                 data = rbState,
@@ -92,7 +89,15 @@ fun RecurringBuys(
 }
 
 @Composable
-fun RecurringBuysLoading() {
+private fun RecurringBuysTitle() {
+    TableRowHeader(
+        title = stringResource(R.string.recurring_buy_toolbar),
+    )
+    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+}
+
+@Composable
+private fun RecurringBuysLoading() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
