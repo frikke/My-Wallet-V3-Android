@@ -2,7 +2,6 @@ package com.blockchain.nabu.models.responses.simplebuy
 
 import com.blockchain.api.NabuUxErrorResponse
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
-import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.nabu.datamanagers.OrderInput
 import com.blockchain.nabu.datamanagers.OrderOutput
 import kotlinx.serialization.SerialName
@@ -80,7 +79,13 @@ data class WireTransferDetailsFooterResponse(
     val message: String,
     val icon: String?,
     val isImportant: Boolean?,
-    val actions: List<ServerErrorAction>?,
+    val actions: List<WireTransferDetailsAction>?,
+)
+
+@Serializable
+data class WireTransferDetailsAction(
+    val title: String,
+    val url: String?,
 )
 
 @Serializable

@@ -43,8 +43,8 @@ import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.SmallestVerticalSpacer
 import com.blockchain.componentlib.theme.clickableWithIndication
-import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.wiretransfer.WireTransferDetails
+import com.blockchain.domain.wiretransfer.WireTransferDetailsAction
 import com.blockchain.domain.wiretransfer.WireTransferDetailsFooter
 import com.blockchain.domain.wiretransfer.WireTransferDetailsSection
 import com.blockchain.domain.wiretransfer.WireTransferDetailsSectionEntry
@@ -169,9 +169,11 @@ fun Footer(footer: WireTransferDetailsFooter) {
             SmallMinimalButton(
                 text = action.title,
                 onClick = {
-                    Intent(Intent.ACTION_VIEW, Uri.parse(action.deeplinkPath))
-                        .apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
-                        .also { context.startActivity(it) }
+                    if (!action.url.isNullOrEmpty()) {
+                        Intent(Intent.ACTION_VIEW, Uri.parse(action.url))
+                            .apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
+                            .also { context.startActivity(it) }
+                    }
                 }
             )
         }
@@ -304,9 +306,9 @@ private val FOOTER = WireTransferDetailsFooter(
     isImportant = true,
     icon = "",
     actions = listOf(
-        ServerErrorAction(
+        WireTransferDetailsAction(
             title = "Terms & Conditions",
-            deeplinkPath = "https://www.google.com",
+            url = "https://www.google.com",
         )
     )
 )
@@ -316,9 +318,9 @@ private val FOOTER_IMPORTANT = WireTransferDetailsFooter(
     isImportant = false,
     icon = "",
     actions = listOf(
-        ServerErrorAction(
+        WireTransferDetailsAction(
             title = "Terms & Conditions",
-            deeplinkPath = "https://www.google.com",
+            url = "https://www.google.com",
         )
     )
 )

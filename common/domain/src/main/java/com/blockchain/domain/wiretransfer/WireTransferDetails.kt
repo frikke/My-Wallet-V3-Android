@@ -1,7 +1,5 @@
 package com.blockchain.domain.wiretransfer
 
-import com.blockchain.domain.common.model.ServerErrorAction
-
 data class WireTransferDetails(
     val sections: List<WireTransferDetailsSection>,
     val footers: List<WireTransferDetailsFooter>,
@@ -24,5 +22,10 @@ data class WireTransferDetailsFooter(
     val message: String,
     val icon: String?,
     val isImportant: Boolean,
-    val actions: List<ServerErrorAction>,
+    val actions: List<WireTransferDetailsAction>,
+)
+
+data class WireTransferDetailsAction(
+    val title: String,
+    val url: String?,
 )
