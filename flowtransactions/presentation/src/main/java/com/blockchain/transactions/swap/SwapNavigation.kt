@@ -17,7 +17,7 @@ import com.blockchain.betternavigation.typedComposable
 import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.chrome.composable.ChromeSingleScreen
 import com.blockchain.koin.payloadScope
-import com.blockchain.transactions.swap.confirmation.composable.ConfirmationArgs
+import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
 import com.blockchain.transactions.swap.confirmation.composable.ConfirmationScreen
 import com.blockchain.transactions.swap.enteramount.EnterAmountIntent
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
@@ -46,7 +46,7 @@ fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
     // TODO(aromano): navigation TEMP
     composable(SwapGraph::class.java.name) {
 
-        val confirmationArgs = get<ConfirmationArgs>(scope = payloadScope)
+        val confirmationArgs = get<SwapConfirmationArgs>(scope = payloadScope)
         DisposableEffect(Unit) {
             onDispose {
                 confirmationArgs.reset()

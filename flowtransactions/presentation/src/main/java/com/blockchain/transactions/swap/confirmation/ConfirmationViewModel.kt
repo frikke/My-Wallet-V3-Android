@@ -1,7 +1,6 @@
 package com.blockchain.transactions.swap.confirmation
 
 import androidx.lifecycle.viewModelScope
-import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
@@ -38,12 +37,7 @@ sealed interface ConfirmationNavigation : NavigationEvent {
 }
 
 class ConfirmationViewModel(
-    private val sourceAccount: CryptoAccount,
-    private val targetAccount: CryptoAccount,
-    private val sourceCryptoAmount: CryptoValue,
-    // TODO(aromano): SWAP temp comment, this is only going to be used for NC->* swaps
-    private val secondPassword: String?,
-
+    private val confirmationArgs: SwapConfirmationArgs,
     private val brokerageDataManager: BrokerageDataManager,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val custodialWalletManager: CustodialWalletManager,
@@ -56,11 +50,7 @@ class ConfirmationViewModel(
     ConfirmationNavigation,
     ModelConfigArgs.NoArgs
     >(
-    ConfirmationModelState(
-        sourceAccount = sourceAccount,
-        targetAccount = targetAccount,
-        sourceCryptoAmount = sourceCryptoAmount,
-    )
+    ConfirmationModelState()
 ) {
 
     private var targetFiatRateJob: Job? = null
@@ -69,10 +59,10 @@ class ConfirmationViewModel(
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
         // Convert Source Crypto Amount to Fiat
         viewModelScope.launch {
-            exchangeRatesDataManager.exchangeRateToUserFiatFlow(sourceAccount.currency)
+            exchangeRatesDataManager.exchangeRateToUserFiatFlow(confirmationArgs.sourceAccount.currency)
                 .doOnData { rate ->
                     updateState {
-                        it.copy(sourceFiatAmount = rate.convert(sourceCryptoAmount) as FiatValue)
+                        it.copy(sourceFiatAmount = rate.convert(confirmationArgs.sourceCryptoAmount) as FiatValue)
                     }
                 }
                 .collect()
@@ -88,8 +78,16 @@ class ConfirmationViewModel(
             while (true) {
                 if (secondsUntilQuoteRefresh <= 0) {
                     updateState { it.copy(isFetchQuoteLoading = true) }
-                    val pair = CurrencyPair(sourceAccount.currency, targetAccount.currency)
-                    brokerageDataManager.getSwapQuote(pair, sourceCryptoAmount, transferDirection)
+                    val pair = CurrencyPair(
+                        source = confirmationArgs.sourceAccount.currency,
+                        destination = confirmationArgs.targetAccount.currency
+                    )
+                    brokerageDataManager
+                        .getSwapQuote(
+                            pair = pair,
+                            amount = confirmationArgs.sourceCryptoAmount,
+                            direction = transferDirection
+                        )
                         .doOnSuccess { quote ->
                             val targetCryptoAmount = quote.resultAmount as CryptoValue
                             secondsUntilQuoteRefresh = (quote.expiresAt - System.currentTimeMillis()).toSeconds()
@@ -104,8 +102,8 @@ class ConfirmationViewModel(
                                     quoteRefreshTotalSeconds = secondsUntilQuoteRefresh,
                                     sourceToTargetExchangeRate = ExchangeRate(
                                         rate = quote.rawPrice.toBigDecimal(),
-                                        from = sourceAccount.currency,
-                                        to = targetAccount.currency,
+                                        from = confirmationArgs.sourceAccount.currency,
+                                        to = confirmationArgs.targetAccount.currency,
                                     ),
                                 )
                             }
@@ -127,7 +125,7 @@ class ConfirmationViewModel(
     private fun startUpdatingTargetFiatAmount(amount: CryptoValue) {
         targetFiatRateJob?.cancel()
         targetFiatRateJob = viewModelScope.launch {
-            exchangeRatesDataManager.exchangeRateToUserFiatFlow(targetAccount.currency)
+            exchangeRatesDataManager.exchangeRateToUserFiatFlow(fromAsset = confirmationArgs.targetAccount.currency)
                 .doOnData { rate ->
                     updateState {
                         it.copy(targetFiatAmount = rate.convert(amount) as FiatValue)
@@ -139,9 +137,9 @@ class ConfirmationViewModel(
 
     override fun reduce(state: ConfirmationModelState): ConfirmationViewState = ConfirmationViewState(
         isFetchQuoteLoading = state.isFetchQuoteLoading,
-        sourceAsset = state.sourceAccount.currency,
-        targetAsset = state.targetAccount.currency,
-        sourceCryptoAmount = state.sourceCryptoAmount,
+        sourceAsset = confirmationArgs.sourceAccount.currency,
+        targetAsset = confirmationArgs.targetAccount.currency,
+        sourceCryptoAmount = confirmationArgs.sourceCryptoAmount,
         sourceFiatAmount = state.sourceFiatAmount,
         targetCryptoAmount = state.targetCryptoAmount,
         targetFiatAmount = state.targetFiatAmount,
@@ -172,18 +170,18 @@ class ConfirmationViewModel(
                     transferDirection == TransferDirection.FROM_USERKEY
 
                 // TODO(aromano): SWAP
-//                if (requireSecondPassword && secondPassword.isEmpty()) {
-//                    throw IllegalArgumentException("Second password not supplied")
-//                }
+                //                if (requireSecondPassword && secondPassword.isEmpty()) {
+                //                    throw IllegalArgumentException("Second password not supplied")
+                //                }
 
                 zipOutcomes(
-                    sourceAccount.receiveAddress::awaitOutcome,
-                    targetAccount.receiveAddress::awaitOutcome,
+                    confirmationArgs.sourceAccount.receiveAddress::awaitOutcome,
+                    confirmationArgs.targetAccount.receiveAddress::awaitOutcome,
                 ).flatMap { (sourceAddress, targetAddress) ->
                     custodialWalletManager.createCustodialOrder(
                         direction = transferDirection,
                         quoteId = quoteId,
-                        volume = modelState.sourceCryptoAmount,
+                        volume = confirmationArgs.sourceCryptoAmount,
                         destinationAddress = if (requiresDestinationAddress) targetAddress.address else null,
                         refundAddress = if (requireRefundAddress) sourceAddress.address else null,
                     ).awaitOutcome()
@@ -192,12 +190,12 @@ class ConfirmationViewModel(
                     swapTransactionsStore.invalidate()
                     tradingStore.invalidate()
                     // TODO(aromano): SWAP ANALYTICS
-//                    analyticsHooks.onTransactionSuccess(newState)
+                    //                    analyticsHooks.onTransactionSuccess(newState)
 
                     val newOrderStateArgs = NewOrderStateArgs(
                         sourceAmount = order.inputMoney as CryptoValue,
                         targetAmount = order.outputMoney as CryptoValue,
-                        orderState = if (modelState.sourceAccount is NonCustodialAccount) {
+                        orderState = if (confirmationArgs.sourceAccount is NonCustodialAccount) {
                             NewOrderState.PendingDeposit
                         } else {
                             NewOrderState.Succeeded
@@ -213,16 +211,25 @@ class ConfirmationViewModel(
 
     private val transferDirection: TransferDirection
         get() = when {
-            sourceAccount is NonCustodialAccount && targetAccount is NonCustodialAccount -> TransferDirection.ON_CHAIN
-            sourceAccount is NonCustodialAccount -> TransferDirection.FROM_USERKEY
+            confirmationArgs.sourceAccount is NonCustodialAccount &&
+                confirmationArgs.targetAccount is NonCustodialAccount -> {
+                TransferDirection.ON_CHAIN
+            }
+            confirmationArgs.sourceAccount is NonCustodialAccount -> {
+                TransferDirection.FROM_USERKEY
+            }
             // TransferDirection.FROM_USERKEY not supported
-            targetAccount is NonCustodialAccount -> throw UnsupportedOperationException()
-            else -> TransferDirection.INTERNAL
+            confirmationArgs.targetAccount is NonCustodialAccount -> {
+                throw UnsupportedOperationException()
+            }
+            else -> {
+                TransferDirection.INTERNAL
+            }
         }
 
     private fun Exception.toNewOrderStateArgs(): NewOrderStateArgs = NewOrderStateArgs(
-        sourceAmount = modelState.sourceCryptoAmount,
-        targetAmount = modelState.targetCryptoAmount ?: CryptoValue.zero(targetAccount.currency),
+        sourceAmount = confirmationArgs.sourceCryptoAmount,
+        targetAmount = modelState.targetCryptoAmount ?: CryptoValue.zero(confirmationArgs.targetAccount.currency),
         orderState = NewOrderState.Error(this)
     )
 }

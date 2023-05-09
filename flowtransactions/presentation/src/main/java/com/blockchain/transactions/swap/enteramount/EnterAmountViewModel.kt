@@ -17,7 +17,7 @@ import com.blockchain.data.updateDataWith
 import com.blockchain.extensions.safeLet
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.transactions.swap.SwapService
-import com.blockchain.transactions.swap.confirmation.composable.ConfirmationArgs
+import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
 import com.blockchain.utils.removeLeadingZeros
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.CryptoCurrency
@@ -45,7 +45,7 @@ class EnterAmountViewModel(
     private val exchangeRates: ExchangeRatesDataManager,
     private val walletModeService: WalletModeService,
     currencyPrefs: CurrencyPrefs,
-    private val confirmationArgs: ConfirmationArgs
+    private val confirmationArgs: SwapConfirmationArgs
 ) : MviViewModel<
     EnterAmountIntent,
     EnterAmountViewState,
@@ -274,11 +274,12 @@ class EnterAmountViewModel(
                 val cryptoAmount = modelState.cryptoAmount
                 check(cryptoAmount != null)
 
-                confirmationArgs.sourceAccount = fromAccount
-                confirmationArgs.targetAccount = toAccount
-                confirmationArgs.sourceCryptoAmount = cryptoAmount
-                confirmationArgs.secondPassword = null // TODO(aromano): TEMP
-
+                confirmationArgs.update(
+                    sourceAccount = fromAccount,
+                    targetAccount = toAccount,
+                    sourceCryptoAmount = cryptoAmount,
+                    secondPassword = null // TODO(aromano): TEMP
+                )
                 navigate(EnterAmountNavigationEvent.Preview)
             }
         }

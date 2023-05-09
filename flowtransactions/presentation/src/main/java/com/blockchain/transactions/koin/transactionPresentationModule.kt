@@ -2,7 +2,7 @@ package com.blockchain.transactions.koin
 
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.transactions.swap.confirmation.ConfirmationViewModel
-import com.blockchain.transactions.swap.confirmation.composable.ConfirmationArgs
+import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
 import com.blockchain.transactions.swap.sourceaccounts.SourceAccountsViewModel
 import com.blockchain.transactions.swap.targetaccounts.TargetAccountsViewModel
@@ -51,21 +51,12 @@ val transactionsPresentationModule = module {
         }
 
         scoped {
-            ConfirmationArgs()
+            SwapConfirmationArgs()
         }
+
         viewModel {
-            val args: ConfirmationArgs = get()
-            val sourceAccount = args.sourceAccount
-            val targetAccount = args.targetAccount
-            val sourceCryptoAmount = args.sourceCryptoAmount
-            check(sourceAccount != null)
-            check(targetAccount != null)
-            check(sourceCryptoAmount != null)
             ConfirmationViewModel(
-                sourceAccount = sourceAccount,
-                targetAccount = targetAccount,
-                sourceCryptoAmount = sourceCryptoAmount,
-                secondPassword = args.secondPassword,
+                confirmationArgs = get(),
                 brokerageDataManager = get(),
                 exchangeRatesDataManager = get(),
                 custodialWalletManager = get(),

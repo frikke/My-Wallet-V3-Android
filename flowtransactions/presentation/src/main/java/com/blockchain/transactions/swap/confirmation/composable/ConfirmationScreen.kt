@@ -25,7 +25,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.analytics.Analytics
-import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
@@ -56,6 +55,7 @@ import com.blockchain.transactions.swap.confirmation.ConfirmationIntent
 import com.blockchain.transactions.swap.confirmation.ConfirmationNavigation
 import com.blockchain.transactions.swap.confirmation.ConfirmationViewModel
 import com.blockchain.transactions.swap.confirmation.ConfirmationViewState
+import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
 import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateArgs
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -64,21 +64,6 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
-
-class ConfirmationArgs(
-    var sourceAccount: CryptoAccount? = null,
-    var targetAccount: CryptoAccount? = null,
-    var sourceCryptoAmount: CryptoValue? = null,
-    // TODO(aromano): SWAP temp comment, this is only going to be used for NC->* swaps
-    var secondPassword: String? = null,
-) {
-    fun reset() {
-        sourceAccount = null
-        targetAccount = null
-        sourceCryptoAmount = null
-        secondPassword = null
-    }
-}
 
 @Composable
 fun ConfirmationScreen(
@@ -102,7 +87,7 @@ fun ConfirmationScreen(
 
     val state by viewModel.viewState.collectAsStateLifecycleAware()
 
-    val confirmationArgs: ConfirmationArgs = get(scope = payloadScope)
+    val confirmationArgs: SwapConfirmationArgs = get(scope = payloadScope)
 
     Column {
         NavigationBar(
@@ -115,18 +100,12 @@ fun ConfirmationScreen(
             submitOnClick = {
                 viewModel.onIntent(ConfirmationIntent.SubmitClicked)
 
-                val sourceAccount = confirmationArgs.sourceAccount
-                val targetAccount = confirmationArgs.targetAccount
-                val sourceCryptoAmount = confirmationArgs.sourceCryptoAmount
-                check(sourceAccount != null)
-                check(targetAccount != null)
-                check(sourceCryptoAmount != null)
                 analytics.logEvent(
                     SwapAnalyticsEvents.SwapClicked(
-                        fromTicker = sourceAccount.currency.networkTicker,
-                        fromAmount = sourceCryptoAmount.toStringWithSymbol(),
-                        toTicker = targetAccount.currency.networkTicker,
-                        destination = targetAccount.accountType()
+                        fromTicker = confirmationArgs.sourceAccount.currency.networkTicker,
+                        fromAmount = confirmationArgs.sourceCryptoAmount.toStringWithSymbol(),
+                        toTicker = confirmationArgs.targetAccount.currency.networkTicker,
+                        destination = confirmationArgs.targetAccount.accountType()
                     )
                 )
             },
