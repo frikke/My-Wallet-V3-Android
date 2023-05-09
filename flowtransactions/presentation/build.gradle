@@ -32,6 +32,7 @@ dependencies {
     implementation project(':commonarch')
     implementation project(':chrome:common')
     implementation project(':coincore')
+    implementation project(':unifiedcryptowallet:domain')
     implementation project(':core')
     implementation project(':blockchainApi')
     implementation project(':store:core')

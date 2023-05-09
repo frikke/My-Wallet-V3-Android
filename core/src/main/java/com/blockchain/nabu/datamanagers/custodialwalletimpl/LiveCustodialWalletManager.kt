@@ -574,7 +574,7 @@ class LiveCustodialWalletManager(
             } ?: return null,
 
             outputMoney = CurrencyPair.fromRawPair(pair, assetCatalogue)?.let {
-                Money.fromMinor(it.source, priceFunnel.outputMoney.toBigInteger())
+                Money.fromMinor(it.destination, priceFunnel.outputMoney.toBigInteger())
             } ?: return null,
         )
     }

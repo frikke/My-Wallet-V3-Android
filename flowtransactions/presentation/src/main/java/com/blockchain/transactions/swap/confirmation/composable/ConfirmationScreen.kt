@@ -5,13 +5,18 @@ import android.net.Uri
 import android.text.format.DateUtils
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,6 +40,9 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.card.TwoAssetAction
+import com.blockchain.componentlib.divider.HorizontalDivider
+import com.blockchain.componentlib.icons.ChevronDown
+import com.blockchain.componentlib.icons.ChevronUp
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Question
 import com.blockchain.componentlib.navigation.NavigationBar
@@ -48,6 +56,8 @@ import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.urllinks.CHECKOUT_REFUND_POLICY
 import com.blockchain.presentation.urllinks.EXCHANGE_SWAP_RATE_EXPLANATION
+import com.blockchain.transactions.common.confirmation.composable.ConfirmationSection
+import com.blockchain.transactions.common.confirmation.composable.ConfirmationTableRow
 import com.blockchain.transactions.presentation.R
 import com.blockchain.transactions.swap.SwapAnalyticsEvents
 import com.blockchain.transactions.swap.SwapAnalyticsEvents.Companion.accountType
@@ -118,43 +128,60 @@ private fun ConfirmationContent(
     state: ConfirmationViewState,
     submitOnClick: () -> Unit,
 ) {
-    Column(
-        Modifier
-            .background(AppTheme.colors.light)
-            .padding(AppTheme.dimensions.smallSpacing)
-    ) {
-        TwoAssetAction(
-            topTitle = state.sourceAsset.name,
-            topSubtitle = state.sourceAsset.displayTicker,
-            topEndTitle = state.sourceCryptoAmount.toStringWithSymbol(),
-            topEndSubtitle = state.sourceFiatAmount?.toStringWithSymbol().orEmpty(),
-            topIcon = StackedIcon.SingleIcon(ImageResource.Remote(state.sourceAsset.logo)),
-            bottomTitle = state.targetAsset.name,
-            bottomSubtitle = state.targetAsset.displayTicker,
-            bottomEndTitle = state.targetCryptoAmount?.toStringWithSymbol().orEmpty(),
-            bottomEndSubtitle = state.targetFiatAmount?.toStringWithSymbol().orEmpty(),
-            bottomIcon = StackedIcon.SingleIcon(ImageResource.Remote(state.targetAsset.logo)),
-        )
+    Box(Modifier.fillMaxHeight()) {
+        Column(
+            Modifier
+                .background(AppTheme.colors.light)
+                .padding(AppTheme.dimensions.smallSpacing)
+                .verticalScroll(rememberScrollState())
+        ) {
+            TwoAssetAction(
+                topTitle = state.sourceAsset.name,
+                topSubtitle = state.sourceAsset.displayTicker,
+                topEndTitle = state.sourceCryptoAmount.toStringWithSymbol(),
+                topEndSubtitle = state.sourceFiatAmount?.toStringWithSymbol().orEmpty(),
+                topIcon = StackedIcon.SingleIcon(ImageResource.Remote(state.sourceAsset.logo)),
+                bottomTitle = state.targetAsset.name,
+                bottomSubtitle = state.targetAsset.displayTicker,
+                bottomEndTitle = state.targetCryptoAmount?.toStringWithSymbol().orEmpty(),
+                bottomEndSubtitle = state.targetFiatAmount?.toStringWithSymbol().orEmpty(),
+                bottomIcon = StackedIcon.SingleIcon(ImageResource.Remote(state.targetAsset.logo)),
+            )
 
-        StandardVerticalSpacer()
+            StandardVerticalSpacer()
 
-        SwapExchangeRate(state.sourceToTargetExchangeRate)
+            SwapExchangeRate(state.sourceToTargetExchangeRate)
 
-        StandardVerticalSpacer()
+            StandardVerticalSpacer()
 
-        SwapQuoteTimer(
-            remainingSeconds = state.quoteRefreshRemainingSeconds ?: 90,
-            remainingPercentage = state.quoteRefreshRemainingPercentage ?: 1f,
-        )
+            if (state.sourceNetworkFeeCryptoAmount != null || state.targetNetworkFeeCryptoAmount != null) {
+                NetworkFees(
+                    sourceNetworkFeeCryptoAmount = state.sourceNetworkFeeCryptoAmount,
+                    sourceNetworkFeeFiatAmount = state.sourceNetworkFeeFiatAmount,
+                    targetNetworkFeeCryptoAmount = state.targetNetworkFeeCryptoAmount,
+                    targetNetworkFeeFiatAmount = state.targetNetworkFeeFiatAmount,
+                )
 
-        StandardVerticalSpacer()
+                StandardVerticalSpacer()
+            }
 
-        SwapDisclaimer()
+            SwapQuoteTimer(
+                remainingSeconds = state.quoteRefreshRemainingSeconds ?: 90,
+                remainingPercentage = state.quoteRefreshRemainingPercentage ?: 1f,
+            )
 
-        Spacer(Modifier.weight(1f))
+            StandardVerticalSpacer()
+
+            SwapDisclaimer()
+
+            // Padding for the CTA
+            Spacer(Modifier.height(AppTheme.dimensions.epicSpacing))
+        }
 
         PrimaryButton(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth()
+                .padding(AppTheme.dimensions.smallSpacing)
+                .align(Alignment.BottomCenter),
             text = stringResource(R.string.common_swap),
             state = state.submitButtonState,
             onClick = submitOnClick,
@@ -226,7 +253,7 @@ fun SwapQuoteTimer(remainingSeconds: Int, remainingPercentage: Float, modifier: 
 private fun SwapExchangeRate(rate: ExchangeRate?, modifier: Modifier = Modifier) {
     var isExplainerVisible by remember { mutableStateOf(false) }
     Column(
-        modifier
+        Modifier
             .background(White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
             .clickable {
                 isExplainerVisible = !isExplainerVisible
@@ -298,6 +325,65 @@ private fun SwapExchangeRate(rate: ExchangeRate?, modifier: Modifier = Modifier)
     }
 }
 
+@Composable
+private fun NetworkFees(
+    sourceNetworkFeeCryptoAmount: CryptoValue?,
+    sourceNetworkFeeFiatAmount: FiatValue?,
+    targetNetworkFeeCryptoAmount: CryptoValue?,
+    targetNetworkFeeFiatAmount: FiatValue?,
+    modifier: Modifier = Modifier,
+) {
+    var isExpanded by remember { mutableStateOf(false) }
+    ConfirmationSection(modifier = modifier) {
+        val fiatCurrency = sourceNetworkFeeFiatAmount?.currency ?: targetNetworkFeeFiatAmount?.currency
+        val totalNetworkFeesFiatAmount = fiatCurrency?.let {
+            (sourceNetworkFeeFiatAmount ?: FiatValue.zero(fiatCurrency)) +
+                (targetNetworkFeeFiatAmount ?: FiatValue.zero(fiatCurrency))
+        }
+        val expandedIcon = if (isExpanded) Icons.ChevronUp else Icons.ChevronDown
+        ConfirmationTableRow(
+            startTitle = stringResource(R.string.checkout_item_network_fee_label),
+            endTitle = totalNetworkFeesFiatAmount?.toStringWithSymbol()?.withApproximationPrefix(),
+            endImageResource = expandedIcon.withTint(AppTheme.colors.muted),
+            onClick = {
+                isExpanded = !isExpanded
+            },
+        )
+
+        if (isExpanded) {
+            if (sourceNetworkFeeCryptoAmount != null && !sourceNetworkFeeCryptoAmount.isZero) {
+                HorizontalDivider(Modifier.fillMaxWidth())
+
+                ConfirmationTableRow(
+                    startTitle = stringResource(
+                        R.string.checkout_item_network_fee,
+                        sourceNetworkFeeCryptoAmount.currency.displayTicker
+                    ),
+                    endTitle = sourceNetworkFeeFiatAmount?.toStringWithSymbol()?.withApproximationPrefix(),
+                    endByline = sourceNetworkFeeCryptoAmount.toStringWithSymbol(),
+                    onClick = null,
+                )
+            }
+
+            if (targetNetworkFeeCryptoAmount != null && !targetNetworkFeeCryptoAmount.isZero) {
+                HorizontalDivider(Modifier.fillMaxWidth())
+
+                ConfirmationTableRow(
+                    startTitle = stringResource(
+                        R.string.checkout_item_network_fee,
+                        targetNetworkFeeCryptoAmount.currency.displayTicker
+                    ),
+                    endTitle = targetNetworkFeeFiatAmount?.toStringWithSymbol()?.withApproximationPrefix(),
+                    endByline = targetNetworkFeeCryptoAmount.toStringWithSymbol(),
+                    onClick = null,
+                )
+            }
+        }
+    }
+}
+
+private fun String?.withApproximationPrefix() = if (this != null) "~ $this" else null
+
 @Preview
 @Composable
 private fun PreviewInitialState() {
@@ -310,6 +396,10 @@ private fun PreviewInitialState() {
         targetCryptoAmount = null,
         targetFiatAmount = null,
         sourceToTargetExchangeRate = null,
+        sourceNetworkFeeCryptoAmount = null,
+        sourceNetworkFeeFiatAmount = null,
+        targetNetworkFeeCryptoAmount = null,
+        targetNetworkFeeFiatAmount = null,
         quoteRefreshRemainingPercentage = null,
         quoteRefreshRemainingSeconds = null,
         submitButtonState = ButtonState.Disabled,
@@ -338,6 +428,10 @@ private fun PreviewLoadedState() {
             to = CryptoCurrency.ETHER,
             from = CryptoCurrency.BTC,
         ),
+        sourceNetworkFeeCryptoAmount = CryptoValue.fromMinor(CryptoCurrency.ETHER, 123456.toBigDecimal()),
+        sourceNetworkFeeFiatAmount = FiatValue.fromMajor(FiatCurrency.Dollars, 1.0.toBigDecimal()),
+        targetNetworkFeeCryptoAmount = CryptoValue.fromMinor(CryptoCurrency.BTC, 12345.toBigInteger()),
+        targetNetworkFeeFiatAmount = FiatValue.fromMajor(FiatCurrency.Dollars, 6.12.toBigDecimal()),
         quoteRefreshRemainingPercentage = 0.5f,
         quoteRefreshRemainingSeconds = 45,
         submitButtonState = ButtonState.Enabled,
