@@ -3,9 +3,7 @@ package com.blockchain.home.data.emptystate
 import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.getOrDefault
-import com.blockchain.outcome.getOrNull
 import com.blockchain.utils.awaitOutcome
-import kotlinx.coroutines.rx3.await
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json

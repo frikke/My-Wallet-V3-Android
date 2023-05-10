@@ -12,7 +12,6 @@ import com.blockchain.core.walletoptions.WalletOptionsDataManager
 import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.getOrNull
-import com.blockchain.outcome.map
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.sunriver.BalanceAndMin
 import com.blockchain.sunriver.XlmAccountReference
@@ -28,7 +27,6 @@ import info.blockchain.balance.Money.Companion.max
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.rx3.await
 
 internal class XlmCryptoWalletAccount(
     private val payloadManager: PayloadDataManager,

@@ -15,7 +15,6 @@ import com.blockchain.data.map
 import com.blockchain.nfts.OPENSEA_URL
 import com.blockchain.nfts.collection.navigation.NftCollectionNavigationEvent
 import com.blockchain.nfts.domain.service.NftService
-import com.blockchain.outcome.getOrElse
 import com.blockchain.outcome.getOrNull
 import com.blockchain.presentation.pulltorefresh.PullToRefresh
 import com.blockchain.utils.CurrentTimeProvider
@@ -23,7 +22,6 @@ import com.blockchain.utils.awaitOutcome
 import info.blockchain.balance.CryptoCurrency
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.awaitSingle
 
 class NftCollectionViewModel(

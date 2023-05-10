@@ -53,7 +53,7 @@ internal class UnifiedBalancesRepository(
                 when (val subscribeResult = subscribe(pubKeys)) {
 
                     is Outcome.Failure -> {
-                        println("LALAALA ---- 222 ${subscribeResult.toString()}")
+                        println("LALAALA ---- 222 $subscribeResult")
                         emit(subscribeResult.toDataResource())
                     }
                     is Outcome.Success -> {

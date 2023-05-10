@@ -169,7 +169,6 @@ class PricesRepository(
                 }
                 .await()
                 .also { emit(it as DataResource<Map<AssetInfo, DataResource<Prices24HrWithDelta>>>) }
-
         }.catch {
             emit(DataResource.Error(it as Exception))
         }

@@ -12,8 +12,6 @@ import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.dataOrElse
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DexPrefs
-import com.blockchain.store.filterNotLoading
-import com.blockchain.store.getDataOrThrow
 import com.blockchain.utils.asFlow
 import com.blockchain.walletmode.WalletMode
 import com.dex.data.stores.DexTokensDataStorage

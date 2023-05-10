@@ -34,7 +34,7 @@ class HomeAccountsRepository(
     private fun activeNonCustodialWallets(freshnessStrategy: FreshnessStrategy):
         Flow<DataResource<List<SingleAccount>>> {
         val activeAssets = unifiedBalancesService.balances(freshnessStrategy = freshnessStrategy).mapData {
-            println("LALAALA ---- eeee ${it}")
+            println("LALAALA ---- eeee $it")
             it.map { balance ->
                 coincore[balance.currency]
             }.toSet()

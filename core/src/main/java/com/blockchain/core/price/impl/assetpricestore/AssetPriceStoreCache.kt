@@ -9,7 +9,6 @@ import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.common.model.toMillis
-import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
 import com.blockchain.store.Fetcher

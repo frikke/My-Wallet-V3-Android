@@ -17,7 +17,6 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx3.await
 import piuk.blockchain.android.rating.data.api.AppRatingApi
 import piuk.blockchain.android.rating.data.model.AppRatingApiKeys
 import piuk.blockchain.android.rating.data.remoteconfig.AppRatingApiKeysRemoteConfig

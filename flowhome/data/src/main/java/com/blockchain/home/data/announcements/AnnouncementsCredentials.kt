@@ -11,7 +11,6 @@ import com.blockchain.outcome.getOrDefault
 import com.blockchain.store.mapData
 import com.blockchain.utils.awaitOutcome
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.rx3.await
 
 interface AnnouncementsCredentials {
     suspend fun apiKey(): String
