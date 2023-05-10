@@ -12,9 +12,7 @@ import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.rx3.await
 
 class HomeAccountsRepository(
