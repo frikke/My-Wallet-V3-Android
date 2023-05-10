@@ -944,9 +944,7 @@ class CoinviewViewModel(
                 asset = asset,
                 timeSpan = requestedTimeSpan,
                 fiatCurrency = fiatCurrency
-            ).catch {
-                println("TTT loadPriceDataJob $it")
-            }.collectLatest { dataResource ->
+            ).collectLatest { dataResource ->
                 when (dataResource) {
                     DataResource.Loading -> {
                         updateState {
@@ -1037,9 +1035,7 @@ class CoinviewViewModel(
     private fun loadWatchlistData(asset: CryptoAsset) {
         loadWatchlistJob?.cancel()
         loadWatchlistJob = viewModelScope.launch {
-            watchlistService.isAssetInWatchlist(asset.currency).catch {
-                println("TTT watchlistService $it")
-            }.collectLatest { dataResource ->
+            watchlistService.isAssetInWatchlist(asset.currency).collectLatest { dataResource ->
                 updateState {
                     it.copy(
                         watchlist = if (dataResource is DataResource.Loading && it.watchlist is DataResource.Data) {
@@ -1096,9 +1092,7 @@ class CoinviewViewModel(
     private fun loadAccountsData(asset: CryptoAsset) {
         loadAccountsJob?.cancel()
         loadAccountsJob = viewModelScope.launch {
-            loadAssetAccountsUseCase(asset = asset).catch {
-                println("TTT loadAssetAccountsUseCase $it")
-            }.collectLatest { dataResource ->
+            loadAssetAccountsUseCase(asset = asset).collectLatest { dataResource ->
 
                 updateState {
                     it.copy(
@@ -1335,9 +1329,7 @@ class CoinviewViewModel(
     ) {
         loadRecurringBuyJob?.cancel()
         loadRecurringBuyJob = viewModelScope.launch {
-            loadAssetRecurringBuysUseCase(asset, freshnessStrategy).catch {
-                println("TTT loadAssetRecurringBuysUseCase $it")
-            }.collectLatest { dataResource ->
+            loadAssetRecurringBuysUseCase(asset, freshnessStrategy).collectLatest { dataResource ->
                 updateState {
                     it.copy(recurringBuys = it.recurringBuys.updateDataWith(dataResource))
                 }
@@ -1368,9 +1360,7 @@ class CoinviewViewModel(
                 asset = asset,
                 accounts = accounts,
                 totalBalance = totalBalance
-            ).catch {
-                println("TTT loadQuickActionsJob $it")
-            }.collectLatest { dataResource ->
+            ).collectLatest { dataResource ->
                 updateState {
                     it.copy(
                         quickActions = if (dataResource is DataResource.Loading &&
@@ -1399,9 +1389,7 @@ class CoinviewViewModel(
     private fun loadAssetInformation(asset: CryptoAsset) {
         loadAssetInfoJob?.cancel()
         loadAssetInfoJob = viewModelScope.launch {
-            assetService.getAssetInformation(asset = asset.currency).catch {
-                println("TTT getAssetInformation $it")
-            }.collectLatest { dataResource ->
+            assetService.getAssetInformation(asset = asset.currency).collectLatest { dataResource ->
                 updateState {
                     it.copy(
                         assetInfo = if (dataResource is DataResource.Loading &&
