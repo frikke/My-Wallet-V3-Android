@@ -20,6 +20,7 @@ import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.domain.wiretransfer.WireTransferDetails
+import com.blockchain.domain.wiretransfer.WireTransferDetailsAction
 import com.blockchain.domain.wiretransfer.WireTransferDetailsFooter
 import com.blockchain.domain.wiretransfer.WireTransferDetailsSection
 import com.blockchain.domain.wiretransfer.WireTransferDetailsSectionEntry
@@ -573,7 +574,7 @@ class LiveCustodialWalletManager(
             } ?: return null,
 
             outputMoney = CurrencyPair.fromRawPair(pair, assetCatalogue)?.let {
-                Money.fromMinor(it.source, priceFunnel.outputMoney.toBigInteger())
+                Money.fromMinor(it.destination, priceFunnel.outputMoney.toBigInteger())
             } ?: return null,
         )
     }
@@ -603,7 +604,12 @@ private fun WireTransferAccountDetailsResponse.toDomain(): WireTransferDetails =
             message = footer.message,
             icon = footer.icon,
             isImportant = footer.isImportant == true,
-            actions = footer.actions.orEmpty(),
+            actions = footer.actions.orEmpty().map { action ->
+                WireTransferDetailsAction(
+                    title = action.title,
+                    url = action.url,
+                )
+            },
         )
     },
 )

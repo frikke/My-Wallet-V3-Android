@@ -110,7 +110,7 @@ object Versions {
 
     // Compose
     const val composeCompiler = "1.2.0"
-    const val compose = "1.4.1"
+    const val compose = "1.4.2"
     const val composeShowkase = "1.1.1"
     const val coil = "2.2.2"
     const val landscapist = "2.1.3"

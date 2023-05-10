@@ -200,6 +200,7 @@ class CoinviewViewModelTest {
     fun `GIVEN asset tradeable, THEN tradeable state should be Tradeable`() = runTest {
         val dataResource = MutableSharedFlow<DataResource<CoinviewAssetDetail>>()
         coEvery { loadAssetAccountsUseCase(cryptoAsset) } returns dataResource
+        coEvery { loadAssetRecurringBuysUseCase(any(), any()) } returns MutableSharedFlow()
         val dataResourceQuickActionUnused = MutableSharedFlow<DataResource<CoinviewQuickActions>>()
         coEvery { loadQuickActionsUseCase(any(), any(), any()) } returns dataResourceQuickActionUnused
 
@@ -300,11 +301,17 @@ class CoinviewViewModelTest {
         }
 
     // accounts
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `GIVEN valid accossunts, WHEN LoadAccountsData is called, THEN totalBalance state should be Data`() =
+    fun `GIVEN valid accounts, WHEN LoadAccountsData is called, THEN totalBalance state should be Data`() =
         runTest {
             val dataResource = MutableSharedFlow<DataResource<CoinviewAssetDetail>>()
             coEvery { loadAssetAccountsUseCase(cryptoAsset) } returns dataResource
+            coEvery {
+                loadAssetRecurringBuysUseCase(
+                    any(), any()
+                )
+            } returns MutableSharedFlow()
             val dataResourceQuickActionUnused = MutableSharedFlow<DataResource<CoinviewQuickActions>>()
             coEvery { loadQuickActionsUseCase(any(), any(), any()) } returns dataResourceQuickActionUnused
 

@@ -14,7 +14,7 @@ import info.blockchain.balance.isCustodial
 import info.blockchain.balance.isLayer2Token
 import io.reactivex.rxjava3.core.Completable
 
-internal fun makeExternalAssetAddress(
+fun makeExternalAssetAddress(
     asset: AssetInfo,
     address: String,
     label: String = address,

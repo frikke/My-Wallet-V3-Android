@@ -167,6 +167,7 @@ class CustodialActivityDetailViewModel(
     private fun RecurringBuyActivitySummaryItem.recurringBuyDetail(): Flow<DataResource<CustodialActivityDetail>> {
         return recurringBuyId?.let {
             val recurringBuyFlow = recurringBuyService.recurringBuy(id = it, includeInactive = true)
+                .onErrorReturn { null }
 
             val paymentDetailFlow = paymentMethodType.paymentMethod(
                 paymentMethodId = paymentMethodId,

@@ -1,14 +1,13 @@
 package com.blockchain.transactions.koin
 
-import com.blockchain.coincore.CryptoAccount
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.transactions.swap.confirmation.ConfirmationViewModel
+import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
-import com.blockchain.transactions.swap.selectsource.SelectSourceViewModel
-import com.blockchain.transactions.swap.selecttarget.SelectTargetViewModel
-import com.blockchain.transactions.swap.selecttargetaccount.SelectTargetAccountViewModel
+import com.blockchain.transactions.swap.sourceaccounts.SourceAccountsViewModel
+import com.blockchain.transactions.swap.targetaccounts.TargetAccountsViewModel
+import com.blockchain.transactions.swap.targetassets.TargetAssetsViewModel
 import com.blockchain.walletmode.WalletMode
-import info.blockchain.balance.CryptoValue
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -19,19 +18,20 @@ val transactionsPresentationModule = module {
                 swapService = get(),
                 exchangeRates = get(),
                 currencyPrefs = get(),
-                walletModeService = get()
+                walletModeService = get(),
+                confirmationArgs = get(),
             )
         }
 
         viewModel {
-            SelectSourceViewModel(
+            SourceAccountsViewModel(
                 swapService = get(),
                 assetCatalogue = get()
             )
         }
 
         viewModel { (sourceTicker: String) ->
-            SelectTargetViewModel(
+            TargetAssetsViewModel(
                 sourceTicker = sourceTicker,
                 swapService = get(),
                 pricesService = get(),
@@ -41,7 +41,7 @@ val transactionsPresentationModule = module {
         }
 
         viewModel { (sourceTicker: String, targetTicker: String, mode: WalletMode) ->
-            SelectTargetAccountViewModel(
+            TargetAccountsViewModel(
                 sourceTicker = sourceTicker,
                 targetTicker = targetTicker,
                 mode = mode,
@@ -50,17 +50,13 @@ val transactionsPresentationModule = module {
             )
         }
 
-        viewModel { (
-            sourceAccount: CryptoAccount,
-            targetAccount: CryptoAccount,
-            sourceCryptoAmount: CryptoValue,
-            secondPassword: String?,
-        ) ->
+        scoped {
+            SwapConfirmationArgs()
+        }
+
+        viewModel {
             ConfirmationViewModel(
-                sourceAccount = sourceAccount,
-                targetAccount = targetAccount,
-                sourceCryptoAmount = sourceCryptoAmount,
-                secondPassword = secondPassword,
+                confirmationArgs = get(),
                 brokerageDataManager = get(),
                 exchangeRatesDataManager = get(),
                 custodialWalletManager = get(),

@@ -52,6 +52,7 @@ private fun TableRow(
             contentStart?.invoke(this)
             Row(
                 modifier = Modifier.weight(weight = 1F, fill = true),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 content()
             }

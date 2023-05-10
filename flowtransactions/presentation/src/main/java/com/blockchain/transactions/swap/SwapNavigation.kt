@@ -1,5 +1,6 @@
 package com.blockchain.transactions.swap
 
+import androidx.compose.runtime.DisposableEffect
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
@@ -16,27 +17,27 @@ import com.blockchain.betternavigation.typedComposable
 import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.chrome.composable.ChromeSingleScreen
 import com.blockchain.koin.payloadScope
-import com.blockchain.transactions.swap.confirmation.composable.ConfirmationArgs
+import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
 import com.blockchain.transactions.swap.confirmation.composable.ConfirmationScreen
 import com.blockchain.transactions.swap.enteramount.EnterAmountIntent
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
 import com.blockchain.transactions.swap.enteramount.composable.EnterAmount
 import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateArgs
 import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateScreen
-import com.blockchain.transactions.swap.selectsource.composable.SelectSourceScreen
-import com.blockchain.transactions.swap.selecttarget.composable.SelectTargetAsset
-import com.blockchain.transactions.swap.selecttargetaccount.composable.SelectTargetAccount
-import com.blockchain.transactions.swap.selecttargetaccount.composable.SelectTargetAccountArgs
+import com.blockchain.transactions.swap.sourceaccounts.composable.SourceAccounts
+import com.blockchain.transactions.swap.targetaccounts.composable.TargetAccounts
+import com.blockchain.transactions.swap.targetaccounts.composable.TargetAccountsArgs
+import com.blockchain.transactions.swap.targetassets.composable.TargetAssets
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 object SwapGraph : NavGraph() {
     object EnterAmount : Destination()
     object SourceAccounts : Destination()
-    object SelectTarget : DestinationWithArgs<String>()
     object TargetAsset : DestinationWithArgs<String>()
-    object TargetAccount : DestinationWithArgs<SelectTargetAccountArgs>()
-    object Confirmation : DestinationWithArgs<ConfirmationArgs>()
+    object TargetAccount : DestinationWithArgs<TargetAccountsArgs>()
+    object Confirmation : Destination()
     object NewOrderState : DestinationWithArgs<NewOrderStateArgs>()
 }
 
@@ -44,6 +45,14 @@ object SwapGraph : NavGraph() {
 fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
     // TODO(aromano): navigation TEMP
     composable(SwapGraph::class.java.name) {
+
+        val confirmationArgs = get<SwapConfirmationArgs>(scope = payloadScope)
+        DisposableEffect(Unit) {
+            onDispose {
+                confirmationArgs.reset()
+            }
+        }
+
         val viewModel: EnterAmountViewModel = getViewModel(scope = payloadScope)
 
         TypedNavHost(
@@ -62,7 +71,7 @@ fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
 
             typedBottomSheet(SwapGraph.SourceAccounts) {
                 ChromeBottomSheet(onClose = ::navigateUp) {
-                    SelectSourceScreen(
+                    SourceAccounts(
                         accountSelected = {
                             viewModel.onIntent(EnterAmountIntent.FromAccountChanged(it))
                         },
@@ -74,7 +83,7 @@ fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
             // support nested graph navigation(...)
             typedBottomSheet(SwapGraph.TargetAsset) { sourceTicker ->
                 ChromeBottomSheet(onClose = ::navigateUp) {
-                    SelectTargetAsset(
+                    TargetAssets(
                         sourceTicker = sourceTicker,
                         accountSelected = {
                             viewModel.onIntent(EnterAmountIntent.ToAccountChanged(it))
@@ -87,7 +96,7 @@ fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
 
             typedBottomSheet(SwapGraph.TargetAccount) { args ->
                 ChromeBottomSheet(onClose = ::navigateUp) {
-                    SelectTargetAccount(
+                    TargetAccounts(
                         sourceTicker = args.sourceTicker,
                         targetTicker = args.targetTicker,
                         mode = args.mode,
@@ -102,10 +111,9 @@ fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
                 }
             }
 
-            typedComposable(SwapGraph.Confirmation) { args ->
+            typedComposable(SwapGraph.Confirmation) {
                 ChromeSingleScreen {
                     ConfirmationScreen(
-                        args = args,
                         openNewOrderState = { args ->
                             navigateTo(SwapGraph.NewOrderState, args) {
                                 popUpTo(SwapGraph)

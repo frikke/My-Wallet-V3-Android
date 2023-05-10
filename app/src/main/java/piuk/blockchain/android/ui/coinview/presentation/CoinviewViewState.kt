@@ -21,7 +21,7 @@ data class CoinviewViewState(
     val watchlist: DataResource<Boolean>,
     val accounts: DataResource<CoinviewAccountsState?>,
     val centerQuickAction: DataResource<List<CoinviewQuickActionState>>,
-    val recurringBuys: DataResource<CoinviewRecurringBuysState?>,
+    val recurringBuys: DataResource<CoinviewRecurringBuysState>,
     val bottomQuickAction: DataResource<List<CoinviewQuickActionState>>,
     val assetInfo: CoinviewAssetInfoState,
     val pillAlert: CoinviewPillAlertState,
