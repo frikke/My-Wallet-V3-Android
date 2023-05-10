@@ -29,12 +29,10 @@ internal class AssetPriceStoreCache(
     > by InMemoryCacheStoreBuilder().buildKeyed(
     storeId = STORE_ID,
     fetcher = Fetcher.Keyed.ofOutcome { key ->
-        println("LALALA FETCHING PRICE ${key.toString()}")
         supportedTickersStore
             .stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             .firstOutcome()
             .flatMap { supportedTickers ->
-                println("LALALA PRINTLN $supportedTickers")
                 when (key) {
                     is Key.GetAllCurrent -> assetPriceService.getCurrentPrices(
                         baseTickerList = supportedTickers.baseTickers.toSet(),
