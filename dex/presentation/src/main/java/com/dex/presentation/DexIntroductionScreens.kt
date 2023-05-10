@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.PrimaryButton
@@ -31,9 +32,14 @@ import org.koin.androidx.compose.get
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun DexIntroductionScreens(close: () -> Unit, dexIntroPrefs: DexPrefs = get()) {
+fun DexIntroductionScreens(
+    close: () -> Unit,
+    dexIntroPrefs: DexPrefs = get(),
+    analytics: Analytics = get(),
+) {
     LaunchedEffect(key1 = Unit) {
         dexIntroPrefs.markDexIntroAsSeen()
+        analytics.logEvent(DexAnalyticsEvents.OnboardingViewed)
     }
 
     val pagerState = rememberPagerState()

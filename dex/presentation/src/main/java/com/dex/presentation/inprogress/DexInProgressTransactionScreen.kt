@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -37,6 +39,8 @@ import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.dex.presentation.R
 import com.blockchain.koin.payloadScope
+import com.dex.presentation.DexAnalyticsEvents
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -44,6 +48,7 @@ fun DexInProgressTransactionScreen(
     closeFlow: () -> Unit = {},
     retry: () -> Unit = {},
     viewModel: DexInProgressTxViewModel = getViewModel(scope = payloadScope),
+    analytics: Analytics = get(),
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -60,6 +65,15 @@ fun DexInProgressTransactionScreen(
     }
 
     val viewState: InProgressViewState by viewModel.viewState.collectAsStateLifecycleAware()
+
+    LaunchedEffect(viewState) {
+        val event = when (viewState) {
+            is InProgressViewState.Success -> DexAnalyticsEvents.ExecutedViewed
+            InProgressViewState.Failure -> DexAnalyticsEvents.FailedViewed
+            InProgressViewState.Loading -> DexAnalyticsEvents.InProgressViewed
+        }
+        analytics.logEvent(event)
+    }
 
     Column(
         modifier = Modifier
