@@ -44,16 +44,12 @@ internal class UnifiedBalancesRepository(
     ): Flow<DataResource<List<NetworkBalance>>> {
         return flow {
             try {
-                println("LALAALA ---- 1")
                 val pubKeys = networkAccountsService.allNetworkWallets().filterNot { it.isImported }.associateWith {
                     it.publicKey()
                 }
-                println("LALAALA ---- 2")
-
                 when (val subscribeResult = subscribe(pubKeys)) {
 
                     is Outcome.Failure -> {
-                        println("LALAALA ---- 222 $subscribeResult")
                         emit(subscribeResult.toDataResource())
                     }
                     is Outcome.Success -> {

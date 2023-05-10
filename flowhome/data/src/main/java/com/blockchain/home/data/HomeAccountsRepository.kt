@@ -34,7 +34,6 @@ class HomeAccountsRepository(
     private fun activeNonCustodialWallets(freshnessStrategy: FreshnessStrategy):
         Flow<DataResource<List<SingleAccount>>> {
         val activeAssets = unifiedBalancesService.balances(freshnessStrategy = freshnessStrategy).mapData {
-            println("LALAALA ---- eeee $it")
             it.map { balance ->
                 coincore[balance.currency]
             }.toSet()
@@ -53,9 +52,7 @@ class HomeAccountsRepository(
         coincore.activeWalletsInMode(WalletMode.CUSTODIAL, freshnessStrategy).map { it.accounts }
             .map {
                 DataResource.Data(it) as DataResource<List<SingleAccount>>
-            }.onStart {
-                emit(DataResource.Loading)
-            }.catch {
-                emit(DataResource.Error(it as Exception))
+            }.onErrorReturn {
+                emptyList()
             }
 }
