@@ -24,6 +24,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
@@ -167,7 +168,10 @@ class PricesRepository(
                     DataResource.Data(it)
                 }
                 .await()
-                .also { emit(it) }
+                .also { emit(it as DataResource<Map<AssetInfo, DataResource<Prices24HrWithDelta>>>) }
+
+        }.catch {
+            emit(DataResource.Error(it as Exception))
         }
     }
 
@@ -195,6 +199,8 @@ class PricesRepository(
             .map {
                 it.map { it.split(MOST_POPULAR_SEPARATOR).map { it.trim() } }
                     .dataOrElse(emptyList())
+            }.catch {
+                emit(emptyList())
             }
     }
 
@@ -204,6 +210,8 @@ class PricesRepository(
             .map {
                 it.map { it.toDoubleOrNull() ?: PRICES_RISING_FAST_DEFAULT_PERCENT }
                     .dataOrElse(PRICES_RISING_FAST_DEFAULT_PERCENT)
+            }.catch {
+                emit(0.toDouble())
             }
     }
 

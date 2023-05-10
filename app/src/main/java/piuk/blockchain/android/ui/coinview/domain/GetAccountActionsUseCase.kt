@@ -24,10 +24,9 @@ data class GetAccountActionsUseCase(
 ) {
     suspend operator fun invoke(account: CoinviewAccount): DataResource<List<StateAwareAction>> {
         return supervisorScope {
-            val actionsDeferred = async(dispatcher) { account.account.stateAwareActions.await() }
-            val balanceDeferred = async(dispatcher) { account.account.balanceRx().awaitFirst() }
-
             try {
+                val actionsDeferred = async(dispatcher) { account.account.stateAwareActions.await() }
+                val balanceDeferred = async(dispatcher) { account.account.balanceRx().awaitFirst() }
                 val actions = actionsDeferred.await()
                 val balance = balanceDeferred.await()
 

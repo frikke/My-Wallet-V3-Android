@@ -27,6 +27,7 @@ import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
 import kotlin.math.absoluteValue
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -208,8 +209,9 @@ class PricesViewModel(
                 is PricesLoadStrategy.All -> pricesService.allAssets()
                 is PricesLoadStrategy.TradableOnly -> pricesService.tradableAssets()
             }
-
-            assetsFlow.collectLatest { prices ->
+            assetsFlow.catch {
+                emit(DataResource.Error(it as Exception))
+            }.collectLatest { prices ->
                 updateState {
                     modelState.copy(
                         data = it.data.updateDataWith(prices)
@@ -233,6 +235,8 @@ class PricesViewModel(
                             )
                         )
                     }
+                }.catch {
+                    println("RRRR loadFilters ")
                 }.collect()
         }
     }
@@ -240,7 +244,11 @@ class PricesViewModel(
     private fun loadTopMoversCount() {
         topMoversCountJob?.cancel()
         topMoversCountJob = viewModelScope.launch {
-            pricesService.topMoversCount()
+            pricesService.topMoversCount().catch {
+                println("RRRR loadTopMoversCount ")
+            }.catch {
+                emit(0)
+            }
                 .collectLatest { count ->
                     updateState {
                         it.copy(
@@ -254,7 +262,9 @@ class PricesViewModel(
     private fun loadMostPopularTickers() {
         mostPopularJob?.cancel()
         mostPopularJob = viewModelScope.launch {
-            pricesService.mostPopularTickers()
+            pricesService.mostPopularTickers().catch {
+                println("RRRR mostPopularTickers ")
+            }
                 .collectLatest { mostPopularTickers ->
                     updateState {
                         it.copy(
@@ -268,7 +278,9 @@ class PricesViewModel(
     private fun loadRisingFastPercentThreshold() {
         risingFastJob?.cancel()
         risingFastJob = viewModelScope.launch {
-            pricesService.risingFastPercentThreshold()
+            pricesService.risingFastPercentThreshold().catch {
+                println("RRRR loadRisingFastPercentThreshold ")
+            }
                 .collectLatest { risingFastPercent ->
                     updateState {
                         it.copy(

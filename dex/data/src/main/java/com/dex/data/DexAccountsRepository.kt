@@ -9,8 +9,10 @@ import com.blockchain.core.chains.ethereum.EthDataManager.Companion.ETH_CHAIN_ID
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.dataOrElse
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DexPrefs
+import com.blockchain.store.filterNotLoading
 import com.blockchain.store.getDataOrThrow
 import com.blockchain.utils.asFlow
 import com.blockchain.walletmode.WalletMode
@@ -75,7 +77,9 @@ class DexAccountsRepository(
                     chainId = ETH_CHAIN_ID
                 )
             )
-        ).getDataOrThrow()
+        ).map {
+            it.dataOrElse(emptyList())
+        }
 
     private fun dexSourceAccounts(): Flow<List<DexAccount>> {
         return dexAvailableTokens().flatMapLatest { tokens ->

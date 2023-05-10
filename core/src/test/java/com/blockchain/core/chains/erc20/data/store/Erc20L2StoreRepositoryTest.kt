@@ -3,8 +3,6 @@ package com.blockchain.core.chains.erc20.data.store
 import com.blockchain.api.ethereum.evm.BalancesResponse
 import com.blockchain.api.ethereum.evm.EvmAddressResponse
 import com.blockchain.api.ethereum.evm.EvmBalanceResponse
-import com.blockchain.core.chains.erc20.data.Erc20L2StoreRepository
-import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
 import com.blockchain.data.DataResource
 import info.blockchain.balance.AssetCatalogue

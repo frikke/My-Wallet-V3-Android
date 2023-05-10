@@ -107,7 +107,6 @@ class DashboardActionInteractor(
     private val linkedBanksFactory: LinkedBanksFactory,
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val getDashboardOnboardingStepsUseCase: GetDashboardOnboardingStepsUseCase,
-    private val nftWaitlistService: NftWaitlistService,
     private val nftAnnouncementPrefs: NftAnnouncementPrefs,
     private val userIdentity: UserIdentity,
     private val kycService: KycService,
@@ -921,12 +920,9 @@ class DashboardActionInteractor(
         }
 
     fun joinNftWaitlist(): Disposable {
-        return rxSingle { nftWaitlistService.joinWaitlist() }.subscribeBy(
-            onSuccess = { result ->
-                nftAnnouncementPrefs.isJoinNftWaitlistSuccessful = result is Outcome.Success
-            },
+        return Single.just(false).subscribeBy(
+            onSuccess = {    },
             onError = {
-                Timber.e(it)
             }
         )
     }

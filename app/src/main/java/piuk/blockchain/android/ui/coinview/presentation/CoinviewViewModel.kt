@@ -45,6 +45,7 @@ import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
@@ -64,6 +65,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPriceHistor
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickActions
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewRecurringBuys
 import piuk.blockchain.android.ui.coinview.domain.model.isActiveRewardsAccount
 import piuk.blockchain.android.ui.coinview.domain.model.isInterestAccount
 import piuk.blockchain.android.ui.coinview.domain.model.isStakingAccount
@@ -451,11 +453,11 @@ class CoinviewViewModel(
 
     private fun reduceRecurringBuys(
         state: CoinviewModelState
-    ): DataResource<CoinviewRecurringBuysState?> = state.run {
+    ): DataResource<CoinviewRecurringBuysState> = state.run {
         recurringBuys.map {
             if (isTradeableAsset == false || walletMode == WalletMode.NON_CUSTODIAL) {
                 // not supported for non custodial
-                null
+                CoinviewRecurringBuysState.Data(emptyList())
             } else {
                 check(asset != null) { "asset not initialized" }
 
@@ -466,7 +468,7 @@ class CoinviewViewModel(
                         }
 
                         data.isEmpty() -> {
-                            null
+                            CoinviewRecurringBuysState.Data(emptyList())
                         }
 
                         else -> CoinviewRecurringBuysState.Data(
@@ -616,9 +618,8 @@ class CoinviewViewModel(
 
                 onIntent(CoinviewIntent.LoadPriceData)
                 onIntent(CoinviewIntent.LoadAccountsData)
-                onIntent(CoinviewIntent.LoadWatchlistData)
-                loadRecurringBuysData(asset = modelState.asset)
-                onIntent(CoinviewIntent.LoadAssetInfo)
+                /*    onIntent(CoinviewIntent.LoadWatchlistData)
+                   onIntent(CoinviewIntent.LoadAssetInfo)*/
             }
 
             CoinviewIntent.LoadPriceData -> {
@@ -943,7 +944,9 @@ class CoinviewViewModel(
                 asset = asset,
                 timeSpan = requestedTimeSpan,
                 fiatCurrency = fiatCurrency
-            ).collectLatest { dataResource ->
+            ).catch {
+                println("TTT loadPriceDataJob $it")
+            }.collectLatest { dataResource ->
                 when (dataResource) {
                     DataResource.Loading -> {
                         updateState {
@@ -1034,7 +1037,9 @@ class CoinviewViewModel(
     private fun loadWatchlistData(asset: CryptoAsset) {
         loadWatchlistJob?.cancel()
         loadWatchlistJob = viewModelScope.launch {
-            watchlistService.isAssetInWatchlist(asset.currency).collectLatest { dataResource ->
+            watchlistService.isAssetInWatchlist(asset.currency).catch {
+                println("TTT watchlistService $it")
+            }.collectLatest { dataResource ->
                 updateState {
                     it.copy(
                         watchlist = if (dataResource is DataResource.Loading && it.watchlist is DataResource.Data) {
@@ -1091,7 +1096,9 @@ class CoinviewViewModel(
     private fun loadAccountsData(asset: CryptoAsset) {
         loadAccountsJob?.cancel()
         loadAccountsJob = viewModelScope.launch {
-            loadAssetAccountsUseCase(asset = asset).collectLatest { dataResource ->
+            loadAssetAccountsUseCase(asset = asset).catch {
+                println("TTT loadAssetAccountsUseCase $it")
+            }.collectLatest { dataResource ->
 
                 updateState {
                     it.copy(
@@ -1129,13 +1136,18 @@ class CoinviewViewModel(
                                     )
                                 )
                             }
+                            modelState.asset?.let {
+                                loadRecurringBuysData(it)
+                            }
                         }
 
                         is CoinviewAssetDetail.NonTradeable -> {
-                            // cancel flows
-                            loadAccountsJob?.cancel()
-                            loadQuickActionsJob?.cancel()
-                            loadRecurringBuyJob?.cancel()
+                            updateState {
+                                it.copy(
+                                    quickActions = DataResource.Data(CoinviewQuickActions.none()),
+                                    recurringBuys = DataResource.Data(CoinviewRecurringBuys(emptyList(), false))
+                                )
+                            }
                         }
                     }
                 }
@@ -1323,7 +1335,9 @@ class CoinviewViewModel(
     ) {
         loadRecurringBuyJob?.cancel()
         loadRecurringBuyJob = viewModelScope.launch {
-            loadAssetRecurringBuysUseCase(asset, freshnessStrategy).collectLatest { dataResource ->
+            loadAssetRecurringBuysUseCase(asset, freshnessStrategy).catch {
+                println("TTT loadAssetRecurringBuysUseCase $it")
+            }.collectLatest { dataResource ->
                 updateState {
                     it.copy(recurringBuys = it.recurringBuys.updateDataWith(dataResource))
                 }
@@ -1354,7 +1368,9 @@ class CoinviewViewModel(
                 asset = asset,
                 accounts = accounts,
                 totalBalance = totalBalance
-            ).collectLatest { dataResource ->
+            ).catch {
+                println("TTT loadQuickActionsJob $it")
+            }.collectLatest { dataResource ->
                 updateState {
                     it.copy(
                         quickActions = if (dataResource is DataResource.Loading &&
@@ -1383,7 +1399,9 @@ class CoinviewViewModel(
     private fun loadAssetInformation(asset: CryptoAsset) {
         loadAssetInfoJob?.cancel()
         loadAssetInfoJob = viewModelScope.launch {
-            assetService.getAssetInformation(asset = asset.currency).collectLatest { dataResource ->
+            assetService.getAssetInformation(asset = asset.currency).catch {
+                println("TTT getAssetInformation $it")
+            }.collectLatest { dataResource ->
                 updateState {
                     it.copy(
                         assetInfo = if (dataResource is DataResource.Loading &&

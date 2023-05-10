@@ -9,6 +9,7 @@ import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.common.model.toMillis
+import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
 import com.blockchain.store.Fetcher
@@ -28,10 +29,12 @@ internal class AssetPriceStoreCache(
     > by InMemoryCacheStoreBuilder().buildKeyed(
     storeId = STORE_ID,
     fetcher = Fetcher.Keyed.ofOutcome { key ->
+        println("LALALA FETCHING PRICE ${key.toString()}")
         supportedTickersStore
             .stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             .firstOutcome()
             .flatMap { supportedTickers ->
+                println("LALALA PRINTLN $supportedTickers")
                 when (key) {
                     is Key.GetAllCurrent -> assetPriceService.getCurrentPrices(
                         baseTickerList = supportedTickers.baseTickers.toSet(),
@@ -52,7 +55,10 @@ internal class AssetPriceStoreCache(
                     )
                 }.awaitOutcome()
             }.map {
+                println("LALALA Prices $it")
                 it.map { item -> item.toAssetPriceRecord() }
+            }.doOnFailure {
+                println("LALALA Exception $it")
             }
     },
     mediator = AssetPriceStoreMediator

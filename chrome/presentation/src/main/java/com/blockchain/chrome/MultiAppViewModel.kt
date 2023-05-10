@@ -16,6 +16,7 @@ import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeBalanceService
 import com.blockchain.walletmode.WalletModeService
+import kotlinx.coroutines.flow.catch
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
@@ -133,6 +134,9 @@ class MultiAppViewModel(
             )
                 .distinctUntilChanged()
                 .debounce(1000)
+                .catch {
+                    println("lalalacatching Multiapp")
+                }
                 .collectLatest { totalBalanceDataResource ->
                     updateState {
                         it.copy(totalBalance = totalBalanceDataResource)
