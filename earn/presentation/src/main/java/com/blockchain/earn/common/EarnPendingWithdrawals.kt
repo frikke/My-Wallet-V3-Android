@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -132,9 +133,9 @@ fun EarnPendingWithdrawals(pendingWithdrawals: List<EarnWithdrawalUiElement>) {
                             SmallHorizontalSpacer()
                         },
                         contentEnd = {
-                            Column {
+                            Column(horizontalAlignment = Alignment.End) {
                                 SimpleText(
-                                    text = pendingWithdrawal.unbondingStartDate,
+                                    text = pendingWithdrawal.unbondingExpiryDate,
                                     style = ComposeTypographies.Caption1,
                                     color = ComposeColors.Body,
                                     gravity = ComposeGravities.End,
