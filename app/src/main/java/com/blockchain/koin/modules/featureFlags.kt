@@ -9,6 +9,7 @@ import com.blockchain.koin.activeRewardsWithdrawalsFeatureFlag
 import com.blockchain.koin.assetOrderingFeatureFlag
 import com.blockchain.koin.bindFeatureFlag
 import com.blockchain.koin.blockchainMembershipsFeatureFlag
+import com.blockchain.koin.buyIntercomBotFeatureFlag
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.cardPaymentAsyncFeatureFlag
 import com.blockchain.koin.cowboysPromoFeatureFlag
@@ -311,6 +312,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_upsell_another_asset",
                 "Upsell another asset"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(buyIntercomBotFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "blockchain_app_configuration_buy_intercom_bot",
+                "intercom bot in buy flow"
             )
         )
     }.bind(FeatureFlag::class)
