@@ -109,11 +109,9 @@ abstract class MviViewModel<TIntent : Intent<TModelState>,
      * [viewState] flow always has a value
      */
     val viewState: StateFlow<TViewState>
-        get() = _modelState.flatMapLatest {
-            flow {
-                emit(reduce(it))
-            }
-        }.debounce(2000).stateIn(
+        get() = _modelState.map {
+            reduce(it)
+        }.stateIn(
             viewModelScope,
             SharingStarted.Eagerly,
             reduce(initialState).also {
