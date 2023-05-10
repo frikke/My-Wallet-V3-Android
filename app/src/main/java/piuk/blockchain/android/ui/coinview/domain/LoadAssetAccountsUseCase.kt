@@ -99,7 +99,7 @@ class LoadAssetAccountsUseCase(
                     flowOf(DataResource.Data(StakingRewardsRates(0.0, 0.0))),
                 if (wMode == WalletMode.CUSTODIAL) activeRewardsFlow else
                     flowOf(DataResource.Data(ActiveRewardsRates(0.0, 0.0, Money.zero(asset.currency)))),
-            ) { accounts, price, interestRate, stakingRate, activeRewardsRate, ->
+            ) { accounts, price, interestRate, stakingRate, activeRewardsRate ->
                 // while we wait for a BE flag on whether an asset is tradeable or not, we can check the
                 // available accounts to see if we support custodial or PK balances as a guideline to asset support
 
@@ -173,7 +173,11 @@ class LoadAssetAccountsUseCase(
                     account.balance().map { DataResource.Data(it) as DataResource<AccountBalance> }.catch {
                         emit(DataResource.Error(it as Exception))
                     },
-                    flowOf(account.stateAwareActions.awaitOutcome().getOrDefault(emptySet())).map { DataResource.Data(it) }.catch {
+                    flowOf(account.stateAwareActions.awaitOutcome().getOrDefault(emptySet())).map {
+                        DataResource.Data(
+                            it
+                        )
+                    }.catch {
                         emit(DataResource.Data(emptySet()))
                     }.map {
                         it.data.any { action -> action.state == ActionState.Available }
