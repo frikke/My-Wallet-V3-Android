@@ -24,11 +24,9 @@ import com.blockchain.core.chains.dynamicselfcustody.data.NonCustodialRepository
 import com.blockchain.core.chains.dynamicselfcustody.data.NonCustodialSubscriptionsStore
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
-import com.blockchain.core.chains.erc20.data.Erc20L2StoreRepository
 import com.blockchain.core.chains.erc20.data.store.Erc20L2DataSource
 import com.blockchain.core.chains.erc20.data.store.Erc20L2Store
 import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
-import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.chains.ethereum.EthLastTxCache
 import com.blockchain.core.chains.ethereum.EthMessageSigner
@@ -55,8 +53,6 @@ import com.blockchain.core.history.data.datasources.PaymentTransactionHistorySto
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.LimitsDataManagerImpl
 import com.blockchain.core.mercuryexperiments.MercuryExperimentsRepository
-import com.blockchain.core.nftwaitlist.data.NftWailslitRepository
-import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.core.payload.DataManagerPayloadDecrypt
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.payload.PayloadDataManagerSeedAccessAdapter
@@ -293,13 +289,6 @@ val coreModule = module {
             )
         }
 
-        scoped<Erc20L2StoreService> {
-            Erc20L2StoreRepository(
-                assetCatalogue = get(),
-                erc20L2DataSource = get()
-            )
-        }
-
         factory {
             Erc20HistoryCallCache(
                 ethDataManager = get(),
@@ -521,13 +510,6 @@ val coreModule = module {
                 currencyPrefs = get(),
             )
         }.bind(ReferralService::class)
-
-        scoped<NftWaitlistService> {
-            NftWailslitRepository(
-                nftWaitlistApiService = get(),
-                userIdentity = get()
-            )
-        }
 
         scoped<NonCustodialService> {
             NonCustodialRepository(

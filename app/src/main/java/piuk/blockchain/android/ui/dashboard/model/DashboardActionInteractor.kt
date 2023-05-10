@@ -16,7 +16,6 @@ import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
-import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
@@ -45,7 +44,6 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
@@ -83,7 +81,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.asObservable
-import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCase
 import piuk.blockchain.android.simplebuy.DepositMethodOptionsViewed
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
@@ -108,7 +105,6 @@ class DashboardActionInteractor(
     private val linkedBanksFactory: LinkedBanksFactory,
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val getDashboardOnboardingStepsUseCase: GetDashboardOnboardingStepsUseCase,
-    private val nftWaitlistService: NftWaitlistService,
     private val nftAnnouncementPrefs: NftAnnouncementPrefs,
     private val userIdentity: UserIdentity,
     private val kycService: KycService,
@@ -922,12 +918,9 @@ class DashboardActionInteractor(
         }
 
     fun joinNftWaitlist(): Disposable {
-        return rxSingle { nftWaitlistService.joinWaitlist() }.subscribeBy(
-            onSuccess = { result ->
-                nftAnnouncementPrefs.isJoinNftWaitlistSuccessful = result is Outcome.Success
-            },
+        return Single.just(false).subscribeBy(
+            onSuccess = { },
             onError = {
-                Timber.e(it)
             }
         )
     }

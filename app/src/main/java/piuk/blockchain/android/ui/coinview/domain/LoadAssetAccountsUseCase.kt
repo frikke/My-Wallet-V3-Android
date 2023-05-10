@@ -23,8 +23,10 @@ import com.blockchain.earn.domain.models.StakingRewardsRates
 import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
+import com.blockchain.outcome.getOrDefault
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.flatMapData
+import com.blockchain.utils.awaitOutcome
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.CryptoValue
@@ -41,7 +43,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.rx3.await
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccountDetail
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccounts
@@ -62,7 +63,7 @@ class LoadAssetAccountsUseCase(
             .flatMapMaybe { asset.accountGroup(it.defaultFilter()) }
             .map { it.accounts }
             .switchIfEmpty(Single.just(emptyList()))
-            .await()
+            .awaitOutcome().getOrDefault(emptyList())
             .run { extractAccountDetails(this) }
 
         val interestFlow = interestService.isAssetAvailableForInterestFlow(asset.currency).flatMapData { available ->
@@ -98,7 +99,7 @@ class LoadAssetAccountsUseCase(
                     flowOf(DataResource.Data(StakingRewardsRates(0.0, 0.0))),
                 if (wMode == WalletMode.CUSTODIAL) activeRewardsFlow else
                     flowOf(DataResource.Data(ActiveRewardsRates(0.0, 0.0, Money.zero(asset.currency)))),
-            ) { accounts, price, interestRate, stakingRate, activeRewardsRate, ->
+            ) { accounts, price, interestRate, stakingRate, activeRewardsRate ->
                 // while we wait for a BE flag on whether an asset is tradeable or not, we can check the
                 // available accounts to see if we support custodial or PK balances as a guideline to asset support
 
@@ -172,7 +173,11 @@ class LoadAssetAccountsUseCase(
                     account.balance().map { DataResource.Data(it) as DataResource<AccountBalance> }.catch {
                         emit(DataResource.Error(it as Exception))
                     },
-                    flowOf(account.stateAwareActions.await()).map { DataResource.Data(it) }.catch {
+                    flowOf(account.stateAwareActions.awaitOutcome().getOrDefault(emptySet())).map {
+                        DataResource.Data(
+                            it
+                        )
+                    }.catch {
                         emit(DataResource.Data(emptySet()))
                     }.map {
                         it.data.any { action -> action.state == ActionState.Available }

@@ -95,6 +95,6 @@ class GetDashboardOnboardingStepsUseCase(
         tradeDataService.isFirstTimeBuyer().map { isFirstTimeBuyer -> !isFirstTimeBuyer }
 
     override suspend fun onBoardingSteps(): List<CompletableDashboardOnboardingStep> {
-        return execute(Unit).await()
+        return execute(Unit).onErrorReturn { emptyList() }.await()
     }
 }

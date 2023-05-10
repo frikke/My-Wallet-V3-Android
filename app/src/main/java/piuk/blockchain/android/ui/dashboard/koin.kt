@@ -67,7 +67,6 @@ val dashboardModule = module {
                 remoteLogger = get(),
                 linkedBanksFactory = get(),
                 getDashboardOnboardingStepsUseCase = get(),
-                nftWaitlistService = get(),
                 nftAnnouncementPrefs = get(),
                 referralPrefs = get(),
                 cowboysFeatureFlag = get(cowboysPromoFeatureFlag),

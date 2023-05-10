@@ -227,7 +227,7 @@ internal class DynamicAssetLoader(
             .mapList { loadCustodialOnlyAsset(it) }
             .catch { emit(emptyList()) }
 
-        val activeActiveRewardsFlow = activeRewardsService.getActiveAssets()
+        val activeActiveRewardsFlow = activeRewardsService.getActiveAssets(freshnessStrategy)
             .mapList { loadCustodialOnlyAsset(it) }
             .catch { emit(emptyList()) }
 
@@ -242,23 +242,10 @@ internal class DynamicAssetLoader(
             activeStakingFlow,
             activeActiveRewardsFlow,
         ) { activeTrading, activeInterest, supportedFiats, activeStaking, activeActive ->
-            activeTrading +
-                activeInterest.filter {
-                    it.currency.networkTicker !in
-                        activeTrading.map { active -> active.currency.networkTicker }
-                } +
-                activeStaking.filter {
-                    it.currency.networkTicker !in
-                        activeTrading.map { active -> active.currency.networkTicker }
-                            .plus(activeInterest.map { active -> active.currency.networkTicker })
-                } +
-                activeActive.filter {
-                    it.currency.networkTicker !in
-                        activeTrading.map { active -> active.currency.networkTicker }
-                            .plus(activeInterest.map { active -> active.currency.networkTicker })
-                            .plus(activeStaking.map { active -> active.currency.networkTicker })
-                } +
-                supportedFiats
+            val allActives = setOf(activeTrading, activeInterest, activeStaking, activeActive)
+                .flatten()
+                .distinctBy { it.currency.networkTicker }
+            allActives + supportedFiats
         }
     }
 

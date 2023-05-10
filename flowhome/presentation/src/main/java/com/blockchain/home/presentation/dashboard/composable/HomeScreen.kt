@@ -154,8 +154,8 @@ fun HomeScreen(
                 homeAssetsViewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.Limited(MAX_ASSET_COUNT)))
                 homeAssetsViewModel.onIntent(AssetsIntent.LoadFundLocks)
                 rbViewModel.onIntent(RecurringBuysIntent.LoadRecurringBuys(SectionSize.Limited(MAX_RB_COUNT)))
-                pricesViewModel.onIntent(PricesIntents.LoadData(PricesLoadStrategy.TradableOnly))
                 quickActionsViewModel.onIntent(QuickActionsIntent.LoadActions(maxQuickActions))
+                pricesViewModel.onIntent(PricesIntents.LoadData(PricesLoadStrategy.TradableOnly))
                 referralViewModel.onIntent(ReferralIntent.LoadData())
                 custodialActivityViewModel.onIntent(
                     ActivityIntent.LoadActivity(SectionSize.Limited(MAX_ACTIVITY_COUNT))

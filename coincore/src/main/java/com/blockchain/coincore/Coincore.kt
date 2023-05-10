@@ -20,11 +20,13 @@ import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.getOrDefault
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.firstOutcome
 import com.blockchain.unifiedcryptowallet.domain.balances.CoinNetworksService
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
+import com.blockchain.utils.awaitOutcome
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -46,7 +48,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.rx3.asFlow
 import kotlinx.coroutines.rx3.asObservable
-import kotlinx.coroutines.rx3.await
 
 internal class CoincoreInitFailure(msg: String, e: Throwable) : Exception(msg, e)
 
@@ -450,7 +451,7 @@ internal class NetworkAccountsRepository(
                             Single.just(
                                 emptyList()
                             )
-                        ).onErrorReturn { emptyList() }.await()
+                        ).onErrorReturn { emptyList() }.awaitOutcome().getOrDefault(emptyList())
                 }.flatten()
             }
         }

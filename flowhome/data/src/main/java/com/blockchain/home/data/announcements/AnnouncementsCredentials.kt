@@ -7,9 +7,10 @@ import com.blockchain.data.dataOrElse
 import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.api.getuser.domain.UserService
+import com.blockchain.outcome.getOrDefault
 import com.blockchain.store.mapData
+import com.blockchain.utils.awaitOutcome
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.rx3.await
 
 interface AnnouncementsCredentials {
     suspend fun apiKey(): String
@@ -30,7 +31,7 @@ class AnnouncementsCredentialsImpl internal constructor(
 
     private val apiKey: String? = null
     override suspend fun apiKey(): String {
-        return apiKey ?: remoteConfigService.getRawJson(KEY_ITERABLE_API_KEY).await()
+        return apiKey ?: remoteConfigService.getRawJson(KEY_ITERABLE_API_KEY).awaitOutcome().getOrDefault("")
     }
 
     override suspend fun email(): String {

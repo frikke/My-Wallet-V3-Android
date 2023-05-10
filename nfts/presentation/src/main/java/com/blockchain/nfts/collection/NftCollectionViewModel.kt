@@ -15,12 +15,13 @@ import com.blockchain.data.map
 import com.blockchain.nfts.OPENSEA_URL
 import com.blockchain.nfts.collection.navigation.NftCollectionNavigationEvent
 import com.blockchain.nfts.domain.service.NftService
+import com.blockchain.outcome.getOrNull
 import com.blockchain.presentation.pulltorefresh.PullToRefresh
 import com.blockchain.utils.CurrentTimeProvider
+import com.blockchain.utils.awaitOutcome
 import info.blockchain.balance.CryptoCurrency
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.awaitSingle
 
 class NftCollectionViewModel(
@@ -94,14 +95,15 @@ class NftCollectionViewModel(
                 check(modelState.account != null) { "account not initialized" }
 
                 viewModelScope.launch {
-                    val address = modelState.account.receiveAddress.await().address
-                    navigate(
-                        NftCollectionNavigationEvent.ShowDetail(
-                            nftId = intent.nftId,
-                            pageKey = intent.pageKey,
-                            address = address
+                    modelState.account.receiveAddress.awaitOutcome().getOrNull()?.address?.let {
+                        navigate(
+                            NftCollectionNavigationEvent.ShowDetail(
+                                nftId = intent.nftId,
+                                pageKey = intent.pageKey,
+                                address = it
+                            )
                         )
-                    )
+                    }
                 }
             }
 
@@ -135,7 +137,7 @@ class NftCollectionViewModel(
         forceRefresh: Boolean
     ) {
         viewModelScope.launch {
-            val address = account.receiveAddress.await().address
+            val address = account.receiveAddress.awaitOutcome().getOrNull()?.address ?: return@launch
             nftService.getNftCollectionForAddress(
                 freshnessStrategy = PullToRefresh.freshnessStrategy(
                     shouldGetFresh = forceRefresh,

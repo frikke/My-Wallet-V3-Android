@@ -73,7 +73,6 @@ class AssetsViewModel(
 ) {
     private var accountsJob: Job? = null
     private var fundsLocksJob: Job? = null
-
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
         updateState { state ->
             state.copy(accounts = DataResource.Data(emptyList()))
