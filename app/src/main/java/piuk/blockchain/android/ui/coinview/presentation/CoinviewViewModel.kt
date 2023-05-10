@@ -618,8 +618,8 @@ class CoinviewViewModel(
 
                 onIntent(CoinviewIntent.LoadPriceData)
                 onIntent(CoinviewIntent.LoadAccountsData)
-                /*    onIntent(CoinviewIntent.LoadWatchlistData)
-                   onIntent(CoinviewIntent.LoadAssetInfo)*/
+                onIntent(CoinviewIntent.LoadWatchlistData)
+                onIntent(CoinviewIntent.LoadAssetInfo)
             }
 
             CoinviewIntent.LoadPriceData -> {
