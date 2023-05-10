@@ -235,8 +235,6 @@ class PricesViewModel(
                             )
                         )
                     }
-                }.catch {
-                    println("RRRR loadFilters ")
                 }.collect()
         }
     }
@@ -245,8 +243,6 @@ class PricesViewModel(
         topMoversCountJob?.cancel()
         topMoversCountJob = viewModelScope.launch {
             pricesService.topMoversCount().catch {
-                println("RRRR loadTopMoversCount ")
-            }.catch {
                 emit(0)
             }
                 .collectLatest { count ->
@@ -262,9 +258,7 @@ class PricesViewModel(
     private fun loadMostPopularTickers() {
         mostPopularJob?.cancel()
         mostPopularJob = viewModelScope.launch {
-            pricesService.mostPopularTickers().catch {
-                println("RRRR mostPopularTickers ")
-            }
+            pricesService.mostPopularTickers()
                 .collectLatest { mostPopularTickers ->
                     updateState {
                         it.copy(
@@ -278,9 +272,7 @@ class PricesViewModel(
     private fun loadRisingFastPercentThreshold() {
         risingFastJob?.cancel()
         risingFastJob = viewModelScope.launch {
-            pricesService.risingFastPercentThreshold().catch {
-                println("RRRR loadRisingFastPercentThreshold ")
-            }
+            pricesService.risingFastPercentThreshold()
                 .collectLatest { risingFastPercent ->
                     updateState {
                         it.copy(

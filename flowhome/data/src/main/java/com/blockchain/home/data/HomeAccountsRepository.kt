@@ -45,7 +45,6 @@ class HomeAccountsRepository(
                 asset.accountGroup(AssetFilter.NonCustodial).map { grp -> grp.accounts }
             }.reduce { a, l -> a + l }.switchIfEmpty(Single.just(emptyList())).await()
         }.onErrorReturn {
-            println("LALALA activeNonCustodialWallets $it")
             emptyList()
         }
     }
@@ -57,7 +56,6 @@ class HomeAccountsRepository(
             }.onStart {
                 emit(DataResource.Loading)
             }.catch {
-                println("LALALA activeCustodialWallets $it")
                 emit(DataResource.Error(it as Exception))
             }
 }

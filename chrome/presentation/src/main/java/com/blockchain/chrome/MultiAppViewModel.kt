@@ -134,9 +134,6 @@ class MultiAppViewModel(
             )
                 .distinctUntilChanged()
                 .debounce(1000)
-                .catch {
-                    println("lalalacatching Multiapp")
-                }
                 .collectLatest { totalBalanceDataResource ->
                     updateState {
                         it.copy(totalBalance = totalBalanceDataResource)

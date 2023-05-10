@@ -55,10 +55,7 @@ internal class AssetPriceStoreCache(
                     )
                 }.awaitOutcome()
             }.map {
-                println("LALALA Prices $it")
                 it.map { item -> item.toAssetPriceRecord() }
-            }.doOnFailure {
-                println("LALALA Exception $it")
             }
     },
     mediator = AssetPriceStoreMediator
