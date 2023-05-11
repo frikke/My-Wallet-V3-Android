@@ -44,9 +44,9 @@
         <activity
             android:name=".ui.launcher.LauncherActivityV2"
             android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true"
             android:launchMode="singleTask"
-            android:theme="@style/AppTheme.Splash"
-            android:exported="true">
+            android:theme="@style/AppTheme.Splash">
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/debug_shortcuts" />
@@ -125,7 +125,8 @@
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name="com.blockchain.chrome.MultiAppActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"></activity>
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true" />
         <activity
             android:name=".ui.scan.QrScanActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
@@ -258,7 +259,9 @@
         <activity
             android:name=".ui.settings.profile.ProfileActivity"
             android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".ui.coinview.presentation.CoinViewActivity" />
+        <activity
+            android:name=".ui.coinview.presentation.CoinViewActivity"
+            android:exported="true" />
         <activity android:name=".ui.cowboys.CowboysFlowActivity" />
         <activity android:name=".cards.cvv.SecurityCodeActivity" />
 
