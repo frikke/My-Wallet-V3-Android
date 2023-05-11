@@ -196,6 +196,7 @@ class SimpleBuyCheckoutFragment :
                 if (millisUntilFinished > 0) {
                     val formattedTime = DateUtils.formatElapsedTime(max(0, millisUntilFinished / 1000))
                     binding.quoteExpiration.apply {
+                        visible()
                         text = getString(
                             R.string.simple_buy_quote_message,
                             formattedTime
@@ -221,7 +222,6 @@ class SimpleBuyCheckoutFragment :
     }
 
     private var startPolling = true
-
     override fun render(newState: SimpleBuyState) {
         if (newState.featureFlagSet.feynmanCheckoutFF && startPolling) {
             startPolling = false
@@ -232,7 +232,6 @@ class SimpleBuyCheckoutFragment :
         if (!isForPendingPayment &&
             (newState.featureFlagSet.buyQuoteRefreshFF || newState.featureFlagSet.feynmanCheckoutFF)
         ) {
-            binding.quoteExpiration.visible()
             if (countDownTimer == null && newState.quote != null &&
                 !isPendingOrAwaitingFunds(newState.orderState)
             ) {
@@ -240,13 +239,9 @@ class SimpleBuyCheckoutFragment :
                 startCounter(newState.quote, chunksCounter.first())
             }
             if (newState.hasQuoteChanged && !isPendingOrAwaitingFunds(newState.orderState)) {
-                binding.amount.animateChange {
-                    if (!isDestroyed())
-                        binding.amount.setTextColor(
-                            ContextCompat.getColor(binding.amount.context, R.color.grey_800)
-                        )
-                }
+                binding.amount.animateChange(startColor = R.color.grey_800)
                 checkoutAdapterDelegate.items = getCheckoutFields(newState)
+                model.process(SimpleBuyIntent.QuoteChangeConsumed)
             }
         }
 
@@ -400,7 +395,6 @@ class SimpleBuyCheckoutFragment :
             }
         }
     }
-
     private fun getSettlementReason(
         plaidFFEnabled: Boolean,
         quote: BuyQuote?,
@@ -566,8 +560,7 @@ class SimpleBuyCheckoutFragment :
     }
 
     private fun SimpleBuyState.suggestEnablingRecurringBuyFrequency(): Boolean =
-        featureFlagSet.rbFrequencySuggestionFF &&
-            this.recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME &&
+        this.recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME &&
             this.isSelectedPaymentMethodRecurringBuyEligible() &&
             this.suggestedRecurringBuyExperiment != RecurringBuyFrequency.ONE_TIME
 

@@ -596,6 +596,7 @@ class SimpleBuyCryptoFragment :
             newState.kycVerificationState != null &&
             (newState.orderState == OrderState.PENDING_CONFIRMATION || newState.featureFlagSet.feynmanCheckoutFF)
         ) {
+            model.process(SimpleBuyIntent.NavigationHandled)
             handlePostOrderCreationAction(newState)
         }
 

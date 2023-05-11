@@ -29,7 +29,6 @@ import com.blockchain.koin.paymentUxTotalDisplayBalanceFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.proveFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
-import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.sellSwapBrokerageQuoteFeatureFlag
 import com.blockchain.koin.stakingWithdrawalsFeatureFlag
 import com.blockchain.koin.topMoversInBuy
@@ -130,15 +129,6 @@ val featureFlagsModule = module {
                     "ff_card_payment_async",
                     "Enable Async Card Payment"
                 )
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(rbFrequencyFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_rb_frequency_suggestion",
-                "Enable Recurring Buy suggestion"
             )
         )
     }.bind(FeatureFlag::class)

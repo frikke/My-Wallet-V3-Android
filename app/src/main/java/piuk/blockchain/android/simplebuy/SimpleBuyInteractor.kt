@@ -1,9 +1,7 @@
 package piuk.blockchain.android.simplebuy
 
-import com.blockchain.analytics.Analytics
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.Coincore
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.custodial.models.BrokerageQuote
@@ -14,7 +12,6 @@ import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payments.PaymentsRepository
-import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency
 import com.blockchain.core.recurringbuy.domain.model.RecurringBuyOrder
@@ -49,7 +46,6 @@ import com.blockchain.domain.paymentmethods.model.toPreferencesValue
 import com.blockchain.domain.trade.TradeDataService
 import com.blockchain.domain.trade.model.QuotePrice
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CardPaymentState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -116,12 +112,8 @@ class SimpleBuyInteractor(
     private val tradeDataService: TradeDataService,
     private val limitsDataManager: LimitsDataManager,
     private val withdrawLocksRepository: WithdrawLocksRepository,
-    private val analytics: Analytics,
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val simpleBuyService: SimpleBuyService,
-    private val exchangeRatesDataManager: ExchangeRatesDataManager,
-    private val coincore: Coincore,
-    private val userIdentity: UserIdentity,
     private val bankLinkingPrefs: BankLinkingPrefs,
     private val cardProcessors: Map<CardAcquirer, CardProcessor>,
     private val cancelOrderUseCase: CancelOrderUseCase,
@@ -137,7 +129,6 @@ class SimpleBuyInteractor(
     private val cardPaymentAsyncFF: FeatureFlag,
     private val buyQuoteRefreshFF: FeatureFlag,
     private val plaidFF: FeatureFlag,
-    private val rbFrequencySuggestionFF: FeatureFlag,
     private val rbExperimentFF: FeatureFlag,
     private val feynmanEnterAmountFF: FeatureFlag,
     private val feynmanCheckoutFF: FeatureFlag,
@@ -636,17 +627,15 @@ class SimpleBuyInteractor(
         return Single.zip(
             buyQuoteRefreshFF.enabled,
             plaidFF.enabled,
-            rbFrequencySuggestionFF.enabled,
             rbExperimentFF.enabled,
             feynmanEnterAmountFF.enabled,
             feynmanCheckoutFF.enabled,
             improvedPaymentUxFF.enabled
-        ) { buyQuoteRefreshFF, plaidFF, rbFrequencySuggestionFF, rbExperimentFF,
+        ) { buyQuoteRefreshFF, plaidFF, rbExperimentFF,
             feynmanEnterAmountFF, feynmanCheckoutFF, improvedPaymentUxFF ->
             FeatureFlagsSet(
                 buyQuoteRefreshFF = buyQuoteRefreshFF,
                 plaidFF = plaidFF,
-                rbFrequencySuggestionFF = rbFrequencySuggestionFF,
                 rbExperimentFF = rbExperimentFF,
                 feynmanEnterAmountFF = feynmanEnterAmountFF,
                 feynmanCheckoutFF = feynmanCheckoutFF,

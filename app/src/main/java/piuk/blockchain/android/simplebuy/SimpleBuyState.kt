@@ -236,7 +236,6 @@ data class QuotePrice(
 data class FeatureFlagsSet(
     val buyQuoteRefreshFF: Boolean = false,
     val plaidFF: Boolean = false,
-    val rbFrequencySuggestionFF: Boolean = false,
     val rbExperimentFF: Boolean = false,
     val feynmanEnterAmountFF: Boolean = false,
     val feynmanCheckoutFF: Boolean = false,

@@ -110,9 +110,7 @@ class SimpleBuyModel(
                 interactor.initializeFeatureFlags().subscribeBy(
                     onSuccess = { featureFlagSet ->
                         process(SimpleBuyIntent.UpdateFeatureFlags(featureFlagSet))
-                        if (featureFlagSet.rbFrequencySuggestionFF)
-                            process(SimpleBuyIntent.GetRecurringBuyFrequencyRemote)
-
+                        process(SimpleBuyIntent.GetRecurringBuyFrequencyRemote)
                         if (featureFlagSet.buyQuoteRefreshFF && !featureFlagSet.feynmanCheckoutFF) {
                             process(SimpleBuyIntent.ListenToQuotesUpdate)
                         }
@@ -232,7 +230,9 @@ class SimpleBuyModel(
                     onSuccess = {
                         process(SimpleBuyIntent.OrderCreated(buyOrder = it.buyOrder, quote = it.quote))
                     },
-                    onError = { processOrderErrors(it) }
+                    onError = {
+                        processOrderErrors(it)
+                    }
                 )
 
             is SimpleBuyIntent.ListenToQuotesUpdate -> {
@@ -329,7 +329,6 @@ class SimpleBuyModel(
                     process(SimpleBuyIntent.AddNewPaymentMethodRequested(selectedPaymentMethod))
                     null
                 } else {
-                    process(SimpleBuyIntent.CancelOrderIfAnyAndCreatePendingOne)
                     interactor.checkTierLevel()
                         .subscribeBy(
                             onSuccess =

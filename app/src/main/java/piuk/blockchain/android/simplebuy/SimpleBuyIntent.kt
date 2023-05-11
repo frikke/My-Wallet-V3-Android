@@ -497,6 +497,14 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             )
     }
 
+    object QuoteChangeConsumed : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
+            return oldState.copy(
+                hasQuoteChanged = false
+            )
+        }
+    }
+
     class OrderConfirmed(
         private val buyOrder: BuySellOrder,
         private val isRbActive: Boolean
