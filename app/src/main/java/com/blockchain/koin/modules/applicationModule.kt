@@ -53,7 +53,6 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
-import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.sellOrder
 import com.blockchain.koin.vgsFeatureFlag
 import com.blockchain.lifecycle.LifecycleInterestedComponent
@@ -491,12 +490,8 @@ val applicationModule = module {
                 tradeDataService = get(),
                 custodialWalletManager = get(),
                 limitsDataManager = get(),
-                coincore = get(),
-                userIdentity = get(),
                 simpleBuyService = get(),
                 bankLinkingPrefs = get(),
-                analytics = get(),
-                exchangeRatesDataManager = get(),
                 bankPartnerCallbackProvider = get(),
                 cardProcessors = getCardProcessors().associateBy { it.acquirer },
                 cancelOrderUseCase = get(),
@@ -512,7 +507,6 @@ val applicationModule = module {
                 cardPaymentAsyncFF = get(cardPaymentAsyncFeatureFlag),
                 buyQuoteRefreshFF = get(buyRefreshQuoteFeatureFlag),
                 plaidFF = get(plaidFeatureFlag),
-                rbFrequencySuggestionFF = get(rbFrequencyFeatureFlag),
                 rbExperimentFF = get(rbExperimentFeatureFlag),
                 feynmanEnterAmountFF = get(feynmanEnterAmountFeatureFlag),
                 feynmanCheckoutFF = get(feynmanCheckoutFeatureFlag),

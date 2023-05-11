@@ -147,7 +147,7 @@ object Versions {
     const val zendeskMessagingVersion = "5.2.3"
     const val checkoutComVersion = "3.0.1"
     const val stripeVersion = "20.3.0"
-    const val intercomVersion = "12.5.1"
+    const val intercomVersion = "15.0.0"
     const val plaidLinkVersion = "3.9.0"
     const val exoPlayerVersion = "2.18.1"
     const val vgsVersion = "1.7.1"

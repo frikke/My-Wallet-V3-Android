@@ -4,14 +4,12 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.toFiat
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.koin.scopedInject
-import com.blockchain.presentation.koin.scopedInject
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.R
@@ -71,16 +69,8 @@ class SwapInfoHeaderView @JvmOverloads constructor(
                     receivingAmountFiat.text = receivingAmount.toFiat(fiat, exchangeRates).toStringWithSymbol()
                 }
                 if (previousAmount.isNotEmpty() && previousAmount != receivingAmount.toStringWithSymbol()) {
-                    receivingAmountCrypto.animateChange {
-                        receivingAmountCrypto.setTextColor(
-                            ContextCompat.getColor(receivingAmountCrypto.context, R.color.grey_800)
-                        )
-                    }
-                    receivingAmountFiat.animateChange {
-                        receivingAmountFiat.setTextColor(
-                            ContextCompat.getColor(receivingAmountFiat.context, R.color.grey_600)
-                        )
-                    }
+                    receivingAmountCrypto.animateChange(startColor = R.color.grey_800)
+                    receivingAmountFiat.animateChange(startColor = R.color.grey_600)
                 }
             }
 

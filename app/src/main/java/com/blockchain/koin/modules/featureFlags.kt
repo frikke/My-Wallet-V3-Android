@@ -9,6 +9,7 @@ import com.blockchain.koin.activeRewardsWithdrawalsFeatureFlag
 import com.blockchain.koin.assetOrderingFeatureFlag
 import com.blockchain.koin.bindFeatureFlag
 import com.blockchain.koin.blockchainMembershipsFeatureFlag
+import com.blockchain.koin.buyIntercomBotFeatureFlag
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.cardPaymentAsyncFeatureFlag
 import com.blockchain.koin.cowboysPromoFeatureFlag
@@ -28,7 +29,6 @@ import com.blockchain.koin.paymentUxTotalDisplayBalanceFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.proveFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
-import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.sellSwapBrokerageQuoteFeatureFlag
 import com.blockchain.koin.stakingWithdrawalsFeatureFlag
 import com.blockchain.koin.topMoversInBuy
@@ -129,15 +129,6 @@ val featureFlagsModule = module {
                     "ff_card_payment_async",
                     "Enable Async Card Payment"
                 )
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(rbFrequencyFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_rb_frequency_suggestion",
-                "Enable Recurring Buy suggestion"
             )
         )
     }.bind(FeatureFlag::class)
@@ -311,6 +302,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_upsell_another_asset",
                 "Upsell another asset"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(buyIntercomBotFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "blockchain_app_configuration_buy_intercom_bot",
+                "intercom bot in buy flow"
             )
         )
     }.bind(FeatureFlag::class)
