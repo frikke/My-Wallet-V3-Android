@@ -266,7 +266,9 @@ class SimpleBuyModel(
             }
             is SimpleBuyIntent.ToggleRecurringBuy -> {
                 // when feynman ff is off this is recreate the order with the new recurring buy settings
-                process(SimpleBuyIntent.CancelOrderIfAnyAndCreatePendingOne)
+                if (!previousState.featureFlagSet.feynmanCheckoutFF) {
+                    process(SimpleBuyIntent.CancelOrderIfAnyAndCreatePendingOne)
+                }
                 null
             }
             is SimpleBuyIntent.StopQuotesUpdate -> {
