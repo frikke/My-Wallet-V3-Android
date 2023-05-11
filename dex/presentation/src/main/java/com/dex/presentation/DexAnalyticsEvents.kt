@@ -2,7 +2,6 @@ package com.dex.presentation
 
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
-import java.io.Serializable
 
 sealed class DexAnalyticsEvents(
     override val event: String,

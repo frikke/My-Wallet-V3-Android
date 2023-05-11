@@ -54,7 +54,7 @@ fun SettingsBottomSheet(
         }
     }
 
-    LaunchedEffect(Unit){
+    LaunchedEffect(Unit) {
         analytics.logEvent(DexAnalyticsEvents.SettingsOpened)
     }
 

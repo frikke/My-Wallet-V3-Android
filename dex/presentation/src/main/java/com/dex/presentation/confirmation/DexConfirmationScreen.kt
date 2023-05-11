@@ -653,9 +653,9 @@ private fun ExchangeRateConfirmation(confirmationExchangeRate: ConfirmationExcha
             AnimatedAmountCounter(
                 amountText = "${confirmationExchangeRate.rate} " +
                     "${confirmationExchangeRate.outputCurrency.displayTicker} / ${
-                        Money.fromMajor(
-                            confirmationExchangeRate.inputCurrency, BigDecimal.ONE
-                        ).toStringWithSymbol(includeDecimalsWhenWhole = false)
+                    Money.fromMajor(
+                        confirmationExchangeRate.inputCurrency, BigDecimal.ONE
+                    ).toStringWithSymbol(includeDecimalsWhenWhole = false)
                     }",
                 style = ComposeTypographies.Paragraph2,
                 color = ComposeColors.Title,
