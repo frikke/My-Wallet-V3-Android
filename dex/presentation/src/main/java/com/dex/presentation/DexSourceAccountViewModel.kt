@@ -49,7 +49,7 @@ class DexSourceAccountViewModel(
         when (intent) {
             SourceAccountIntent.LoadSourceAccounts -> {
                 viewModelScope.launch {
-                    dexService.sourceAccounts().collectLatest { dexAccounts ->
+                    dexService.sourceAccounts(1).collectLatest { dexAccounts ->
                         updateState {
                             it.copy(
                                 accounts = dexAccounts

@@ -18,6 +18,7 @@ import com.dex.domain.AllowanceService
 import com.dex.domain.AllowanceTransactionProcessor
 import com.dex.domain.AllowanceTransactionState
 import com.dex.domain.DexAccountsService
+import com.dex.domain.DexChainService
 import com.dex.domain.DexTransaction
 import com.dex.domain.DexTransactionProcessor
 import com.dex.domain.DexTxError
@@ -47,7 +48,8 @@ class DexEnterAmountViewModel(
     private val dexSlippageService: SlippageService,
     private val enviromentConfig: EnvironmentConfig,
     private val dexAllowanceService: AllowanceService,
-    private val exchangeRatesDataManager: ExchangeRatesDataManager
+    private val exchangeRatesDataManager: ExchangeRatesDataManager,
+    private val dexChainService: DexChainService
 ) : MviViewModel<
     InputAmountIntent,
     InputAmountViewState,
@@ -313,24 +315,30 @@ class DexEnterAmountViewModel(
     private fun initTransaction() {
         viewModelScope.launch {
             val selectedSlippage = dexSlippageService.selectedSlippage()
-            val preselectedAccount = dexAccountsService.defSourceAccount()
-            preselectedAccount?.let { source ->
-                val preselectedDestination = dexAccountsService.defDestinationAccount(source)
-                updateState { state ->
+            // collect chain changes and reset transaction when it changes
+            dexChainService.chainId.collectLatest { chainId ->
+                val preselectedAccount = dexAccountsService.defSourceAccount(chainId = chainId)
+                preselectedAccount?.let { source ->
+                    val preselectedDestination = dexAccountsService.defDestinationAccount(
+                        chainId = chainId,
+                        sourceTicker = source.currency.networkTicker
+                    )
+                    updateState { state ->
+                        state.copy(
+                            canTransact = DataResource.Data(true)
+                        )
+                    }
+                    txProcessor.initTransaction(
+                        sourceAccount = source,
+                        destinationAccount = preselectedDestination,
+                        slippage = selectedSlippage
+                    )
+                    subscribeForTxUpdates()
+                } ?: updateState { state ->
                     state.copy(
-                        canTransact = DataResource.Data(true)
+                        canTransact = DataResource.Data(false)
                     )
                 }
-                txProcessor.initTransaction(
-                    sourceAccount = source,
-                    destinationAccount = preselectedDestination,
-                    slippage = selectedSlippage
-                )
-                subscribeForTxUpdates()
-            } ?: updateState { state ->
-                state.copy(
-                    canTransact = DataResource.Data(false)
-                )
             }
         }
     }

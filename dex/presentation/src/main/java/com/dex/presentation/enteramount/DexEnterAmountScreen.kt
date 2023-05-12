@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -85,7 +86,9 @@ import com.dex.presentation.DexTxSubscribeScreen
 import com.dex.presentation.SendAndReceiveAmountFields
 import com.dex.presentation.graph.ARG_ALLOWANCE_TX
 import com.dex.presentation.graph.DexDestination
+import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
+import info.blockchain.balance.Money
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -332,7 +335,7 @@ fun InputScreen(
 ) {
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -583,4 +586,30 @@ private fun Settings(onClick: () -> Unit) {
             icon = Icons.Settings
         )
     }
+}
+
+@Preview
+@Composable
+private fun PreviewInputScreen() {
+    InputScreen(
+        {}, {}, {}, {}, {}, {}, {}, {},
+        InputAmountViewState.TransactionInputState(
+            sourceCurrency = CryptoCurrency.ETHER,
+            destinationCurrency = CryptoCurrency.BTC,
+            maxAmount = Money.fromMajor(CryptoCurrency.ETHER, 100.toBigDecimal()),
+            txAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
+            operationInProgress = DexOperation.NONE,
+            destinationAccountBalance = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
+            sourceAccountBalance = Money.fromMajor(CryptoCurrency.ETHER, 200.toBigDecimal()),
+            inputExchangeAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
+            outputExchangeAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
+            outputAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
+            allowanceCanBeRevoked = false,
+            uiFee = UiFee(
+                Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
+                Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
+            ),
+            previewActionButtonState = ActionButtonState.ENABLED,
+        )
+    )
 }

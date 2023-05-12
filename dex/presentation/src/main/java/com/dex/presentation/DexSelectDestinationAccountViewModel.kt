@@ -51,7 +51,7 @@ class DexSelectDestinationAccountViewModel(
         when (intent) {
             DestinationAccountIntent.LoadAccounts -> {
                 viewModelScope.launch {
-                    dexService.destinationAccounts()
+                    dexService.destinationAccounts(1)
                         .zip(transactionProcessor.transaction) { accounts, tx ->
                             accounts.filter {
                                 it.currency.networkTicker != tx.sourceAccount.currency.networkTicker
