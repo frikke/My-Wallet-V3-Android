@@ -425,6 +425,14 @@ fun <T> DataResource<T>.dataOrElse(default: T): T {
     }
 }
 
+fun <T> DataResource<T>.dataOrNull(): T? {
+    return when (this) {
+        DataResource.Loading -> null
+        is DataResource.Error -> null
+        is DataResource.Data -> this.data
+    }
+}
+
 fun <T> DataResource<List<T>>.toImmutableList(): DataResource<ImmutableList<T>> {
     return map { it.toImmutableList() }
 }

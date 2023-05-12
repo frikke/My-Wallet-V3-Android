@@ -12,6 +12,11 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -31,12 +36,16 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.BackgroundMuted
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Grey700
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.home.presentation.R
+import com.blockchain.koin.newSwapFlowFeatureFlag
+import org.koin.androidx.compose.get
 
 @Composable
 fun SwapDexOptionScreen(
+    newSwapFlowFF: FeatureFlag = get(newSwapFlowFeatureFlag),
     onBackPressed: () -> Unit,
-    openSwap: () -> Unit,
+    openSwap: (newFlow: Boolean) -> Unit,
     openDex: () -> Unit
 ) {
     Column(
@@ -77,11 +86,25 @@ fun SwapDexOptionScreen(
             )
         )
 
+        // TODO(aromano): TEMP FF | null = do not navigate, true = navigate to new flow, false = navigate to old flow
+        var navigateToSwapFlow by remember { mutableStateOf(false) }
+        LaunchedEffect(navigateToSwapFlow) {
+            if (navigateToSwapFlow) {
+                openSwap(newSwapFlowFF.coEnabled())
+                navigateToSwapFlow = false
+            }
+        }
+
         LazyColumn(Modifier.padding(horizontal = AppTheme.dimensions.smallSpacing)) {
             roundedCornersItems(
                 items = items,
             ) {
-                SwapOptionCell(item = it, openDex = openDex, openSwap = openSwap, close = onBackPressed)
+                SwapOptionCell(
+                    item = it,
+                    openDex = openDex,
+                    openSwap = { navigateToSwapFlow = true },
+                    close = onBackPressed
+                )
             }
         }
     }
@@ -199,7 +222,9 @@ private fun SwapDexOptionPreview() {
     AppTheme {
         AppSurface {
             SwapDexOptionScreen(
-                onBackPressed = { }, {}, {}
+                onBackPressed = {},
+                openSwap = {},
+                openDex = {}
             )
         }
     }

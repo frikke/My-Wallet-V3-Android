@@ -78,7 +78,7 @@ class ConfirmationViewModel(
     private lateinit var depositTxEngine: OnChainTxEngineBase
     private lateinit var depositPendingTx: PendingTx
 
-    override fun viewCreated(args: ModelConfigArgs.NoArgs) {
+    init {
         // Convert Source Crypto Amount to Fiat
         viewModelScope.launch {
             exchangeRatesDataManager.exchangeRateToUserFiatFlow(sourceAccount.currency)
@@ -89,6 +89,7 @@ class ConfirmationViewModel(
                 }
                 .collect()
         }
+
         // Convert Target Crypto Amount to Fiat
         viewModelScope.launch {
             exchangeRatesDataManager.exchangeRateToUserFiatFlow(targetAccount.currency)
@@ -100,9 +101,9 @@ class ConfirmationViewModel(
 
         startQuoteRefreshing()
 
-        val sourceAccount = sourceAccount
-        if (sourceAccount is CryptoNonCustodialAccount) {
-            viewModelScope.launch {
+        viewModelScope.launch {
+            val sourceAccount = sourceAccount
+            if (sourceAccount is CryptoNonCustodialAccount) {
                 depositTxEngine = sourceAccount.createTxEngine(targetAccount, AssetAction.Swap) as OnChainTxEngineBase
                 custodialWalletManager.getCustodialAccountAddress(Product.TRADE, sourceAccount.currency)
                     .awaitOutcome()
@@ -134,6 +135,8 @@ class ConfirmationViewModel(
             }
         }
     }
+
+    override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
     private fun startQuoteRefreshing() {
         quoteRefreshingJob = viewModelScope.launch {

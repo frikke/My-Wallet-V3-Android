@@ -24,9 +24,10 @@ import com.blockchain.utils.toFlowDataResource
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.FiatCurrency
-import info.blockchain.balance.asFiatCurrencyOrThrow
+import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
 import kotlinx.coroutines.flow.Flow
@@ -54,8 +55,8 @@ internal class SwapRepository(
                     .map { balance ->
                         CryptoAccountWithBalance(
                             account = account,
-                            balanceCrypto = balance.total,
-                            balanceFiat = balance.totalFiat
+                            balanceCrypto = balance.total as CryptoValue,
+                            balanceFiat = balance.totalFiat as FiatValue,
                         )
                     }
             }
@@ -193,22 +194,23 @@ internal class SwapRepository(
             .withBalance()
     }
 
-    override fun limits( // todo support defi
+    override fun limits(
         from: CryptoCurrency,
         to: CryptoCurrency,
-        fiat: FiatCurrency
+        fiat: FiatCurrency,
+        direction: TransferDirection,
     ): Flow<DataResource<TxLimits>> {
         return limitsDataManager.getLimits(
             outputCurrency = from,
             sourceCurrency = from,
             targetCurrency = to,
             legacyLimits = walletManager.getProductTransferLimits(
-                fiat.asFiatCurrencyOrThrow(),
+                fiat,
                 Product.TRADE,
                 TransferDirection.INTERNAL
             ).map { it as LegacyLimits },
-            sourceAccountType = TransferDirection.INTERNAL.sourceAccountType(), // todo support defi
-            targetAccountType = TransferDirection.INTERNAL.targetAccountType() // todo support defi
+            sourceAccountType = direction.sourceAccountType(),
+            targetAccountType = direction.targetAccountType(),
         ).toFlowDataResource()
     }
 

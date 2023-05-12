@@ -24,6 +24,7 @@ import com.blockchain.koin.googleWalletFeatureFlag
 import com.blockchain.koin.improvedPaymentUxFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.iterableAnnouncementsFeatureFlag
+import com.blockchain.koin.newSwapFlowFeatureFlag
 import com.blockchain.koin.paymentUxAssetDisplayBalanceFeatureFlag
 import com.blockchain.koin.paymentUxTotalDisplayBalanceFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
@@ -92,6 +93,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_dex",
                 "Dex"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(newSwapFlowFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_new_swap_flow",
+                "New Swap Flow"
             )
         )
     }.bind(FeatureFlag::class)

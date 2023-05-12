@@ -9,6 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.Scaffold
+import androidx.compose.material.SnackbarDuration
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -17,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -74,7 +78,6 @@ fun EnterAmount(
     val viewState: EnterAmountViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     LaunchedEffect(viewModel) {
-        viewModel.onIntent(EnterAmountIntent.LoadData)
         analytics.logEvent(SwapAnalyticsEvents.EnterAmountViewed)
     }
 
@@ -107,67 +110,86 @@ fun EnterAmount(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = AppTheme.colors.backgroundMuted)
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = {
-                        keyboardController?.hide()
-                        localFocusManager.clearFocus()
-                    }
+    val context = LocalContext.current
+    val scaffoldState = rememberScaffoldState()
+    Scaffold(scaffoldState = scaffoldState) { padding ->
+        LaunchedEffect(viewState.snackbarError) {
+            val error = viewState.snackbarError
+            if (error != null) {
+                scaffoldState.snackbarHostState.showSnackbar(
+                    message = error.localizedMessage ?: context.getString(R.string.common_error),
+                    duration = SnackbarDuration.Long,
                 )
+                viewModel.onIntent(EnterAmountIntent.SnackbarErrorHandled)
             }
-    ) {
-        NavigationBar(
-            title = stringResource(R.string.common_swap),
-            onBackButtonClick = onBackPressed,
-        )
+        }
 
-        when (viewState.fatalError) {
-            SwapEnterAmountFatalError.WalletLoading -> {
-                CustomEmptyState(
-                    icon = Icons.Network.id,
-                    ctaAction = { }
-                )
-            }
-            null -> {
-                EnterAmountScreen(
-                    selected = viewState.selectedInput,
-                    assets = viewState.assets,
-                    accountBalance = viewState.accountBalance,
-                    fiatAmount = viewState.fiatAmount,
-                    onFiatAmountChanged = {
-                        viewModel.onIntent(EnterAmountIntent.FiatInputChanged(it))
-                    },
-                    cryptoAmount = viewState.cryptoAmount,
-                    onCryptoAmountChanged = {
-                        viewModel.onIntent(EnterAmountIntent.CryptoInputChanged(it))
-                    },
-                    onFlipInputs = {
-                        viewModel.onIntent(EnterAmountIntent.FlipInputs)
-                    },
-                    inputError = viewState.inputError,
-                    openSourceAccounts = {
-                        navContextProvider().navigateTo(SwapGraph.SourceAccounts)
-                        keyboardController?.hide()
-                        analytics.logEvent(SwapAnalyticsEvents.SelectSourceClicked)
-                    },
-                    openTargetAccounts = { sourceTicker ->
-                        navContextProvider().navigateTo(SwapGraph.TargetAsset, sourceTicker)
-                        keyboardController?.hide()
-                        analytics.logEvent(SwapAnalyticsEvents.SelectDestinationClicked)
-                    },
-                    setMaxOnClick = {
-                        viewModel.onIntent(EnterAmountIntent.MaxSelected)
-                        analytics.logEvent(SwapAnalyticsEvents.MaxClicked)
-                    },
-                    previewClicked = {
-                        viewModel.onIntent(EnterAmountIntent.PreviewClicked)
-                        analytics.logEvent(SwapAnalyticsEvents.PreviewClicked)
-                    },
-                )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .background(color = AppTheme.colors.backgroundMuted)
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = {
+                            keyboardController?.hide()
+                            localFocusManager.clearFocus()
+                        }
+                    )
+                }
+        ) {
+            NavigationBar(
+                title = stringResource(R.string.common_swap),
+                onBackButtonClick = onBackPressed,
+            )
+
+            when (viewState.fatalError) {
+                SwapEnterAmountFatalError.WalletLoading -> {
+                    CustomEmptyState(
+                        icon = Icons.Network.id,
+                        ctaAction = { }
+                    )
+                }
+                null -> {
+                    EnterAmountScreen(
+                        selected = viewState.selectedInput,
+                        assets = viewState.assets,
+                        maxAmount = viewState.maxAmount,
+                        fiatAmount = viewState.fiatAmount,
+                        onFiatAmountChanged = {
+                            viewModel.onIntent(EnterAmountIntent.FiatInputChanged(it))
+                        },
+                        cryptoAmount = viewState.cryptoAmount,
+                        onCryptoAmountChanged = {
+                            viewModel.onIntent(EnterAmountIntent.CryptoInputChanged(it))
+                        },
+                        onFlipInputs = {
+                            viewModel.onIntent(EnterAmountIntent.FlipInputs)
+                        },
+                        inputError = viewState.inputError,
+                        inputErrorClicked = { error ->
+                            navContextProvider().navigateTo(SwapGraph.InputError, error)
+                        },
+                        openSourceAccounts = {
+                            navContextProvider().navigateTo(SwapGraph.SourceAccounts)
+                            keyboardController?.hide()
+                            analytics.logEvent(SwapAnalyticsEvents.SelectSourceClicked)
+                        },
+                        openTargetAccounts = { sourceTicker ->
+                            navContextProvider().navigateTo(SwapGraph.TargetAsset, sourceTicker)
+                            keyboardController?.hide()
+                            analytics.logEvent(SwapAnalyticsEvents.SelectDestinationClicked)
+                        },
+                        setMaxOnClick = {
+                            viewModel.onIntent(EnterAmountIntent.MaxSelected)
+                            analytics.logEvent(SwapAnalyticsEvents.MaxClicked)
+                        },
+                        previewClicked = {
+                            viewModel.onIntent(EnterAmountIntent.PreviewClicked)
+                            analytics.logEvent(SwapAnalyticsEvents.PreviewClicked)
+                        },
+                    )
+                }
             }
         }
     }
@@ -177,13 +199,14 @@ fun EnterAmount(
 private fun EnterAmountScreen(
     selected: InputCurrency,
     assets: EnterAmountAssets?,
-    accountBalance: String?,
+    maxAmount: String?,
     fiatAmount: CurrencyValue?,
     onFiatAmountChanged: (String) -> Unit,
     cryptoAmount: CurrencyValue?,
     onCryptoAmountChanged: (String) -> Unit,
     onFlipInputs: () -> Unit,
     inputError: SwapEnterAmountInputError?,
+    inputErrorClicked: (SwapEnterAmountInputError) -> Unit,
     openSourceAccounts: () -> Unit,
     openTargetAccounts: (sourceTicker: String) -> Unit,
     setMaxOnClick: () -> Unit,
@@ -211,12 +234,12 @@ private fun EnterAmountScreen(
             )
         }
 
-        accountBalance?.let {
+        maxAmount?.let {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
 
             SmallTertiaryButton(
                 modifier = Modifier.widthIn(min = 130.dp),
-                text = stringResource(R.string.common_max_arg, accountBalance),
+                text = stringResource(R.string.common_max_arg, maxAmount),
                 onClick = setMaxOnClick,
             )
         }
@@ -255,9 +278,13 @@ private fun EnterAmountScreen(
                     is SwapEnterAmountInputError.AboveBalance -> {
                         stringResource(R.string.not_enough_funds, assets?.from?.ticker.orEmpty())
                     }
+                    is SwapEnterAmountInputError.InsufficientGas ->
+                        stringResource(R.string.confirm_status_msg_insufficient_gas, inputError.displayTicker)
+                    is SwapEnterAmountInputError.Unknown ->
+                        stringResource(R.string.common_error)
                 },
-                state = ButtonState.Disabled,
-                onClick = {}
+                state = ButtonState.Enabled,
+                onClick = { inputErrorClicked(inputError) }
             )
         } ?: PrimaryButton(
             modifier = Modifier.fillMaxWidth(),
@@ -291,7 +318,7 @@ private fun PreviewEnterAmountScreen() {
                 ticker = "ETH"
             )
         ),
-        accountBalance = "123.00",
+        maxAmount = "123.00",
         fiatAmount = CurrencyValue(
             value = "2,100.00",
             maxFractionDigits = 2,
@@ -314,6 +341,7 @@ private fun PreviewEnterAmountScreen() {
         onCryptoAmountChanged = {},
         onFlipInputs = {},
         inputError = SwapEnterAmountInputError.BelowMinimum("éjdzjjdz"),
+        inputErrorClicked = {},
         openSourceAccounts = {},
         openTargetAccounts = {},
         setMaxOnClick = {},

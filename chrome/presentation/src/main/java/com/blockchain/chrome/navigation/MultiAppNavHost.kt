@@ -156,6 +156,10 @@ fun MultiAppNavHost(
                         multiAppViewModel.onIntent(
                             MultiAppIntents.BottomNavigationItemSelected(ChromeBottomNavigationItem.Dex)
                         )
+                    },
+                    openSwap = {
+                        // TODO(aromano): navigation TEMP
+                        navController.navigate(SwapGraph::class.java.name)
                     }
                 )
 

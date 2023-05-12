@@ -5,6 +5,7 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.data.DataResource
+import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatCurrency
@@ -61,6 +62,7 @@ interface SwapService {
     fun limits(
         from: CryptoCurrency,
         to: CryptoCurrency,
-        fiat: FiatCurrency
+        fiat: FiatCurrency,
+        direction: TransferDirection,
     ): Flow<DataResource<TxLimits>>
 }

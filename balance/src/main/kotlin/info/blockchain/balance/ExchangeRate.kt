@@ -8,12 +8,17 @@ class ExchangeRate(
     val from: Currency,
     val to: Currency
 ) {
-    fun convert(value: Money, round: Boolean = true): Money {
+    fun convert(value: Money, roundingMode: RoundingMode? = null): Money {
         validateCurrency(from, value.currency)
         return rate?.let { rate ->
+            val result = if (roundingMode != null) {
+                rate.multiply(value.toBigDecimal()).setScale(to.precisionDp, roundingMode)
+            } else {
+                rate.multiply(value.toBigDecimal())
+            }
             Money.fromMajor(
                 to,
-                rate.multiply(value.toBigDecimal())
+                result
             )
         } ?: UnknownValue.unknownValue(to)
     }

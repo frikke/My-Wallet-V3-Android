@@ -1,6 +1,7 @@
 package com.blockchain.transactions.koin
 
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.transactions.common.OnChainDepositEngineInteractor
 import com.blockchain.transactions.swap.confirmation.ConfirmationViewModel
 import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
@@ -13,12 +14,21 @@ import org.koin.dsl.module
 
 val transactionsPresentationModule = module {
     scope(payloadScopeQualifier) {
+        factory {
+            OnChainDepositEngineInteractor(
+                custodialWalletManager = get(),
+                exchangeRatesDataManager = get(),
+            )
+        }
+
         viewModel {
             EnterAmountViewModel(
                 swapService = get(),
                 exchangeRates = get(),
                 currencyPrefs = get(),
                 walletModeService = get(),
+                tradeDataService = get(),
+                onChainDepositEngineInteractor = get(),
                 confirmationArgs = get(),
             )
         }

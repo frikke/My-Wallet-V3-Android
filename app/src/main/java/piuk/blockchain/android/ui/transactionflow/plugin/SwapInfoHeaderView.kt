@@ -57,7 +57,7 @@ class SwapInfoHeaderView @JvmOverloads constructor(
             state.pendingTx?.amount?.let { amount ->
                 sendingAmountCrypto.text = amount.toStringWithSymbol()
                 state.fiatRate?.let {
-                    sendingAmountFiat.text = it.convert(amount, false).toStringWithSymbol()
+                    sendingAmountFiat.text = it.convert(amount).toStringWithSymbol()
                 }
             }
 
