@@ -311,6 +311,8 @@ fun HomeScreen(
             )
         }
 
+        homeDapps(openQrCodeScanner = launchQrScanner)
+
         // recurring buys
         if (walletMode == WalletMode.CUSTODIAL) {
             rbViewState.recurringBuys
