@@ -79,7 +79,7 @@ enum class AssetAction(
     // External fiat to custodial fiat
     FiatDeposit(ActionOrigin.FROM_SOURCE),
 
-    // Receive crypto to crypto
+    // Sign Crypto Transaction
     Sign(ActionOrigin.FROM_SOURCE),
 
     // Receive to a Staking account

@@ -15,12 +15,15 @@ import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.models.NotificationPayload
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectUserEvent
+import com.blockchain.walletconnect.domain.WalletConnectV2Service
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.subjects.MaybeSubject
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.rx3.asObservable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivity
@@ -31,6 +34,7 @@ import timber.log.Timber
 class GlobalEventHandler(
     private val application: Application,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
+    private val walletConnectV2Service: WalletConnectV2Service,
     private val deeplinkRedirector: DeeplinkRedirector,
     private val destinationArgs: DestinationArgs,
     private val notificationManager: NotificationManager,
@@ -43,6 +47,11 @@ class GlobalEventHandler(
         compositeDisposable.clear()
         compositeDisposable += walletConnectServiceAPI.userEvents.subscribe { event ->
             startTransactionFlowForSigning(event)
+        }
+
+        compositeDisposable += walletConnectV2Service.userEvents.distinctUntilChanged().asObservable().subscribe {
+            Timber.d("New WalletConnectV2 User Event ${it.javaClass.simpleName}")
+            startTransactionFlowForSigning(it)
         }
 
         compositeDisposable += deeplinkRedirector.deeplinkEvents
@@ -183,7 +192,11 @@ class GlobalEventHandler(
             application,
             sourceAccount = event.source,
             target = event.target,
-            action = AssetAction.Sign
+            action = when (event) {
+                is WalletConnectUserEvent.SignTransaction,
+                is WalletConnectUserEvent.SignMessage -> AssetAction.Sign
+                is WalletConnectUserEvent.SendTransaction -> AssetAction.Send
+            }
         )
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         application.startActivity(intent)

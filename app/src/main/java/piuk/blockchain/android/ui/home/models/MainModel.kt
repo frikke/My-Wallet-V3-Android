@@ -169,6 +169,7 @@ class MainModel(
                             }
                             is ScanResult.WalletConnectRequest -> walletConnectServiceAPI.attemptToConnect(it.data)
                                 .emptySubscribe()
+                            is ScanResult.WalletConnectV2Request,
                             is ScanResult.ImportedWallet -> {
                                 // TODO: as part of Auth
                             }

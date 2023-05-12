@@ -573,6 +573,9 @@ dependencies {
     // VGS
     implementation Libraries.vgs
 
+    implementation Libraries.walletConnectV2Web3Wallet
+    implementation Libraries.walletConnectV2AndroidCore
+
     // UI/Instrumentation Tests
     androidTestImplementation(Libraries.espresso) {
         exclude group: 'javax.inject', module: 'support-annotations'

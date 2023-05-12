@@ -25,6 +25,9 @@ dependencies {
     implementation Libraries.constraintLayout
     implementation Libraries.glide
 
+    implementation Libraries.walletConnectV2Web3Wallet
+    implementation Libraries.walletConnectV2AndroidCore
+
     // Unit Test dependencies
     testImplementation Libraries.junit
     testImplementation Libraries.mockito

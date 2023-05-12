@@ -23,6 +23,7 @@ import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.home.presentation.navigation.ScanResult
 import com.blockchain.koin.payloadScope
 import com.blockchain.walletconnect.domain.WalletConnectUrlValidator
+import com.blockchain.walletconnect.domain.WalletConnectV2UrlValidator
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.util.FormatsUtil
@@ -49,6 +50,7 @@ class QrScanError(val errorCode: ErrorCode, msg: String) : Exception(msg) {
 class QrScanResultProcessor(
     private val bitPayDataManager: BitPayDataManager,
     private val walletConnectUrlValidator: WalletConnectUrlValidator,
+    private val walletConnectV2UrlValidator: WalletConnectV2UrlValidator,
     private val analytics: Analytics
 ) {
 
@@ -66,7 +68,10 @@ class QrScanResultProcessor(
                     ScanResult.TxTarget(setOf(it), isDeeplinked)
                 }
             scanResult.isJson() -> Single.just(ScanResult.SecuredChannelLogin(scanResult))
-            walletConnectUrlValidator.isUrlValid(scanResult) -> Single.just(ScanResult.WalletConnectRequest(scanResult))
+            walletConnectUrlValidator.isUrlValid(scanResult) ->
+                Single.just(ScanResult.WalletConnectRequest(scanResult))
+            walletConnectV2UrlValidator.validateURI(scanResult) ->
+                Single.just(ScanResult.WalletConnectV2Request(scanResult))
             else -> {
                 val addressParser: AddressFactory = payloadScope.get()
                 addressParser.parse(scanResult)
@@ -207,6 +212,7 @@ class QrScanResultProcessor(
 private fun ScanResult.type(): QrCodeType {
     return when (this) {
         is ScanResult.HttpUri -> QrCodeType.DEEPLINK
+        is ScanResult.WalletConnectV2Request,
         is ScanResult.WalletConnectRequest -> QrCodeType.DAPP
         is ScanResult.SecuredChannelLogin -> QrCodeType.LOG_IN
         is ScanResult.TxTarget,

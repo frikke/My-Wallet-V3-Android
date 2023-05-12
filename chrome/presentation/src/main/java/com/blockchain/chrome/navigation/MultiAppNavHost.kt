@@ -45,6 +45,7 @@ import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.transactions.swap.SwapGraph
 import com.blockchain.transactions.swap.swapGraphHost
+import com.blockchain.walletconnect.ui.navigation.WalletConnectV2Navigation
 import com.blockchain.walletmode.WalletMode
 import com.dex.presentation.graph.dexGraph
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
@@ -68,6 +69,7 @@ fun MultiAppNavHost(
     supportNavigation: SupportNavigation,
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
+    walletConnectV2Navigation: WalletConnectV2Navigation,
     openExternalUrl: (url: String) -> Unit,
     processAnnouncementUrl: (url: String) -> Unit
 ) {
@@ -125,6 +127,7 @@ fun MultiAppNavHost(
                     openExternalUrl = openExternalUrl,
                     nftNavigation = nftNavigation,
                     earnNavigation = earnNavigation,
+                    walletConnectV2Navigation = walletConnectV2Navigation,
                     processAnnouncementUrl = processAnnouncementUrl
                 )
 
@@ -183,6 +186,7 @@ private fun NavGraphBuilder.chrome(
     supportNavigation: SupportNavigation,
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
+    walletConnectV2Navigation: WalletConnectV2Navigation,
     openExternalUrl: (url: String) -> Unit,
     processAnnouncementUrl: (url: String) -> Unit
 ) {
@@ -207,6 +211,7 @@ private fun NavGraphBuilder.chrome(
             settingsNavigation = settingsNavigation,
             pricesNavigation = pricesNavigation,
             qrScanNavigation = qrScanNavigation,
+            walletConnectV2Navigation = walletConnectV2Navigation,
             supportNavigation = supportNavigation,
             openCryptoAssets = {
                 navController.navigate(HomeDestination.CryptoAssets)
