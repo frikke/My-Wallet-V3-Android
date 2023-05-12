@@ -20,6 +20,7 @@ dependencies {
     implementation Libraries.rxJava
     implementation Libraries.rxKotlin
     implementation Libraries.rxAndroid
+    implementation Libraries.rxjava3Coroutines
     implementation Libraries.walletConnect
     implementation Libraries.okHttp
     implementation Libraries.constraintLayout

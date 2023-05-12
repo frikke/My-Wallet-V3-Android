@@ -5,8 +5,11 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.TxResult
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.utils.asFlow
+import com.blockchain.walletconnect.domain.ClientMeta
+import com.blockchain.walletconnect.domain.DAppInfo
 import com.blockchain.walletconnect.domain.EthRequestSign
 import com.blockchain.walletconnect.domain.EthSendTransactionRequest
+import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.domain.WalletConnectUserEvent
 import com.blockchain.walletconnect.domain.WalletConnectV2Service
 import com.blockchain.walletconnect.domain.WalletConnectV2Service.Companion.EVM_CHAIN_ROOT
@@ -18,6 +21,7 @@ import com.blockchain.walletconnect.domain.WalletConnectV2Service.Companion.WC_M
 import com.blockchain.walletconnect.domain.WalletConnectV2Service.Companion.WC_METHOD_ETH_SIGN_TYPED_DATA
 import com.blockchain.walletconnect.domain.WalletConnectV2Service.Companion.WC_METHOD_PERSONAL_SIGN
 import com.blockchain.walletconnect.domain.WalletConnectV2UrlValidator
+import com.blockchain.walletconnect.domain.WalletInfo
 import com.blockchain.walletconnect.ui.networks.ETH_CHAIN_ID
 import com.blockchain.walletmode.WalletMode
 import com.walletconnect.android.Core
@@ -41,7 +45,11 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx3.rxCompletable
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class WalletConnectV2ServiceImpl(
@@ -99,19 +107,27 @@ class WalletConnectV2ServiceImpl(
         )
     }
 
-    override fun pair(pairingUrl: String) {
+    override suspend fun pair(pairingUrl: String) {
         Timber.d("WalletConnect V2: pairing with $pairingUrl")
-        val pairingParams = Wallet.Params.Pair(pairingUrl)
-        Web3Wallet.pair(pairingParams) { error ->
-            scope.launch {
-                Timber.e("Pairing error: $error")
-                _walletEvents.emit(error)
-            }
+        withContext(Dispatchers.IO) {
+            val pairingParams = Wallet.Params.Pair(pairingUrl)
+            Web3Wallet.pair(
+                pairingParams,
+                onSuccess = { wallet ->
+                    Timber.d("WalletConnect V2: pairing success")
+                },
+                onError = { error ->
+                    scope.launch {
+                        Timber.e("WalletConnect V2: pairing error: $error")
+                        _walletEvents.emit(error)
+                    }
+                },
+            )
         }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override suspend fun buildApprovedSessionNamespaces(
+    override fun buildApprovedSessionNamespaces(
         sessionProposal: Wallet.Model.SessionProposal
     ): Flow<Map<String, Wallet.Model.Namespace.Session>> {
         val defaultEthReceiveAddressFlow = activeDeFiEtherAccounts().flatMapLatest { ethAccounts ->
@@ -149,11 +165,12 @@ class WalletConnectV2ServiceImpl(
         }
     }
 
+    // TODO(labreu): take in a topicID so that the correct session is approved
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun approveLastSession() {
         Timber.d("WalletConnect V2: Approving last session")
-        if (Web3Wallet.getSessionProposals().isNotEmpty()) {
-            scope.launch {
+        scope.launch {
+            if (Web3Wallet.getSessionProposals().isNotEmpty()) {
                 val sessionProposal = Web3Wallet.getSessionProposals().last()
                 buildApprovedSessionNamespaces(sessionProposal).mapLatest { sessionNamespaces ->
                     Wallet.Params.SessionApprove(
@@ -175,21 +192,37 @@ class WalletConnectV2ServiceImpl(
         }
     }
 
-    override fun getSessions(): List<Wallet.Model.Session> =
-        Web3Wallet.getListOfActiveSessions()
+    override suspend fun getSessions(): List<WalletConnectSession> =
+        withContext(Dispatchers.IO) {
+            Web3Wallet.getListOfActiveSessions().map {
+                it.toDomainWalletConnectSession()
+            }
+        }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun getSessionsFlow(): Flow<List<WalletConnectSession>> =
+        _walletEvents.transformLatest { event ->
+            if (event is Wallet.Model.SettledSessionResponse || event is Wallet.Model.SessionDelete) {
+                Timber.d("WalletConnect V2: Emitting updated list of sessions")
+                emit(getSessions())
+            }
+        }.onStart { // Emit the initial list of sessions when the flow is first collected
+            Timber.d("WalletConnect V2: Emitting initial list of sessions")
+            emit(getSessions())
+        }.distinctUntilChanged() // Ensure that the same list is not emitted multiple times
 
     override suspend fun ethSign(sessionRequest: Wallet.Model.SessionRequest) =
         ethRequestSign.onEthSignV2(
             sessionRequest,
             onTxCompleted = { txResult ->
                 (txResult as? TxResult.HashedTxResult)?.let { hashedTxResult ->
-                    Completable.fromCallable {
+                    rxCompletable {
                         sessionRequestComplete(sessionRequest, hashedTxResult)
                     }
                 } ?: Completable.complete()
             },
             onTxCancelled = {
-                Completable.fromCallable {
+                rxCompletable {
                     sessionRequestFailed(sessionRequest)
                 }
             }
@@ -203,13 +236,13 @@ class WalletConnectV2ServiceImpl(
             method = method,
             onTxCompleted = { txResult ->
                 (txResult as? TxResult.HashedTxResult)?.let { hashedTxResult ->
-                    Completable.fromCallable {
+                    rxCompletable {
                         sessionRequestComplete(sessionRequest, hashedTxResult)
                     }
                 } ?: Completable.complete()
             },
             onTxCancelled = {
-                Completable.fromCallable {
+                rxCompletable {
                     sessionRequestFailed(sessionRequest)
                 }
             }
@@ -217,10 +250,10 @@ class WalletConnectV2ServiceImpl(
             _walletConnectUserEvents.emit(it)
         }
 
-    override fun sessionRequestComplete(
+    override suspend fun sessionRequestComplete(
         sessionRequest: Wallet.Model.SessionRequest,
         hashedTxResult: TxResult.HashedTxResult
-    ) =
+    ) = withContext(Dispatchers.IO) {
         Web3Wallet.respondSessionRequest(
             params = Wallet.Params.SessionRequestResponse(
                 sessionTopic = sessionRequest.topic,
@@ -236,31 +269,49 @@ class WalletConnectV2ServiceImpl(
                 Timber.e("WalletConnect V2: Session request response error: $error")
             }
         )
+    }
 
-    override fun sessionRequestFailed(sessionRequest: Wallet.Model.SessionRequest) =
-        Web3Wallet.respondSessionRequest(
-            params = Wallet.Params.SessionRequestResponse(
-                sessionTopic = sessionRequest.topic,
-                jsonRpcResponse = Wallet.Model.JsonRpcResponse.JsonRpcError(
-                    id = sessionRequest.request.id, code = 500, message = "Transaction Cancelled"
-                )
-            ),
-            onSuccess = {
-                Timber.d("WalletConnect V2: Session request response: $it")
-            },
-            onError = { error ->
-                Timber.e("WalletConnect V2: Session request response error: $error")
-            }
-        )
-
-    override fun disconnectAllSessions() {
-        Timber.d("Disconnect all sessions. Active Sessions: ${Web3Wallet.getListOfActiveSessions()}")
-
-        Web3Wallet.getListOfActiveSessions().forEach { session ->
-            Web3Wallet.disconnectSession(
-                Wallet.Params.SessionDisconnect(session.topic),
+    override suspend fun sessionRequestFailed(sessionRequest: Wallet.Model.SessionRequest) =
+        withContext(Dispatchers.IO) {
+            Web3Wallet.respondSessionRequest(
+                params = Wallet.Params.SessionRequestResponse(
+                    sessionTopic = sessionRequest.topic,
+                    jsonRpcResponse = Wallet.Model.JsonRpcResponse.JsonRpcError(
+                        id = sessionRequest.request.id, code = 500, message = "Transaction Cancelled"
+                    )
+                ),
                 onSuccess = {
-                    Timber.d("Session disconnected: $session")
+                    Timber.d("WalletConnect V2: Session request response: $it")
+                },
+                onError = { error ->
+                    Timber.e("WalletConnect V2: Session request response error: $error")
+                }
+            )
+        }
+
+    override suspend fun disconnectAllSessions() {
+        Timber.d("WalletConnect V2: Disconnecting all sessions")
+        withContext(Dispatchers.IO) {
+            Web3Wallet.getListOfActiveSessions().forEach { session ->
+                Web3Wallet.disconnectSession(
+                    Wallet.Params.SessionDisconnect(session.topic),
+                    onSuccess = {
+                        Timber.d("Session disconnected: $session")
+                    },
+                    onError = { error ->
+                        Timber.e("Disconnect session error: $error")
+                    }
+                )
+            }
+        }
+    }
+
+    override suspend fun disconnectSession(sessionTopic: String) {
+        withContext(Dispatchers.IO) {
+            Web3Wallet.disconnectSession(
+                params = Wallet.Params.SessionDisconnect(sessionTopic),
+                onSuccess = {
+                    Timber.d("Session disconnected: $it")
                 },
                 onError = { error ->
                     Timber.e("Disconnect session error: $error")
@@ -269,30 +320,20 @@ class WalletConnectV2ServiceImpl(
         }
     }
 
-    override fun disconnectSession(sessionTopic: String) {
-        Web3Wallet.disconnectSession(
-            params = Wallet.Params.SessionDisconnect(sessionTopic),
-            onSuccess = {
-                Timber.d("Session disconnected: $it")
-            },
-            onError = { error ->
-                Timber.e("Disconnect session error: $error")
-            }
-        )
-    }
-
     override fun clearSessionProposals() {
-        Timber.e("clear Session Proposals")
-        Web3Wallet.getSessionProposals().map { sessionProposal ->
-            Web3Wallet.rejectSession(
-                Wallet.Params.SessionReject(sessionProposal.proposerPublicKey, ""),
-                onSuccess = {
-                    Timber.d("Session rejected: $it")
-                },
-                onError = { error ->
-                    Timber.e("Session rejected error: $error")
-                }
-            )
+        Timber.d("WalletConnect V2: Clearing Session Proposals")
+        scope.launch {
+            Web3Wallet.getSessionProposals().map { sessionProposal ->
+                Web3Wallet.rejectSession(
+                    Wallet.Params.SessionReject(sessionProposal.proposerPublicKey, ""),
+                    onSuccess = {
+                        Timber.d("Session rejected: $it")
+                    },
+                    onError = { error ->
+                        Timber.e("Session rejected error: $error")
+                    }
+                )
+            }
         }
     }
 
@@ -360,6 +401,9 @@ class WalletConnectV2ServiceImpl(
     override fun onSessionDelete(sessionDelete: Wallet.Model.SessionDelete) {
         // Triggered when the session is deleted by the peer
         Timber.d("(WalletConnect) Session delete: $sessionDelete")
+        scope.launch {
+            _walletEvents.emit(sessionDelete)
+        }
     }
 
     override fun onSessionSettleResponse(settleSessionResponse: Wallet.Model.SettledSessionResponse) {
@@ -385,3 +429,23 @@ class WalletConnectV2ServiceImpl(
         Timber.e("(WalletConnect) Wallet error: $error")
     }
 }
+
+private fun Wallet.Model.Session.toDomainWalletConnectSession(): WalletConnectSession =
+    WalletConnectSession(
+        url = this.metaData?.redirect.orEmpty(),
+        dAppInfo = DAppInfo(
+            peerId = "", // This can be empty
+            peerMeta = ClientMeta(
+                description = this.metaData?.description.orEmpty(),
+                url = this.metaData?.url.orEmpty(),
+                icons = this.metaData?.icons.orEmpty(),
+                name = this.metaData?.name.orEmpty()
+            ),
+            chainId = ETH_CHAIN_ID,
+        ),
+        walletInfo = WalletInfo(
+            clientId = this.topic,
+            sourcePlatform = "Android"
+        ),
+        isV2 = true
+    )

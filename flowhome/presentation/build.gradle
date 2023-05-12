@@ -76,6 +76,10 @@ dependencies {
     implementation Libraries.rxKotlin
     implementation Libraries.rxjava3Coroutines
 
+    // WalletConnect
+    implementation Libraries.walletConnectV2Web3Wallet
+    implementation Libraries.walletConnectV2AndroidCore
+
     // test
     testImplementation project(':testutils')
     testImplementation Libraries.kotlinTest

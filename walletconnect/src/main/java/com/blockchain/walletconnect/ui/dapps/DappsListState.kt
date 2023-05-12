@@ -6,18 +6,19 @@ import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.walletconnect.domain.ClientMeta
-import com.blockchain.walletconnect.domain.DAppInfo
 import com.blockchain.walletconnect.domain.SessionRepository
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.domain.WalletConnectV2Service
-import com.blockchain.walletconnect.domain.WalletInfo
-import com.blockchain.walletconnect.ui.networks.ETH_CHAIN_ID
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx3.rxSingle
 import timber.log.Timber
 
 data class DappsListState(
@@ -38,45 +39,31 @@ class DappsListModel(
     environmentConfig = environmentConfig,
     remoteLogger = remoteLogger
 ) {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     override fun performAction(previousState: DappsListState, intent: DappsListIntent): Disposable? {
         return when (intent) {
             DappsListIntent.LoadDapps -> {
-                Single.zip(
-                    sessionsRepository.retrieve().onErrorReturn { emptyList() },
-                    walletConnectV2FeatureFlag.enabled
-                ) { sessionsV1, isV2Enabled ->
-                    val sessionsV2 = if (isV2Enabled)
-                        walletConnectV2Service.getSessions().map { session ->
-                            WalletConnectSession(
-                                url = session.metaData?.redirect.orEmpty(),
-                                dAppInfo = DAppInfo(
-                                    peerId = "", // This can be empty
-                                    peerMeta = ClientMeta(
-                                        description = session.metaData?.description.orEmpty(),
-                                        url = session.metaData?.url.orEmpty(),
-                                        icons = session.metaData?.icons.orEmpty(),
-                                        name = session.metaData?.name.orEmpty()
-                                    ),
-                                    chainId = ETH_CHAIN_ID,
-                                ),
-                                walletInfo = WalletInfo(
-                                    clientId = session.topic,
-                                    sourcePlatform = "Android"
-                                ),
-                                isV2 = true
-                            )
+                walletConnectV2FeatureFlag.enabled.flatMap { isV2Enabled ->
+                    if (isV2Enabled) {
+                        Single.zip(
+                            sessionsRepository.retrieve().onErrorReturn { emptyList() },
+                            rxSingle { walletConnectV2Service.getSessions() }
+                        ) { sessionsV1, sessionsV2 ->
+                            sessionsV1 + sessionsV2
                         }
-                    else emptyList()
-
-                    sessionsV1 + sessionsV2
+                    } else {
+                        sessionsRepository.retrieve().onErrorReturn { emptyList() }
+                    }
                 }.subscribeBy { sessions ->
                     process(DappsListIntent.DappsLoaded(sessions))
                 }
             }
             is DappsListIntent.Disconnect -> {
                 if (intent.session.isV2) {
-                    walletConnectV2Service.disconnectSession(intent.session.walletInfo.clientId)
-                    process(DappsListIntent.LoadDapps)
+                    scope.launch {
+                        walletConnectV2Service.disconnectSession(intent.session.walletInfo.clientId)
+                        process(DappsListIntent.LoadDapps)
+                    }
                     null
                 } else {
                     walletConnectServiceAPI.disconnect(intent.session)

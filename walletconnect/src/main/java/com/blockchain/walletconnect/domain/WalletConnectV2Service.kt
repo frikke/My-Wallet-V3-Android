@@ -12,18 +12,22 @@ interface WalletConnectV2Service {
 
     fun init()
 
-    fun pair(pairingUrl: String)
+    suspend fun pair(pairingUrl: String)
 
-    suspend fun buildApprovedSessionNamespaces(
+    fun buildApprovedSessionNamespaces(
         sessionProposal: Wallet.Model.SessionProposal
     ): Flow<Map<String, Wallet.Model.Namespace.Session>>
     fun approveLastSession()
-    fun getSessions(): List<Wallet.Model.Session>
-    fun disconnectSession(sessionTopic: String)
-    fun disconnectAllSessions()
+    suspend fun getSessions(): List<WalletConnectSession>
+    fun getSessionsFlow(): Flow<List<WalletConnectSession>>
+    suspend fun disconnectSession(sessionTopic: String)
+    suspend fun disconnectAllSessions()
     fun clearSessionProposals()
-    fun sessionRequestComplete(sessionRequest: Wallet.Model.SessionRequest, hashedTxResult: TxResult.HashedTxResult)
-    fun sessionRequestFailed(sessionRequest: Wallet.Model.SessionRequest)
+    suspend fun sessionRequestComplete(
+        sessionRequest: Wallet.Model.SessionRequest,
+        hashedTxResult: TxResult.HashedTxResult
+    )
+    suspend fun sessionRequestFailed(sessionRequest: Wallet.Model.SessionRequest)
 
     suspend fun ethSign(sessionRequest: Wallet.Model.SessionRequest)
     suspend fun ethSend(sessionRequest: Wallet.Model.SessionRequest, method: String)

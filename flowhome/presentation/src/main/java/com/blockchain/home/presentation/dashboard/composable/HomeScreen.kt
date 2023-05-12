@@ -49,6 +49,9 @@ import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActiv
 import com.blockchain.home.presentation.allassets.AssetsIntent
 import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewState
+import com.blockchain.home.presentation.dapps.HomeDappsIntent
+import com.blockchain.home.presentation.dapps.HomeDappsViewModel
+import com.blockchain.home.presentation.dapps.HomeDappsViewState
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
@@ -134,6 +137,9 @@ fun HomeScreen(
     val referralViewModel: ReferralViewModel = getViewModel(scope = payloadScope)
     val referralState: ReferralViewState by referralViewModel.viewState.collectAsStateLifecycleAware()
 
+    val homeDappsViewModel: HomeDappsViewModel = getViewModel(scope = payloadScope)
+    val homeDappsState: HomeDappsViewState by homeDappsViewModel.viewState.collectAsStateLifecycleAware()
+
     val walletMode by
     get<WalletModeService>(scope = payloadScope).walletMode.collectAsStateLifecycleAware(initial = null)
 
@@ -161,6 +167,7 @@ fun HomeScreen(
                     ActivityIntent.LoadActivity(SectionSize.Limited(MAX_ACTIVITY_COUNT))
                 )
                 pkwActivityViewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.Limited(MAX_ACTIVITY_COUNT)))
+                homeDappsViewModel.onIntent(HomeDappsIntent.LoadData)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -311,7 +318,15 @@ fun HomeScreen(
             )
         }
 
-        homeDapps(openQrCodeScanner = launchQrScanner)
+        if (walletMode == WalletMode.NON_CUSTODIAL) {
+            homeDapps(
+                homeDappsState = homeDappsState,
+                openQrCodeScanner = launchQrScanner,
+                onSessionClicked = { session ->
+                    // open dapp detail
+                }
+            )
+        }
 
         // recurring buys
         if (walletMode == WalletMode.CUSTODIAL) {
