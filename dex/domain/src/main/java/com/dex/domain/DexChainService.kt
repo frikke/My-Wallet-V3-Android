@@ -11,5 +11,4 @@ interface DexChainService {
     fun selectedChainId(): Int
     fun supportedNetworks(): Flow<DataResource<List<CoinNetwork>>>
     fun updateSelectedNetwork(chainId: Int)
-
 }

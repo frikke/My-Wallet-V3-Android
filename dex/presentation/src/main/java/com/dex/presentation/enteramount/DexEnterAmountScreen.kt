@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -58,15 +59,20 @@ import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.TertiaryButton
+import com.blockchain.componentlib.chrome.MenuOptionsScreen
+import com.blockchain.componentlib.icon.SmallTagIcon
 import com.blockchain.componentlib.icons.Alert
 import com.blockchain.componentlib.icons.Check
+import com.blockchain.componentlib.icons.ChevronRight
 import com.blockchain.componentlib.icons.Close
 import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Network
 import com.blockchain.componentlib.icons.Question
 import com.blockchain.componentlib.icons.Settings
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.tablerow.TableRow
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Green700
 import com.blockchain.componentlib.theme.Grey000
@@ -103,7 +109,9 @@ fun DexEnterAmountScreen(
     startReceiving: () -> Unit,
     savedStateHandle: SavedStateHandle?,
     viewModel: DexEnterAmountViewModel = getViewModel(scope = payloadScope),
-    dexIntroPrefs: DexPrefs = get()
+    dexIntroPrefs: DexPrefs = get(),
+    openSettings: () -> Unit,
+    launchQrScanner: () -> Unit
 ) {
     LaunchedEffect(Unit) {
         if (!dexIntroPrefs.dexIntroShown) {
@@ -210,11 +218,14 @@ fun DexEnterAmountScreen(
             .fillMaxWidth()
             .clip(RoundedCornerShape(AppTheme.dimensions.mediumSpacing))
     ) {
+        item {
+            MenuOptionsScreen(
+                openSettings = openSettings,
+                launchQrScanner = launchQrScanner
+            )
+        }
 
         (viewState as? InputAmountViewState.TransactionInputState)?.let {
-            item {
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
-            }
             paddedItem(paddingValues = PaddingValues(spacing)) {
                 InputScreen(
                     selectSourceAccount = {
@@ -231,6 +242,10 @@ fun DexEnterAmountScreen(
                     },
                     settingsOnClick = {
                         navController.navigate(DexDestination.Settings.route)
+                        keyboardController?.hide()
+                    },
+                    selectNetworkOnClick = {
+                        navController.navigate(DexDestination.SelectNetwork.route)
                         keyboardController?.hide()
                     },
                     onTokenAllowanceRequested = {
@@ -253,6 +268,10 @@ fun DexEnterAmountScreen(
         (viewState as? InputAmountViewState.NoInputViewState)?.let {
             paddedItem(paddingValues = PaddingValues(spacing)) {
                 NoInputScreen(
+                    selectNetworkOnClick = {
+                        navController.navigate(DexDestination.SelectNetwork.route)
+                        keyboardController?.hide()
+                    },
                     receive = startReceiving
                 )
             }
@@ -261,15 +280,20 @@ fun DexEnterAmountScreen(
 }
 
 @Composable
-private fun NoInputScreen(receive: () -> Unit) {
+private fun NoInputScreen(
+    selectNetworkOnClick: () -> Unit,
+    receive: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        Card(
-            backgroundColor = AppTheme.colors.background,
+        NetworkSelection(onClick = selectNetworkOnClick)
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+
+        Surface(
+            color = AppTheme.colors.background,
             shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-            elevation = 3.dp
         ) {
             Column(
                 modifier = Modifier
@@ -330,6 +354,7 @@ fun InputScreen(
     revokeAllowance: () -> Unit,
     onValueChanged: (TextFieldValue) -> Unit,
     settingsOnClick: () -> Unit,
+    selectNetworkOnClick: () -> Unit,
     txInProgressDismiss: () -> Unit,
     viewState: InputAmountViewState.TransactionInputState
 ) {
@@ -338,6 +363,9 @@ fun InputScreen(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        NetworkSelection(onClick = selectNetworkOnClick)
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
         viewState.topScreenUiError?.let {
             UiError(
@@ -588,11 +616,65 @@ private fun Settings(onClick: () -> Unit) {
     }
 }
 
+@Composable
+private fun NetworkSelection(
+    onClick: () -> Unit
+) {
+    Surface(
+        color = AppTheme.colors.background,
+        shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
+    ) {
+        Row(
+            Modifier
+                .clickable(onClick = onClick)
+                .padding(AppTheme.dimensions.tinySpacing)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SmallTagIcon(
+                icon = StackedIcon.SmallTag(
+                    main = Icons.Filled.Network.withSize(16.dp),
+                    tag = Icons.Filled.Check
+                ),
+                iconBackground = Grey000,
+                tagIconSize = 12.dp
+            )
+
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+            Text(
+                modifier = Modifier.weight(1F),
+                text = stringResource(R.string.common_network),
+                style = AppTheme.typography.paragraph2,
+                color = AppTheme.colors.title
+            )
+
+            Spacer(modifier = Modifier.weight(1F))
+
+            Text(
+                text = "Eth",
+                style = AppTheme.typography.paragraph2,
+                color = AppTheme.colors.title
+            )
+
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+            Image(Icons.ChevronRight)
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewNetworkSelection() {
+    NetworkSelection(onClick = {})
+}
+
 @Preview
 @Composable
 private fun PreviewInputScreen() {
     InputScreen(
-        {}, {}, {}, {}, {}, {}, {}, {},
+        {}, {}, {}, {}, {}, {}, {}, {}, {},
         InputAmountViewState.TransactionInputState(
             sourceCurrency = CryptoCurrency.ETHER,
             destinationCurrency = CryptoCurrency.BTC,

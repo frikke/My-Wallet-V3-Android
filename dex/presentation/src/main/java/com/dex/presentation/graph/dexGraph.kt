@@ -85,11 +85,7 @@ fun NavGraphBuilder.dexGraph(onBackPressed: () -> Unit, navController: NavContro
     }
 
     bottomSheet(navigationEvent = DexDestination.Settings) {
-//        SettingsBottomSheet(
-//            closeClicked = onBackPressed
-//        )
-
-        SelectNetwork(
+        SettingsBottomSheet(
             closeClicked = onBackPressed
         )
     }

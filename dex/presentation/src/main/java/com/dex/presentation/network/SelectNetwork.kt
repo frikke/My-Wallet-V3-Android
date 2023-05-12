@@ -2,6 +2,7 @@ package com.dex.presentation.network
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -45,6 +46,10 @@ fun SelectNetwork(
     val viewState: SelectNetworkViewState by viewModel.viewState.collectAsStateLifecycleAware()
     SelectNetworkScreen(
         networks = viewState.networks,
+        networkOnClick = { network ->
+            viewModel.onIntent(SelectNetworkIntent.UpdateNetwork(chainId = network.chainId))
+            closeClicked()
+        },
         closeClicked = closeClicked
     )
 }
@@ -52,6 +57,7 @@ fun SelectNetwork(
 @Composable
 private fun SelectNetworkScreen(
     networks: DataResource<List<DexNetwork>>,
+    networkOnClick: (DexNetwork) -> Unit,
     closeClicked: () -> Unit,
 ) {
     val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -68,7 +74,10 @@ private fun SelectNetworkScreen(
             shouldShowDivider = false
         )
 
-        Networks(networks = networks)
+        Networks(
+            networks = networks,
+            networkOnClick = networkOnClick
+        )
 
         Spacer(modifier = Modifier.size(navBarHeight))
     }
@@ -77,6 +86,7 @@ private fun SelectNetworkScreen(
 @Composable
 private fun ColumnScope.Networks(
     networks: DataResource<List<DexNetwork>>,
+    networkOnClick: (DexNetwork) -> Unit
 ) {
     when (networks) {
         DataResource.Loading -> {
@@ -93,7 +103,10 @@ private fun ColumnScope.Networks(
                     .padding(AppTheme.dimensions.smallSpacing)
             ) {
                 roundedCornersItems(networks.data) {
-                    Network(it)
+                    Network(
+                        network = it,
+                        onClick = networkOnClick
+                    )
                 }
             }
         }
@@ -102,10 +115,13 @@ private fun ColumnScope.Networks(
 
 @Composable
 private fun Network(
-    network: DexNetwork
+    network: DexNetwork,
+    onClick: (DexNetwork) -> Unit
 ) {
     Row(
-        modifier = Modifier.padding(AppTheme.dimensions.smallSpacing),
+        modifier = Modifier
+            .clickable(onClick = { onClick(network) })
+            .padding(AppTheme.dimensions.smallSpacing),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
@@ -166,6 +182,7 @@ private fun PreviewSelectNetworkScreen() {
                 )
             )
         ),
+        networkOnClick = {},
         closeClicked = {}
     )
 }
@@ -174,12 +191,13 @@ private fun PreviewSelectNetworkScreen() {
 @Composable
 private fun PreviewNetworkSelected() {
     Network(
-        DexNetwork(
+        network = DexNetwork(
             chainId = 0,
             icon = "",
             name = "Ethereum",
             selected = true
-        )
+        ),
+        onClick = {}
     )
 }
 
@@ -187,11 +205,12 @@ private fun PreviewNetworkSelected() {
 @Composable
 private fun PreviewNetworkUnselected() {
     Network(
-        DexNetwork(
+        network = DexNetwork(
             chainId = 0,
             icon = "",
             name = "Ethereum",
             selected = false
-        )
+        ),
+        onClick = {}
     )
 }

@@ -61,6 +61,11 @@ class SelectNetworkViewModel(
         modelState: SelectNetworkModelState,
         intent: SelectNetworkIntent
     ) {
+        when(intent){
+            is SelectNetworkIntent.UpdateNetwork -> {
+                dexChainService.updateSelectedNetwork(intent.chainId)
+            }
+        }
     }
 
     private fun CoinNetwork.toDexNetwork(selectedChainId: Int): DexNetwork {
