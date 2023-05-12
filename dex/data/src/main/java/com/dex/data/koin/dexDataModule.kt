@@ -4,6 +4,7 @@ import com.blockchain.koin.payloadScopeQualifier
 import com.dex.data.DexAccountsRepository
 import com.dex.data.DexAllowanceRepository
 import com.dex.data.DexAllowanceStorage
+import com.dex.data.DexNetworkRepository
 import com.dex.data.DexQuotesRepository
 import com.dex.data.DexTransactionRepository
 import com.dex.data.stores.DexChainDataStorage
@@ -12,6 +13,7 @@ import com.dex.data.stores.SlippageRepository
 import com.dex.domain.AllowanceService
 import com.dex.domain.DexAccountsService
 import com.dex.domain.DexBalanceService
+import com.dex.domain.DexChainService
 import com.dex.domain.DexQuotesService
 import com.dex.domain.DexTransactionService
 import com.dex.domain.SlippageService
@@ -84,6 +86,14 @@ val dexDataModule = module {
             DexAllowanceStorage(
                 apiService = get(),
                 environmentConfig = get()
+            )
+        }
+
+        scoped<DexChainService> {
+            DexNetworkRepository(
+                dexPrefs = get(),
+                dexChainDataStorage = get(),
+                coinNetworksService = get()
             )
         }
     }

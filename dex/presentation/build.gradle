@@ -37,6 +37,7 @@ dependencies {
     implementation project(':unifiedcryptowallet:domain')
     implementation project(':componentlib')
     implementation project(':chrome:common')
+    implementation project(':store:core')
     // koin
     implementation Libraries.koinAndroid
     implementation Libraries.koinCompose

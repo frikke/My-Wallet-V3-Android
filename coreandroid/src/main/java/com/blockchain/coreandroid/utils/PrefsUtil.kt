@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Base64
 import androidx.annotation.VisibleForTesting
+import com.blockchain.core.chains.ethereum.EthDataManager.Companion.ETH_CHAIN_ID
 import com.blockchain.core.utils.AESUtilWrapper
 import com.blockchain.core.utils.DeviceIdGeneratorService
 import com.blockchain.core.utils.EncryptedPrefs
@@ -46,6 +47,8 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.crypto.AESUtil
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.util.concurrent.TimeUnit
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -980,6 +983,7 @@ class PrefsUtil(
         private const val DEX_INTRO_SHOWN = "dex_intro_shown"
         private const val DEX_LAST_SELECTED_SLIPPAGE_INDEX = "LAST_SELECTED_SLIPPAGE_INDEX"
         private const val DEX_LAST_SELECTED_DESTINATION_TICKER = "DEX_LAST_SELECTED_DESTINATION_TICKER"
+        private const val DEX_SELECTED_CHAIN_ID = "DEX_SELECTED_CHAIN_ID"
 
         // iterable announcements
         private const val ITERABLE_SEEN_ANNOUNCEMENTS = "ITERABLE_SEEN_ANNOUNCEMENTS"
@@ -1025,6 +1029,12 @@ class PrefsUtil(
             getValue(DEX_LAST_SELECTED_DESTINATION_TICKER, "")
         set(value) {
             setValue(DEX_LAST_SELECTED_DESTINATION_TICKER, value)
+        }
+
+    override var selectedChainId: Int
+        get() = getValue(DEX_SELECTED_CHAIN_ID, ETH_CHAIN_ID)
+        set(value) {
+            setValue(DEX_SELECTED_CHAIN_ID, value)
         }
 }
 

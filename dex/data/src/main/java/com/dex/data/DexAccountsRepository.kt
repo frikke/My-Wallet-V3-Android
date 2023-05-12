@@ -1,11 +1,11 @@
 package com.dex.data
 
+import com.blockchain.api.dex.DexTokenResponse
 import com.blockchain.api.dex.DexTokensRequest
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.SingleAccountList
-import com.blockchain.core.chains.ethereum.EthDataManager.Companion.ETH_CHAIN_ID
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
@@ -43,23 +43,31 @@ class DexAccountsRepository(
     private val assetCatalogue: AssetCatalogue,
     private val dexTokensDataStorage: DexTokensDataStorage,
 ) : DexAccountsService {
-    override fun sourceAccounts(): Flow<List<DexAccount>> =
-        dexSourceAccounts().catch {
+    override fun sourceAccounts(
+        chainId: Int
+    ): Flow<List<DexAccount>> =
+        dexSourceAccounts(chainId = chainId).catch {
             emit(emptyList())
         }
 
-    override suspend fun defSourceAccount(): DexAccount? {
-        return dexSourceAccounts().map { accounts ->
+    override suspend fun defSourceAccount(
+        chainId: Int
+    ): DexAccount? {
+        return dexSourceAccounts(chainId = chainId).map { accounts ->
             accounts.maxByOrNull { it.fiatBalance }
         }.firstOrNull()
     }
 
-    override suspend fun defDestinationAccount(source: DexAccount): DexAccount? {
+    override suspend fun defDestinationAccount(
+        chainId: Int,
+        sourceTicker: String
+    ): DexAccount? {
         val persistedCurrency =
-            dexPrefs.selectedDestinationCurrencyTicker.takeIf { it.isNotEmpty() && it != source.currency.networkTicker }
+            dexPrefs.selectedDestinationCurrencyTicker.takeIf { it.isNotEmpty() && it != sourceTicker }
                 ?: return null
         val currency = assetCatalogue.fromNetworkTicker(persistedCurrency) ?: return null
-        return destinationAccounts().firstOrNull()?.firstOrNull { it.currency.networkTicker == currency.networkTicker }
+        return destinationAccounts(chainId).firstOrNull()
+            ?.firstOrNull { it.currency.networkTicker == currency.networkTicker }
     }
 
     override fun updatePersistedDestinationAccount(dexAccount: DexAccount) {
@@ -68,22 +76,26 @@ class DexAccountsRepository(
 
     private val freshness = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
 
-    private fun dexAvailableTokens() =
+    private fun dexAvailableTokens(
+        chainId: Int
+    ): Flow<List<DexTokenResponse>> =
         dexTokensDataStorage.stream(
             freshness.withKey(
                 DexTokensRequest(
-                    chainId = ETH_CHAIN_ID
+                    chainId = chainId
                 )
             )
         ).map {
             it.dataOrElse(emptyList())
         }
 
-    private fun dexSourceAccounts(): Flow<List<DexAccount>> {
-        return dexAvailableTokens().flatMapLatest { tokens ->
+    private fun dexSourceAccounts(
+        chainId: Int
+    ): Flow<List<DexAccount>> {
+        return dexAvailableTokens(chainId = chainId).flatMapLatest { tokens ->
             activeAccounts().map {
                 it.filterKeys { account ->
-                    account.currency.coinNetwork?.chainId == ETH_CHAIN_ID
+                    account.currency.coinNetwork?.chainId == chainId
                 }.filterValues { balance ->
                     balance.total.isPositive
                 }
@@ -98,7 +110,7 @@ class DexAccountsRepository(
                             contractAddress = account.currency.l2identifier
                                 ?: token?.address
                                 ?: return@mapNotNull null,
-                            chainId = ETH_CHAIN_ID,
+                            chainId = chainId,
                             isVerified = token?.isVerified ?: false
                         ),
                         fiatBalance = balance.totalFiat,
@@ -119,15 +131,17 @@ class DexAccountsRepository(
     private val allAccounts: Flow<SingleAccountList>
         get() = coincore.allWalletsInMode(WalletMode.NON_CUSTODIAL).map { it.accounts }.asFlow()
 
-    override fun destinationAccounts(): Flow<List<DexAccount>> =
-        dexAvailableTokens().flatMapLatest { tokens ->
+    override fun destinationAccounts(
+        chainId: Int
+    ): Flow<List<DexAccount>> =
+        dexAvailableTokens(chainId = chainId).flatMapLatest { tokens ->
             val active = activeAccounts().map {
                 it.filterKeys { account ->
-                    account.currency.coinNetwork?.chainId == ETH_CHAIN_ID
+                    account.currency.coinNetwork?.chainId == chainId
                 }
             }
             val all = allAccounts.map {
-                it.filter { account -> (account.currency as? AssetInfo)?.coinNetwork?.chainId == ETH_CHAIN_ID }
+                it.filter { account -> (account.currency as? AssetInfo)?.coinNetwork?.chainId == chainId }
             }
 
             active.flatMapLatest { activeAcc ->
