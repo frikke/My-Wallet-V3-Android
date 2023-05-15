@@ -1,7 +1,6 @@
 package com.dex.domain
 
 import com.blockchain.data.DataResource
-import com.dex.domain.models.DexChain
 import info.blockchain.balance.CoinNetwork
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow

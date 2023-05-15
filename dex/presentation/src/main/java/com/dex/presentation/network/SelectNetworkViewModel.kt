@@ -22,17 +22,15 @@ class SelectNetworkViewModel(
     SelectNetworkModelState,
     EmptyNavEvent,
     ModelConfigArgs.NoArgs
-    >(initialState = SelectNetworkModelState()) {
+    >(
+    initialState = SelectNetworkModelState(
+        selectedChainId = dexChainService.selectedChainId()
+    )
+) {
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
     init {
-        updateState {
-            it.copy(
-                selectedChainId = dexChainService.selectedChainId()
-            )
-        }
-
         viewModelScope.launch {
             dexChainService.supportedNetworks()
                 .filterListData {
@@ -61,7 +59,7 @@ class SelectNetworkViewModel(
         modelState: SelectNetworkModelState,
         intent: SelectNetworkIntent
     ) {
-        when(intent){
+        when (intent) {
             is SelectNetworkIntent.UpdateNetwork -> {
                 dexChainService.updateSelectedNetwork(intent.chainId)
             }

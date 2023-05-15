@@ -6,5 +6,5 @@ import info.blockchain.balance.CoinNetwork
 
 data class SelectNetworkModelState(
     val networks: DataResource<List<CoinNetwork>> = DataResource.Loading,
-    val selectedChainId: Int = -1
+    val selectedChainId: Int
 ) : ModelState

@@ -20,6 +20,13 @@ data class DexChainResponse(
 )
 
 @Serializable
+data class DexVenueResponse(
+    val type: String,
+    val name: String,
+    val title: String
+)
+
+@Serializable
 data class NativeCurrency(
     val chainId: Int,
     val symbol: String,
@@ -27,13 +34,6 @@ data class NativeCurrency(
     val address: String,
     val decimals: Int,
     val verifiedBy: Int
-)
-
-@Serializable
-data class DexVenueResponse(
-    val type: String,
-    val name: String,
-    val title: String
 )
 
 @Serializable

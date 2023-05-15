@@ -94,7 +94,7 @@ private fun ColumnScope.Networks(
             ShimmerLoadingCard()
         }
         is DataResource.Error -> {
-            //todo
+            // todo
         }
         is DataResource.Data -> {
             LazyColumn(

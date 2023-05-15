@@ -342,7 +342,7 @@ class DexEnterAmountViewModel(
                 preselectedAccount?.let { source ->
                     val preselectedDestination = dexAccountsService.defDestinationAccount(
                         chainId = chainId,
-                        sourceTicker = source.currency.networkTicker
+                        source = source
                     )
                     updateState { state ->
                         state.copy(

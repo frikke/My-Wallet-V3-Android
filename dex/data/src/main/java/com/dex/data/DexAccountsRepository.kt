@@ -63,10 +63,10 @@ class DexAccountsRepository(
 
     override suspend fun defDestinationAccount(
         chainId: Int,
-        sourceTicker: String
+        source: DexAccount
     ): DexAccount? {
         val persistedCurrency =
-            dexPrefs.selectedDestinationCurrencyTicker.takeIf { it.isNotEmpty() && it != sourceTicker }
+            dexPrefs.selectedDestinationCurrencyTicker.takeIf { it.isNotEmpty() && it != source.currency.networkTicker }
                 ?: return null
         val currency = assetCatalogue.fromNetworkTicker(persistedCurrency) ?: return null
         return dexDestinationAccounts(chainId).firstOrNull()
@@ -130,7 +130,7 @@ class DexAccountsRepository(
         }
     }
 
-    private var destinationAccountsCache: List<DexAccount> = emptyList()
+    private var destinationAccountsCache: MutableMap<Int, List<DexAccount>> = mutableMapOf()
     private var sourceAccountsCache: MutableMap<Int, List<DexAccount>> = mutableMapOf()
 
     private val allAccounts: Flow<SingleAccountList>
@@ -193,11 +193,12 @@ class DexAccountsRepository(
                     )
                 }
             }.onEach {
-                destinationAccountsCache = it
+                destinationAccountsCache[chainId] = it
             }
         }.onStart {
-            if (destinationAccountsCache.isNotEmpty())
-                emit(destinationAccountsCache)
+            destinationAccountsCache[chainId]
+                .takeIf { !it.isNullOrEmpty() }
+                ?.let { emit(it) }
         }
     }
 

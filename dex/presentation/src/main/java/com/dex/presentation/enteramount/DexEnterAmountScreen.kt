@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -86,8 +85,6 @@ import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
-import com.blockchain.data.dataOrElse
-import com.blockchain.data.map
 import com.blockchain.dex.presentation.R
 import com.blockchain.koin.payloadScope
 import com.blockchain.preferences.DexPrefs
