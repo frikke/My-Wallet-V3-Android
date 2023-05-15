@@ -25,7 +25,7 @@ class PagerIndicatorDotsView @JvmOverloads constructor(
             AppSurface {
                 PagerIndicatorDots(
                     selectedIndex = selectedIndex,
-                    count = count,
+                    count = count
                 )
             }
         }

@@ -34,7 +34,7 @@ fun SheetHeader(
     startImageResource: ImageResource = ImageResource.None,
     onClosePress: () -> Unit,
     closePressContentDescription: String? = null,
-    shouldShowDivider: Boolean = true,
+    shouldShowDivider: Boolean = true
 ) {
     Box(
         modifier = modifier
@@ -52,7 +52,7 @@ fun SheetHeader(
                     Image(
                         imageResource = startImageResource,
                         modifier = Modifier
-                            .padding(top = dimensionResource(R.dimen.standard_spacing))
+                            .padding(top = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
                             .size(28.dp)
                     )
                     Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
@@ -64,7 +64,7 @@ fun SheetHeader(
                     modifier = Modifier
                         .weight(1f)
                         .padding(
-                            top = dimensionResource(R.dimen.standard_spacing),
+                            top = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
                             bottom = if (byline.isNullOrBlank()) 10.dp else 5.dp
                         )
                 )
@@ -73,7 +73,7 @@ fun SheetHeader(
                     onClosePress = onClosePress,
                     backPressContentDescription = closePressContentDescription,
                     modifier = Modifier.padding(
-                        top = dimensionResource(R.dimen.medium_spacing),
+                        top = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
                         end = AppTheme.dimensions.smallSpacing
                     )
                 )
@@ -90,18 +90,18 @@ private fun SheetHeaderTitle(
     modifier: Modifier = Modifier,
     title: String?,
     byline: String? = null,
-    isDarkMode: Boolean = isSystemInDarkTheme(),
+    isDarkMode: Boolean = isSystemInDarkTheme()
 ) {
     Column(
         modifier = modifier,
-        horizontalAlignment = Alignment.Start,
+        horizontalAlignment = Alignment.Start
     ) {
         title?.let {
             Text(
                 text = title,
                 style = AppTheme.typography.title3,
                 color = AppTheme.colors.title,
-                textAlign = TextAlign.Center,
+                textAlign = TextAlign.Center
             )
         }
 
@@ -110,7 +110,7 @@ private fun SheetHeaderTitle(
                 text = byline,
                 style = AppTheme.typography.paragraph1,
                 color = if (isDarkMode) Dark200 else Grey700,
-                textAlign = TextAlign.Center,
+                textAlign = TextAlign.Center
             )
         }
     }
@@ -123,7 +123,7 @@ private fun SheetHeaderPreview() {
         AppSurface {
             SheetHeader(
                 title = "Title",
-                onClosePress = { /* no-op */ },
+                onClosePress = { /* no-op */ }
             )
         }
     }
@@ -135,7 +135,7 @@ private fun SheetHeaderNoTitle() {
     AppTheme {
         AppSurface {
             SheetHeader(
-                onClosePress = { /* no-op */ },
+                onClosePress = { /* no-op */ }
             )
         }
     }
@@ -149,7 +149,7 @@ private fun SheetHeaderBylinePreview() {
             SheetHeader(
                 title = "Title",
                 byline = "Byline",
-                onClosePress = { /* no-op */ },
+                onClosePress = { /* no-op */ }
             )
         }
     }
@@ -165,8 +165,8 @@ private fun SheetHeaderWithStartIconPreview() {
                 onClosePress = { /* no-op */ },
                 startImageResource = ImageResource.Local(
                     id = R.drawable.ic_qr_code,
-                    contentDescription = null,
-                ),
+                    contentDescription = null
+                )
             )
         }
     }
@@ -183,8 +183,8 @@ private fun SheetHeaderBylineWithStartIconPreview() {
                 onClosePress = { /* no-op */ },
                 startImageResource = ImageResource.Local(
                     id = R.drawable.ic_qr_code,
-                    contentDescription = null,
-                ),
+                    contentDescription = null
+                )
             )
         }
     }

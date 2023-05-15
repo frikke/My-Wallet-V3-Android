@@ -41,10 +41,13 @@ class SimpleImageView @JvmOverloads constructor(
                             }
                         )
                         .then(
-                            if (squared) Modifier.aspectRatio(1F)
-                            else Modifier
+                            if (squared) {
+                                Modifier.aspectRatio(1F)
+                            } else {
+                                Modifier
+                            }
                         ),
-                    contentScale = scaleType,
+                    contentScale = scaleType
                 )
             }
         }

@@ -43,7 +43,7 @@ internal class NonCustodialRepository(
     private val subscriptionsStore: NonCustodialSubscriptionsStore,
     private val assetCatalogue: AssetCatalogue,
     private val coinTypeStore: CoinTypeStore,
-    private val remoteConfigService: RemoteConfigService,
+    private val remoteConfigService: RemoteConfigService
 ) : NonCustodialService {
 
     private val supportedCoins: Single<Map<String, CoinType>>
@@ -104,8 +104,7 @@ internal class NonCustodialRepository(
         )
             .map { it.success }
 
-    override suspend fun getAddresses(currencies: List<String>):
-        Outcome<Exception, List<NonCustodialDerivedAddress>> =
+    override suspend fun getAddresses(currencies: List<String>): Outcome<Exception, List<NonCustodialDerivedAddress>> =
         dynamicSelfCustodyService.getAddresses(
             currencies = currencies
         ).map { addressesResponse ->

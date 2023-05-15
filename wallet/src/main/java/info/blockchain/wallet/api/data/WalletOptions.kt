@@ -11,18 +11,6 @@ typealias WalletAddress = String
 @Serializable
 class WalletOptions {
 
-    @SerialName("showBuySellTab")
-    val buySellCountries: List<String> = emptyList()
-
-    @SerialName("androidBuyPercent")
-    val rolloutPercentage: Double = 0.toDouble()
-
-    @SerialName("android")
-    var androidFlags: MutableMap<String, Boolean> = mutableMapOf()
-
-    @SerialName("ethereum")
-    val ethereum: EthereumOptions = EthereumOptions()
-
     @SerialName("hotWalletAddresses")
     val hotWalletAddresses: Map<Product, Map<Asset, WalletAddress>> = HashMap()
 
@@ -65,8 +53,5 @@ class WalletOptions {
 
     val buyWebviewWalletLink: String?
         get() = mobile["walletRoot"]
-
-    companion object {
-        var XLM_DEFAULT_TIMEOUT_SECS: Long? = 10L
-    }
 }
+const val XLM_DEFAULT_TIMEOUT_SECS: Long = 10L

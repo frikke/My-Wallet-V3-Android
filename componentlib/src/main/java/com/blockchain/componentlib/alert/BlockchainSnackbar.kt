@@ -27,7 +27,6 @@ class BlockchainSnackbar(
             actionLabel: String? = null,
             onClick: () -> Unit = {}
         ): BlockchainSnackbar {
-
             // First we find a suitable parent for our custom view
             val parent = view.findSuitableParent() ?: throw IllegalArgumentException(
                 "No suitable parent found from the given view. Please provide a valid view."
@@ -58,7 +57,6 @@ class BlockchainSnackbar(
             actionLabel: String? = null,
             onClick: () -> Unit = {}
         ): BlockchainSnackbar {
-
             // First we find a suitable parent for our custom view
             val parent = view.findSuitableParent() ?: throw IllegalArgumentException(
                 "No suitable parent found from the given view. Please provide a valid view."

@@ -33,17 +33,23 @@ class FiatTransactionBottomSheet : SlidingModalBottomDialog<DialogSheetFiatTrans
         with(binding) {
             when (transactionState) {
                 FiatTransactionState.SUCCESS -> transactionProgressView.showFiatTxSuccess(
-                    title, subtitle, fiatCurrency
+                    title,
+                    subtitle,
+                    fiatCurrency
                 )
                 FiatTransactionState.ERROR -> transactionProgressView.showFiatTxError(
-                    title, subtitle, fiatCurrency
+                    title,
+                    subtitle,
+                    fiatCurrency
                 )
                 FiatTransactionState.PENDING -> transactionProgressView.showFiatTxPending(
-                    title, subtitle, fiatCurrency
+                    title,
+                    subtitle,
+                    fiatCurrency
                 )
             }
             transactionProgressView.setupPrimaryCta(
-                text = getString(R.string.common_ok),
+                text = getString(com.blockchain.stringResources.R.string.common_ok),
                 onClick = {
                     dismiss()
                 }

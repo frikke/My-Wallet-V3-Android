@@ -2,19 +2,19 @@ package com.blockchain.domain.wiretransfer
 
 data class WireTransferDetails(
     val sections: List<WireTransferDetailsSection>,
-    val footers: List<WireTransferDetailsFooter>,
+    val footers: List<WireTransferDetailsFooter>
 )
 
 data class WireTransferDetailsSection(
     val name: String,
-    val entries: List<WireTransferDetailsSectionEntry>,
+    val entries: List<WireTransferDetailsSectionEntry>
 )
 
 data class WireTransferDetailsSectionEntry(
     val title: String,
     val message: String,
     val isImportant: Boolean,
-    val help: String?,
+    val help: String?
 )
 
 data class WireTransferDetailsFooter(
@@ -22,10 +22,10 @@ data class WireTransferDetailsFooter(
     val message: String,
     val icon: String?,
     val isImportant: Boolean,
-    val actions: List<WireTransferDetailsAction>,
+    val actions: List<WireTransferDetailsAction>
 )
 
 data class WireTransferDetailsAction(
     val title: String,
-    val url: String?,
+    val url: String?
 )

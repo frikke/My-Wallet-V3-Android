@@ -64,7 +64,6 @@ class PhoneModelTest {
 
     @Test
     fun `when LoadProfile is successfully loaded from Cache then state will update user settings`() {
-
         val testState = model.state.test()
         model.process(PhoneIntent.LoadProfile)
 
@@ -102,7 +101,6 @@ class PhoneModelTest {
 
     @Test
     fun `when FetchProfile is successfully then state will update user settings`() {
-
         val testState = model.state.test()
         model.process(PhoneIntent.FetchProfile)
 
@@ -273,7 +271,7 @@ class PhoneModelTest {
                         mobileVerified = settings.isSmsVerified,
                         smsDialCode = settings.smsDialCode
                     ),
-                    codeSent = true,
+                    codeSent = true
                 )
             }
     }

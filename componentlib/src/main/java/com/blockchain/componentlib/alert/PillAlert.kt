@@ -39,7 +39,7 @@ enum class PillAlertType(
 ) {
     Info(bgColor = Dark800, textColor = Color.White),
     Error(bgColor = Dark800, textColor = Red400),
-    Success(bgColor = Dark800, textColor = Green700),
+    Success(bgColor = Dark800, textColor = Green700)
     // todo add more types
 }
 
@@ -61,7 +61,6 @@ fun PillAlert(
             .clickable(true, onClick = {}),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         config.icon?.let { icon ->
             Image(
                 imageResource = icon.withSize(AppTheme.dimensions.smallSpacing)

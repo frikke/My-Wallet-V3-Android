@@ -43,13 +43,17 @@ class ProfileModel(
                             process(
                                 ProfileIntent.LoadProfileSucceeded(
                                     userInfoSettings = WalletSettingsService.UserInfoSettings(
-                                        userInfo.email, emailVerified = userInfo.isEmailVerified,
-                                        mobileWithPrefix = userInfo.smsNumber, mobileVerified = userInfo.isSmsVerified,
-                                        authType = userInfo.authType, smsDialCode = userInfo.smsDialCode
+                                        userInfo.email,
+                                        emailVerified = userInfo.isEmailVerified,
+                                        mobileWithPrefix = userInfo.smsNumber,
+                                        mobileVerified = userInfo.isSmsVerified,
+                                        authType = userInfo.authType,
+                                        smsDialCode = userInfo.smsDialCode
                                     )
                                 )
                             )
-                        }, onError = {
+                        },
+                        onError = {
                             process(ProfileIntent.FetchProfile)
                             Timber.e("ProfileIntent.LoadProfile failure " + it)
                         }
@@ -65,7 +69,8 @@ class ProfileModel(
                                     userInfoSettings = userInfo
                                 )
                             )
-                        }, onError = {
+                        },
+                        onError = {
                             process(ProfileIntent.LoadProfileFailed)
                             Timber.e("ProfileIntent.FetchProfile failure " + it)
                         }

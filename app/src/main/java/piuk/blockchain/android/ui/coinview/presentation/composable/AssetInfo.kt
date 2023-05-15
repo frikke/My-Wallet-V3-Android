@@ -60,18 +60,20 @@ fun AssetInfoData(
             .padding(AppTheme.dimensions.smallSpacing)
     ) {
         ExpandableItem(
-            title = stringResource(R.string.coinview_about_asset, data.assetName),
-            text = data.description ?: stringResource(R.string.coinview_no_asset_description),
+            title = stringResource(com.blockchain.stringResources.R.string.coinview_about_asset, data.assetName),
+            text = data.description ?: stringResource(
+                com.blockchain.stringResources.R.string.coinview_no_asset_description
+            ),
             numLinesVisible = 6,
-            textButtonToExpand = stringResource(R.string.coinview_expandable_button),
-            textButtonToCollapse = stringResource(R.string.coinview_collapsable_button)
+            textButtonToExpand = stringResource(com.blockchain.stringResources.R.string.coinview_expandable_button),
+            textButtonToCollapse = stringResource(com.blockchain.stringResources.R.string.coinview_collapsable_button)
         )
 
         data.website?.let {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
             SmallMinimalButton(
-                text = stringResource(R.string.coinview_asset_info_cta),
+                text = stringResource(com.blockchain.stringResources.R.string.coinview_asset_info_cta),
                 onClick = {
                     analytics.logEvent(
                         CoinViewAnalytics.HyperlinkClicked(

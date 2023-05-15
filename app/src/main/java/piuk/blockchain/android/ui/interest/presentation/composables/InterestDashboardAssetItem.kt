@@ -42,21 +42,20 @@ fun InterestDashboardAssetItem(
     isKycGold: Boolean,
     interestItemClicked: (AssetInfo, Boolean) -> Unit
 ) {
-    Column(modifier = modifier.padding(dimensionResource(R.dimen.standard_spacing))) {
-
+    Column(modifier = modifier.padding(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))) {
         AssetName(assetInfo)
 
         // if no details available, don't show the balance and apy views
         if (assetInterestDetail != null) {
-            Spacer(Modifier.size(dimensionResource(R.dimen.very_small_spacing)))
+            Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)))
 
             InterestApy(assetInfo, assetInterestDetail)
 
             HorizontalDivider(
                 modifier = Modifier
                     .padding(
-                        top = dimensionResource(R.dimen.very_small_spacing),
-                        bottom = dimensionResource(R.dimen.very_small_spacing)
+                        top = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing),
+                        bottom = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)
                     )
                     .fillMaxWidth()
             )
@@ -64,32 +63,41 @@ fun InterestDashboardAssetItem(
             InterestBalance(assetInfo, assetInterestDetail)
         }
 
-        Spacer(Modifier.size(dimensionResource(R.dimen.very_small_spacing)))
+        Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)))
 
         InterestCta(
             ctaText = stringResource(
                 when {
-                    assetInterestDetail == null -> R.string.rewards_dashboard_item_action_earn
-                    assetInterestDetail.totalBalance.isPositive -> R.string.rewards_dashboard_item_action_view
-                    else -> R.string.rewards_dashboard_item_action_earn
+                    assetInterestDetail == null ->
+                        com.blockchain.stringResources.R.string.rewards_dashboard_item_action_earn
+
+                    assetInterestDetail.totalBalance.isPositive ->
+                        com.blockchain.stringResources.R.string.rewards_dashboard_item_action_view
+
+                    else -> com.blockchain.stringResources.R.string.rewards_dashboard_item_action_earn
                 }
             ),
             enabled = (isKycGold && (assetInterestDetail?.eligibility is EarnRewardsEligibility.Eligible)) ||
                 assetInterestDetail?.totalBalance?.isPositive == true,
             onClick = {
-                if (assetInterestDetail != null)
+                if (assetInterestDetail != null) {
                     interestItemClicked(assetInfo, assetInterestDetail.totalBalance.isPositive)
+                }
             }
         )
 
         if (assetInterestDetail == null || (assetInterestDetail.eligibility is EarnRewardsEligibility.Ineligible)) {
-            Spacer(Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
+            Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)))
             InterestExplainer(
                 stringResource(
                     when (assetInterestDetail?.eligibility) {
-                        EarnRewardsEligibility.Ineligible.REGION -> R.string.rewards_item_issue_region
-                        EarnRewardsEligibility.Ineligible.KYC_TIER -> R.string.rewards_item_issue_kyc
-                        else -> R.string.rewards_item_issue_other
+                        EarnRewardsEligibility.Ineligible.REGION ->
+                            com.blockchain.stringResources.R.string.rewards_item_issue_region
+
+                        EarnRewardsEligibility.Ineligible.KYC_TIER ->
+                            com.blockchain.stringResources.R.string.rewards_item_issue_kyc
+
+                        else -> com.blockchain.stringResources.R.string.rewards_item_issue_other
                     }
                 )
             )
@@ -102,13 +110,13 @@ private fun AssetName(assetInfo: AssetInfo) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Image(
             modifier = Modifier
-                .size(dimensionResource(R.dimen.large_spacing))
+                .size(dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing))
                 .clip(CircleShape),
             imageResource = ImageResource.Remote(assetInfo.logo)
         )
 
         Text(
-            modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_spacing)),
+            modifier = Modifier.padding(start = dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)),
             style = AppTheme.typography.title3,
             text = assetInfo.name
         )
@@ -123,18 +131,23 @@ private fun InterestApy(assetInfo: AssetInfo, assetInterestDetail: AssetInterest
         )
 
         Text(
-            modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_spacing)),
+            modifier = Modifier.padding(start = dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)),
             style = AppTheme.typography.paragraph1,
             color = Grey600,
             text = buildAnnotatedString {
-                append(stringResource(id = R.string.rewards_dashboard_item_rate_1))
+                append(stringResource(id = com.blockchain.stringResources.R.string.rewards_dashboard_item_rate_1))
 
                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                     append("${assetInterestDetail.rate}%")
                 }
 
-                append(stringResource(id = R.string.rewards_dashboard_item_rate_2, assetInfo.name))
-            },
+                append(
+                    stringResource(
+                        id = com.blockchain.stringResources.R.string.rewards_dashboard_item_rate_2,
+                        assetInfo.name
+                    )
+                )
+            }
         )
     }
 }
@@ -145,7 +158,7 @@ private fun InterestCta(ctaText: String, enabled: Boolean, onClick: () -> Unit) 
         modifier = Modifier.fillMaxWidth(),
         text = ctaText,
         state = if (enabled) ButtonState.Enabled else ButtonState.Disabled,
-        onClick = onClick,
+        onClick = onClick
     )
 }
 
@@ -155,7 +168,10 @@ private fun InterestBalance(assetInfo: AssetInfo, assetInterestDetail: AssetInte
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 style = AppTheme.typography.caption1,
-                text = stringResource(id = R.string.rewards_dashboard_item_balance_title, assetInfo.displayTicker),
+                text = stringResource(
+                    id = com.blockchain.stringResources.R.string.rewards_dashboard_item_balance_title,
+                    assetInfo.displayTicker
+                ),
                 color = Grey800
             )
 
@@ -166,12 +182,14 @@ private fun InterestBalance(assetInfo: AssetInfo, assetInterestDetail: AssetInte
             )
         }
 
-        Spacer(Modifier.size(dimensionResource(R.dimen.very_small_spacing)))
+        Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)))
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 style = AppTheme.typography.caption1,
-                text = stringResource(id = R.string.rewards_dashboard_item_accrued_title),
+                text = stringResource(
+                    id = com.blockchain.stringResources.R.string.rewards_dashboard_item_accrued_title
+                ),
                 color = Grey800
             )
 
@@ -192,7 +210,9 @@ private fun InterestExplainer(explanation: String) {
         )
 
         Text(
-            modifier = Modifier.padding(start = dimensionResource(R.dimen.minuscule_spacing)),
+            modifier = Modifier.padding(
+                start = dimensionResource(com.blockchain.componentlib.R.dimen.minuscule_spacing)
+            ),
             style = AppTheme.typography.paragraph1,
             text = explanation,
             color = Grey800

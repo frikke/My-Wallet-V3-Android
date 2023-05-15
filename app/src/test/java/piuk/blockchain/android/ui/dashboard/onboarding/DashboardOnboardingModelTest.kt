@@ -66,7 +66,7 @@ class DashboardOnboardingModelTest {
         val steps = listOf(
             CompletableDashboardOnboardingStep(UPGRADE_TO_GOLD, DashboardOnboardingStepState.COMPLETE),
             CompletableDashboardOnboardingStep(LINK_PAYMENT_METHOD, DashboardOnboardingStepState.INCOMPLETE),
-            CompletableDashboardOnboardingStep(BUY, DashboardOnboardingStepState.INCOMPLETE),
+            CompletableDashboardOnboardingStep(BUY, DashboardOnboardingStepState.INCOMPLETE)
         )
         whenever(interactor.getSteps()).thenReturn(Single.just(steps))
 
@@ -123,7 +123,7 @@ class DashboardOnboardingModelTest {
         val steps = listOf(
             CompletableDashboardOnboardingStep(UPGRADE_TO_GOLD, DashboardOnboardingStepState.PENDING),
             CompletableDashboardOnboardingStep(LINK_PAYMENT_METHOD, DashboardOnboardingStepState.INCOMPLETE),
-            CompletableDashboardOnboardingStep(BUY, DashboardOnboardingStepState.INCOMPLETE),
+            CompletableDashboardOnboardingStep(BUY, DashboardOnboardingStepState.INCOMPLETE)
         )
         whenever(interactor.getSteps()).thenReturn(Single.just(steps))
 
@@ -160,10 +160,14 @@ class DashboardOnboardingModelTest {
 
         val paymentMethods = listOf(
             PaymentMethod.UndefinedCard(
-                PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency), true, null
+                PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency),
+                true,
+                null
             ),
             PaymentMethod.UndefinedBankAccount(
-                currency, PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency), true
+                currency,
+                PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency),
+                true
             )
         )
         state.assertValueAt(2) {
@@ -218,7 +222,9 @@ class DashboardOnboardingModelTest {
         whenever(interactor.linkBank(currency)).thenReturn(
             Single.just(
                 LinkBankTransfer(
-                    "123", BankPartner.YODLEE, YodleeAttributes("", "", "")
+                    "123",
+                    BankPartner.YODLEE,
+                    YodleeAttributes("", "", "")
                 )
             )
         )

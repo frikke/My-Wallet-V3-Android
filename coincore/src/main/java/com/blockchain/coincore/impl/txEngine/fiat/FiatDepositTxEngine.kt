@@ -59,7 +59,7 @@ class FiatDepositTxEngine(
     private val limitsDataManager: LimitsDataManager,
     private val userIdentity: UserIdentity,
     private val withdrawLocksRepository: WithdrawLocksRepository,
-    private val plaidFeatureFlag: FeatureFlag,
+    private val plaidFeatureFlag: FeatureFlag
 ) : TxEngine() {
 
     private val transactionsStore: TransactionsStore by scopedInject()
@@ -111,7 +111,8 @@ class FiatDepositTxEngine(
                         engineState = mapOf(
                             WITHDRAW_LOCKS to locks.takeIf { it.signum() == 1 }?.secondsToDays(),
                             PAYMENT_METHOD_LIMITS to TxLimits.fromAmounts(
-                                paymentMethodLimits.min, paymentMethodLimits.max
+                                paymentMethodLimits.min,
+                                paymentMethodLimits.max
                             )
                         ).filterNotNullValues()
                     )
@@ -142,7 +143,9 @@ class FiatDepositTxEngine(
                     TxConfirmationValue.To(txTarget, AssetAction.FiatDeposit),
                     if (!isOpenBankingCurrency()) {
                         TxConfirmationValue.EstimatedCompletion
-                    } else null,
+                    } else {
+                        null
+                    },
                     TxConfirmationValue.Amount(pendingTx.amount, true)
                 )
             )

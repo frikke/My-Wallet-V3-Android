@@ -60,7 +60,7 @@ class ProvePrefillFragment :
                     countryIso = countryIso,
                     stateIso = stateIso,
                     showDatePicker = ::showDatePicker,
-                    launchContactSupport = host::launchContactSupport,
+                    launchContactSupport = host::launchContactSupport
                 )
             }
         }
@@ -79,13 +79,13 @@ class ProvePrefillFragment :
     override fun route(navigationEvent: Navigation) {
         when (navigationEvent) {
             Navigation.Back -> {
-                AlertDialog.Builder(requireContext(), R.style.AlertDialogStyle)
-                    .setMessage(R.string.prove_leave_warning)
+                AlertDialog.Builder(requireContext(), com.blockchain.componentlib.R.style.AlertDialogStyle)
+                    .setMessage(com.blockchain.stringResources.R.string.prove_leave_warning)
                     .setCancelable(true)
-                    .setNegativeButton(R.string.common_cancel) { dialog, _ ->
+                    .setNegativeButton(com.blockchain.stringResources.R.string.common_cancel) { dialog, _ ->
                         dialog.dismiss()
                     }
-                    .setPositiveButton(R.string.prove_leave_button) { dialog, _ ->
+                    .setPositiveButton(com.blockchain.stringResources.R.string.prove_leave_button) { dialog, _ ->
                         backPressCallback.remove()
                         requireActivity().onBackPressedDispatcher.onBackPressed()
                         dialog.dismiss()
@@ -108,7 +108,7 @@ class ProvePrefillFragment :
             calendar.get(Calendar.MONTH),
             calendar.get(Calendar.DAY_OF_MONTH)
         ).apply {
-            setTitle(requireContext().getString(R.string.kyc_profile_dob_hint))
+            setTitle(requireContext().getString(com.blockchain.stringResources.R.string.kyc_profile_dob_hint))
             maxDate = calendar
             showYearPickerFirst(true)
             show(requireActivity().fragmentManager, tag)

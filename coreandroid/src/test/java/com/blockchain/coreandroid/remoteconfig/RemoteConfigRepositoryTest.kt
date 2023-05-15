@@ -16,7 +16,8 @@ import kotlinx.serialization.json.Json
 import org.junit.Before
 import org.junit.Test
 
-@OptIn(ExperimentalCoroutinesApi::class) class RemoteConfigRepositoryTest() {
+@OptIn(ExperimentalCoroutinesApi::class)
+class RemoteConfigRepositoryTest() {
 
     private val firebaseRemoteConfig = mockk<FirebaseRemoteConfig>()
     private val remoteConfigPrefs = mockk<RemoteConfigPrefs>()

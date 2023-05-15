@@ -118,8 +118,8 @@ class QrScanResultProcessor(
 
         val subject = SingleSubject.create<CryptoTarget>()
 
-        AlertDialog.Builder(activity, R.style.AlertDialogStyle)
-            .setTitle(R.string.confirm_currency)
+        AlertDialog.Builder(activity, com.blockchain.componentlib.R.style.AlertDialogStyle)
+            .setTitle(com.blockchain.stringResources.R.string.confirm_currency)
             .setCancelable(true)
             .setSingleChoiceItems(
                 selectList,
@@ -170,7 +170,9 @@ class QrScanResultProcessor(
                         1 -> subject.onSuccess(accounts[0] as CryptoAccount)
                         0 -> subject.onComplete()
                         else -> showAccountSelectionDialog(
-                            activity, subject, Single.just(accounts)
+                            activity,
+                            subject,
+                            Single.just(accounts)
                         )
                     }
                 },
@@ -192,8 +194,9 @@ class QrScanResultProcessor(
             }
 
             override fun onSheetClosed() {
-                if (!subject.hasValue())
+                if (!subject.hasValue()) {
                     subject.onComplete()
+                }
             }
         }
 
@@ -203,7 +206,7 @@ class QrScanResultProcessor(
                 source.map { list ->
                     list.map { it as CryptoAccount }
                 },
-                R.string.select_send_source_title
+                com.blockchain.stringResources.R.string.select_send_source_title
             )
         )
     }

@@ -39,7 +39,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -54,6 +53,7 @@ import com.blockchain.componentlib.theme.Dark600
 import com.blockchain.componentlib.theme.Dark700
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey600
+import com.blockchain.stringResources.R
 
 sealed class TextInputState(val message: String? = null) {
     data class Default(val defaultMessage: String? = null) : TextInputState(defaultMessage)
@@ -122,7 +122,7 @@ fun TextInput(
         maxLength = maxLength,
         interactionSource = interactionSource,
         onFocusChanged = onFocusChanged,
-        onTrailingIconClicked = onTrailingIconClicked,
+        onTrailingIconClicked = onTrailingIconClicked
     )
 }
 
@@ -148,7 +148,6 @@ fun TextInput(
     onFocusChanged: (FocusState) -> Unit = {},
     onTrailingIconClicked: () -> Unit = {}
 ) {
-
     val enabled = state !is TextInputState.Disabled
 
     val assistiveTextColor = when (state) {
@@ -239,15 +238,21 @@ fun TextInput(
                 },
             label = if (label != null) {
                 { Text(label, style = AppTheme.typography.caption1) }
-            } else null,
+            } else {
+                null
+            },
             placeholder = if (placeholder != null) {
                 { Text(placeholder) }
-            } else null,
+            } else {
+                null
+            },
             leadingIcon = if (leadingIcon != ImageResource.None) {
                 {
                     Image(imageResource = leadingIcon)
                 }
-            } else null,
+            } else {
+                null
+            },
             trailingIcon = if (trailingIcon != ImageResource.None) {
                 {
                     Image(
@@ -257,7 +262,9 @@ fun TextInput(
                         imageResource = trailingIcon
                     )
                 }
-            } else null,
+            } else {
+                null
+            },
             enabled = enabled,
             readOnly = readOnly,
             textStyle = AppTheme.typography.body1,
@@ -291,8 +298,8 @@ fun TextInput(
                 modifier = Modifier
                     .background(Color.Transparent)
                     .padding(
-                        start = dimensionResource(R.dimen.medium_spacing),
-                        end = dimensionResource(R.dimen.medium_spacing),
+                        start = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
+                        end = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
                         top = 8.dp
                     )
             )
@@ -310,7 +317,7 @@ fun TextInput_Error_Preview() {
                 label = "Home Address",
                 onValueChange = {},
                 placeholder = "Placeholder text",
-                trailingIcon = ImageResource.Local(R.drawable.ic_search),
+                trailingIcon = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_search),
                 state = TextInputState.Error("Test Error Message")
             )
         }
@@ -425,7 +432,7 @@ fun OutlinedTextInput(
         interactionSource = interactionSource,
         hasFocus = hasFocus,
         onFocusChanged = onFocusChanged,
-        onTrailingIconClicked = onTrailingIconClicked,
+        onTrailingIconClicked = onTrailingIconClicked
     )
 }
 
@@ -454,7 +461,6 @@ fun OutlinedTextInput(
     onFocusChanged: (FocusState) -> Unit = {},
     onTrailingIconClicked: () -> Unit = {}
 ) {
-
     val enabled = state !is TextInputState.Disabled
 
     val assistiveTextColor = when (state) {
@@ -563,7 +569,9 @@ fun OutlinedTextInput(
                     },
                 label = if (label != null) {
                     { Text(label, style = AppTheme.typography.caption1) }
-                } else null,
+                } else {
+                    null
+                },
                 placeholder = if (placeholder != null) {
                     {
                         SimpleText(
@@ -574,12 +582,16 @@ fun OutlinedTextInput(
                             color = ComposeColors.Muted
                         )
                     }
-                } else null,
+                } else {
+                    null
+                },
                 leadingIcon = if (leadingIcon != ImageResource.None) {
                     {
                         Image(imageResource = leadingIcon)
                     }
-                } else null,
+                } else {
+                    null
+                },
                 trailingIcon = if (trailingIcon != ImageResource.None) {
                     {
                         Image(
@@ -589,7 +601,9 @@ fun OutlinedTextInput(
                             imageResource = trailingIcon
                         )
                     }
-                } else null,
+                } else {
+                    null
+                },
                 enabled = enabled,
                 readOnly = readOnly,
                 textStyle = AppTheme.typography.body1,
@@ -625,8 +639,8 @@ fun OutlinedTextInput(
                 modifier = Modifier
                     .background(Color.Transparent)
                     .padding(
-                        start = dimensionResource(R.dimen.medium_spacing),
-                        end = dimensionResource(R.dimen.medium_spacing),
+                        start = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
+                        end = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
                         top = 8.dp
                     )
             )
@@ -644,7 +658,7 @@ fun OutlinedTextInput_Preview() {
                 label = "Home Address",
                 onValueChange = {},
                 placeholder = "Please enter your address",
-                unfocusedTrailingIcon = ImageResource.Local(R.drawable.ic_search),
+                unfocusedTrailingIcon = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_search)
             )
         }
     }
@@ -660,7 +674,7 @@ fun OutlinedTextInput_Error_Preview() {
                 label = "Home Address",
                 onValueChange = {},
                 placeholder = "Please enter your address",
-                unfocusedTrailingIcon = ImageResource.Local(R.drawable.ic_search),
+                unfocusedTrailingIcon = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_search),
                 state = TextInputState.Error("Test Error Message")
             )
         }

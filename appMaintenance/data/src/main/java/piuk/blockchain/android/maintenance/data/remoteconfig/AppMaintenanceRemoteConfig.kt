@@ -18,8 +18,9 @@ internal class AppMaintenanceRemoteConfig(
 
     suspend fun getAppMaintenanceConfig(): AppMaintenanceConfigDto {
         return getAppMaintenanceJson().let { appMaintenanceConfigJson ->
-            if (appMaintenanceConfigJson.isEmpty()) throw Exception("remote config json not found")
-            else json.decodeFromString(appMaintenanceConfigJson)
+            if (appMaintenanceConfigJson.isEmpty()) {
+                throw Exception("remote config json not found")
+            } else json.decodeFromString(appMaintenanceConfigJson)
         }
     }
 

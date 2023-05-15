@@ -70,7 +70,6 @@ fun CloudBackupConfirmationScreen(
     doneOnClick: () -> Unit,
     backUpManualOnClick: () -> Unit
 ) {
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -80,7 +79,7 @@ fun CloudBackupConfirmationScreen(
         NavigationBar(
             modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
             mutedBackground = false,
-            title = stringResource(R.string.backup_phrase_title_secure_wallet),
+            title = stringResource(com.blockchain.stringResources.R.string.backup_phrase_title_secure_wallet),
             onBackButtonClick = null
         )
 
@@ -92,10 +91,9 @@ fun CloudBackupConfirmationScreen(
                 .padding(AppTheme.dimensions.standardSpacing),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.recovery_phrase_title),
+                text = stringResource(id = com.blockchain.stringResources.R.string.recovery_phrase_title),
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
@@ -117,11 +115,11 @@ fun CloudBackupConfirmationScreen(
                 mnemonicCopied = mnemonicCopied
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
+            Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.recovery_phrase_description),
+                text = stringResource(id = com.blockchain.stringResources.R.string.recovery_phrase_description),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
@@ -131,7 +129,7 @@ fun CloudBackupConfirmationScreen(
 
             PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.done),
+                text = stringResource(id = com.blockchain.stringResources.R.string.done),
                 onClick = doneOnClick
             )
 
@@ -139,7 +137,7 @@ fun CloudBackupConfirmationScreen(
 
             SecondaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.recovery_phrase_backup_manual),
+                text = stringResource(id = com.blockchain.stringResources.R.string.recovery_phrase_backup_manual),
                 onClick = backUpManualOnClick
             )
         }

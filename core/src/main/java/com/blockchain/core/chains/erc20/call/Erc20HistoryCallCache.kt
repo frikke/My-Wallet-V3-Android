@@ -29,7 +29,6 @@ class Erc20HistoryCallCache(
     private val assetCatalogue: AssetCatalogue
 ) {
     fun fetch(accountHash: String, asset: AssetInfo, parentChain: String): Single<Erc20HistoryList> {
-
         return if (parentChain == CryptoCurrency.ETHER.networkTicker) {
             fetchErc20FromEthNetwork(accountHash, asset)
         } else {

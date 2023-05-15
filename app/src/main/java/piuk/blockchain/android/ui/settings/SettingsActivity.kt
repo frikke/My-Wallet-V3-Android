@@ -63,7 +63,8 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
         supportFragmentManager.beginTransaction()
             .addTransactionAnimation()
             .replace(
-                binding.settingsContentFrame.id, settingsHomeFragment
+                binding.settingsContentFrame.id,
+                settingsHomeFragment
             )
             .commitNowAllowingStateLoss()
 
@@ -83,7 +84,7 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
 
     private fun setupToolbar() {
         updateToolbar(
-            toolbarTitle = getString(R.string.toolbar_settings),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.toolbar_settings),
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         setupSupportButton()
@@ -94,7 +95,7 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
             listOf(
                 NavigationBarButton.Icon(
                     drawable = R.drawable.ic_support_chat,
-                    contentDescription = R.string.accessibility_support
+                    contentDescription = com.blockchain.stringResources.R.string.accessibility_support
                 ) {
                     analytics.logEvent(AnalyticsEvents.Support)
                     startActivity(SupportCentreActivity.newIntent(this))

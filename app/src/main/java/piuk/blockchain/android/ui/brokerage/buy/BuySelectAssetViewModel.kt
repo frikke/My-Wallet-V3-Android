@@ -17,11 +17,13 @@ import kotlinx.coroutines.launch
 class BuySelectAssetViewModel(
     private val userFeaturePermissionService: UserFeaturePermissionService,
     private val topMoversInBuyFF: FeatureFlag
-) : MviViewModel<BuySelectAssetIntent,
+) : MviViewModel<
+    BuySelectAssetIntent,
     BuySelectAssetViewState,
     BuySelectAssetModelState,
     BuySelectAssetNavigation,
-    ModelConfigArgs.NoArgs>(
+    ModelConfigArgs.NoArgs
+    >(
     BuySelectAssetModelState()
 ) {
     init {

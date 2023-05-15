@@ -26,7 +26,7 @@ interface AnnouncementsCredentials {
 class AnnouncementsCredentialsImpl internal constructor(
     private val remoteConfigService: RemoteConfigService,
     private val userService: UserService,
-    private val environmentConfig: EnvironmentConfig,
+    private val environmentConfig: EnvironmentConfig
 ) : AnnouncementsCredentials {
 
     private val apiKey: String? = null

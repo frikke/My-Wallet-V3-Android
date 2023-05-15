@@ -33,7 +33,7 @@ class ActiveRewardsDepositTradingEngine(
     activeRewardsService: ActiveRewardsService,
     private val tradingStore: TradingStore,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val walletManager: CustodialWalletManager,
+    val walletManager: CustodialWalletManager
 ) : ActiveRewardsBaseEngine(activeRewardsService) {
 
     override val flushableDataSources: List<FlushableDataSource>

@@ -29,7 +29,7 @@ fun ProductEligibilityResponse.toDomain(): List<ProductEligibility> =
         depositInterest?.toProductEligibility(EligibleProduct.DEPOSIT_INTEREST),
         withdrawFiat?.toProductEligibility(EligibleProduct.WITHDRAW_FIAT),
         depositStaking?.toProductEligibility(EligibleProduct.DEPOSIT_STAKING),
-        kycVerification?.toProductEligibility(EligibleProduct.KYC),
+        kycVerification?.toProductEligibility(EligibleProduct.KYC)
     )
 
 fun UseTradingAccountsResponse.toProductEligibility(): ProductEligibility = ProductEligibility(
@@ -37,7 +37,7 @@ fun UseTradingAccountsResponse.toProductEligibility(): ProductEligibility = Prod
     canTransact = enabled,
     isDefault = defaultProduct,
     maxTransactionsCap = TransactionsLimit.Unlimited,
-    reasonNotEligible = null /*not needed for the time being*/
+    reasonNotEligible = null // not needed for the time being
 )
 
 fun BuyEligibilityResponse.toProductEligibility(): ProductEligibility = ProductEligibility(

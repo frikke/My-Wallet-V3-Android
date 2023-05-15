@@ -14,7 +14,8 @@ class WithdrawLocksRepository(custodialWalletManager: CustodialWalletManager) {
         cacheLifetimeSeconds = 100L,
         refreshFn = { data ->
             custodialWalletManager.fetchWithdrawLocksTime(
-                data.paymentMethodType, data.fiatCurrency
+                data.paymentMethodType,
+                data.fiatCurrency
             )
                 .doOnSuccess { it1 -> Logger.d("Withdrawal lock: $it1") }
         }

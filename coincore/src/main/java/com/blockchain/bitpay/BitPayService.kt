@@ -10,7 +10,7 @@ import io.reactivex.rxjava3.core.Single
 
 class BitPayService constructor(
     environmentConfig: EnvironmentConfig,
-    private val service: BitPay,
+    private val service: BitPay
 ) {
 
     private val baseUrl: String = environmentConfig.bitpayUrl

@@ -95,7 +95,7 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
                 preselectedAmount = amount,
                 preselectedFiatTicker = preselectedFiatTicker,
                 launchLinkCard = launchLinkCard,
-                launchNewPaymentMethodSelection = launchNewPaymentMethodSelection,
+                launchNewPaymentMethodSelection = launchNewPaymentMethodSelection
             )
         )
     }
@@ -151,7 +151,7 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
             CoinViewActivity.newIntent(
                 context = activity,
                 asset = asset,
-                originScreen = LaunchOrigin.HOME.name,
+                originScreen = LaunchOrigin.HOME.name
             )
         )
     }

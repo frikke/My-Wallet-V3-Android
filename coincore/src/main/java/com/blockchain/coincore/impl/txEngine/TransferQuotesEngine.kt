@@ -34,7 +34,7 @@ class TransferQuotesEngine private constructor(
     private val custodialWalletManager: CustodialWalletManager,
     private val brokerageDataManager: BrokerageDataManager,
     private val tradeDataService: TradeDataService,
-    private val sellSwapBrokerageQuoteFF: FeatureFlag,
+    private val sellSwapBrokerageQuoteFF: FeatureFlag
 ) {
     private val latestPrice = BehaviorSubject.create<QuotePrice>()
     private val latestQuote = BehaviorSubject.create<PricedQuote>()
@@ -124,7 +124,7 @@ class TransferQuotesEngine private constructor(
                             val data = QuoteWithRefreshInterval(
                                 quote = quote,
                                 refreshTotalWaitTime = interval,
-                                scheduledRefreshTime = refreshTime,
+                                scheduledRefreshTime = refreshTime
                             )
                             emit(Outcome.Success(data))
                             delay(interval)
@@ -148,7 +148,7 @@ class TransferQuotesEngine private constructor(
                 PricedQuote(
                     quoteWithRefreshInterval.quote,
                     remainingMillis.toSeconds().toInt(),
-                    remainingPercentage,
+                    remainingPercentage
                 )
             }.doFinally {
                 quoteObservable = null
@@ -210,14 +210,14 @@ class TransferQuotesEngine private constructor(
         private val custodialWalletManager: CustodialWalletManager,
         private val brokerageDataManager: BrokerageDataManager,
         private val tradeDataService: TradeDataService,
-        private val sellSwapBrokerageQuoteFF: FeatureFlag,
+        private val sellSwapBrokerageQuoteFF: FeatureFlag
     ) {
         fun create(): TransferQuotesEngine = TransferQuotesEngine(
             quotesProvider,
             custodialWalletManager,
             brokerageDataManager,
             tradeDataService,
-            sellSwapBrokerageQuoteFF,
+            sellSwapBrokerageQuoteFF
         )
     }
 }
@@ -231,5 +231,5 @@ data class PricedQuote(
 private data class QuoteWithRefreshInterval(
     val quote: BrokerageQuote,
     val refreshTotalWaitTime: Millis,
-    val scheduledRefreshTime: Millis,
+    val scheduledRefreshTime: Millis
 )

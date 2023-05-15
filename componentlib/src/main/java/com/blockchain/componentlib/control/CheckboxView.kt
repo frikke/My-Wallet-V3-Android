@@ -27,7 +27,7 @@ class CheckboxView @JvmOverloads constructor(
                 Checkbox(
                     state = state,
                     enabled = checkboxEnabled,
-                    onCheckChanged = onCheckChanged,
+                    onCheckChanged = onCheckChanged
                 )
             }
         }

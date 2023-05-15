@@ -19,7 +19,9 @@ class SellAnalyticsEvent(
     constructor(event: SellAnalytics, asset: Currency, source: String) : this(
         event.value,
         constructMap(
-            asset = asset, source = source, target = WALLET_TYPE_CUSTODIAL
+            asset = asset,
+            source = source,
+            target = WALLET_TYPE_CUSTODIAL
         )
     )
 }
@@ -67,11 +69,11 @@ object SellAssetScreenViewedEvent : AnalyticsEvent {
 }
 
 class SellAssetSelectedEvent(
-    type: String,
+    type: String
 ) : AnalyticsEvent {
     override val event: String = AnalyticsNames.SELL_ASSET_SELECTED.eventName
     override val params: Map<String, String> = mapOf(
-        "type" to type,
+        "type" to type
     )
 }
 

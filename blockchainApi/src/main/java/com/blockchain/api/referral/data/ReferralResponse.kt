@@ -29,7 +29,7 @@ data class StyleData(
     val header: MediaInfo?,
     val icon: UrlInfo?,
     val style: StyleInfo?,
-    val actions: List<ActionData>?,
+    val actions: List<ActionData>?
 )
 
 @Serializable

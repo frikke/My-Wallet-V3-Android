@@ -8,6 +8,7 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion Versions.composeCompiler
     }
+    namespace 'com.blockchain.common'
 }
 
 dependencies {

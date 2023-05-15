@@ -98,7 +98,7 @@ fun IntroductionScreensData(
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             modifier = Modifier.fillMaxSize(),
-            imageResource = ImageResource.Local(R.drawable.background_gradient),
+            imageResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.background_gradient),
             contentScale = ContentScale.FillBounds
         )
 
@@ -114,12 +114,15 @@ fun IntroductionScreensData(
             modifier = Modifier
                 .clickable {
                     markAsSeen()
-                    if (setup is IntroductionScreensSetup.All) launchApp()
-                    else close()
+                    if (setup is IntroductionScreensSetup.All) {
+                        launchApp()
+                    } else {
+                        close()
+                    }
                 }
                 .align(Alignment.TopEnd)
                 .padding(AppTheme.dimensions.standardSpacing),
-            imageResource = ImageResource.Local(R.drawable.ic_close_circle)
+            imageResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_close_circle)
         )
 
         Column(
@@ -135,11 +138,14 @@ fun IntroductionScreensData(
             ) {
                 TertiaryButton(
                     modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(R.string.done),
+                    text = stringResource(com.blockchain.stringResources.R.string.done),
                     onClick = {
                         markAsSeen()
-                        if (setup is IntroductionScreensSetup.All) launchApp()
-                        else close()
+                        if (setup is IntroductionScreensSetup.All) {
+                            launchApp()
+                        } else {
+                            close()
+                        }
                     }
                 )
             }
@@ -150,7 +156,7 @@ fun IntroductionScreensData(
                 exit = fadeOut()
             ) {
                 TextAnimatedBrush(
-                    text = stringResource(R.string.intro_swipe_hint),
+                    text = stringResource(com.blockchain.stringResources.R.string.intro_swipe_hint),
                     style = AppTheme.typography.body2,
                     baseColor = AppTheme.colors.background.copy(alpha = 0.4F),
                     brushColor = AppTheme.colors.background.copy(alpha = 0.9F),

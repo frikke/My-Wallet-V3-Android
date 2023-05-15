@@ -31,19 +31,19 @@ class PasswordChangeFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         updateToolbar(
-            toolbarTitle = getString(R.string.change_password_title),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.change_password_title),
             menuItems = emptyList()
         )
 
         with(binding) {
             passwordBlurb.apply {
-                text = getString(R.string.password_change_blurb)
+                text = getString(com.blockchain.stringResources.R.string.password_change_blurb)
                 style = ComposeTypographies.Paragraph1
                 textColor = ComposeColors.Body
             }
             passwordCta.apply {
                 buttonState = ButtonState.Disabled
-                text = getString(R.string.password_change_cta)
+                text = getString(com.blockchain.stringResources.R.string.password_change_cta)
                 onClick = {
                     model.process(
                         PasswordChangeIntent.UpdatePassword(
@@ -99,8 +99,12 @@ class PasswordChangeFragment :
                 PasswordViewState.CheckingPasswords -> {
                     binding.passwordProgress.visible()
                 }
+
                 PasswordViewState.PasswordUpdated -> {
-                    showSnackBar(R.string.change_password_success, type = SnackbarType.Success)
+                    showSnackBar(
+                        com.blockchain.stringResources.R.string.change_password_success,
+                        type = SnackbarType.Success
+                    )
                     activity.onBackPressedDispatcher.onBackPressed()
                     with(binding) {
                         fieldPassword.setText("")
@@ -109,6 +113,7 @@ class PasswordChangeFragment :
                         passwordProgress.gone()
                     }
                 }
+
                 PasswordViewState.None -> {
                     // do nothing
                 }
@@ -125,23 +130,47 @@ class PasswordChangeFragment :
     private fun processError(errorState: PasswordChangeError) {
         when (errorState) {
             PasswordChangeError.USING_SAME_PASSWORDS -> {
-                showSnackBar(R.string.change_password_error_old_new_match, type = SnackbarType.Error)
+                showSnackBar(
+                    com.blockchain.stringResources.R.string.change_password_error_old_new_match,
+                    type = SnackbarType.Error
+                )
             }
+
             PasswordChangeError.CURRENT_PASSWORD_WRONG -> {
-                showSnackBar(R.string.change_password_error_old_incorrect, type = SnackbarType.Error)
+                showSnackBar(
+                    com.blockchain.stringResources.R.string.change_password_error_old_incorrect,
+                    type = SnackbarType.Error
+                )
             }
+
             PasswordChangeError.NEW_PASSWORDS_DONT_MATCH -> {
-                showSnackBar(R.string.change_password_error_new_dont_match, type = SnackbarType.Error)
+                showSnackBar(
+                    com.blockchain.stringResources.R.string.change_password_error_new_dont_match,
+                    type = SnackbarType.Error
+                )
             }
+
             PasswordChangeError.NEW_PASSWORD_INVALID_LENGTH -> {
-                showSnackBar(R.string.change_password_error_new_length, type = SnackbarType.Error)
+                showSnackBar(
+                    com.blockchain.stringResources.R.string.change_password_error_new_length,
+                    type = SnackbarType.Error
+                )
             }
+
             PasswordChangeError.NEW_PASSWORD_TOO_WEAK -> {
-                showSnackBar(R.string.change_password_error_new_too_weak, type = SnackbarType.Error)
+                showSnackBar(
+                    com.blockchain.stringResources.R.string.change_password_error_new_too_weak,
+                    type = SnackbarType.Error
+                )
             }
+
             PasswordChangeError.UNKNOWN_ERROR -> {
-                showSnackBar(R.string.change_password_error_general, type = SnackbarType.Error)
+                showSnackBar(
+                    com.blockchain.stringResources.R.string.change_password_error_general,
+                    type = SnackbarType.Error
+                )
             }
+
             PasswordChangeError.NONE -> {
                 // do nothing
             }

@@ -15,15 +15,24 @@ class SendCellDecorator(private val cryptoAccount: CryptoAccount) : CellDecorato
 
     override fun view(context: Context): Maybe<View> = cryptoAccount.sourceState.flatMapMaybe {
         when (it) {
-            TxSourceState.NO_FUNDS -> statusInfoText(context.getString(R.string.send_state_no_funds), context)
-            TxSourceState.NOT_SUPPORTED -> statusInfoText(context.getString(R.string.send_state_not_supported), context)
-            TxSourceState.FUNDS_LOCKED -> statusInfoText(context.getString(R.string.send_state_locked_funds_1), context)
+            TxSourceState.NO_FUNDS -> statusInfoText(
+                context.getString(com.blockchain.stringResources.R.string.send_state_no_funds),
+                context
+            )
+            TxSourceState.NOT_SUPPORTED -> statusInfoText(
+                context.getString(com.blockchain.stringResources.R.string.send_state_not_supported),
+                context
+            )
+            TxSourceState.FUNDS_LOCKED -> statusInfoText(
+                context.getString(com.blockchain.stringResources.R.string.send_state_locked_funds_1),
+                context
+            )
             TxSourceState.NOT_ENOUGH_GAS -> statusInfoText(
-                context.getString(R.string.send_state_not_enough_gas),
+                context.getString(com.blockchain.stringResources.R.string.send_state_not_enough_gas),
                 context
             )
             TxSourceState.TRANSACTION_IN_FLIGHT -> statusInfoText(
-                context.getString(R.string.send_state_send_in_flight),
+                context.getString(com.blockchain.stringResources.R.string.send_state_send_in_flight),
                 context
             )
             else -> Maybe.empty<View>()

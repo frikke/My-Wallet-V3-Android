@@ -99,7 +99,7 @@ data class CoinviewAccountsState(
             val cryptoBalance: String,
             val fiatBalance: String,
             val logo: LogoSource,
-            val assetColor: String,
+            val assetColor: String
         ) : CoinviewAccountState
 
         data class Unavailable(
@@ -132,27 +132,27 @@ sealed interface CoinviewQuickActionState {
     val logo: LogoSource.Resource
 
     object Buy : CoinviewQuickActionState {
-        override val name = TextValue.IntResValue(R.string.common_buy)
+        override val name = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_buy)
         override val logo = LogoSource.Resource(R.drawable.ic_cta_buy)
     }
 
     object Sell : CoinviewQuickActionState {
-        override val name = TextValue.IntResValue(R.string.common_sell)
+        override val name = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_sell)
         override val logo = LogoSource.Resource(R.drawable.ic_cta_sell)
     }
 
     object Send : CoinviewQuickActionState {
-        override val name = TextValue.IntResValue(R.string.common_send)
+        override val name = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_send)
         override val logo = LogoSource.Resource(R.drawable.ic_cta_send)
     }
 
     object Receive : CoinviewQuickActionState {
-        override val name = TextValue.IntResValue(R.string.common_receive)
+        override val name = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_receive)
         override val logo = LogoSource.Resource(R.drawable.ic_cta_receive)
     }
 
     object Swap : CoinviewQuickActionState {
-        override val name = TextValue.IntResValue(R.string.common_swap)
+        override val name = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_swap)
         override val logo = LogoSource.Resource(R.drawable.ic_cta_swap)
     }
 }
@@ -213,17 +213,17 @@ sealed interface CoinviewSnackbarAlertState {
     val snackbarType: SnackbarType
 
     object AccountsLoadError : CoinviewSnackbarAlertState {
-        override val message: Int = R.string.coinview_wallet_load_error
+        override val message: Int = com.blockchain.stringResources.R.string.coinview_wallet_load_error
         override val snackbarType: SnackbarType = SnackbarType.Error
     }
 
     object ActionsLoadError : CoinviewSnackbarAlertState {
-        override val message: Int = R.string.coinview_actions_error
+        override val message: Int = com.blockchain.stringResources.R.string.coinview_actions_error
         override val snackbarType: SnackbarType = SnackbarType.Warning
     }
 
     object WatchlistToggleError : CoinviewSnackbarAlertState {
-        override val message: Int = R.string.coinview_watchlist_toggle_fail
+        override val message: Int = com.blockchain.stringResources.R.string.coinview_watchlist_toggle_fail
         override val snackbarType: SnackbarType = SnackbarType.Warning
     }
 

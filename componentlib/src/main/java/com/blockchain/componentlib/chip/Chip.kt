@@ -44,7 +44,6 @@ fun Chip(
     onClick: (ChipState) -> Unit,
     initialChipState: ChipState = ChipState.Enabled
 ) {
-
     var chipState by remember { mutableStateOf(initialChipState) }
     val size by animateDpAsState(if (chipState != ChipState.Selected) 0.dp else 18.dp)
 
@@ -114,8 +113,8 @@ fun Chip(
             .animateContentSize()
             .background(backgroundColor, AppTheme.shapes.extraLarge)
             .padding(
-                horizontal = dimensionResource(R.dimen.very_small_spacing),
-                vertical = dimensionResource(R.dimen.smallest_spacing)
+                horizontal = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing),
+                vertical = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
             )
     ) {
         Image(
@@ -123,7 +122,7 @@ fun Chip(
                 .align(alignment = Alignment.CenterVertically)
                 .height(size)
                 .width(size)
-                .padding(end = dimensionResource(R.dimen.minuscule_spacing)),
+                .padding(end = dimensionResource(com.blockchain.componentlib.R.dimen.minuscule_spacing)),
             painter = painterResource(id = R.drawable.ic_chip_checkmark),
             contentDescription = null,
             colorFilter = ColorFilter.tint(textColor)

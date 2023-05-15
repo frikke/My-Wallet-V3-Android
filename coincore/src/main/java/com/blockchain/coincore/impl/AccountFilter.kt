@@ -56,7 +56,8 @@ private fun buildTradingGroup(
     val grpAccounts = accountList.filterIsInstance<CustodialTradingAccount>()
     return if (grpAccounts.isNotEmpty()) {
         CryptoAccountCustodialSingleGroup(
-            labels.getDefaultTradingWalletLabel(), grpAccounts
+            labels.getDefaultTradingWalletLabel(),
+            grpAccounts
         )
     } else {
         null
@@ -68,12 +69,14 @@ private fun buildInterestGroup(
     accountList: List<SingleAccount>
 ): AccountGroup? {
     val grpAccounts = accountList.filterIsInstance<CustodialInterestAccount>()
-    return if (grpAccounts.isNotEmpty())
+    return if (grpAccounts.isNotEmpty()) {
         CryptoAccountCustodialSingleGroup(
-            labels.getDefaultInterestWalletLabel(), grpAccounts
+            labels.getDefaultInterestWalletLabel(),
+            grpAccounts
         )
-    else
+    } else {
         null
+    }
 }
 
 private fun buildStakingGroup(
@@ -83,7 +86,8 @@ private fun buildStakingGroup(
     val grpAccounts = accountList.filterIsInstance<CustodialStakingAccount>()
     return if (grpAccounts.isNotEmpty()) {
         CryptoAccountCustodialSingleGroup(
-            labels.getDefaultStakingWalletLabel(), grpAccounts
+            labels.getDefaultStakingWalletLabel(),
+            grpAccounts
         )
     } else {
         null
@@ -97,7 +101,8 @@ private fun buildActiveRewardsGroup(
     val grpAccounts = accountList.filterIsInstance<CustodialActiveRewardsAccount>()
     return if (grpAccounts.isNotEmpty()) {
         CryptoAccountCustodialSingleGroup(
-            labels.getDefaultActiveRewardsWalletLabel(), grpAccounts
+            labels.getDefaultActiveRewardsWalletLabel(),
+            grpAccounts
         )
     } else {
         null
@@ -112,7 +117,9 @@ private fun buildNonCustodialGroup(
     val grpAccounts = accountList.filterIsInstance<CryptoNonCustodialAccount>()
     return if (grpAccounts.isNotEmpty()) {
         CryptoAccountNonCustodialGroup(
-            asset, labels.getDefaultTradingWalletLabel(), grpAccounts
+            asset,
+            labels.getDefaultTradingWalletLabel(),
+            grpAccounts
         )
     } else {
         null

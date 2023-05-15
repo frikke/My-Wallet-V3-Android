@@ -12,12 +12,12 @@ data class EnterAmountViewState(
     val cryptoAmount: CurrencyValue?,
     val snackbarError: Exception?,
     val inputError: SwapEnterAmountInputError?,
-    val fatalError: SwapEnterAmountFatalError?,
+    val fatalError: SwapEnterAmountFatalError?
 ) : ViewState
 
 data class EnterAmountAssets(
     val from: EnterAmountAssetState,
-    val to: EnterAmountAssetState?,
+    val to: EnterAmountAssetState?
 )
 
 data class EnterAmountAssetState(

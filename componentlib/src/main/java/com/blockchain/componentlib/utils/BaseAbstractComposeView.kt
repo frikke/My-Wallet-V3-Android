@@ -62,8 +62,11 @@ abstract class BaseAbstractComposeView @JvmOverloads constructor(
         var lastParent: View = this
         while (true) {
             val parent = lastParent.parent
-            if (parent is View) lastParent = parent
-            else break
+            if (parent is View) {
+                lastParent = parent
+            } else {
+                break
+            }
         }
         return lastParent
     }

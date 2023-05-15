@@ -47,7 +47,7 @@ class TierCurrentStateFragment : Fragment() {
                 state = kycState,
                 underReviewCtaClicked = ::finish,
                 verifiedCtaClicked = ::finish,
-                rejectedCtaClicked = ::finish,
+                rejectedCtaClicked = ::finish
             )
         }
     }
@@ -59,9 +59,9 @@ class TierCurrentStateFragment : Fragment() {
             title = null,
             navigationBarButtons = listOf(
                 NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_close_circle,
+                    drawable = com.blockchain.componentlib.R.drawable.ic_close_circle,
                     color = null,
-                    contentDescription = R.string.accessibility_close,
+                    contentDescription = com.blockchain.stringResources.R.string.accessibility_close,
                     onIconClick = ::finish
                 )
             )

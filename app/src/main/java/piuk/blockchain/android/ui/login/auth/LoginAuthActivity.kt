@@ -166,14 +166,17 @@ class LoginAuthActivity :
                 launchPasswordRecoveryFlow()
             }
 
-            twoFaResend.text = getString(R.string.two_factor_resend_sms, walletPrefs.resendSmsRetries)
+            twoFaResend.text = getString(
+                com.blockchain.stringResources.R.string.two_factor_resend_sms,
+                walletPrefs.resendSmsRetries
+            )
             twoFaResend.setOnClickListener {
                 if (!isTwoFATimerRunning.get()) {
                     model.process(LoginAuthIntents.RequestNew2FaCode)
                 } else {
                     BlockchainSnackbar.make(
                         binding.root,
-                        getString(R.string.two_factor_retries_exceeded),
+                        getString(com.blockchain.stringResources.R.string.two_factor_retries_exceeded),
                         type = SnackbarType.Error
                     ).show()
                 }
@@ -185,7 +188,7 @@ class LoginAuthActivity :
 
     private fun setupToolbar() {
         updateToolbar(
-            toolbarTitle = getString(R.string.login_title),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.login_title),
             backAction = { clearKeyboardAndFinish() }
         )
 
@@ -193,7 +196,7 @@ class LoginAuthActivity :
             listOf(
                 NavigationBarButton.Icon(
                     drawable = R.drawable.ic_question,
-                    contentDescription = R.string.accessibility_support
+                    contentDescription = com.blockchain.stringResources.R.string.accessibility_support
                 ) {
                     analytics.logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
                     showCustomerSupportSheet()
@@ -236,33 +239,37 @@ class LoginAuthActivity :
                 )
                 null
             }
-            AuthStatus.PairingFailed -> showErrorSnackbar(R.string.pairing_failed)
+            AuthStatus.PairingFailed -> showErrorSnackbar(com.blockchain.stringResources.R.string.pairing_failed)
             AuthStatus.InvalidPassword -> {
                 analytics.logEvent(LoginAnalytics.LoginPasswordDenied(analyticsInfo))
                 binding.progressBar.gone()
-                binding.passwordTextLayout.setErrorState(getString(R.string.invalid_password))
+                binding.passwordTextLayout.setErrorState(
+                    getString(com.blockchain.stringResources.R.string.invalid_password)
+                )
             }
             AuthStatus.AuthFailed -> {
                 analytics.logEvent(LoginAnalytics.LoginRequestDenied(analyticsInfo))
-                showErrorSnackbar(R.string.auth_failed)
+                showErrorSnackbar(com.blockchain.stringResources.R.string.auth_failed)
             }
-            AuthStatus.InitialError -> showErrorSnackbar(R.string.common_error)
-            AuthStatus.AuthRequired -> showSnackbar(getString(R.string.auth_required))
+            AuthStatus.InitialError -> showErrorSnackbar(com.blockchain.stringResources.R.string.common_error)
+            AuthStatus.AuthRequired -> showSnackbar(getString(com.blockchain.stringResources.R.string.auth_required))
             AuthStatus.Invalid2FACode -> {
                 analytics.logEvent(LoginAnalytics.LoginTwoFaDenied(analyticsInfo))
                 binding.progressBar.gone()
-                binding.codeTextLayout.setErrorState(getString(R.string.invalid_two_fa_code))
+                binding.codeTextLayout.setErrorState(
+                    getString(com.blockchain.stringResources.R.string.invalid_two_fa_code)
+                )
             }
             AuthStatus.ShowManualPairing -> {
                 startActivity(ManualPairingActivity.newInstance(this, newState.guid))
                 clearKeyboardAndFinish()
             }
             AuthStatus.AccountLocked -> {
-                AlertDialog.Builder(this, R.style.AlertDialogStyle)
-                    .setTitle(R.string.account_locked_title)
-                    .setMessage(R.string.account_locked_message)
+                AlertDialog.Builder(this, com.blockchain.componentlib.R.style.AlertDialogStyle)
+                    .setTitle(com.blockchain.stringResources.R.string.account_locked_title)
+                    .setMessage(com.blockchain.stringResources.R.string.account_locked_message)
                     .setCancelable(false)
-                    .setPositiveButton(R.string.common_go_back) { _, _ ->
+                    .setPositiveButton(com.blockchain.stringResources.R.string.common_go_back) { _, _ ->
                         clearKeyboardAndFinish()
                         fraudService.endFlow(FraudFlow.LOGIN)
                     }
@@ -280,17 +287,20 @@ class LoginAuthActivity :
     private fun renderRemainingTries(state: TwoFaCodeState) =
         when (state) {
             is TwoFaCodeState.TwoFaRemainingTries ->
-                binding.twoFaResend.text = getString(R.string.two_factor_resend_sms, state.remainingRetries)
+                binding.twoFaResend.text = getString(
+                    com.blockchain.stringResources.R.string.two_factor_resend_sms,
+                    state.remainingRetries
+                )
             is TwoFaCodeState.TwoFaTimeLock -> {
                 if (!isTwoFATimerRunning.get()) {
                     twoFATimer.start()
                     BlockchainSnackbar.make(
                         binding.root,
-                        getString(R.string.two_factor_retries_exceeded),
+                        getString(com.blockchain.stringResources.R.string.two_factor_retries_exceeded),
                         type = SnackbarType.Error
                     ).show()
                 }
-                binding.twoFaResend.text = getString(R.string.two_factor_resend_sms, 0)
+                binding.twoFaResend.text = getString(com.blockchain.stringResources.R.string.two_factor_resend_sms, 0)
             }
         }
 
@@ -300,7 +310,10 @@ class LoginAuthActivity :
         recoveryToken = currentState.recoveryToken
         with(binding) {
             loginEmailText.setText(email)
-            loginWalletLabel.text = getString(R.string.login_wallet_id_text, currentState.guid)
+            loginWalletLabel.text = getString(
+                com.blockchain.stringResources.R.string.login_wallet_id_text,
+                currentState.guid
+            )
             forgotPasswordButton.isEnabled = email.isNotEmpty()
         }
     }
@@ -311,39 +324,39 @@ class LoginAuthActivity :
                 TwoFAMethod.OFF -> codeTextLayout.gone()
                 TwoFAMethod.YUBI_KEY -> {
                     codeTextLayout.visible()
-                    codeTextLayout.hint = getString(R.string.hardware_key_hint)
+                    codeTextLayout.hint = getString(com.blockchain.stringResources.R.string.hardware_key_hint)
                     codeText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
                     codeLabel.visible()
-                    codeLabel.text = getString(R.string.tap_hardware_key_label)
+                    codeLabel.text = getString(com.blockchain.stringResources.R.string.tap_hardware_key_label)
                 }
                 TwoFAMethod.SMS -> {
                     codeTextLayout.visible()
-                    codeTextLayout.hint = getString(R.string.two_factor_code_hint)
+                    codeTextLayout.hint = getString(com.blockchain.stringResources.R.string.two_factor_code_hint)
                     twoFaResend.visible()
                     setup2FANotice(
-                        textId = R.string.lost_2fa_notice,
+                        textId = com.blockchain.stringResources.R.string.lost_2fa_notice,
                         annotationForLink = RESET_2FA_LINK_ANNOTATION,
                         url = RESET_2FA
                     )
                 }
                 TwoFAMethod.GOOGLE_AUTHENTICATOR -> {
                     codeTextLayout.visible()
-                    codeTextLayout.hint = getString(R.string.two_factor_code_hint)
+                    codeTextLayout.hint = getString(com.blockchain.stringResources.R.string.two_factor_code_hint)
                     codeText.inputType = InputType.TYPE_NUMBER_VARIATION_NORMAL
                     codeText.keyListener = DigitsKeyListener.getInstance(DIGITS)
                     setup2FANotice(
-                        textId = R.string.lost_2fa_notice,
+                        textId = com.blockchain.stringResources.R.string.lost_2fa_notice,
                         annotationForLink = RESET_2FA_LINK_ANNOTATION,
                         url = RESET_2FA
                     )
                 }
                 TwoFAMethod.SECOND_PASSWORD -> {
                     codeTextLayout.visible()
-                    codeTextLayout.hint = getString(R.string.second_password_hint)
+                    codeTextLayout.hint = getString(com.blockchain.stringResources.R.string.second_password_hint)
                     forgotSecondPasswordButton.visible()
                     forgotSecondPasswordButton.setOnClickListener { launchPasswordRecoveryFlow() }
                     setup2FANotice(
-                        textId = R.string.second_password_notice,
+                        textId = com.blockchain.stringResources.R.string.second_password_notice,
                         annotationForLink = SECOND_PASSWORD_LINK_ANNOTATION,
                         url = SECOND_PASSWORD_EXPLANATION
                     )

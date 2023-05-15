@@ -44,7 +44,6 @@ class StringUtils(private val context: Context) {
             linksMap: Map<String, Uri?>,
             onClick: () -> Unit = {}
         ): CharSequence {
-
             val text = context.getText(stringId)
             val rawText = text as? SpannedString ?: return text
             val out = SpannableString(rawText)
@@ -97,7 +96,8 @@ class StringUtils(private val context: Context) {
                 .append(learnMoreLink)
             sb.setSpan(
                 ForegroundColorSpan(ContextCompat.getColor(context, linkColour)),
-                staticText.length, staticText.length + EMPTY_SPACE.length + learnMoreLink.length,
+                staticText.length,
+                staticText.length + EMPTY_SPACE.length + learnMoreLink.length,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
             return sb

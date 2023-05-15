@@ -14,7 +14,7 @@ import com.blockchain.componentlib.utils.BaseAbstractComposeView
 class NavigationBarView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0,
+    defStyleAttr: Int = 0
 ) : BaseAbstractComposeView(context, attrs, defStyleAttr) {
 
     var onBackButtonClick by mutableStateOf(null as? (() -> Unit)?)

@@ -23,7 +23,7 @@ internal fun Loading(description: String? = null) {
     Column(
         modifier = Modifier.fillMaxSize().background(White),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Center
     ) {
         CircularProgressBar()
 
@@ -34,12 +34,12 @@ internal fun Loading(description: String? = null) {
                     .padding(
                         top = AppTheme.dimensions.xLargeSpacing,
                         start = AppTheme.dimensions.standardSpacing,
-                        end = AppTheme.dimensions.standardSpacing,
+                        end = AppTheme.dimensions.standardSpacing
                     ),
                 text = description,
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
-                gravity = ComposeGravities.Centre,
+                gravity = ComposeGravities.Centre
             )
         }
     }

@@ -57,7 +57,7 @@ class LoaderModelTest {
             appUtil = appUtil,
             payloadDataManager = payloadDataManager,
             prerequisites = prerequisites,
-            authPrefs = authPrefs,
+            authPrefs = authPrefs
         )
     }
 

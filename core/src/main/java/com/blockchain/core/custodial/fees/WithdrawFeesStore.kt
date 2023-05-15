@@ -11,7 +11,8 @@ import com.blockchain.store_caches_inmemory.InMemoryCacheStoreBuilder
 
 class WithdrawFeesStore(private val withdrawFeesService: WithdrawFeesService) : KeyedStore<
     WithdrawFeesAndMinRequest,
-    WithdrawFeesAndMinLimitResponse> by InMemoryCacheStoreBuilder().buildKeyed(
+    WithdrawFeesAndMinLimitResponse
+    > by InMemoryCacheStoreBuilder().buildKeyed(
     storeId = "WithdrawFeesStoreCache",
     fetcher = Fetcher.Keyed.ofSingle(
         mapper = { withdrawFeesAndMinRequest: WithdrawFeesAndMinRequest ->

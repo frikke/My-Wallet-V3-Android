@@ -51,7 +51,7 @@ fun TopMovers(
 @Composable
 fun TopMoversScreen(
     data: DataResource<ImmutableList<PriceItemViewState>>,
-    assetOnClick: (AssetInfo) -> Unit,
+    assetOnClick: (AssetInfo) -> Unit
 ) {
     (data as? DataResource.Data)?.data?.let { topMovers ->
         if (topMovers.isNotEmpty()) {

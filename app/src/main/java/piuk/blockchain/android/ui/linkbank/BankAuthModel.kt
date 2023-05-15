@@ -26,7 +26,7 @@ class BankAuthModel(
     initialState: BankAuthState,
     uiScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
-    remoteLogger: RemoteLogger,
+    remoteLogger: RemoteLogger
 ) : MviModel<BankAuthState, BankAuthIntent>(
     initialState,
     uiScheduler,
@@ -36,7 +36,7 @@ class BankAuthModel(
     override fun performAction(previousState: BankAuthState, intent: BankAuthIntent): Disposable? =
         when (intent) {
             is BankAuthIntent.CancelOrder,
-            is BankAuthIntent.CancelOrderAndResetAuthorisation,
+            is BankAuthIntent.CancelOrderAndResetAuthorisation
             -> (
                 previousState.id?.let {
                     interactor.cancelOrder(it)
@@ -55,7 +55,8 @@ class BankAuthModel(
             is BankAuthIntent.RefreshPlaidAccount -> processPlaidBankRefresh(intent)
             is BankAuthIntent.GetLinkedBankState -> processBankLinkStateUpdate(intent)
             is BankAuthIntent.StartPollingForLinkStatus -> processLinkStatusPolling(
-                intent, previousState.linkBankTransfer?.partner
+                intent,
+                previousState.linkBankTransfer?.partner
             )
             is BankAuthIntent.StartBankApproval -> {
                 interactor.updateApprovalStatus(intent.callbackPath)
@@ -113,10 +114,10 @@ class BankAuthModel(
                 when (it.state) {
                     LinkedBankState.ACTIVE -> process(BankAuthIntent.LinkedBankStateSuccess(it))
                     LinkedBankState.BLOCKED,
-                    LinkedBankState.UNKNOWN,
+                    LinkedBankState.UNKNOWN
                     -> handleBankLinkingError(it)
                     LinkedBankState.PENDING,
-                    LinkedBankState.CREATED,
+                    LinkedBankState.CREATED
                     -> process(
                         BankAuthIntent.BankAuthErrorState(BankAuthError.BankLinkingTimeout)
                     )
@@ -140,7 +141,7 @@ class BankAuthModel(
 
     private fun processLinkStatusPolling(
         intent: BankAuthIntent.StartPollingForLinkStatus,
-        partner: BankPartner?,
+        partner: BankPartner?
     ) = Single.defer {
         interactor.pollForLinkedBankState(
             intent.bankId,
@@ -168,7 +169,7 @@ class BankAuthModel(
 
     private fun updateIntentForLinkedBankState(
         pollResult: PollResult<LinkedBank>,
-        partner: BankPartner?,
+        partner: BankPartner?
     ) {
         when (pollResult.value.state) {
             LinkedBankState.ACTIVE -> {
@@ -178,7 +179,7 @@ class BankAuthModel(
                 handleBankLinkingError(pollResult.value)
             }
             LinkedBankState.PENDING,
-            LinkedBankState.CREATED,
+            LinkedBankState.CREATED
             -> {
                 when (partner) {
                     BankPartner.YODLEE -> process(

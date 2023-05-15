@@ -16,7 +16,6 @@ fun ErrorTag(
     size: TagSize = TagSize.Primary,
     onClick: (() -> Unit)? = null
 ) {
-
     val defaultBackgroundColor = if (!isSystemInDarkTheme()) {
         Red100
     } else {

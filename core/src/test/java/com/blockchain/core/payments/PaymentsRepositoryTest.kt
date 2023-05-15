@@ -348,7 +348,7 @@ class PaymentsRepositoryTest {
                                 FundsLock(
                                     Money.fromMinor(localCurrency, BigInteger("10")),
                                     date.toZonedDateTime(),
-                                    Money.fromMinor(buyCurrency, BigInteger("1000")),
+                                    Money.fromMinor(buyCurrency, BigInteger("1000"))
                                 )
                             )
                         )
@@ -373,7 +373,7 @@ class PaymentsRepositoryTest {
             accountNumber = null,
             attributes = null,
             bankAccountType = null,
-            capabilities = null,
+            capabilities = null
         )
         val fiatCurrency: FiatCurrency = mockk()
         every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns fiatCurrency
@@ -436,7 +436,8 @@ class PaymentsRepositoryTest {
 
         every {
             paymentMethodsService.updateAccountProviderId(
-                eq(ID), any()
+                eq(ID),
+                any()
             )
         } returns
             Completable.complete()
@@ -1013,7 +1014,13 @@ class PaymentsRepositoryTest {
     fun `addNewCard() should add card and clear cache`() {
         // ARRANGE
         val billingAddress = BillingAddress(
-            "countryCode", "fullName", "address1", "address2", "city", "postCode", null
+            "countryCode",
+            "fullName",
+            "address1",
+            "address2",
+            "city",
+            "postCode",
+            null
         )
         val fiatCurrency: FiatCurrency = mockk<FiatCurrency>().apply { every { networkTicker } returns NETWORK_TICKER }
         every { paymentMethodsService.addNewCard(any()) } returns
@@ -1267,12 +1274,22 @@ class PaymentsRepositoryTest {
         val paymentMethodDetailsResponse = PaymentMethodDetailsResponse(
             paymentMethodType = PaymentMethodDetailsResponse.BANK_TRANSFER,
             bankTransferAccountDetails = LinkedBankTransferResponse(
-                id = "", partner = "", currency = "", state = "",
+                id = "",
+                partner = "",
+                currency = "",
+                state = "",
                 details = LinkedBankDetailsResponse(
-                    accountNumber = "accountNumber", accountName = "accountName",
-                    bankName = null, bankAccountType = null, sortCode = null, iban = null, bic = null
+                    accountNumber = "accountNumber",
+                    accountName = "accountName",
+                    bankName = null,
+                    bankAccountType = null,
+                    sortCode = null,
+                    iban = null,
+                    bic = null
                 ),
-                error = null, attributes = null, ux = null
+                error = null,
+                attributes = null,
+                ux = null
             )
         )
         coEvery { paymentsService.getPaymentMethodDetailsForId(ID) } returns
@@ -1299,7 +1316,9 @@ class PaymentsRepositoryTest {
             paymentMethodType = PaymentMethodDetailsResponse.BANK_ACCOUNT,
             bankAccountDetails = PaymentAccountResponse(
                 extraAttributes = ExtraAttributes(
-                    name = "name", type = null, address = "address"
+                    name = "name",
+                    type = null,
+                    address = "address"
                 )
             )
         )

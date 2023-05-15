@@ -14,7 +14,7 @@ class SecurityModel(
     mainScheduler: Scheduler,
     private val interactor: SecurityInteractor,
     environmentConfig: EnvironmentConfig,
-    remoteLogger: RemoteLogger,
+    remoteLogger: RemoteLogger
 ) : MviModel<SecurityState, SecurityIntent>(
     initialState,
     mainScheduler,
@@ -23,7 +23,7 @@ class SecurityModel(
 ) {
     override fun performAction(
         previousState: SecurityState,
-        intent: SecurityIntent,
+        intent: SecurityIntent
     ): Disposable? =
         when (intent) {
             is SecurityIntent.LoadInitialInformation -> interactor.loadInitialInformation()
@@ -140,7 +140,7 @@ class SecurityModel(
             is SecurityIntent.ResetViewState,
             is SecurityIntent.UpdateTorFiltering,
             is SecurityIntent.UpdateScreenshotsEnabled,
-            is SecurityIntent.UpdateCloudBackup,
+            is SecurityIntent.UpdateCloudBackup
             -> null
         }.exhaustive
 }

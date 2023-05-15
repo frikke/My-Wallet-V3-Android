@@ -117,7 +117,9 @@ fun EnterAmount(
             val error = viewState.snackbarError
             if (error != null) {
                 scaffoldState.snackbarHostState.showSnackbar(
-                    message = error.localizedMessage ?: context.getString(R.string.common_error),
+                    message = error.localizedMessage ?: context.getString(
+                        com.blockchain.stringResources.R.string.common_error
+                    ),
                     duration = SnackbarDuration.Long,
                 )
                 viewModel.onIntent(EnterAmountIntent.SnackbarErrorHandled)
@@ -139,7 +141,7 @@ fun EnterAmount(
                 }
         ) {
             NavigationBar(
-                title = stringResource(R.string.common_swap),
+                title = stringResource(com.blockchain.stringResources.R.string.common_swap),
                 onBackButtonClick = onBackPressed,
             )
 
@@ -150,6 +152,7 @@ fun EnterAmount(
                         ctaAction = { }
                     )
                 }
+
                 null -> {
                     EnterAmountScreen(
                         selected = viewState.selectedInput,
@@ -239,7 +242,7 @@ private fun EnterAmountScreen(
 
             SmallTertiaryButton(
                 modifier = Modifier.widthIn(min = 130.dp),
-                text = stringResource(R.string.common_max_arg, maxAmount),
+                text = stringResource(com.blockchain.stringResources.R.string.common_max_arg, maxAmount),
                 onClick = setMaxOnClick,
             )
         }
@@ -270,25 +273,34 @@ private fun EnterAmountScreen(
                 modifier = Modifier.fillMaxWidth(),
                 text = when (inputError) {
                     is SwapEnterAmountInputError.BelowMinimum -> {
-                        stringResource(R.string.minimum_with_value, inputError.minValue)
+                        stringResource(com.blockchain.stringResources.R.string.minimum_with_value, inputError.minValue)
                     }
+
                     is SwapEnterAmountInputError.AboveMaximum -> {
-                        stringResource(R.string.maximum_with_value, inputError.maxValue)
+                        stringResource(com.blockchain.stringResources.R.string.maximum_with_value, inputError.maxValue)
                     }
+
                     is SwapEnterAmountInputError.AboveBalance -> {
-                        stringResource(R.string.not_enough_funds, assets?.from?.ticker.orEmpty())
+                        stringResource(
+                            com.blockchain.stringResources.R.string.not_enough_funds, assets?.from?.ticker.orEmpty()
+                        )
                     }
+
                     is SwapEnterAmountInputError.InsufficientGas ->
-                        stringResource(R.string.confirm_status_msg_insufficient_gas, inputError.displayTicker)
+                        stringResource(
+                            com.blockchain.stringResources.R.string.confirm_status_msg_insufficient_gas,
+                            inputError.displayTicker
+                        )
+
                     is SwapEnterAmountInputError.Unknown ->
-                        stringResource(R.string.common_error)
+                        stringResource(com.blockchain.stringResources.R.string.common_error)
                 },
                 state = ButtonState.Enabled,
                 onClick = { inputErrorClicked(inputError) }
             )
         } ?: PrimaryButton(
             modifier = Modifier.fillMaxWidth(),
-            text = stringResource(R.string.preview_swap),
+            text = stringResource(com.blockchain.stringResources.R.string.preview_swap),
             state = if (fiatAmount?.isEmpty() == false && cryptoAmount?.isEmpty() == false) {
                 ButtonState.Enabled
             } else {

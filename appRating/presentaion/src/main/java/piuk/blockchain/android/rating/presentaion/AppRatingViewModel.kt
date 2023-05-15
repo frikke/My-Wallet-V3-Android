@@ -11,11 +11,13 @@ import piuk.blockchain.android.rating.domain.service.AppRatingService
 class AppRatingViewModel(
     private val appRatingService: AppRatingService,
     private val authPrefs: AuthPrefs
-) : MviViewModel<AppRatingIntents,
+) : MviViewModel<
+    AppRatingIntents,
     AppRatingViewState,
     AppRatingModelState,
     AppRatingNavigationEvent,
-    AppRatingTriggerSource>(
+    AppRatingTriggerSource
+    >(
     initialState = AppRatingModelState()
 ) {
 

@@ -22,10 +22,10 @@ class EmptyStateView @JvmOverloads constructor(
     private val binding: ViewEmptyStateBinding = ViewEmptyStateBinding.inflate(LayoutInflater.from(context), this, true)
 
     fun setDetails(
-        @StringRes title: Int = R.string.common_empty_title,
-        @StringRes description: Int = R.string.common_empty_details,
+        @StringRes title: Int = com.blockchain.stringResources.R.string.common_empty_title,
+        @StringRes description: Int = com.blockchain.stringResources.R.string.common_empty_details,
         @DrawableRes icon: Int = Icons.Filled.User.id,
-        @StringRes ctaText: Int = R.string.common_empty_cta,
+        @StringRes ctaText: Int = com.blockchain.stringResources.R.string.common_empty_cta,
         contactSupportEnabled: Boolean = false,
         action: () -> Unit,
         onContactSupport: () -> Unit = {}

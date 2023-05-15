@@ -55,14 +55,14 @@ sealed class NavigationBarButton(val onClick: () -> Unit) {
     data class Icon(
         val drawable: Int,
         val color: Color? = Grey400,
-        @DimenRes val size: Int = R.dimen.standard_spacing,
+        @DimenRes val size: Int = com.blockchain.componentlib.R.dimen.standard_spacing,
         @StringRes val contentDescription: Int,
-        val onIconClick: () -> Unit,
+        val onIconClick: () -> Unit
     ) : NavigationBarButton(onIconClick)
 
     data class IconResource(
         val image: ImageResource,
-        val onIconClick: () -> Unit,
+        val onIconClick: () -> Unit
     ) : NavigationBarButton(onIconClick)
 
     data class Text(val text: String, val color: Color? = null, val onTextClick: () -> Unit) :
@@ -79,7 +79,7 @@ fun NavigationBar(
     title: String,
     icon: StackedIcon = StackedIcon.None,
     onBackButtonClick: (() -> Unit)? = null,
-    navigationBarButtons: List<NavigationBarButton> = emptyList(),
+    navigationBarButtons: List<NavigationBarButton> = emptyList()
 ) {
     NavigationBar(
         modeColor = modeColor,
@@ -90,7 +90,7 @@ fun NavigationBar(
             NavigationBarButton.Icon(
                 drawable = R.drawable.ic_nav_bar_back,
                 onIconClick = onClick,
-                contentDescription = R.string.accessibility_back
+                contentDescription = com.blockchain.stringResources.R.string.accessibility_back
             )
         },
         endNavigationBarButtons = navigationBarButtons
@@ -104,7 +104,7 @@ private fun NavigationBar(
     title: String,
     icon: StackedIcon = StackedIcon.None,
     onBackButtonClick: (() -> Unit)? = null,
-    navigationBarButtons: List<NavigationBarButton> = emptyList(),
+    navigationBarButtons: List<NavigationBarButton> = emptyList()
 ) {
     NavigationBar(
         walletMode = walletMode,
@@ -115,7 +115,7 @@ private fun NavigationBar(
             NavigationBarButton.Icon(
                 drawable = R.drawable.ic_nav_bar_back,
                 onIconClick = onClick,
-                contentDescription = R.string.accessibility_back
+                contentDescription = com.blockchain.stringResources.R.string.accessibility_back
             )
         },
         endNavigationBarButtons = navigationBarButtons
@@ -129,9 +129,8 @@ fun NavigationBar(
     title: String,
     icon: StackedIcon = StackedIcon.None,
     startNavigationBarButton: NavigationBarButton? = null,
-    endNavigationBarButtons: List<NavigationBarButton> = emptyList(),
+    endNavigationBarButtons: List<NavigationBarButton> = emptyList()
 ) {
-
     val walletMode: WalletMode? by when (modeColor) {
         ModeBackgroundColor.Current -> {
             val isLoggedIn = get<AuthPrefs>().run { walletGuid.isNotEmpty() && pinId.isNotEmpty() }
@@ -170,7 +169,7 @@ private fun NavigationBar(
     title: String,
     icon: StackedIcon = StackedIcon.None,
     startNavigationBarButton: NavigationBarButton? = null,
-    endNavigationBarButtons: List<NavigationBarButton> = emptyList(),
+    endNavigationBarButtons: List<NavigationBarButton> = emptyList()
 ) {
     Box(
         modifier = Modifier
@@ -201,7 +200,7 @@ private fun NavigationBar(
                     if (mutedBg) AppTheme.colors.backgroundMuted else AppTheme.colors.background,
                     AppTheme.shapes.veryLarge.copy(bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp))
                 )
-                .padding(horizontal = dimensionResource(R.dimen.medium_spacing)),
+                .padding(horizontal = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)),
             verticalAlignment = Alignment.CenterVertically
         ) {
             startNavigationBarButton?.let { button ->
@@ -222,7 +221,7 @@ private fun NavigationBar(
                 CustomStackedIcon(
                     icon = icon,
                     iconBackground = AppTheme.colors.background,
-                    borderColor = if (mutedBg) AppTheme.colors.backgroundMuted else AppTheme.colors.background,
+                    borderColor = if (mutedBg) AppTheme.colors.backgroundMuted else AppTheme.colors.background
                 )
 
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
@@ -235,7 +234,9 @@ private fun NavigationBar(
                 style = AppTheme.typography.body2
             )
             endNavigationBarButtons.forEach {
-                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.smallest_spacing)))
+                Spacer(
+                    modifier = Modifier.width(dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing))
+                )
                 Box(
                     modifier = Modifier
                         .clickable {
@@ -299,7 +300,7 @@ fun RowScope.StartButton(button: NavigationBarButton.Icon) {
             colorFilter = if (button.color != null) ColorFilter.tint(button.color) else null
         )
     }
-    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.very_small_spacing)))
+    Spacer(modifier = Modifier.width(dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)))
 }
 
 @Composable
@@ -319,7 +320,7 @@ fun RowScope.StartButtonResource(button: NavigationBarButton.IconResource) {
     ) {
         com.blockchain.componentlib.basic.Image(imageResource = button.image)
     }
-    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.very_small_spacing)))
+    Spacer(modifier = Modifier.width(dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)))
 }
 
 @Preview(showBackground = true)
@@ -404,11 +405,11 @@ fun NavigationBarPreview2() {
             navigationBarButtons = listOf(
                 NavigationBarButton.Icon(
                     drawable = R.drawable.ic_close_circle,
-                    contentDescription = R.string.accessibility_back
+                    contentDescription = com.blockchain.stringResources.R.string.accessibility_back
                 ) {},
                 NavigationBarButton.Icon(
                     drawable = R.drawable.ic_close_circle,
-                    contentDescription = R.string.accessibility_back
+                    contentDescription = com.blockchain.stringResources.R.string.accessibility_back
                 ) {}
             )
         )
@@ -427,11 +428,11 @@ fun NavigationBarPreviewDropDown() {
             navigationBarButtons = listOf(
                 NavigationBarButton.Icon(
                     drawable = R.drawable.ic_close_circle,
-                    contentDescription = R.string.accessibility_back
+                    contentDescription = com.blockchain.stringResources.R.string.accessibility_back
                 ) {},
                 NavigationBarButton.Icon(
                     drawable = R.drawable.ic_close_circle,
-                    contentDescription = R.string.accessibility_back
+                    contentDescription = com.blockchain.stringResources.R.string.accessibility_back
                 ) {}
             )
         )

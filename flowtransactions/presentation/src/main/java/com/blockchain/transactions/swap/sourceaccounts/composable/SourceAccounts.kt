@@ -34,7 +34,6 @@ fun SourceAccounts(
     accountSelected: (CryptoAccountWithBalance) -> Unit,
     onBackPressed: () -> Unit
 ) {
-
     val viewState: SourceAccountsViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     LaunchedEffect(key1 = viewModel) {
@@ -63,7 +62,7 @@ fun SourceAccounts(
     ) {
         SheetFlatHeader(
             icon = StackedIcon.None,
-            title = stringResource(R.string.common_swap_from),
+            title = stringResource(com.blockchain.stringResources.R.string.common_swap_from),
             onCloseClick = onBackPressed
         )
 

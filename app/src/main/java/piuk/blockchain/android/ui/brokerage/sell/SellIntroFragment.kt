@@ -94,7 +94,7 @@ class SellIntroFragment :
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?,
+        savedInstanceState: Bundle?
     ): View {
         _binding = SellIntroFragmentBinding.inflate(inflater, container, false)
         return binding.root
@@ -106,7 +106,7 @@ class SellIntroFragment :
 
         with(binding) {
             with(sellSearchEmpty) {
-                text = getString(R.string.search_empty)
+                text = getString(com.blockchain.stringResources.R.string.search_empty)
                 gravity = ComposeGravities.Centre
                 style = ComposeTypographies.Body1
                 textColor = ComposeColors.Dark
@@ -126,7 +126,6 @@ class SellIntroFragment :
     override fun onStateUpdated(state: SellViewState) {
         when (state.sellEligibility) {
             is DataResource.Data -> {
-
                 when (val eligibilityData = state.sellEligibility.data) {
                     is SellEligibility.Eligible -> {
                         renderEligibleUser(eligibilityData.sellAssets)
@@ -153,7 +152,6 @@ class SellIntroFragment :
                 }
             }
             is DataResource.Error -> {
-
                 renderSellError()
                 logErrorAnalytics(
                     nabuApiException = (state.sellEligibility.error as? HttpException)?.let {
@@ -179,7 +177,7 @@ class SellIntroFragment :
                 if (isAccountsFirstLoad) {
                     initialise(
                         Single.just(supportedAccounts.map { (AccountListViewItem(it)) }),
-                        status = ::statusDecorator,
+                        status = ::statusDecorator
                     )
                     isAccountsFirstLoad = false
                 } else {
@@ -197,7 +195,7 @@ class SellIntroFragment :
             kycBenefits.gone()
             sellAccountsContainer.visible()
             sellIntroSearch.apply {
-                placeholder = getString(R.string.search_coins_hint)
+                placeholder = getString(com.blockchain.stringResources.R.string.search_coins_hint)
                 onValueChange = { searchTerm ->
                     hasEnteredSearchTerm = searchTerm.isNotEmpty()
                     viewModel.onIntent(SellIntent.FilterAccounts(searchTerm))
@@ -218,9 +216,9 @@ class SellIntroFragment :
                     accountsList.goneIf { isEmpty }
 
                     if (!hasEnteredSearchTerm) {
-                        if (isEmpty)
+                        if (isEmpty) {
                             renderSellEmpty()
-                        else sellEmpty.gone()
+                        } else sellEmpty.gone()
                     }
                 }
             }
@@ -233,7 +231,7 @@ class SellIntroFragment :
         source: ClientErrorAnalytics.Companion.Source,
         action: String,
         nabuApiException: NabuApiException? = null,
-        errorDescription: String? = null,
+        errorDescription: String? = null
     ) {
         analytics.logEvent(
             ClientErrorAnalytics.ClientLogError(
@@ -266,9 +264,9 @@ class SellIntroFragment :
             sellAccountsContainer.gone()
 
             sellEmpty.setDetails(
-                title = R.string.sell_intro_empty_title,
-                description = R.string.sell_intro_empty_label,
-                ctaText = R.string.buy_now,
+                title = com.blockchain.stringResources.R.string.sell_intro_empty_title,
+                description = com.blockchain.stringResources.R.string.sell_intro_empty_label,
+                ctaText = com.blockchain.stringResources.R.string.buy_now,
                 action = { host.onSellListEmptyCta() },
                 onContactSupport = { requireContext().startActivity(SupportCentreActivity.newIntent(requireContext())) }
             )
@@ -289,10 +287,10 @@ class SellIntroFragment :
             sellAccountsContainer.gone()
 
             customEmptyState.apply {
-                title = R.string.account_restricted
+                title = com.blockchain.stringResources.R.string.account_restricted
                 descriptionText = reason.message
                 icon = Icons.Filled.User.id
-                ctaText = R.string.common_learn_more
+                ctaText = com.blockchain.stringResources.R.string.common_learn_more
                 ctaAction = action
                 visible()
             }
@@ -308,27 +306,30 @@ class SellIntroFragment :
             kycBenefits.initWithBenefits(
                 benefits = listOf(
                     VerifyIdentityNumericBenefitItem(
-                        getString(R.string.invalid_id),
-                        getString(R.string.invalid_id_description)
+                        getString(com.blockchain.stringResources.R.string.invalid_id),
+                        getString(com.blockchain.stringResources.R.string.invalid_id_description)
                     ),
                     VerifyIdentityNumericBenefitItem(
-                        getString(R.string.information_missmatch),
-                        getString(R.string.information_missmatch_description)
+                        getString(com.blockchain.stringResources.R.string.information_missmatch),
+                        getString(com.blockchain.stringResources.R.string.information_missmatch_description)
                     ),
                     VerifyIdentityNumericBenefitItem(
-                        getString(R.string.blocked_by_local_laws),
-                        getString(R.string.sell_intro_kyc_subtitle_3)
+                        getString(com.blockchain.stringResources.R.string.blocked_by_local_laws),
+                        getString(com.blockchain.stringResources.R.string.sell_intro_kyc_subtitle_3)
                     )
                 ),
-                title = getString(R.string.unable_to_verify_id),
-                description = getString(R.string.unable_to_verify_id_description),
+                title = getString(com.blockchain.stringResources.R.string.unable_to_verify_id),
+                description = getString(com.blockchain.stringResources.R.string.unable_to_verify_id_description),
                 icon = R.drawable.ic_cart,
-                secondaryButton = ButtonOptions(true, getString(R.string.contact_support)) {
+                secondaryButton = ButtonOptions(
+                    true,
+                    getString(com.blockchain.stringResources.R.string.contact_support)
+                ) {
                     startActivity(SupportCentreActivity.newIntent(requireContext()))
                 },
                 primaryButton = ButtonOptions(false) {},
                 showSheetIndicator = false,
-                footerText = getString(R.string.error_contact_support)
+                footerText = getString(com.blockchain.stringResources.R.string.error_contact_support)
             )
         }
     }

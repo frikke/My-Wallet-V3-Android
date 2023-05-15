@@ -69,7 +69,7 @@ class DappsListFragment :
     override fun onResume() {
         super.onResume()
         updateToolbar(
-            toolbarTitle = getString(R.string.account_wallet_connect),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.account_wallet_connect),
             menuItems = emptyList()
         )
     }
@@ -214,17 +214,20 @@ private fun ConfirmActionBottomSheet(
 ) {
     BottomSheetTwoButtons(
         onCloseClick = closeSheet,
-        title = stringResource(R.string.are_you_sure),
-        subtitle = stringResource(R.string.you_are_about_disconnect, session.dAppInfo.peerMeta.name),
-        headerImageResource = ImageResource.Local(R.drawable.ic_warning),
+        title = stringResource(com.blockchain.stringResources.R.string.are_you_sure),
+        subtitle = stringResource(
+            com.blockchain.stringResources.R.string.you_are_about_disconnect,
+            session.dAppInfo.peerMeta.name
+        ),
+        headerImageResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_warning),
         button1 = BottomSheetButton(
             type = ButtonType.DESTRUCTIVE_MINIMAL,
-            text = stringResource(R.string.common_disconnect),
+            text = stringResource(com.blockchain.stringResources.R.string.common_disconnect),
             onClick = onConfirmationClick
         ),
         button2 = BottomSheetButton(
             type = ButtonType.MINIMAL,
-            text = stringResource(R.string.common_cancel),
+            text = stringResource(com.blockchain.stringResources.R.string.common_cancel),
             onClick = closeSheet
         )
     )
@@ -244,7 +247,7 @@ private fun DisconnectBottomSheet(
         shouldShowHeaderDivider = false,
         button = BottomSheetButton(
             type = ButtonType.DESTRUCTIVE_MINIMAL,
-            text = stringResource(R.string.common_disconnect),
+            text = stringResource(com.blockchain.stringResources.R.string.common_disconnect),
             onClick = onDisconnectClick
         )
     )
@@ -286,7 +289,7 @@ private fun NoDapps() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(bottom = dimensionResource(R.dimen.size_epic)),
+            .padding(bottom = dimensionResource(com.blockchain.componentlib.R.dimen.size_epic)),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -294,23 +297,23 @@ private fun NoDapps() {
             contentScale = ContentScale.None,
             imageResource = ImageResource.Local(R.drawable.ic_world_blue)
         )
-        Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
+        Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
         Text(
-            text = stringResource(R.string.no_dapps_connected),
+            text = stringResource(com.blockchain.stringResources.R.string.no_dapps_connected),
             modifier = Modifier.padding(
-                start = dimensionResource(R.dimen.small_spacing),
-                end = dimensionResource(R.dimen.small_spacing)
+                start = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing),
+                end = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)
             ),
             textAlign = TextAlign.Center,
             style = AppTheme.typography.title3,
             color = AppTheme.colors.title
         )
         Text(
-            text = stringResource(R.string.connect_with_wallet_connect),
+            text = stringResource(com.blockchain.stringResources.R.string.connect_with_wallet_connect),
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(
-                start = dimensionResource(R.dimen.standard_spacing),
-                end = dimensionResource(R.dimen.standard_spacing)
+                start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                end = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
             ),
             style = AppTheme.typography.paragraph1,
             color = AppTheme.colors.body

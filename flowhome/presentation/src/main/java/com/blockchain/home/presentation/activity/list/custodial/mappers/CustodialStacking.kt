@@ -20,6 +20,7 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
             TransactionSummary.TransactionType.WITHDRAW -> R.drawable.ic_activity_sell
             else -> R.drawable.ic_activity_buy
         }
+
         else -> R.drawable.ic_activity_rewards
     }
 }
@@ -28,10 +29,16 @@ internal fun CustodialStakingActivitySummaryItem.leadingTitle(): ActivityStackVi
     return ActivityStackView.Text(
         value = TextValue.IntResValue(
             value = when (type) {
-                TransactionSummary.TransactionType.DEPOSIT -> R.string.tx_title_staked
-                TransactionSummary.TransactionType.WITHDRAW -> R.string.tx_title_stake_withdrawn
-                TransactionSummary.TransactionType.INTEREST_EARNED -> R.string.tx_title_earned
-                else -> R.string.tx_title_transferred
+                TransactionSummary.TransactionType.DEPOSIT ->
+                    com.blockchain.stringResources.R.string.tx_title_staked
+
+                TransactionSummary.TransactionType.WITHDRAW ->
+                    com.blockchain.stringResources.R.string.tx_title_stake_withdrawn
+
+                TransactionSummary.TransactionType.INTEREST_EARNED ->
+                    com.blockchain.stringResources.R.string.tx_title_earned
+
+                else -> com.blockchain.stringResources.R.string.tx_title_transferred
             },
             args = listOf(account.currency.displayTicker)
         ),
@@ -43,6 +50,7 @@ internal fun CustodialStakingActivitySummaryItem.leadingSubtitle(): ActivityStac
     val color: ActivityTextColor = when (state) {
         EarnRewardsState.REJECTED,
         EarnRewardsState.REFUNDED -> ActivityTextColor.Warning
+
         EarnRewardsState.FAILED -> ActivityTextColor.Error
         else -> ActivityTextColor.Muted
     }
@@ -52,12 +60,29 @@ internal fun CustodialStakingActivitySummaryItem.leadingSubtitle(): ActivityStac
             EarnRewardsState.COMPLETE -> TextValue.StringValue(date.toFormattedDate())
             EarnRewardsState.PENDING,
             EarnRewardsState.PROCESSING,
-            EarnRewardsState.MANUAL_REVIEW -> TextValue.IntResValue(R.string.activity_state_pending)
-            EarnRewardsState.FAILED -> TextValue.IntResValue(R.string.activity_state_failed)
-            EarnRewardsState.CLEARED -> TextValue.IntResValue(R.string.activity_state_cleared)
-            EarnRewardsState.REFUNDED -> TextValue.IntResValue(R.string.activity_state_refunded)
-            EarnRewardsState.REJECTED -> TextValue.IntResValue(R.string.activity_state_rejected)
-            EarnRewardsState.UNKNOWN -> TextValue.IntResValue(R.string.activity_state_unknown)
+            EarnRewardsState.MANUAL_REVIEW -> TextValue.IntResValue(
+                com.blockchain.stringResources.R.string.activity_state_pending
+            )
+
+            EarnRewardsState.FAILED -> TextValue.IntResValue(
+                com.blockchain.stringResources.R.string.activity_state_failed
+            )
+
+            EarnRewardsState.CLEARED -> TextValue.IntResValue(
+                com.blockchain.stringResources.R.string.activity_state_cleared
+            )
+
+            EarnRewardsState.REFUNDED -> TextValue.IntResValue(
+                com.blockchain.stringResources.R.string.activity_state_refunded
+            )
+
+            EarnRewardsState.REJECTED -> TextValue.IntResValue(
+                com.blockchain.stringResources.R.string.activity_state_rejected
+            )
+
+            EarnRewardsState.UNKNOWN -> TextValue.IntResValue(
+                com.blockchain.stringResources.R.string.activity_state_unknown
+            )
         },
         style = basicSubtitleStyle.copy(color = color)
     )
@@ -67,6 +92,7 @@ private fun CustodialStakingActivitySummaryItem.trailingStrikethrough() = when (
     EarnRewardsState.REFUNDED,
     EarnRewardsState.REJECTED,
     EarnRewardsState.FAILED -> true
+
     else -> false
 }
 

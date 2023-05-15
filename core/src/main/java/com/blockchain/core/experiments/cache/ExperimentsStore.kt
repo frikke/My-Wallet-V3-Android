@@ -23,7 +23,7 @@ class ExperimentsStore(
                 //                    ...
                 //                }
             }
-        },
+        }
     ),
     mediator = FreshnessMediator(Freshness.ofMinutes(60L))
 ) {

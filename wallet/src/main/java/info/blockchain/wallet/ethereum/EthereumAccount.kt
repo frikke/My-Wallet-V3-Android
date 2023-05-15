@@ -132,7 +132,6 @@ class EthereumAccount(val ethAccountDto: EthAccountDto) : JsonSerializableAccoun
         }
 
         fun deriveECKey(masterKey: DeterministicKey, accountIndex: Int): ECKey {
-
             val purposeKey =
                 HDKeyDerivation.deriveChildKey(
                     masterKey,

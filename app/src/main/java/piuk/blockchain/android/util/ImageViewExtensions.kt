@@ -26,7 +26,7 @@ fun ImageView.setAssetIconColoursWithTint(asset: Currency) {
 
 fun ImageView.setAssetIconColoursNoTint(asset: Currency) {
     val main = tryParseColour(asset.colour)
-    val tint = context.getResolvedColor(R.color.white)
+    val tint = context.getResolvedColor(com.blockchain.common.R.color.white)
     setAssetIconColours(tint, main)
 }
 
@@ -39,14 +39,14 @@ fun ImageView.setAssetIconColours(@ColorInt tintColor: Int, @ColorInt filterColo
 fun ImageView.setTransactionHasFailed() =
     this.apply {
         setImageResource(R.drawable.ic_close)
-        val tint = context.getResolvedColor(R.color.red_200)
-        val main = context.getResolvedColor(R.color.red_600)
+        val tint = context.getResolvedColor(com.blockchain.common.R.color.red_200)
+        val main = context.getResolvedColor(com.blockchain.common.R.color.red_600)
         setAssetIconColours(tint, main)
     }
 
 fun ImageView.setTransactionIsConfirming() =
     this.apply {
-        setImageResource(R.drawable.ic_tx_confirming)
+        setImageResource(com.blockchain.common.R.drawable.ic_tx_confirming)
         background = null
         setColorFilter(Color.TRANSPARENT)
     }

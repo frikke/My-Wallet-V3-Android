@@ -28,7 +28,7 @@ fun StandardSectionHeader(
             color = AppTheme.colors.title,
             modifier = Modifier.padding(
                 horizontal = AppTheme.dimensions.standardSpacing,
-                vertical = AppTheme.dimensions.tinySpacing,
+                vertical = AppTheme.dimensions.tinySpacing
             )
         )
     }

@@ -178,7 +178,6 @@ class AndroidBiometricsControllerImpl<TBiometricData : BiometricData>(
         promptInfo: BiometricPrompt.PromptInfo,
         callback: BiometricsCallback<TBiometricData>
     ) {
-
         if (isBiometricAuthEnabled) {
             when (type) {
                 BiometricsType.TYPE_REGISTER -> {

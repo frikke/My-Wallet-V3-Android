@@ -46,7 +46,7 @@ class Erc20NonCustodialAccount(
 
     override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> {
         return super.balanceRx(freshnessStrategy).onErrorResumeNext {
-            if (it is UnifiedBalanceNotFoundException)
+            if (it is UnifiedBalanceNotFoundException) {
                 Observable.just(
                     AccountBalance.zero(
                         currency = currency,
@@ -56,7 +56,7 @@ class Erc20NonCustodialAccount(
                         )
                     )
                 )
-            else Observable.error(it)
+            } else Observable.error(it)
         }
     }
 

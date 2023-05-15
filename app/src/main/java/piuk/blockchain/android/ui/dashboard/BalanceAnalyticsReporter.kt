@@ -7,7 +7,7 @@ import info.blockchain.balance.Money
 import java.math.BigDecimal
 
 class BalanceAnalyticsReporter(
-    private val analytics: UserAnalytics,
+    private val analytics: UserAnalytics
 ) {
     private val collectedBalances = mutableMapOf<AssetInfo, Money>()
 

@@ -9,6 +9,7 @@ android {
         warningsAsErrors true
         abortOnError true
     }
+    namespace 'piuk.blockchain.android.rating.data'
 }
 
 

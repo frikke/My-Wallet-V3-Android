@@ -1,6 +1,8 @@
 apply plugin: 'kotlinx-serialization'
 apply from: rootProject.file('gradle/local/common-feature-android-data.gradle')
-
+android {
+    namespace 'com.blockchain.analytics.data'
+}
 dependencies {
     implementation project(':analytics:domain')
     implementation project(':common:interface')

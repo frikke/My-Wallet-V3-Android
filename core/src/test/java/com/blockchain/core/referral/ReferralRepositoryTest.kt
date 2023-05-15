@@ -154,7 +154,6 @@ class ReferralRepositoryTest {
 
     @Test
     fun `should not send request when code is null`() = runBlocking {
-
         val result = referralRepository.associateReferralCodeIfPresent(null)
 
         assertEquals(Outcome.Success(Unit), result)

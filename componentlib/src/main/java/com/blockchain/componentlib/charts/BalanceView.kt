@@ -25,7 +25,7 @@ class BalanceView @JvmOverloads constructor(
             AppSurface {
                 Balance(
                     price = price,
-                    percentageChangeData = percentageChangeData,
+                    percentageChangeData = percentageChangeData
                 )
             }
         }

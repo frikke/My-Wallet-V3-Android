@@ -8,7 +8,7 @@ data class DexAccount(
     val account: SingleAccount,
     val currency: DexCurrency,
     val balance: Money,
-    val fiatBalance: Money,
+    val fiatBalance: Money
 )
 
 sealed class DexQuote {

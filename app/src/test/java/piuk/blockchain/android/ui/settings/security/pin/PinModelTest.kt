@@ -4,15 +4,9 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.ProviderSpecificAnalytics
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.enviroment.EnvironmentConfig
-import com.google.android.play.core.appupdate.AppUpdateInfo
-import com.google.android.play.core.appupdate.AppUpdateManager
-import com.google.android.play.core.install.model.AppUpdateType
-import com.google.android.play.core.install.model.UpdateAvailability
-import com.google.android.play.core.tasks.Task
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.wallet.api.data.UpdateType
 import info.blockchain.wallet.exceptions.AccountLockedException
 import info.blockchain.wallet.exceptions.DecryptionException
 import info.blockchain.wallet.exceptions.HDWalletException
@@ -20,7 +14,6 @@ import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import info.blockchain.wallet.exceptions.ServerConnectionException
 import info.blockchain.wallet.exceptions.UnsupportedVersionException
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.net.SocketTimeoutException
@@ -59,7 +52,6 @@ class PinModelTest {
             interactor = interactor,
             specificAnalytics = specificAnalytics,
             analytics = analytics,
-            momentLogger = mock()
         )
     }
 
@@ -232,127 +224,6 @@ class PinModelTest {
 
         val testState = model.state.test()
         model.process(PinIntent.FetchRemoteMobileNotice)
-
-        testState.assertValueAt(0) {
-            it == PinState()
-        }
-    }
-
-    @Test
-    fun `CheckAppUpgradeStatus success and type RECOMMENDED then UpgradeAppMethod FLEXIBLE`() {
-        val versionName = "202202.1.0"
-        val updateType = UpdateType.RECOMMENDED
-        val appUpdateManager = mock<AppUpdateManager>()
-        val appUpdateInfoTask = mock<Task<AppUpdateInfo>>()
-        val appUpdateInfo = mock<AppUpdateInfo>()
-
-        whenever(interactor.checkForceUpgradeStatus(versionName))
-            .thenReturn(Observable.just(updateType))
-        whenever(interactor.updateInfo(appUpdateManager))
-            .thenReturn(Observable.just(appUpdateInfoTask))
-
-        whenever(appUpdateInfoTask.result).thenReturn(appUpdateInfo)
-        whenever(appUpdateInfoTask.result.updateAvailability())
-            .thenReturn(UpdateAvailability.UPDATE_AVAILABLE)
-        whenever(appUpdateInfoTask.result.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE))
-            .thenReturn(true)
-
-        val testState = model.state.test()
-        model.process(PinIntent.CheckAppUpgradeStatus(versionName, appUpdateManager))
-
-        testState.assertValueAt(0) {
-            it == PinState()
-        }.assertValueAt(1) {
-            it == PinState(
-                appUpgradeStatus = AppUpgradeStatus(
-                    appNeedsToUpgrade = UpgradeAppMethod.FLEXIBLE,
-                    appUpdateInfo = appUpdateInfo
-                )
-            )
-        }
-    }
-
-    @Test
-    fun `CheckAppUpgradeStatus success and type FORCE then UpgradeAppMethod FORCED_NATIVELY`() {
-        val versionName = "202202.1.0"
-        val updateType = UpdateType.FORCE
-        val appUpdateManager = mock<AppUpdateManager>()
-        val appUpdateInfoTask = mock<Task<AppUpdateInfo>>()
-        val appUpdateInfo = mock<AppUpdateInfo>()
-
-        whenever(interactor.checkForceUpgradeStatus(versionName))
-            .thenReturn(Observable.just(updateType))
-        whenever(interactor.updateInfo(appUpdateManager))
-            .thenReturn(Observable.just(appUpdateInfoTask))
-
-        whenever(appUpdateInfoTask.result).thenReturn(appUpdateInfo)
-        whenever(appUpdateInfoTask.result.updateAvailability())
-            .thenReturn(UpdateAvailability.UPDATE_AVAILABLE)
-        whenever(appUpdateInfoTask.result.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE))
-            .thenReturn(true)
-
-        val testState = model.state.test()
-        model.process(PinIntent.CheckAppUpgradeStatus(versionName, appUpdateManager))
-
-        testState.assertValueAt(0) {
-            it == PinState()
-        }.assertValueAt(1) {
-            it == PinState(
-                appUpgradeStatus = AppUpgradeStatus(
-                    appNeedsToUpgrade = UpgradeAppMethod.FORCED_NATIVELY,
-                    appUpdateInfo = appUpdateInfo
-                )
-            )
-        }
-    }
-
-    @Test
-    fun `CheckAppUpgradeStatus success and type FORCE and updateType not allowed then UpgradeAppMethod FORCED_STORE`() {
-        val versionName = "202202.1.0"
-        val updateType = UpdateType.FORCE
-        val appUpdateManager = mock<AppUpdateManager>()
-        val appUpdateInfoTask = mock<Task<AppUpdateInfo>>()
-        val appUpdateInfo = mock<AppUpdateInfo>()
-
-        whenever(interactor.checkForceUpgradeStatus(versionName))
-            .thenReturn(Observable.just(updateType))
-        whenever(interactor.updateInfo(appUpdateManager))
-            .thenReturn(Observable.just(appUpdateInfoTask))
-
-        whenever(appUpdateInfoTask.result).thenReturn(appUpdateInfo)
-        whenever(appUpdateInfoTask.result.updateAvailability())
-            .thenReturn(UpdateAvailability.UPDATE_AVAILABLE)
-        whenever(appUpdateInfoTask.result.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE))
-            .thenReturn(false)
-
-        val testState = model.state.test()
-        model.process(PinIntent.CheckAppUpgradeStatus(versionName, appUpdateManager))
-
-        testState.assertValueAt(0) {
-            it == PinState()
-        }.assertValueAt(1) {
-            it == PinState(
-                appUpgradeStatus = AppUpgradeStatus(
-                    appNeedsToUpgrade = UpgradeAppMethod.FORCED_STORE,
-                    appUpdateInfo = null
-                )
-            )
-        }
-    }
-
-    @Test
-    fun `CheckAppUpgradeStatus fails, do nothing, just print exception`() {
-        val versionName = "202202.1.0"
-        val updateType = UpdateType.FORCE
-        val appUpdateManager = mock<AppUpdateManager>()
-
-        whenever(interactor.checkForceUpgradeStatus(versionName))
-            .thenReturn(Observable.just(updateType))
-        whenever(interactor.updateInfo(appUpdateManager))
-            .thenReturn(Observable.error(Throwable()))
-
-        val testState = model.state.test()
-        model.process(PinIntent.CheckAppUpgradeStatus(versionName, appUpdateManager))
 
         testState.assertValueAt(0) {
             it == PinState()

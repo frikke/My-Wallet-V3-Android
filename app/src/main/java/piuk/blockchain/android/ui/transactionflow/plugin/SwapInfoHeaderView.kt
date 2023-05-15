@@ -69,8 +69,8 @@ class SwapInfoHeaderView @JvmOverloads constructor(
                     receivingAmountFiat.text = receivingAmount.toFiat(fiat, exchangeRates).toStringWithSymbol()
                 }
                 if (previousAmount.isNotEmpty() && previousAmount != receivingAmount.toStringWithSymbol()) {
-                    receivingAmountCrypto.animateChange(startColor = R.color.grey_800)
-                    receivingAmountFiat.animateChange(startColor = R.color.grey_600)
+                    receivingAmountCrypto.animateChange(startColor = com.blockchain.componentlib.R.color.grey_800)
+                    receivingAmountFiat.animateChange(startColor = com.blockchain.common.R.color.grey_600)
                 }
             }
 

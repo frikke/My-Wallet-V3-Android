@@ -31,19 +31,19 @@ enum class BackUpStatus(
     @StringRes val text: Int
 ) {
     NO_BACKUP(
-        icon = R.drawable.alert_on,
+        icon = com.blockchain.componentlib.icons.R.drawable.alert_on,
         iconColor = Orange600,
         bgColor = Orange000,
         textColor = Orange600,
-        text = R.string.back_up_status_negative
+        text = com.blockchain.stringResources.R.string.back_up_status_negative
     ),
 
     BACKED_UP(
-        icon = R.drawable.check_on,
+        icon = com.blockchain.componentlib.icons.R.drawable.check_on,
         iconColor = Green700,
         bgColor = Green000,
         textColor = Green700,
-        text = R.string.back_up_status_positive
+        text = com.blockchain.stringResources.R.string.back_up_status_positive
     )
 }
 

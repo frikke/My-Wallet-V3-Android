@@ -28,7 +28,7 @@ class TertiaryButtonView @JvmOverloads constructor(
                     text = text,
                     textColor = textColor,
                     state = buttonState,
-                    icon = icon,
+                    icon = icon
                 )
             }
         }

@@ -20,7 +20,8 @@ class SelectNetworkViewModel(
     SelectNetworkViewState,
     SelectNetworkModelState,
     SelectNetworkNavigationEvent,
-    ModelConfigArgs.NoArgs>(
+    ModelConfigArgs.NoArgs
+    >(
     SelectNetworkModelState()
 ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}

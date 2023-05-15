@@ -34,7 +34,8 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Purchase"),
                                 ActivityTextStyle(
-                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Muted
+                                    ActivityTextTypography.Paragraph2,
+                                    ActivityTextColor.Muted
                                 )
                             )
                         ),
@@ -42,7 +43,8 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Purchase"),
                                 ActivityTextStyle(
-                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Title
+                                    ActivityTextTypography.Paragraph2,
+                                    ActivityTextColor.Title
                                 )
                             )
                         )
@@ -53,25 +55,29 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Amount"),
                                 ActivityTextStyle(
-                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Muted
+                                    ActivityTextTypography.Paragraph2,
+                                    ActivityTextColor.Muted
                                 )
                             ),
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("20/35 confirmations"),
                                 ActivityTextStyle(
-                                    ActivityTextTypography.Caption1, ActivityTextColor.Muted
+                                    ActivityTextTypography.Caption1,
+                                    ActivityTextColor.Muted
                                 )
                             ),
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Network"),
                                 ActivityTextStyle(
-                                    ActivityTextTypography.Caption1, ActivityTextColor.Muted
+                                    ActivityTextTypography.Caption1,
+                                    ActivityTextColor.Muted
                                 )
                             ),
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Transaction ID"),
                                 ActivityTextStyle(
-                                    ActivityTextTypography.Caption1, ActivityTextColor.Muted
+                                    ActivityTextTypography.Caption1,
+                                    ActivityTextColor.Muted
                                 )
                             )
                         ),
@@ -79,13 +85,15 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("0.00503823 BTC"),
                                 ActivityTextStyle(
-                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Title
+                                    ActivityTextTypography.Paragraph2,
+                                    ActivityTextColor.Title
                                 )
                             ),
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Bitcoin Account"),
                                 ActivityTextStyle(
-                                    ActivityTextTypography.Caption1, ActivityTextColor.Warning
+                                    ActivityTextTypography.Caption1,
+                                    ActivityTextColor.Warning
                                 )
                             )
                         )
@@ -96,7 +104,8 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Fees"),
                                 ActivityTextStyle(
-                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Muted
+                                    ActivityTextTypography.Paragraph2,
+                                    ActivityTextColor.Muted
                                 )
                             )
                         ),
@@ -116,7 +125,8 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Total"),
                                 ActivityTextStyle(
-                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Muted
+                                    ActivityTextTypography.Paragraph2,
+                                    ActivityTextColor.Muted
                                 )
                             )
                         ),
@@ -124,13 +134,15 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("106.17"),
                                 ActivityTextStyle(
-                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Title
+                                    ActivityTextTypography.Paragraph2,
+                                    ActivityTextColor.Title
                                 )
                             ),
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("0.00534908 BTC"),
                                 ActivityTextStyle(
-                                    ActivityTextTypography.Caption1, ActivityTextColor.Muted
+                                    ActivityTextTypography.Caption1,
+                                    ActivityTextColor.Muted
                                 )
                             )
                         )
@@ -146,7 +158,8 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Status"),
                                 ActivityTextStyle(
-                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Muted
+                                    ActivityTextTypography.Paragraph2,
+                                    ActivityTextColor.Muted
                                 )
                             )
                         ),
@@ -163,7 +176,8 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Bank"),
                                 ActivityTextStyle(
-                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Muted
+                                    ActivityTextTypography.Paragraph2,
+                                    ActivityTextColor.Muted
                                 )
                             )
                         ),
@@ -171,7 +185,8 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Capital One •••• 0192"),
                                 ActivityTextStyle(
-                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Title
+                                    ActivityTextTypography.Paragraph2,
+                                    ActivityTextColor.Title
                                 )
                             )
                         )
@@ -182,13 +197,15 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Status"),
                                 ActivityTextStyle(
-                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Muted
+                                    ActivityTextTypography.Paragraph2,
+                                    ActivityTextColor.Muted
                                 )
                             ),
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("20/35 confirmations"),
                                 ActivityTextStyle(
-                                    ActivityTextTypography.Caption1, ActivityTextColor.Muted
+                                    ActivityTextTypography.Caption1,
+                                    ActivityTextColor.Muted
                                 )
                             )
                         ),
@@ -210,7 +227,8 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Bank"),
                                 ActivityTextStyle(
-                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Muted
+                                    ActivityTextTypography.Paragraph2,
+                                    ActivityTextColor.Muted
                                 )
                             )
                         ),
@@ -218,7 +236,8 @@ val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
                             ActivityStackView.Text(
                                 value = TextValue.StringValue("Capital One •••• 0192"),
                                 ActivityTextStyle(
-                                    ActivityTextTypography.Paragraph2, ActivityTextColor.Title
+                                    ActivityTextTypography.Paragraph2,
+                                    ActivityTextColor.Title
                                 )
                             )
                         )

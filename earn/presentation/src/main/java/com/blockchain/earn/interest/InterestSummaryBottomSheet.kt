@@ -124,7 +124,7 @@ fun InterestSummaryScreen(
     onLoadError: (InterestError) -> Unit,
     onWithdrawPressed: (sourceAccount: BlockchainAccount) -> Unit,
     onDepositPressed: (currency: EarnRewardsAccount.Interest) -> Unit,
-    onExplainerClicked: (EarnFieldExplainer) -> Unit,
+    onExplainerClicked: (EarnFieldExplainer) -> Unit
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {

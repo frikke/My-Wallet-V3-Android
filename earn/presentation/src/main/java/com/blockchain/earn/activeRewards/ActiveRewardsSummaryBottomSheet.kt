@@ -130,7 +130,7 @@ fun ActiveRewardsSummaryScreen(
     onWithdrawPressed: (sourceAccount: BlockchainAccount, targetAccount: CustodialTradingAccount) -> Unit,
     onDepositPressed: (currency: EarnRewardsAccount.Active) -> Unit,
     withdrawDisabledLearnMore: () -> Unit,
-    onExplainerClicked: (EarnFieldExplainer) -> Unit,
+    onExplainerClicked: (EarnFieldExplainer) -> Unit
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {

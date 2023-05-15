@@ -13,7 +13,7 @@ class RemoteMetadataNodes(
     @SerialName("metadata")
     var metadata: String = "",
     @SerialName("mdid")
-    var mdid: String = "",
+    var mdid: String = ""
     // Add any future metadata node derivations here
 ) {
     fun isAllNodesAvailable(): Boolean = metadata.isNotEmpty() && mdid.isNotEmpty()

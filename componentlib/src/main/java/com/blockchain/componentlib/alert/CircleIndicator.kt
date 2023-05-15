@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 fun CircleIndicator(
     modifier: Modifier = Modifier,
     size: Dp,
-    color: Color,
+    color: Color
 ) {
     Canvas(
         modifier = modifier
@@ -33,6 +33,6 @@ fun CircleIndicator(
 private fun PreviewCircleIndicator() {
     CircleIndicator(
         size = 8.dp,
-        color = Color.Red,
+        color = Color.Red
     )
 }

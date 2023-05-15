@@ -17,11 +17,11 @@ internal object DashboardGraph : NavGraph() {
 internal fun NavGraphBuilder.dashboardGraph(
     // When this pattern of delegating navigation between graph to the parent, BetterNavigationContext
     // needs to be passed as a receiver so the parent has access to navigateTo(Destination) methods
-    navigateToSwap: NavContext.() -> Unit,
+    navigateToSwap: NavContext.() -> Unit
 ) {
     navGraph(
         graph = DashboardGraph,
-        startDestination = DashboardGraph.Overview,
+        startDestination = DashboardGraph.Overview
     ) {
         typedComposable(DashboardGraph.Overview) {
             DashboardOverviewScreen(

@@ -78,7 +78,7 @@ class QrScanNavigationImpl(
                     Timber.e(it)
                     BlockchainSnackbar.make(
                         activity.window.decorView.rootView,
-                        activity.getString(R.string.scan_failed),
+                        activity.getString(com.blockchain.stringResources.R.string.scan_failed),
                         duration = Snackbar.LENGTH_SHORT
                     )
                 }
@@ -122,7 +122,10 @@ class QrScanNavigationImpl(
             Timber.e(ex)
             BlockchainSnackbar.make(
                 activity!!.window.decorView.rootView,
-                activity.getString(R.string.scan_no_available_account, target.asset.displayTicker)
+                activity.getString(
+                    com.blockchain.stringResources.R.string.scan_no_available_account,
+                    target.asset.displayTicker
+                )
             )
         }
     }
@@ -149,7 +152,7 @@ class QrScanNavigationImpl(
                             Timber.e(it)
                             BlockchainSnackbar.make(
                                 activity!!.window.decorView.rootView,
-                                activity.getString(R.string.scan_failed),
+                                activity.getString(com.blockchain.stringResources.R.string.scan_failed),
                                 duration = Snackbar.LENGTH_SHORT
                             )
                         }

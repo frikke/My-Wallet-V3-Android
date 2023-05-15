@@ -60,11 +60,11 @@ class DappsListModelTest {
 
     @Test
     fun `Repository  sessions should be represented in the state`() {
-
         whenever(sessionsRepository.retrieve()).thenReturn(
             Single.just(
                 listOf(
-                    fakeSession1, fakeSession2
+                    fakeSession1,
+                    fakeSession2
                 )
             )
         )

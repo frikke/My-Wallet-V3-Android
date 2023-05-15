@@ -54,13 +54,14 @@ fun InterestSummarySheet(
     onWithdrawPressed: (sourceAccount: BlockchainAccount) -> Unit,
     onDepositPressed: (currency: EarnRewardsAccount.Interest) -> Unit,
     onExplainerClicked: (EarnFieldExplainer) -> Unit,
-    onClosePressed: () -> Unit,
+    onClosePressed: () -> Unit
 ) {
     Box {
         Column {
             SheetHeader(
                 title = stringResource(
-                    id = R.string.passive_rewards_summary_title, state.balanceCrypto?.currency?.networkTicker.orEmpty()
+                    id = com.blockchain.stringResources.R.string.passive_rewards_summary_title,
+                    state.balanceCrypto?.currency?.networkTicker.orEmpty()
                 ),
                 startImageResource = ImageResource.Remote(state.balanceCrypto?.currency?.logo.orEmpty()),
                 shouldShowDivider = false,
@@ -101,7 +102,7 @@ fun InterestSummarySheet(
                 Card(
                     backgroundColor = AppTheme.colors.background,
                     shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-                    elevation = 0.dp,
+                    elevation = 0.dp
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         TinyVerticalSpacer()
@@ -111,10 +112,12 @@ fun InterestSummarySheet(
                             state.totalEarnedCrypto
                         ) { earnedFiat, earnedCrypto ->
                             TextWithTooltipTableRow(
-                                startText = stringResource(R.string.staking_summary_total_earned),
+                                startText = stringResource(
+                                    com.blockchain.stringResources.R.string.staking_summary_total_earned
+                                ),
                                 endTitle = earnedFiat.toStringWithSymbol(),
                                 endSubtitle = earnedCrypto.toStringWithSymbol(),
-                                isTappable = false,
+                                isTappable = false
                             )
 
                             TinyVerticalSpacer()
@@ -127,10 +130,12 @@ fun InterestSummarySheet(
                             state.pendingInterestCrypto
                         ) { pendingEarnedFiat, pendingEarnedCrypto ->
                             TextWithTooltipTableRow(
-                                startText = stringResource(R.string.earn_interest_accrued_this_month),
+                                startText = stringResource(
+                                    com.blockchain.stringResources.R.string.earn_interest_accrued_this_month
+                                ),
                                 endTitle = pendingEarnedFiat.toStringWithSymbol(),
                                 endSubtitle = pendingEarnedCrypto.toStringWithSymbol(),
-                                onClick = { onExplainerClicked(EarnFieldExplainer.MonthlyAccruedInterest) },
+                                onClick = { onExplainerClicked(EarnFieldExplainer.MonthlyAccruedInterest) }
                             )
                         }
                     }
@@ -141,15 +146,15 @@ fun InterestSummarySheet(
                 Card(
                     backgroundColor = AppTheme.colors.background,
                     shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-                    elevation = 0.dp,
+                    elevation = 0.dp
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         TinyVerticalSpacer()
 
                         TextWithTooltipTableRow(
-                            startText = stringResource(R.string.rewards_summary_rate),
+                            startText = stringResource(com.blockchain.stringResources.R.string.rewards_summary_rate),
                             endTitle = "${state.interestRate}%",
-                            onClick = { onExplainerClicked(EarnFieldExplainer.InterestRate) },
+                            onClick = { onExplainerClicked(EarnFieldExplainer.InterestRate) }
                         )
 
                         TinyVerticalSpacer()
@@ -157,21 +162,29 @@ fun InterestSummarySheet(
                         TinyVerticalSpacer()
 
                         TextWithTooltipTableRow(
-                            startText = stringResource(R.string.earn_payment_frequency),
+                            startText = stringResource(com.blockchain.stringResources.R.string.earn_payment_frequency),
                             endTitle = when (state.earnFrequency) {
                                 EarnRewardsFrequency.Daily ->
-                                    stringResource(id = R.string.earn_payment_frequency_daily)
+                                    stringResource(
+                                        id = com.blockchain.stringResources.R.string.earn_payment_frequency_daily
+                                    )
 
                                 EarnRewardsFrequency.Weekly ->
-                                    stringResource(id = R.string.earn_payment_frequency_weekly)
+                                    stringResource(
+                                        id = com.blockchain.stringResources.R.string.earn_payment_frequency_weekly
+                                    )
 
                                 EarnRewardsFrequency.Monthly ->
-                                    stringResource(id = R.string.earn_payment_frequency_monthly)
+                                    stringResource(
+                                        id = com.blockchain.stringResources.R.string.earn_payment_frequency_monthly
+                                    )
 
                                 else ->
-                                    stringResource(id = R.string.earn_payment_frequency_unknown)
+                                    stringResource(
+                                        id = com.blockchain.stringResources.R.string.earn_payment_frequency_unknown
+                                    )
                             },
-                            onClick = { onExplainerClicked(EarnFieldExplainer.MonthlyPaymentFrequency) },
+                            onClick = { onExplainerClicked(EarnFieldExplainer.MonthlyPaymentFrequency) }
                         )
 
                         TinyVerticalSpacer()
@@ -179,9 +192,9 @@ fun InterestSummarySheet(
                         TinyVerticalSpacer()
 
                         TextWithTooltipTableRow(
-                            startText = stringResource(R.string.common_next_payment),
+                            startText = stringResource(com.blockchain.stringResources.R.string.common_next_payment),
                             endTitle = "${state.nextPaymentDate?.toFormattedDate()}",
-                            isTappable = false,
+                            isTappable = false
                         )
 
                         TinyVerticalSpacer()
@@ -189,11 +202,14 @@ fun InterestSummarySheet(
                         TinyVerticalSpacer()
 
                         TextWithTooltipTableRow(
-                            startText = stringResource(R.string.earn_interest_hold_period),
-                            endTitle = stringResource(
-                                R.string.rewards_summary_hold_period_days, state.initialHoldPeriod
+                            startText = stringResource(
+                                com.blockchain.stringResources.R.string.earn_interest_hold_period
                             ),
-                            onClick = { onExplainerClicked(EarnFieldExplainer.HoldPeriod) },
+                            endTitle = stringResource(
+                                com.blockchain.stringResources.R.string.rewards_summary_hold_period_days,
+                                state.initialHoldPeriod
+                            ),
+                            onClick = { onExplainerClicked(EarnFieldExplainer.HoldPeriod) }
                         )
 
                         TinyVerticalSpacer()
@@ -208,20 +224,26 @@ fun InterestSummarySheet(
                 ) {
                     SecondaryButton(
                         modifier = Modifier.weight(1F),
-                        text = stringResource(id = R.string.common_withdraw),
-                        icon = ImageResource.Local(R.drawable.send_off, colorFilter = ColorFilter.tint(Color.White)),
+                        text = stringResource(id = com.blockchain.stringResources.R.string.common_withdraw),
+                        icon = ImageResource.Local(
+                            com.blockchain.componentlib.icons.R.drawable.send_off,
+                            colorFilter = ColorFilter.tint(Color.White)
+                        ),
                         state = if (state.canWithdraw) ButtonState.Enabled else ButtonState.Disabled,
-                        onClick = { state.account?.let { onWithdrawPressed(it) } },
+                        onClick = { state.account?.let { onWithdrawPressed(it) } }
                     )
 
                     TinyHorizontalSpacer()
 
                     SecondaryButton(
                         modifier = Modifier.weight(1F),
-                        text = stringResource(id = R.string.common_add),
-                        icon = ImageResource.Local(R.drawable.receive_off, colorFilter = ColorFilter.tint(Color.White)),
+                        text = stringResource(id = com.blockchain.stringResources.R.string.common_add),
+                        icon = ImageResource.Local(
+                            com.blockchain.componentlib.icons.R.drawable.receive_off,
+                            colorFilter = ColorFilter.tint(Color.White)
+                        ),
                         onClick = { state.account?.let { onDepositPressed(it as EarnRewardsAccount.Interest) } },
-                        state = if (state.canDeposit) ButtonState.Enabled else ButtonState.Disabled,
+                        state = if (state.canDeposit) ButtonState.Enabled else ButtonState.Disabled
                     )
                 }
 
@@ -255,12 +277,12 @@ fun InterestSummarySheetPreview() {
                 isLoading = false,
                 interestCommission = 0.0,
                 canWithdraw = false,
-                canDeposit = true,
+                canDeposit = true
             ),
             onWithdrawPressed = {},
             onDepositPressed = {},
             onClosePressed = {},
-            onExplainerClicked = {},
+            onExplainerClicked = {}
         )
     }
 }

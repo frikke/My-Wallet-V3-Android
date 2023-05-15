@@ -62,7 +62,7 @@ fun SettingsBottomSheet(
 
     Column(modifier = Modifier.fillMaxWidth()) {
         SheetHeader(
-            title = stringResource(id = R.string.allowed_slippage),
+            title = stringResource(id = com.blockchain.stringResources.R.string.allowed_slippage),
             onClosePress = closeClicked,
             startImageResource = ImageResource.None,
             shouldShowDivider = false
@@ -93,7 +93,7 @@ fun SettingsBottomSheet(
         )
         Text(
             modifier = Modifier.padding(all = AppTheme.dimensions.smallSpacing),
-            text = stringResource(id = R.string.slippage_explanation),
+            text = stringResource(id = com.blockchain.stringResources.R.string.slippage_explanation),
             style = AppTheme.typography.paragraph1,
             color = Grey700
         )

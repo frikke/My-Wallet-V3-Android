@@ -158,7 +158,7 @@ class LoaderInteractor(
     private fun checkForCowboysUser() = Single.zip(
         userIdentity.isCowboysUser(),
         kycService.getHighestApprovedTierLevelLegacy(),
-        cowboysPromoFeatureFlag.enabled,
+        cowboysPromoFeatureFlag.enabled
     ) { isCowboysUser, highestTier, isCowboysFlagEnabled ->
         if (isCowboysFlagEnabled && isCowboysUser) {
             // reset flag on login
@@ -207,9 +207,9 @@ class LoaderInteractor(
     }
 
     private fun updateUserFiatIfNotSet(): Completable {
-        return if (currencyPrefs.noCurrencySet)
+        return if (currencyPrefs.noCurrencySet) {
             settingsDataManager.setDefaultUserFiat().ignoreElement()
-        else {
+        } else {
             Completable.complete()
         }
     }

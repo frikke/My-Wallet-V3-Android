@@ -43,7 +43,7 @@ class BackupWalletActivity : BlockchainActivity() {
 
         get<Analytics>().logEvent(AnalyticsEvents.Backup)
         updateToolbar(
-            toolbarTitle = getString(R.string.backup_wallet_title),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.backup_wallet_title),
             backAction = { onSupportNavigateUp() }
         )
         if (isBackedUp()) {

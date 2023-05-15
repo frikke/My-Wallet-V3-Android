@@ -16,5 +16,5 @@ data class RecurringBuyDetail(
     val assetTicker: String,
     val paymentMethod: String,
     val frequency: TextValue,
-    val nextBuy: String,
+    val nextBuy: String
 )

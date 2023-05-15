@@ -63,13 +63,13 @@ fun ActiveRewardsSummarySheet(
     onDepositPressed: (currency: EarnRewardsAccount.Active) -> Unit,
     withdrawDisabledLearnMore: () -> Unit,
     onExplainerClicked: (EarnFieldExplainer) -> Unit,
-    onClosePressed: () -> Unit,
+    onClosePressed: () -> Unit
 ) {
     Box {
         Column {
             SheetHeader(
                 title = stringResource(
-                    id = R.string.active_rewards_summary_title,
+                    id = com.blockchain.stringResources.R.string.active_rewards_summary_title,
                     state.balanceCrypto?.currency?.networkTicker.orEmpty()
                 ),
                 startImageResource = ImageResource.Remote(state.balanceCrypto?.currency?.logo.orEmpty()),
@@ -111,7 +111,7 @@ fun ActiveRewardsSummarySheet(
                 Card(
                     backgroundColor = AppTheme.colors.background,
                     shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-                    elevation = 0.dp,
+                    elevation = 0.dp
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         TinyVerticalSpacer()
@@ -122,16 +122,18 @@ fun ActiveRewardsSummarySheet(
                         ) { currencyTicker, assetFiatPrice ->
                             TextWithTooltipTableRow(
                                 startText = stringResource(
-                                    id = R.string.quote_price,
+                                    id = com.blockchain.stringResources.R.string.quote_price,
                                     currencyTicker
                                 ),
-                                endTitle = assetFiatPrice.toStringWithSymbol(),
+                                endTitle = assetFiatPrice.toStringWithSymbol()
                             )
                         }
 
                         if (state.totalEarnedFiat != null && state.totalEarnedCrypto != null) {
                             TextWithTooltipTableRow(
-                                startText = stringResource(R.string.earn_active_rewards_earnings),
+                                startText = stringResource(
+                                    com.blockchain.stringResources.R.string.earn_active_rewards_earnings
+                                ),
                                 endTitle = state.totalEarnedFiat.toStringWithSymbol(),
                                 endSubtitle = state.totalEarnedCrypto.toStringWithSymbol(),
                                 onClick = {
@@ -142,15 +144,19 @@ fun ActiveRewardsSummarySheet(
 
                         if (state.totalSubscribedFiat != null && state.totalSubscribedCrypto != null) {
                             TextWithTooltipTableRow(
-                                startText = stringResource(R.string.earn_total_subscribed),
+                                startText = stringResource(
+                                    com.blockchain.stringResources.R.string.earn_total_subscribed
+                                ),
                                 endTitle = state.totalSubscribedFiat.toStringWithSymbol(),
-                                endSubtitle = state.totalSubscribedCrypto.toStringWithSymbol(),
+                                endSubtitle = state.totalSubscribedCrypto.toStringWithSymbol()
                             )
                         }
 
                         if (state.totalOnHoldFiat != null && state.totalOnHoldCrypto != null) {
                             TextWithTooltipTableRow(
-                                startText = stringResource(R.string.earn_active_rewards_on_hold),
+                                startText = stringResource(
+                                    com.blockchain.stringResources.R.string.earn_active_rewards_on_hold
+                                ),
                                 endTitle = state.totalOnHoldFiat.toStringWithSymbol(),
                                 endSubtitle = state.totalOnHoldCrypto.toStringWithSymbol(),
                                 onClick = {
@@ -167,13 +173,13 @@ fun ActiveRewardsSummarySheet(
                 Card(
                     backgroundColor = AppTheme.colors.background,
                     shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-                    elevation = 0.dp,
+                    elevation = 0.dp
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         TinyVerticalSpacer()
 
                         TextWithTooltipTableRow(
-                            startText = stringResource(R.string.earn_annual_rate),
+                            startText = stringResource(com.blockchain.stringResources.R.string.earn_annual_rate),
                             endTitle = "${state.activeRewardsRate}%",
                             onClick = {
                                 onExplainerClicked(EarnFieldExplainer.ActiveRewardsEarnRate)
@@ -182,7 +188,9 @@ fun ActiveRewardsSummarySheet(
 
                         if (state.triggerPrice != null) {
                             TextWithTooltipTableRow(
-                                startText = stringResource(R.string.earn_active_rewards_trigger_price),
+                                startText = stringResource(
+                                    com.blockchain.stringResources.R.string.earn_active_rewards_trigger_price
+                                ),
                                 endTitle = state.triggerPrice.toStringWithSymbol(),
                                 onClick = {
                                     onExplainerClicked(EarnFieldExplainer.ActiveRewardsTriggerPrice)
@@ -191,20 +199,28 @@ fun ActiveRewardsSummarySheet(
                         }
 
                         TextWithTooltipTableRow(
-                            startText = stringResource(R.string.earn_payment_frequency),
+                            startText = stringResource(com.blockchain.stringResources.R.string.earn_payment_frequency),
                             endTitle = when (state.rewardsFrequency) {
                                 EarnRewardsFrequency.Daily ->
-                                    stringResource(id = R.string.earn_payment_frequency_daily)
+                                    stringResource(
+                                        id = com.blockchain.stringResources.R.string.earn_payment_frequency_daily
+                                    )
 
                                 EarnRewardsFrequency.Weekly ->
-                                    stringResource(id = R.string.earn_payment_frequency_weekly)
+                                    stringResource(
+                                        id = com.blockchain.stringResources.R.string.earn_payment_frequency_weekly
+                                    )
 
                                 EarnRewardsFrequency.Monthly ->
-                                    stringResource(id = R.string.earn_payment_frequency_monthly)
+                                    stringResource(
+                                        id = com.blockchain.stringResources.R.string.earn_payment_frequency_monthly
+                                    )
 
                                 else ->
-                                    stringResource(id = R.string.earn_payment_frequency_unknown)
-                            },
+                                    stringResource(
+                                        id = com.blockchain.stringResources.R.string.earn_payment_frequency_unknown
+                                    )
+                            }
                         )
 
                         TinyVerticalSpacer()
@@ -240,24 +256,30 @@ fun ActiveRewardsSummarySheet(
                 ) {
                     SecondaryButton(
                         modifier = Modifier.weight(1F),
-                        text = stringResource(id = R.string.common_withdraw),
-                        icon = ImageResource.Local(R.drawable.send_off, colorFilter = ColorFilter.tint(Color.White)),
+                        text = stringResource(id = com.blockchain.stringResources.R.string.common_withdraw),
+                        icon = ImageResource.Local(
+                            com.blockchain.componentlib.icons.R.drawable.send_off,
+                            colorFilter = ColorFilter.tint(Color.White)
+                        ),
                         state = if (state.canWithdraw) ButtonState.Enabled else ButtonState.Disabled,
                         onClick = {
                             safeLet(state.account, state.tradingAccount) { account, tradingAccount ->
                                 onWithdrawPressed(account, tradingAccount)
                             }
-                        },
+                        }
                     )
 
                     TinyHorizontalSpacer()
 
                     SecondaryButton(
                         modifier = Modifier.weight(1F),
-                        text = stringResource(id = R.string.common_add),
-                        icon = ImageResource.Local(R.drawable.receive_off, colorFilter = ColorFilter.tint(Color.White)),
+                        text = stringResource(id = com.blockchain.stringResources.R.string.common_add),
+                        icon = ImageResource.Local(
+                            com.blockchain.componentlib.icons.R.drawable.receive_off,
+                            colorFilter = ColorFilter.tint(Color.White)
+                        ),
                         onClick = { state.account?.let { onDepositPressed(it as EarnRewardsAccount.Active) } },
-                        state = if (state.canDeposit) ButtonState.Enabled else ButtonState.Disabled,
+                        state = if (state.canDeposit) ButtonState.Enabled else ButtonState.Disabled
                     )
                 }
 

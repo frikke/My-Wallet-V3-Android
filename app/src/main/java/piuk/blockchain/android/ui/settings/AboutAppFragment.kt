@@ -39,7 +39,7 @@ class AboutAppFragment : Fragment(), SettingsScreen {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         updateToolbar(
-            toolbarTitle = getString(R.string.about_app_toolbar),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.about_app_toolbar),
             menuItems = emptyList()
         )
 
@@ -49,24 +49,24 @@ class AboutAppFragment : Fragment(), SettingsScreen {
     private fun initUi() {
         with(binding) {
             supportOption.apply {
-                primaryText = getString(R.string.about_app_contact_support)
+                primaryText = getString(com.blockchain.stringResources.R.string.about_app_contact_support)
                 onClick = {
                     navigator().goToSupportCentre()
                 }
             }
 
             rateOption.apply {
-                primaryText = getString(R.string.about_app_rate_app)
+                primaryText = getString(com.blockchain.stringResources.R.string.about_app_rate_app)
                 onClick = {
                     showAppRating()
                 }
             }
             termsOption.apply {
-                primaryText = getString(R.string.about_app_terms_service)
+                primaryText = getString(com.blockchain.stringResources.R.string.about_app_terms_service)
                 onClick = { onTermsOfServiceClicked() }
             }
             privacyOption.apply {
-                primaryText = getString(R.string.about_app_privacy_policy)
+                primaryText = getString(com.blockchain.stringResources.R.string.about_app_privacy_policy)
                 onClick = { onPrivacyClicked() }
             }
         }

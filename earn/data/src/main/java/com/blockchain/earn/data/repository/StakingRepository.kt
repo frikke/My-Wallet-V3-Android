@@ -292,7 +292,7 @@ class StakingRepository(
             maxRequested = maxRequested,
             amountCrypto = amount?.let { Money.fromMinor(currency, it.toBigInteger()) },
             unbondingStartDate = unbondingStartDate?.let { it.fromIso8601ToUtc()?.toLocalTime() },
-            unbondingExpiryDate = unbondingExpiry?.let { it.fromIso8601ToUtc()?.toLocalTime() },
+            unbondingExpiryDate = unbondingExpiry?.let { it.fromIso8601ToUtc()?.toLocalTime() }
         )
 
     companion object {

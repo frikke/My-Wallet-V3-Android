@@ -43,10 +43,9 @@ class BackupVerifyPresenter(
             secondWord.trim { it <= ' ' }.equals(sequence[1].second, ignoreCase = true) &&
             thirdWord.trim { it <= ' ' }.equals(sequence[2].second, ignoreCase = true)
         ) {
-
             updateBackupStatus()
         } else {
-            view.showSnackbar(R.string.backup_word_mismatch, SnackbarType.Error)
+            view.showSnackbar(com.blockchain.stringResources.R.string.backup_word_mismatch, SnackbarType.Error)
         }
     }
 
@@ -59,12 +58,12 @@ class BackupVerifyPresenter(
             .subscribe(
                 {
                     walletStatusPrefs.lastBackupTime = System.currentTimeMillis() / 1000
-                    view.showSnackbar(R.string.backup_confirmed, SnackbarType.Success)
+                    view.showSnackbar(com.blockchain.stringResources.R.string.backup_confirmed, SnackbarType.Success)
                     view.showCompletedFragment()
                 },
                 { throwable ->
                     Timber.e(throwable)
-                    view.showSnackbar(R.string.api_fail, SnackbarType.Error)
+                    view.showSnackbar(com.blockchain.stringResources.R.string.api_fail, SnackbarType.Error)
                     view.showStartingFragment()
                 }
             )

@@ -42,7 +42,7 @@ fun ActivityDataItem.toActivityComponent(componentId: String = this.toString()) 
         id = componentId,
         leadingImage = leadingImage.toStackedIcon(),
         leading = leading.map { it.toStackView() },
-        trailing = trailing.map { it.toStackView() },
+        trailing = trailing.map { it.toStackView() }
     )
 
     is ActivityDataItem.Button -> ActivityComponent.Button(

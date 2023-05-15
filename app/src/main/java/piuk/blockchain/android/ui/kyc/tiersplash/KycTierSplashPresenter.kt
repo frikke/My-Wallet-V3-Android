@@ -33,7 +33,7 @@ class KycTierSplashPresenter(
                         )
                     },
                     onError = {
-                        view!!.showError(R.string.kyc_non_specific_server_error)
+                        view!!.showError(com.blockchain.stringResources.R.string.kyc_non_specific_server_error)
                     }
                 )
     }

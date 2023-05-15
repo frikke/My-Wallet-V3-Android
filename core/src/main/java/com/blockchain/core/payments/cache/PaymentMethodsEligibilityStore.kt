@@ -34,7 +34,7 @@ class PaymentMethodsEligibilityStore(
     @Serializable
     data class Key(
         val currencyTicker: String,
-        val eligibleOnly: Boolean,
+        val eligibleOnly: Boolean
     )
 
     companion object {

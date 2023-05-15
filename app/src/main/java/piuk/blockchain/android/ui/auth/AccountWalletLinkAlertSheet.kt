@@ -11,7 +11,8 @@ import piuk.blockchain.android.databinding.AccountWalletLinkAlertSheetBinding
 class AccountWalletLinkAlertSheet : SlidingModalBottomDialog<AccountWalletLinkAlertSheetBinding>() {
 
     private val walletId: String by lazy {
-        val missingWalletId = getString(R.string.account_wallet_mismatch_wallet_id_not_found)
+        val missingWalletId =
+            getString(com.blockchain.stringResources.R.string.account_wallet_mismatch_wallet_id_not_found)
         arguments?.getString(WALLET_ID, missingWalletId) ?: missingWalletId
     }
 
@@ -27,7 +28,7 @@ class AccountWalletLinkAlertSheet : SlidingModalBottomDialog<AccountWalletLinkAl
     override fun initControls(binding: AccountWalletLinkAlertSheetBinding) {
         with(binding) {
             walletIdText.text = getString(
-                R.string.account_wallet_mismatch_label,
+                com.blockchain.stringResources.R.string.account_wallet_mismatch_label,
                 walletId
             )
             logoutButton.setOnClickListener { host.logout() }

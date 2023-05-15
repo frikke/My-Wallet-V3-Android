@@ -38,13 +38,13 @@ class SecondPasswordDialog(
                 inputType = InputType.TYPE_CLASS_TEXT or
                     InputType.TYPE_TEXT_VARIATION_PASSWORD or
                     InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-                setHint(R.string.password)
+                setHint(com.blockchain.stringResources.R.string.password)
             }
 
             val view = ctx.getAlertDialogPaddedView(passwordField)
-            AlertDialog.Builder(ctx, R.style.AlertDialogStyle)
-                .setTitle(R.string.app_name)
-                .setMessage(R.string.enter_double_encryption_pw)
+            AlertDialog.Builder(ctx, com.blockchain.componentlib.R.style.AlertDialogStyle)
+                .setTitle(com.blockchain.stringResources.R.string.app_name)
+                .setMessage(com.blockchain.stringResources.R.string.enter_double_encryption_pw)
                 .setView(view)
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -92,7 +92,9 @@ class SecondPasswordDialog(
 
     private fun showErrorSnackbar(view: View) {
         BlockchainSnackbar.make(
-            view, view.context.getString(R.string.double_encryption_password_error), type = SnackbarType.Error
+            view,
+            view.context.getString(com.blockchain.stringResources.R.string.double_encryption_password_error),
+            type = SnackbarType.Error
         ).show()
     }
 
@@ -106,7 +108,7 @@ class SecondPasswordDialog(
         dismissProgressDialog()
         progressDlg = MaterialProgressDialog(context).apply {
             setCancelable(false)
-            setMessage(R.string.validating_password)
+            setMessage(com.blockchain.stringResources.R.string.validating_password)
             show()
         }
     }

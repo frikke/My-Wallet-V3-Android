@@ -51,7 +51,7 @@ class DeeplinkNavigationHandler(
     private val cancelOrderUseCase: CancelOrderService,
     private val bankService: BankService,
     private val bankBuyNavigation: BankBuyNavigation,
-    private val bankLinkingPrefs: BankLinkingPrefs,
+    private val bankLinkingPrefs: BankLinkingPrefs
 ) : ViewModel() {
     private val _step: MutableSharedFlow<DeeplinkNavigationStep> = MutableSharedFlow()
     private val compositeDisposable = CompositeDisposable()
@@ -236,7 +236,9 @@ class DeeplinkNavigationHandler(
                 onError = {
                     bankLinkingPrefs.setBankLinkingState(
                         BankAuthDeepLinkState(
-                            bankAuthFlow = BankAuthFlowState.NONE, bankPaymentData = null, bankLinkingInfo = null
+                            bankAuthFlow = BankAuthFlowState.NONE,
+                            bankPaymentData = null,
+                            bankLinkingInfo = null
                         )
                             .toPreferencesValue()
                     )
@@ -329,7 +331,8 @@ class DeeplinkNavigationHandler(
 
     private fun updateOpenBankingConsent(token: String): Completable {
         return bankService.updateOpenBankingConsent(
-            bankLinkingPrefs.getDynamicOneTimeTokenUrl(), token
+            bankLinkingPrefs.getDynamicOneTimeTokenUrl(),
+            token
         ).doOnError {
             resetLocalBankAuthState()
         }

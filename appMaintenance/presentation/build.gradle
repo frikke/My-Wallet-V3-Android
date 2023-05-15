@@ -5,6 +5,7 @@ android {
         warningsAsErrors true
         abortOnError true
     }
+    namespace 'piuk.blockchain.android.maintenance.presentation'
 }
 
 dependencies {

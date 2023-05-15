@@ -30,7 +30,7 @@ class DefaultTableRowView @JvmOverloads constructor(
     var endImageResource: ImageResource by mutableStateOf(
         ImageResource.Local(
             id = R.drawable.ic_chevron_end,
-            contentDescription = null,
+            contentDescription = null
         )
     )
     var primaryTextColor: ComposeColors by mutableStateOf(ComposeColors.Title)
@@ -66,7 +66,7 @@ class DefaultTableRowView @JvmOverloads constructor(
         startImageResource = ImageResource.None
         endImageResource = ImageResource.Local(
             id = R.drawable.ic_chevron_end,
-            contentDescription = null,
+            contentDescription = null
         )
     }
 }

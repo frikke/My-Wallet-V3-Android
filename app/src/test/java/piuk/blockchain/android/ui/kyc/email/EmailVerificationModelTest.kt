@@ -41,7 +41,7 @@ class EmailVerificationModelTest {
     fun setUp() {
         model = EmailVerificationModel(
             emailUpdater = emailUpdater,
-            getUserStore = getUserStore,
+            getUserStore = getUserStore
         )
     }
 

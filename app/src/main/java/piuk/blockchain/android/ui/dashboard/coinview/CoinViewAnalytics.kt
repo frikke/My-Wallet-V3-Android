@@ -13,39 +13,39 @@ sealed class CoinViewAnalytics(
     class ChartEngaged(
         override val origin: LaunchOrigin,
         currency: String,
-        timeInterval: TimeInterval,
+        timeInterval: TimeInterval
     ) :
         CoinViewAnalytics(
             event = AnalyticsNames.COINVIEW_CHART_ENGAGED.eventName,
             params = mapOf(
                 CURRENCY to currency,
-                TIME_INTERVAL to timeInterval.interval,
+                TIME_INTERVAL to timeInterval.interval
             )
         )
 
     class ChartDisengaged(
         override val origin: LaunchOrigin,
         currency: String,
-        timeInterval: TimeInterval,
+        timeInterval: TimeInterval
     ) :
         CoinViewAnalytics(
             event = AnalyticsNames.COINVIEW_CHART_DISENGAGED.eventName,
             params = mapOf(
                 CURRENCY to currency,
-                TIME_INTERVAL to timeInterval.interval,
+                TIME_INTERVAL to timeInterval.interval
             )
         )
 
     class ChartTimeIntervalSelected(
         override val origin: LaunchOrigin,
         currency: String,
-        timeInterval: TimeInterval,
+        timeInterval: TimeInterval
     ) :
         CoinViewAnalytics(
             event = AnalyticsNames.COINVIEW_CHART_INTERVAL_SELECTED.eventName,
             params = mapOf(
                 CURRENCY to currency,
-                TIME_INTERVAL to timeInterval.interval,
+                TIME_INTERVAL to timeInterval.interval
             )
         )
 
@@ -114,7 +114,7 @@ sealed class CoinViewAnalytics(
             event = AnalyticsNames.COINVIEW_EXPLAINER_ACCEPTED.eventName,
             params = mapOf(
                 CURRENCY to currency,
-                ACCOUNT_TYPE to accountType.name,
+                ACCOUNT_TYPE to accountType.name
             )
         )
 
@@ -127,59 +127,59 @@ sealed class CoinViewAnalytics(
             event = AnalyticsNames.COINVIEW_EXPLAINER_VIEWED.eventName,
             params = mapOf(
                 CURRENCY to currency,
-                ACCOUNT_TYPE to accountType.name,
+                ACCOUNT_TYPE to accountType.name
             )
         )
 
     class HyperlinkClicked(
         override val origin: LaunchOrigin,
         currency: String,
-        selection: Selection,
+        selection: Selection
     ) :
         CoinViewAnalytics(
             event = AnalyticsNames.COINVIEW_HYPERLINK_CLICKED.eventName,
             params = mapOf(
                 CURRENCY to currency,
-                SELECTION to selection.name,
+                SELECTION to selection.name
             )
         )
 
     class TransactionTypeClicked(
         override val origin: LaunchOrigin,
         currency: String,
-        transactionType: TransactionType,
+        transactionType: TransactionType
     ) :
         CoinViewAnalytics(
             event = AnalyticsNames.COINVIEW_TRANSACTION_CLICKED.eventName,
             params = mapOf(
                 CURRENCY to currency,
-                TRANSACTION_TYPE to transactionType.name,
+                TRANSACTION_TYPE to transactionType.name
             )
         )
 
     class WalletsAccountsClicked(
         override val origin: LaunchOrigin,
         currency: String,
-        accountType: AccountType,
+        accountType: AccountType
     ) :
         CoinViewAnalytics(
             event = AnalyticsNames.COINVIEW_WALLETS_ACCOUNTS_CLICKED.eventName,
             params = mapOf(
                 CURRENCY to currency,
-                ACCOUNT_TYPE to accountType.name,
+                ACCOUNT_TYPE to accountType.name
             )
         )
 
     class WalletsAccountsViewed(
         override val origin: LaunchOrigin,
         currency: String,
-        accountType: AccountType,
+        accountType: AccountType
     ) :
         CoinViewAnalytics(
             event = AnalyticsNames.COINVIEW_WALLETS_ACCOUNTS_VIEWED.eventName,
             params = mapOf(
                 CURRENCY to currency,
-                ACCOUNT_TYPE to accountType.name,
+                ACCOUNT_TYPE to accountType.name
             )
         )
 
@@ -202,7 +202,7 @@ sealed class CoinViewAnalytics(
             event = AnalyticsNames.BUY_SELL_CLICKED.eventName,
             params = mapOf(
                 CURRENCY to currency,
-                TYPE to type.name,
+                TYPE to type.name
             )
         )
 
@@ -215,33 +215,33 @@ sealed class CoinViewAnalytics(
             event = AnalyticsNames.COINVIEW_BUY_RECEIVE_CLICKED.eventName,
             params = mapOf(
                 CURRENCY to currency,
-                TYPE to type.name,
+                TYPE to type.name
             )
         )
 
     class SendReceiveClicked(
         override val origin: LaunchOrigin,
         currency: String,
-        type: Type,
+        type: Type
     ) :
         CoinViewAnalytics(
             event = AnalyticsNames.COINVIEW_SEND_RECEIVE_CLICKED.eventName,
             params = mapOf(
                 CURRENCY to currency,
-                TYPE to type.name,
+                TYPE to type.name
             )
         )
 
     class RewardsWithdrawOrAddClicked(
         override val origin: LaunchOrigin,
         currency: String,
-        type: Type,
+        type: Type
     ) :
         CoinViewAnalytics(
             event = AnalyticsNames.COINVIEW_REWARDS_WITHDRAW_ADD_CLICKED.eventName,
             params = mapOf(
                 CURRENCY to currency,
-                TYPE to type.name,
+                TYPE to type.name
             )
         )
 
@@ -281,7 +281,7 @@ sealed class CoinViewAnalytics(
             MONTH("1M"),
             YEAR("1Y"),
             ALL_TIME("ALL"),
-            LIVE("LIVE"),
+            LIVE("LIVE")
         }
 
         enum class Tier(val tierToUpgrade: String) {

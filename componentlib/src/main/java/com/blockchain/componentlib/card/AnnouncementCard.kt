@@ -41,7 +41,6 @@ fun AnnouncementCard(
     onClose: () -> Unit = {},
     isDarkTheme: Boolean = isSystemInDarkTheme()
 ) {
-
     val backgroundColor = if (!isDarkTheme) {
         Grey900
     } else {
@@ -70,10 +69,10 @@ fun AnnouncementCard(
             modifier = Modifier
                 .background(Color.Transparent)
                 .padding(
-                    start = dimensionResource(R.dimen.medium_spacing),
-                    end = dimensionResource(R.dimen.medium_spacing),
-                    top = dimensionResource(R.dimen.very_small_spacing),
-                    bottom = dimensionResource(R.dimen.very_small_spacing)
+                    start = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
+                    end = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
+                    top = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing),
+                    bottom = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)
                 ),
             color = Color.Transparent
         ) {
@@ -84,17 +83,19 @@ fun AnnouncementCard(
             ) {
                 Image(
                     modifier = Modifier
-                        .size(dimensionResource(R.dimen.large_spacing)),
+                        .size(dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)),
                     imageResource = iconResource
                 )
 
                 Column(
                     modifier = Modifier
                         .weight(1f, true)
-                        .padding(start = dimensionResource(R.dimen.medium_spacing), end = 8.dp)
+                        .padding(
+                            start = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
+                            end = 8.dp
+                        )
                         .align(Alignment.Top)
                 ) {
-
                     Text(
                         text = title,
                         style = AppTheme.typography.caption1,
@@ -125,7 +126,8 @@ fun AnnouncementCard_Basic() {
     AppTheme {
         AppSurface {
             AnnouncementCard(
-                title = "Title", subtitle = "Subtitle",
+                title = "Title",
+                subtitle = "Subtitle",
                 iconResource = ImageResource.Local(R.drawable.ic_blockchain, null)
             )
         }

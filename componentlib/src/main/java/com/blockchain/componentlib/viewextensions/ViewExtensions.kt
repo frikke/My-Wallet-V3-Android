@@ -166,7 +166,6 @@ private class DebouncingOnClickListener(private val onClickListener: (View?) -> 
 }
 
 fun RecyclerView.configureWithPinnedView(pinnedView: View, isViewVisible: Boolean) {
-
     pinnedView.visibleIf { isViewVisible }
     when {
         isViewVisible && this.paddingBottom == 0 -> {
@@ -261,7 +260,8 @@ private fun convertDpToPixel(dp: Float, context: Context): Float {
 fun Context.getAlertDialogPaddedView(view: View?): FrameLayout {
     val frameLayout = FrameLayout(this)
     val params = FrameLayout.LayoutParams(
-        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams.WRAP_CONTENT
     )
     val marginInPixels = convertDpToPixel(20f, this).toInt()
     params.setMargins(marginInPixels, 0, marginInPixels, 0)
@@ -367,8 +367,8 @@ fun View.updateItemBackground(isFirstItemInList: Boolean, isLastItemInList: Bool
     )
 
     setMargins(
-        start = resources.getDimensionPixelOffset(R.dimen.small_spacing),
-        end = resources.getDimensionPixelOffset(R.dimen.small_spacing)
+        start = resources.getDimensionPixelOffset(com.blockchain.componentlib.R.dimen.small_spacing),
+        end = resources.getDimensionPixelOffset(com.blockchain.componentlib.R.dimen.small_spacing)
     )
 }
 
@@ -396,8 +396,8 @@ fun View.updateSelectableItemBackground(
             }
         )
         setMargins(
-            start = resources.getDimensionPixelOffset(R.dimen.small_spacing),
-            end = resources.getDimensionPixelOffset(R.dimen.small_spacing)
+            start = resources.getDimensionPixelOffset(com.blockchain.componentlib.R.dimen.small_spacing),
+            end = resources.getDimensionPixelOffset(com.blockchain.componentlib.R.dimen.small_spacing)
         )
     } else {
         updateItemBackground(isFirstItemInList, isLastItemInList)

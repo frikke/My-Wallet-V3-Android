@@ -49,9 +49,8 @@ fun BackupSuccess(
 
 @Composable
 fun BackupSuccessScreen(
-    doneOnClick: () -> Unit,
+    doneOnClick: () -> Unit
 ) {
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -61,7 +60,7 @@ fun BackupSuccessScreen(
         NavigationBar(
             modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
             mutedBackground = false,
-            title = stringResource(R.string.backup_phrase_title_secure_wallet),
+            title = stringResource(com.blockchain.stringResources.R.string.backup_phrase_title_secure_wallet),
             onBackButtonClick = null
         )
 
@@ -78,7 +77,7 @@ fun BackupSuccessScreen(
             StandardVerticalSpacer()
 
             SimpleText(
-                text = stringResource(R.string.backup_success_title),
+                text = stringResource(com.blockchain.stringResources.R.string.backup_success_title),
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
@@ -87,7 +86,7 @@ fun BackupSuccessScreen(
             TinyVerticalSpacer()
 
             SimpleText(
-                text = stringResource(R.string.backup_success_description),
+                text = stringResource(com.blockchain.stringResources.R.string.backup_success_description),
                 style = ComposeTypographies.Body1,
                 gravity = ComposeGravities.Centre,
                 color = ComposeColors.Title
@@ -97,7 +96,7 @@ fun BackupSuccessScreen(
 
             PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.done),
+                text = stringResource(id = com.blockchain.stringResources.R.string.done),
                 onClick = doneOnClick
             )
         }

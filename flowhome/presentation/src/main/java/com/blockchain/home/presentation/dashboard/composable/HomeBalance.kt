@@ -52,7 +52,7 @@ fun BalanceScreen(
             hide = hideBalance
         )
         BalanceDifference(
-            balanceDifference = walletBalance.balanceDifference,
+            balanceDifference = walletBalance.balanceDifference
         )
     }
 }
@@ -113,7 +113,7 @@ fun TotalBalance(
 
 @Composable
 fun BalanceDifference(
-    balanceDifference: BalanceDifferenceConfig,
+    balanceDifference: BalanceDifferenceConfig
 ) {
     if (balanceDifference.text.isNotEmpty()) {
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
@@ -136,7 +136,7 @@ fun PreviewBalanceScreen() {
                 cryptoBalanceDifference24h = DataResource.Data(
                     Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal())
                 ),
-                cryptoBalanceNow = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal())),
+                cryptoBalanceNow = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal()))
             ),
             balanceAlphaProvider = { 1F },
             hideBalance = false
@@ -151,7 +151,7 @@ fun PreviewBalanceScreenLoading() {
         walletBalance = WalletBalance(
             balance = DataResource.Loading,
             cryptoBalanceDifference24h = DataResource.Loading,
-            cryptoBalanceNow = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal())),
+            cryptoBalanceNow = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal()))
         ),
         balanceAlphaProvider = { 1F },
         hideBalance = false

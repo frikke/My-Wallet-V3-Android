@@ -28,12 +28,12 @@ import com.blockchain.kycproviders.prove.presentation.defaultViewState
 @Composable
 internal fun WaitingInstantLinkValidation(
     state: ProvePrefillViewState,
-    onIntent: (ProvePrefillIntent) -> Unit,
+    onIntent: (ProvePrefillIntent) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize().background(White),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Center
     ) {
         CircularProgressBar()
 
@@ -43,12 +43,12 @@ internal fun WaitingInstantLinkValidation(
                 .padding(
                     top = AppTheme.dimensions.xLargeSpacing,
                     start = AppTheme.dimensions.standardSpacing,
-                    end = AppTheme.dimensions.standardSpacing,
+                    end = AppTheme.dimensions.standardSpacing
                 ),
-            text = stringResource(R.string.prove_waiting_instant_link_validation_title),
+            text = stringResource(com.blockchain.stringResources.R.string.prove_waiting_instant_link_validation_title),
             style = ComposeTypographies.Title3,
             color = ComposeColors.Title,
-            gravity = ComposeGravities.Centre,
+            gravity = ComposeGravities.Centre
         )
 
         SimpleText(
@@ -57,21 +57,23 @@ internal fun WaitingInstantLinkValidation(
                 .padding(
                     top = AppTheme.dimensions.tinySpacing,
                     start = AppTheme.dimensions.standardSpacing,
-                    end = AppTheme.dimensions.standardSpacing,
+                    end = AppTheme.dimensions.standardSpacing
                 ),
-            text = stringResource(R.string.prove_waiting_instant_link_validation_subtitle),
+            text = stringResource(
+                com.blockchain.stringResources.R.string.prove_waiting_instant_link_validation_subtitle
+            ),
             style = ComposeTypographies.Body1,
             color = ComposeColors.Body,
-            gravity = ComposeGravities.Centre,
+            gravity = ComposeGravities.Centre
         )
 
         val buttonText = if (state.resendSmsWaitTime == 0L) {
-            stringResource(R.string.prove_resend_sms)
+            stringResource(com.blockchain.stringResources.R.string.prove_resend_sms)
         } else {
             val minutes = state.resendSmsWaitTime / 60
             val seconds = state.resendSmsWaitTime % 60
 
-            stringResource(R.string.prove_resend_sms_in_seconds, minutes, seconds)
+            stringResource(com.blockchain.stringResources.R.string.prove_resend_sms_in_seconds, minutes, seconds)
         }
 
         SmallMinimalButton(
@@ -90,7 +92,7 @@ private fun Preview() {
         state = defaultViewState.copy(
             resendSmsButtonState = ButtonState.Enabled
         ),
-        onIntent = {},
+        onIntent = {}
     )
 }
 
@@ -102,6 +104,6 @@ private fun PreviewWaitingResend() {
             resendSmsWaitTime = 58,
             resendSmsButtonState = ButtonState.Disabled
         ),
-        onIntent = {},
+        onIntent = {}
     )
 }

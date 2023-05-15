@@ -39,7 +39,14 @@ data class NabuUser(
      * ISO-8601 Timestamp w/millis, eg 2018-08-15T17:00:45.129Z
      */
     val updatedAt: String? = null,
-    private val tags: Map<String, Map<String, @Serializable(with = AnyToStringSerializer::class) Any>>? = null,
+    private val tags: Map<
+        String,
+        Map<
+            String,
+            @Serializable(with = AnyToStringSerializer::class)
+            Any
+            >
+        >? = null,
     val userName: String? = null,
     val tiers: TierLevels? = null,
     val currencies: CurrenciesResponse,
@@ -163,7 +170,7 @@ enum class KycState {
     UnderReview,
     Rejected,
     Expired,
-    Verified,
+    Verified
 }
 
 @Serializable(with = UserStateSerializer::class)

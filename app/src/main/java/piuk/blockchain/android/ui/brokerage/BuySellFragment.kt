@@ -75,7 +75,7 @@ class BuySellFragment :
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?,
+        savedInstanceState: Bundle?
     ): View {
         _binding = FragmentBuySellBinding.inflate(inflater, container, false)
         return binding.root
@@ -138,7 +138,7 @@ class BuySellFragment :
     }
 
     private fun renderBuySellFragments(
-        action: BuySellIntroAction?,
+        action: BuySellIntroAction?
     ) {
         with(binding) {
             buySellEmpty.gone()

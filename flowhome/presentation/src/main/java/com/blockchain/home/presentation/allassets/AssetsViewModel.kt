@@ -146,7 +146,7 @@ class AssetsViewModel(
                 ),
                 name = account.currency.name,
                 balance = balance,
-                fiatBalance = fiatBalance,
+                fiatBalance = fiatBalance
             )
             is FiatAccount -> FiatAssetState(
                 icon = listOf(account.currency.logo),
@@ -172,9 +172,9 @@ class AssetsViewModel(
         when (intent) {
             is AssetsIntent.LoadAccounts -> {
                 val accounts =
-                    if (currencyPrefs.selectedFiatCurrency != modelState.userFiat)
+                    if (currencyPrefs.selectedFiatCurrency != modelState.userFiat) {
                         DataResource.Loading
-                    else
+                    } else
                         modelState.accounts
                 updateState {
                     it.copy(
@@ -219,8 +219,9 @@ class AssetsViewModel(
                     it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
                 refreshAccounts()
-                if (modelState.walletMode == WalletMode.CUSTODIAL)
+                if (modelState.walletMode == WalletMode.CUSTODIAL) {
                     loadFundsLocks(true)
+                }
             }
         }
     }
@@ -426,7 +427,6 @@ class AssetsViewModel(
                 balances.all { balance -> balance is DataResource.Data } -> cryptoAccounts.map {
                     when {
                         it.balance is DataResource.Data && it.exchangeRate24hWithDelta is DataResource.Data -> {
-
                             val exchangeRate24hWithDelta = (it.exchangeRate24hWithDelta as DataResource.Data).data
                             val balance = (it.balance as DataResource.Data).data
                             DataResource.Data(

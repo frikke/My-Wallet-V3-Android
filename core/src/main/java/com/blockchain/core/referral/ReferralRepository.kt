@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.Flow
 class ReferralRepository(
     private val referralStore: ReferralStore,
     private val referralApi: ReferralApiService,
-    private val currencyPrefs: CurrencyPrefs,
+    private val currencyPrefs: CurrencyPrefs
 ) : ReferralService {
 
     override fun fetchReferralData(

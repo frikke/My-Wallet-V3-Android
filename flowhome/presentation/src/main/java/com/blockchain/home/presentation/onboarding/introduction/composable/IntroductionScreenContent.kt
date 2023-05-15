@@ -32,19 +32,19 @@ fun introductionsScreens(introductionScreensSetup: IntroductionScreensSetup): Li
             listOfNotNull(
                 IntroductionScreenContent(
                     image = R.drawable.ic_intro_new_user,
-                    title = R.string.intro_new_user_title,
-                    description = R.string.intro_new_user_description,
+                    title = com.blockchain.stringResources.R.string.intro_new_user_title,
+                    description = com.blockchain.stringResources.R.string.intro_new_user_description,
                     tag = IntroductionScreenTag(
                         title = null,
                         titleColor = null,
-                        description = R.string.intro_new_user_tag_description
+                        description = com.blockchain.stringResources.R.string.intro_new_user_tag_description
                     )
                 ).takeIf { introductionScreensSetup.isNewUser },
                 IntroductionScreenContent(
                     image = R.drawable.ic_intro_old_user,
-                    title = R.string.intro_existing_user_title,
-                    description = R.string.intro_existing_user_description,
-                ).takeIf { introductionScreensSetup.isNewUser.not() },
+                    title = com.blockchain.stringResources.R.string.intro_existing_user_title,
+                    description = com.blockchain.stringResources.R.string.intro_existing_user_description
+                ).takeIf { introductionScreensSetup.isNewUser.not() }
             ) + walletModeContent
         }
         is IntroductionScreensSetup.ModesOnly -> {
@@ -60,23 +60,23 @@ fun introductionsScreens(introductionScreensSetup: IntroductionScreensSetup): Li
 private val walletModeContent = mutableListOf(
     IntroductionScreenContent(
         image = R.drawable.ic_intro_custodial,
-        title = R.string.intro_custodial_title,
-        description = R.string.intro_custodial_description,
+        title = com.blockchain.stringResources.R.string.intro_custodial_title,
+        description = com.blockchain.stringResources.R.string.intro_custodial_description,
         tag = IntroductionScreenTag(
-            title = R.string.intro_custodial_tag_title,
+            title = com.blockchain.stringResources.R.string.intro_custodial_tag_title,
             titleColor = Blue600,
-            description = R.string.intro_custodial_tag_description
+            description = com.blockchain.stringResources.R.string.intro_custodial_tag_description
         ),
         forWalletMode = WalletMode.CUSTODIAL
     ),
     IntroductionScreenContent(
         image = R.drawable.ic_intro_non_custodial,
-        title = R.string.intro_non_custodial_title,
-        description = R.string.intro_non_custodial_description,
+        title = com.blockchain.stringResources.R.string.intro_non_custodial_title,
+        description = com.blockchain.stringResources.R.string.intro_non_custodial_description,
         tag = IntroductionScreenTag(
-            title = R.string.intro_non_custodial_tag_title,
+            title = com.blockchain.stringResources.R.string.intro_non_custodial_tag_title,
             titleColor = Purple0000,
-            description = R.string.intro_non_custodial_tag_description
+            description = com.blockchain.stringResources.R.string.intro_non_custodial_tag_description
         ),
         forWalletMode = WalletMode.NON_CUSTODIAL
     )

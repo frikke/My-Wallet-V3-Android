@@ -45,7 +45,7 @@ fun TabLayoutLive(
         contentColor = AppTheme.colors.primary,
         divider = {},
         indicator = {},
-        modifier = modifier,
+        modifier = modifier
     ) {
         items.forEachIndexed { index, itemName ->
             val isSelected = selectedItemIndex == index
@@ -62,7 +62,7 @@ fun TabLayoutLive(
                     isSelected = isSelected,
                     modifier = Modifier
                         .clickable { onItemSelected(index) }
-                        .padding(vertical = 14.dp),
+                        .padding(vertical = 14.dp)
                 )
             }
         }
@@ -79,14 +79,14 @@ private fun LiveTabLayoutItem(
         Row(modifier) {
             Box(
                 modifier = Modifier
-                    .size(dimensionResource(R.dimen.smallest_spacing))
+                    .size(dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing))
                     .background(
                         color = if (isSelected) Green600 else Grey400,
                         shape = CircleShape
                     )
                     .align(Alignment.CenterVertically)
             )
-            Spacer(Modifier.width(dimensionResource(R.dimen.minuscule_spacing)))
+            Spacer(Modifier.width(dimensionResource(com.blockchain.componentlib.R.dimen.minuscule_spacing)))
             TabLayoutItem(
                 itemName = itemName,
                 isSelected = isSelected,

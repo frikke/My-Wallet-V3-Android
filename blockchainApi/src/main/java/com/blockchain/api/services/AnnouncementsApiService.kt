@@ -15,7 +15,7 @@ class AnnouncementsApiService internal constructor(
         count: Int,
         platform: String,
         sdkVersion: String,
-        packageName: String,
+        packageName: String
     ): Single<AnnouncementsDto> = api.getAnnouncements(
         apiKey = apiKey,
         email = email,
@@ -27,7 +27,7 @@ class AnnouncementsApiService internal constructor(
 
     suspend fun consumeAnnouncement(
         apiKey: String,
-        body: AnnouncementBodyDto,
+        body: AnnouncementBodyDto
     ) = api.consumeAnnouncement(
         apiKey = apiKey,
         body = body
@@ -35,7 +35,7 @@ class AnnouncementsApiService internal constructor(
 
     suspend fun trackSeen(
         apiKey: String,
-        body: AnnouncementBodyDto,
+        body: AnnouncementBodyDto
     ) = api.trackSeen(
         apiKey = apiKey,
         body = body
@@ -43,7 +43,7 @@ class AnnouncementsApiService internal constructor(
 
     suspend fun trackClicked(
         apiKey: String,
-        body: AnnouncementBodyDto,
+        body: AnnouncementBodyDto
     ) = api.trackClicked(
         apiKey = apiKey,
         body = body

@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.navigation.fragment.NavHostFragment.findNavController
+import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.KYCAnalyticsEvents
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
@@ -97,7 +97,7 @@ class KycMobileValidationFragment :
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?,
+        savedInstanceState: Bundle?
     ): View {
         _binding = FragmentKycMobileValidationBinding.inflate(inflater, container, false)
         return binding.root
@@ -105,7 +105,7 @@ class KycMobileValidationFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        progressListener.setupHostToolbar(R.string.kyc_phone_number_title)
+        progressListener.setupHostToolbar(com.blockchain.stringResources.R.string.kyc_phone_number_title)
         binding.textViewMobileValidationMessage.text = displayModel.formattedString
 
         val linksMap = mapOf<String, Uri?>(
@@ -114,7 +114,7 @@ class KycMobileValidationFragment :
 
         with(binding.textViewResendPrompt) {
             text = stringUtils.getStringWithMappedAnnotations(
-                R.string.kyc_phone_send_again,
+                com.blockchain.stringResources.R.string.kyc_phone_send_again,
                 linksMap,
                 requireActivity()
             ) { resend.onNext(Unit) }
@@ -146,7 +146,7 @@ class KycMobileValidationFragment :
     override fun showProgressDialog() {
         progressDialog = MaterialProgressDialog(requireContext()).apply {
             setOnCancelListener { presenter.onProgressCancelled() }
-            setMessage(R.string.kyc_country_selection_please_wait)
+            setMessage(com.blockchain.stringResources.R.string.kyc_country_selection_please_wait)
             show()
         }
     }
@@ -178,15 +178,15 @@ class KycMobileValidationFragment :
     }
 
     override fun displayErrorDialog(message: Int) {
-        AlertDialog.Builder(requireContext(), R.style.AlertDialogStyle)
-            .setTitle(R.string.app_name)
+        AlertDialog.Builder(requireContext(), com.blockchain.componentlib.R.style.AlertDialogStyle)
+            .setTitle(com.blockchain.stringResources.R.string.app_name)
             .setMessage(message)
             .setPositiveButton(android.R.string.ok, null)
             .show()
     }
 
     private fun TextView.onDelayedChange(
-        kycStep: KycStep,
+        kycStep: KycStep
     ): Observable<Boolean> =
         this.afterTextChangeEvents()
             .debounce(300, TimeUnit.MILLISECONDS)
@@ -206,6 +206,10 @@ class KycMobileValidationFragment :
     override fun getMvpView(): KycMobileValidationView = this
 
     override fun theCodeWasResent() {
-        Toast.makeText(requireContext(), R.string.kyc_phone_number_code_was_resent, Toast.LENGTH_SHORT).show()
+        Toast.makeText(
+            requireContext(),
+            com.blockchain.stringResources.R.string.kyc_phone_number_code_was_resent,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 }

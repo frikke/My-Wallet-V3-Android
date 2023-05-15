@@ -22,7 +22,7 @@ fun PrimarySwitch(
     onCheckChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    isDarkMode: Boolean = isSystemInDarkTheme(),
+    isDarkMode: Boolean = isSystemInDarkTheme()
 ) {
     val checkedThumbColor = if (isDarkMode) Blue400 else Blue600
     val checkedTrackColor = if (isDarkMode) Blue600 else Blue400
@@ -40,7 +40,7 @@ fun PrimarySwitch(
             disabledCheckedThumbColor = uncheckedThumbColor,
             disabledCheckedTrackColor = uncheckedTrackColor.copy(alpha = ContentAlpha.disabled),
             disabledUncheckedThumbColor = uncheckedThumbColor,
-            disabledUncheckedTrackColor = uncheckedTrackColor.copy(alpha = ContentAlpha.disabled),
+            disabledUncheckedTrackColor = uncheckedTrackColor.copy(alpha = ContentAlpha.disabled)
         ),
         enabled = enabled,
         modifier = modifier
@@ -54,7 +54,7 @@ private fun PrimarySwitchPreview_NotChecked() {
         AppSurface {
             PrimarySwitch(
                 isChecked = false,
-                onCheckChanged = {},
+                onCheckChanged = {}
             )
         }
     }
@@ -67,7 +67,7 @@ private fun PrimarySwitchPreview_IsChecked() {
         AppSurface {
             PrimarySwitch(
                 isChecked = true,
-                onCheckChanged = {},
+                onCheckChanged = {}
             )
         }
     }
@@ -81,7 +81,7 @@ private fun PrimarySwitchPreview_NotChecked_NotEnabled() {
             PrimarySwitch(
                 isChecked = false,
                 onCheckChanged = {},
-                enabled = false,
+                enabled = false
             )
         }
     }
@@ -95,7 +95,7 @@ private fun PrimarySwitchPreview_IsChecked_NotEnabled() {
             PrimarySwitch(
                 isChecked = true,
                 onCheckChanged = {},
-                enabled = false,
+                enabled = false
             )
         }
     }

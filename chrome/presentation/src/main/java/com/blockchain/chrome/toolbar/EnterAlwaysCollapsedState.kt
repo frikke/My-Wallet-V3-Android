@@ -101,7 +101,7 @@ class EnterAlwaysCollapsedState(
                     EnterAlwaysCollapsedState(
                         topSectionHeight = it[topSectionHeight] as Int,
                         bottomSectionHeight = it[bottomSectionHeight] as Int,
-                        scrollOffset = it[scrollOffsetKey] as Float,
+                        scrollOffset = it[scrollOffsetKey] as Float
                     )
                 }
             )

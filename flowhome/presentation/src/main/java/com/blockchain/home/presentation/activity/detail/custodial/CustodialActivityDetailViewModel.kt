@@ -67,7 +67,8 @@ class CustodialActivityDetailViewModel(
     ActivityDetailViewState,
     ActivityDetailModelState<CustodialActivityDetail>,
     HomeNavEvent,
-    ModelConfigArgs.NoArgs>(ActivityDetailModelState()) {
+    ModelConfigArgs.NoArgs
+    >(ActivityDetailModelState()) {
 
     private var activityDetailJob: Job? = null
 
@@ -211,7 +212,8 @@ class CustodialActivityDetailViewModel(
             when (direction) {
                 TransferDirection.ON_CHAIN -> {
                     coincore.findAccountByAddress(
-                        currencyPair.destination.asAssetInfoOrThrow(), receivingAddress!!
+                        currencyPair.destination.asAssetInfoOrThrow(),
+                        receivingAddress!!
                     ).toSingle().map {
                         val defaultLabel = defaultLabels.getDefaultNonCustodialWalletLabel()
 

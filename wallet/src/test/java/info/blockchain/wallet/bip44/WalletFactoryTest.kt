@@ -16,7 +16,6 @@ class WalletFactoryTest {
 
     @Test
     fun testCreateWallet() {
-
         val passphrase = "passphrase"
         val mnemonicLength = 12
         val path = "m/44H"
@@ -51,7 +50,6 @@ class WalletFactoryTest {
 
     @Test
     fun testRestoreWallet_mnemonic() {
-
         val mnemonic = "all all all all all all all all all all all all"
         val passphrase = "myPassPhrase"
         val accountListSize = 4
@@ -123,7 +121,6 @@ class WalletFactoryTest {
 
     @Test(expected = java.lang.Exception::class)
     fun testRestoreWallet_badMnemonic_fail() {
-
         HDWalletFactory
             .restoreWallet(
                 Language.US,
@@ -136,7 +133,6 @@ class WalletFactoryTest {
 
     @Test
     fun testRestoreWallet_seedHex() {
-
         val hexSeed = "0660cc198330660cc198330660cc1983"
         val passphrase = "myPassPhrase"
         val accountListSize = 4
@@ -146,7 +142,8 @@ class WalletFactoryTest {
                 Language.US,
                 hexSeed,
                 passphrase,
-                accountListSize, Derivation.LEGACY_PURPOSE
+                accountListSize,
+                Derivation.LEGACY_PURPOSE
             )
 
         assertNotNull(wallet)
@@ -171,31 +168,35 @@ class WalletFactoryTest {
             Language.US,
             "all all all all all all all all all all all all",
             passphrase1,
-            1, Derivation.LEGACY_PURPOSE
+            1,
+            Derivation.LEGACY_PURPOSE
         )
 
         assertEquals(
             restoredWallet2.getAccount(0).receive.getAddressAt(
-                0, Derivation.LEGACY_PURPOSE
+                0,
+                Derivation.LEGACY_PURPOSE
             ).formattedAddress,
             restoredWallet1.getAccount(0).receive.getAddressAt(
-                0, Derivation.LEGACY_PURPOSE
+                0,
+                Derivation.LEGACY_PURPOSE
             ).formattedAddress
         )
 
         assertEquals(
             restoredWallet2.getAccount(0).change.getAddressAt(
-                0, Derivation.LEGACY_PURPOSE
+                0,
+                Derivation.LEGACY_PURPOSE
             ).formattedAddress,
             restoredWallet1.getAccount(0).change.getAddressAt(
-                0, Derivation.LEGACY_PURPOSE
+                0,
+                Derivation.LEGACY_PURPOSE
             ).formattedAddress
         )
     }
 
     @Test
     fun testRestoredWallet_addressChains_withDifferentPassphrase_shouldBeDifferent() {
-
         val passphrase1 = "passphrase1"
         val passphrase2 = "passphrase2"
 

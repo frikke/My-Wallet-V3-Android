@@ -37,7 +37,12 @@ class BankPaymentDelegate : AdapterDelegate<PaymentMethodItem> {
                     bankPayment.apply {
                         titleStart = buildAnnotatedString { append(it.bankName) }
                         titleEnd = buildAnnotatedString {
-                            append(context.getString(R.string.dotted_suffixed_string, it.accountEnding))
+                            append(
+                                context.getString(
+                                    com.blockchain.stringResources.R.string.dotted_suffixed_string,
+                                    it.accountEnding
+                                )
+                            )
                         }
                         startImageResource = if (it.iconUrl.isEmpty()) {
                             ImageResource.Local(R.drawable.ic_bank_icon, null)
@@ -47,8 +52,11 @@ class BankPaymentDelegate : AdapterDelegate<PaymentMethodItem> {
                         bodyStart = buildAnnotatedString {
                             append(
                                 context.getString(
-                                    R.string.common_spaced_strings, it.limits.max.toStringWithSymbol(),
-                                    context.getString(R.string.deposit_enter_amount_limit_title)
+                                    com.blockchain.stringResources.R.string.common_spaced_strings,
+                                    it.limits.max.toStringWithSymbol(),
+                                    context.getString(
+                                        com.blockchain.stringResources.R.string.deposit_enter_amount_limit_title
+                                    )
                                 )
                             )
                         }

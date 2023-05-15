@@ -106,7 +106,7 @@ fun BuySelectAssetScreen(
     onEmptyStateClicked: (BlockedReason) -> Unit,
     startKycClicked: () -> Unit,
     showTopMovers: Boolean,
-    onAssetClick: (AssetInfo) -> Unit,
+    onAssetClick: (AssetInfo) -> Unit
 ) {
     with(featureAccess) {
         when (this) {
@@ -160,7 +160,7 @@ private fun Assets(
     viewModel: PricesViewModel = getViewModel(scope = payloadScope),
     showTopMovers: Boolean,
     onErrorContactSupportClicked: () -> Unit,
-    onAssetClick: (AssetInfo) -> Unit,
+    onAssetClick: (AssetInfo) -> Unit
 ) {
     val viewState: PricesViewState by viewModel.viewState.collectAsStateLifecycleAware()
     DisposableEffect(key1 = viewModel) {
@@ -206,7 +206,7 @@ private fun AssetsData(
     mostPopular: ImmutableList<PriceItemViewState>,
     others: List<PriceItemViewState>,
     onSearchValueUpdated: (String) -> Unit,
-    onAssetClick: (AssetInfo) -> Unit,
+    onAssetClick: (AssetInfo) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -216,7 +216,7 @@ private fun AssetsData(
 
         CancelableOutlinedSearch(
             modifier = Modifier.padding(horizontal = AppTheme.dimensions.smallSpacing),
-            placeholder = stringResource(R.string.search_coins_hint),
+            placeholder = stringResource(com.blockchain.stringResources.R.string.search_coins_hint),
             onValueChange = {
                 searchedText = it
                 onSearchValueUpdated(it)
@@ -231,7 +231,7 @@ private fun AssetsData(
                 paddedItem(
                     paddingValues = PaddingValues(horizontal = 16.dp)
                 ) {
-                    TableRowHeader(title = stringResource(com.blockchain.prices.R.string.prices_top_movers))
+                    TableRowHeader(title = stringResource(com.blockchain.stringResources.R.string.prices_top_movers))
                     Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
                 }
 
@@ -260,7 +260,7 @@ private fun AssetsData(
                 paddedItem(paddingValues = PaddingValues(horizontal = 16.dp)) {
                     SimpleText(
                         modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.assets_no_result),
+                        text = stringResource(com.blockchain.stringResources.R.string.assets_no_result),
                         style = ComposeTypographies.Body1,
                         color = ComposeColors.Body,
                         gravity = ComposeGravities.Centre
@@ -270,7 +270,7 @@ private fun AssetsData(
                 // popular header + list
                 if (mostPopular.isNotEmpty()) {
                     paddedItem(paddingValues = PaddingValues(horizontal = 16.dp)) {
-                        TableRowHeader(title = stringResource(R.string.most_popular))
+                        TableRowHeader(title = stringResource(com.blockchain.stringResources.R.string.most_popular))
                         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
                     }
 
@@ -297,7 +297,7 @@ private fun AssetsData(
                 // popular header + list
                 if (others.isNotEmpty()) {
                     paddedItem(paddingValues = PaddingValues(horizontal = 16.dp)) {
-                        TableRowHeader(title = stringResource(R.string.other_tokens))
+                        TableRowHeader(title = stringResource(com.blockchain.stringResources.R.string.other_tokens))
                         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
                     }
 
@@ -326,18 +326,18 @@ private fun AssetsData(
 @Composable
 fun BlockedDueToNotEligible(
     reason: BlockedReason.NotEligible,
-    onEmptyStateClicked: (BlockedReason) -> Unit,
+    onEmptyStateClicked: (BlockedReason) -> Unit
 ) {
-    val defaultDescription = stringResource(R.string.feature_not_available)
+    val defaultDescription = stringResource(com.blockchain.stringResources.R.string.feature_not_available)
 
     AndroidView(
         modifier = Modifier.fillMaxSize(),
         factory = { context ->
             CustomEmptyStateView(context).apply {
-                title = R.string.account_restricted
+                title = com.blockchain.stringResources.R.string.account_restricted
                 descriptionText = reason.message ?: defaultDescription
                 icon = Icons.Filled.User.id
-                ctaText = R.string.contact_support
+                ctaText = com.blockchain.stringResources.R.string.contact_support
                 ctaAction = { onEmptyStateClicked(reason) }
             }
         }
@@ -347,16 +347,16 @@ fun BlockedDueToNotEligible(
 @Composable
 fun BlockedDueToSanctions(
     reason: BlockedReason.Sanctions,
-    onEmptyStateClicked: (BlockedReason) -> Unit,
+    onEmptyStateClicked: (BlockedReason) -> Unit
 ) {
     AndroidView(
         modifier = Modifier.fillMaxSize(),
         factory = { context ->
             CustomEmptyStateView(context).apply {
-                title = R.string.account_restricted
+                title = com.blockchain.stringResources.R.string.account_restricted
                 descriptionText = reason.message
                 icon = Icons.Filled.User.id
-                ctaText = R.string.common_learn_more
+                ctaText = com.blockchain.stringResources.R.string.common_learn_more
                 ctaAction = { onEmptyStateClicked(reason) }
             }
         }
@@ -379,7 +379,7 @@ private fun Error(
     analytics: Analytics = get(),
     error: Exception,
     onErrorRetryClicked: () -> Unit,
-    onErrorContactSupportClicked: () -> Unit,
+    onErrorContactSupportClicked: () -> Unit
 ) {
     val nabuException: NabuApiException? = (error as? HttpException)?.let { httpException ->
         NabuApiExceptionFactory.fromResponseBody(httpException)
@@ -402,9 +402,9 @@ private fun Error(
     )
 
     CustomEmptyState(
-        ctaText = R.string.common_empty_cta,
+        ctaText = com.blockchain.stringResources.R.string.common_empty_cta,
         ctaAction = onErrorRetryClicked,
-        secondaryText = R.string.contact_support,
+        secondaryText = com.blockchain.stringResources.R.string.contact_support,
         secondaryAction = onErrorContactSupportClicked
     )
 }
@@ -417,6 +417,7 @@ fun PreviewError() {
     Error(
         analytics = previewAnalytics,
         error = Exception(),
-        onErrorRetryClicked = {}, onErrorContactSupportClicked = {}
+        onErrorRetryClicked = {},
+        onErrorContactSupportClicked = {}
     )
 }

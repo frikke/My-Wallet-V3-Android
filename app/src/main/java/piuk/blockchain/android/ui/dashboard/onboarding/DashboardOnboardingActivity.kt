@@ -94,7 +94,7 @@ class DashboardOnboardingActivity :
                     state = state,
                     onIntent = model::process,
                     backClicked = { finish() },
-                    analyticsNextStepButtonClicked = { analyticsNextStepButtonClicked = true },
+                    analyticsNextStepButtonClicked = { analyticsNextStepButtonClicked = true }
                 )
             }
         } else {
@@ -127,7 +127,11 @@ class DashboardOnboardingActivity :
             adapter.submitList(newState.steps)
             updateCtaButton(newState.steps)
             binding.progressSteps.setProgress((completeSteps.toFloat() / totalSteps.toFloat()) * 100f)
-            binding.textSteps.text = getString(R.string.dashboard_onboarding_steps_counter, completeSteps, totalSteps)
+            binding.textSteps.text = getString(
+                com.blockchain.stringResources.R.string.dashboard_onboarding_steps_counter,
+                completeSteps,
+                totalSteps
+            )
         }
 
         if (totalSteps == completeSteps) {
@@ -146,12 +150,14 @@ class DashboardOnboardingActivity :
             ErrorSlidingBottomDialog.newInstance(
                 ErrorDialogData(
                     title = nabuException?.getServerSideErrorInfo()?.title ?: getString(
-                        R.string.dashboard_onboarding_error_title
+                        com.blockchain.stringResources.R.string.dashboard_onboarding_error_title
                     ),
                     description = nabuException?.getServerSideErrorInfo()?.description ?: getString(
-                        R.string.dashboard_onboarding_error_description
+                        com.blockchain.stringResources.R.string.dashboard_onboarding_error_description
                     ),
-                    errorButtonCopies = ErrorButtonCopies(primaryButtonText = getString(R.string.common_ok)),
+                    errorButtonCopies = ErrorButtonCopies(
+                        primaryButtonText = getString(com.blockchain.stringResources.R.string.common_ok)
+                    ),
                     error = error.message,
                     nabuApiException = (error as? HttpException)?.let {
                         NabuApiExceptionFactory.fromResponseBody(error)
@@ -172,17 +178,22 @@ class DashboardOnboardingActivity :
                 analyticsCurrentStepIndex?.let {
                     analytics.logEvent(
                         DashboardOnboardingAnalytics.StepLaunched(
-                            it, DashboardOnboardingStep.UPGRADE_TO_GOLD, analyticsNextStepButtonClicked
+                            it,
+                            DashboardOnboardingStep.UPGRADE_TO_GOLD,
+                            analyticsNextStepButtonClicked
                         )
                     )
                 }
                 KycNavHostActivity.start(this, CampaignType.None)
             }
+
             is DashboardOnboardingNavigationAction.AddPaymentMethod -> {
                 analyticsCurrentStepIndex?.let {
                     analytics.logEvent(
                         DashboardOnboardingAnalytics.StepLaunched(
-                            it, DashboardOnboardingStep.LINK_PAYMENT_METHOD, analyticsNextStepButtonClicked
+                            it,
+                            DashboardOnboardingStep.LINK_PAYMENT_METHOD,
+                            analyticsNextStepButtonClicked
                         )
                     )
                 }
@@ -194,11 +205,14 @@ class DashboardOnboardingActivity :
                     )
                 )
             }
+
             DashboardOnboardingNavigationAction.OpenBuy -> {
                 analyticsCurrentStepIndex?.let {
                     analytics.logEvent(
                         DashboardOnboardingAnalytics.StepLaunched(
-                            it, DashboardOnboardingStep.BUY, analyticsNextStepButtonClicked
+                            it,
+                            DashboardOnboardingStep.BUY,
+                            analyticsNextStepButtonClicked
                         )
                     )
                 }
@@ -207,13 +221,16 @@ class DashboardOnboardingActivity :
                 setResult(RESULT_OK, intent)
                 finish()
             }
+
             DashboardOnboardingNavigationAction.AddCard -> {
                 val intent = Intent(this, CardDetailsActivity::class.java)
                 startActivity(intent)
             }
+
             is DashboardOnboardingNavigationAction.WireTransferAccountDetails -> {
                 showBottomSheet(WireTransferAccountDetailsBottomSheet.newInstance(action.currency))
             }
+
             is DashboardOnboardingNavigationAction.LinkBank -> {
                 val intent = BankAuthActivity.newInstance(
                     action.linkBankTransfer,
@@ -317,7 +334,7 @@ class DashboardOnboardingActivity :
         private fun newIntent(
             context: Context,
             isSuperappDesignEnabled: Boolean,
-            initialSteps: List<CompletableDashboardOnboardingStep>,
+            initialSteps: List<CompletableDashboardOnboardingStep>
         ): Intent = Intent(context, DashboardOnboardingActivity::class.java).apply {
             if (initialSteps.isNotEmpty()) {
                 putExtra(ARG_IS_SUPERAPP_DESIGN_ENABLED, isSuperappDesignEnabled)
@@ -328,7 +345,7 @@ class DashboardOnboardingActivity :
 
     data class ActivityArgs(
         val isSuperappDesignEnabled: Boolean,
-        val initialSteps: List<CompletableDashboardOnboardingStep>,
+        val initialSteps: List<CompletableDashboardOnboardingStep>
     )
 
     sealed class ActivityResult {
@@ -339,7 +356,7 @@ class DashboardOnboardingActivity :
         override fun createIntent(context: Context, input: ActivityArgs): Intent = newIntent(
             context = context,
             isSuperappDesignEnabled = input.isSuperappDesignEnabled,
-            initialSteps = input.initialSteps,
+            initialSteps = input.initialSteps
         )
 
         override fun parseResult(resultCode: Int, intent: Intent?): ActivityResult? {
@@ -370,21 +387,30 @@ val DashboardOnboardingStep.iconRes: Int
 
 val DashboardOnboardingStep.colorRes: Int
     @ColorRes get() = when (this) {
-        DashboardOnboardingStep.UPGRADE_TO_GOLD -> R.color.onboarding_step_upgrade_to_gold
-        DashboardOnboardingStep.LINK_PAYMENT_METHOD -> R.color.onboarding_step_link_payment_method
-        DashboardOnboardingStep.BUY -> R.color.onboarding_step_buy
+        DashboardOnboardingStep.UPGRADE_TO_GOLD -> com.blockchain.common.R.color.onboarding_step_upgrade_to_gold
+        DashboardOnboardingStep.LINK_PAYMENT_METHOD ->
+            com.blockchain.common.R.color.onboarding_step_link_payment_method
+        DashboardOnboardingStep.BUY -> com.blockchain.common.R.color.onboarding_step_buy
     }
 
 val DashboardOnboardingStep.titleRes: Int
     @StringRes get() = when (this) {
-        DashboardOnboardingStep.UPGRADE_TO_GOLD -> R.string.dashboard_onboarding_step_upgrade_to_gold
-        DashboardOnboardingStep.LINK_PAYMENT_METHOD -> R.string.dashboard_onboarding_step_link_payment_method
-        DashboardOnboardingStep.BUY -> R.string.dashboard_onboarding_step_link_buy
+        DashboardOnboardingStep.UPGRADE_TO_GOLD ->
+            com.blockchain.stringResources.R.string.dashboard_onboarding_step_upgrade_to_gold
+
+        DashboardOnboardingStep.LINK_PAYMENT_METHOD ->
+            com.blockchain.stringResources.R.string.dashboard_onboarding_step_link_payment_method
+
+        DashboardOnboardingStep.BUY ->
+            com.blockchain.stringResources.R.string.dashboard_onboarding_step_link_buy
     }
 
 val DashboardOnboardingStep.subtitleRes: Int
     @StringRes get() = when (this) {
-        DashboardOnboardingStep.UPGRADE_TO_GOLD -> R.string.dashboard_onboarding_step_upgrade_to_gold_time
-        DashboardOnboardingStep.LINK_PAYMENT_METHOD -> R.string.dashboard_onboarding_step_link_payment_method_time
-        DashboardOnboardingStep.BUY -> R.string.dashboard_onboarding_step_link_buy_time
+        DashboardOnboardingStep.UPGRADE_TO_GOLD ->
+            com.blockchain.stringResources.R.string.dashboard_onboarding_step_upgrade_to_gold_time
+        DashboardOnboardingStep.LINK_PAYMENT_METHOD ->
+            com.blockchain.stringResources.R.string.dashboard_onboarding_step_link_payment_method_time
+        DashboardOnboardingStep.BUY ->
+            com.blockchain.stringResources.R.string.dashboard_onboarding_step_link_buy_time
     }

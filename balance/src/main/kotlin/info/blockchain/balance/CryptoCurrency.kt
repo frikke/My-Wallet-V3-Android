@@ -65,7 +65,7 @@ open class CryptoCurrency(
     override val colour: String,
     override val logo: String = "",
     override val txExplorerUrlBase: String? = null,
-    override val coinNetwork: CoinNetwork? = null,
+    override val coinNetwork: CoinNetwork? = null
 ) : AssetInfo {
 
     override val symbol: String

@@ -11,7 +11,7 @@
             <data android:mimeType="image/*" />
         </intent>
     </queries>
-
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -27,6 +27,8 @@
         tools:node="remove" />
 
     <uses-feature android:name="android.hardware.location.gps" />
+    <uses-feature android:name="android.hardware.camera"
+        android:required="false" />
 
     <application
         android:name=".BlockchainApplication"
@@ -118,11 +120,6 @@
             android:name="com.blockchain.componentlib.demo.ComponentLibDemoActivity"
             android:clearTaskOnLaunch="true"
             android:screenOrientation="fullSensor" />
-        <activity
-            android:name=".ui.home.MainActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:theme="@style/AppTheme.MainActivity"
-            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name="com.blockchain.chrome.MultiAppActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"

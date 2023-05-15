@@ -37,13 +37,15 @@ internal class NetworkNativeAsset(
     private val ethDataManager: EthDataManager by scopedInject()
     private val SUPPORTED_EVMS = listOf("ETH", "MATIC")
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> {
-
-        if (coinNetwork.networkTicker in SUPPORTED_EVMS)
+        if (coinNetwork.networkTicker in SUPPORTED_EVMS) {
             return Single.just(listOf(getNonCustodialAccount(coinNetwork)))
+        }
         return historicActiveBalancesRepository.currencyWasFunded(currency).map {
-            if (it)
+            if (it) {
                 listOf(getNonCustodialAccount(coinNetwork))
-            else emptyList()
+            } else {
+                emptyList()
+            }
         }
     }
 
@@ -62,7 +64,6 @@ internal class NetworkNativeAsset(
 
     @CommonCode("Exists in EthAsset")
     override fun parseAddress(address: String, label: String?, isDomainAddress: Boolean): Maybe<ReceiveAddress> {
-
         val normalisedAddress = address.removePrefix(FormatUtilities.ETHEREUM_PREFIX)
 
         return Single.just(isValidAddress(normalisedAddress))
@@ -100,5 +101,5 @@ internal class L1EvmAddress(
     override val isDomain: Boolean = false,
     override val onTxCompleted: (TxResult) -> Completable = { Completable.complete() },
     override val amount: CryptoValue? = null,
-    val isContract: Boolean = false,
+    val isContract: Boolean = false
 ) : CryptoAddress

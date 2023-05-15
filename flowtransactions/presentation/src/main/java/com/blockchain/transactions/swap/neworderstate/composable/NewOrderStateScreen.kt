@@ -66,7 +66,7 @@ sealed interface NewOrderState {
 data class NewOrderStateArgs(
     val sourceAmount: CryptoValue,
     val targetAmount: CryptoValue,
-    val orderState: NewOrderState,
+    val orderState: NewOrderState
 ) : Serializable
 
 @Composable
@@ -74,7 +74,7 @@ fun NewOrderStateScreen(
     analytics: Analytics = get(),
     args: NewOrderStateArgs,
     deeplinkRedirector: DeeplinkRedirector = get(scope = payloadScope),
-    exitSwap: () -> Unit,
+    exitSwap: () -> Unit
 ) {
     val context = LocalContext.current
     var handleDeeplinkUrl by remember { mutableStateOf<String?>(null) }
@@ -110,7 +110,7 @@ fun NewOrderStateScreen(
         handleDeeplinkUrlAndExit = { deeplinkUrl ->
             handleDeeplinkUrl = deeplinkUrl
         },
-        exitSwap = exitSwap,
+        exitSwap = exitSwap
     )
 }
 
@@ -120,15 +120,15 @@ private fun NewOrderStateContent(
     targetAmount: CryptoValue,
     orderState: NewOrderState,
     handleDeeplinkUrlAndExit: (String) -> Unit,
-    exitSwap: () -> Unit,
+    exitSwap: () -> Unit
 ) {
     Column(
-        modifier = Modifier.background(AppTheme.colors.light),
+        modifier = Modifier.background(AppTheme.colors.light)
     ) {
         Spacer(Modifier.weight(0.33f))
 
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val swapIcon = Icons.Swap
                 .withTint(AppTheme.colors.title)
@@ -152,7 +152,7 @@ private fun NewOrderStateContent(
 
             val stackedIcon = StackedIcon.SmallTag(
                 main = swapIcon,
-                tag = tagIcon,
+                tag = tagIcon
             )
 
             SmallTagIcon(
@@ -160,16 +160,19 @@ private fun NewOrderStateContent(
                 iconBackground = AppTheme.colors.light,
                 mainIconSize = 88.dp,
                 tagIconSize = 44.dp,
-                borderColor = AppTheme.colors.light,
+                borderColor = AppTheme.colors.light
             )
 
             SmallVerticalSpacer()
 
             val title = when (orderState) {
                 NewOrderState.PendingDeposit ->
-                    stringResource(R.string.swap_neworderstate_pending_deposit_title, sourceAmount.currency.name)
+                    stringResource(
+                        com.blockchain.stringResources.R.string.swap_neworderstate_pending_deposit_title,
+                        sourceAmount.currency.name
+                    )
                 NewOrderState.Succeeded ->
-                    stringResource(R.string.swap_neworderstate_succeeded_title)
+                    stringResource(com.blockchain.stringResources.R.string.swap_neworderstate_succeeded_title)
                 is NewOrderState.Error ->
                     errorTitle(orderState)
             }
@@ -180,23 +183,23 @@ private fun NewOrderStateContent(
                 text = title,
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
-                gravity = ComposeGravities.Centre,
+                gravity = ComposeGravities.Centre
             )
 
             TinyHorizontalSpacer()
 
             val description = when (orderState) {
                 NewOrderState.PendingDeposit -> stringResource(
-                    R.string.swap_neworderstate_pending_deposit_description,
+                    com.blockchain.stringResources.R.string.swap_neworderstate_pending_deposit_description,
                     sourceAmount.toStringWithSymbol(),
                     targetAmount.toStringWithSymbol(),
                     // TODO(aromano): usually X minutes
                     "5"
                 )
                 NewOrderState.Succeeded -> stringResource(
-                    R.string.swap_neworderstate_succeeded_description,
+                    com.blockchain.stringResources.R.string.swap_neworderstate_succeeded_description,
                     sourceAmount.toStringWithSymbol(),
-                    targetAmount.toStringWithSymbol(),
+                    targetAmount.toStringWithSymbol()
                 )
                 is NewOrderState.Error ->
                     errorDescription(orderState)
@@ -208,7 +211,7 @@ private fun NewOrderStateContent(
                 text = description,
                 style = ComposeTypographies.Body1,
                 color = ComposeColors.Body,
-                gravity = ComposeGravities.Centre,
+                gravity = ComposeGravities.Centre
             )
         }
 
@@ -219,15 +222,15 @@ private fun NewOrderStateContent(
                 state = orderState,
                 onCtaClicked = { deeplinkUrl ->
                     handleDeeplinkUrlAndExit(deeplinkUrl)
-                },
+                }
             )
         } else {
             PrimaryButton(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(AppTheme.dimensions.smallSpacing),
-                text = stringResource(R.string.common_done),
-                onClick = exitSwap,
+                text = stringResource(com.blockchain.stringResources.R.string.common_done),
+                onClick = exitSwap
             )
         }
     }
@@ -242,7 +245,7 @@ private fun errorStatusIcon(state: NewOrderState.Error): ImageResource {
         ImageResource.Remote(
             url = serverSideIcon,
             shape = CircleShape,
-            size = 44.dp,
+            size = 44.dp
         )
     } else {
         Icons.Filled.Alert
@@ -256,11 +259,13 @@ private fun errorTitle(state: NewOrderState.Error): String {
     val serverSideError = (state.error as? NabuApiException)?.getServerSideErrorInfo()
     val message = when {
         serverSideError != null -> serverSideError.title
-        state.error.isInternetConnectionError() -> stringResource(R.string.executing_connection_error)
+        state.error.isInternetConnectionError() -> stringResource(
+            com.blockchain.stringResources.R.string.executing_connection_error
+        )
         else -> null
     }?.ifEmpty { null }
 
-    return message ?: stringResource(R.string.something_went_wrong_try_again)
+    return message ?: stringResource(com.blockchain.stringResources.R.string.something_went_wrong_try_again)
 }
 
 @Composable
@@ -272,13 +277,13 @@ private fun errorDescription(state: NewOrderState.Error): String {
         else -> null
     }?.ifEmpty { null }
 
-    return message ?: stringResource(R.string.order_error_subtitle)
+    return message ?: stringResource(com.blockchain.stringResources.R.string.order_error_subtitle)
 }
 
 @Composable
 private fun ErrorCtaButtons(
     state: NewOrderState.Error,
-    onCtaClicked: (deeplinkUrl: String) -> Unit,
+    onCtaClicked: (deeplinkUrl: String) -> Unit
 ) {
     val serverSideError = (state.error as? NabuApiException)?.getServerSideErrorInfo()
     val actions = serverSideError?.actions.orEmpty()
@@ -288,7 +293,7 @@ private fun ErrorCtaButtons(
 
     if (actions.isNotEmpty()) {
         actions.forEachIndexed { index, action ->
-            val title = action.title.ifEmpty { stringResource(R.string.common_ok) }
+            val title = action.title.ifEmpty { stringResource(com.blockchain.stringResources.R.string.common_ok) }
             val onClick = { onCtaClicked(action.deeplinkPath) }
             when (index) {
                 0 -> PrimaryButton(modifier = modifier, text = title, onClick = onClick)
@@ -299,7 +304,7 @@ private fun ErrorCtaButtons(
     } else {
         PrimaryButton(
             modifier = modifier,
-            text = stringResource(R.string.common_ok),
+            text = stringResource(com.blockchain.stringResources.R.string.common_ok),
             onClick = { onCtaClicked("") }
         )
     }
@@ -316,7 +321,7 @@ private fun PreviewPendingDeposit() {
         targetAmount = CryptoValue.fromMajor(CryptoCurrency.BTC, 0.05.toBigDecimal()),
         orderState = NewOrderState.PendingDeposit,
         handleDeeplinkUrlAndExit = {},
-        exitSwap = {},
+        exitSwap = {}
     )
 }
 
@@ -328,7 +333,7 @@ private fun PreviewSucceeded() {
         targetAmount = CryptoValue.fromMajor(CryptoCurrency.BTC, 0.05.toBigDecimal()),
         orderState = NewOrderState.Succeeded,
         handleDeeplinkUrlAndExit = {},
-        exitSwap = {},
+        exitSwap = {}
     )
 }
 
@@ -343,9 +348,9 @@ private fun PreviewError() {
         statusUrl = "",
         actions = listOf(
             ServerErrorAction("One", ""),
-            ServerErrorAction("Two", ""),
+            ServerErrorAction("Two", "")
         ),
-        categories = emptyList(),
+        categories = emptyList()
     )
     val apiException = NabuApiException(
         message = "some error",
@@ -355,13 +360,13 @@ private fun PreviewError() {
         errorDescription = "nabu error description",
         path = null,
         id = null,
-        serverSideUxError = error,
+        serverSideUxError = error
     )
     NewOrderStateContent(
         sourceAmount = CryptoValue.fromMajor(CryptoCurrency.ETHER, 0.5.toBigDecimal()),
         targetAmount = CryptoValue.fromMajor(CryptoCurrency.BTC, 0.05.toBigDecimal()),
         orderState = NewOrderState.Error(apiException),
         handleDeeplinkUrlAndExit = {},
-        exitSwap = {},
+        exitSwap = {}
     )
 }

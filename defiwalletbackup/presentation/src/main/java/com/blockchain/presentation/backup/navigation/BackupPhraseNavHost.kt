@@ -23,7 +23,7 @@ import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
 @Composable
 fun BackupPhraseNavHost(
     viewModel: BackupPhraseViewModel,
-    backupPhraseArgs: BackupPhraseArgs,
+    backupPhraseArgs: BackupPhraseArgs
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
 

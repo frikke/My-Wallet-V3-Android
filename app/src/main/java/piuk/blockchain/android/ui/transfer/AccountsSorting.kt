@@ -8,8 +8,6 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.logging.MomentEvent
-import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
@@ -24,24 +22,17 @@ class SwapSourceAccountsSorting(
     private val assetListOrderingFF: FeatureFlag,
     private val dashboardAccountsSorter: AccountsSorting,
     private val sellAccountsSorting: SellAccountsSorting,
-    private val momentLogger: MomentLogger
 ) : AccountsSorting {
     override fun sorter(): AccountsSorter = { list ->
         assetListOrderingFF.enabled.flatMap { enabled ->
             if (enabled) {
-                momentLogger.startEvent(MomentEvent.SWAP_SOURCE_LIST_FF_ON)
                 val sortedList = sellAccountsSorting.sorter().invoke(list)
                     .onErrorReturn { list }
-                return@flatMap sortedList.doFinally {
-                    momentLogger.endEvent(MomentEvent.SWAP_SOURCE_LIST_FF_ON)
-                }
+                return@flatMap sortedList
             } else {
-                momentLogger.startEvent(MomentEvent.SWAP_SOURCE_LIST_FF_OFF)
                 val sortedList = dashboardAccountsSorter.sorter().invoke(list)
                     .onErrorReturn { list }
-                return@flatMap sortedList.doFinally {
-                    momentLogger.endEvent(MomentEvent.SWAP_SOURCE_LIST_FF_OFF)
-                }
+                return@flatMap sortedList
             }
         }
     }
@@ -50,7 +41,7 @@ class SwapSourceAccountsSorting(
 class SwapTargetAccountsSorting(
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val currencyPrefs: CurrencyPrefs,
-    private val watchlistDataManager: WatchlistDataManager,
+    private val watchlistDataManager: WatchlistDataManager
 ) : AccountsSorting {
 
     private data class AccountInfo(
@@ -65,7 +56,8 @@ class SwapTargetAccountsSorting(
                 Single.zip(
                     account.balanceRx().firstOrError(),
                     exchangeRatesDataManager.getCurrentAssetPrice(
-                        asset = account.currency, fiat = currencyPrefs.selectedFiatCurrency
+                        asset = account.currency,
+                        fiat = currencyPrefs.selectedFiatCurrency
                     )
                 ) { accountBalance, priceRecord ->
                     AccountInfo(
@@ -79,7 +71,7 @@ class SwapTargetAccountsSorting(
                     )
                 }
             }.toList(),
-            watchlistDataManager.getWatchlist(),
+            watchlistDataManager.getWatchlist()
         ) { accountInfoItems, watchlist ->
             val sortedAccountsInWatchlist = watchlist.assetMap.keys
                 .mapNotNull { currency ->
@@ -115,7 +107,7 @@ class SwapTargetAccountsSorting(
 }
 
 class SellAccountsSorting(
-    private val coincore: Coincore,
+    private val coincore: Coincore
 ) : AccountsSorting {
     override fun sorter(): AccountsSorter = { accountList ->
 

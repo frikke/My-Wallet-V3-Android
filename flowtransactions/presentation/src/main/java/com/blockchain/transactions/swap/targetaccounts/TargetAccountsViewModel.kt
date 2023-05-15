@@ -26,11 +26,13 @@ class TargetAccountsViewModel(
     private val mode: WalletMode,
     private val swapService: SwapService,
     private val assetCatalogue: AssetCatalogue
-) : MviViewModel<TargetAccountsIntent,
+) : MviViewModel<
+    TargetAccountsIntent,
     TargetAccountsViewState,
     TargetAccountsModelState,
     TargetAccountsNavigationEvent,
-    ModelConfigArgs.NoArgs>(
+    ModelConfigArgs.NoArgs
+    >(
     TargetAccountsModelState()
 ) {
 

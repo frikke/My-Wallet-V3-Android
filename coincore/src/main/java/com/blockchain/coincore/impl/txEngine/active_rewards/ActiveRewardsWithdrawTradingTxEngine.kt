@@ -31,7 +31,7 @@ class ActiveRewardsWithdrawTradingTxEngine(
     private val activeRewardsBalanceStore: FlushableDataSource,
     private val activeRewardsService: ActiveRewardsService,
     private val tradingStore: TradingStore,
-    private val walletManager: CustodialWalletManager,
+    private val walletManager: CustodialWalletManager
 ) : ActiveRewardsBaseEngine(activeRewardsService) {
     override val flushableDataSources: List<FlushableDataSource>
         get() = listOf(activeRewardsBalanceStore, tradingStore, paymentTransactionHistoryStore)
@@ -93,7 +93,9 @@ class ActiveRewardsWithdrawTradingTxEngine(
                 txConfirmations = listOfNotNull(
                     TxConfirmationValue.From(sourceAccount, sourceAsset),
                     TxConfirmationValue.To(
-                        txTarget, AssetAction.ActiveRewardsWithdraw, sourceAccount
+                        txTarget,
+                        AssetAction.ActiveRewardsWithdraw,
+                        sourceAccount
                     ),
                     TxConfirmationValue.Total(
                         totalWithFee = (pendingTx.amount as CryptoValue).plus(

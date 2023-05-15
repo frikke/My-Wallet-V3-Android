@@ -1,6 +1,9 @@
 apply from: rootProject.file('gradle/local/common-feature-android-data.gradle')
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'com.squareup.sqldelight'
+android {
+    namespace 'com.blockchain.unifiedcryptowallet.data'
+}
 
 dependencies {
     implementation project(':common:domain')

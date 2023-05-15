@@ -35,15 +35,16 @@ fun TierCurrentStateScreen(
     state: KycState,
     underReviewCtaClicked: () -> Unit,
     verifiedCtaClicked: () -> Unit,
-    rejectedCtaClicked: () -> Unit,
+    rejectedCtaClicked: () -> Unit
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         when (state) {
             KycState.None,
             KycState.Pending,
             KycState.UnderReview -> UnderReviewScreen(underReviewCtaClicked)
+
             KycState.Verified -> VerifiedScreen(verifiedCtaClicked)
             KycState.Expired,
             KycState.Rejected -> RejectedScreen(rejectedCtaClicked)
@@ -80,7 +81,9 @@ private fun ColumnScope.UnderReviewScreen(
     ) {
         SimpleText(
             modifier = Modifier.fillMaxWidth(),
-            text = stringResource(R.string.kyc_tier_current_state_underreview_nextstep_title),
+            text = stringResource(
+                com.blockchain.stringResources.R.string.kyc_tier_current_state_underreview_nextstep_title
+            ),
             style = ComposeTypographies.Paragraph2,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Start
@@ -90,7 +93,9 @@ private fun ColumnScope.UnderReviewScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = AppTheme.dimensions.tinySpacing),
-            text = stringResource(R.string.kyc_tier_current_state_underreview_nextstep_subtitle),
+            text = stringResource(
+                com.blockchain.stringResources.R.string.kyc_tier_current_state_underreview_nextstep_subtitle
+            ),
             style = ComposeTypographies.Caption1,
             color = ComposeColors.Body,
             gravity = ComposeGravities.Start
@@ -103,9 +108,9 @@ private fun ColumnScope.UnderReviewScreen(
             .padding(
                 bottom = AppTheme.dimensions.standardSpacing,
                 start = AppTheme.dimensions.standardSpacing,
-                end = AppTheme.dimensions.standardSpacing,
+                end = AppTheme.dimensions.standardSpacing
             ),
-        text = stringResource(R.string.kyc_tier_current_state_underreview_cta),
+        text = stringResource(com.blockchain.stringResources.R.string.kyc_tier_current_state_underreview_cta),
         onClick = underReviewCtaClicked
     )
 }
@@ -122,9 +127,9 @@ private fun ColumnScope.VerifiedScreen(verifiedCtaClicked: () -> Unit) {
             .padding(
                 bottom = AppTheme.dimensions.standardSpacing,
                 start = AppTheme.dimensions.standardSpacing,
-                end = AppTheme.dimensions.standardSpacing,
+                end = AppTheme.dimensions.standardSpacing
             ),
-        text = stringResource(R.string.kyc_tier_current_state_verified_cta),
+        text = stringResource(com.blockchain.stringResources.R.string.kyc_tier_current_state_verified_cta),
         onClick = verifiedCtaClicked
     )
 }
@@ -141,9 +146,9 @@ private fun ColumnScope.RejectedScreen(rejectedCtaClicked: () -> Unit) {
             .padding(
                 bottom = AppTheme.dimensions.standardSpacing,
                 start = AppTheme.dimensions.standardSpacing,
-                end = AppTheme.dimensions.standardSpacing,
+                end = AppTheme.dimensions.standardSpacing
             ),
-        text = stringResource(R.string.kyc_tier_current_state_rejected_cta),
+        text = stringResource(com.blockchain.stringResources.R.string.kyc_tier_current_state_rejected_cta),
         onClick = rejectedCtaClicked
     )
 }
@@ -157,20 +162,27 @@ private fun ColumnScope.Header(
     val titleRes = when (state) {
         KycState.None,
         KycState.Pending,
-        KycState.UnderReview -> R.string.kyc_tier_current_state_underreview_title
-        KycState.Verified -> R.string.kyc_tier_current_state_verified_title
+        KycState.UnderReview -> com.blockchain.stringResources.R.string.kyc_tier_current_state_underreview_title
+
+        KycState.Verified -> com.blockchain.stringResources.R.string.kyc_tier_current_state_verified_title
         KycState.Expired,
-        KycState.Rejected -> R.string.kyc_tier_current_state_rejected_title
+        KycState.Rejected -> com.blockchain.stringResources.R.string.kyc_tier_current_state_rejected_title
     }
     val subtitle = when (state) {
         KycState.None,
         KycState.Pending,
-        KycState.UnderReview -> AnnotatedString(stringResource(R.string.kyc_tier_current_state_underreview_subtitle))
-        KycState.Verified -> AnnotatedString(stringResource(R.string.kyc_tier_current_state_verified_subtitle))
+        KycState.UnderReview -> AnnotatedString(
+            stringResource(com.blockchain.stringResources.R.string.kyc_tier_current_state_underreview_subtitle)
+        )
+
+        KycState.Verified -> AnnotatedString(
+            stringResource(com.blockchain.stringResources.R.string.kyc_tier_current_state_verified_subtitle)
+        )
+
         KycState.Expired,
         KycState.Rejected -> AnnotatedStringUtils.getAnnotatedStringWithMappedAnnotations(
             LocalContext.current,
-            R.string.kyc_tier_current_state_rejected_subtitle,
+            com.blockchain.stringResources.R.string.kyc_tier_current_state_rejected_subtitle,
             mapOf("gold_error" to URL_BLOCKCHAIN_GOLD_UNAVAILABLE_SUPPORT)
         )
     }
@@ -179,14 +191,16 @@ private fun ColumnScope.Header(
         KycState.None,
         KycState.Pending,
         KycState.UnderReview -> R.drawable.ic_pending_clock
+
         KycState.Expired,
         KycState.Rejected -> R.drawable.ic_warning_info_circle
+
         KycState.Verified -> R.drawable.ic_check_circle
     }
     UserIcon(
         modifier = Modifier.padding(top = AppTheme.dimensions.xHugeSpacing),
         iconRes = R.drawable.ic_bank_user,
-        statusIconRes = userStatusIconRes,
+        statusIconRes = userStatusIconRes
     )
 
     SimpleText(
@@ -226,7 +240,7 @@ private fun PreviewUnderReview() {
         state = KycState.UnderReview,
         underReviewCtaClicked = {},
         verifiedCtaClicked = {},
-        rejectedCtaClicked = {},
+        rejectedCtaClicked = {}
     )
 }
 
@@ -237,7 +251,7 @@ private fun PreviewRejected() {
         state = KycState.Rejected,
         underReviewCtaClicked = {},
         verifiedCtaClicked = {},
-        rejectedCtaClicked = {},
+        rejectedCtaClicked = {}
     )
 }
 
@@ -248,6 +262,6 @@ private fun PreviewVerified() {
         state = KycState.Verified,
         underReviewCtaClicked = {},
         verifiedCtaClicked = {},
-        rejectedCtaClicked = {},
+        rejectedCtaClicked = {}
     )
 }

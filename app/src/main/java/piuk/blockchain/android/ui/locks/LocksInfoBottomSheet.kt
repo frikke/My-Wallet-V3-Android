@@ -35,22 +35,22 @@ class LocksInfoBottomSheet : SlidingModalBottomDialog<DialogLocksInfoBinding>() 
         with(binding) {
             text.apply {
                 movementMethod = LinkMovementMethod.getInstance()
-                text = setLearnMoreLink(R.string.funds_locked_summary_text)
+                text = setLearnMoreLink(com.blockchain.stringResources.R.string.funds_locked_summary_text)
             }
             availableAmount.text = available
             title.text = getString(
-                R.string.funds_locked_summary_on_hold,
+                com.blockchain.stringResources.R.string.funds_locked_summary_on_hold,
                 fundsLocks.onHoldTotalAmount.toStringWithSymbol()
             )
             seeDetails.apply {
-                text = getString(R.string.funds_locked_summary_details)
+                text = getString(com.blockchain.stringResources.R.string.funds_locked_summary_details)
                 onClick = { LocksDetailsActivity.start(requireContext(), fundsLocks) }
             }
 
             close.setOnClickListener { dismiss() }
 
             okButton.apply {
-                text = getString(R.string.funds_locked_summary_cta)
+                text = getString(com.blockchain.stringResources.R.string.funds_locked_summary_cta)
                 onClick = ::dismiss
             }
         }
@@ -70,10 +70,13 @@ class LocksInfoBottomSheet : SlidingModalBottomDialog<DialogLocksInfoBinding>() 
     private fun displayAvailable(origin: OriginScreenLocks) {
         when (origin) {
             OriginScreenLocks.ENTER_AMOUNT_SEND_SCREEN -> {
-                binding.availableTitle.text = getString(R.string.funds_locked_summary_available_send)
+                binding.availableTitle.text =
+                    getString(com.blockchain.stringResources.R.string.funds_locked_summary_available_send)
             }
+
             OriginScreenLocks.ENTER_AMOUNT_WITHDRAW_SCREEN -> {
-                binding.availableTitle.text = getString(R.string.funds_locked_summary_available_withdraw)
+                binding.availableTitle.text =
+                    getString(com.blockchain.stringResources.R.string.funds_locked_summary_available_withdraw)
             }
         }
     }

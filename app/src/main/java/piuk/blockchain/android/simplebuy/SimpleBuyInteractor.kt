@@ -136,7 +136,7 @@ class SimpleBuyInteractor(
     private val remoteConfigRepository: RemoteConfigRepository,
     private val quickFillRoundingService: QuickFillRoundingService,
     private val recurringBuyService: RecurringBuyService,
-    private val dismissRecorder: DismissRecorder,
+    private val dismissRecorder: DismissRecorder
 ) {
 
     // Hack until we have a proper limits api.
@@ -187,7 +187,7 @@ class SimpleBuyInteractor(
     fun getQuotePrice(
         currencyPair: CurrencyPair,
         amount: Money,
-        paymentMethod: PaymentMethodType,
+        paymentMethod: PaymentMethodType
     ): Observable<QuotePrice> {
         return Observable.interval(
             0L,
@@ -198,7 +198,7 @@ class SimpleBuyInteractor(
                 tradeDataService.getBuyQuotePrice(
                     currencyPair = currencyPair,
                     amount = amount,
-                    paymentMethod = paymentMethod,
+                    paymentMethod = paymentMethod
                 )
             }
         }.takeUntil(stopPollingQuotePrices)
@@ -208,13 +208,13 @@ class SimpleBuyInteractor(
         cryptoAsset: AssetInfo,
         amount: Money,
         paymentMethodId: String? = null,
-        paymentMethod: PaymentMethodType,
+        paymentMethod: PaymentMethodType
     ): Observable<BrokerageQuote> =
         brokerageDataManager.getBuyQuote(
             pair = CurrencyPair(amount.currency, cryptoAsset),
             amount = amount,
             paymentMethodType = getPaymentMethodType(paymentMethod),
-            paymentMethodId = getPaymentMethodId(paymentMethodId, paymentMethod),
+            paymentMethodId = getPaymentMethodId(paymentMethodId, paymentMethod)
         ).toObservable()
 
     val stopPollingBrokerageQuotes = PublishSubject.create<Unit>()
@@ -244,9 +244,11 @@ class SimpleBuyInteractor(
 
     private fun getPaymentMethodId(paymentMethodId: String? = null, paymentMethod: PaymentMethodType) =
         // The API cannot handle GOOGLE_PAY as a payment method, so we're sending a null paymentMethodId
-        if (paymentMethod == PaymentMethodType.GOOGLE_PAY || paymentMethodId == PaymentMethod.GOOGLE_PAY_PAYMENT_ID)
+        if (paymentMethod == PaymentMethodType.GOOGLE_PAY || paymentMethodId == PaymentMethod.GOOGLE_PAY_PAYMENT_ID) {
             null
-        else paymentMethodId
+        } else {
+            paymentMethodId
+        }
 
     fun cancelOrder(orderId: String): Completable = cancelOrderUseCase.invoke(orderId)
 
@@ -447,7 +449,7 @@ class SimpleBuyInteractor(
                     getAvailablePaymentMethodsTypesUseCase(
                         GetAvailablePaymentMethodsTypesUseCase.Request(
                             currency = fiatCurrency,
-                            onlyEligible = tier.isInitialisedFor(KycTier.GOLD),
+                            onlyEligible = tier.isInitialisedFor(KycTier.GOLD)
                         )
                     ),
                     paymentMethodService.getLinkedPaymentMethods(
@@ -487,10 +489,12 @@ class SimpleBuyInteractor(
                 pair = "${cryptoAsset.networkTicker}-${amount.currencyCode}",
                 action = Product.BUY.name,
                 input = OrderInput(
-                    amount.currencyCode, amount.toBigInteger().toString()
+                    amount.currencyCode,
+                    amount.toBigInteger().toString()
                 ),
                 output = OrderOutput(
-                    cryptoAsset.networkTicker, null
+                    cryptoAsset.networkTicker,
+                    null
                 ),
                 paymentMethodId = getPaymentMethodId(paymentMethodId, paymentMethodType),
                 paymentType = getPaymentMethodType(paymentMethodType).name,
@@ -795,7 +799,8 @@ class SimpleBuyInteractor(
 
     private fun roundToNearest(lastAmount: Money, nearest: Int): Money {
         return Money.fromMajor(
-            lastAmount.currency, (nearest * (floor(lastAmount.toFloat() / nearest))).toBigDecimal()
+            lastAmount.currency,
+            (nearest * (floor(lastAmount.toFloat() / nearest))).toBigDecimal()
         )
     }
 

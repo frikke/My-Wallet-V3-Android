@@ -64,8 +64,8 @@ class AccountIcon(
     private fun accountGroupIcon(account: AccountGroup): Int? {
         return when (account) {
             is AllWalletsAccount -> R.drawable.ic_all_wallets_white
-            is AllCustodialWalletsAccount -> R.drawable.ic_portfolio
-            is AllNonCustodialWalletsAccount -> R.drawable.ic_defi_wallet
+            is AllCustodialWalletsAccount -> com.blockchain.componentlib.R.drawable.ic_portfolio
+            is AllNonCustodialWalletsAccount -> com.blockchain.componentlib.R.drawable.ic_defi_wallet
             is CryptoAccountCustodialSingleGroup -> null
             is CryptoAccountNonCustodialGroup -> null
             is FiatAccountGroup -> null

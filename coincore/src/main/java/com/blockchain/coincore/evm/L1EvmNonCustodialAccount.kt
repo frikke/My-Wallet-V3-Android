@@ -28,7 +28,7 @@ class L1EvmNonCustodialAccount(
     override val exchangeRates: ExchangeRatesDataManager,
     private val walletPreferences: WalletStatusPrefs,
     override val addressResolver: AddressResolver,
-    val l1Network: CoinNetwork,
+    val l1Network: CoinNetwork
 ) : CryptoNonCustodialAccount(asset) {
 
     override val isDefault: Boolean = true // Only one account, so always default

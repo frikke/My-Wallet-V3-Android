@@ -28,7 +28,8 @@ class TestVectorBip39 {
         return Json.encodeToString(this)
     }
 
-    @Throws(Exception::class) fun getCoinTestVectors(uriScheme: String, coinPath: String): TestVectorCoin {
+    @Throws(Exception::class)
+    fun getCoinTestVectors(uriScheme: String, coinPath: String): TestVectorCoin {
         for (coin: TestVectorCoin in coinList!!) {
             if (coin.coinUriScheme == uriScheme && coin.coinPath == coinPath) {
                 return coin

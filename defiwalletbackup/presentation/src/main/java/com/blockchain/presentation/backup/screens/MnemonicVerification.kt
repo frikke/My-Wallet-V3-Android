@@ -37,7 +37,7 @@ import java.util.Locale
 fun MnemonicVerification(
     mnemonic: List<SelectableMnemonicWord>,
     mnemonicVerificationStatus: UserMnemonicVerificationStatus,
-    wordSelected: (selectableWord: SelectableMnemonicWord) -> Unit,
+    wordSelected: (selectableWord: SelectableMnemonicWord) -> Unit
 ) {
     FlowRow(
         modifier = Modifier
@@ -51,11 +51,11 @@ fun MnemonicVerification(
                 shape = AppTheme.shapes.large
             )
             .background(color = AppTheme.colors.backgroundMuted, shape = AppTheme.shapes.large)
-            .padding(dimensionResource(R.dimen.small_spacing))
+            .padding(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing))
             .heightIn(min = 182.dp),
         mainAxisAlignment = FlowMainAxisAlignment.Center,
-        mainAxisSpacing = dimensionResource(R.dimen.tiny_spacing),
-        crossAxisSpacing = dimensionResource(R.dimen.tiny_spacing)
+        mainAxisSpacing = dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing),
+        crossAxisSpacing = dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)
     ) {
         mnemonic.forEachIndexed { index, selectableWord ->
             MnemonicVerificationWord(index = index.inc(), selectableWord = selectableWord) {
@@ -68,14 +68,14 @@ fun MnemonicVerification(
 @Composable
 fun MnemonicSelection(
     mnemonic: List<SelectableMnemonicWord>,
-    wordSelected: (selectableWord: SelectableMnemonicWord) -> Unit,
+    wordSelected: (selectableWord: SelectableMnemonicWord) -> Unit
 ) {
     FlowRow(
         modifier = Modifier
             .fillMaxWidth(),
         mainAxisAlignment = FlowMainAxisAlignment.Center,
-        mainAxisSpacing = dimensionResource(R.dimen.tiny_spacing),
-        crossAxisSpacing = dimensionResource(R.dimen.tiny_spacing)
+        mainAxisSpacing = dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing),
+        crossAxisSpacing = dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)
     ) {
         mnemonic.forEach { selectableWord ->
             MnemonicVerificationWord(selectableWord = selectableWord) {
@@ -93,7 +93,7 @@ fun MnemonicVerificationWord(index: Int? = null, selectableWord: SelectableMnemo
             .alpha(if (selectableWord.selected) 0F else 1F),
         border = BorderStroke(
             width = AppTheme.dimensions.borderSmall,
-            color = AppTheme.colors.medium,
+            color = AppTheme.colors.medium
         ),
         shape = AppTheme.shapes.small,
         backgroundColor = Color.White,
@@ -110,7 +110,7 @@ fun MnemonicVerificationWord(index: Int? = null, selectableWord: SelectableMnemo
                     vertical = AppTheme.dimensions.minusculeSpacing,
                     horizontal = AppTheme.dimensions.verySmallSpacing
                 ),
-            horizontalArrangement = Arrangement.Center,
+            horizontalArrangement = Arrangement.Center
         ) {
             index?.let {
                 SimpleText(
@@ -120,7 +120,7 @@ fun MnemonicVerificationWord(index: Int? = null, selectableWord: SelectableMnemo
                     gravity = ComposeGravities.End
                 )
 
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
+                Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)))
             }
 
             SimpleText(
@@ -136,7 +136,7 @@ fun MnemonicVerificationWord(index: Int? = null, selectableWord: SelectableMnemo
 data class SelectableMnemonicWord(
     val id: Int,
     val word: String,
-    val selected: Boolean,
+    val selected: Boolean
 )
 
 // ///////////////

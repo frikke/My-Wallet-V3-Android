@@ -72,7 +72,7 @@ private fun NftEmptyCollection(
         Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
         Text(
-            text = stringResource(R.string.nft_empty_title),
+            text = stringResource(com.blockchain.stringResources.R.string.nft_empty_title),
             style = AppTheme.typography.title3,
             textAlign = TextAlign.Center,
             color = AppTheme.colors.title
@@ -81,7 +81,7 @@ private fun NftEmptyCollection(
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
         Text(
-            text = stringResource(R.string.nft_empty_description),
+            text = stringResource(com.blockchain.stringResources.R.string.nft_empty_description),
             style = AppTheme.typography.body1,
             textAlign = TextAlign.Center,
             color = AppTheme.colors.muted
@@ -92,7 +92,7 @@ private fun NftEmptyCollection(
         Row(modifier = Modifier.fillMaxWidth()) {
             SecondaryButton(
                 modifier = Modifier.weight(1F),
-                text = stringResource(R.string.nft_cta_buy),
+                text = stringResource(com.blockchain.stringResources.R.string.nft_cta_buy),
                 icon = Icons.NewWindow.withTint(AppTheme.colors.background),
                 onClick = onExternalShopClick
             )
@@ -101,7 +101,7 @@ private fun NftEmptyCollection(
 
             PrimaryButton(
                 modifier = Modifier.weight(1F),
-                text = stringResource(R.string.common_receive),
+                text = stringResource(com.blockchain.stringResources.R.string.common_receive),
                 icon = Icons.Receive.withTint(AppTheme.colors.background),
                 onClick = onReceiveClick
             )
@@ -111,7 +111,7 @@ private fun NftEmptyCollection(
 
         Text(
             modifier = Modifier.clickableNoEffect { onHelpClick() },
-            text = stringResource(R.string.nft_help),
+            text = stringResource(com.blockchain.stringResources.R.string.nft_help),
             style = AppTheme.typography.body1,
             textAlign = TextAlign.Center,
             color = AppTheme.colors.primary

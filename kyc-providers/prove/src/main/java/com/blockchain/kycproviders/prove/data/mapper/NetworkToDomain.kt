@@ -19,8 +19,9 @@ internal fun Outcome<
     >.toPossessionStateDomainOutcome(): Outcome<Exception, PossessionState> =
     fold(
         onSuccess = {
-            if (it.isVerified) Outcome.Success(PossessionState.Verified(it.mobileNumber.orEmpty()))
-            else Outcome.Success(PossessionState.Unverified)
+            if (it.isVerified) {
+                Outcome.Success(PossessionState.Verified(it.mobileNumber.orEmpty()))
+            } else Outcome.Success(PossessionState.Unverified)
         },
         onFailure = { error ->
             if (error is NabuApiException && error.getErrorCode() == NabuErrorCodes.ProvePossessionFailed) {
@@ -32,7 +33,7 @@ internal fun Outcome<
     )
 
 internal fun StartInstantLinkAuthResponse.toDomain(): StartInstantLinkAuthResult = StartInstantLinkAuthResult(
-    smsRetryInSeconds = smsRetryInSeconds,
+    smsRetryInSeconds = smsRetryInSeconds
 )
 
 internal fun PrefillDataResponse.toDomain(): PrefillData = PrefillData(
@@ -40,7 +41,7 @@ internal fun PrefillDataResponse.toDomain(): PrefillData = PrefillData(
     lastName = lastName,
     addresses = addresses.map { it.toDomain() },
     dob = dob,
-    phoneNumber = phoneNumber,
+    phoneNumber = phoneNumber
 )
 
 internal fun AddressResponse.toDomain(): Address = Address(
@@ -49,5 +50,5 @@ internal fun AddressResponse.toDomain(): Address = Address(
     city = city,
     state = state,
     postCode = postCode,
-    country = country,
+    country = country
 )

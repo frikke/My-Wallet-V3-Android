@@ -43,7 +43,7 @@ interface CardService {
 
     fun getCardDetails(
         cardId: String,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh),
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<DataResource<PaymentMethod.Card>>
 
     suspend fun getCardDetailsCo(cardId: String): Outcome<Exception, PaymentMethod.Card>

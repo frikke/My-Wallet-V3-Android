@@ -44,7 +44,6 @@ internal class EthAsset(
         )
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> {
-
         val renamedAccount = ethDataManager.ehtAccount.takeIf { it.labelNeedsUpdate() }?.let {
             ethDataManager.updateAccountLabel(it.label.updatedLabel()).onErrorComplete()
         } ?: Completable.complete()
@@ -61,7 +60,7 @@ internal class EthAsset(
                         walletPreferences = walletPrefs,
                         exchangeRates = exchangeRates,
                         assetCatalogue = assetCatalogue.value,
-                        addressResolver = addressResolver,
+                        addressResolver = addressResolver
                     )
                 )
             )
@@ -96,7 +95,8 @@ internal class EthAsset(
             it.startsWith(ETH_ADDRESS_AMOUNT_PART, true)
         }?.let { param ->
             CryptoValue.fromMinor(
-                CryptoCurrency.ETHER, param.removePrefix(ETH_ADDRESS_AMOUNT_PART).toBigDecimal()
+                CryptoCurrency.ETHER,
+                param.removePrefix(ETH_ADDRESS_AMOUNT_PART).toBigDecimal()
             )
         }
 

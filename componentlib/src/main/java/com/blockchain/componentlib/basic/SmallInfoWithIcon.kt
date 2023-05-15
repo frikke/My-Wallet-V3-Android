@@ -30,7 +30,8 @@ fun SmallInfoWithIcon(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
+                color = Color.White,
+                shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
             )
             .padding(AppTheme.dimensions.tinySpacing),
         verticalAlignment = Alignment.CenterVertically
@@ -51,7 +52,7 @@ fun SmallInfoWithIcon(
             modifier = Modifier.weight(1F),
             text = text,
             style = AppTheme.typography.paragraph2,
-            color = AppTheme.colors.muted,
+            color = AppTheme.colors.muted
         )
 
         if (trailingIcon != ImageResource.None) {

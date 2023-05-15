@@ -36,7 +36,7 @@ class ToggleTableRowView @JvmOverloads constructor(
                         onCheckedChange(newCheckedState)
                     },
                     enabled = toggleEnabled,
-                    toggleTableRowType = toggleType,
+                    toggleTableRowType = toggleType
                 )
             }
         }

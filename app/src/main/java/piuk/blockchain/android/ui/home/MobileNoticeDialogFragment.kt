@@ -25,7 +25,7 @@ class MobileNoticeDialogFragment : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val contextThemeWrapper = ContextThemeWrapper(activity, R.style.AppTheme)
+        val contextThemeWrapper = ContextThemeWrapper(activity, com.blockchain.common.R.style.AppTheme)
         val themedInflater = inflater.cloneInContext(contextThemeWrapper)
         _binding = MobileNoticeDialogBinding.inflate(themedInflater, container, false)
         return binding.root

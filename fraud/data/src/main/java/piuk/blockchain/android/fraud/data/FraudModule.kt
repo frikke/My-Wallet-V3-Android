@@ -17,7 +17,7 @@ val fraudDataModule = module {
             fraudService = get(),
             sessionInfo = SessionInfo,
             fraudFlows = FraudFlows,
-            environmentConfig = get(),
+            environmentConfig = get()
         )
     }.bind(FraudService::class)
 }

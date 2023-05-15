@@ -13,47 +13,47 @@ sealed class EarnFieldExplainer(
         descriptionResId = 0
     )
     object InterestRate : EarnFieldExplainer(
-        titleResId = R.string.rewards_summary_rate,
-        descriptionResId = R.string.earn_interest_rate_description
+        titleResId = com.blockchain.stringResources.R.string.rewards_summary_rate,
+        descriptionResId = com.blockchain.stringResources.R.string.earn_interest_rate_description
     )
 
     object MonthlyAccruedInterest : EarnFieldExplainer(
-        titleResId = R.string.earn_interest_accrued_this_month,
-        descriptionResId = R.string.earn_interest_accrued_this_month_description
+        titleResId = com.blockchain.stringResources.R.string.earn_interest_accrued_this_month,
+        descriptionResId = com.blockchain.stringResources.R.string.earn_interest_accrued_this_month_description
     )
 
     object MonthlyPaymentFrequency : EarnFieldExplainer(
-        titleResId = R.string.earn_payment_frequency,
-        descriptionResId = R.string.earn_payment_frequency_monthly_description
+        titleResId = com.blockchain.stringResources.R.string.earn_payment_frequency,
+        descriptionResId = com.blockchain.stringResources.R.string.earn_payment_frequency_monthly_description
     )
 
     object HoldPeriod : EarnFieldExplainer(
-        titleResId = R.string.earn_interest_hold_period,
-        descriptionResId = R.string.earn_interest_hold_period_description
+        titleResId = com.blockchain.stringResources.R.string.earn_interest_hold_period,
+        descriptionResId = com.blockchain.stringResources.R.string.earn_interest_hold_period_description
     )
 
     object StakingEarnRate : EarnFieldExplainer(
-        titleResId = R.string.rewards_summary_rate,
-        descriptionResId = R.string.earn_staking_rate_description
+        titleResId = com.blockchain.stringResources.R.string.rewards_summary_rate,
+        descriptionResId = com.blockchain.stringResources.R.string.earn_staking_rate_description
     )
 
     object ActiveRewardsEarnRate : EarnFieldExplainer(
-        titleResId = R.string.rewards_summary_rate,
-        descriptionResId = R.string.earn_active_rewards_rate_description
+        titleResId = com.blockchain.stringResources.R.string.rewards_summary_rate,
+        descriptionResId = com.blockchain.stringResources.R.string.earn_active_rewards_rate_description
     )
 
     object ActiveRewardsEarnings : EarnFieldExplainer(
-        titleResId = R.string.earn_active_rewards_earnings,
-        descriptionResId = R.string.earn_active_rewards_earnings_description
+        titleResId = com.blockchain.stringResources.R.string.earn_active_rewards_earnings,
+        descriptionResId = com.blockchain.stringResources.R.string.earn_active_rewards_earnings_description
     )
 
     object ActiveRewardsOnHold : EarnFieldExplainer(
-        titleResId = R.string.earn_active_rewards_on_hold,
-        descriptionResId = R.string.earn_active_rewards_on_hold_description
+        titleResId = com.blockchain.stringResources.R.string.earn_active_rewards_on_hold,
+        descriptionResId = com.blockchain.stringResources.R.string.earn_active_rewards_on_hold_description
     )
 
     object ActiveRewardsTriggerPrice : EarnFieldExplainer(
-        titleResId = R.string.earn_active_rewards_trigger_price,
-        descriptionResId = R.string.earn_active_rewards_trigger_price_description
+        titleResId = com.blockchain.stringResources.R.string.earn_active_rewards_trigger_price,
+        descriptionResId = com.blockchain.stringResources.R.string.earn_active_rewards_trigger_price_description
     )
 }

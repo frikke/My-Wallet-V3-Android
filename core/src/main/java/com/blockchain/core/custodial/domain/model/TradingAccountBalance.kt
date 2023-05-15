@@ -7,5 +7,5 @@ data class TradingAccountBalance(
     val withdrawable: Money,
     val pending: Money,
     val dashboardDisplay: Money,
-    val hasTransactions: Boolean = false,
+    val hasTransactions: Boolean = false
 )

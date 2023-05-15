@@ -149,7 +149,7 @@ fun EarnDashboardScreen(
                 viewModel.onIntent(EarnDashboardIntent.FinishOnboarding)
             },
             openSettings = openSettings,
-            launchQrScanner = launchQrScanner,
+            launchQrScanner = launchQrScanner
         )
     }
 }
@@ -174,7 +174,6 @@ fun EarnDashboard(
             .fillMaxSize()
             .background(color = AppTheme.colors.backgroundMuted)
     ) {
-
         MenuOptionsScreen(
             openSettings = openSettings,
             launchQrScanner = launchQrScanner
@@ -197,6 +196,7 @@ fun EarnDashboard(
                         },
                     onFinishOnboarding = onFinishOnboarding
                 )
+
                 is DashboardState.ShowError -> EarnLoadError(onRefreshData)
                 is DashboardState.EarningAndDiscover -> EarningAndDiscover(
                     state = s,
@@ -208,6 +208,7 @@ fun EarnDashboard(
                     discoverTabQueryBy = discoverTabQueryBy,
                     onCompareProductsClicked = onCompareProductsClicked
                 )
+
                 is DashboardState.OnlyDiscover -> DiscoverScreen(
                     queryFilter = discoverTabQueryFilter,
                     filterAction = discoverTabFilterAction,
@@ -240,12 +241,12 @@ fun EarningAndDiscover(
     var selectedTab by remember { mutableStateOf(SelectedTab.Earning) }
 
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TabSwitcher(
             tabs = persistentListOf(
-                stringResource(id = R.string.earn_dashboard_tab_earning),
-                stringResource(id = R.string.earn_dashboard_tab_discover)
+                stringResource(id = com.blockchain.stringResources.R.string.earn_dashboard_tab_earning),
+                stringResource(id = com.blockchain.stringResources.R.string.earn_dashboard_tab_discover)
             ),
             initialTabIndex = selectedTab.index,
             onTabChanged = {
@@ -270,6 +271,7 @@ fun EarningAndDiscover(
                     }
                 )
             }
+
             SelectedTab.Discover -> {
                 DiscoverScreen(
                     queryFilter = discoverTabQueryFilter,
@@ -296,7 +298,7 @@ private fun DiscoverScreen(
     discoverAssetList: List<EarnAsset>,
     onItemClicked: (EarnAsset) -> Unit,
     discoverTabQueryBy: String,
-    onOpenProductComparator: () -> Unit,
+    onOpenProductComparator: () -> Unit
 ) {
     var searchedText by remember { mutableStateOf("") }
 
@@ -318,7 +320,7 @@ private fun DiscoverScreen(
                     )
                 ) {
                     NonCancelableOutlinedSearch(
-                        placeholder = stringResource(R.string.staking_dashboard_search),
+                        placeholder = stringResource(com.blockchain.stringResources.R.string.staking_dashboard_search),
                         prePopulatedText = discoverTabQueryBy,
                         onValueChange = {
                             searchedText = it
@@ -345,7 +347,7 @@ private fun DiscoverScreen(
             item {
                 SimpleText(
                     modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(R.string.earning_dashboard_no_results),
+                    text = stringResource(com.blockchain.stringResources.R.string.earning_dashboard_no_results),
                     style = ComposeTypographies.Body1,
                     color = ComposeColors.Body,
                     gravity = ComposeGravities.Centre
@@ -354,7 +356,7 @@ private fun DiscoverScreen(
         } else if (searchedText.isEmpty() && discoverAssetList.isEmpty()) {
             item {
                 SimpleText(
-                    text = stringResource(R.string.earning_dashboard_empty_filter),
+                    text = stringResource(com.blockchain.stringResources.R.string.earning_dashboard_empty_filter),
                     style = ComposeTypographies.Body1,
                     color = ComposeColors.Body,
                     gravity = ComposeGravities.Centre
@@ -398,7 +400,8 @@ private fun DiscoverScreen(
                                 bodyStart = buildAnnotatedString {
                                     append(
                                         stringResource(
-                                            id = R.string.staking_summary_rate_value, item.rate.toString()
+                                            id = com.blockchain.stringResources.R.string.staking_summary_rate_value,
+                                            item.rate.toString()
                                         )
                                     )
                                 },
@@ -406,28 +409,36 @@ private fun DiscoverScreen(
                                     TagViewState(
                                         when (item.type) {
                                             EarnType.Passive -> stringResource(
-                                                id = R.string.earn_rewards_label_passive_short
+                                                id = com.blockchain.stringResources.R
+                                                    .string.earn_rewards_label_passive_short
                                             )
+
                                             EarnType.Staking -> stringResource(
-                                                id = R.string.earn_rewards_label_staking_short
+                                                id = com.blockchain.stringResources.R
+                                                    .string.earn_rewards_label_staking_short
                                             )
+
                                             EarnType.Active -> stringResource(
-                                                id = R.string.earn_rewards_label_active_short
+                                                id = com.blockchain.stringResources.R
+                                                    .string.earn_rewards_label_active_short
                                             )
                                         },
                                         TagType.Default()
                                     )
                                 ),
                                 isInlineTags = true,
-                                endImageResource = ImageResource.Local(R.drawable.ic_chevron_end),
+                                endImageResource = ImageResource.Local(
+                                    com.blockchain.componentlib.R.drawable.ic_chevron_end
+                                ),
                                 onClick = {
                                     onItemClicked(item)
-                                },
+                                }
                             )
 
                             if (index < discoverAssetList.lastIndex) {
                                 HorizontalDivider(
-                                    modifier = Modifier.fillMaxWidth(), dividerColor = AppTheme.colors.backgroundMuted
+                                    modifier = Modifier.fillMaxWidth(),
+                                    dividerColor = AppTheme.colors.backgroundMuted
                                 )
                             } else {
                                 Spacer(modifier = Modifier.height(100.dp))
@@ -449,19 +460,26 @@ private fun ProductComparatorCta(onOpenProductComparator: () -> Unit) {
     ) {
         TableRow(
             contentStart = {
-                Image(imageResource = ImageResource.Local(R.drawable.coins_on).withTint(AppTheme.colors.primary))
+                Image(
+                    imageResource = ImageResource.Local(com.blockchain.componentlib.icons.R.drawable.coins_on)
+                        .withTint(AppTheme.colors.primary)
+                )
             },
             content = {
                 Column(modifier = Modifier.padding(start = AppTheme.dimensions.smallSpacing)) {
                     SimpleText(
-                        text = stringResource(id = R.string.earn_product_comparator_title),
+                        text = stringResource(
+                            id = com.blockchain.stringResources.R.string.earn_product_comparator_title
+                        ),
                         style = ComposeTypographies.Caption1,
                         color = ComposeColors.Title,
                         gravity = ComposeGravities.Start
                     )
                     SmallestVerticalSpacer()
                     SimpleText(
-                        text = stringResource(id = R.string.earn_product_comparator_description),
+                        text = stringResource(
+                            id = com.blockchain.stringResources.R.string.earn_product_comparator_description
+                        ),
                         style = ComposeTypographies.Paragraph2,
                         color = ComposeColors.Title,
                         gravity = ComposeGravities.Start
@@ -470,7 +488,7 @@ private fun ProductComparatorCta(onOpenProductComparator: () -> Unit) {
             },
             contentEnd = {
                 SmallSecondaryButton(
-                    text = stringResource(id = R.string.common_go),
+                    text = stringResource(id = com.blockchain.stringResources.R.string.common_go),
                     onClick = onOpenProductComparator,
                     state = ButtonState.Enabled,
                     modifier = Modifier
@@ -513,22 +531,22 @@ private fun LearningCarousel(
     val listItems = persistentListOf(
         DiscoverCarouselItem(
             type = EarnType.Passive,
-            title = R.string.earn_rewards_label_passive,
-            description = R.string.earn_rewards_carousel_passive_desc,
+            title = com.blockchain.stringResources.R.string.earn_rewards_label_passive,
+            description = com.blockchain.stringResources.R.string.earn_rewards_carousel_passive_desc,
             icon = R.drawable.ic_interest_blue_circle,
             learnMoreUrl = CAROUSEL_REWARDS_LINK
         ),
         DiscoverCarouselItem(
             type = EarnType.Staking,
-            title = R.string.earn_rewards_label_staking,
-            description = R.string.earn_rewards_carousel_staking_desc,
+            title = com.blockchain.stringResources.R.string.earn_rewards_label_staking,
+            description = com.blockchain.stringResources.R.string.earn_rewards_carousel_staking_desc,
             icon = R.drawable.ic_lock,
             learnMoreUrl = CAROUSEL_STAKING_LINK
         ),
         DiscoverCarouselItem(
             type = EarnType.Active,
-            title = R.string.earn_rewards_label_active,
-            description = R.string.earn_rewards_carousel_active_desc,
+            title = com.blockchain.stringResources.R.string.earn_rewards_label_active,
+            description = com.blockchain.stringResources.R.string.earn_rewards_carousel_active_desc,
             icon = R.drawable.ic_lock,
             learnMoreUrl = CAROUSEL_ACTIVE_LINK
         )
@@ -585,7 +603,7 @@ private fun LearningCarousel(
                         )
 
                         SmallMinimalButton(
-                            text = stringResource(R.string.common_learn_more),
+                            text = stringResource(com.blockchain.stringResources.R.string.common_learn_more),
                             onClick = {
                                 onLearnMoreClicked(it.learnMoreUrl)
                                 analytics.logEvent(EarnAnalytics.LearnMoreClicked(product = it.type))
@@ -607,7 +625,6 @@ private fun EarningScreen(
     investNowClicked: () -> Unit
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
         SimpleText(
             text = totalEarningBalanceFiat,
             style = ComposeTypographies.Title1,
@@ -618,7 +635,7 @@ private fun EarningScreen(
         SmallestVerticalSpacer()
 
         SimpleText(
-            text = stringResource(id = R.string.common_total_balance),
+            text = stringResource(id = com.blockchain.stringResources.R.string.common_total_balance),
             style = ComposeTypographies.Paragraph2,
             color = ComposeColors.Body,
             gravity = ComposeGravities.Centre
@@ -629,7 +646,7 @@ private fun EarningScreen(
         if (earningAssetList.isEmpty()) {
             SimpleText(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                text = stringResource(R.string.earning_dashboard_empty_filter),
+                text = stringResource(com.blockchain.stringResources.R.string.earning_dashboard_empty_filter),
                 style = ComposeTypographies.Body1,
                 color = ComposeColors.Body,
                 gravity = ComposeGravities.Centre
@@ -637,7 +654,7 @@ private fun EarningScreen(
 
             PrimaryButton(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                text = stringResource(R.string.earning_dashboard_empty_filter_cta),
+                text = stringResource(com.blockchain.stringResources.R.string.earning_dashboard_empty_filter_cta),
                 onClick = { investNowClicked() }
             )
         } else {
@@ -654,7 +671,8 @@ private fun EarningScreen(
                                 bodyStart = buildAnnotatedString {
                                     append(
                                         stringResource(
-                                            id = R.string.staking_summary_rate_value, asset.rate.toString()
+                                            id = com.blockchain.stringResources.R.string.staking_summary_rate_value,
+                                            asset.rate.toString()
                                         )
                                     )
                                 },
@@ -662,13 +680,18 @@ private fun EarningScreen(
                                     TagViewState(
                                         when (asset.type) {
                                             EarnType.Passive -> stringResource(
-                                                id = R.string.earn_rewards_label_passive_short
+                                                id =
+                                                com.blockchain.stringResources.R.string.earn_rewards_label_passive_short
                                             )
+
                                             EarnType.Staking -> stringResource(
-                                                id = R.string.earn_rewards_label_staking_short
+                                                id =
+                                                com.blockchain.stringResources.R.string.earn_rewards_label_staking_short
                                             )
+
                                             EarnType.Active -> stringResource(
-                                                id = R.string.earn_rewards_label_active_short
+                                                id =
+                                                com.blockchain.stringResources.R.string.earn_rewards_label_active_short
                                             )
                                         },
                                         TagType.Default()
@@ -681,7 +704,8 @@ private fun EarningScreen(
 
                             if (index < earningAssetList.lastIndex) {
                                 HorizontalDivider(
-                                    modifier = Modifier.fillMaxWidth(), dividerColor = AppTheme.colors.backgroundMuted
+                                    modifier = Modifier.fillMaxWidth(),
+                                    dividerColor = AppTheme.colors.backgroundMuted
                                 )
                             } else {
                                 Spacer(modifier = Modifier.height(100.dp))
@@ -696,10 +720,10 @@ private fun EarningScreen(
 
 private fun EarnDashboardListFilter.title(): Int =
     when (this) {
-        EarnDashboardListFilter.All -> R.string.earn_dashboard_filter_all
-        EarnDashboardListFilter.Staking -> R.string.earn_dashboard_filter_staking
-        EarnDashboardListFilter.Interest -> R.string.earn_dashboard_filter_interest
-        EarnDashboardListFilter.Active -> R.string.earn_dashboard_filter_active
+        EarnDashboardListFilter.All -> com.blockchain.stringResources.R.string.earn_dashboard_filter_all
+        EarnDashboardListFilter.Staking -> com.blockchain.stringResources.R.string.earn_dashboard_filter_staking
+        EarnDashboardListFilter.Interest -> com.blockchain.stringResources.R.string.earn_dashboard_filter_interest
+        EarnDashboardListFilter.Active -> com.blockchain.stringResources.R.string.earn_dashboard_filter_active
     }
 
 private enum class SelectedTab(val index: Int) {
@@ -737,9 +761,9 @@ fun EarnLoadError(onRefresh: () -> Unit) {
         factory = { context ->
             EmptyStateView(context).apply {
                 setDetails(
-                    title = R.string.earn_dashboard_error_title,
-                    description = R.string.earn_dashboard_error_desc,
-                    action = { onRefresh() },
+                    title = com.blockchain.stringResources.R.string.earn_dashboard_error_title,
+                    description = com.blockchain.stringResources.R.string.earn_dashboard_error_desc,
+                    action = { onRefresh() }
                 )
             }
         }

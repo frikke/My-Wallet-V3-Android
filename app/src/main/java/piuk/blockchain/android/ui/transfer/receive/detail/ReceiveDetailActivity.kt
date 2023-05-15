@@ -61,7 +61,10 @@ class ReceiveDetailActivity :
         super.onCreate(savedInstanceState)
 
         updateToolbar(
-            toolbarTitle = getString(R.string.tx_title_receive, account?.currency?.displayTicker),
+            toolbarTitle = getString(
+                com.blockchain.stringResources.R.string.tx_title_receive,
+                account?.currency?.displayTicker
+            ),
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
 
@@ -97,12 +100,16 @@ class ReceiveDetailActivity :
                     network.apply {
                         visible()
                         iconUrl = tagUrl
-                        text = getString(R.string.coinview_asset_l1, currency.displayTicker, l2Network.name)
+                        text = getString(
+                            com.blockchain.stringResources.R.string.coinview_asset_l1,
+                            currency.displayTicker,
+                            l2Network.name
+                        )
                     }
                 }
 
                 copyButton.apply {
-                    text = getString(R.string.receive_copy)
+                    text = getString(com.blockchain.stringResources.R.string.receive_copy)
                     textColor = Grey900
                     this@apply.icon = Icons.Copy.withTint(textColor).withSize(24.dp)
                     buttonState = ButtonState.Disabled
@@ -119,7 +126,10 @@ class ReceiveDetailActivity :
     override fun render(newState: ReceiveDetailState) {
         with(binding) {
             updateToolbar(
-                toolbarTitle = getString(R.string.tx_title_receive, newState.account.currency.displayTicker),
+                toolbarTitle = getString(
+                    com.blockchain.stringResources.R.string.tx_title_receive,
+                    newState.account.currency.displayTicker
+                ),
                 backAction = { onBackPressedDispatcher.onBackPressed() }
             )
 
@@ -140,8 +150,8 @@ class ReceiveDetailActivity :
 
                         copyToClipboardWithConfirmationDialog(
                             confirmationAnchorView = binding.root,
-                            confirmationMessage = R.string.receive_address_to_clipboard,
-                            label = getString(R.string.send_address_title),
+                            confirmationMessage = com.blockchain.stringResources.R.string.receive_address_to_clipboard,
+                            label = getString(com.blockchain.stringResources.R.string.send_address_title),
                             text = newState.cryptoAddress.address
                         )
                     }
@@ -158,7 +168,7 @@ class ReceiveDetailActivity :
                         squared = true
                         image = ImageResource.LocalWithResolvedBitmap(
                             bitmap = qrBitmap,
-                            contentDescription = getString(R.string.scan_qr),
+                            contentDescription = getString(com.blockchain.stringResources.R.string.scan_qr),
                             shape = RectangleShape
                         )
                     }
@@ -181,7 +191,7 @@ class ReceiveDetailActivity :
             newState.networkName?.let { networkName ->
                 networkAlert.apply {
                     text = getString(
-                        R.string.receive_network_warning,
+                        com.blockchain.stringResources.R.string.receive_network_warning,
                         account?.currency?.displayTicker,
                         networkName
                     )

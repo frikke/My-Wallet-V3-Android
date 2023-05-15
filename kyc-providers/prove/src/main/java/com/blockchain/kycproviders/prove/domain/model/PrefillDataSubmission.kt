@@ -5,5 +5,5 @@ data class PrefillDataSubmission(
     val lastName: String,
     val address: Address,
     val dob: String, // ISO 8601
-    val mobileNumber: String,
+    val mobileNumber: String
 )

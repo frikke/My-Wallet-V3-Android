@@ -41,7 +41,7 @@ class DexAccountsRepository(
     private val currencyPrefs: CurrencyPrefs,
     private val dexPrefs: DexPrefs,
     private val assetCatalogue: AssetCatalogue,
-    private val dexTokensDataStorage: DexTokensDataStorage,
+    private val dexTokensDataStorage: DexTokensDataStorage
 ) : DexAccountsService {
     override fun sourceAccounts(): Flow<List<DexAccount>> =
         dexSourceAccounts().catch {
@@ -101,15 +101,16 @@ class DexAccountsRepository(
                             chainId = ETH_CHAIN_ID,
                             isVerified = token?.isVerified ?: false
                         ),
-                        fiatBalance = balance.totalFiat,
+                        fiatBalance = balance.totalFiat
                     )
                 }
             }
         }.onEach {
             sourceAccountsCache = it
         }.onStart {
-            if (sourceAccountsCache.isNotEmpty())
+            if (sourceAccountsCache.isNotEmpty()) {
                 emit(sourceAccountsCache)
+            }
         }
     }
 
@@ -150,7 +151,7 @@ class DexAccountsRepository(
                                     ?: return@mapNotNull null,
                                 chainId = accountCurrency.coinNetwork?.chainId ?: return@mapNotNull null,
                                 isVerified = token?.isVerified ?: false
-                            ),
+                            )
                         )
                     }.plus(
                         activeAcc.map { (account, balance) ->
@@ -168,7 +169,7 @@ class DexAccountsRepository(
                                     isVerified = token?.isVerified ?: false
                                 ),
                                 balance = balance.total,
-                                fiatBalance = balance.totalFiat,
+                                fiatBalance = balance.totalFiat
                             )
                         }
                     )
@@ -177,8 +178,9 @@ class DexAccountsRepository(
                 destinationAccountsCache = it
             }
         }.onStart {
-            if (destinationAccountsCache.isNotEmpty())
+            if (destinationAccountsCache.isNotEmpty()) {
                 emit(destinationAccountsCache)
+            }
         }
 
     private fun activeAccounts() =

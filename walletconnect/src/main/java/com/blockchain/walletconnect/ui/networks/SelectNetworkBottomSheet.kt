@@ -100,14 +100,19 @@ class SelectNetworkBottomSheet :
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .background(Color.White, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_spacing)))
+                    .background(
+                        Color.White,
+                        RoundedCornerShape(dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing))
+                    )
                     .padding(AppTheme.dimensions.smallSpacing)
             ) {
                 Image(
                     modifier = Modifier
                         .padding(top = AppTheme.dimensions.tinySpacing)
                         .align(Alignment.CenterHorizontally),
-                    imageResource = ImageResource.Local(R.drawable.vector_sheet_indicator_small)
+                    imageResource = ImageResource.Local(
+                        com.blockchain.componentlib.R.drawable.vector_sheet_indicator_small
+                    )
                 )
                 SimpleText(
                     modifier = Modifier
@@ -165,17 +170,21 @@ class SelectNetworkBottomSheet :
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .padding(bottom = AppTheme.dimensions.standardSpacing)
-                .background(Grey000, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_spacing))),
+                .background(
+                    Grey000,
+                    RoundedCornerShape(dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing))
+                )
         ) {
             itemsIndexed(
                 items = networkItems,
                 itemContent = { index, networkItem ->
                     NetworkListItem(networkItem)
-                    if (index < networkItems.lastIndex)
+                    if (index < networkItems.lastIndex) {
                         HorizontalDivider(
                             modifier = Modifier.fillMaxWidth(),
                             dividerColor = AppTheme.colors.medium
                         )
+                    }
                 }
             )
         }

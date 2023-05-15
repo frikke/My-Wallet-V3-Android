@@ -83,7 +83,7 @@ import com.blockchain.core.user.WatchlistDataManagerImpl
 import com.blockchain.core.utils.AESUtilWrapper
 import com.blockchain.core.utils.UUIDGenerator
 import com.blockchain.core.walletoptions.WalletOptionsDataManager
-import com.blockchain.core.walletoptions.WalletOptionsState
+import com.blockchain.core.walletoptions.WalletOptionsStore
 import com.blockchain.core.watchlist.data.WatchlistRepository
 import com.blockchain.core.watchlist.data.datasources.WatchlistStore
 import com.blockchain.core.watchlist.domain.WatchlistService
@@ -148,13 +148,13 @@ val coreModule = module {
 
         factory<DataRemediationService> {
             DataRemediationRepository(
-                api = get(),
+                api = get()
             )
         }
 
         scoped {
             TradingStore(
-                balanceService = get(),
+                balanceService = get()
             )
         }
 
@@ -167,7 +167,7 @@ val coreModule = module {
 
         scoped {
             BrokerageDataManager(
-                brokerageService = get(),
+                brokerageService = get()
             )
         }
 
@@ -175,7 +175,7 @@ val coreModule = module {
             LimitsDataManagerImpl(
                 limitsService = get(),
                 exchangeRatesDataManager = get(),
-                assetCatalogue = get(),
+                assetCatalogue = get()
             )
         }.bind(LimitsDataManager::class)
 
@@ -188,7 +188,7 @@ val coreModule = module {
         scoped {
             EligibilityRepository(
                 productsEligibilityStore = get(),
-                eligibilityApiService = get(),
+                eligibilityApiService = get()
             )
         }.bind(EligibilityService::class)
 
@@ -199,7 +199,7 @@ val coreModule = module {
                 assetCatalogue = get(),
                 currencyPrefs = get(),
                 analytics = get(),
-                api = get(),
+                api = get()
             )
         }.bind(FiatCurrenciesService::class)
 
@@ -236,13 +236,13 @@ val coreModule = module {
 
         scoped {
             PaymentTransactionHistoryStore(
-                nabuService = get(),
+                nabuService = get()
             )
         }
 
         scoped {
             SwapTransactionsStore(
-                nabuService = get(),
+                nabuService = get()
             )
         }
 
@@ -352,8 +352,6 @@ val coreModule = module {
 
         scoped { EthDataStore() }
 
-        scoped { WalletOptionsState() }
-
         scoped {
             SettingsDataManager(
                 settingsService = get(),
@@ -374,14 +372,15 @@ val coreModule = module {
 
         factory {
             WalletOptionsDataManager(
-                authService = get(),
-                walletOptionsState = get(),
-                settingsDataManager = get(),
-                explorerUrl = getProperty("explorer-api")
+                walletOptionsStore = get()
             )
         }.apply {
             bind(XlmTransactionTimeoutFetcher::class)
             bind(XlmHorizonUrlFetcher::class)
+        }
+
+        scoped {
+            WalletOptionsStore(walletAuthService = get())
         }
 
         scoped { FeeDataManager(get()) }
@@ -507,7 +506,7 @@ val coreModule = module {
             ReferralRepository(
                 referralStore = get(),
                 referralApi = get(),
-                currencyPrefs = get(),
+                currencyPrefs = get()
             )
         }.bind(ReferralService::class)
 
@@ -517,7 +516,7 @@ val coreModule = module {
                 assetCatalogue = get(),
                 subscriptionsStore = get(),
                 coinTypeStore = get(),
-                remoteConfigService = get(),
+                remoteConfigService = get()
             )
         }
 
@@ -543,7 +542,7 @@ val coreModule = module {
     single {
         DynamicAssetsDataManagerImpl(
             discoveryService = get(),
-            fiatAssetsStore = get(),
+            fiatAssetsStore = get()
         )
     }.bind(DynamicAssetsDataManager::class)
 

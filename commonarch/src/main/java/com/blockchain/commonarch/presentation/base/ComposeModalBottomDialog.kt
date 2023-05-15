@@ -71,7 +71,7 @@ abstract class ComposeModalBottomDialog : BottomSheetDialogFragment() {
                 BottomSheetBehavior.STATE_EXPANDED -> onSheetExpanded()
                 BottomSheetBehavior.STATE_COLLAPSED -> onSheetCollapsed()
                 BottomSheetBehavior.STATE_HIDDEN -> onSheetHidden()
-                else -> { /* shouldn't get here! */
+                else -> { // shouldn't get here!
                 }
             }
         }

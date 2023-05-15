@@ -32,7 +32,7 @@ interface BankService {
 
     fun getLinkedBank(
         id: String,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh),
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<DataResource<LinkedBank>>
 
     fun getLinkedBanks(): Single<List<LinkedPaymentMethod.Bank>>
@@ -45,13 +45,13 @@ interface BankService {
         linkingId: String,
         providerAccountId: String,
         accountId: String,
-        attributes: BankProviderAccountAttributes,
+        attributes: BankProviderAccountAttributes
     ): Completable
 
     fun linkPlaidBankAccount(
         linkingId: String,
         accountId: String,
-        publicToken: String,
+        publicToken: String
     ): Completable
 
     fun refreshPlaidBankAccount(
@@ -60,19 +60,19 @@ interface BankService {
 
     fun checkSettlement(
         accountId: String,
-        amount: Money,
+        amount: Money
     ): Single<SettlementInfo>
 
     suspend fun getDepositTerms(
         paymentMethodId: String,
-        amount: Money,
+        amount: Money
     ): Outcome<Exception, DepositTerms>
 
     fun startBankTransfer(
         id: String,
         amount: Money,
         currency: String,
-        callback: String? = null,
+        callback: String? = null
     ): Single<String>
 
     fun updateOpenBankingConsent(url: String, token: String): Completable

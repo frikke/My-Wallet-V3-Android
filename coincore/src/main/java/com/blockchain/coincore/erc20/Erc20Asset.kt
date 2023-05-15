@@ -35,7 +35,7 @@ internal class Erc20Asset(
     private val currencyPrefs: CurrencyPrefs,
     private val formatUtils: FormatUtilities,
     private val historicActiveBalancesRepository: HistoricActiveBalancesRepository,
-    private val addressResolver: EthHotWalletAddressResolver,
+    private val addressResolver: EthHotWalletAddressResolver
 ) : CryptoAssetBase() {
     private val erc20address
         get() = erc20DataManager.accountHash
@@ -52,9 +52,11 @@ internal class Erc20Asset(
                 networks to isFunded
             }.map { (networks, isFunded) ->
                 networks.firstOrNull { network -> network.networkTicker == coinNetwork.networkTicker }?.let { network ->
-                    if (network.networkTicker in listOf("MATIC", "ETH") || isFunded)
+                    if (network.networkTicker in listOf("MATIC", "ETH") || isFunded) {
                         listOf(getNonCustodialAccount(network))
-                    else emptyList()
+                    } else {
+                        emptyList()
+                    }
                 } ?: emptyList()
             }
     }
@@ -75,7 +77,6 @@ internal class Erc20Asset(
 
     @CommonCode("Exists in EthAsset")
     override fun parseAddress(address: String, label: String?, isDomainAddress: Boolean): Maybe<ReceiveAddress> {
-
         return if (address.startsWith(FormatUtilities.ETHEREUM_PREFIX)) {
             processEip681Format(address, label, isDomainAddress)
         } else {
@@ -130,7 +131,8 @@ internal class Erc20Asset(
             it.startsWith(ERC20_ADDRESS_AMOUNT_PART, true)
         }?.let { param ->
             CryptoValue.fromMinor(
-                currency, param.removePrefix(ERC20_ADDRESS_AMOUNT_PART).toBigDecimal()
+                currency,
+                param.removePrefix(ERC20_ADDRESS_AMOUNT_PART).toBigDecimal()
             )
         }
 
@@ -170,7 +172,7 @@ internal class Erc20Address(
     override val isDomain: Boolean = false,
     override val amount: Money? = null,
     override val onTxCompleted: (TxResult) -> Completable = { Completable.complete() },
-    val isContract: Boolean = false,
+    val isContract: Boolean = false
 ) : CryptoAddress {
     init {
         require(asset.isLayer2Token)

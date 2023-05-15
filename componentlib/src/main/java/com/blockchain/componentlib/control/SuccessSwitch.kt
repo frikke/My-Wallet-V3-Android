@@ -21,7 +21,7 @@ fun SuccessSwitch(
     onCheckChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    isDarkMode: Boolean = isSystemInDarkTheme(),
+    isDarkMode: Boolean = isSystemInDarkTheme()
 ) {
     val checkedThumbColor = if (isDarkMode) Green400 else Green600
     val checkedTrackColor = if (isDarkMode) Green600 else Green400
@@ -38,10 +38,10 @@ fun SuccessSwitch(
             disabledCheckedThumbColor = uncheckedThumbColor,
             disabledCheckedTrackColor = uncheckedTrackColor,
             disabledUncheckedThumbColor = uncheckedThumbColor,
-            disabledUncheckedTrackColor = uncheckedTrackColor,
+            disabledUncheckedTrackColor = uncheckedTrackColor
         ),
         enabled = enabled,
-        modifier = modifier,
+        modifier = modifier
     )
 }
 
@@ -52,7 +52,7 @@ private fun SuccessSwitchPreview_NotChecked() {
         AppSurface {
             SuccessSwitch(
                 isChecked = false,
-                onCheckChanged = {},
+                onCheckChanged = {}
             )
         }
     }
@@ -65,7 +65,7 @@ private fun SuccessSwitchPreview_IsChecked() {
         AppSurface {
             SuccessSwitch(
                 isChecked = true,
-                onCheckChanged = {},
+                onCheckChanged = {}
             )
         }
     }
@@ -79,7 +79,7 @@ private fun SuccessSwitchPreview_NotChecked_NotEnabled() {
             SuccessSwitch(
                 isChecked = false,
                 onCheckChanged = {},
-                enabled = false,
+                enabled = false
             )
         }
     }
@@ -93,7 +93,7 @@ private fun SuccessSwitchPreview_IsChecked_NotEnabled() {
             SuccessSwitch(
                 isChecked = true,
                 onCheckChanged = {},
-                enabled = false,
+                enabled = false
             )
         }
     }

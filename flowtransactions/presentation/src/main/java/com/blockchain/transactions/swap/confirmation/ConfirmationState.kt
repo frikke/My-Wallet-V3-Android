@@ -25,7 +25,7 @@ data class ConfirmationModelState(
     val quoteRefreshTotalSeconds: Int? = null,
     val quoteRefreshRemainingSeconds: Int? = null,
 
-    val quoteId: String? = null,
+    val quoteId: String? = null
 ) : ModelState
 
 data class ConfirmationViewState(
@@ -50,5 +50,5 @@ data class ConfirmationViewState(
     val quoteRefreshRemainingPercentage: Float?,
     val quoteRefreshRemainingSeconds: Int?,
 
-    val submitButtonState: ButtonState = ButtonState.Disabled,
+    val submitButtonState: ButtonState = ButtonState.Disabled
 ) : ViewState

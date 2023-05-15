@@ -52,22 +52,22 @@ fun DashboardOnboardingScreen(
     state: DashboardOnboardingState,
     onIntent: (DashboardOnboardingIntent) -> Unit,
     backClicked: () -> Unit,
-    analyticsNextStepButtonClicked: (Boolean) -> Unit,
+    analyticsNextStepButtonClicked: (Boolean) -> Unit
 ) {
     val total = state.steps.size
     val complete = state.steps.count { it.isCompleted }
 
     Column(
-        modifier = Modifier.background(AppTheme.colors.light),
+        modifier = Modifier.background(AppTheme.colors.light)
     ) {
         NavigationBar(
             title = "",
-            onBackButtonClick = backClicked,
+            onBackButtonClick = backClicked
         )
 
         Column(
             modifier = Modifier.padding(horizontal = AppTheme.dimensions.smallSpacing),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             StepsProgress(complete, total)
 
@@ -75,20 +75,20 @@ fun DashboardOnboardingScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = AppTheme.dimensions.standardSpacing),
-                text = stringResource(R.string.dashboard_onboarding_title2),
+                text = stringResource(com.blockchain.stringResources.R.string.dashboard_onboarding_title2),
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
-                gravity = ComposeGravities.Centre,
+                gravity = ComposeGravities.Centre
             )
 
             SimpleText(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = AppTheme.dimensions.tinySpacing),
-                text = stringResource(R.string.dashboard_onboarding_title3),
+                text = stringResource(com.blockchain.stringResources.R.string.dashboard_onboarding_title3),
                 style = ComposeTypographies.Body1,
                 color = ComposeColors.Body,
-                gravity = ComposeGravities.Centre,
+                gravity = ComposeGravities.Centre
             )
 
             Card(
@@ -113,8 +113,11 @@ fun DashboardOnboardingScreen(
                         }
                         val subtitleRes = when (item.state) {
                             DashboardOnboardingStepState.INCOMPLETE -> item.step.subtitleRes
-                            DashboardOnboardingStepState.PENDING -> R.string.dashboard_onboarding_step_pending
-                            DashboardOnboardingStepState.COMPLETE -> R.string.dashboard_onboarding_step_complete
+                            DashboardOnboardingStepState.PENDING ->
+                                com.blockchain.stringResources.R.string.dashboard_onboarding_step_pending
+
+                            DashboardOnboardingStepState.COMPLETE ->
+                                com.blockchain.stringResources.R.string.dashboard_onboarding_step_complete
                         }
                         val subtitleColor = when (item.state) {
                             DashboardOnboardingStepState.INCOMPLETE -> Grey600
@@ -124,13 +127,15 @@ fun DashboardOnboardingScreen(
                         val endImage = when (item.state) {
                             DashboardOnboardingStepState.INCOMPLETE -> ImageResource.Local(
                                 id = R.drawable.ic_chevron_right,
-                                colorFilter = ColorFilter.tint(colorResource(item.step.colorRes)),
+                                colorFilter = ColorFilter.tint(colorResource(item.step.colorRes))
                             )
+
                             DashboardOnboardingStepState.PENDING ->
                                 ImageResource.Local(R.drawable.ic_payment_progress)
+
                             DashboardOnboardingStepState.COMPLETE -> ImageResource.Local(
                                 id = R.drawable.ic_success_check,
-                                colorFilter = ColorFilter.tint(AppTheme.colors.success),
+                                colorFilter = ColorFilter.tint(AppTheme.colors.success)
                             )
                         }
                         DefaultTableRow(
@@ -142,14 +147,16 @@ fun DashboardOnboardingScreen(
                                 colorFilter = ColorFilter.tint(
                                     when (item.step) {
                                         DashboardOnboardingStep.UPGRADE_TO_GOLD ->
-                                            colorResource(R.color.onboarding_step_upgrade_to_gold)
+                                            colorResource(com.blockchain.common.R.color.onboarding_step_upgrade_to_gold)
                                         DashboardOnboardingStep.LINK_PAYMENT_METHOD ->
-                                            colorResource(R.color.onboarding_step_link_payment_method)
+                                            colorResource(
+                                                com.blockchain.common.R.color.onboarding_step_link_payment_method
+                                            )
                                         DashboardOnboardingStep.BUY ->
-                                            colorResource(R.color.onboarding_step_buy)
+                                            colorResource(com.blockchain.common.R.color.onboarding_step_buy)
                                     }
                                 ),
-                                size = AppTheme.dimensions.standardSpacing,
+                                size = AppTheme.dimensions.standardSpacing
                             ),
                             endImageResource = endImage,
                             onClick = onClick
@@ -175,7 +182,7 @@ fun DashboardOnboardingScreen(
                         .fillMaxWidth()
                         .padding(
                             horizontal = AppTheme.dimensions.tinySpacing,
-                            vertical = AppTheme.dimensions.smallSpacing,
+                            vertical = AppTheme.dimensions.smallSpacing
                         )
                         .requiredHeightIn(min = 48.dp),
                     text = stringResource(firstIncompleteStep.titleRes),
@@ -199,9 +206,9 @@ fun DashboardOnboardingScreen(
                             text = text,
                             textColor = textColor,
                             contentAlpha = textAlpha,
-                            icon = icon,
+                            icon = icon
                         )
-                    },
+                    }
                 )
             }
         }
@@ -219,21 +226,25 @@ fun StepsProgress(complete: Int, total: Int, modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxSize(),
             color = backgroundColor,
             strokeWidth = AppTheme.dimensions.tinySpacing,
-            progress = 1f,
+            progress = 1f
         )
         CircularProgressIndicator(
             modifier = Modifier.fillMaxSize(),
             color = progressColor,
             strokeWidth = AppTheme.dimensions.tinySpacing,
-            progress = progress,
+            progress = progress
         )
 
         SimpleText(
             modifier = Modifier.align(Alignment.Center),
-            text = stringResource(R.string.dashboard_onboarding_steps_counter, complete, total),
+            text = stringResource(
+                com.blockchain.stringResources.R.string.dashboard_onboarding_steps_counter,
+                complete,
+                total
+            ),
             style = ComposeTypographies.Title2,
             color = ComposeColors.Primary,
-            gravity = ComposeGravities.Centre,
+            gravity = ComposeGravities.Centre
         )
     }
 }
@@ -246,14 +257,14 @@ private val Int.ctaButtonTint: CtaColors
         return CtaColors(
             disabled = lighten,
             enabled = base,
-            pressed = darken,
+            pressed = darken
         )
     }
 
 private data class CtaColors(
     val disabled: Int,
     val enabled: Int,
-    val pressed: Int,
+    val pressed: Int
 )
 
 @Preview
@@ -270,6 +281,6 @@ private fun Preview() {
         ),
         onIntent = {},
         backClicked = {},
-        analyticsNextStepButtonClicked = {},
+        analyticsNextStepButtonClicked = {}
     )
 }

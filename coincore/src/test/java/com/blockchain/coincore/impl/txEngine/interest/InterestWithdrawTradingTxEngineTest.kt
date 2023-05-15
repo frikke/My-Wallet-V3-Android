@@ -150,7 +150,8 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
                     it.selectedFiat == TEST_USER_FIAT &&
                     it.txConfirmations.isEmpty() &&
                     it.limits == TxLimits.fromAmounts(
-                    CryptoValue.fromMinor(ASSET, BigInteger.ONE), MAX_WITHDRAW_AMOUNT_CRYPTO
+                    CryptoValue.fromMinor(ASSET, BigInteger.ONE),
+                    MAX_WITHDRAW_AMOUNT_CRYPTO
                 ) &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
@@ -243,7 +244,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
 
     private fun mockSourceAccount(
         totalBalance: Money = CryptoValue.zero(ASSET),
-        availableBalance: Money = CryptoValue.zero(ASSET),
+        availableBalance: Money = CryptoValue.zero(ASSET)
     ) = mock<CustodialInterestAccount> {
         on { currency }.thenReturn(ASSET)
         on { balanceRx() }.thenReturn(

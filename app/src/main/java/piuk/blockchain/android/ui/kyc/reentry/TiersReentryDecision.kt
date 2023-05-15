@@ -17,7 +17,7 @@ class TiersReentryDecision(
     private val custodialWalletManager: CustodialWalletManager,
     private val dataRemediationService: DataRemediationService,
     private val kycService: KycService,
-    private val userFeaturePermissionService: UserFeaturePermissionService,
+    private val userFeaturePermissionService: UserFeaturePermissionService
 ) : ReentryDecision {
 
     private lateinit var nabuUser: NabuUser

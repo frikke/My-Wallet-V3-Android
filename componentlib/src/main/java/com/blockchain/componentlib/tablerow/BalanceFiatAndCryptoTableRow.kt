@@ -80,7 +80,6 @@ private fun BalanceFiatAndCryptoTableRow(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.Start
@@ -102,9 +101,11 @@ private fun BalanceFiatAndCryptoTableRow(
 
                     Spacer(
                         modifier = Modifier.size(
-                            if (tag.isNotEmpty()) AppTheme.dimensions.composeSmallestSpacing
-                            else if (subtitle.isNotEmpty()) AppTheme.dimensions.smallestSpacing
-                            else 0.dp
+                            if (tag.isNotEmpty()) {
+                                AppTheme.dimensions.composeSmallestSpacing
+                            } else if (subtitle.isNotEmpty()) {
+                                AppTheme.dimensions.smallestSpacing
+                            } else 0.dp
                         )
                     )
 

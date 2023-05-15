@@ -47,7 +47,8 @@ class SettingsNavigationImpl(private val activity: BlockchainActivity?) : Settin
         when (action) {
             SettingsActivity.Companion.SettingsAction.Addresses ->
                 activity?.startActivityForResult(
-                    AddressesActivity.newIntent(activity), ACCOUNT_EDIT
+                    AddressesActivity.newIntent(activity),
+                    ACCOUNT_EDIT
                 )
             SettingsActivity.Companion.SettingsAction.Airdrops ->
                 activity?.startActivity(AirdropCentreActivity.newIntent(activity))

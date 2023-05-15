@@ -18,7 +18,7 @@ import java.util.Date
 internal fun RecurringBuyActivitySummaryItem.leadingTitle(): ActivityStackView {
     return ActivityStackView.Text(
         value = TextValue.IntResValue(
-            value = R.string.tx_title_bought,
+            value = com.blockchain.stringResources.R.string.tx_title_bought,
             args = listOf(account.currency.displayTicker)
         ),
         style = basicTitleStyle
@@ -37,14 +37,18 @@ internal fun RecurringBuyActivitySummaryItem.leadingSubtitle(): ActivityStackVie
             OrderState.FINISHED -> TextValue.StringValue(Date(timeStampMs).toFormattedDate())
             OrderState.AWAITING_FUNDS,
             OrderState.PENDING_EXECUTION,
-            OrderState.PENDING_CONFIRMATION -> TextValue.IntResValue(R.string.activity_state_pending)
-            OrderState.CANCELED -> TextValue.IntResValue(R.string.activity_state_canceled)
+            OrderState.PENDING_CONFIRMATION -> TextValue.IntResValue(
+                com.blockchain.stringResources.R.string.activity_state_pending
+            )
+            OrderState.CANCELED -> TextValue.IntResValue(
+                com.blockchain.stringResources.R.string.activity_state_canceled
+            )
             OrderState.FAILED -> TextValue.IntResValue(
                 when (failureReason) {
                     RecurringBuyFailureReason.INSUFFICIENT_FUNDS -> {
-                        R.string.recurring_buy_insufficient_funds_short_error
+                        com.blockchain.stringResources.R.string.recurring_buy_insufficient_funds_short_error
                     }
-                    else -> R.string.recurring_buy_short_error
+                    else -> com.blockchain.stringResources.R.string.recurring_buy_short_error
                 }
             )
             else -> TextValue.StringValue("")

@@ -17,7 +17,7 @@ class CopyableTextFormItem @JvmOverloads constructor(
     private val value: String = "",
     private val tooltip: String? = null,
     private val isCopyable: Boolean = false,
-    private val onCopy: (String) -> Unit = {},
+    private val onCopy: (String) -> Unit = {}
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
 
     init {

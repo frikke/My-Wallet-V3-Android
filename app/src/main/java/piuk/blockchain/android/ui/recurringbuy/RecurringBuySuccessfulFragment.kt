@@ -30,12 +30,14 @@ class RecurringBuySuccessfulFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity.updateToolbar(toolbarTitle = getString(R.string.recurring_buy_first_time_toolbar))
+        activity.updateToolbar(
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.recurring_buy_first_time_toolbar)
+        )
 
         binding.apply {
             icon.setAssetIconColours(
-                tintColor = getColor(requireContext(), R.color.blue_600),
-                filterColor = getColor(requireContext(), R.color.white)
+                tintColor = getColor(requireContext(), com.blockchain.common.R.color.blue_600),
+                filterColor = getColor(requireContext(), com.blockchain.common.R.color.white)
             )
             okBtn.setOnClickListener { requireActivity().finish() }
         }
@@ -58,7 +60,7 @@ class RecurringBuySuccessfulFragment :
             binding.noteSuccessRb.gone()
         }
         binding.subtitleSuccessRb.text = getString(
-            R.string.recurring_buy_first_time_success_subtitle,
+            com.blockchain.stringResources.R.string.recurring_buy_first_time_success_subtitle,
             state.order.amount?.formatOrSymbolForZero(),
             state.selectedCryptoAsset?.name,
             state.recurringBuyFrequency

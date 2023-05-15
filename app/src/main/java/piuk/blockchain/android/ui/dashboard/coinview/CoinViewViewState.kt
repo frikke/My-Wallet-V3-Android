@@ -107,7 +107,7 @@ sealed interface AssetDetailsItem {
         override val account: BlockchainAccount,
         override val balance: Money,
         override val fiatBalance: Money,
-        override val actions: Set<StateAwareAction>,
+        override val actions: Set<StateAwareAction>
     ) : CryptoDetailsInfo(
         account = account,
         balance = balance,
@@ -119,7 +119,7 @@ sealed interface AssetDetailsItem {
 
     data class CentralCta(
         val enabled: Boolean,
-        val account: BlockchainAccount,
+        val account: BlockchainAccount
     ) : AssetDetailsItem
 
     data class RecurringBuyInfo(

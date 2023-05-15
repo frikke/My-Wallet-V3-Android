@@ -105,12 +105,14 @@ class KycLimitsFragment :
                 ErrorSlidingBottomDialog.newInstance(
                     ErrorDialogData(
                         title = nabuException?.getServerSideErrorInfo()?.title ?: getString(
-                            R.string.setting_limits_load_error_title
+                            com.blockchain.stringResources.R.string.setting_limits_load_error_title
                         ),
                         description = nabuException?.getServerSideErrorInfo()?.description ?: getString(
-                            R.string.setting_limits_load_error_description
+                            com.blockchain.stringResources.R.string.setting_limits_load_error_description
                         ),
-                        errorButtonCopies = ErrorButtonCopies(primaryButtonText = getString(R.string.common_ok)),
+                        errorButtonCopies = ErrorButtonCopies(
+                            primaryButtonText = getString(com.blockchain.stringResources.R.string.common_ok)
+                        ),
                         error = errorState.toString(),
                         nabuApiException = (errorState.exception as? HttpException)?.let {
                             NabuApiExceptionFactory.fromResponseBody(errorState.exception)
@@ -151,7 +153,7 @@ class KycLimitsFragment :
             Header.NEW_KYC -> model.process(KycLimitsIntent.NewKycHeaderCtaClicked)
             Header.UPGRADE_TO_GOLD -> model.process(KycLimitsIntent.UpgradeToGoldHeaderCtaClicked)
             Header.HIDDEN,
-            Header.MAX_TIER_REACHED,
+            Header.MAX_TIER_REACHED
             -> {
             }
         }

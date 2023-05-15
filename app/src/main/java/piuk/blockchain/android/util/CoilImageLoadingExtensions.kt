@@ -25,8 +25,8 @@ fun Context.loadRemoteErrorAndStatusIcons(
     val statusIconRequest = ImageRequest.Builder(this)
         .data(statusIconUrl)
         .size(
-            resources.getDimension(R.dimen.standard_spacing).toInt(),
-            resources.getDimension(R.dimen.standard_spacing).toInt()
+            resources.getDimension(com.blockchain.componentlib.R.dimen.standard_spacing).toInt(),
+            resources.getDimension(com.blockchain.componentlib.R.dimen.standard_spacing).toInt()
         )
         .target(
             onSuccess = { drawable ->
@@ -59,12 +59,12 @@ fun Context.loadRemoteErrorIcon(
 private fun Context.getErrorIconRequest(
     iconUrl: String,
     onIconLoadSuccess: (Drawable) -> Unit,
-    onIconLoadError: () -> Unit,
+    onIconLoadError: () -> Unit
 ) = ImageRequest.Builder(this)
     .data(iconUrl)
     .size(
-        resources.getDimension(R.dimen.asset_icon_size_large).toInt(),
-        resources.getDimension(R.dimen.asset_icon_size_large).toInt()
+        resources.getDimension(com.blockchain.common.R.dimen.asset_icon_size_large).toInt(),
+        resources.getDimension(com.blockchain.common.R.dimen.asset_icon_size_large).toInt()
     )
     .target(
         onSuccess = { drawable ->

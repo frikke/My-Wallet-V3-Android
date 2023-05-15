@@ -28,9 +28,13 @@ class WalletLinkAndOpenBankingNavImpl(private val activity: BlockchainActivity?)
         activity?.replaceBottomSheet(
             FiatTransactionBottomSheet.newInstance(
                 amount.currencyCode,
-                activity.getString(R.string.deposit_confirmation_success_title, amount.toStringWithSymbol()),
                 activity.getString(
-                    R.string.yapily_fiat_deposit_success_subtitle, amount.toStringWithSymbol(),
+                    com.blockchain.stringResources.R.string.deposit_confirmation_success_title,
+                    amount.toStringWithSymbol()
+                ),
+                activity.getString(
+                    com.blockchain.stringResources.R.string.yapily_fiat_deposit_success_subtitle,
+                    amount.toStringWithSymbol(),
                     amount.currencyCode,
                     estimationTime
                 ),
@@ -43,9 +47,9 @@ class WalletLinkAndOpenBankingNavImpl(private val activity: BlockchainActivity?)
         activity?.replaceBottomSheet(
             FiatTransactionBottomSheet.newInstance(
                 orderValue.currencyCode,
-                activity.getString(R.string.deposit_confirmation_pending_title),
+                activity.getString(com.blockchain.stringResources.R.string.deposit_confirmation_pending_title),
                 activity.getString(
-                    R.string.deposit_confirmation_pending_subtitle
+                    com.blockchain.stringResources.R.string.deposit_confirmation_pending_subtitle
                 ),
                 FiatTransactionState.PENDING
             )
@@ -56,9 +60,9 @@ class WalletLinkAndOpenBankingNavImpl(private val activity: BlockchainActivity?)
         activity?.replaceBottomSheet(
             FiatTransactionBottomSheet.newInstance(
                 currency.displayTicker,
-                activity.getString(R.string.deposit_confirmation_pending_title),
+                activity.getString(com.blockchain.stringResources.R.string.deposit_confirmation_pending_title),
                 activity.getString(
-                    R.string.deposit_confirmation_pending_subtitle
+                    com.blockchain.stringResources.R.string.deposit_confirmation_pending_subtitle
                 ),
                 FiatTransactionState.ERROR
             )
@@ -68,7 +72,7 @@ class WalletLinkAndOpenBankingNavImpl(private val activity: BlockchainActivity?)
     override fun approvalError() {
         BlockchainSnackbar.make(
             activity!!.findViewById(android.R.id.content),
-            activity.getString(R.string.simple_buy_confirmation_error),
+            activity.getString(com.blockchain.stringResources.R.string.simple_buy_confirmation_error),
             type = SnackbarType.Error
         ).show()
     }
@@ -76,7 +80,7 @@ class WalletLinkAndOpenBankingNavImpl(private val activity: BlockchainActivity?)
     override fun openBankingError() {
         BlockchainSnackbar.make(
             activity!!.findViewById(android.R.id.content),
-            activity.getString(R.string.simple_buy_confirmation_error),
+            activity.getString(com.blockchain.stringResources.R.string.simple_buy_confirmation_error),
             type = SnackbarType.Error
         ).show()
     }
@@ -85,9 +89,9 @@ class WalletLinkAndOpenBankingNavImpl(private val activity: BlockchainActivity?)
         activity?.replaceBottomSheet(
             FiatTransactionBottomSheet.newInstance(
                 currency.displayTicker,
-                activity.getString(R.string.deposit_confirmation_error_title),
+                activity.getString(com.blockchain.stringResources.R.string.deposit_confirmation_error_title),
                 activity.getString(
-                    R.string.deposit_confirmation_error_subtitle
+                    com.blockchain.stringResources.R.string.deposit_confirmation_error_subtitle
                 ),
                 FiatTransactionState.ERROR
             )
@@ -110,9 +114,12 @@ class WalletLinkAndOpenBankingNavImpl(private val activity: BlockchainActivity?)
         activity?.replaceBottomSheet(
             FiatTransactionBottomSheet.newInstance(
                 currency.displayTicker,
-                activity.getString(R.string.yapily_payment_to_fiat_wallet_title, currency.displayTicker),
                 activity.getString(
-                    R.string.yapily_payment_to_fiat_wallet_subtitle,
+                    com.blockchain.stringResources.R.string.yapily_payment_to_fiat_wallet_title,
+                    currency.displayTicker
+                ),
+                activity.getString(
+                    com.blockchain.stringResources.R.string.yapily_payment_to_fiat_wallet_subtitle,
                     currency.displayTicker,
                     currency.displayTicker
                 ),

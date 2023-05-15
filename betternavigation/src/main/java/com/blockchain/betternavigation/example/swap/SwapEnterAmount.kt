@@ -7,7 +7,7 @@ internal fun SwapEnterAmountScreen(
     navigateToConfirmation: (
         amount: String,
         source: String,
-        target: String,
+        target: String
     ) -> Unit
 ) {
 }

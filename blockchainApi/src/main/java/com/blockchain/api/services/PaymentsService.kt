@@ -37,7 +37,7 @@ private fun WithdrawalLocksResponse.toWithdrawalLocks() =
                 value = lockPeriod.localCurrencyAmount.amount,
                 date = lockPeriod.expiresAt,
                 buyCurrency = lockPeriod.bought?.currency,
-                buyValue = lockPeriod.bought?.amount,
+                buyValue = lockPeriod.bought?.amount
             )
         }
     )
@@ -56,7 +56,7 @@ data class CollateralLock(
     val date: String,
     // Used for locks on purchases
     val buyCurrency: String?,
-    val buyValue: String?,
+    val buyValue: String?
 )
 
 fun String.toMobilePaymentType(): MobilePaymentType =

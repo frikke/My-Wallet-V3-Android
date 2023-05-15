@@ -7,5 +7,5 @@ import com.blockchain.prices.domain.AssetPriceInfo
 data class UpsellAnotherAssetModelState(
     val assetsToUpSell: DataResource<List<AssetPriceInfo>> = DataResource.Loading,
     val assetJustBoughtTicker: String? = null,
-    val isLoading: Boolean = true,
+    val isLoading: Boolean = true
 ) : ModelState

@@ -175,8 +175,8 @@ class GlobalEventHandler(
                         text = notificationPayload.body,
                         pendingIntent = pendingIntentFinal,
                         id = NotificationsUtil.ID_BACKGROUND_NOTIFICATION,
-                        appName = R.string.app_name,
-                        colorRes = R.color.primary_navy_medium,
+                        appName = com.blockchain.stringResources.R.string.app_name,
+                        colorRes = com.blockchain.common.R.color.primary_navy_medium,
                         source = "GlobalEventHandler: $destination"
                     )
                 }

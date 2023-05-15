@@ -32,10 +32,14 @@ object BlockchainAccountMetadataSerializer : KSerializer<BlockchainAccountCreden
                     0 -> userId = decodeStringElement(descriptor, 0)
                     1 -> lifetimeToken = decodeStringElement(descriptor, 1)
                     2 -> exchangeUserId = decodeNullableSerializableElement(
-                        descriptor, 2, String.serializer() as DeserializationStrategy<String?>
+                        descriptor,
+                        2,
+                        String.serializer() as DeserializationStrategy<String?>
                     )
                     3 -> exchangeLifetimeToken = decodeNullableSerializableElement(
-                        descriptor, 3, String.serializer() as DeserializationStrategy<String?>
+                        descriptor,
+                        3,
+                        String.serializer() as DeserializationStrategy<String?>
                     )
                     4 -> corrupted = decodeBooleanElement(descriptor, 4)
                     CompositeDecoder.DECODE_DONE -> break

@@ -36,7 +36,7 @@ class FiatActionsUseCase(
     private val dataRemediationService: DataRemediationService,
     private val userIdentity: UserIdentity,
     private val linkedBanksFactory: LinkedBanksFactory,
-    private val bankService: BankService,
+    private val bankService: BankService
 ) {
     private val _result = MutableSharedFlow<FiatActionsResult>()
     val result: SharedFlow<FiatActionsResult> get() = _result
@@ -65,7 +65,7 @@ class FiatActionsUseCase(
         account: FiatAccount,
         action: AssetAction,
         shouldLaunchBankLinkTransfer: Boolean,
-        shouldSkipQuestionnaire: Boolean,
+        shouldSkipQuestionnaire: Boolean
     ) {
         handleWithdraw(
             account = account,
@@ -79,7 +79,7 @@ class FiatActionsUseCase(
         account: FiatAccount,
         shouldLaunchBankLinkTransfer: Boolean,
         shouldSkipQuestionnaire: Boolean,
-        action: AssetAction,
+        action: AssetAction
     ) = Singles.zip(
         getQuestionnaireIfNeeded(shouldSkipQuestionnaire, QuestionnaireContext.FIAT_DEPOSIT),
         userIdentity.userAccessForFeature(Feature.DepositFiat, freshnessStrategy = FreshnessStrategy.Fresh),
@@ -110,7 +110,7 @@ class FiatActionsUseCase(
             questionnaireOpt.isPresent ->
                 Single.just(
                     FiatTransactionRequestResult.LaunchQuestionnaire(
-                        questionnaire = questionnaireOpt.get(),
+                        questionnaire = questionnaireOpt.get()
                     )
                 )
             eligibleBanks.isEmpty() -> {
@@ -155,7 +155,7 @@ class FiatActionsUseCase(
         account: FiatAccount,
         action: AssetAction,
         shouldLaunchBankLinkTransfer: Boolean,
-        shouldSkipQuestionnaire: Boolean,
+        shouldSkipQuestionnaire: Boolean
     ): Disposable {
         return Singles.zip(
             getQuestionnaireIfNeeded(shouldSkipQuestionnaire, QuestionnaireContext.FIAT_WITHDRAW),
@@ -184,7 +184,7 @@ class FiatActionsUseCase(
                     )
                 questionnaireOpt.isPresent -> Single.just(
                     FiatTransactionRequestResult.LaunchQuestionnaire(
-                        questionnaire = questionnaireOpt.get(),
+                        questionnaire = questionnaireOpt.get()
                     )
                 )
                 linkedBanks.isEmpty() -> {
@@ -228,7 +228,7 @@ class FiatActionsUseCase(
 
     private fun getQuestionnaireIfNeeded(
         shouldSkipQuestionnaire: Boolean,
-        questionnaireContext: QuestionnaireContext,
+        questionnaireContext: QuestionnaireContext
     ): Single<Optional<Questionnaire>> =
         if (shouldSkipQuestionnaire) {
             Single.just(Optional.empty())
@@ -242,7 +242,7 @@ class FiatActionsUseCase(
     private fun handleNoLinkedBanks(
         targetAccount: FiatAccount,
         action: AssetAction,
-        paymentMethodForAction: LinkablePaymentMethodsForAction,
+        paymentMethodForAction: LinkablePaymentMethodsForAction
     ): Single<FiatTransactionRequestResult> {
         return when {
             paymentMethodForAction.linkablePaymentMethods.linkMethods.containsAll(
@@ -287,7 +287,7 @@ class FiatActionsUseCase(
     private fun handlePaymentMethodsUpdate(
         fiatTxRequestResult: FiatTransactionRequestResult,
         fiatAccount: FiatAccount,
-        action: AssetAction,
+        action: AssetAction
     ): FiatActionsResult {
         return when (fiatTxRequestResult) {
             is FiatTransactionRequestResult.LaunchDepositFlowWithMultipleAccounts -> {
@@ -358,7 +358,7 @@ class FiatActionsUseCase(
             is FiatTransactionRequestResult.LaunchAliasWithdrawal -> {
                 FiatActionsResult.LinkBankWithAlias(
                     account = fiatAccount,
-                    action = action,
+                    action = action
                 )
             }
         }

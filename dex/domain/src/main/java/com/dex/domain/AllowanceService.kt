@@ -16,7 +16,7 @@ interface AllowanceService {
     suspend fun pushAllowanceTransaction(
         network: CoinNetwork,
         rawTx: String,
-        signatures: List<TransactionSignature>,
+        signatures: List<TransactionSignature>
     ): Outcome<Exception, String>
 
     suspend fun allowanceTransactionProgress(assetInfo: AssetInfo): AllowanceTransactionState

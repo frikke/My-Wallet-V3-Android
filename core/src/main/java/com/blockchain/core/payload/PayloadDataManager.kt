@@ -310,7 +310,7 @@ class PayloadDataManager internal constructor(
         }.applySchedulers()
 
     private fun v4Upgrade(
-        secondPassword: String?,
+        secondPassword: String?
     ) = payloadManager.upgradeV3PayloadToV4(secondPassword).doOnError {
         remoteLogger.logException(it)
     }.onErrorResumeNext {
@@ -675,8 +675,7 @@ class PayloadDataManager internal constructor(
     fun getAccount(accountPosition: Int): Account =
         wallet.walletBody?.getAccount(accountPosition) ?: throw NoSuchElementException()
 
-    fun getAccountTransactions(xpub: XPubs, limit: Int, offset: Int):
-        Single<List<TransactionSummary>> =
+    fun getAccountTransactions(xpub: XPubs, limit: Int, offset: Int): Single<List<TransactionSummary>> =
         Single.fromCallable {
             payloadManager.getAccountTransactions(xpub, limit, offset)
         }

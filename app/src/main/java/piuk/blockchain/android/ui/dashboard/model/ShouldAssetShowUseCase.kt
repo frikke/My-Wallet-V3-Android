@@ -21,7 +21,6 @@ class ShouldAssetShowUseCase(
 
     operator fun invoke(accountBalance: AccountBalance): Flow<Boolean> =
         flow {
-
             emitAll(
                 watchlistService.isAssetInWatchlist(
                     asset = accountBalance.total.currency,
@@ -37,8 +36,9 @@ class ShouldAssetShowUseCase(
                                 !accountBalance.totalFiat.isDust()
                             }
                         }
-                    } else
+                    } else {
                         true
+                    }
                 }
             )
         }.catch {

@@ -40,10 +40,11 @@ fun NotificationPreferenceScreen(
                 .padding(AppTheme.dimensions.standardSpacing),
             horizontalAlignment = Alignment.Start
         ) {
-
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.settings_notification_preferences_subtitle),
+                text = stringResource(
+                    id = com.blockchain.stringResources.R.string.settings_notification_preferences_subtitle
+                ),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Body,
                 gravity = ComposeGravities.Start
@@ -52,9 +53,9 @@ fun NotificationPreferenceScreen(
 
         Spacer(
             modifier = Modifier.padding(
-                start = dimensionResource(id = R.dimen.standard_spacing),
-                end = dimensionResource(id = R.dimen.standard_spacing),
-                bottom = dimensionResource(id = R.dimen.standard_spacing)
+                start = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing),
+                end = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing),
+                bottom = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing)
             )
         )
 
@@ -98,7 +99,7 @@ private fun PreferenceList(
             DefaultTableRow(
                 primaryText = item.title,
                 secondaryText = item.notificationTypes,
-                onClick = { onItemClicked(index) },
+                onClick = { onItemClicked(index) }
             )
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
         }

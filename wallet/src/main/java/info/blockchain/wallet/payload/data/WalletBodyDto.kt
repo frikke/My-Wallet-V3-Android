@@ -24,7 +24,7 @@ data class WalletBodyDto(
      * We fallback to -1 if missing
      */
     @SerialName("default_account_idx")
-    val defaultAccountIdx: Int? = MISSING_DEFAULT_INDEX_VALUE,
+    val defaultAccountIdx: Int? = MISSING_DEFAULT_INDEX_VALUE
 ) {
     fun withUpdatedAccounts(accounts: List<Account>): WalletBodyDto =
         this.copy(accounts = accounts)

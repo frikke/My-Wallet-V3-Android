@@ -44,7 +44,8 @@ class RecurringBuyDetailsSheet : BottomSheetDialogFragment() {
             setContent {
                 Surface(
                     shape = RoundedCornerShape(
-                        topStart = AppTheme.dimensions.smallSpacing, topEnd = AppTheme.dimensions.smallSpacing
+                        topStart = AppTheme.dimensions.smallSpacing,
+                        topEnd = AppTheme.dimensions.smallSpacing
                     )
                 ) {
                     RecurringBuyDetail(

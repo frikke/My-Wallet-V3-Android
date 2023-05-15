@@ -4,7 +4,7 @@ import com.blockchain.biometrics.BiometricDataRepository
 import com.blockchain.preferences.AuthPrefs
 
 class BiometricsDataRepositoryImpl(
-    val authPrefs: AuthPrefs,
+    val authPrefs: AuthPrefs
 ) : BiometricDataRepository {
     override fun isBiometricsEnabled(): Boolean =
         authPrefs.biometricsEnabled

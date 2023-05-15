@@ -194,11 +194,13 @@ fun FiatFundDetailScreenData(
                             modifier = Modifier.alpha(
                                 if (data.data.depositEnabled && showWithdrawChecksLoading.not()) 1F else 0.5F
                             ),
-                            primaryText = stringResource(R.string.common_add_cash),
-                            secondaryText = stringResource(R.string.fiat_funds_detail_deposit_details),
+                            primaryText = stringResource(com.blockchain.stringResources.R.string.common_add_cash),
+                            secondaryText = stringResource(
+                                com.blockchain.stringResources.R.string.fiat_funds_detail_deposit_details
+                            ),
                             startImageResource = ImageResource.Local(R.drawable.ic_fiat_deposit),
                             endImageResource = if (data.data.depositEnabled && showWithdrawChecksLoading.not()) {
-                                ImageResource.Local(R.drawable.ic_chevron_end)
+                                ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_chevron_end)
                             } else {
                                 ImageResource.None
                             },
@@ -216,11 +218,13 @@ fun FiatFundDetailScreenData(
                                 modifier = Modifier.alpha(
                                     if (data.data.withdrawEnabled && showWithdrawChecksLoading.not()) 1F else 0.5F
                                 ),
-                                primaryText = stringResource(R.string.common_cash_out),
-                                secondaryText = stringResource(R.string.fiat_funds_detail_withdraw_details),
+                                primaryText = stringResource(com.blockchain.stringResources.R.string.common_cash_out),
+                                secondaryText = stringResource(
+                                    com.blockchain.stringResources.R.string.fiat_funds_detail_withdraw_details
+                                ),
                                 startImageResource = ImageResource.Local(R.drawable.ic_fiat_withdraw),
                                 endImageResource = if (data.data.withdrawEnabled && showWithdrawChecksLoading.not()) {
-                                    ImageResource.Local(R.drawable.ic_chevron_end)
+                                    ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_chevron_end)
                                 } else {
                                     ImageResource.None
                                 },
@@ -234,16 +238,16 @@ fun FiatFundDetailScreenData(
                             if (showWithdrawChecksLoading) {
                                 ButtonLoadingIndicator(
                                     modifier = Modifier.align(Alignment.Center),
-                                    loadingIconResId = R.drawable.ic_loading_minimal_light
+                                    loadingIconResId = com.blockchain.componentlib.R.drawable.ic_loading_minimal_light
                                 )
                             }
                         }
                     }
                     is DataResource.Error -> {
                         SnackbarAlert(
-                            message = stringResource(R.string.common_error),
+                            message = stringResource(com.blockchain.stringResources.R.string.common_error),
                             type = SnackbarType.Error,
-                            actionLabel = stringResource(R.string.common_retry),
+                            actionLabel = stringResource(com.blockchain.stringResources.R.string.common_retry),
                             onActionClicked = retryLoadData
                         )
                     }
@@ -293,7 +297,7 @@ fun PreviewFiatFundDetailScreen() {
             error = null
         },
         withdrawOnClick = {
-            error = FiatActionErrorState(R.string.fiat_funds_detail_pending_withdrawal)
+            error = FiatActionErrorState(com.blockchain.stringResources.R.string.fiat_funds_detail_pending_withdrawal)
         },
         retryLoadData = {},
         onBackPressed = {}

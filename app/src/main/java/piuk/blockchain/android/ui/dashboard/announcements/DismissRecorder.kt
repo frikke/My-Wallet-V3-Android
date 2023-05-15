@@ -64,17 +64,7 @@ class DismissRecorder(
             // Try the legacy key
             prefs.getLegacyDismissalEntry(prefsKey)
         }
-
-    // For debug/QA
-    internal fun reinstateAllAnnouncements(announcementList: AnnouncementList) {
-        announcementList.dismissKeys().forEach { prefs.deleteDismissalRecord(it) }
-    }
-
     private var interval = ONE_WEEK
-
-    fun setPeriod(days: Long) {
-        interval = days * 24L * 60L * 60L * 1000L
-    }
 
     @Suppress("PrivatePropertyName")
     private val DISMISS_INTERVAL_PERIODIC: Long

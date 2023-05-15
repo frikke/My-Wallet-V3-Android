@@ -7,9 +7,9 @@ import org.web3j.utils.Convert
 
 class GasFeeCalculator {
     fun fee(nativeAsset: Currency, gasPriceWei: BigInteger, gasLimit: BigInteger): Money {
-
         val gasPriceInGwei = Convert.fromWei(
-            gasPriceWei.toBigDecimal(), Convert.Unit.GWEI
+            gasPriceWei.toBigDecimal(),
+            Convert.Unit.GWEI
         )
 
         val feeInWei = Convert.toWei(

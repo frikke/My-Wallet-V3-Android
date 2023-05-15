@@ -12,5 +12,5 @@ data class AddressDetails(
     val city: String,
     val postCode: String,
     val countryIso: CountryIso,
-    val stateIso: StateIso?,
+    val stateIso: StateIso?
 ) : Parcelable

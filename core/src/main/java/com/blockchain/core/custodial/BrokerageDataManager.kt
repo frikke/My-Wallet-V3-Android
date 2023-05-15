@@ -24,14 +24,14 @@ import io.reactivex.rxjava3.core.Single
 import java.time.ZonedDateTime
 import piuk.blockchain.android.data.calcSourceToOutputRateFromInputAmountAndResultAmount
 class BrokerageDataManager(
-    private val brokerageService: BrokerageService,
+    private val brokerageService: BrokerageService
 ) {
 
     fun getBuyQuote(
         pair: CurrencyPair,
         amount: Money,
         paymentMethodType: PaymentMethodType,
-        paymentMethodId: String?,
+        paymentMethodId: String?
     ): Single<BrokerageQuote> = rxSingleOutcome {
         brokerageService.fetchQuote(
             inputValue = amount.toBigInteger().toString(),
@@ -47,14 +47,14 @@ class BrokerageDataManager(
     fun getSellQuote(
         pair: CurrencyPair,
         amount: Money,
-        direction: TransferDirection,
+        direction: TransferDirection
     ): Single<BrokerageQuote> = rxSingleOutcome {
         brokerageService.fetchQuote(
             inputValue = amount.toBigInteger().toString(),
             paymentMethod = direction.getQuotePaymentMethod(),
             paymentMethodId = null,
             pair = pair.rawValue,
-            profile = direction.getQuoteOrderProfileName(),
+            profile = direction.getQuoteOrderProfileName()
         ).map { response ->
             response.toDomainModel(pair, amount)
         }
@@ -63,14 +63,14 @@ class BrokerageDataManager(
     suspend fun getSwapQuote(
         pair: CurrencyPair,
         amount: Money,
-        direction: TransferDirection,
+        direction: TransferDirection
     ): Outcome<Exception, BrokerageQuote> =
         brokerageService.fetchQuote(
             inputValue = amount.toBigInteger().toString(),
             paymentMethod = direction.getQuotePaymentMethod(),
             paymentMethodId = null,
             pair = pair.rawValue,
-            profile = direction.getQuoteOrderProfileName(),
+            profile = direction.getQuoteOrderProfileName()
         ).map { response ->
             response.toDomainModel(pair, amount)
         }
@@ -105,7 +105,7 @@ private fun BrokerageQuoteResponse.toDomainModel(pair: CurrencyPair, inputAmount
         ),
         rawPrice = Money.fromMinor(
             currency = pair.destination,
-            value = price.toBigInteger(),
+            value = price.toBigInteger()
         ),
         resultAmount = Money.fromMinor(pair.destination, resultAmount.toBigInteger()),
         createdAt = createdAt,

@@ -37,5 +37,5 @@ data class CompleteAddress(
     val poBoxNumber: String?,
     val label: String?,
     val type: String?,
-    val dataLevel: String?,
+    val dataLevel: String?
 )

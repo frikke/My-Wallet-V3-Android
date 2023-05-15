@@ -23,8 +23,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 // NOTE: roboelectric runner needed for Base64 Android implementations
-@Suppress("PrivatePropertyName")
-@Config(sdk = [24])
+@Config(sdk = [26])
 @RunWith(RobolectricTestRunner::class)
 class AndroidBiometricControllerTest {
     private lateinit var subject: AndroidBiometricsControllerImpl<TestBiometricData>
@@ -38,7 +37,8 @@ class AndroidBiometricControllerTest {
     private val cipher = mock<Cipher>()
     private lateinit var cryptoObject: BiometricPrompt.CryptoObject
 
-    @Before @Throws(java.lang.Exception::class)
+    @Before
+    @Throws(java.lang.Exception::class)
     fun setup() {
         cryptoObject = BiometricPrompt.CryptoObject(cipher)
         // setup biometric manager to be enabled for device
@@ -47,7 +47,11 @@ class AndroidBiometricControllerTest {
         whenever(biometricManager.canAuthenticate()).thenReturn(BIOMETRIC_SUCCESS)
         subject =
             AndroidBiometricsControllerImpl(
-                biometricData, biometricDataFactory, biometricDataRepository, biometricManager, cryptographyManager,
+                biometricData,
+                biometricDataFactory,
+                biometricDataRepository,
+                biometricManager,
+                cryptographyManager,
                 remoteLogger
             )
     }
@@ -211,7 +215,10 @@ class AndroidBiometricControllerTest {
         )
 
         subject.authenticate(
-            BiometricsType.TYPE_REGISTER, biometricPrompt, promptInfo, callback
+            BiometricsType.TYPE_REGISTER,
+            biometricPrompt,
+            promptInfo,
+            callback
         )
 
         verify(biometricPrompt).authenticate(eq(promptInfo), any())
@@ -235,7 +242,10 @@ class AndroidBiometricControllerTest {
         )
 
         subject.authenticate(
-            BiometricsType.TYPE_REGISTER, biometricPrompt, promptInfo, callback
+            BiometricsType.TYPE_REGISTER,
+            biometricPrompt,
+            promptInfo,
+            callback
         )
 
         verify(biometricDataRepository).clearBiometricEncryptedData()
@@ -260,7 +270,10 @@ class AndroidBiometricControllerTest {
         )
 
         subject.authenticate(
-            BiometricsType.TYPE_REGISTER, biometricPrompt, promptInfo, callback
+            BiometricsType.TYPE_REGISTER,
+            biometricPrompt,
+            promptInfo,
+            callback
         )
 
         verify(callback).onAuthFailed(any())
@@ -282,7 +295,10 @@ class AndroidBiometricControllerTest {
         )
 
         subject.authenticate(
-            BiometricsType.TYPE_LOGIN, biometricPrompt, promptInfo, callback
+            BiometricsType.TYPE_LOGIN,
+            biometricPrompt,
+            promptInfo,
+            callback
         )
 
         verify(biometricPrompt).authenticate(eq(promptInfo), any())
@@ -304,7 +320,10 @@ class AndroidBiometricControllerTest {
         )
 
         subject.authenticate(
-            BiometricsType.TYPE_LOGIN, biometricPrompt, promptInfo, callback
+            BiometricsType.TYPE_LOGIN,
+            biometricPrompt,
+            promptInfo,
+            callback
         )
 
         verify(biometricDataRepository).clearBiometricEncryptedData()
@@ -327,7 +346,10 @@ class AndroidBiometricControllerTest {
         )
 
         subject.authenticate(
-            BiometricsType.TYPE_LOGIN, biometricPrompt, promptInfo, callback
+            BiometricsType.TYPE_LOGIN,
+            biometricPrompt,
+            promptInfo,
+            callback
         )
 
         verify(callback).onAuthFailed(any())
@@ -351,7 +373,9 @@ class AndroidBiometricControllerTest {
         val callback = mock<BiometricsCallback<TestBiometricData>>()
 
         subject.handleCipherStates(
-            CipherState.CipherInvalidatedError(KeyPermanentlyInvalidatedException()), biometricPrompt, promptInfo,
+            CipherState.CipherInvalidatedError(KeyPermanentlyInvalidatedException()),
+            biometricPrompt,
+            promptInfo,
             callback
         )
 
@@ -365,7 +389,10 @@ class AndroidBiometricControllerTest {
         val callback = mock<BiometricsCallback<TestBiometricData>>()
 
         subject.handleCipherStates(
-            CipherState.CipherInvalidatedError(Exception()), biometricPrompt, promptInfo, callback
+            CipherState.CipherInvalidatedError(Exception()),
+            biometricPrompt,
+            promptInfo,
+            callback
         )
 
         verify(callback).onAuthFailed(any())

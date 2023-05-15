@@ -29,7 +29,7 @@ import piuk.blockchain.android.rating.presentaion.R
 fun AppRatingStars(viewModel: AppRatingViewModel) {
     AppRatingStarsScreen(
         onSubmit = { rating -> viewModel.onIntent(AppRatingIntents.StarsSubmitted(rating)) },
-        onCanceled = { viewModel.onIntent(AppRatingIntents.RatingCanceled) },
+        onCanceled = { viewModel.onIntent(AppRatingIntents.RatingCanceled) }
     )
 }
 
@@ -46,37 +46,37 @@ fun AppRatingStarsScreen(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                start = dimensionResource(R.dimen.standard_spacing),
-                top = dimensionResource(R.dimen.standard_spacing),
-                end = dimensionResource(R.dimen.standard_spacing),
-                bottom = dimensionResource(R.dimen.small_spacing)
+                start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                top = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                end = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                bottom = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)
             ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            modifier = Modifier.size(dimensionResource(R.dimen.size_medium)),
+            modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.size_medium)),
             imageResource = ImageResource.Local(R.drawable.ic_favorite_filled)
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)))
 
         Text(
             style = AppTheme.typography.body2,
             color = Grey900,
             textAlign = TextAlign.Center,
-            text = stringResource(R.string.app_rating_title)
+            text = stringResource(com.blockchain.stringResources.R.string.app_rating_title)
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
         Text(
             style = AppTheme.typography.paragraph1,
             color = Grey600,
             textAlign = TextAlign.Center,
-            text = stringResource(R.string.app_rating_description)
+            text = stringResource(com.blockchain.stringResources.R.string.app_rating_description)
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)))
 
         RatingBar(
             imageFilled = R.drawable.ic_favorite_filled,
@@ -86,10 +86,10 @@ fun AppRatingStarsScreen(
             }
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)))
 
         SmallMinimalButton(
-            text = stringResource(R.string.common_cancel),
+            text = stringResource(com.blockchain.stringResources.R.string.common_cancel),
             onClick = onCanceled,
             state = ButtonState.Enabled
         )

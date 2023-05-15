@@ -495,7 +495,7 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
 
     private fun mockSourceAccount(
         totalBalance: Money = CryptoValue.zero(ASSET),
-        availableBalance: Money = CryptoValue.zero(ASSET),
+        availableBalance: Money = CryptoValue.zero(ASSET)
     ) = mock<BtcCryptoWalletAccount> {
         on { currency }.thenReturn(ASSET)
         on { balanceRx() }.thenReturn(

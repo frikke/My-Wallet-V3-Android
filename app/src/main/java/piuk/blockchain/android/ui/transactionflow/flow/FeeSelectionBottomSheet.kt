@@ -82,17 +82,18 @@ class FeeSelectionBottomSheet :
             }
 
             feeRegularTitle.text = getString(
-                R.string.fee_options_label,
-                getString(R.string.fee_options_regular),
-                getString(R.string.fee_options_regular_time)
+                com.blockchain.stringResources.R.string.fee_options_label,
+                getString(com.blockchain.stringResources.R.string.fee_options_regular),
+                getString(com.blockchain.stringResources.R.string.fee_options_regular_time)
             )
             feePriorityTitle.text = getString(
-                R.string.fee_options_label, getString(R.string.fee_options_priority),
-                getString(R.string.fee_options_priority_time)
+                com.blockchain.stringResources.R.string.fee_options_label,
+                getString(com.blockchain.stringResources.R.string.fee_options_priority),
+                getString(com.blockchain.stringResources.R.string.fee_options_priority_time)
             )
 
             feeCustomContinue.apply {
-                text = getString(R.string.btn_continue)
+                text = getString(com.blockchain.stringResources.R.string.btn_continue)
                 onClick = {
                     hideKeyboard()
                     dismiss()
@@ -157,7 +158,7 @@ class FeeSelectionBottomSheet :
         with(binding) {
             state.pendingTx?.feeSelection?.customLevelRates?.let {
                 feeCustomBounds.text = getString(
-                    R.string.fee_options_sat_byte_inline_hint,
+                    com.blockchain.stringResources.R.string.fee_options_sat_byte_inline_hint,
                     it.regularFee.toString(),
                     it.priorityFee.toString()
                 )
@@ -180,21 +181,21 @@ class FeeSelectionBottomSheet :
                 is FeeState.FeeUnderMinLimit -> {
                     setCustomFeeValues(
                         feeSelection.customAmount,
-                        getString(R.string.fee_options_sat_byte_min_error),
+                        getString(com.blockchain.stringResources.R.string.fee_options_sat_byte_min_error),
                         feeSelection.feeState.toString()
                     )
                 }
                 is FeeState.FeeUnderRecommended -> {
                     setCustomFeeValues(
                         feeSelection.customAmount,
-                        getString(R.string.fee_options_fee_too_low),
+                        getString(com.blockchain.stringResources.R.string.fee_options_fee_too_low),
                         feeSelection.feeState.toString()
                     )
                 }
                 is FeeState.FeeOverRecommended -> {
                     setCustomFeeValues(
                         feeSelection.customAmount,
-                        getString(R.string.fee_options_fee_too_high),
+                        getString(com.blockchain.stringResources.R.string.fee_options_fee_too_high),
                         feeSelection.feeState.toString()
                     )
                 }
@@ -207,7 +208,7 @@ class FeeSelectionBottomSheet :
                 is FeeState.FeeTooHigh -> {
                     setCustomFeeValues(
                         feeSelection.customAmount,
-                        getString(R.string.send_confirmation_insufficient_funds_for_fee),
+                        getString(com.blockchain.stringResources.R.string.send_confirmation_insufficient_funds_for_fee),
                         feeSelection.feeState.toString()
                     )
                 }

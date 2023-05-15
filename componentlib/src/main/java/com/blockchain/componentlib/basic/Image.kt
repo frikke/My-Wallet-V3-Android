@@ -40,7 +40,7 @@ fun Image(
                     .run { imageResource.size?.let { size(it) } ?: this }
                     .run { imageResource.shape?.let { clip(it) } ?: this },
                 colorFilter = imageResource.colorFilter,
-                contentScale = contentScale,
+                contentScale = contentScale
             )
         is ImageResource.LocalWithResolvedBitmap ->
             androidx.compose.foundation.Image(
@@ -48,9 +48,13 @@ fun Image(
                 painter = rememberAsyncImagePainter(imageResource.bitmap),
                 contentDescription = imageResource.contentDescription,
                 modifier = modifier
-                    .run { imageResource.size?.let { size(it) } ?: size(dimensionResource(R.dimen.large_spacing)) }
+                    .run {
+                        imageResource.size?.let { size(it) } ?: size(
+                            dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)
+                        )
+                    }
                     .run { imageResource.shape?.let { clip(it) } ?: clip(defaultShape) },
-                contentScale = contentScale,
+                contentScale = contentScale
             )
         is ImageResource.LocalWithResolvedDrawable ->
             androidx.compose.foundation.Image(
@@ -59,10 +63,10 @@ fun Image(
                 contentDescription = imageResource.contentDescription,
                 modifier = imageResource.shape?.let {
                     Modifier
-                        .size(dimensionResource(R.dimen.large_spacing))
+                        .size(dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing))
                         .clip(it)
                 } ?: modifier,
-                contentScale = contentScale,
+                contentScale = contentScale
             )
         is ImageResource.Remote ->
             androidx.compose.foundation.Image(
@@ -70,7 +74,11 @@ fun Image(
                 painter = rememberAsyncImagePainter(imageResource.url),
                 contentDescription = imageResource.contentDescription,
                 modifier = modifier
-                    .run { imageResource.size?.let { size(it) } ?: size(dimensionResource(R.dimen.large_spacing)) }
+                    .run {
+                        imageResource.size?.let { size(it) } ?: size(
+                            dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)
+                        )
+                    }
                     .run { imageResource.shape?.let { clip(it) } ?: clip(defaultShape) },
                 contentScale = contentScale
             )
@@ -78,7 +86,9 @@ fun Image(
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = modifier.run {
-                    imageResource.size?.let { size(it) } ?: size(dimensionResource(R.dimen.large_spacing))
+                    imageResource.size?.let { size(it) } ?: size(
+                        dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)
+                    )
                 }
             ) {
                 Box(
@@ -89,7 +99,9 @@ fun Image(
                             shape = imageResource.shape ?: defaultShape
                         )
                         .run {
-                            imageResource.size?.let { size(it) } ?: size(dimensionResource(R.dimen.large_spacing))
+                            imageResource.size?.let { size(it) } ?: size(
+                                dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)
+                            )
                         }
                 )
                 androidx.compose.foundation.Image(
@@ -97,7 +109,7 @@ fun Image(
                     contentDescription = imageResource.contentDescription,
                     modifier = modifier.run { imageResource.iconSize?.let { size(it) } ?: this },
                     colorFilter = imageResource.iconColorFilter,
-                    contentScale = contentScale,
+                    contentScale = contentScale
                 )
             }
         }
@@ -106,7 +118,7 @@ fun Image(
             val tintColor = Color(android.graphics.Color.parseColor(imageResource.backgroundColour))
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = modifier.size(dimensionResource(R.dimen.large_spacing))
+                modifier = modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing))
             ) {
                 Box(
                     modifier = Modifier
@@ -116,7 +128,9 @@ fun Image(
                             shape = imageResource.shape ?: defaultShape
                         )
                         .run {
-                            imageResource.size?.let { size(it) } ?: size(dimensionResource(R.dimen.large_spacing))
+                            imageResource.size?.let { size(it) } ?: size(
+                                dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)
+                            )
                         }
                 )
                 androidx.compose.foundation.Image(
@@ -125,7 +139,7 @@ fun Image(
                     modifier = modifier,
                     alignment = alignment,
                     colorFilter = ColorFilter.tint(filterColor),
-                    contentScale = contentScale,
+                    contentScale = contentScale
                 )
             }
         }
@@ -140,7 +154,7 @@ fun Image_Local_24() {
         AppSurface {
             Image(
                 imageResource = ImageResource.Local(R.drawable.ic_blockchain, ""),
-                modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)),
+                modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
             )
         }
     }

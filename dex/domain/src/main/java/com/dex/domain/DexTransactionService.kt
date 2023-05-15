@@ -16,5 +16,5 @@ interface DexTransactionService {
 
 data class BuiltDexTransaction(
     val rawTx: String,
-    val preImages: List<PreImage>,
+    val preImages: List<PreImage>
 )

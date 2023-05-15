@@ -51,11 +51,13 @@ sealed interface ModelConfigArgs {
     object NoArgs : ModelConfigArgs
 }
 
-abstract class MviViewModel<TIntent : Intent<TModelState>,
+abstract class MviViewModel<
+    TIntent : Intent<TModelState>,
     TViewState : ViewState,
     TModelState : ModelState,
     NavEvent : NavigationEvent,
-    TArgs : ModelConfigArgs>(
+    TArgs : ModelConfigArgs
+    >(
     val initialState: TModelState
 ) : ViewModel() {
 
@@ -128,7 +130,8 @@ abstract class MviViewModel<TIntent : Intent<TModelState>,
      * Called by the UI to feed the model with Intents
      * @param intent the UI originated intent
      */
-    @SuppressLint("BinaryOperationInTimber") fun onIntent(intent: TIntent) {
+    @SuppressLint("BinaryOperationInTimber")
+    fun onIntent(intent: TIntent) {
         viewModelScope.launch {
             if (intent.isValidFor(modelState)) {
                 Timber.d(

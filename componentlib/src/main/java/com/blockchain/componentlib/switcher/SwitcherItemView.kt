@@ -40,7 +40,7 @@ class SwitcherItemView @JvmOverloads constructor(
                     startIcon = startIcon,
                     endIcon = endIcon,
                     indicator = indicator,
-                    onClick = onClick,
+                    onClick = onClick
                 )
             }
         }

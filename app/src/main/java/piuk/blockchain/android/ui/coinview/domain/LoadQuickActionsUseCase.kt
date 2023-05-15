@@ -21,7 +21,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickActions
 
 class LoadQuickActionsUseCase(
     private val userFeaturePermissionService: UserFeaturePermissionService,
-    private val custodialWalletManager: CustodialWalletManager,
+    private val custodialWalletManager: CustodialWalletManager
 ) {
     // todo(othman) remove accounts/total balance args - and use flow once caching is available
     operator fun invoke(
@@ -44,13 +44,18 @@ class LoadQuickActionsUseCase(
                 } else {
                     combine(
                         userFeaturePermissionService.getAccessForFeatures(
-                            Feature.Buy, Feature.Sell, Feature.DepositCrypto, Feature.Swap
+                            Feature.Buy,
+                            Feature.Sell,
+                            Feature.DepositCrypto,
+                            Feature.Swap
                         ),
                         custodialWalletManager.isCurrencyAvailableForTrading(asset.currency),
                         custodialWalletManager.isAssetSupportedForSwap(asset.currency).toFlowDataResource()
                     ) { featuresAccess, isAvailableForTrading, isSupportedForSwap ->
                         combineDataResources(
-                            featuresAccess, isAvailableForTrading, isSupportedForSwap
+                            featuresAccess,
+                            isAvailableForTrading,
+                            isSupportedForSwap
                         ) { featuresAccessData,
                             isAvailableForTradingData,
                             isSupportedForSwapData ->
@@ -134,12 +139,12 @@ class LoadQuickActionsUseCase(
                             val centerButtons = listOfNotNull(
                                 CoinviewQuickAction.Swap.takeIf { canSwap },
                                 CoinviewQuickAction.Receive.takeIf { canReceive },
-                                CoinviewQuickAction.Send.takeIf { canSend },
+                                CoinviewQuickAction.Send.takeIf { canSend }
                             )
 
                             val bottomButtons = listOfNotNull(
                                 CoinviewQuickAction.Sell.takeIf { canSell },
-                                CoinviewQuickAction.Buy.takeIf { canBuy },
+                                CoinviewQuickAction.Buy.takeIf { canBuy }
                             )
 
                             /**
@@ -189,7 +194,7 @@ class LoadQuickActionsUseCase(
 
                             val centerButtons = listOfNotNull(
                                 CoinviewQuickAction.Send.takeIf { canSend },
-                                CoinviewQuickAction.Receive.takeIf { canReceive },
+                                CoinviewQuickAction.Receive.takeIf { canReceive }
                             )
 
                             val bottomButtons = listOfNotNull(

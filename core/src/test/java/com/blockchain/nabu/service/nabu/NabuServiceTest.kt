@@ -112,7 +112,7 @@ class NabuServiceTest {
         val result = subject.createBasicUser(
             firstName,
             lastName,
-            dateOfBirth,
+            dateOfBirth
         )
         result shouldBeEqualTo Outcome.Success(Unit)
     }
@@ -214,7 +214,8 @@ class NabuServiceTest {
     fun `recover user`() {
         val userId = "userID"
         val offlineToken = NabuOfflineToken(
-            userId, "token"
+            userId,
+            "token"
         )
 
         whenever(

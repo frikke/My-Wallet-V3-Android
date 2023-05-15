@@ -14,7 +14,8 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import java.util.Locale
 
-/*internal*/ class EthActivitySummaryItem(
+/*internal*/
+class EthActivitySummaryItem(
     private val ethDataManager: EthDataManager,
     val ethTransaction: EthTransaction,
     override val isFeeTransaction: Boolean,

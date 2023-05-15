@@ -8,7 +8,7 @@ class SwapConfirmationArgs(
     private var _targetAccount: CryptoAccount? = null,
     private var _sourceCryptoAmount: CryptoValue? = null,
     // TODO(aromano): SWAP temp comment, this is only going to be used for NC->* swaps
-    private var _secondPassword: String? = null,
+    private var _secondPassword: String? = null
 ) {
     val sourceAccount: CryptoAccount
         get() = _sourceAccount.let {
@@ -34,7 +34,7 @@ class SwapConfirmationArgs(
         sourceAccount: CryptoAccount,
         targetAccount: CryptoAccount,
         sourceCryptoAmount: CryptoValue,
-        secondPassword: String? = null,
+        secondPassword: String? = null
     ) {
         this._sourceAccount = sourceAccount
         this._targetAccount = targetAccount

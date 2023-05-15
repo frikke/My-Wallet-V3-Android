@@ -41,7 +41,9 @@ class KycMobileValidationPresenter(
                         }
                         .doOnError {
                             Timber.e(it)
-                            view.displayErrorDialog(R.string.kyc_phone_number_validation_error_incorrect)
+                            view.displayErrorDialog(
+                                com.blockchain.stringResources.R.string.kyc_phone_number_validation_error_incorrect
+                            )
                         }
                         .doOnSuccess { questionnaire ->
                             view.navigateToQuestionnaire(questionnaire)
@@ -65,7 +67,9 @@ class KycMobileValidationPresenter(
                         .doOnTerminate { view.dismissProgressDialog() }
                         .doOnError {
                             Timber.e(it)
-                            view.displayErrorDialog(R.string.kyc_phone_number_error_resending)
+                            view.displayErrorDialog(
+                                com.blockchain.stringResources.R.string.kyc_phone_number_error_resending
+                            )
                         }
                         .doOnComplete {
                             view.theCodeWasResent()

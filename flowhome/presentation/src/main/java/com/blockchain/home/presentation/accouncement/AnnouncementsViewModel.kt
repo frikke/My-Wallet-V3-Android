@@ -35,13 +35,14 @@ class AnnouncementsViewModel(
     private val walletModeService: WalletModeService,
     private val backupPhraseService: BackupPhraseService,
     private val announcementsService: AnnouncementsService,
-    private val iterableAnnouncementsFF: FeatureFlag,
+    private val iterableAnnouncementsFF: FeatureFlag
 ) : MviViewModel<
     AnnouncementsIntent,
     AnnouncementsViewState,
     AnnouncementModelState,
     HomeNavEvent,
-    ModelConfigArgs.NoArgs>(
+    ModelConfigArgs.NoArgs
+    >(
     AnnouncementModelState()
 ) {
     private var remoteAnnouncementsJob: Job? = null
@@ -199,9 +200,13 @@ class AnnouncementsViewModel(
                         announcements.add(
                             LocalAnnouncement(
                                 type = LocalAnnouncementType.PHRASE_RECOVERY,
-                                title = TextValue.IntResValue(R.string.announcement_recovery_title),
-                                subtitle = TextValue.IntResValue(R.string.announcement_recovery_subtitle),
-                                icon = ImageValue.Local(Icons.Filled.Unlock.id, tint = Pink600),
+                                title = TextValue.IntResValue(
+                                    com.blockchain.stringResources.R.string.announcement_recovery_title
+                                ),
+                                subtitle = TextValue.IntResValue(
+                                    com.blockchain.stringResources.R.string.announcement_recovery_subtitle
+                                ),
+                                icon = ImageValue.Local(Icons.Filled.Unlock.id, tint = Pink600)
                             )
                         )
                     }

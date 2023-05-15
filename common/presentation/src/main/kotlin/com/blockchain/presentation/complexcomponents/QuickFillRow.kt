@@ -65,7 +65,7 @@ fun QuickFillRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = dimensionResource(id = R.dimen.standard_spacing)),
+            .padding(horizontal = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing)),
         horizontalArrangement = Arrangement.Center
     ) {
         if (quickFillButtonData.quickFillButtons.isNotEmpty()) {
@@ -78,7 +78,9 @@ fun QuickFillRow(
                             onClick = {
                                 onQuickFillItemClick(item)
                             },
-                            modifier = Modifier.padding(end = dimensionResource(R.dimen.smallest_spacing)),
+                            modifier = Modifier.padding(
+                                end = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
+                            ),
                             isTransparent = areButtonsTransparent
                         )
                     }

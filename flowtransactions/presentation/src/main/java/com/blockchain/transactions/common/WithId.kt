@@ -4,7 +4,7 @@ import java.util.UUID
 
 data class WithId<T>(
     val id: String,
-    val data: T,
+    val data: T
 )
 
 fun <T> T.withId() = WithId(

@@ -5,7 +5,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationRo
 import com.blockchain.extensions.exhaustive
 
 class BackupPhraseNavigationRouter(
-    override val navController: NavHostController,
+    override val navController: NavHostController
 ) : ComposeNavigationRouter<BackupPhraseNavigationEvent> {
 
     @Suppress("IMPLICIT_CAST_TO_ANY")

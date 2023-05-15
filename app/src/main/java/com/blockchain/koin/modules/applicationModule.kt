@@ -207,7 +207,7 @@ val applicationModule = module {
             trust = get(),
             pinRepository = get(),
             remoteLogger = get(),
-            walletStatusPrefs = get(),
+            walletStatusPrefs = get()
         )
     }.bind(AppUtilAPI::class)
 
@@ -343,7 +343,7 @@ val applicationModule = module {
                 bchDataManager = get(),
                 walletModeService = get(),
                 metadataService = get(),
-                walletOptionsState = get(),
+                walletOptionsStore = get(),
                 nabuDataManager = get(),
                 notificationTokenManager = get(),
                 activityWebSocketService = get(),
@@ -386,7 +386,7 @@ val applicationModule = module {
                 eligibilityService = get(),
                 referralService = get(),
                 payloadDataManager = get(),
-                nabuUserDataManager = get(),
+                nabuUserDataManager = get()
             )
         }
 
@@ -529,7 +529,7 @@ val applicationModule = module {
                 remoteConfigRepository = get(),
                 quickFillRoundingService = get(),
                 recurringBuyService = get(),
-                dismissRecorder = get(),
+                dismissRecorder = get()
             )
         }
 
@@ -598,7 +598,7 @@ val applicationModule = module {
                 bankService = get(),
                 cardService = get(),
                 tradeDataService = get(),
-                userFeaturePermissionService = get(),
+                userFeaturePermissionService = get()
             )
         }.bind(OnBoardingStepsService::class)
 
@@ -641,7 +641,7 @@ val applicationModule = module {
         factory {
             SimpleBuyPrefsSerializerImpl(
                 prefs = get(),
-                json = get(kotlinJsonAssetTicker),
+                json = get(kotlinJsonAssetTicker)
             )
         }.bind(SimpleBuyPrefsSerializer::class)
 
@@ -750,7 +750,7 @@ val applicationModule = module {
                 walletCredentialsUpdater = get(),
                 payloadDataManager = get(),
                 xlmDataManager = get(),
-                ethDataManager = get(),
+                ethDataManager = get()
             )
         }
 
@@ -818,7 +818,7 @@ val applicationModule = module {
         viewModel {
             EmailVerificationModel(
                 emailUpdater = get(),
-                getUserStore = get(),
+                getUserStore = get()
             )
         }
 
@@ -843,7 +843,6 @@ val applicationModule = module {
             DataWiperImpl(
                 ethDataManager = get(),
                 bchDataManager = get(),
-                walletOptionsState = get(),
                 nabuDataManager = get(),
                 activityWebSocketService = get(),
                 walletConnectServiceAPI = get(),
@@ -858,7 +857,7 @@ val applicationModule = module {
         viewModel {
             SellViewModel(
                 sellRepository = get(),
-                walletModeService = get(),
+                walletModeService = get()
             )
         }
 
@@ -866,7 +865,7 @@ val applicationModule = module {
             UpSellAnotherAssetViewModel(
                 pricesService = get(),
                 currencyPrefs = get(),
-                dismissRecorder = get(),
+                dismissRecorder = get()
             )
         }
 

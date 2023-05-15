@@ -37,8 +37,8 @@ fun LazyListScope.homeActivityScreen(
             val analytics: Analytics = get()
             Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
             TableRowHeader(
-                title = stringResource(R.string.ma_home_activity_title),
-                actionTitle = stringResource(R.string.see_all),
+                title = stringResource(com.blockchain.stringResources.R.string.ma_home_activity_title),
+                actionTitle = stringResource(com.blockchain.stringResources.R.string.see_all),
                 actionOnClick = {
                     openActivity()
                     analytics.logEvent(DashboardAnalyticsEvents.ActivitySeeAllClicked)

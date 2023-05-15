@@ -27,7 +27,7 @@ class LinkedBanksFactory(
                     currency = it.currency,
                     custodialWalletManager = custodialWalletManager,
                     type = it.type,
-                    capabilities = it.capabilities,
+                    capabilities = it.capabilities
                 )
             }
         }
@@ -44,7 +44,7 @@ class LinkedBanksFactory(
                         currency = bank.currency,
                         custodialWalletManager = custodialWalletManager,
                         type = bank.type,
-                        capabilities = bank.capabilities,
+                        capabilities = bank.capabilities
                     )
                 }
         }

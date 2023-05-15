@@ -24,7 +24,7 @@ class AppUtil(
     private val trust: DigitalTrust,
     private val pinRepository: PinRepository,
     private val remoteLogger: RemoteLogger,
-    private val walletStatusPrefs: WalletStatusPrefs,
+    private val walletStatusPrefs: WalletStatusPrefs
 ) : AppUtilAPI {
     override fun logout(isIntercomEnabled: Boolean) {
         pinRepository.clearPin()

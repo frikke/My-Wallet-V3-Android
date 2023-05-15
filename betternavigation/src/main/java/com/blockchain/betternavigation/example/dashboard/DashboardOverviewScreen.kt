@@ -4,6 +4,6 @@ import androidx.compose.runtime.Composable
 
 @Composable
 internal fun DashboardOverviewScreen(
-    navigateToCoinView: (asset: String) -> Unit,
+    navigateToCoinView: (asset: String) -> Unit
 ) {
 }

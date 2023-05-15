@@ -10,7 +10,7 @@ internal fun PrefillDataSubmission.toNetwork(): PrefillDataSubmissionRequest = P
     lastName = lastName,
     address = address.toNetwork(),
     dob = dob,
-    mobileNumber = mobileNumber,
+    mobileNumber = mobileNumber
 )
 
 internal fun Address.toNetwork(): AddressResponse = AddressResponse(
@@ -19,5 +19,5 @@ internal fun Address.toNetwork(): AddressResponse = AddressResponse(
     city = city,
     state = state,
     postCode = postCode,
-    country = country,
+    country = country
 )

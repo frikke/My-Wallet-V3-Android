@@ -177,7 +177,8 @@ interface WalletExplorerEndpoints {
     @GET("wallet/get-ip")
     fun getExternalIp(): Single<IPResponse>
 
-    @FormUrlEncoded @POST("wallet/sessions")
+    @FormUrlEncoded
+    @POST("wallet/sessions")
     fun createSessionId(
         @Field("api_code") apiCode: String
     ): Single<ResponseBody>

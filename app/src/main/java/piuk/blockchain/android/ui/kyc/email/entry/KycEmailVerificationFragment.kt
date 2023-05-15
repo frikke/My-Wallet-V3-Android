@@ -57,7 +57,7 @@ class KycEmailVerificationFragment :
                 openResendOrChangeSheet = {
                     model.onIntent(EmailVerificationIntent.StopPollingForVerification)
                     ResendOrChangeEmailBottomSheet().show(childFragmentManager, BOTTOM_SHEET)
-                },
+                }
             )
         }
     }
@@ -99,7 +99,9 @@ class KycEmailVerificationFragment :
         val intent = Intent(Intent.ACTION_MAIN)
         intent.addCategory(Intent.CATEGORY_APP_EMAIL)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(Intent.createChooser(intent, getString(R.string.security_centre_email_check)))
+        startActivity(
+            Intent.createChooser(intent, getString(com.blockchain.stringResources.R.string.security_centre_email_check))
+        )
     }
 
     override fun resendEmail() {

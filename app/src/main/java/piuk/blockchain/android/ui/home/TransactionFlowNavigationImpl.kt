@@ -19,7 +19,7 @@ class TransactionFlowNavigationImpl(private val activity: AppCompatActivity) : T
                 context = activity,
                 action = action,
                 target = target ?: NullCryptoAccount(),
-                sourceAccount = sourceAccount ?: NullCryptoAccount(),
+                sourceAccount = sourceAccount ?: NullCryptoAccount()
             )
         )
     }

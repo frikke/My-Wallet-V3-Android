@@ -36,32 +36,43 @@ fun InputErrorScreen(
 
         val title = when (inputError) {
             is SwapEnterAmountInputError.AboveBalance ->
-                stringResource(R.string.not_enough_funds, inputError.displayTicker)
+                stringResource(com.blockchain.stringResources.R.string.not_enough_funds, inputError.displayTicker)
+
             is SwapEnterAmountInputError.AboveMaximum ->
-                stringResource(R.string.maximum_with_value, inputError.maxValue)
+                stringResource(com.blockchain.stringResources.R.string.maximum_with_value, inputError.maxValue)
+
             is SwapEnterAmountInputError.BelowMinimum ->
-                stringResource(R.string.minimum_with_value, inputError.minValue)
+                stringResource(com.blockchain.stringResources.R.string.minimum_with_value, inputError.minValue)
+
             is SwapEnterAmountInputError.InsufficientGas ->
-                stringResource(R.string.not_enough_funds, inputError.displayTicker)
+                stringResource(com.blockchain.stringResources.R.string.not_enough_funds, inputError.displayTicker)
+
             is SwapEnterAmountInputError.Unknown ->
-                stringResource(R.string.common_error)
+                stringResource(com.blockchain.stringResources.R.string.common_error)
         }
 
         val description = when (inputError) {
             is SwapEnterAmountInputError.AboveBalance -> stringResource(
-                R.string.common_actions_not_enough_funds,
+                com.blockchain.stringResources.R.string.common_actions_not_enough_funds,
                 inputError.displayTicker,
                 "swap",
                 inputError.balance,
             )
+
             is SwapEnterAmountInputError.AboveMaximum ->
-                stringResource(R.string.trading_amount_above_max, inputError.maxValue)
+                stringResource(com.blockchain.stringResources.R.string.trading_amount_above_max, inputError.maxValue)
+
             is SwapEnterAmountInputError.BelowMinimum ->
-                stringResource(R.string.minimum_swap_error_message, inputError.minValue)
+                stringResource(com.blockchain.stringResources.R.string.minimum_swap_error_message, inputError.minValue)
+
             is SwapEnterAmountInputError.InsufficientGas ->
-                stringResource(R.string.confirm_status_msg_insufficient_gas, inputError.displayTicker)
+                stringResource(
+                    com.blockchain.stringResources.R.string.confirm_status_msg_insufficient_gas,
+                    inputError.displayTicker
+                )
+
             is SwapEnterAmountInputError.Unknown ->
-                inputError.error ?: stringResource(R.string.common_error)
+                inputError.error ?: stringResource(com.blockchain.stringResources.R.string.common_error)
         }
 
         SimpleText(

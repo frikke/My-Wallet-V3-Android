@@ -24,7 +24,7 @@ class LocalSettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         updateToolbar(
-            toolbarTitle = getString(R.string.common_general),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.common_general),
             menuItems = emptyList()
         )
     }

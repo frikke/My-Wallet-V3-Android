@@ -23,7 +23,7 @@ class UniversalDynamicAssetRepository(
     private val otherErc20sStore: OtherNetworksErc20sStore,
     private val ethErc20sStore: EthErc20sStore,
     private val l1CoinsStore: L1CoinsStore,
-    private val custodialAssetsStore: CustodialAssetsStore,
+    private val custodialAssetsStore: CustodialAssetsStore
 ) : DynamicAssetsService {
     override fun availableCryptoAssets(): Single<List<AssetInfo>> {
         return allNetworks().asSingle().flatMap { networks ->

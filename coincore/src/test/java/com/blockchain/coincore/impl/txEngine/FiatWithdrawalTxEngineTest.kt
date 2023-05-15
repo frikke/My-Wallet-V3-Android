@@ -472,7 +472,8 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
         )
 
         subject.doExecute(
-            pendingTx, ""
+            pendingTx,
+            ""
         ).test()
             .assertComplete()
             .assertNoErrors()
@@ -522,7 +523,8 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
         )
 
         subject.doExecute(
-            pendingTx, ""
+            pendingTx,
+            ""
         ).test()
             .assertError {
                 it == exception

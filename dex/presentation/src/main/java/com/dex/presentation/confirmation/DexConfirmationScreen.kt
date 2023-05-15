@@ -84,7 +84,6 @@ fun DexConfirmationScreen(
     viewModel: DexConfirmationViewModel = getViewModel(scope = payloadScope),
     analytics: Analytics = get(),
 ) {
-
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DexTxSubscribeScreen(
@@ -100,7 +99,7 @@ fun DexConfirmationScreen(
         navEventsFlowLifecycleAware.collectLatest { event ->
             when (event) {
                 ConfirmationNavigationEvent.TxInProgressNavigationEvent -> navController.navigate(
-                    route = DexDestination.InProgress.route,
+                    route = DexDestination.InProgress.route
                 )
             }
         }
@@ -123,8 +122,8 @@ fun DexConfirmationScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
         NavigationBar(
-            title = stringResource(R.string.confirm_swap),
-            onBackButtonClick = onBackPressed,
+            title = stringResource(com.blockchain.stringResources.R.string.confirm_swap),
+            onBackButtonClick = onBackPressed
         )
 
         val viewState: ConfirmationScreenViewState by viewModel.viewState.collectAsStateLifecycleAware()
@@ -171,7 +170,7 @@ fun DexConfirmationScreen(
                             start = AppTheme.dimensions.smallSpacing,
                             end = AppTheme.dimensions.smallSpacing,
                             top = AppTheme.dimensions.smallSpacing,
-                            bottom = AppTheme.dimensions.smallestSpacing,
+                            bottom = AppTheme.dimensions.smallestSpacing
                         )
                         .weight(1f)
                         .fillMaxWidth()
@@ -188,7 +187,7 @@ fun DexConfirmationScreen(
                                 canChangeCurrency = false,
                                 onCurrencyClicked = { },
                                 amount = dataState.inputAmount,
-                                balance = dataState.inputBalance,
+                                balance = dataState.inputBalance
                             ),
 
                             receiveAmountFieldConfig = AmountFieldConfig(
@@ -201,7 +200,7 @@ fun DexConfirmationScreen(
                                 max = null,
                                 onCurrencyClicked = { },
                                 amount = dataState.outputAmount,
-                                balance = dataState.outputBalance,
+                                balance = dataState.outputBalance
                             )
                         )
                     }
@@ -285,10 +284,10 @@ fun DexConfirmationScreen(
                             SimpleText(
                                 modifier = Modifier.padding(
                                     top = AppTheme.dimensions.smallSpacing,
-                                    bottom = AppTheme.dimensions.smallSpacing,
+                                    bottom = AppTheme.dimensions.smallSpacing
                                 ),
                                 text = stringResource(
-                                    id = R.string.min_amount_estimation,
+                                    id = com.blockchain.stringResources.R.string.min_amount_estimation,
                                     minAmount.value.toStringWithSymbol()
                                 ),
                                 style = ComposeTypographies.Caption1,
@@ -338,10 +337,14 @@ fun DexConfirmationScreen(
                     ) ?: (dataState.commonUiError)?.let {
                         StringBuilder()
                             .appendLine(
-                                it.title ?: stringResource(id = R.string.common_http_error_title)
+                                it.title ?: stringResource(
+                                    id = com.blockchain.stringResources.R.string.common_http_error_title
+                                )
                             )
                             .append(
-                                it.description ?: stringResource(id = R.string.common_http_error_description)
+                                it.description ?: stringResource(
+                                    id = com.blockchain.stringResources.R.string.common_http_error_description
+                                )
                             )
                             .toString()
                     }
@@ -362,7 +365,7 @@ private fun ConfirmationScreenViewState.DataConfirmationViewState.toAnimatedStat
         },
         minAmount = minAmount,
         networkFee = networkFee,
-        bcdcFee = blockchainFee,
+        bcdcFee = blockchainFee
     )
 }
 
@@ -372,7 +375,7 @@ private fun ConfirmationPinnedBottom(
     confirm: () -> Unit,
     accept: () -> Unit,
     state: ButtonState,
-    alertMessage: String?,
+    alertMessage: String?
 ) {
     Column(
         modifier = Modifier
@@ -382,11 +385,11 @@ private fun ConfirmationPinnedBottom(
                     topStart = AppTheme.dimensions.smallSpacing,
                     topEnd = AppTheme.dimensions.smallSpacing,
                     bottomEnd = 0.dp,
-                    bottomStart = 0.dp,
+                    bottomStart = 0.dp
                 )
             )
             .padding(
-                all = AppTheme.dimensions.smallSpacing,
+                all = AppTheme.dimensions.smallSpacing
             )
 
     ) {
@@ -397,7 +400,7 @@ private fun ConfirmationPinnedBottom(
         if (alertMessage != null) {
             AlertButton(
                 modifier = Modifier
-                    .padding(vertical = dimensionResource(id = R.dimen.small_spacing))
+                    .padding(vertical = dimensionResource(id = com.blockchain.componentlib.R.dimen.small_spacing))
                     .fillMaxWidth(),
                 text = alertMessage,
                 onClick = { },
@@ -431,14 +434,14 @@ private fun PriceUpdateWarning(accept: () -> Unit) {
         )
         SimpleText(
             modifier = Modifier.padding(start = AppTheme.dimensions.smallSpacing),
-            text = stringResource(id = R.string.price_updated),
+            text = stringResource(id = com.blockchain.stringResources.R.string.price_updated),
             style = ComposeTypographies.Paragraph2,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Centre
         )
         Spacer(modifier = Modifier.weight(1f))
         PrimaryButton(
-            text = stringResource(id = R.string.accept),
+            text = stringResource(id = com.blockchain.stringResources.R.string.accept),
             onClick = accept
         )
     }
@@ -454,7 +457,7 @@ private fun SwapButton(
         modifier = modifier
             .fillMaxWidth(),
         state = state,
-        text = stringResource(id = R.string.common_swap),
+        text = stringResource(id = com.blockchain.stringResources.R.string.common_swap),
         onClick = onClick
     )
 }
@@ -464,16 +467,19 @@ private fun NetworkFee(
     networkFee: ConfirmationScreenExchangeAmount,
     extraInfoOnClick: (String) -> Unit
 ) {
-    val extraInfoTitle = stringResource(id = R.string.network_fee)
+    val extraInfoTitle = stringResource(id = com.blockchain.stringResources.R.string.network_fee)
     val extraInfoDescription =
-        stringResource(id = R.string.network_fee_info_description, networkFee.value.currency.displayTicker)
+        stringResource(
+            id = com.blockchain.stringResources.R.string.network_fee_info_description,
+            networkFee.value.currency.displayTicker
+        )
     TableRow(
         content = {
             Row(Modifier.fillMaxWidth(), verticalAlignment = CenterVertically) {
                 Row(verticalAlignment = CenterVertically) {
                     SimpleText(
                         modifier = Modifier.align(CenterVertically),
-                        text = stringResource(id = R.string.network_fee),
+                        text = stringResource(id = com.blockchain.stringResources.R.string.network_fee),
                         style = ComposeTypographies.Paragraph2,
                         color = ComposeColors.Body,
                         gravity = ComposeGravities.Start
@@ -514,15 +520,16 @@ private fun BlockchainFee(
     fee: ConfirmationScreenExchangeAmount,
     extraInfoOnClick: (String) -> Unit
 ) {
-    val extraInfoTitle = stringResource(id = R.string.bcdc_fee)
-    val extraInfoDescription = stringResource(id = R.string.bcdc_fee_extra_info_description)
+    val extraInfoTitle = stringResource(id = com.blockchain.stringResources.R.string.bcdc_fee)
+    val extraInfoDescription =
+        stringResource(id = com.blockchain.stringResources.R.string.bcdc_fee_extra_info_description)
     TableRow(
         content = {
             Row(Modifier.fillMaxWidth(), verticalAlignment = CenterVertically) {
                 Row(verticalAlignment = CenterVertically) {
                     SimpleText(
                         modifier = Modifier.align(CenterVertically),
-                        text = stringResource(id = R.string.bcdc_fee),
+                        text = stringResource(id = com.blockchain.stringResources.R.string.bcdc_fee),
                         style = ComposeTypographies.Paragraph2,
                         color = ComposeColors.Body,
                         gravity = ComposeGravities.Start
@@ -564,8 +571,12 @@ private fun MinAmountConfirmation(
     slippage: Double,
     extraInfoOnClick: (String) -> Unit
 ) {
-    val extraInfoTitle = stringResource(id = R.string.minimum_amount)
-    val extraInfoDescription = stringResource(id = R.string.minimum_amount_extra_info, slippage.toPercentageString())
+    val extraInfoTitle = stringResource(id = com.blockchain.stringResources.R.string.minimum_amount)
+    val extraInfoDescription =
+        stringResource(
+            id = com.blockchain.stringResources.R.string.minimum_amount_extra_info,
+            slippage.toPercentageString()
+        )
 
     TableRow(
         content = {
@@ -573,7 +584,7 @@ private fun MinAmountConfirmation(
                 Row(verticalAlignment = CenterVertically) {
                     SimpleText(
                         modifier = Modifier.align(CenterVertically),
-                        text = stringResource(id = R.string.min_amount),
+                        text = stringResource(id = com.blockchain.stringResources.R.string.min_amount),
                         style = ComposeTypographies.Paragraph2,
                         color = ComposeColors.Body,
                         gravity = ComposeGravities.Start
@@ -634,8 +645,8 @@ private fun extraInfoDestination(title: String, description: String): String {
                 value = Base64.getUrlEncoder().encodeToString(
                     description.toByteArray()
                 )
-            ),
-        ),
+            )
+        )
     )
 }
 
@@ -644,7 +655,7 @@ private fun ExchangeRateConfirmation(confirmationExchangeRate: ConfirmationExcha
     TableRow(
         content = {
             SimpleText(
-                text = stringResource(id = R.string.exchange_rate),
+                text = stringResource(id = com.blockchain.stringResources.R.string.exchange_rate),
                 style = ComposeTypographies.Paragraph2,
                 color = ComposeColors.Body,
                 gravity = ComposeGravities.Start
@@ -654,7 +665,8 @@ private fun ExchangeRateConfirmation(confirmationExchangeRate: ConfirmationExcha
                 amountText = "${confirmationExchangeRate.rate} " +
                     "${confirmationExchangeRate.outputCurrency.displayTicker} / ${
                     Money.fromMajor(
-                        confirmationExchangeRate.inputCurrency, BigDecimal.ONE
+                        confirmationExchangeRate.inputCurrency,
+                        BigDecimal.ONE
                     ).toStringWithSymbol(includeDecimalsWhenWhole = false)
                     }",
                 style = ComposeTypographies.Paragraph2,
@@ -670,7 +682,7 @@ private fun SlippageConfirmation(sl: Double) {
     TableRow(
         content = {
             SimpleText(
-                text = stringResource(id = R.string.allowed_slippage),
+                text = stringResource(id = com.blockchain.stringResources.R.string.allowed_slippage),
                 style = ComposeTypographies.Paragraph2,
                 color = ComposeColors.Body,
                 gravity = ComposeGravities.Start
@@ -715,5 +727,5 @@ private data class AnimatedConfirmationState(
     val confirmationExchangeRate: ConfirmationExchangeRate?,
     val minAmount: ConfirmationScreenExchangeAmount?,
     val networkFee: ConfirmationScreenExchangeAmount?,
-    val bcdcFee: ConfirmationScreenExchangeAmount?,
+    val bcdcFee: ConfirmationScreenExchangeAmount?
 )

@@ -52,22 +52,22 @@ class AccountFragment :
         super.onViewCreated(view, savedInstanceState)
 
         updateToolbar(
-            toolbarTitle = getString(R.string.account_toolbar),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.account_toolbar),
             menuItems = emptyList()
         )
 
         with(binding) {
             settingsLimits.apply {
-                primaryText = getString(R.string.account_limits_title)
-                secondaryText = getString(R.string.account_limits_subtitle)
+                primaryText = getString(com.blockchain.stringResources.R.string.account_limits_title)
+                secondaryText = getString(com.blockchain.stringResources.R.string.account_limits_subtitle)
                 onClick = {
                     navigator().goToKycLimits()
                 }
             }
 
             settingsWalletId.apply {
-                primaryText = getString(R.string.account_wallet_id_title)
-                secondaryText = getString(R.string.account_wallet_id_subtitle)
+                primaryText = getString(com.blockchain.stringResources.R.string.account_wallet_id_title)
+                secondaryText = getString(com.blockchain.stringResources.R.string.account_wallet_id_subtitle)
                 endImageResource = ImageResource.Local(R.drawable.ic_copy, null)
                 onClick = {
                     analytics.logEvent(SettingsAnalytics.WalletIdCopyClicked)
@@ -79,14 +79,14 @@ class AccountFragment :
                         clipboard.setPrimaryClip(clip)
                         BlockchainSnackbar.make(
                             binding.root,
-                            getString(R.string.copied_to_clipboard),
+                            getString(com.blockchain.stringResources.R.string.copied_to_clipboard),
                             type = SnackbarType.Success
                         ).show()
                         analytics.logEvent(SettingsAnalytics.WalletIdCopyCopied)
                     } else {
                         BlockchainSnackbar.make(
                             binding.root,
-                            getString(R.string.account_wallet_id_copy_error),
+                            getString(com.blockchain.stringResources.R.string.account_wallet_id_copy_error),
                             type = SnackbarType.Error
                         ).show()
                     }
@@ -94,47 +94,50 @@ class AccountFragment :
             }
 
             settingsDisplayCurrency.apply {
-                primaryText = getString(R.string.account_currency_title)
+                primaryText = getString(com.blockchain.stringResources.R.string.account_currency_title)
                 onClick = {
                     model.process(AccountIntent.LoadDisplayCurrencies)
                 }
             }
 
             settingsTradingCurrency.apply {
-                primaryText = getString(R.string.account_trading_currency_title)
+                primaryText = getString(com.blockchain.stringResources.R.string.account_trading_currency_title)
                 onClick = {
                     model.process(AccountIntent.LoadTradingCurrencies)
                 }
             }
 
             settingsExchange.apply {
-                primaryText = getString(R.string.account_exchange_title)
-                secondaryText = getString(R.string.account_exchange_launch)
-                tags = listOf(TagViewState(getString(R.string.common_launch), TagType.InfoAlt()))
+                primaryText = getString(com.blockchain.stringResources.R.string.account_exchange_title)
+                secondaryText = getString(com.blockchain.stringResources.R.string.account_exchange_launch)
+                tags = listOf(
+                    TagViewState(getString(com.blockchain.stringResources.R.string.common_launch), TagType.InfoAlt())
+                )
                 onClick = {
                     showBottomSheet(
                         ExchangeConnectionSheet.newInstance(
                             ErrorBottomDialog.Content(
-                                title = getString(R.string.account_exchange_connected_title),
-                                ctaButtonText = R.string.account_exchange_connected_cta,
+                                title = getString(
+                                    com.blockchain.stringResources.R.string.account_exchange_connected_title
+                                ),
+                                ctaButtonText = com.blockchain.stringResources.R.string.account_exchange_connected_cta,
                                 icon = R.drawable.ic_exchange_logo
                             ),
                             tags = emptyList(),
                             primaryCtaClick = {
                                 requireActivity().launchUrlInBrowser(EXCHANGE_DYNAMIC_LINK)
-                            },
+                            }
                         )
                     )
                 }
             }
 
             settingsDebitCard.apply {
-                primaryText = getString(R.string.blockchain_debit_card)
+                primaryText = getString(com.blockchain.stringResources.R.string.blockchain_debit_card)
             }
 
             settingsWalletConnect.apply {
-
-                primaryText = getString(R.string.account_wallet_connect)
+                primaryText = getString(com.blockchain.stringResources.R.string.account_wallet_connect)
                 onClick = {
                     navigator().goToWalletConnect()
                     analytics.logEvent(
@@ -146,21 +149,21 @@ class AccountFragment :
             }
 
             settingsAirdrops.apply {
-                primaryText = getString(R.string.account_airdrops_title)
+                primaryText = getString(com.blockchain.stringResources.R.string.account_airdrops_title)
                 onClick = {
                     navigator().goToAirdrops()
                 }
             }
             settingsAddresses.apply {
-                primaryText = getString(R.string.account_addresses_title)
+                primaryText = getString(com.blockchain.stringResources.R.string.account_addresses_title)
                 onClick = {
                     navigator().goToAddresses()
                 }
             }
 
             settingsChartVibration.apply {
-                primaryText = getString(R.string.settings_chart_vibration)
-                secondaryText = getString(R.string.settings_chart_vibration_desc)
+                primaryText = getString(com.blockchain.stringResources.R.string.settings_chart_vibration)
+                secondaryText = getString(com.blockchain.stringResources.R.string.settings_chart_vibration_desc)
                 onCheckedChange = {
                     model.process(AccountIntent.ToggleChartVibration)
                 }
@@ -199,7 +202,7 @@ class AccountFragment :
 
         if (referralInfo is ReferralInfo.Data) {
             with(binding.settingsReferAFriend) {
-                primaryText = getString(R.string.account_refer_a_friend)
+                primaryText = getString(com.blockchain.stringResources.R.string.account_refer_a_friend)
                 onClick = { navigator().goToReferralCode() }
             }
         }
@@ -208,13 +211,13 @@ class AccountFragment :
     private fun renderErrorState(error: AccountError) =
         when (error) {
             AccountError.ACCOUNT_INFO_FAIL -> {
-                showErrorSnackbar(R.string.account_load_info_error)
+                showErrorSnackbar(com.blockchain.stringResources.R.string.account_load_info_error)
             }
             AccountError.FIAT_LIST_FAIL -> {
-                showErrorSnackbar(R.string.account_load_fiat_error)
+                showErrorSnackbar(com.blockchain.stringResources.R.string.account_load_fiat_error)
             }
             AccountError.ACCOUNT_FIAT_UPDATE_FAIL -> {
-                showErrorSnackbar(R.string.account_fiat_update_error)
+                showErrorSnackbar(com.blockchain.stringResources.R.string.account_fiat_update_error)
             }
             AccountError.NONE -> {
                 // do nothing

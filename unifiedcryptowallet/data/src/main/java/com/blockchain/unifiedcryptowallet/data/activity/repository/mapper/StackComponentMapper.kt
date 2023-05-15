@@ -10,7 +10,7 @@ internal fun StackComponentDto.toStackComponent(): StackComponent? = when (this)
     )
     is StackComponentDto.Tag -> StackComponent.Tag(
         value = value,
-        style = style.toTagStyle(),
+        style = style.toTagStyle()
     )
     StackComponentDto.Unknown -> null
 }

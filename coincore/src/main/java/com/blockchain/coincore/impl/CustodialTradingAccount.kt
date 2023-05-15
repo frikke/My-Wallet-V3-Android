@@ -61,7 +61,7 @@ class CustodialTradingAccount(
     private val tradingService: TradingService,
     private val identity: UserIdentity,
     private val kycService: KycService,
-    private val walletModeService: WalletModeService,
+    private val walletModeService: WalletModeService
 ) : CryptoAccountBase(), TradingAccount {
 
     override val baseActions: Single<Set<AssetAction>>
@@ -293,8 +293,9 @@ class CustodialTradingAccount(
     private fun sendEligibility(balance: AccountBalance): Single<StateAwareAction> {
         return Single.just(
             StateAwareAction(
-                if (balance.withdrawable.isPositive) ActionState.Available
-                else ActionState.LockedForBalance,
+                if (balance.withdrawable.isPositive) {
+                    ActionState.Available
+                } else ActionState.LockedForBalance,
                 AssetAction.Send
             )
         )
@@ -304,8 +305,9 @@ class CustodialTradingAccount(
         val depositCryptoEligibility = identity.userAccessForFeature(Feature.DepositCrypto, defFreshness)
         return depositCryptoEligibility.map { access ->
             StateAwareAction(
-                if (access is FeatureAccess.Blocked) access.toActionState()
-                else ActionState.Available,
+                if (access is FeatureAccess.Blocked) {
+                    access.toActionState()
+                } else ActionState.Available,
                 AssetAction.Receive
             )
         }
@@ -330,7 +332,7 @@ class CustodialTradingAccount(
         freshnessStrategy: FreshnessStrategy,
         custodialWalletManager: CustodialWalletManager,
         asset: AssetInfo,
-        summaryList: List<ActivitySummaryItem>,
+        summaryList: List<ActivitySummaryItem>
     ) = custodialWalletManager.getCustodialCryptoTransactions(freshnessStrategy, asset, Product.BUY)
         .map { txs ->
             txs.map {
@@ -411,7 +413,8 @@ class CustodialTradingAccount(
                     depositNetworkFee = Single.just(Money.zero(order.target.currency)),
                     withdrawalNetworkFee = order.fee ?: Money.zero(order.source.currency),
                     currencyPair = CurrencyPair(
-                        order.source.currency, order.target.currency
+                        order.source.currency,
+                        order.target.currency
                     ),
                     fiatValue = order.target,
                     currency = order.target.currency.asFiatCurrencyOrThrow()
@@ -443,7 +446,7 @@ class CustodialTradingAccount(
     // Return a list containing both supplied list
     override fun reconcileSwaps(
         tradeItems: List<TradeActivitySummaryItem>,
-        activity: List<ActivitySummaryItem>,
+        activity: List<ActivitySummaryItem>
     ): List<ActivitySummaryItem> = activity + tradeItems
 
     companion object {

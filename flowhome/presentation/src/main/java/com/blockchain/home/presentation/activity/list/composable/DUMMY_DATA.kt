@@ -132,14 +132,16 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
                         value = TextValue.StringValue("-10.00"),
                         ActivityTextStyle(
                             ActivityTextTypography.Paragraph2,
-                            ActivityTextColor.Muted, true
+                            ActivityTextColor.Muted,
+                            true
                         )
                     ),
                     ActivityStackView.Text(
                         value = TextValue.StringValue("-0.00893208 ETH"),
                         ActivityTextStyle(
                             ActivityTextTypography.Caption1,
-                            ActivityTextColor.Muted, true
+                            ActivityTextColor.Muted,
+                            true
                         )
                     )
                 )
@@ -167,14 +169,16 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
                         value = TextValue.StringValue("-10.00"),
                         ActivityTextStyle(
                             ActivityTextTypography.Paragraph2,
-                            ActivityTextColor.Muted, true
+                            ActivityTextColor.Muted,
+                            true
                         )
                     ),
                     ActivityStackView.Text(
                         value = TextValue.StringValue("-0.00893208 ETH"),
                         ActivityTextStyle(
                             ActivityTextTypography.Caption1,
-                            ActivityTextColor.Muted, true
+                            ActivityTextColor.Muted,
+                            true
                         )
                     )
                 )

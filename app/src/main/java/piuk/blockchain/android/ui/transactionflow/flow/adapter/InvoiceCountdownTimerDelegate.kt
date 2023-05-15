@@ -46,7 +46,7 @@ class InvoiceCountdownTimerDelegate<in T> : AdapterDelegate<T> {
             with(binding) {
                 root.updateItemBackground(isFirstItemInList, isLastItemInList)
 
-                confirmationItemLabel.setText(R.string.bitpay_remaining_time)
+                confirmationItemLabel.setText(com.blockchain.stringResources.R.string.bitpay_remaining_time)
                 updateCountdownElements(item.timeRemainingSecs)
             }
         }
@@ -65,9 +65,9 @@ class InvoiceCountdownTimerDelegate<in T> : AdapterDelegate<T> {
             binding.confirmationItemValue.text = readableTime
 
             when {
-                remaining > FIVE_MINUTES -> setColors(R.color.primary_grey_light)
-                remaining > ONE_MINUTE -> setColors(R.color.secondary_yellow_medium)
-                else -> setColors(R.color.secondary_red_light)
+                remaining > FIVE_MINUTES -> setColors(com.blockchain.common.R.color.primary_grey_light)
+                remaining > ONE_MINUTE -> setColors(com.blockchain.common.R.color.secondary_yellow_medium)
+                else -> setColors(com.blockchain.common.R.color.secondary_red_light)
             }
         }
 

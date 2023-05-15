@@ -33,7 +33,6 @@ fun EducationalWalletModeSecureTag(
                 .fillMaxWidth()
                 .padding(AppTheme.dimensions.smallSpacing)
         ) {
-
             tag.title?.let {
                 Text(
                     modifier = Modifier
@@ -76,9 +75,9 @@ fun EducationalWalletModeSecureTag(
 fun PreviewEducationalWalletModeSecureTag() {
     EducationalWalletModeSecureTag(
         IntroductionScreenTag(
-            R.string.intro_custodial_tag_title,
+            com.blockchain.stringResources.R.string.intro_custodial_tag_title,
             Blue600,
-            R.string.intro_custodial_tag_description
+            com.blockchain.stringResources.R.string.intro_custodial_tag_description
         )
     )
 }
@@ -88,8 +87,9 @@ fun PreviewEducationalWalletModeSecureTag() {
 fun PreviewEducationalWalletModeSecureTagNull() {
     EducationalWalletModeSecureTag(
         IntroductionScreenTag(
-            null, null,
-            R.string.intro_custodial_tag_description
+            null,
+            null,
+            com.blockchain.stringResources.R.string.intro_custodial_tag_description
         )
     )
 }

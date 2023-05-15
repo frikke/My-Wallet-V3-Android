@@ -35,7 +35,11 @@ class OnChainSwapTxEngine(
     private val userIdentity: UserIdentity,
     private val engine: OnChainTxEngineBase
 ) : SwapTxEngineBase(
-    quotesEngine, userIdentity, walletManager, limitsDataManager, swapTransactionsStore
+    quotesEngine,
+    userIdentity,
+    walletManager,
+    limitsDataManager,
+    swapTransactionsStore
 ) {
     private val balancesCache: Store<BalancesResponse> by scopedInject()
 
@@ -74,7 +78,7 @@ class OnChainSwapTxEngine(
     override fun doInitialiseTx(): Single<PendingTx> =
         Observables.combineLatest(
             quotesEngine.getPriceQuote(),
-            quotesEngine.getSampleDepositAddress().toObservable(),
+            quotesEngine.getSampleDepositAddress().toObservable()
         )
             .firstOrError()
             .doOnSuccess { (_, sampleDepositAddress) ->
@@ -86,7 +90,7 @@ class OnChainSwapTxEngine(
                     }
             }.map { px ->
                 px.copy(
-                    feeSelection = defaultFeeSelection(px),
+                    feeSelection = defaultFeeSelection(px)
                 )
             }.handlePendingOrdersError(
                 PendingTx(

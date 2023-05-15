@@ -51,14 +51,20 @@ class AnnotatedStringUtils {
                                 Typeface.BOLD -> addStyle(SpanStyle(fontWeight = FontWeight.Bold), start, end)
                                 Typeface.ITALIC -> addStyle(SpanStyle(fontStyle = FontStyle.Italic), start, end)
                                 Typeface.BOLD_ITALIC -> addStyle(
-                                    SpanStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic), start, end
+                                    SpanStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic),
+                                    start,
+                                    end
                                 )
                             }
                             is UnderlineSpan -> addStyle(
-                                SpanStyle(textDecoration = TextDecoration.Underline), start, end
+                                SpanStyle(textDecoration = TextDecoration.Underline),
+                                start,
+                                end
                             )
                             is ForegroundColorSpan -> addStyle(
-                                SpanStyle(color = Color(span.foregroundColor)), start, end
+                                SpanStyle(color = Color(span.foregroundColor)),
+                                start,
+                                end
                             )
                             is android.text.Annotation -> {
                                 val url = linksMap?.get(span.value)
@@ -102,7 +108,6 @@ class AnnotatedStringUtils {
             @StringRes stringId: Int,
             linksMap: Map<String, StringAnnotationClickEvent>
         ): CharSequence {
-
             val text = context.getText(stringId)
             val rawText = text as? SpannedString ?: return text
             val out = SpannableString(rawText)

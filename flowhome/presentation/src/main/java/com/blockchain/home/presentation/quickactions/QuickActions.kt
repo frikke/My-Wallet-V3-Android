@@ -52,7 +52,8 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 
 val maxQuickActionsOnScreen: Int
-    @Stable @Composable get() {
+    @Stable @Composable
+    get() {
         val screenWidth = LocalConfiguration.current.screenWidthDp.dp
         val horizontalSpacing = AppTheme.dimensions.smallSpacing
         val quickActionWidth = AppTheme.dimensions.xHugeSpacing
@@ -139,7 +140,6 @@ private fun QuickActionsScreen(
                     .then(
                         if (quickAction.enabled) {
                             Modifier.clickableWithIndication {
-
                                 onActionClicked(quickAction)
                                 (quickAction.action as? QuickAction.TxAction)?.assetAction?.let { assetAction ->
                                     assetAction.eventName()?.let {
@@ -202,7 +202,7 @@ private val QuickActionItem.icon: ImageResource
     }.withBackground(
         backgroundColor = White,
         iconSize = AppTheme.dimensions.standardSpacing,
-        backgroundSize = AppTheme.dimensions.xHugeSpacing,
+        backgroundSize = AppTheme.dimensions.xHugeSpacing
     )
 
 @Preview(showBackground = true, backgroundColor = 0XFFF1F2F7)
@@ -212,22 +212,22 @@ fun PreviewQuickActionsScreen() {
         analytics = previewAnalytics,
         quickActionItems = listOf(
             QuickActionItem(
-                title = R.string.common_send,
+                title = com.blockchain.stringResources.R.string.common_send,
                 action = QuickAction.TxAction(AssetAction.Send),
                 enabled = true
             ),
             QuickActionItem(
-                title = R.string.common_send,
+                title = com.blockchain.stringResources.R.string.common_send,
                 action = QuickAction.TxAction(AssetAction.Send),
                 enabled = true
             ),
             QuickActionItem(
-                title = R.string.common_send,
+                title = com.blockchain.stringResources.R.string.common_send,
                 action = QuickAction.TxAction(AssetAction.Send),
                 enabled = true
             ),
             QuickActionItem(
-                title = R.string.common_more,
+                title = com.blockchain.stringResources.R.string.common_more,
                 action = QuickAction.More,
                 enabled = true
             )

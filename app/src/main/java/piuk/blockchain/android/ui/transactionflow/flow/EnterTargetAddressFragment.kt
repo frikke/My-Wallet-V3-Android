@@ -94,7 +94,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
 
             ctaButton.apply {
                 buttonState = ButtonState.Disabled
-                text = getString(R.string.common_next)
+                text = getString(com.blockchain.stringResources.R.string.common_next)
             }
         }
 
@@ -121,7 +121,6 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
         Timber.d("!TRANSACTION!> Rendering! EnterTargetAddressFragment")
 
         with(binding) {
-
             listLoadingProgress.visibleIf { newState.isLoading && newState.availableTargets.isEmpty() }
 
             if (newState.canSwitchBetweenAccountType && accountTypeSwitcher.isVisible().not()) {
@@ -180,8 +179,8 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
         with(binding) {
             accountTypeSwitcher.apply {
                 tabs = listOf(
-                    getString(R.string.pkw_wallets),
-                    getString(R.string.default_label_custodial_wallets)
+                    getString(com.blockchain.stringResources.R.string.pkw_wallets),
+                    getString(com.blockchain.stringResources.R.string.default_label_custodial_wallets)
                 )
                 onTabChanged = { tabIndex ->
                     model.process(TransactionIntent.SwitchAccountType(showTrading = tabIndex == 1))
@@ -390,15 +389,18 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                         onComplete = {
                             BlockchainSnackbar.make(
                                 binding.root,
-                                getString(R.string.scan_mismatch_transaction_target, state.sendingAsset.displayTicker),
-                                duration = Snackbar.LENGTH_SHORT,
+                                getString(
+                                    com.blockchain.stringResources.R.string.scan_mismatch_transaction_target,
+                                    state.sendingAsset.displayTicker
+                                ),
+                                duration = Snackbar.LENGTH_SHORT
                             ).show()
                         },
                         onError = {
                             BlockchainSnackbar.make(
                                 binding.root,
-                                getString(R.string.scan_failed),
-                                duration = Snackbar.LENGTH_SHORT,
+                                getString(com.blockchain.stringResources.R.string.scan_failed),
+                                duration = Snackbar.LENGTH_SHORT
                             ).show()
                         }
                     )

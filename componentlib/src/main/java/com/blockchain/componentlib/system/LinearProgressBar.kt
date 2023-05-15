@@ -14,7 +14,6 @@ fun LinearProgressBar(
     modifier: Modifier = Modifier,
     progress: Float? = null
 ) {
-
     val color = Blue600
     val backgroundColor = Grey100
 

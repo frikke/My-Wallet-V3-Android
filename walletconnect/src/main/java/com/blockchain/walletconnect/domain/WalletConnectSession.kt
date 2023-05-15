@@ -28,7 +28,7 @@ class WalletConnectSession(
                         icons = peerMeta.icons,
                         name = peerMeta.name
                     ),
-                    chainId = chainId,
+                    chainId = chainId
                 ),
                 walletInfo = WalletInfo(
                     clientId = peerId,

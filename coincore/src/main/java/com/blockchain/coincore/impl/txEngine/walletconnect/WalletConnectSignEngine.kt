@@ -54,7 +54,7 @@ class WalletConnectSignEngine(
         assetEngine.doInitialiseTx()
             .map { tx ->
                 tx.copy(
-                    amount = Money.zero(CryptoCurrency.ETHER),
+                    amount = Money.zero(CryptoCurrency.ETHER)
                 )
             }
 
@@ -115,7 +115,8 @@ class WalletConnectSignEngine(
             )
         }.map {
             TxResult.HashedTxResult(
-                txId = EthUtils.decorateAndEncode(it), amount = Money.zero(CryptoCurrency.ETHER)
+                txId = EthUtils.decorateAndEncode(it),
+                amount = Money.zero(CryptoCurrency.ETHER)
             )
         }
 

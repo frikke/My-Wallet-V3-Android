@@ -46,8 +46,8 @@ fun DateRow(
                 shape = AppTheme.shapes.small
             )
             .padding(
-                horizontal = dimensionResource(R.dimen.medium_spacing),
-                vertical = dimensionResource(R.dimen.very_small_spacing)
+                horizontal = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
+                vertical = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)
             )
     ) {
         Text(

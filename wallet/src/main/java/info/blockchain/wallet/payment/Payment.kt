@@ -147,7 +147,6 @@ class Payment(
         changeAddress: String?,
         dustServiceInput: DustInput?
     ): Transaction {
-
         return PaymentTx.makeNonReplayableTransaction(
             BchMainNetParams.get(),
             unspentCoins,

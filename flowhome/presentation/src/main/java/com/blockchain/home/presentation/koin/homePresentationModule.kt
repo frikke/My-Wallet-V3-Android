@@ -42,7 +42,7 @@ val homePresentationModule = module {
                 walletModeService = get(),
                 backupPhraseService = get(),
                 announcementsService = get(),
-                iterableAnnouncementsFF = get(iterableAnnouncementsFeatureFlag),
+                iterableAnnouncementsFF = get(iterableAnnouncementsFeatureFlag)
             )
         }
 
@@ -154,7 +154,7 @@ val homePresentationModule = module {
                 coincore = get(),
                 interestService = get(),
                 activeRewardsService = get(),
-                activeRewardsFeatureFlag = get(activeRewardsAccountFeatureFlag),
+                activeRewardsFeatureFlag = get(activeRewardsAccountFeatureFlag)
             )
         }
 

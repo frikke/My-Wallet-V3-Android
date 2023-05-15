@@ -19,7 +19,7 @@ val loginUiModule = module {
                 interactor = get(),
                 getAppMaintenanceConfigUseCase = get(),
                 analytics = get(),
-                authPrefs = get(),
+                authPrefs = get()
             )
         }
 

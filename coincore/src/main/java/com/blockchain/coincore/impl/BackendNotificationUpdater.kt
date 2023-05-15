@@ -20,7 +20,7 @@ import kotlinx.serialization.json.Json
 @Serializable
 internal data class NotificationAddresses(
     val assetTicker: String,
-    val addressList: List<String>,
+    val addressList: List<String>
 )
 
 // Update the BE with the current address sets for assets, used to

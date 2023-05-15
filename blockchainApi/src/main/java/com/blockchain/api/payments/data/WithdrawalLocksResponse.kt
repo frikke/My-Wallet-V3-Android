@@ -1,4 +1,5 @@
 @file:UseSerializers(BigIntSerializer::class)
+
 package com.blockchain.api.payments.data
 
 import com.blockchain.serializers.BigIntSerializer
@@ -20,7 +21,7 @@ data class LockPeriod(
     val localCurrencyAmount: LocalCurrencyAmount,
     @SerialName("expiresAt")
     val expiresAt: String,
-    val bought: LocalCurrencyAmount?,
+    val bought: LocalCurrencyAmount?
 )
 
 @Serializable

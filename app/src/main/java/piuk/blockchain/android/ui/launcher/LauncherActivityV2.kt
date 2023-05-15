@@ -12,8 +12,6 @@ import com.blockchain.commonarch.presentation.mvi_v2.MVIActivity
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
-import com.blockchain.logging.MomentEvent
-import com.blockchain.logging.MomentLogger
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents.Companion.createCampaignPayload
 import com.blockchain.notifications.models.NotificationDataConstants.DATA
@@ -25,7 +23,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
-import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import piuk.blockchain.android.R
 import piuk.blockchain.android.maintenance.presentation.AppMaintenanceFragment
@@ -53,15 +50,10 @@ class LauncherActivityV2 :
 
     private val dataWiper: DataWiper by scopedInject()
 
-    private val momentLogger: MomentLogger by inject()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         bindViewModel(viewModel, this, getViewIntentData())
-
-        momentLogger.endEvent(MomentEvent.LAUNCHER_TO_SPLASH)
-        momentLogger.startEvent(MomentEvent.SPLASH_TO_FIRST_SCREEN)
 
         dataWiper.clearData()
 
@@ -142,9 +134,9 @@ class LauncherActivityV2 :
             }
 
             LaunchNavigationEvent.CorruptPayload -> {
-                AlertDialog.Builder(this, R.style.AlertDialogStyle)
-                    .setTitle(R.string.app_name)
-                    .setMessage(getString(R.string.not_sane_error))
+                AlertDialog.Builder(this, com.blockchain.componentlib.R.style.AlertDialogStyle)
+                    .setTitle(com.blockchain.stringResources.R.string.app_name)
+                    .setMessage(getString(com.blockchain.stringResources.R.string.not_sane_error))
                     .setCancelable(false)
                     .setPositiveButton(android.R.string.ok) { _, _ ->
                         viewModel.onIntent(LauncherIntent.ClearCredentialsAndRestart)
@@ -169,7 +161,6 @@ class LauncherActivityV2 :
         appMaintenanceJob?.cancel()
         appMaintenanceJob = lifecycleScope.launch {
             appMaintenanceViewModel.resumeAppFlow.collect {
-
                 viewModel.onIntent(LauncherIntent.ResumeAppFlow)
 
                 appMaintenanceJob?.cancel()

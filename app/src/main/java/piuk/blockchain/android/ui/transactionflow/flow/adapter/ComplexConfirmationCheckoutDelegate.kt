@@ -79,9 +79,9 @@ private class ComplexConfirmationCheckoutItemItemViewHolder(
 
                 this[ConfirmationPropertyKey.IS_IMPORTANT]?.let { isImportant ->
                     if (isImportant as Boolean) {
-                        complexItemTitle.setTextAppearance(R.style.Text_Semibold_16)
+                        complexItemTitle.setTextAppearance(com.blockchain.common.R.style.Text_Semibold_16)
                     } else {
-                        complexItemTitle.setTextAppearance(R.style.Text_Standard_14)
+                        complexItemTitle.setTextAppearance(com.blockchain.common.R.style.Text_Standard_14)
                     }
                 }
             }
@@ -90,11 +90,11 @@ private class ComplexConfirmationCheckoutItemItemViewHolder(
 
     private fun TextView.highlightNewQuote(isHighlight: Boolean) {
         if (isHighlight) {
-            this.setTextColor(ContextCompat.getColor(this.context, R.color.blue_600))
-            this.setTextColor(ContextCompat.getColor(this.context, R.color.blue_600))
+            this.setTextColor(ContextCompat.getColor(this.context, com.blockchain.common.R.color.blue_600))
+            this.setTextColor(ContextCompat.getColor(this.context, com.blockchain.common.R.color.blue_600))
         } else {
-            this.setTextColor(ContextCompat.getColor(this.context, R.color.grey_800))
-            this.setTextColor(ContextCompat.getColor(this.context, R.color.grey_800))
+            this.setTextColor(ContextCompat.getColor(this.context, com.blockchain.common.R.color.grey_800))
+            this.setTextColor(ContextCompat.getColor(this.context, com.blockchain.common.R.color.grey_800))
         }
     }
 }

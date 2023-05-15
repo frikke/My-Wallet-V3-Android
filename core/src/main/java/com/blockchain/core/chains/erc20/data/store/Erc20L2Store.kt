@@ -23,7 +23,7 @@ import kotlinx.serialization.Serializable
 
 class Erc20L2Store(
     private val evmService: NonCustodialEvmService,
-    private val ethDataManager: EthDataManager,
+    private val ethDataManager: EthDataManager
 ) : KeyedStore<Erc20L2Store.Key, Erc20L2BalancesStore> by PersistedJsonSqlDelightStoreBuilder()
     .buildKeyed(
         storeId = STORE_ID,

@@ -106,7 +106,7 @@ private fun SingleComponent(
             )
         }
 
-        ViewType.Unknown -> { /* n/a */
+        ViewType.Unknown -> { // n/a
         }
     }
 }

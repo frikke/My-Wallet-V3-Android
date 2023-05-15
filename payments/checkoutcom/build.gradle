@@ -1,5 +1,7 @@
 apply from: rootProject.file('gradle/local/common-feature-android-data.gradle')
-
+android {
+    namespace 'com.blockchain.payments.checkoutcom'
+}
 dependencies {
 
     implementation project(':common:interface')

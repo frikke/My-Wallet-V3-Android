@@ -53,7 +53,7 @@ data class CoinviewModelState(
     val error: CoinviewError = CoinviewError.None,
 
     // deeplinks
-    val recurringBuyId: String? = null,
+    val recurringBuyId: String? = null
 ) : ModelState {
     val isTradeableAsset: Boolean?
         get() = (assetDetail as? DataResource.Data)?.data?.let { it is CoinviewAssetDetail.Tradeable }

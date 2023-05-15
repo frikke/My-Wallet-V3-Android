@@ -19,7 +19,7 @@ class AlertButtonView @JvmOverloads constructor(
                 AlertButton(
                     onClick = onClick,
                     text = text,
-                    state = buttonState,
+                    state = buttonState
                 )
             }
         }

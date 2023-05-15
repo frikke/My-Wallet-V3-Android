@@ -61,7 +61,7 @@ class PrefsUtil(
     private val idGenerator: DeviceIdGeneratorService,
     private val uuidGenerator: UUIDGenerator,
     private val assetCatalogue: AssetCatalogue,
-    private val environmentConfig: EnvironmentConfig,
+    private val environmentConfig: EnvironmentConfig
 ) : SessionPrefs,
     CurrencyPrefs,
     NotificationPrefs,
@@ -117,6 +117,7 @@ class PrefsUtil(
 
     override var pinId: String
         get() = getValue(KEY_PIN_IDENTIFIER) ?: backupStore.getString(KEY_PIN_IDENTIFIER, null) ?: ""
+
         @SuppressLint("ApplySharedPref")
         set(value) {
             setValue(KEY_PIN_IDENTIFIER, value)
@@ -287,8 +288,11 @@ class PrefsUtil(
     override var tradingCurrency: FiatCurrency?
         get() = assetCatalogue.fromNetworkTicker(getValue(KEY_SIMPLE_BUY_CURRENCY, "")) as? FiatCurrency
         set(value) {
-            if (value != null) setValue(KEY_SIMPLE_BUY_CURRENCY, value.networkTicker)
-            else removeValue(KEY_SIMPLE_BUY_CURRENCY)
+            if (value != null) {
+                setValue(KEY_SIMPLE_BUY_CURRENCY, value.networkTicker)
+            } else {
+                removeValue(KEY_SIMPLE_BUY_CURRENCY)
+            }
         }
 
     override var hasCompletedAtLeastOneBuy: Boolean

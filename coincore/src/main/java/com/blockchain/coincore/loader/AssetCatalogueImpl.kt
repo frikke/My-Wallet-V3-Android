@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicReference
 
 class AssetCatalogueImpl internal constructor(
     private val assetsService: DynamicAssetsService,
-    private val assetsDataManager: DynamicAssetsDataManager,
+    private val assetsDataManager: DynamicAssetsDataManager
 ) : AssetCatalogue {
 
     private val fullAssetLookup: AtomicReference<Map<String, Currency>> = AtomicReference(emptyMap())

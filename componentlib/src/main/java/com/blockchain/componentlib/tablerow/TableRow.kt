@@ -28,9 +28,8 @@ private fun TableRow(
     contentBottom: @Composable (() -> Unit)? = null,
     onContentClicked: (() -> Unit)? = null,
     backgroundColor: Color = AppTheme.colors.background,
-    backgroundShape: Shape = RectangleShape,
+    backgroundShape: Shape = RectangleShape
 ) {
-
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -52,7 +51,7 @@ private fun TableRow(
             contentStart?.invoke(this)
             Row(
                 modifier = Modifier.weight(weight = 1F, fill = true),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 content()
             }
@@ -73,7 +72,7 @@ fun TableRow(
     contentBottom: @Composable (() -> Unit)? = null,
     onContentClicked: (() -> Unit)? = null,
     backgroundColor: Color = AppTheme.colors.background,
-    backgroundShape: Shape = RectangleShape,
+    backgroundShape: Shape = RectangleShape
 ) {
     TableRow(
         modifier = modifier,
@@ -84,7 +83,7 @@ fun TableRow(
         contentBottom = contentBottom,
         onContentClicked = onContentClicked,
         backgroundColor = backgroundColor,
-        backgroundShape = backgroundShape,
+        backgroundShape = backgroundShape
     )
 }
 

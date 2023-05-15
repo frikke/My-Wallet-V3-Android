@@ -28,18 +28,18 @@ fun Double.asString(decimalPlaces: Int = 2) =
 
 fun TextView.setDeltaColour(
     delta: Double,
-    positiveColor: Int = R.color.dashboard_delta_positive,
-    negativeColor: Int = R.color.dashboard_delta_negative
+    positiveColor: Int = com.blockchain.common.R.color.dashboard_delta_positive,
+    negativeColor: Int = com.blockchain.common.R.color.dashboard_delta_negative
 ) {
-    if (delta < 0)
+    if (delta < 0) {
         setTextColor(ContextCompat.getColor(context, negativeColor))
-    else
+    } else {
         setTextColor(ContextCompat.getColor(context, positiveColor))
+    }
 }
 
 @SuppressLint("SetTextI18n")
 fun TextView.asDeltaPercent(delta: Double, prefix: String = "", postfix: String = "") {
-
     text = prefix + delta.asPercentString() + postfix
     setDeltaColour(delta)
 }

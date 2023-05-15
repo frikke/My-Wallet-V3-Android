@@ -34,7 +34,6 @@ class WCApproveSessionBottomSheet : SlidingModalBottomDialog<SessionApprovalBott
         fun onSelectNetworkClicked(session: WalletConnectSession)
         fun onSessionApproved(session: WalletConnectSession)
         fun onSessionRejected(session: WalletConnectSession)
-
         fun onApproveV2Session()
         fun onRejectV2Session()
     }
@@ -53,11 +52,12 @@ class WCApproveSessionBottomSheet : SlidingModalBottomDialog<SessionApprovalBott
         with(binding) {
             sessionV2?.let { sessionV2 ->
                 Glide.with(requireActivity()).load(sessionV2.dappLogoUrl).into(binding.icon)
-                title.text = getString(R.string.dapp_wants_to_connect, sessionV2.dappName)
+                title.text =
+                    getString(com.blockchain.stringResources.R.string.dapp_wants_to_connect, sessionV2.dappName)
                 description.text = sessionV2.dappDescription
                 walletAndNetwork.gone()
                 cancelButton.apply {
-                    text = getString(R.string.common_cancel)
+                    text = getString(com.blockchain.stringResources.R.string.common_cancel)
                     onClick = {
                         host.onRejectV2Session()
                         dismiss()
@@ -67,7 +67,7 @@ class WCApproveSessionBottomSheet : SlidingModalBottomDialog<SessionApprovalBott
                 stateIndicator.gone()
 
                 approveButton.apply {
-                    text = getString(R.string.common_confirm)
+                    text = getString(com.blockchain.stringResources.R.string.common_confirm)
                     onClick = {
                         host.onApproveV2Session()
                         dismiss()
@@ -75,10 +75,12 @@ class WCApproveSessionBottomSheet : SlidingModalBottomDialog<SessionApprovalBott
                 }
             } ?: session?.let { session ->
                 Glide.with(requireActivity()).load(session.dAppInfo.peerMeta.uiIcon()).into(binding.icon)
-                title.text = getString(R.string.dapp_wants_to_connect, session.dAppInfo.peerMeta.name)
+                title.text = getString(
+                    com.blockchain.stringResources.R.string.dapp_wants_to_connect, session.dAppInfo.peerMeta.name
+                )
                 description.text = session.dAppInfo.peerMeta.url
                 walletAndNetwork.apply {
-                    primaryText = getString(R.string.common_network)
+                    primaryText = getString(com.blockchain.stringResources.R.string.common_network)
                     secondaryText = selectedNetwork.name
                     startImageResource = selectedNetwork.logo?.let { ImageResource.Remote(it) }
                         ?: ImageResource.Local(R.drawable.ic_default_asset_logo)
@@ -89,7 +91,7 @@ class WCApproveSessionBottomSheet : SlidingModalBottomDialog<SessionApprovalBott
                 }
 
                 cancelButton.apply {
-                    text = getString(R.string.common_cancel)
+                    text = getString(com.blockchain.stringResources.R.string.common_cancel)
                     onClick = {
                         host.onSessionRejected(session)
                         dismiss()
@@ -99,7 +101,7 @@ class WCApproveSessionBottomSheet : SlidingModalBottomDialog<SessionApprovalBott
                 stateIndicator.gone()
 
                 approveButton.apply {
-                    text = getString(R.string.common_confirm)
+                    text = getString(com.blockchain.stringResources.R.string.common_confirm)
                     onClick = {
                         host.onSessionApproved(session)
                         dismiss()

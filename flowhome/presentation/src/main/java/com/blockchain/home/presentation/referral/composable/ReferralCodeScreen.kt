@@ -91,6 +91,7 @@ fun ReferralCodeScreen(
         DataResource.Loading -> {
             // n/a
         }
+
         is DataResource.Data -> when (viewState.referralInfo.data) {
             is ReferralInfo.Data -> ReferralScreenData(
                 referralInfo = viewState.referralInfo.data as ReferralInfo.Data,
@@ -98,10 +99,12 @@ fun ReferralCodeScreen(
                 onCodeCopied = onCodeCopied,
                 onBackPressed = onBackPressed
             )
+
             ReferralInfo.NotAvailable -> {
                 // todo
             }
         }
+
         is DataResource.Error -> {
             // todo
         }
@@ -121,7 +124,11 @@ fun ReferralScreenData(
         onDispose { }
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(AppTheme.colors.light)) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppTheme.colors.light)
+    ) {
         val backgroundUrl = referralInfo.promotionInfo?.backgroundUrl
 
         if (!backgroundUrl.isNullOrEmpty()) {
@@ -142,7 +149,6 @@ fun ReferralScreenData(
                 ),
             horizontalAlignment = Alignment.Start
         ) {
-
             Box(
                 modifier = Modifier
                     .padding(AppTheme.dimensions.standardSpacing)
@@ -169,7 +175,7 @@ fun ReferralScreenData(
                         modifier = Modifier.size(AppTheme.dimensions.epicSpacing),
                         url = iconUrl,
                         onErrorDrawable = R.drawable.ic_referral,
-                        onLoadingPlaceholder = R.drawable.ic_blockchain
+                        onLoadingPlaceholder = com.blockchain.componentlib.R.drawable.ic_blockchain
                     )
                 } else if (backgroundUrl.isNullOrEmpty()) {
                     Image(
@@ -203,7 +209,7 @@ fun ReferralScreenData(
                     style = ComposeTypographies.Paragraph1,
                     color = if (!backgroundUrl.isNullOrEmpty()) ComposeColors.Light else ComposeColors.Title,
                     gravity = ComposeGravities.Centre,
-                    text = stringResource(R.string.referral_code_title),
+                    text = stringResource(com.blockchain.stringResources.R.string.referral_code_title)
                 )
 
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
@@ -211,7 +217,7 @@ fun ReferralScreenData(
                 var copyCode by remember { mutableStateOf(false) }
                 if (copyCode) {
                     CopyText(
-                        label = stringResource(id = R.string.referral_code_title),
+                        label = stringResource(id = com.blockchain.stringResources.R.string.referral_code_title),
                         textToCopy = referralInfo.code
                     )
                     onCodeCopied()
@@ -234,7 +240,7 @@ fun ReferralScreenData(
                     style = ComposeTypographies.Paragraph1,
                     color = if (!backgroundUrl.isNullOrEmpty()) ComposeColors.Light else ComposeColors.Title,
                     gravity = ComposeGravities.Centre,
-                    text = stringResource(R.string.referral_criteria_title),
+                    text = stringResource(com.blockchain.stringResources.R.string.referral_criteria_title)
                 )
 
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
@@ -250,8 +256,11 @@ fun ReferralScreenData(
             var shareCode by remember { mutableStateOf(false) }
             if (shareCode) {
                 Share(
-                    text = stringResource(R.string.referral_share_template, referralInfo.code),
-                    subject = stringResource(R.string.referral_share_template_subject)
+                    text = stringResource(
+                        com.blockchain.stringResources.R.string.referral_share_template,
+                        referralInfo.code
+                    ),
+                    subject = stringResource(com.blockchain.stringResources.R.string.referral_share_template_subject)
                 )
                 analytics.logEvent(
                     ReferralAnalyticsEvents.ReferralShareCode(referralInfo.code, referralInfo.campaignId)
@@ -267,7 +276,7 @@ fun ReferralScreenData(
                         top = AppTheme.dimensions.tinySpacing,
                         bottom = AppTheme.dimensions.mediumSpacing
                     ),
-                text = stringResource(R.string.common_share),
+                text = stringResource(com.blockchain.stringResources.R.string.common_share),
                 onClick = { shareCode = true }
             )
         }
@@ -291,7 +300,6 @@ fun ReferralCode(
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         SimpleText(
             modifier = Modifier.fillMaxWidth(),
             style = ComposeTypographies.Title4,
@@ -307,7 +315,10 @@ fun ReferralCode(
                 .clickable { copyToClipboard() },
             style = AppTheme.typography.paragraph2,
             color = Blue600,
-            text = stringResource(if (confirmCopiedToClipboard) R.string.common_copied else R.string.common_copy),
+            text = stringResource(
+                if (confirmCopiedToClipboard) com.blockchain.stringResources.R.string.common_copied else
+                    com.blockchain.stringResources.R.string.common_copy
+            )
         )
     }
 }

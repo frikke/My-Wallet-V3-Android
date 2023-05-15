@@ -59,7 +59,8 @@ class InterestDashboardViewModelTest {
         coEvery { getAccountGroupUseCase(any(), any()) } returns
             Outcome.Success(
                 CryptoAccountCustodialSingleGroup(
-                    "label", listOf(mockk<CustodialInterestAccount>())
+                    "label",
+                    listOf(mockk<CustodialInterestAccount>())
                 )
             )
 

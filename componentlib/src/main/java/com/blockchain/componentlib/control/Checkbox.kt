@@ -36,9 +36,8 @@ fun Checkbox(
     onCheckChanged: ((Boolean) -> Unit)? = null,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    isDarkTheme: Boolean = isSystemInDarkTheme(),
+    isDarkTheme: Boolean = isSystemInDarkTheme()
 ) {
-
     val checkboxCheckedFillColor = AppTheme.colors.primary
     val checkboxCheckedBorderColor = AppTheme.colors.primary
 
@@ -94,8 +93,8 @@ fun Checkbox(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = rememberRipple(
                             bounded = false,
-                            radius = dimensionResource(R.dimen.standard_spacing),
-                        ),
+                            radius = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
+                        )
                     ) {
                         onCheckChanged(
                             when (state) {
@@ -109,22 +108,22 @@ fun Checkbox(
                     this
                 }
             }
-            .size(dimensionResource(R.dimen.standard_spacing))
+            .size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
             .background(
                 color = animateColorAsState(targetValue = checkboxBorderColor).value,
-                shape = RoundedCornerShape(dimensionResource(R.dimen.smallest_spacing)),
+                shape = RoundedCornerShape(dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing))
             )
             .padding(2.dp)
             .background(
                 color = animateColorAsState(targetValue = checkboxFillColor).value,
-                shape = RoundedCornerShape(2.dp),
+                shape = RoundedCornerShape(2.dp)
             ),
         contentAlignment = Alignment.Center
     ) {
         Image(
             imageResource = ImageResource.Local(
                 id = if (isDarkTheme) R.drawable.ic_check_dark else R.drawable.ic_check_light,
-                contentDescription = null,
+                contentDescription = null
             ),
             modifier = Modifier.alpha(
                 animateFloatAsState(targetValue = checkboxAlpha).value
@@ -144,7 +143,7 @@ private fun CheckboxPreview_NotChecked() {
         AppSurface {
             Checkbox(
                 state = CheckboxState.Unchecked,
-                onCheckChanged = {},
+                onCheckChanged = {}
             )
         }
     }
@@ -157,7 +156,7 @@ private fun CheckboxPreview_IsChecked() {
         AppSurface {
             Checkbox(
                 state = CheckboxState.Checked,
-                onCheckChanged = {},
+                onCheckChanged = {}
             )
         }
     }
@@ -171,7 +170,7 @@ private fun CheckboxPreview_NotChecked_NotEnabled() {
             Checkbox(
                 state = CheckboxState.Unchecked,
                 onCheckChanged = {},
-                enabled = false,
+                enabled = false
             )
         }
     }
@@ -185,7 +184,7 @@ private fun CheckboxPreview_IsChecked_NotEnabled() {
             Checkbox(
                 state = CheckboxState.Checked,
                 onCheckChanged = {},
-                enabled = false,
+                enabled = false
             )
         }
     }

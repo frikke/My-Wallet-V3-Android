@@ -217,7 +217,9 @@ class BchOnChainTxEngine(
             txConfirmations = listOfNotNull(
                 TxConfirmationValue.From(sourceAccount, sourceAsset),
                 TxConfirmationValue.To(
-                    txTarget, AssetAction.Send, sourceAccount
+                    txTarget,
+                    AssetAction.Send,
+                    sourceAccount
                 ),
                 TxConfirmationValue.CompoundNetworkFee(
                     sendingFeeInfo = if (!pendingTx.feeAmount.isZero) {
@@ -226,7 +228,9 @@ class BchOnChainTxEngine(
                             fiatRate.convert(pendingTx.feeAmount),
                             sourceAsset
                         )
-                    } else null,
+                    } else {
+                        null
+                    },
                     feeLevel = pendingTx.feeSelection.selectedLevel
                 ),
                 TxConfirmationValue.Total(

@@ -261,7 +261,7 @@ class KycHomeAddressPresenterTest {
         city = city,
         postCode = postCode,
         countryIso = country,
-        stateIso = state,
+        stateIso = state
     )
 
     private fun givenRequestJwtAndUpdateWalletInfoSucceds() {

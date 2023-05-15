@@ -54,11 +54,11 @@ private class SimpleConfirmationCheckoutItemViewHolder(
 
                 it[ConfirmationPropertyKey.IS_IMPORTANT]?.let { isImportant ->
                     if (isImportant as Boolean) {
-                        simpleItemLabel.setTextAppearance(R.style.Text_Semibold_16)
-                        simpleItemTitle.setTextAppearance(R.style.Text_Semibold_16)
+                        simpleItemLabel.setTextAppearance(com.blockchain.common.R.style.Text_Semibold_16)
+                        simpleItemTitle.setTextAppearance(com.blockchain.common.R.style.Text_Semibold_16)
                     } else {
-                        simpleItemLabel.setTextAppearance(R.style.Text_Standard_14)
-                        simpleItemTitle.setTextAppearance(R.style.Text_Standard_14)
+                        simpleItemLabel.setTextAppearance(com.blockchain.common.R.style.Text_Semibold_14)
+                        simpleItemTitle.setTextAppearance(com.blockchain.common.R.style.Text_Semibold_14)
                     }
                 }
             }

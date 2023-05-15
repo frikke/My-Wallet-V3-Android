@@ -23,16 +23,15 @@ import org.koin.androidx.compose.get
 @Composable
 fun HelpAndSupport(
     analytics: Analytics = get(),
-    openSupportCenter: () -> Unit,
+    openSupportCenter: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .padding(vertical = AppTheme.dimensions.smallSpacing)
             .fillMaxWidth()
     ) {
-
         TableRowHeader(
-            title = stringResource(R.string.ma_home_need_help)
+            title = stringResource(com.blockchain.stringResources.R.string.ma_home_need_help)
         )
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
@@ -43,7 +42,7 @@ fun HelpAndSupport(
             elevation = 0.dp
         ) {
             DefaultTableRow(
-                primaryText = stringResource(R.string.view_support_center),
+                primaryText = stringResource(com.blockchain.stringResources.R.string.view_support_center),
                 onClick = {
                     openSupportCenter()
                     analytics.logEvent(DashboardAnalyticsEvents.SupportClicked)

@@ -38,9 +38,8 @@ fun DefaultCard(
     callToActionButton: CardButton? = null,
     onClose: () -> Unit = {},
     isDarkTheme: Boolean = isSystemInDarkTheme(),
-    isDismissable: Boolean = true,
+    isDismissable: Boolean = true
 ) {
-
     val backgroundColor = if (!isDarkTheme) {
         Color.White
     } else {
@@ -55,7 +54,7 @@ fun DefaultCard(
     ) {
         Surface(
             modifier = Modifier
-                .padding(dimensionResource(R.dimen.medium_spacing))
+                .padding(dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing))
                 .background(backgroundColor)
                 .clip(AppTheme.shapes.small)
 
@@ -66,7 +65,7 @@ fun DefaultCard(
                 Row {
                     Image(
                         modifier = Modifier
-                            .size(dimensionResource(R.dimen.large_spacing)),
+                            .size(dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)),
                         imageResource = iconResource
                     )
                     Spacer(
@@ -80,7 +79,7 @@ fun DefaultCard(
 
                 Text(
                     modifier = Modifier
-                        .padding(top = dimensionResource(R.dimen.very_small_spacing)),
+                        .padding(top = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)),
                     text = title,
                     style = AppTheme.typography.title3,
                     color = AppTheme.colors.title
@@ -88,7 +87,7 @@ fun DefaultCard(
 
                 Text(
                     modifier = Modifier
-                        .padding(top = dimensionResource(R.dimen.tiny_spacing)),
+                        .padding(top = dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)),
                     text = subtitle,
                     style = AppTheme.typography.paragraph1,
                     color = AppTheme.colors.title
@@ -98,7 +97,9 @@ fun DefaultCard(
                     when (callToActionButton.type) {
                         ButtonType.Primary -> PrimaryButton(
                             modifier = Modifier
-                                .padding(top = dimensionResource(R.dimen.very_small_spacing))
+                                .padding(
+                                    top = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)
+                                )
                                 .fillMaxWidth(),
                             defaultBackgroundColor = callToActionButton.backgroundColor,
                             text = callToActionButton.text,
@@ -107,7 +108,9 @@ fun DefaultCard(
                         )
                         ButtonType.Secondary -> SecondaryButton(
                             modifier = Modifier
-                                .padding(top = dimensionResource(R.dimen.very_small_spacing))
+                                .padding(
+                                    top = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)
+                                )
                                 .fillMaxWidth(),
                             text = callToActionButton.text,
                             onClick = callToActionButton.onClick,
@@ -115,7 +118,9 @@ fun DefaultCard(
                         )
                         ButtonType.Minimal -> MinimalButton(
                             modifier = Modifier
-                                .padding(top = dimensionResource(R.dimen.very_small_spacing))
+                                .padding(
+                                    top = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)
+                                )
                                 .fillMaxWidth(),
                             text = callToActionButton.text,
                             onClick = callToActionButton.onClick,
@@ -134,7 +139,8 @@ fun DefaultCardAlert_Basic() {
     AppTheme {
         AppSurface {
             DefaultCard(
-                title = "Title", subtitle = "Subtitle",
+                title = "Title",
+                subtitle = "Subtitle",
                 iconResource = ImageResource.Local(R.drawable.ic_blockchain, null),
                 CardButton("Notify Me") {}
             )
@@ -148,7 +154,8 @@ fun DefaultCardAlert_Secondary_Button() {
     AppTheme {
         AppSurface {
             DefaultCard(
-                title = "Title", subtitle = "Subtitle",
+                title = "Title",
+                subtitle = "Subtitle",
                 iconResource = ImageResource.Local(R.drawable.ic_blockchain, null),
                 CardButton("Notify Me", type = ButtonType.Secondary) {}
             )
@@ -162,7 +169,8 @@ fun DefaultCardAlert_Minimal_Button() {
     AppTheme {
         AppSurface {
             DefaultCard(
-                title = "Title", subtitle = "Subtitle",
+                title = "Title",
+                subtitle = "Subtitle",
                 iconResource = ImageResource.Local(R.drawable.ic_blockchain, null),
                 CardButton("Notify Me", type = ButtonType.Minimal) {}
             )

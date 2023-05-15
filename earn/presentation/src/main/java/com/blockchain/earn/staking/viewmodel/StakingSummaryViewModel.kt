@@ -32,7 +32,8 @@ class StakingSummaryViewModel(
     private val stakingService: StakingService,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val stakingWithdrawalsFF: FeatureFlag
-) : MviViewModel<StakingSummaryIntent,
+) : MviViewModel<
+    StakingSummaryIntent,
     StakingSummaryViewState,
     StakingSummaryModelState,
     StakingSummaryNavigationEvent,
@@ -169,7 +170,7 @@ class StakingSummaryViewModel(
 
 @Parcelize
 data class StakingSummaryArgs(
-    val cryptoTicker: String,
+    val cryptoTicker: String
 ) : ModelConfigArgs.ParcelableArgs
 
 private data class StakingSummaryData(

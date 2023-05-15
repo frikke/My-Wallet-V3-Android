@@ -678,7 +678,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         stakingDepositSupported: Boolean = true,
         stakingEnabled: Boolean = true,
         swapSupported: Boolean,
-        userTier: KycTier,
+        userTier: KycTier
     ) {
         mockActionsFeatureAccess { original ->
             var updated = original
@@ -777,7 +777,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
     }
 
     private fun mockActionsFeatureAccess(
-        block: (original: Map<Feature, FeatureAccess>) -> Map<Feature, FeatureAccess>,
+        block: (original: Map<Feature, FeatureAccess>) -> Map<Feature, FeatureAccess>
     ) {
         val features = listOf(
             Feature.Buy,

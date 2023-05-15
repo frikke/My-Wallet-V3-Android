@@ -55,11 +55,10 @@ fun UpSellAnotherAsset(
                     .padding(horizontal = AppTheme.dimensions.standardSpacing),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
                 TinyVerticalSpacer()
 
                 SimpleText(
-                    text = stringResource(R.string.asset_upsell_title),
+                    text = stringResource(com.blockchain.stringResources.R.string.asset_upsell_title),
                     style = ComposeTypographies.Title3,
                     color = ComposeColors.Title,
                     gravity = ComposeGravities.Centre
@@ -68,7 +67,7 @@ fun UpSellAnotherAsset(
                 SmallVerticalSpacer()
 
                 SimpleText(
-                    text = stringResource(R.string.asset_upsell_subtitle),
+                    text = stringResource(com.blockchain.stringResources.R.string.asset_upsell_subtitle),
                     style = ComposeTypographies.Body1,
                     color = ComposeColors.Body,
                     gravity = ComposeGravities.Centre
@@ -81,7 +80,7 @@ fun UpSellAnotherAsset(
                 LargeVerticalSpacer()
 
                 MinimalButton(
-                    text = stringResource(R.string.common_maybe_later),
+                    text = stringResource(com.blockchain.stringResources.R.string.common_maybe_later),
                     onClick = onMaybeLater,
                     modifier = Modifier.fillMaxWidth(),
                     isTransparent = false

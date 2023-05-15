@@ -14,7 +14,8 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import java.math.BigInteger
 
-/*internal*/ class Erc20ActivitySummaryItem(
+/*internal*/
+class Erc20ActivitySummaryItem(
     override val currency: AssetInfo,
     private val event: Erc20HistoryEvent,
     private val accountHash: String,

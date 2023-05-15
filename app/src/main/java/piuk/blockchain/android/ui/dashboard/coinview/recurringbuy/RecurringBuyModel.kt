@@ -37,7 +37,10 @@ class RecurringBuyModel(
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger
 ) : MviModel<RecurringBuyModelState, RecurringBuyIntent>(
-    initialState, mainScheduler, environmentConfig, remoteLogger
+    initialState,
+    mainScheduler,
+    environmentConfig,
+    remoteLogger
 ) {
     override fun performAction(
         previousState: RecurringBuyModelState,
@@ -62,7 +65,9 @@ class RecurringBuyModel(
             is RecurringBuyIntent.GetPaymentDetails -> {
                 previousState.recurringBuy?.let {
                     interactor.loadPaymentDetails(
-                        it.paymentMethodType, it.paymentMethodId.orEmpty(), it.amount.currencyCode
+                        it.paymentMethodType,
+                        it.paymentMethodId.orEmpty(),
+                        it.amount.currencyCode
                     )
                         .subscribeBy(
                             onSuccess = { details ->

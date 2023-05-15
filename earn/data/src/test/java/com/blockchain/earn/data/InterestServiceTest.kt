@@ -77,7 +77,7 @@ class InterestServiceTest {
         pendingDeposit = "3",
         totalInterest = "4",
         pendingWithdrawal = "5",
-        lockedBalance = "6",
+        lockedBalance = "6"
     )
 
     private val interestAccountBalance = InterestAccountBalance(

@@ -55,7 +55,7 @@ interface ErrorBuyNavigator {
         errorDescription: String? = null,
         nabuApiException: NabuApiException? = null,
         serverSideUxErrorInfo: ServerSideUxErrorInfo? = null,
-        closeFlowOnDeeplinkFallback: Boolean = true,
+        closeFlowOnDeeplinkFallback: Boolean = true
     )
 
     fun showBankRefreshError(accountId: String)

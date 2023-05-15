@@ -64,7 +64,7 @@ class CountryDialog(
                 }
 
             searchViewCountry.apply {
-                queryHint = context.getString(R.string.search_country)
+                queryHint = context.getString(com.blockchain.stringResources.R.string.search_country)
 
                 this.queryTextChanges()
                     .skipInitialValue()

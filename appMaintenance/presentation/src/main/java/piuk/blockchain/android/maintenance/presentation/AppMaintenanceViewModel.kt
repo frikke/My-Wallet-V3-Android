@@ -13,11 +13,13 @@ import piuk.blockchain.android.maintenance.domain.usecase.IsDownloadInProgressUs
 class AppMaintenanceViewModel(
     private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase,
     private val isDownloadInProgressUseCase: IsDownloadInProgressUseCase
-) : MviViewModel<AppMaintenanceIntents,
+) : MviViewModel<
+    AppMaintenanceIntents,
     AppMaintenanceViewState,
     AppMaintenanceModelState,
     AppMaintenanceNavigationEvent,
-    ModelConfigArgs.NoArgs>(
+    ModelConfigArgs.NoArgs
+    >(
     initialState = AppMaintenanceModelState()
 ) {
 

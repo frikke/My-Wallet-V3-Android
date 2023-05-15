@@ -13,7 +13,7 @@ import kotlinx.serialization.Serializable
 // todo(othman) refactor dto
 // todo(othman) rename?
 class PaymentTransactionHistoryStore(
-    private val nabuService: NabuService,
+    private val nabuService: NabuService
 ) : KeyedStore<PaymentTransactionHistoryStore.Key, TransactionsResponse> by PersistedJsonSqlDelightStoreBuilder()
     .buildKeyed(
         storeId = STORE_ID,
@@ -34,7 +34,7 @@ class PaymentTransactionHistoryStore(
     @Serializable
     data class Key(
         val product: String,
-        val type: String?,
+        val type: String?
     )
 
     override fun invalidate(param: Key) {

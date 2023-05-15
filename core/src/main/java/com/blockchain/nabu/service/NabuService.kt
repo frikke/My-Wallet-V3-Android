@@ -88,9 +88,9 @@ class NabuService internal constructor(
     internal suspend fun createBasicUser(
         firstName: String,
         lastName: String,
-        dateOfBirth: String,
+        dateOfBirth: String
     ): Outcome<Exception, Unit> = nabu.createBasicUser(
-        NabuBasicUser(firstName, lastName, dateOfBirth),
+        NabuBasicUser(firstName, lastName, dateOfBirth)
     )
 
     internal suspend fun isProfileNameValid(firstName: String, lastName: String): Outcome<Exception, Boolean> =
@@ -102,7 +102,7 @@ class NabuService internal constructor(
                 } else {
                     Outcome.Failure(error)
                 }
-            },
+            }
         )
 
     internal fun getUser(): Single<NabuUser> = nabu.getUser().flatMap { user ->
@@ -128,13 +128,13 @@ class NabuService internal constructor(
     internal fun updateWalletInformation(
         jwt: String
     ): Single<NabuUser> = nabu.updateWalletInformation(
-        NabuJwt(jwt),
+        NabuJwt(jwt)
     ).wrapErrorMessage()
 
     internal fun getSupportedDocuments(
         countryCode: String
     ): Single<List<SupportedDocuments>> = nabu.getSupportedDocuments(
-        countryCode,
+        countryCode
     ).wrapErrorMessage()
         .map { it.documentTypes }
 
@@ -153,7 +153,7 @@ class NabuService internal constructor(
             state,
             postCode,
             countryCode
-        ),
+        )
     ).wrapErrorMessage()
 
     internal fun recordCountrySelection(
@@ -167,7 +167,7 @@ class NabuService internal constructor(
             countryCode,
             notifyWhenAvailable,
             stateCode
-        ),
+        )
     ).wrapErrorMessage()
 
     internal fun startVeriffSession(): Single<VeriffApplicantAndToken> =
@@ -177,7 +177,7 @@ class NabuService internal constructor(
     internal fun submitVeriffVerification(
         userId: String
     ): Completable = nabu.submitVerification(
-        ApplicantIdRequest(userId),
+        ApplicantIdRequest(userId)
     ).wrapErrorMessage()
 
     internal fun recoverAccount(
@@ -215,7 +215,7 @@ class NabuService internal constructor(
         campaignName: String
     ): Completable = nabu.registerCampaign(
         campaignRequest,
-        campaignName,
+        campaignName
     ).wrapErrorMessage()
 
     internal fun fetchExchangeSendToAddressForCrypto(
@@ -266,7 +266,7 @@ class NabuService internal constructor(
         nabu.getSupportedSimpleBuyPairs(fiatCurrency).wrapErrorMessage()
 
     fun getWireTransferAccountDetails(
-        currency: String,
+        currency: String
     ): Single<WireTransferAccountDetailsResponse> =
         nabu.getWireTransferAccountDetails(
             SimpleBuyCurrency(currency)
@@ -274,7 +274,7 @@ class NabuService internal constructor(
 
     fun getCustodialAccountDetails(
         product: String,
-        currency: String,
+        currency: String
     ): Single<CustodialAccountResponse> =
         nabu.getCustodialAccountDetails(
             product,
@@ -326,7 +326,8 @@ class NabuService internal constructor(
         product: String,
         paymentMethod: String
     ) = nabu.getWithdrawFeeAndLimits(
-        product, paymentMethod
+        product,
+        paymentMethod
     ).wrapErrorMessage()
 
     internal fun fetchWithdrawLocksRules(
@@ -334,7 +335,8 @@ class NabuService internal constructor(
         fiatCurrency: String
     ) = nabu.getWithdrawalLocksCheck(
         WithdrawLocksCheckRequestBody(
-            paymentMethod = paymentMethod.name, currency = fiatCurrency
+            paymentMethod = paymentMethod.name,
+            currency = fiatCurrency
         )
     ).wrapErrorMessage()
 
@@ -354,7 +356,11 @@ class NabuService internal constructor(
         product: String
     ) = nabu.createDepositOrder(
         DepositRequestBody(
-            currency = currency, depositAddress = address, txHash = hash, amount = amount, product = product
+            currency = currency,
+            depositAddress = address,
+            txHash = hash,
+            amount = amount,
+            product = product
         )
     )
 

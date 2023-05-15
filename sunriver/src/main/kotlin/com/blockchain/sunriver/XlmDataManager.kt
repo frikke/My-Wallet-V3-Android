@@ -31,12 +31,12 @@ data class XlmAccountReference(
     /**
      * pubkey
      */
-    val pubKey: String?,
+    val pubKey: String?
 ) : LabeledAccount
 
 data class BalanceAndMin(
     val balance: Money,
-    val minimumBalance: Money,
+    val minimumBalance: Money
 )
 
 class XlmDataManager internal constructor(
@@ -49,7 +49,7 @@ class XlmDataManager internal constructor(
     private val lastTxUpdater: LastTxUpdater,
     private val eventLogger: EventLogger,
     xlmHorizonUrlFetcher: XlmHorizonUrlFetcher,
-    xlmHorizonDefUrl: String,
+    xlmHorizonDefUrl: String
 ) {
     val publicKey: Single<String>
         get() = defaultAccount().map { account ->
@@ -64,7 +64,7 @@ class XlmDataManager internal constructor(
 
     fun sendFunds(
         sendDetails: SendDetails,
-        secondPassword: String? = null,
+        secondPassword: String? = null
     ): Single<SendFundsResult> =
         Single.defer {
             Singles.zip(
@@ -100,7 +100,7 @@ class XlmDataManager internal constructor(
         }.ensureUrlUpdated()
 
     fun dryRunSendFunds(
-        sendDetails: SendDetails,
+        sendDetails: SendDetails
     ): Single<SendFundsResult> =
         Single.defer {
             horizonProxy.dryRunTransaction(
@@ -196,7 +196,7 @@ class XlmDataManager internal constructor(
     private fun maybeDefaultXlmAccount() =
         maybeWallet.map(XlmMetaData::default)
 
-    private fun <T> Single<T>.ensureUrlUpdated(): Single<T> =
+    private fun <T : Any> Single<T>.ensureUrlUpdated(): Single<T> =
         xlmProxyUrl.flatMap {
             this
         }
@@ -253,7 +253,7 @@ private fun XlmAccount.toReference() =
     XlmAccountReference(label = label ?: "", accountId = publicKey, pubKey = pubKey)
 
 class SendException(
-    result: SendFundsResult,
+    result: SendFundsResult
 ) : RuntimeException("SendException - code: ${result.errorCode}, extra: '${result.errorExtra}'") {
     val errorCode = result.errorCode
     val hash = result.hash
@@ -266,14 +266,14 @@ data class SendDetails(
     val toAddress: String,
     val toLabel: String = "",
     val fee: CryptoValue,
-    val memo: Memo? = null,
+    val memo: Memo? = null
 ) {
     constructor(
         from: XlmAccountReference,
         value: CryptoValue,
         toAddress: String,
         fee: CryptoValue,
-        memo: Memo? = null,
+        memo: Memo? = null
     ) : this(from, value, toAddress, "", fee, memo)
 }
 
@@ -285,7 +285,7 @@ data class Memo(
      * This is open type for TransactionSender to interpret however it likes.
      * For example, the types of memo available to Xlm are different to those available in other currencies.
      */
-    val type: String? = null,
+    val type: String? = null
 ) {
     fun isEmpty() = value.isBlank()
 
@@ -305,7 +305,7 @@ data class SendFundsResult(
     val confirmationDetails: SendConfirmationDetails?,
     val hash: String?,
     val errorValue: CryptoValue? = null,
-    val errorExtra: String? = null,
+    val errorExtra: String? = null
 ) {
     val txHash: String
         get() = hash ?: throw SendException(this)
@@ -314,7 +314,7 @@ data class SendFundsResult(
 
 data class SendConfirmationDetails(
     val sendDetails: SendDetails,
-    val fees: CryptoValue,
+    val fees: CryptoValue
 ) {
     val from: XlmAccountReference = sendDetails.from
     val to: String = sendDetails.toAddress

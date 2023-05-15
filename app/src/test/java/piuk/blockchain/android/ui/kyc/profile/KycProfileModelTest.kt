@@ -58,7 +58,7 @@ class KycProfileModelTest {
             analytics,
             nabuDataManager,
             userService,
-            getUserStore,
+            getUserStore
         )
     }
 
@@ -98,7 +98,7 @@ class KycProfileModelTest {
             nabuDataManager.createBasicUser(
                 firstName,
                 lastName,
-                dateOfBirth.toISO8601DateString(),
+                dateOfBirth.toISO8601DateString()
             )
         } coAnswers {
             createBasicUserDeferred.await()

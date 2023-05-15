@@ -30,7 +30,7 @@ import org.koin.androidx.compose.get
 @Composable
 fun NonCustodialEmptyStateCard(
     analytics: Analytics = get(),
-    onReceiveClicked: () -> Unit,
+    onReceiveClicked: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -55,27 +55,31 @@ fun NonCustodialEmptyStateCard(
 
                 Image(
                     imageResource = ImageResource.Local(
-                        id = R.drawable.ic_empty_state_deposit,
-                        contentDescription = stringResource(id = R.string.nc_empty_state_title),
+                        id = com.blockchain.componentlib.R.drawable.ic_empty_state_deposit,
+                        contentDescription = stringResource(
+                            id = com.blockchain.stringResources.R.string.nc_empty_state_title
+                        )
                     )
                 )
 
                 StandardVerticalSpacer()
 
                 SimpleText(
-                    text = stringResource(id = R.string.nc_empty_state_title),
+                    text = stringResource(id = com.blockchain.stringResources.R.string.nc_empty_state_title),
                     style = ComposeTypographies.Title3,
                     color = ComposeColors.Title,
                     gravity = ComposeGravities.Centre
                 )
 
                 SimpleText(
-                    text = stringResource(id = R.string.transfer_from_your_trading_account),
+                    text = stringResource(
+                        id = com.blockchain.stringResources.R.string.transfer_from_your_trading_account
+                    ),
                     style = ComposeTypographies.Body1,
                     color = ComposeColors.Body,
                     gravity = ComposeGravities.Centre,
                     modifier = Modifier.padding(
-                        vertical = AppTheme.dimensions.smallSpacing,
+                        vertical = AppTheme.dimensions.smallSpacing
                     )
                 )
 
@@ -86,7 +90,7 @@ fun NonCustodialEmptyStateCard(
                             vertical = AppTheme.dimensions.standardSpacing,
                             horizontal = AppTheme.dimensions.smallSpacing
                         ),
-                    text = stringResource(id = R.string.nc_empty_state_cta),
+                    text = stringResource(id = com.blockchain.stringResources.R.string.nc_empty_state_cta),
                     onClick = {
                         onReceiveClicked()
                         analytics.logEvent(DashboardAnalyticsEvents.EmptyStateReceiveCrypto)

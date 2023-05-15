@@ -19,12 +19,12 @@ class BuySellFlowNavigator(
     fun navigateTo(selectedAsset: AssetInfo? = null): Single<BuySellIntroAction> {
         val state = simpleBuySyncFactory.currentState() ?: SimpleBuyState()
 
-        val cancel: Completable = if (state.orderState == OrderState.PENDING_CONFIRMATION)
+        val cancel: Completable = if (state.orderState == OrderState.PENDING_CONFIRMATION) {
             custodialWalletManager.deleteBuyOrder(
                 state.id
                     ?: throw IllegalStateException("Pending order should always have an id")
             ).onErrorComplete()
-        else Completable.complete()
+        } else Completable.complete()
 
         return cancel.doOnComplete {
             simpleBuySyncFactory.clear()
@@ -45,9 +45,9 @@ class BuySellFlowNavigator(
                 userIdentity.userAccessForFeature(Feature.Buy),
                 userIdentity.userAccessForFeature(Feature.Sell)
             ) { buyAccess, sellAccess ->
-                if (buyAccess.isBlockedDueToEligibility() && sellAccess.isBlockedDueToEligibility())
+                if (buyAccess.isBlockedDueToEligibility() && sellAccess.isBlockedDueToEligibility()) {
                     BuySellIntroAction.UserNotEligible
-                else BuySellIntroAction.DisplayBuySellIntro
+                } else BuySellIntroAction.DisplayBuySellIntro
             }
         }
     }

@@ -5,6 +5,7 @@ android {
         warningsAsErrors true
         abortOnError true
     }
+    namespace 'com.blockchain.android.testutils'
 }
 
 dependencies {

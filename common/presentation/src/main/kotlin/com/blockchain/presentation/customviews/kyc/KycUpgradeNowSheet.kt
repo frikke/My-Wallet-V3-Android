@@ -65,7 +65,7 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
                     NavigationBarButton.Icon(
                         drawable = R.drawable.ic_close_circle_v2,
                         color = null,
-                        contentDescription = R.string.accessibility_close,
+                        contentDescription = com.blockchain.stringResources.R.string.accessibility_close,
                         onIconClick = {
                             if (showsDialog) dismiss()
                         }

@@ -34,7 +34,7 @@ internal class BtcAsset(
     private val feeDataManager: FeeDataManager,
     private val walletPreferences: WalletStatusPrefs,
     private val notificationUpdater: BackendNotificationUpdater,
-    private val addressResolver: IdentityAddressResolver,
+    private val addressResolver: IdentityAddressResolver
 ) : CryptoAssetBase(),
     MultipleWalletsAsset {
 
@@ -142,8 +142,9 @@ internal class BtcAsset(
             PrivateKeyFactory.BIP38 -> extractBip38Key(keyData, keyPassword!!)
             else -> extractKey(keyData, keyFormat)
         }.map { key ->
-            if (!key.hasPrivKey)
+            if (!key.hasPrivKey) {
                 throw Exception()
+            }
             key
         }.flatMap { key ->
             payloadManager.addImportedAddressFromKey(key, walletSecondPassword)

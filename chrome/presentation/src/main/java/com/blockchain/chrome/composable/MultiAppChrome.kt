@@ -142,7 +142,7 @@ fun MultiAppChrome(
     openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
-    openSwap: () -> Unit,
+    openSwap: () -> Unit
 ) {
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(MultiAppIntents.LoadData)
@@ -220,7 +220,7 @@ fun MultiAppChrome(
             nftNavigation = nftNavigation,
             earnNavigation = earnNavigation,
             processAnnouncementUrl = processAnnouncementUrl,
-            openSwap = openSwap,
+            openSwap = openSwap
         )
     }
 }
@@ -405,7 +405,6 @@ fun MultiAppChromeScreen(
 
     fun revealBalance() {
         if (toolbarState.isBalanceRevealInProgress.not()) {
-
             toolbarState.isBalanceRevealInProgress = true
             isRevealingTargetBalance = true
 
@@ -422,7 +421,6 @@ fun MultiAppChromeScreen(
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-
                 if (toolbarState.isPullToRefreshSwipeInProgress) {
                     toolbarState.isInteractingWithPullToRefresh = true
                     // let pull to refresh consume the scroll
@@ -627,7 +625,6 @@ fun MultiAppChromeScreen(
                 .fillMaxSize()
                 .nestedScroll(nestedScrollConnection)
         ) {
-
             // /// header
             Column(
                 modifier = Modifier
@@ -805,7 +802,7 @@ fun MultiAppChromeScreen(
                     nftNavigation = nftNavigation,
                     earnNavigation = earnNavigation,
                     processAnnouncementUrl = processAnnouncementUrl,
-                    openSwap = openSwap,
+                    openSwap = openSwap
                 )
             }
 

@@ -17,7 +17,7 @@ android {
     buildFeatures {
         compose = true
     }
-
+    namespace 'com.blockchain.transactions.presentation'
     composeOptions {
         kotlinCompilerExtensionVersion Versions.composeCompiler
     }

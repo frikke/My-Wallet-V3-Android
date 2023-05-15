@@ -9,7 +9,7 @@ class DexQuotesApiService(private val dexQuotesApi: DexQuotesApi) {
         toCurrency: ToCurrency,
         slippage: Double,
         address: String,
-        skipValidation: Boolean,
+        skipValidation: Boolean
     ): Outcome<Exception, DexQuoteResponse> =
         dexQuotesApi.quote(
             product = DEX_PRODUCT,
@@ -43,7 +43,7 @@ data class QuoteResponse(
     val buyAmount: DexQuoteAmount,
     val sellAmount: DexQuoteAmount,
     val price: String,
-    val buyTokenFee: String,
+    val buyTokenFee: String
 )
 
 @kotlinx.serialization.Serializable
@@ -53,7 +53,7 @@ data class DexTransactionResponse(
     val data: String,
     val value: String,
     val gasLimit: String, // In Gas units
-    val gasPrice: String, // In WEI
+    val gasPrice: String // In WEI
 )
 
 @kotlinx.serialization.Serializable
@@ -76,7 +76,7 @@ data class FromCurrency(
     private val chainId: Int,
     private val symbol: String,
     private val address: String,
-    private val amount: String,
+    private val amount: String
 )
 
 @kotlinx.serialization.Serializable

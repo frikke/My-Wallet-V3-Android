@@ -61,13 +61,28 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
 
         val expected = listOf(
             AvailablePaymentMethodType(
-                true, LinkAccess.GRANTED, FIAT, PaymentMethodType.PAYMENT_CARD, NULL_LIMITS, CARD_FUND_SOURCES
+                true,
+                LinkAccess.GRANTED,
+                FIAT,
+                PaymentMethodType.PAYMENT_CARD,
+                NULL_LIMITS,
+                CARD_FUND_SOURCES
             ),
             AvailablePaymentMethodType(
-                true, LinkAccess.GRANTED, FIAT, PaymentMethodType.BANK_ACCOUNT, NULL_LIMITS, CARD_FUND_SOURCES
+                true,
+                LinkAccess.GRANTED,
+                FIAT,
+                PaymentMethodType.BANK_ACCOUNT,
+                NULL_LIMITS,
+                CARD_FUND_SOURCES
             ),
             AvailablePaymentMethodType(
-                false, LinkAccess.BLOCKED, FIAT, PaymentMethodType.BANK_TRANSFER, NULL_LIMITS, CARD_FUND_SOURCES
+                false,
+                LinkAccess.BLOCKED,
+                FIAT,
+                PaymentMethodType.BANK_TRANSFER,
+                NULL_LIMITS,
+                CARD_FUND_SOURCES
             )
         )
         test.assertValue(expected)
@@ -86,13 +101,28 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
 
         val expected = listOf(
             AvailablePaymentMethodType(
-                true, LinkAccess.GRANTED, FIAT, PaymentMethodType.PAYMENT_CARD, NULL_LIMITS, CARD_FUND_SOURCES
+                true,
+                LinkAccess.GRANTED,
+                FIAT,
+                PaymentMethodType.PAYMENT_CARD,
+                NULL_LIMITS,
+                CARD_FUND_SOURCES
             ),
             AvailablePaymentMethodType(
-                true, LinkAccess.GRANTED, FIAT, PaymentMethodType.BANK_ACCOUNT, NULL_LIMITS, CARD_FUND_SOURCES
+                true,
+                LinkAccess.GRANTED,
+                FIAT,
+                PaymentMethodType.BANK_ACCOUNT,
+                NULL_LIMITS,
+                CARD_FUND_SOURCES
             ),
             AvailablePaymentMethodType(
-                false, LinkAccess.NEEDS_UPGRADE, FIAT, PaymentMethodType.BANK_TRANSFER, NULL_LIMITS, CARD_FUND_SOURCES
+                false,
+                LinkAccess.NEEDS_UPGRADE,
+                FIAT,
+                PaymentMethodType.BANK_TRANSFER,
+                NULL_LIMITS,
+                CARD_FUND_SOURCES
             )
         )
         test.assertValue(expected)
@@ -112,13 +142,28 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
         private val REQUEST = GetAvailablePaymentMethodsTypesUseCase.Request(FIAT, true)
         private val AVAILABLE = listOf(
             PaymentMethodTypeWithEligibility(
-                true, FIAT, PaymentMethodType.PAYMENT_CARD, NULL_LIMITS, CARD_FUND_SOURCES, null
+                true,
+                FIAT,
+                PaymentMethodType.PAYMENT_CARD,
+                NULL_LIMITS,
+                CARD_FUND_SOURCES,
+                null
             ),
             PaymentMethodTypeWithEligibility(
-                true, FIAT, PaymentMethodType.BANK_ACCOUNT, NULL_LIMITS, CARD_FUND_SOURCES, null
+                true,
+                FIAT,
+                PaymentMethodType.BANK_ACCOUNT,
+                NULL_LIMITS,
+                CARD_FUND_SOURCES,
+                null
             ),
             PaymentMethodTypeWithEligibility(
-                false, FIAT, PaymentMethodType.BANK_TRANSFER, NULL_LIMITS, CARD_FUND_SOURCES, null
+                false,
+                FIAT,
+                PaymentMethodType.BANK_TRANSFER,
+                NULL_LIMITS,
+                CARD_FUND_SOURCES,
+                null
             )
         )
         private val CARD =

@@ -11,15 +11,15 @@ import info.blockchain.balance.percentageDelta
 data class WalletBalance(
     val balance: DataResource<Money>,
     private val cryptoBalanceDifference24h: DataResource<Money>,
-    private val cryptoBalanceNow: DataResource<Money>,
+    private val cryptoBalanceNow: DataResource<Money>
 ) {
 
     val balanceDifference: BalanceDifferenceConfig
         get() = combineDataResources(cryptoBalanceNow, cryptoBalanceDifference24h) { now, yesterday ->
             val difference = now.minus(yesterday)
-            if (now.isZero && difference.isZero)
+            if (now.isZero && difference.isZero) {
                 BalanceDifferenceConfig()
-            else
+            } else
                 ValueChange.fromValue(now.percentageDelta(yesterday)).takeIf { !it.value.isNaN() }
                     ?.let { valueChange ->
                         BalanceDifferenceConfig(

@@ -41,14 +41,14 @@ sealed class Navigation : NavigationEvent {
 data class Args(
     val countryIso: CountryIso,
     val stateIso: StateIso?,
-    val isCowboysUser: Boolean,
+    val isCowboysUser: Boolean
 ) : ModelConfigArgs.ParcelableArgs
 
 class KycProfileModel(
     private val analytics: Analytics,
     private val nabuDataManager: NabuDataManager,
     private val userService: UserService,
-    private val getUserStore: GetUserStore,
+    private val getUserStore: GetUserStore
 ) : MviViewModel<
     KycProfileIntent,
     KycProfileViewState,
@@ -117,7 +117,7 @@ class KycProfileModel(
             state.isNameInputErrorShowing -> ButtonState.Disabled
             else -> ButtonState.Enabled
         },
-        error = state.error,
+        error = state.error
     )
 
     override suspend fun handleIntent(modelState: KycProfileModelState, intent: KycProfileIntent) {
@@ -161,7 +161,7 @@ class KycProfileModel(
                         firstName = modelState.firstNameInput,
                         lastName = modelState.lastNameInput,
                         countryCode = countryIso,
-                        stateCode = stateIso,
+                        stateCode = stateIso
                     )
                     navigate(Navigation.AddressVerification(profile))
                 }.doOnFailure {

@@ -25,7 +25,7 @@ class ReferralPromotionStyleInfo(
     val title: String,
     val message: String,
     val iconUrl: String,
-    val backgroundUrl: String,
+    val backgroundUrl: String
 ) : Parcelable
 
 fun ReferralInfo.Data.mapArgs() = ReferralArgs(

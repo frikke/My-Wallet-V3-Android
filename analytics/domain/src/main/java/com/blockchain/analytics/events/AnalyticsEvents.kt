@@ -2,7 +2,6 @@ package com.blockchain.analytics.events
 
 import com.blockchain.analytics.AnalyticsEvent
 
-@Deprecated("Analytics events should be defined near point of use")
 enum class AnalyticsEvents(
     override val event: String,
     override val params: Map<String, String> = emptyMap()
@@ -449,9 +448,7 @@ enum class AnalyticsNames(val eventName: String) {
     DEX_SWAP_EXECUTED_VIEWED("DEX Swap Executed Viewed"),
     DEX_SWAP_FAILED_VIEWED("DEX Swap Failed Viewed"),
     DEX_SETTINGS_OPENED("DEX Settings opened"),
-    DEX_SLIPPAGE_CHANGED("DEX Slippage changed"),
-
-    ;
+    DEX_SLIPPAGE_CHANGED("DEX Slippage changed")
 }
 
 enum class LaunchOrigin {
@@ -489,5 +486,5 @@ enum class LaunchOrigin {
     LAUNCH_SCREEN,
     COIN_VIEW,
     NUX_LAUNCH_PROMO_LOG_IN,
-    NUX_LAUNCH_PROMO_BUY_CRYPTO;
+    NUX_LAUNCH_PROMO_BUY_CRYPTO
 }

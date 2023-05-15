@@ -62,13 +62,13 @@ import java.util.Locale
 @Composable
 internal fun ViewPrefillData(
     state: ProvePrefillViewState,
-    onIntent: (ProvePrefillIntent) -> Unit,
+    onIntent: (ProvePrefillIntent) -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val localFocusManager = LocalFocusManager.current
 
     Column(
-        Modifier.background(White),
+        Modifier.background(White)
     ) {
         Column(
             modifier = Modifier
@@ -76,7 +76,7 @@ internal fun ViewPrefillData(
                 .weight(1f)
                 .padding(
                     top = AppTheme.dimensions.xHugeSpacing,
-                    bottom = AppTheme.dimensions.standardSpacing,
+                    bottom = AppTheme.dimensions.standardSpacing
                 ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -92,12 +92,12 @@ internal fun ViewPrefillData(
                     .padding(
                         top = AppTheme.dimensions.standardSpacing,
                         start = AppTheme.dimensions.smallSpacing,
-                        end = AppTheme.dimensions.smallSpacing,
+                        end = AppTheme.dimensions.smallSpacing
                     ),
-                text = stringResource(R.string.prove_view_prefill_data_title),
+                text = stringResource(com.blockchain.stringResources.R.string.prove_view_prefill_data_title),
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
-                gravity = ComposeGravities.Centre,
+                gravity = ComposeGravities.Centre
             )
 
             OutlinedTextInput(
@@ -106,18 +106,20 @@ internal fun ViewPrefillData(
                     .padding(
                         top = AppTheme.dimensions.standardSpacing,
                         start = AppTheme.dimensions.smallSpacing,
-                        end = AppTheme.dimensions.smallSpacing,
+                        end = AppTheme.dimensions.smallSpacing
                     ),
                 singleLine = true,
                 value = state.prefillFirstNameInput,
-                label = stringResource(R.string.first_name),
-                placeholder = stringResource(R.string.prove_view_prefill_data_first_name_placeholder),
+                label = stringResource(com.blockchain.stringResources.R.string.first_name),
+                placeholder = stringResource(
+                    com.blockchain.stringResources.R.string.prove_view_prefill_data_first_name_placeholder
+                ),
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Next,
-                    capitalization = KeyboardCapitalization.Words,
+                    capitalization = KeyboardCapitalization.Words
                 ),
                 keyboardActions = KeyboardActions(onNext = { localFocusManager.moveFocus(FocusDirection.Next) }),
-                onValueChange = { value -> onIntent(ProvePrefillIntent.PrefillFirstNameInputChanged(value)) },
+                onValueChange = { value -> onIntent(ProvePrefillIntent.PrefillFirstNameInputChanged(value)) }
             )
 
             OutlinedTextInput(
@@ -126,22 +128,24 @@ internal fun ViewPrefillData(
                     .padding(
                         top = AppTheme.dimensions.standardSpacing,
                         start = AppTheme.dimensions.smallSpacing,
-                        end = AppTheme.dimensions.smallSpacing,
+                        end = AppTheme.dimensions.smallSpacing
                     ),
                 singleLine = true,
                 value = state.prefillLastNameInput,
-                label = stringResource(R.string.last_name),
-                placeholder = stringResource(R.string.prove_view_prefill_data_last_name_placeholder),
+                label = stringResource(com.blockchain.stringResources.R.string.last_name),
+                placeholder = stringResource(
+                    com.blockchain.stringResources.R.string.prove_view_prefill_data_last_name_placeholder
+                ),
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Next,
-                    capitalization = KeyboardCapitalization.Words,
+                    capitalization = KeyboardCapitalization.Words
                 ),
                 keyboardActions = KeyboardActions(onNext = {
                     keyboardController?.hide()
                     localFocusManager.clearFocus(force = true)
                     onIntent(ProvePrefillIntent.PrefillAddressClicked)
                 }),
-                onValueChange = { value -> onIntent(ProvePrefillIntent.PrefillLastNameInputChanged(value)) },
+                onValueChange = { value -> onIntent(ProvePrefillIntent.PrefillLastNameInputChanged(value)) }
             )
 
             val addresses = listOfNotNull(state.manualEntryAddress) + state.prefillAddresses
@@ -153,11 +157,11 @@ internal fun ViewPrefillData(
                     .padding(
                         top = AppTheme.dimensions.standardSpacing,
                         start = AppTheme.dimensions.smallSpacing,
-                        end = AppTheme.dimensions.smallSpacing,
+                        end = AppTheme.dimensions.smallSpacing
                     )
                     .onGloballyPositioned {
                         boxSize = it.size.toSize()
-                    },
+                    }
             ) {
                 val icon = when {
                     addresses.size <= 1 -> ImageResource.None
@@ -167,14 +171,18 @@ internal fun ViewPrefillData(
                 // We're hiding the label because otherwise the placeholder would not show up and we want it to show up when
                 // the field is empty, placeholder only shows when focused, and this view because it's viewonly cannot be focused
                 val label = if (state.prefillSelectedAddress != null) {
-                    stringResource(R.string.prove_view_prefill_data_address_label)
+                    stringResource(com.blockchain.stringResources.R.string.prove_view_prefill_data_address_label)
                 } else {
                     null
                 }
                 val placeholder = if (addresses.isEmpty()) {
-                    stringResource(R.string.prove_view_prefill_data_address_placeholder_enter)
+                    stringResource(
+                        com.blockchain.stringResources.R.string.prove_view_prefill_data_address_placeholder_enter
+                    )
                 } else {
-                    stringResource(R.string.prove_view_prefill_data_address_placeholder_select)
+                    stringResource(
+                        com.blockchain.stringResources.R.string.prove_view_prefill_data_address_placeholder_select
+                    )
                 }
                 OutlinedTextInput(
                     modifier = Modifier.fillMaxWidth(),
@@ -217,15 +225,17 @@ internal fun ViewPrefillData(
                 Row(
                     modifier = Modifier.padding(
                         vertical = AppTheme.dimensions.tinySpacing,
-                        horizontal = AppTheme.dimensions.smallSpacing,
+                        horizontal = AppTheme.dimensions.smallSpacing
                     ),
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     SimpleText(
-                        text = stringResource(R.string.prove_view_prefill_data_address_manual_or),
+                        text = stringResource(
+                            com.blockchain.stringResources.R.string.prove_view_prefill_data_address_manual_or
+                        ),
                         style = ComposeTypographies.Caption1,
                         color = ComposeColors.Title,
-                        gravity = ComposeGravities.Start,
+                        gravity = ComposeGravities.Start
                     )
 
                     Box(
@@ -234,10 +244,13 @@ internal fun ViewPrefillData(
                             .clickable { onIntent(ProvePrefillIntent.PrefillAddressEnterManuallyClicked) }
                     ) {
                         SimpleText(
-                            text = stringResource(R.string.prove_view_prefill_data_address_manual_enter_manually),
+                            text = stringResource(
+                                com.blockchain.stringResources.R
+                                    .string.prove_view_prefill_data_address_manual_enter_manually
+                            ),
                             style = ComposeTypographies.Caption1,
                             color = ComposeColors.Primary,
-                            gravity = ComposeGravities.Start,
+                            gravity = ComposeGravities.Start
                         )
                     }
                 }
@@ -255,11 +268,11 @@ internal fun ViewPrefillData(
                             AppTheme.dimensions.standardSpacing
                         },
                         start = AppTheme.dimensions.smallSpacing,
-                        end = AppTheme.dimensions.smallSpacing,
+                        end = AppTheme.dimensions.smallSpacing
                     ),
                 singleLine = true,
                 value = dob,
-                label = stringResource(R.string.kyc_profile_dob_hint),
+                label = stringResource(com.blockchain.stringResources.R.string.kyc_profile_dob_hint),
                 readOnly = true,
                 state = TextInputState.Disabled(),
                 onValueChange = {
@@ -273,12 +286,14 @@ internal fun ViewPrefillData(
                     .padding(
                         top = AppTheme.dimensions.smallestSpacing,
                         start = AppTheme.dimensions.smallSpacing,
-                        end = AppTheme.dimensions.smallSpacing,
+                        end = AppTheme.dimensions.smallSpacing
                     ),
-                text = stringResource(R.string.prove_view_prefill_data_cannot_be_modifier),
+                text = stringResource(
+                    com.blockchain.stringResources.R.string.prove_view_prefill_data_cannot_be_modifier
+                ),
                 style = ComposeTypographies.Caption1,
                 color = ComposeColors.Body,
-                gravity = ComposeGravities.Start,
+                gravity = ComposeGravities.Start
             )
 
             OutlinedTextInput(
@@ -287,11 +302,11 @@ internal fun ViewPrefillData(
                     .padding(
                         top = AppTheme.dimensions.standardSpacing,
                         start = AppTheme.dimensions.smallSpacing,
-                        end = AppTheme.dimensions.smallSpacing,
+                        end = AppTheme.dimensions.smallSpacing
                     ),
                 singleLine = true,
                 value = state.prefillMobileNumber,
-                label = stringResource(R.string.prove_phone_number),
+                label = stringResource(com.blockchain.stringResources.R.string.prove_phone_number),
                 readOnly = true,
                 state = TextInputState.Disabled(),
                 onValueChange = {
@@ -305,12 +320,14 @@ internal fun ViewPrefillData(
                     .padding(
                         top = AppTheme.dimensions.smallestSpacing,
                         start = AppTheme.dimensions.smallSpacing,
-                        end = AppTheme.dimensions.smallSpacing,
+                        end = AppTheme.dimensions.smallSpacing
                     ),
-                text = stringResource(R.string.prove_view_prefill_data_cannot_be_modifier),
+                text = stringResource(
+                    com.blockchain.stringResources.R.string.prove_view_prefill_data_cannot_be_modifier
+                ),
                 style = ComposeTypographies.Caption1,
                 color = ComposeColors.Body,
-                gravity = ComposeGravities.Start,
+                gravity = ComposeGravities.Start
             )
         }
 
@@ -320,9 +337,9 @@ internal fun ViewPrefillData(
                 .padding(
                     start = AppTheme.dimensions.smallSpacing,
                     end = AppTheme.dimensions.smallSpacing,
-                    bottom = AppTheme.dimensions.smallSpacing,
+                    bottom = AppTheme.dimensions.smallSpacing
                 ),
-            text = stringResource(R.string.common_continue),
+            text = stringResource(com.blockchain.stringResources.R.string.common_continue),
             state = state.prefillContinueButtonState,
             onClick = { onIntent(ProvePrefillIntent.PrefillContinueClicked) }
         )
@@ -341,9 +358,9 @@ private fun PreviewMultipleAddressesUnselected() {
             },
             prefillMobileNumber = "+1-202-555-0100",
             prefillAddresses = listOf(address1, address2),
-            prefillSelectedAddress = null,
+            prefillSelectedAddress = null
         ),
-        onIntent = {},
+        onIntent = {}
     )
 }
 
@@ -358,9 +375,9 @@ private fun PreviewMultipleAddressesUnselectedDropdownOpen() {
             prefillMobileNumber = "+1-202-555-0100",
             prefillAddresses = listOf(address1, address2),
             prefillSelectedAddress = null,
-            isAddressDropdownOpen = true,
+            isAddressDropdownOpen = true
         ),
-        onIntent = {},
+        onIntent = {}
     )
 }
 
@@ -374,9 +391,9 @@ private fun PreviewMultipleAddressesWithSelected() {
             },
             prefillMobileNumber = "+1-202-555-0100",
             prefillAddresses = listOf(address1, address2),
-            prefillSelectedAddress = address1,
+            prefillSelectedAddress = address1
         ),
-        onIntent = {},
+        onIntent = {}
     )
 }
 
@@ -392,9 +409,9 @@ private fun PreviewOnlyOneAddress() {
             },
             prefillMobileNumber = "+1-202-555-0100",
             prefillAddresses = listOf(address1),
-            prefillSelectedAddress = address1,
+            prefillSelectedAddress = address1
         ),
-        onIntent = {},
+        onIntent = {}
     )
 }
 
@@ -407,9 +424,9 @@ private fun PreviewNoAddresses() {
                 set(1990, 1, 1)
             },
             prefillMobileNumber = "+1-202-555-0100",
-            prefillAddresses = emptyList(),
+            prefillAddresses = emptyList()
         ),
-        onIntent = {},
+        onIntent = {}
     )
 }
 
@@ -426,9 +443,9 @@ private fun PreviewComplete() {
             prefillMobileNumber = "+1-202-555-0100",
             prefillAddresses = listOf(address1, address2),
             prefillSelectedAddress = address1,
-            prefillContinueButtonState = ButtonState.Enabled,
+            prefillContinueButtonState = ButtonState.Enabled
         ),
-        onIntent = {},
+        onIntent = {}
     )
 }
 
@@ -438,7 +455,7 @@ private val address1 = AddressDetails(
     city = "Albany",
     postCode = "12207",
     countryIso = "US",
-    stateIso = null,
+    stateIso = null
 )
 
 private val address2 = AddressDetails(
@@ -447,5 +464,5 @@ private val address2 = AddressDetails(
     city = "Farmerville",
     postCode = "71241",
     countryIso = "US",
-    stateIso = null,
+    stateIso = null
 )

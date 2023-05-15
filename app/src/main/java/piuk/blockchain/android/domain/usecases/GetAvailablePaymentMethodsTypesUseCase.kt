@@ -21,7 +21,7 @@ class GetAvailablePaymentMethodsTypesUseCase(
 
     data class Request(
         val currency: FiatCurrency,
-        val onlyEligible: Boolean,
+        val onlyEligible: Boolean
     )
 
     override fun execute(parameter: Request): Single<List<AvailablePaymentMethodType>> =

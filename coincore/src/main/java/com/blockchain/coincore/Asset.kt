@@ -38,7 +38,7 @@ enum class ActionOrigin {
 }
 
 enum class AssetAction(
-    val origin: ActionOrigin,
+    val origin: ActionOrigin
 ) {
     // Display account activity
     ViewActivity(ActionOrigin.FROM_SOURCE),
@@ -92,12 +92,12 @@ enum class AssetAction(
     ActiveRewardsDeposit(ActionOrigin.FROM_SOURCE),
 
     // Withdraw from an ActiveRewards account
-    ActiveRewardsWithdraw(ActionOrigin.FROM_SOURCE),
+    ActiveRewardsWithdraw(ActionOrigin.FROM_SOURCE)
 }
 
 data class StateAwareAction(
     val state: ActionState,
-    val action: AssetAction,
+    val action: AssetAction
 ) : Serializable
 
 sealed class ActionState : Serializable {
@@ -118,7 +118,7 @@ typealias AvailableActions = Set<AssetAction>
 
 internal inline fun AssetAction.takeEnabledIf(
     baseActions: AvailableActions,
-    predicate: (AssetAction) -> Boolean = { true },
+    predicate: (AssetAction) -> Boolean = { true }
 ): AssetAction? =
     this.takeIf { it in baseActions && predicate(this) }
 
@@ -152,7 +152,7 @@ interface Asset {
     fun getPricesWith24hDelta(): Flow<DataResource<Prices24HrWithDelta>>
 
     fun historicRateSeries(
-        period: HistoricalTimeSpan,
+        period: HistoricalTimeSpan
     ): Flow<DataResource<HistoricalRateList>>
 }
 
@@ -171,7 +171,7 @@ interface MultipleWalletsAsset {
         keyData: String,
         keyFormat: String,
         keyPassword: String? = null, // Required for BIP38 format keys
-        walletSecondPassword: String? = null,
+        walletSecondPassword: String? = null
     ): Single<out SingleAccount>
 }
 

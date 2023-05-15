@@ -74,5 +74,5 @@ data class FeesResponse(
     @SerialName("gasLimit")
     val gasLimit: String?,
     @SerialName("gasLimitContract")
-    val gasLimitContract: String?,
+    val gasLimitContract: String?
 )

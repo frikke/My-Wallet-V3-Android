@@ -40,12 +40,12 @@ class DynamicSelfCustodyService(
 ) {
     private suspend fun authenticate() = safeLet(
         credentials.guidOrNull,
-        credentials.hashedSharedKeyOrNull,
+        credentials.hashedSharedKeyOrNull
     ) { guid, sharedKey ->
         selfCustodyApi.authenticate(
             request = AuthRequest(
                 guid = guid,
-                sharedKey = sharedKey,
+                sharedKey = sharedKey
             )
         )
     } ?: Outcome.Failure(UninitializedPropertyAccessException("Couldn't get credentials"))
@@ -53,11 +53,11 @@ class DynamicSelfCustodyService(
     private val authInfo: AuthInfo?
         get() = safeLet(
             credentials.hashedGuidOrNull,
-            credentials.hashedSharedKeyOrNull,
+            credentials.hashedSharedKeyOrNull
         ) { hashedGuid, hashedSharedKey ->
             AuthInfo(
                 guidHash = hashedGuid,
-                sharedKeyHash = hashedSharedKey,
+                sharedKeyHash = hashedSharedKey
             )
         }
 
@@ -217,7 +217,7 @@ class DynamicSelfCustodyService(
                 fee = fee,
                 extraData = ExtraData(
                     memo = memo,
-                    feeCurrency = feeCurrency,
+                    feeCurrency = feeCurrency
                 ),
                 maxVerificationVersion = maxVerificationVersion
             )
@@ -240,7 +240,7 @@ class DynamicSelfCustodyService(
         )
     }
     private suspend fun <T> authIfFails(
-        f: suspend () -> Outcome<Exception, T>,
+        f: suspend () -> Outcome<Exception, T>
 
     ): Outcome<Exception, T> {
         return when (val result = f()) {

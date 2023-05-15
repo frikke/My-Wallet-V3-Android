@@ -1,4 +1,5 @@
 @file:Suppress("UnnecessaryVariable")
+
 package com.blockchain.coincore.eth
 
 import com.blockchain.coincore.AccountBalance

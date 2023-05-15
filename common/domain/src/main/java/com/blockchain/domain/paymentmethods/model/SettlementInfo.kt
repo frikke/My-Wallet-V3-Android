@@ -20,5 +20,5 @@ enum class SettlementType {
     INSTANT,
     REGULAR,
     UNAVAILABLE,
-    UNKNOWN, // unhandled type
+    UNKNOWN // unhandled type
 }

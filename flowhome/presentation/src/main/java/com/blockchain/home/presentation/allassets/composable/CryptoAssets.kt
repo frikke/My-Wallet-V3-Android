@@ -74,7 +74,6 @@ fun CryptoAssets(
     assetActionsNavigation: AssetActionsNavigation,
     onBackPressed: () -> Unit
 ) {
-
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
@@ -150,11 +149,15 @@ fun CryptoAssetsScreen(
                 .background(color = Color(0XFFF1F2F7))
         ) {
             NavigationBar(
-                title = stringResource(R.string.ma_home_assets_title),
+                title = stringResource(com.blockchain.stringResources.R.string.ma_home_assets_title),
                 onBackButtonClick = onBackPressed,
                 navigationBarButtons = listOfNotNull(
                     NavigationBarButton.IconResource(
-                        Icons.Filter.copy(contentDescription = stringResource(R.string.accessibility_filter)),
+                        Icons.Filter.copy(
+                            contentDescription = stringResource(
+                                com.blockchain.stringResources.R.string.accessibility_filter
+                            )
+                        )
                     ) {
                         focusManager.clearFocus(true)
                         coroutineScope.launch { sheetState.show() }
@@ -200,7 +203,7 @@ fun CryptoAssetsData(
     ) {
         CancelableOutlinedSearch(
             onValueChange = onSearchTermEntered,
-            placeholder = stringResource(R.string.search)
+            placeholder = stringResource(com.blockchain.stringResources.R.string.search)
         )
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
@@ -308,7 +311,7 @@ fun CryptoAssetsNoResults() {
         modifier = Modifier
             .fillMaxWidth()
             .padding(AppTheme.dimensions.smallSpacing),
-        text = stringResource(R.string.assets_no_result),
+        text = stringResource(com.blockchain.stringResources.R.string.assets_no_result),
         style = AppTheme.typography.body2,
         color = AppTheme.colors.title,
         textAlign = TextAlign.Center

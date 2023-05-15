@@ -30,7 +30,7 @@ data class ImportedAddress(
     val createdDeviceName: String? = null,
 
     @SerialName("created_device_version")
-    val createdDeviceVersion: String? = null,
+    val createdDeviceVersion: String? = null
 ) : JsonSerializableAccount {
 
     val tag: Int
@@ -59,10 +59,11 @@ data class ImportedAddress(
 
     override fun updateArchivedState(isArchived: Boolean): ImportedAddress =
         this.copy(
-            _tag = if (isArchived)
+            _tag = if (isArchived) {
                 ARCHIVED_ADDRESS
-            else
+            } else {
                 NORMAL_ADDRESS
+            }
         )
 
     override val isArchived: Boolean

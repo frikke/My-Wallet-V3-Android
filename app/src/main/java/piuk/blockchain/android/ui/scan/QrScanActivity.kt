@@ -167,6 +167,7 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
         get() = when (windowManager.defaultDisplay.rotation) {
             Surface.ROTATION_0,
             Surface.ROTATION_270 -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
             else -> ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
         }
 
@@ -202,12 +203,25 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
             ""
         } else {
             when (val expect = expectedSet.first()) {
-                is QrExpected.AnyAssetAddressQr -> getString(R.string.qr_activity_hint_any_asset)
-                is QrExpected.AssetAddressQr -> getString(R.string.qr_activity_hint_asset_address, expect.assetTicker)
-                is QrExpected.BitPayQr -> getString(R.string.qr_activity_hint_bitpay)
-                is QrExpected.ImportWalletKeysQr -> getString(R.string.qr_activity_hint_import_wallet)
-                is QrExpected.WebLoginQr -> getString(R.string.qr_activity_hint_new_web_login)
-                is QrExpected.WalletConnectQr -> getString(R.string.empty)
+                is QrExpected.AnyAssetAddressQr -> getString(
+                    com.blockchain.stringResources.R.string.qr_activity_hint_any_asset
+                )
+
+                is QrExpected.AssetAddressQr -> getString(
+                    com.blockchain.stringResources.R.string.qr_activity_hint_asset_address,
+                    expect.assetTicker
+                )
+
+                is QrExpected.BitPayQr -> getString(com.blockchain.stringResources.R.string.qr_activity_hint_bitpay)
+                is QrExpected.ImportWalletKeysQr -> getString(
+                    com.blockchain.stringResources.R.string.qr_activity_hint_import_wallet
+                )
+
+                is QrExpected.WebLoginQr -> getString(
+                    com.blockchain.stringResources.R.string.qr_activity_hint_new_web_login
+                )
+
+                is QrExpected.WalletConnectQr -> getString(com.blockchain.stringResources.R.string.empty)
             }
         }
 
@@ -222,7 +236,11 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
                     binding.walletConnectApps.visibleIf { apps.isNotEmpty() }
                     binding.walletConnectApps.apply {
                         text =
-                            resources.getQuantityString(R.plurals.wallet_connect_connected_apps, apps.size, apps.size)
+                            resources.getQuantityString(
+                                com.blockchain.stringResources.R.plurals.wallet_connect_connected_apps,
+                                apps.size,
+                                apps.size
+                            )
                         startIcon = ImageResource.Local(R.drawable.ic_vector_world_small)
                         onClick = {
                             startActivity(ConnectedDappsActivity.newIntent(this@QrScanActivity))
@@ -256,10 +274,12 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
             KeyEvent.KEYCODE_CAMERA ->
                 // Handle these events so they don't launch the Camera app
                 return true
+
             KeyEvent.KEYCODE_VOLUME_DOWN -> {
                 camera?.cameraControl?.enableTorch(false)
                 return true
             }
+
             KeyEvent.KEYCODE_VOLUME_UP -> {
                 camera?.cameraControl?.enableTorch(true)
                 return true
@@ -284,6 +304,7 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
             R.id.action_flash_light -> {
                 toggleTorch(); true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
 
@@ -308,7 +329,6 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
     private fun setUpCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
         cameraProviderFuture.addListener({
-
             // CameraProvider
             cameraProvider = cameraProviderFuture.get()
 
@@ -331,7 +351,6 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
 
     /** Declare and bind preview, capture and analysis use cases */
     private fun bindCameraUseCases() {
-
         // Get screen metrics used to setup camera for full screen resolution
         val targetWindowRect = binding.viewfinderGuide.windowRect
         binding.viewfinderView.let {
@@ -453,7 +472,7 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
             } catch (e: java.lang.IllegalStateException) {
                 BlockchainSnackbar.make(
                     binding.root,
-                    getString(R.string.camera_setup_failed),
+                    getString(com.blockchain.stringResources.R.string.camera_setup_failed),
                     type = SnackbarType.Error
                 ).show()
                 setResult(RESULT_CAMERA_ERROR)
@@ -505,7 +524,8 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
 
         private fun onPermissionDenied(view: View) {
             BlockchainSnackbar.make(
-                view, view.context.getString(R.string.request_camera_permission),
+                view,
+                view.context.getString(com.blockchain.stringResources.R.string.request_camera_permission),
                 type = SnackbarType.Error
             ).show()
         }

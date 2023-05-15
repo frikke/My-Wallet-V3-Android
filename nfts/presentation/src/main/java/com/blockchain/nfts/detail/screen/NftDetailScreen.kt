@@ -106,7 +106,6 @@ fun NftDetailDataScreen(
     nftAsset: NftAsset,
     onExternalViewClick: () -> Unit
 ) {
-
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(
@@ -126,7 +125,7 @@ fun NftDetailDataScreen(
         if (nftAsset.traits.isNotEmpty()) {
             item {
                 Text(
-                    text = stringResource(R.string.nft_properties),
+                    text = stringResource(com.blockchain.stringResources.R.string.nft_properties),
                     style = AppTheme.typography.body2,
                     color = AppTheme.colors.body
                 )
@@ -135,7 +134,7 @@ fun NftDetailDataScreen(
             }
 
             roundedCornersItems(
-                items = nftAsset.traits,
+                items = nftAsset.traits
             ) { trait ->
                 NftTrait(trait)
             }
@@ -175,7 +174,7 @@ fun NftBasicInfo(
 
         TertiaryButton(
             modifier = Modifier.fillMaxWidth(),
-            text = stringResource(R.string.nft_cta_view),
+            text = stringResource(com.blockchain.stringResources.R.string.nft_cta_view),
             icon = ImageResource.Local(
                 R.drawable.ic_external,
                 colorFilter = ColorFilter.tint(AppTheme.colors.primary),
@@ -199,11 +198,11 @@ fun NftBasicInfo(
         Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
 
         ExpandableItem(
-            title = stringResource(R.string.nft_description),
+            title = stringResource(com.blockchain.stringResources.R.string.nft_description),
             text = nftAsset.description,
             numLinesVisible = 2,
-            textButtonToExpand = stringResource(R.string.coinview_expandable_button),
-            textButtonToCollapse = stringResource(R.string.coinview_collapsable_button)
+            textButtonToExpand = stringResource(com.blockchain.stringResources.R.string.coinview_expandable_button),
+            textButtonToCollapse = stringResource(com.blockchain.stringResources.R.string.coinview_collapsable_button)
         )
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
@@ -245,7 +244,7 @@ fun NftCreator(creator: NftCreator) {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
 
             Text(
-                text = stringResource(R.string.nft_creator),
+                text = stringResource(com.blockchain.stringResources.R.string.nft_creator),
                 style = AppTheme.typography.caption1,
                 color = AppTheme.colors.body
             )
@@ -303,7 +302,7 @@ fun PreviewNftCollectionScreen_Data() {
                     NftTrait("name", "value"),
                     NftTrait("name", "value"),
                     NftTrait("name", "value"),
-                    NftTrait("name", "value"),
+                    NftTrait("name", "value")
                 )
             )
         ),

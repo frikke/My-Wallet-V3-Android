@@ -14,7 +14,7 @@ interface EthRequestSign {
         message: WCEthereumSignMessage,
         session: WalletConnectSession,
         onTxCompleted: (TxResult) -> Completable,
-        onTxCancelled: () -> Completable,
+        onTxCancelled: () -> Completable
     ): Single<WalletConnectUserEvent.SignMessage>
 
     fun onEthSignV2(

@@ -13,7 +13,7 @@ import com.blockchain.componentlib.theme.AppTheme
 @Composable
 fun HorizontalDivider(
     modifier: Modifier = Modifier,
-    dividerColor: Color = AppTheme.colors.light,
+    dividerColor: Color = AppTheme.colors.light
 ) {
     Box(
         modifier = modifier
@@ -25,7 +25,7 @@ fun HorizontalDivider(
 @Composable
 fun VerticalDivider(
     modifier: Modifier = Modifier,
-    dividerColor: Color = AppTheme.colors.light,
+    dividerColor: Color = AppTheme.colors.light
 ) {
     Box(
         modifier = modifier

@@ -62,8 +62,9 @@ class BillingAddressFragment :
             binding.addressLine1.text.isNullOrBlank().not() &&
             binding.city.text.isNullOrBlank().not() &&
             (
-                if (usSelected) binding.zipUsa.text.isNullOrBlank().not() && binding.state.text.isNullOrBlank().not()
-                else binding.postcode.text.isNullOrBlank().not()
+                if (usSelected) {
+                    binding.zipUsa.text.isNullOrBlank().not() && binding.state.text.isNullOrBlank().not()
+                } else binding.postcode.text.isNullOrBlank().not()
                 )
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentBillingAddressBinding =
@@ -131,14 +132,16 @@ class BillingAddressFragment :
                 analytics.logEvent(SimpleBuyAnalytics.CARD_BILLING_ADDRESS_SET)
             }
         }
-        activity.updateToolbarTitle(getString(R.string.add_card_address_title))
+        activity.updateToolbarTitle(getString(com.blockchain.stringResources.R.string.add_card_address_title))
 
         model.process(CardIntent.LoadListOfUsStates)
     }
 
     private fun setupUserDetails(user: NabuUser) {
         with(binding) {
-            fullName.setText(getString(R.string.common_spaced_strings, user.firstName, user.lastName))
+            fullName.setText(
+                getString(com.blockchain.stringResources.R.string.common_spaced_strings, user.firstName, user.lastName)
+            )
             user.address?.let {
                 addressLine1.setText(it.line1)
                 addressLine2.setText(it.line2)
@@ -205,8 +208,8 @@ class BillingAddressFragment :
         if (newState.showCardCreationError) {
             BlockchainSnackbar.make(
                 view = binding.root,
-                message = R.string.something_went_wrong_try_again,
-                type = SnackbarType.Error,
+                message = com.blockchain.stringResources.R.string.something_went_wrong_try_again,
+                type = SnackbarType.Error
             ).show()
             model.process(CardIntent.ErrorHandled)
         }
@@ -225,9 +228,9 @@ class BillingAddressFragment :
             } else {
                 BlockchainSnackbar.make(
                     view = binding.root,
-                    message = getString(R.string.unable_to_load_list_of_states),
+                    message = getString(com.blockchain.stringResources.R.string.unable_to_load_list_of_states),
                     type = SnackbarType.Error,
-                    actionLabel = getString(R.string.common_try_again),
+                    actionLabel = getString(com.blockchain.stringResources.R.string.common_try_again),
                     onClick = {
                         model.process(CardIntent.LoadListOfUsStates)
                     }

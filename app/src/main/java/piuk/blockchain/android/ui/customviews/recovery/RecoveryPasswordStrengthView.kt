@@ -14,19 +14,19 @@ import piuk.blockchain.android.databinding.ViewRecoveryPasswordStrengthBinding
 
 private enum class PasswordStrengthLevel(val label: Int, val drawable: Int, val color: Int) {
     Weak(
-        label = R.string.strength_weak,
+        label = com.blockchain.stringResources.R.string.strength_weak,
         drawable = R.drawable.progress_red,
-        color = R.color.product_red_medium
+        color = com.blockchain.common.R.color.product_red_medium
     ),
     Medium(
-        label = R.string.strength_medium,
+        label = com.blockchain.stringResources.R.string.strength_medium,
         drawable = R.drawable.progress_orange,
-        color = R.color.product_orange_medium
+        color = com.blockchain.common.R.color.product_orange_medium
     ),
     Strong(
-        label = R.string.strength_strong,
+        label = com.blockchain.stringResources.R.string.strength_strong,
         drawable = R.drawable.progress_green,
-        color = R.color.product_green_medium
+        color = com.blockchain.common.R.color.product_green_medium
     )
 }
 

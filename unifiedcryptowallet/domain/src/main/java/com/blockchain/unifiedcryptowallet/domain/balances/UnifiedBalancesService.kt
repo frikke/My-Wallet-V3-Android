@@ -22,7 +22,7 @@ interface UnifiedBalancesService {
 
     fun balanceForWallet(
         wallet: NetworkWallet,
-        freshnessStrategy: FreshnessStrategy,
+        freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<NetworkBalance>>
 }
 

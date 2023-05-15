@@ -62,13 +62,17 @@ class PhoneModel(
                             process(
                                 PhoneIntent.LoadProfileSucceeded(
                                     userInfoSettings = WalletSettingsService.UserInfoSettings(
-                                        userInfo.email, emailVerified = userInfo.isEmailVerified,
-                                        mobileWithPrefix = userInfo.smsNumber, mobileVerified = userInfo.isSmsVerified,
-                                        authType = userInfo.authType, smsDialCode = userInfo.smsDialCode
+                                        userInfo.email,
+                                        emailVerified = userInfo.isEmailVerified,
+                                        mobileWithPrefix = userInfo.smsNumber,
+                                        mobileVerified = userInfo.isSmsVerified,
+                                        authType = userInfo.authType,
+                                        smsDialCode = userInfo.smsDialCode
                                     )
                                 )
                             )
-                        }, onError = {
+                        },
+                        onError = {
                             process(PhoneIntent.FetchProfile)
                             Timber.e("PhoneIntent.LoadProfile failure " + it)
                         }
@@ -84,7 +88,8 @@ class PhoneModel(
                                     userInfoSettings = userInfo
                                 )
                             )
-                        }, onError = {
+                        },
+                        onError = {
                             process(PhoneIntent.LoadProfileFailed)
                             Timber.e("PhoneIntent.FetchProfile failure " + it)
                         }

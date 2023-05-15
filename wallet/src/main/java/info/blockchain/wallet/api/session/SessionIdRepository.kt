@@ -12,7 +12,7 @@ import org.json.JSONObject
 class SessionIdRepository(
     private val explorerEndpoints: WalletExplorerEndpoints,
     private val authPrefs: AuthPrefs,
-    private val api: ApiCode,
+    private val api: ApiCode
 ) : SessionIdService {
     override fun sessionId(): Single<String> {
         authPrefs.sessionId.takeIf { it.isNotEmpty() }?.let {

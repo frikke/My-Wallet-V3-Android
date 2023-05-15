@@ -53,7 +53,7 @@ class AccountInteractorTest {
             currencyPrefs = currencyPrefs,
             fiatCurrenciesService = fiatCurrenciesService,
             exchangeLinkingState = exchangeLinkingState,
-            localSettingsPrefs = localSettingsPrefs,
+            localSettingsPrefs = localSettingsPrefs
         )
     }
 

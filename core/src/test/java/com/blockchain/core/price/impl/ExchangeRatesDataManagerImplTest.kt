@@ -74,12 +74,14 @@ class ExchangeRatesDataManagerImplTest {
     fun `get All Time Price`() = runTest {
         subject.getHistoricPriceSeries(
             asset = OLD_ASSET,
-            span = HistoricalTimeSpan.ALL_TIME,
+            span = HistoricalTimeSpan.ALL_TIME
         ).test {
             awaitEvent()
             verify(priceStore)
                 .getHistoricalPriceForAsset(
-                    OLD_ASSET, SELECTED_FIAT, HistoricalTimeSpan.ALL_TIME
+                    OLD_ASSET,
+                    SELECTED_FIAT,
+                    HistoricalTimeSpan.ALL_TIME
                 )
             awaitComplete()
         }
@@ -90,7 +92,7 @@ class ExchangeRatesDataManagerImplTest {
         subject.getHistoricPriceSeries(
             asset = OLD_ASSET,
             span = HistoricalTimeSpan.YEAR,
-            now = calendar,
+            now = calendar
         )
             .test {
                 awaitEvent()
@@ -109,7 +111,7 @@ class ExchangeRatesDataManagerImplTest {
         subject.getHistoricPriceSeries(
             asset = OLD_ASSET,
             span = HistoricalTimeSpan.MONTH,
-            now = calendar,
+            now = calendar
         )
             .test {
                 awaitEvent()
@@ -128,7 +130,7 @@ class ExchangeRatesDataManagerImplTest {
         subject.getHistoricPriceSeries(
             asset = OLD_ASSET,
             span = HistoricalTimeSpan.WEEK,
-            now = calendar,
+            now = calendar
         ).test {
             awaitEvent()
             verify(priceStore)
@@ -146,7 +148,7 @@ class ExchangeRatesDataManagerImplTest {
         subject.getHistoricPriceSeries(
             asset = OLD_ASSET,
             span = HistoricalTimeSpan.DAY,
-            now = calendar,
+            now = calendar
         ).test {
             awaitEvent()
             verify(priceStore)
@@ -164,7 +166,7 @@ class ExchangeRatesDataManagerImplTest {
         subject.getHistoricPriceSeries(
             asset = NEW_ASSET,
             span = HistoricalTimeSpan.WEEK,
-            now = calendar,
+            now = calendar
         ).test {
             awaitEvent()
             verify(priceStore)
@@ -224,7 +226,7 @@ class ExchangeRatesDataManagerImplTest {
                 quote = SELECTED_FIAT.networkTicker,
                 rate = 100.toBigDecimal(),
                 fetchedAt = 200000,
-                marketCap = 0.0,
+                marketCap = 0.0
             )
         )
     }

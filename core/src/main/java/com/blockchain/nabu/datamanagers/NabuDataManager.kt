@@ -36,7 +36,7 @@ interface NabuDataManager {
     suspend fun createBasicUser(
         firstName: String,
         lastName: String,
-        dateOfBirth: String,
+        dateOfBirth: String
     ): Outcome<Exception, Unit>
 
     suspend fun isProfileNameValid(firstName: String, lastName: String): Outcome<Exception, Boolean>
@@ -100,7 +100,7 @@ internal class NabuDataManagerImpl(
     private val trust: DigitalTrust,
     private val payloadDataManager: PayloadDataManager,
     private val prefs: SessionPrefs,
-    private val userService: UserService,
+    private val userService: UserService
 ) : NabuDataManager {
 
     private val guid
@@ -171,12 +171,12 @@ internal class NabuDataManagerImpl(
     override suspend fun createBasicUser(
         firstName: String,
         lastName: String,
-        dateOfBirth: String,
+        dateOfBirth: String
     ): Outcome<Exception, Unit> =
         nabuService.createBasicUser(
             firstName,
             lastName,
-            dateOfBirth,
+            dateOfBirth
         )
 
     override suspend fun isProfileNameValid(firstName: String, lastName: String): Outcome<Exception, Boolean> =

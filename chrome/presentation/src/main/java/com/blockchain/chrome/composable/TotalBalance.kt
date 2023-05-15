@@ -34,11 +34,11 @@ fun TotalBalance(
                 .border(
                     width = 1.dp,
                     color = Color.White.copy(alpha = 0.8F),
-                    shape = RoundedCornerShape(dimensionResource(R.dimen.borderRadiiMedium))
+                    shape = RoundedCornerShape(dimensionResource(com.blockchain.componentlib.R.dimen.borderRadiiMedium))
                 )
                 .background(
                     color = Color.Transparent,
-                    shape = RoundedCornerShape(dimensionResource(R.dimen.borderRadiiMedium))
+                    shape = RoundedCornerShape(dimensionResource(com.blockchain.componentlib.R.dimen.borderRadiiMedium))
                 )
         ) {
             Row(

@@ -73,7 +73,7 @@ class CreateWalletActivity :
                             it.countries.map { country ->
                                 CountryPickerItem(country.countryCode)
                             },
-                            it.suggested?.let { CountryPickerItem(it.countryCode) },
+                            it.suggested?.let { CountryPickerItem(it.countryCode) }
                         )
                     )
                 },
@@ -85,7 +85,7 @@ class CreateWalletActivity :
                             }
                         )
                     )
-                },
+                }
             )
         }
     }

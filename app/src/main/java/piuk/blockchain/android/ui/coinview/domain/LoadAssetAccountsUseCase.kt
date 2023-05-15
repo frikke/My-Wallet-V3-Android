@@ -58,7 +58,6 @@ class LoadAssetAccountsUseCase(
     private val activeRewardsService: ActiveRewardsService
 ) {
     suspend operator fun invoke(asset: CryptoAsset): Flow<DataResource<CoinviewAssetDetail>> {
-
         val accountsFlow = walletModeService.walletModeSingle
             .flatMapMaybe { asset.accountGroup(it.defaultFilter()) }
             .map { it.accounts }
@@ -79,26 +78,41 @@ class LoadAssetAccountsUseCase(
 
         val stakingFlow =
             stakingService.getAvailabilityForAsset(asset.currency).flatMapData { available ->
-                if (available) stakingService.getRatesForAsset(asset.currency)
-                else flowOf(DataResource.Data(StakingRewardsRates(0.0, 0.0)))
+                if (available) {
+                    stakingService.getRatesForAsset(asset.currency)
+                } else {
+                    flowOf(DataResource.Data(StakingRewardsRates(0.0, 0.0)))
+                }
             }
 
         val activeRewardsFlow =
             activeRewardsService.getAvailabilityForAsset(asset.currency).flatMapData { available ->
-                if (available) activeRewardsService.getRatesForAsset(asset.currency)
-                else flowOf(DataResource.Data(ActiveRewardsRates(0.0, 0.0, Money.zero(asset.currency))))
+                if (available) {
+                    activeRewardsService.getRatesForAsset(asset.currency)
+                } else {
+                    flowOf(DataResource.Data(ActiveRewardsRates(0.0, 0.0, Money.zero(asset.currency))))
+                }
             }
 
         return walletModeService.walletMode.flatMapLatest { wMode ->
             combineDataResourceFlows(
                 accountsFlow.map { DataResource.Data(it) },
                 exchangeRatesDataManager.exchangeRateToUserFiatFlow(asset.currency),
-                if (wMode == WalletMode.CUSTODIAL) interestFlow else
-                    flowOf(DataResource.Data(0.toDouble())),
-                if (wMode == WalletMode.CUSTODIAL) stakingFlow else
-                    flowOf(DataResource.Data(StakingRewardsRates(0.0, 0.0))),
-                if (wMode == WalletMode.CUSTODIAL) activeRewardsFlow else
-                    flowOf(DataResource.Data(ActiveRewardsRates(0.0, 0.0, Money.zero(asset.currency)))),
+                if (wMode == WalletMode.CUSTODIAL) {
+                    interestFlow
+                } else {
+                    flowOf(DataResource.Data(0.toDouble()))
+                },
+                if (wMode == WalletMode.CUSTODIAL) {
+                    stakingFlow
+                } else {
+                    flowOf(DataResource.Data(StakingRewardsRates(0.0, 0.0)))
+                },
+                if (wMode == WalletMode.CUSTODIAL) {
+                    activeRewardsFlow
+                } else {
+                    flowOf(DataResource.Data(ActiveRewardsRates(0.0, 0.0, Money.zero(asset.currency))))
+                }
             ) { accounts, price, interestRate, stakingRate, activeRewardsRate ->
                 // while we wait for a BE flag on whether an asset is tradeable or not, we can check the
                 // available accounts to see if we support custodial or PK balances as a guideline to asset support
@@ -114,7 +128,7 @@ class LoadAssetAccountsUseCase(
                         exchangeRate = price,
                         interestRate = interestRate,
                         stakingRate = stakingRate.rate,
-                        activeRewardsRate = activeRewardsRate.rate,
+                        activeRewardsRate = activeRewardsRate.rate
                     )
 
                     var totalCryptoMoneyAll = Money.zero(asset.currency)
@@ -145,7 +159,7 @@ class LoadAssetAccountsUseCase(
                         totalBalance = CoinviewAssetTotalBalance(
                             totalCryptoBalance = totalCryptoBalance,
                             totalFiatBalance = totalFiatBalance
-                        ),
+                        )
                     )
                 } else {
                     CoinviewAssetDetail.NonTradeable(
@@ -188,7 +202,7 @@ class LoadAssetAccountsUseCase(
                     CoinviewAccountDetail(
                         account = account,
                         balance = balance.map { it.total },
-                        isAvailable = hasAnyActionsAvailable,
+                        isAvailable = hasAnyActionsAvailable
                     )
                 }
             }.run {
@@ -206,7 +220,6 @@ class LoadAssetAccountsUseCase(
         stakingRate: Double = Double.NaN,
         activeRewardsRate: Double = Double.NaN
     ): CoinviewAccounts {
-
         val sortedAccounts =
             accounts.sortedWith(
                 compareBy<CoinviewAccountDetail> { it.getIndexedValue() }.thenByDescending {
@@ -228,7 +241,7 @@ class LoadAssetAccountsUseCase(
                                 cryptoBalance = it.balance,
                                 fiatBalance = it.balance.map { balance ->
                                     exchangeRate.convert(balance)
-                                },
+                                }
                             )
                         }
                         is EarnRewardsAccount.Interest -> {

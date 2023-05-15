@@ -41,7 +41,6 @@ abstract class MultiAddressFactory(
         offset: Int,
         startingBlockHeight: Int
     ): List<TransactionSummary> {
-
         val multiAddress = getMultiAddress(all, onlyShow, limit, offset)
         return if (multiAddress?.txs == null) {
             emptyList()
@@ -60,7 +59,6 @@ abstract class MultiAddressFactory(
         limit: Int,
         offset: Int
     ): MultiAddress? {
-
         val call = getMultiAddress(xpubs, limit, offset, onlyShow)
         val response = call.execute()
 

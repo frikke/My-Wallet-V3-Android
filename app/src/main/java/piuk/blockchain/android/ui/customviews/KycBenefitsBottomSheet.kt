@@ -61,6 +61,6 @@ class KycBenefitsBottomSheet : SlidingModalBottomDialog<KycBenefitsBottomSheetBi
         val title: String = "",
         val description: String = "",
         val listOfBenefits: List<VerifyIdentityNumericBenefitItem> = emptyList(),
-        val icon: Serializable = R.drawable.ic_verification_badge
+        val icon: Serializable = com.blockchain.common.R.drawable.ic_verification_badge
     ) : Parcelable
 }

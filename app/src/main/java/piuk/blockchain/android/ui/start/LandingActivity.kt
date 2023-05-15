@@ -15,13 +15,9 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.carousel.CarouselViewType
 import com.blockchain.componentlib.price.PriceView
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.logging.MomentEvent
-import com.blockchain.logging.MomentLogger
-import com.blockchain.logging.MomentParam
 import com.blockchain.presentation.koin.scopedInject
 import java.util.Timer
 import java.util.TimerTask
-import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLandingOnboardingBinding
 import piuk.blockchain.android.ui.base.MvpActivity
@@ -42,16 +38,9 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
 
     private lateinit var timer: Timer
 
-    private val momentLogger: MomentLogger by inject()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
-        momentLogger.endEvent(
-            event = MomentEvent.SPLASH_TO_FIRST_SCREEN,
-            params = mapOf(MomentParam.SCREEN_NAME to javaClass.simpleName)
-        )
 
         with(binding) {
             presenter.checkForRooted()
@@ -61,19 +50,19 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
             val onboardingList: List<CarouselViewType> = listOf(
                 CarouselViewType.ValueProp(
                     com.blockchain.componentlib.R.drawable.carousel_brokerage,
-                    this@LandingActivity.getString(R.string.landing_value_prop_one)
+                    this@LandingActivity.getString(com.blockchain.stringResources.R.string.landing_value_prop_one)
                 ),
                 CarouselViewType.ValueProp(
                     com.blockchain.componentlib.R.drawable.carousel_rewards,
-                    this@LandingActivity.getString(R.string.landing_value_prop_two_1)
+                    this@LandingActivity.getString(com.blockchain.stringResources.R.string.landing_value_prop_two_1)
                 ),
                 CarouselViewType.ValueProp(
                     com.blockchain.componentlib.R.drawable.carousel_security,
-                    this@LandingActivity.getString(R.string.landing_value_prop_three)
+                    this@LandingActivity.getString(com.blockchain.stringResources.R.string.landing_value_prop_three)
                 ),
                 CarouselViewType.PriceList(
-                    this@LandingActivity.getString(R.string.landing_value_prop_four),
-                    this@LandingActivity.getString(R.string.landing_live_prices)
+                    this@LandingActivity.getString(com.blockchain.stringResources.R.string.landing_value_prop_four),
+                    this@LandingActivity.getString(com.blockchain.stringResources.R.string.landing_live_prices)
                 )
             )
 
@@ -108,7 +97,8 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
                             handler.post(update)
                         }
                     },
-                    CAROUSEL_PAGE_TIME, CAROUSEL_PAGE_TIME
+                    CAROUSEL_PAGE_TIME,
+                    CAROUSEL_PAGE_TIME
                 )
             }
         }
@@ -121,7 +111,8 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
     override fun onStart() {
         super.onStart()
         setupSSOControls(
-            binding.btnLoginRestore.rightButton, binding.btnLoginRestore.leftButton
+            binding.btnLoginRestore.rightButton,
+            binding.btnLoginRestore.leftButton
         )
     }
 
@@ -137,7 +128,7 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
 
     private fun setupRecoverButton(recoverButton: Button) {
         recoverButton.apply {
-            text = getString(R.string.restore_wallet_cta)
+            text = getString(com.blockchain.stringResources.R.string.restore_wallet_cta)
             setOnClickListener { launchSSOAccountRecoveryFlow() }
         }
     }
@@ -160,10 +151,10 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
 
     override fun showIsRootedWarning() =
         showAlert(
-            AlertDialog.Builder(this, R.style.AlertDialogStyle)
-                .setMessage(R.string.device_rooted)
+            AlertDialog.Builder(this, com.blockchain.componentlib.R.style.AlertDialogStyle)
+                .setMessage(com.blockchain.stringResources.R.string.device_rooted)
                 .setCancelable(false)
-                .setPositiveButton(R.string.dialog_continue) { _, _ -> clearAlert() }
+                .setPositiveButton(com.blockchain.stringResources.R.string.dialog_continue) { _, _ -> clearAlert() }
                 .create()
         )
 
@@ -174,7 +165,9 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         warningLayout.warningMessage.apply {
             movementMethod = LinkMovementMethod.getInstance()
             text = StringUtils.getStringWithMappedAnnotations(
-                this@LandingActivity, R.string.wallet_issue_message, learnMoreMap
+                this@LandingActivity,
+                com.blockchain.stringResources.R.string.wallet_issue_message,
+                learnMoreMap
             )
         }
     }

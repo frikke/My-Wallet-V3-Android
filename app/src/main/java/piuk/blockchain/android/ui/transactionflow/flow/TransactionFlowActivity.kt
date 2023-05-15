@@ -144,7 +144,7 @@ class TransactionFlowActivity :
             menuItems = listOf(
                 NavigationBarButton.Icon(
                     drawable = R.drawable.ic_close,
-                    contentDescription = R.string.accessibility_close
+                    contentDescription = com.blockchain.stringResources.R.string.accessibility_close
                 ) { finish() }
             ),
             backAction = {
@@ -209,7 +209,9 @@ class TransactionFlowActivity :
                 onError = {
                     Timber.e("Unable to configure transaction flow, aborting. e == $it")
                     BlockchainSnackbar.make(
-                        binding.root, getString(R.string.common_error), type = SnackbarType.Error
+                        binding.root,
+                        getString(com.blockchain.stringResources.R.string.common_error),
+                        type = SnackbarType.Error
                     ).show()
                     finish()
                 }
@@ -317,7 +319,8 @@ class TransactionFlowActivity :
                 is BlockedReason.TooManyInFlightTransactions,
                 is BlockedReason.InsufficientTier -> KycUpgradeNowSheet.newInstance()
                 is BlockedReason.ShouldAcknowledgeStakingWithdrawal -> StakingAccountWithdrawWarning.newInstance(
-                    featureBlockedReason.assetIconUrl, featureBlockedReason.unbondingDays
+                    featureBlockedReason.assetIconUrl,
+                    featureBlockedReason.unbondingDays
                 )
                 is BlockedReason.ShouldAcknowledgeActiveRewardsWithdrawalWarning ->
                     ActiveRewardsWithdrawalWarningSheet.newInstance()

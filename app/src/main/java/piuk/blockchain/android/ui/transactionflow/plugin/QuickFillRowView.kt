@@ -152,9 +152,18 @@ class QuickFillRowView @JvmOverloads constructor(
 
         val multiplierValues =
             listOf(
-                Pair(TWENTY_FIVE_PERCENT, resources.getString(R.string.enter_amount_quickfill_25)),
-                Pair(FIFTY_PERCENT, resources.getString(R.string.enter_amount_quickfill_50)),
-                Pair(SEVENTY_FIVE_PERCENT, resources.getString(R.string.enter_amount_quickfill_75))
+                Pair(
+                    TWENTY_FIVE_PERCENT,
+                    resources.getString(com.blockchain.stringResources.R.string.enter_amount_quickfill_25)
+                ),
+                Pair(
+                    FIFTY_PERCENT,
+                    resources.getString(com.blockchain.stringResources.R.string.enter_amount_quickfill_50)
+                ),
+                Pair(
+                    SEVENTY_FIVE_PERCENT,
+                    resources.getString(com.blockchain.stringResources.R.string.enter_amount_quickfill_75)
+                )
             )
 
         multiplierValues.forEach { value ->
@@ -251,7 +260,8 @@ class QuickFillRowView @JvmOverloads constructor(
 
     private fun roundToNearest(lastAmount: Money, nearest: Int): Money {
         return Money.fromMajor(
-            lastAmount.currency, (nearest * (floor(lastAmount.toFloat() / nearest))).toBigDecimal()
+            lastAmount.currency,
+            (nearest * (floor(lastAmount.toFloat() / nearest))).toBigDecimal()
         )
     }
 

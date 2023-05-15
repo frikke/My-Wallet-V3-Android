@@ -37,7 +37,6 @@ fun TextWithTooltipTableRow(
     isTappable: Boolean = false,
     tooltipContent: @Composable () -> Unit = { }
 ) {
-
     var showTooltip by remember { mutableStateOf(false) }
 
     Column(

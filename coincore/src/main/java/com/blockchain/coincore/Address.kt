@@ -51,7 +51,7 @@ interface AddressFactory {
 
 class AddressFactoryImpl(
     private val coincore: Coincore,
-    private val addressResolver: AddressMappingService,
+    private val addressResolver: AddressMappingService
 ) : AddressFactory {
 
     /** Build the set of possible address for a given input string.

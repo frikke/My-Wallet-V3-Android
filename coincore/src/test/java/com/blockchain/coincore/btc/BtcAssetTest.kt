@@ -250,7 +250,6 @@ class BtcAssetTest : KoinTest {
 
     @Test
     fun parseGoodAddressWithPrefixAndUnknownSuffix() {
-
         val prefix = "bitcoin:"
         val goodAddress = "17GBRdfBHtEaBs7MesvMgob6YUEn5fFN4C"
         val amount = CryptoValue.fromMajor(CryptoCurrency.BTC, 0.004409.toBigDecimal())
@@ -272,7 +271,6 @@ class BtcAssetTest : KoinTest {
 
     @Test
     fun parseGoodAddressWithPrefixAndAmountAndUnknownSuffix() {
-
         val prefix = "bitcoin:"
         val goodAddress = "17GBRdfBHtEaBs7MesvMgob6YUEn5fFN4C"
         val amount = CryptoValue.fromMajor(CryptoCurrency.BTC, 0.004409.toBigDecimal())

@@ -6,7 +6,7 @@ sealed interface EarnRewardsEligibility {
     enum class Ineligible : EarnRewardsEligibility {
         REGION,
         KYC_TIER,
-        OTHER,
+        OTHER
         ;
 
         companion object {

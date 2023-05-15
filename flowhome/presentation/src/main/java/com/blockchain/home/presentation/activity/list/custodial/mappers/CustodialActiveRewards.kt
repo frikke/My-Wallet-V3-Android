@@ -21,6 +21,7 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
             TransactionSummary.TransactionType.DEBIT -> R.drawable.ic_activity_sell
             else -> R.drawable.ic_activity_buy
         }
+
         else -> R.drawable.ic_activity_rewards
     }
 }
@@ -29,11 +30,17 @@ internal fun CustodialActiveRewardsActivitySummaryItem.leadingTitle(): ActivityS
     return ActivityStackView.Text(
         value = TextValue.IntResValue(
             value = when (type) {
-                TransactionSummary.TransactionType.DEPOSIT -> R.string.tx_title_deposited
-                TransactionSummary.TransactionType.WITHDRAW -> R.string.tx_title_withdrawn
-                TransactionSummary.TransactionType.INTEREST_EARNED -> R.string.tx_title_earned
-                TransactionSummary.TransactionType.DEBIT -> R.string.tx_title_debited
-                else -> R.string.tx_title_transferred
+                TransactionSummary.TransactionType.DEPOSIT ->
+                    com.blockchain.stringResources.R.string.tx_title_deposited
+
+                TransactionSummary.TransactionType.WITHDRAW ->
+                    com.blockchain.stringResources.R.string.tx_title_withdrawn
+
+                TransactionSummary.TransactionType.INTEREST_EARNED ->
+                    com.blockchain.stringResources.R.string.tx_title_earned
+
+                TransactionSummary.TransactionType.DEBIT -> com.blockchain.stringResources.R.string.tx_title_debited
+                else -> com.blockchain.stringResources.R.string.tx_title_transferred
             },
             args = listOf(account.currency.displayTicker)
         ),
@@ -45,6 +52,7 @@ internal fun CustodialActiveRewardsActivitySummaryItem.leadingSubtitle(): Activi
     val color: ActivityTextColor = when (state) {
         EarnRewardsState.REJECTED,
         EarnRewardsState.REFUNDED -> ActivityTextColor.Warning
+
         EarnRewardsState.FAILED -> ActivityTextColor.Error
         else -> ActivityTextColor.Muted
     }
@@ -54,12 +62,29 @@ internal fun CustodialActiveRewardsActivitySummaryItem.leadingSubtitle(): Activi
             EarnRewardsState.COMPLETE -> TextValue.StringValue(date.toFormattedDate())
             EarnRewardsState.PENDING,
             EarnRewardsState.PROCESSING,
-            EarnRewardsState.MANUAL_REVIEW -> TextValue.IntResValue(R.string.activity_state_pending)
-            EarnRewardsState.FAILED -> TextValue.IntResValue(R.string.activity_state_failed)
-            EarnRewardsState.CLEARED -> TextValue.IntResValue(R.string.activity_state_cleared)
-            EarnRewardsState.REFUNDED -> TextValue.IntResValue(R.string.activity_state_refunded)
-            EarnRewardsState.REJECTED -> TextValue.IntResValue(R.string.activity_state_rejected)
-            EarnRewardsState.UNKNOWN -> TextValue.IntResValue(R.string.activity_state_unknown)
+            EarnRewardsState.MANUAL_REVIEW -> TextValue.IntResValue(
+                com.blockchain.stringResources.R.string.activity_state_pending
+            )
+
+            EarnRewardsState.FAILED -> TextValue.IntResValue(
+                com.blockchain.stringResources.R.string.activity_state_failed
+            )
+
+            EarnRewardsState.CLEARED -> TextValue.IntResValue(
+                com.blockchain.stringResources.R.string.activity_state_cleared
+            )
+
+            EarnRewardsState.REFUNDED -> TextValue.IntResValue(
+                com.blockchain.stringResources.R.string.activity_state_refunded
+            )
+
+            EarnRewardsState.REJECTED -> TextValue.IntResValue(
+                com.blockchain.stringResources.R.string.activity_state_rejected
+            )
+
+            EarnRewardsState.UNKNOWN -> TextValue.IntResValue(
+                com.blockchain.stringResources.R.string.activity_state_unknown
+            )
         },
         style = basicSubtitleStyle.copy(color = color)
     )
@@ -69,6 +94,7 @@ private fun CustodialActiveRewardsActivitySummaryItem.trailingStrikethrough() = 
     EarnRewardsState.REFUNDED,
     EarnRewardsState.REJECTED,
     EarnRewardsState.FAILED -> true
+
     else -> false
 }
 

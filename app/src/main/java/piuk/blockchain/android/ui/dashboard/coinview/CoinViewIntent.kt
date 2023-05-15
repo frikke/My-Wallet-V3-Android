@@ -102,12 +102,14 @@ sealed class CoinViewIntent : MviIntent<CoinViewState> {
 
     data class ShowBalanceUpsell(
         val account: BlockchainAccount,
-        val action: AssetAction,
+        val action: AssetAction
     ) : CoinViewIntent() {
         override fun reduce(oldState: CoinViewState): CoinViewState =
             oldState.copy(
                 viewState = CoinViewViewState.ShowBalanceUpsellSheet(
-                    account = account, action = action, canBuy = oldState.canBuy
+                    account = account,
+                    action = action,
+                    canBuy = oldState.canBuy
                 )
             )
     }

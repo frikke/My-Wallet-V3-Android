@@ -77,7 +77,7 @@ fun SecurityCodeScreen(
         scaffoldState = scaffoldState,
         topBar = {
             NavigationBar(
-                title = stringResource(id = R.string.security),
+                title = stringResource(id = com.blockchain.stringResources.R.string.security),
                 onBackButtonClick = onBackButtonClick
             )
         }
@@ -88,7 +88,7 @@ fun SecurityCodeScreen(
                 val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
                     message = error.errorMessage(context),
                     duration = SnackbarDuration.Indefinite,
-                    actionLabel = context.getString(R.string.common_retry)
+                    actionLabel = context.getString(com.blockchain.stringResources.R.string.common_retry)
                 )
                 if (snackbarResult == SnackbarResult.ActionPerformed) {
                     onBackButtonClick()
@@ -130,7 +130,7 @@ fun SecurityCodeScreen(
                     imageResource = Icons.Filled.Security.withTint(Grey900).withBackground(
                         backgroundColor = White,
                         iconSize = 30.dp,
-                        backgroundSize = 40.dp,
+                        backgroundSize = 40.dp
                     ),
                     modifier = Modifier.constrainAs(foregroundImage) {
                         bottom.linkTo(parent.bottom)
@@ -140,7 +140,7 @@ fun SecurityCodeScreen(
             }
 
             SimpleText(
-                text = stringResource(R.string.security_code),
+                text = stringResource(com.blockchain.stringResources.R.string.security_code),
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre,
@@ -149,7 +149,7 @@ fun SecurityCodeScreen(
                     .fillMaxWidth()
             )
             SimpleText(
-                text = stringResource(R.string.security_code_info, state.cvvLength),
+                text = stringResource(com.blockchain.stringResources.R.string.security_code_info, state.cvvLength),
                 style = ComposeTypographies.BodyMono,
                 color = ComposeColors.Body,
                 gravity = ComposeGravities.Centre,
@@ -161,7 +161,7 @@ fun SecurityCodeScreen(
             Spacer(Modifier.height(AppTheme.dimensions.hugeSpacing))
 
             SimpleText(
-                text = stringResource(R.string.cvv_code),
+                text = stringResource(com.blockchain.stringResources.R.string.cvv_code),
                 style = ComposeTypographies.Paragraph2,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Start,
@@ -225,7 +225,8 @@ fun SecurityCodeScreen(
                         )
                         SimpleText(
                             text = stringResource(
-                                R.string.security_last_card_digits, state.lastCardDigits.orEmpty()
+                                com.blockchain.stringResources.R.string.security_last_card_digits,
+                                state.lastCardDigits.orEmpty()
                             ),
                             style = ComposeTypographies.Paragraph1,
                             color = ComposeColors.Body,
@@ -239,14 +240,14 @@ fun SecurityCodeScreen(
             Spacer(Modifier.weight(1f))
 
             PrimaryButton(
-                text = stringResource(id = R.string.common_next),
+                text = stringResource(id = com.blockchain.stringResources.R.string.common_next),
                 state = state.nextButtonState,
                 onClick = { onIntent(SecurityCodeIntent.NextClicked) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                        top = dimensionResource(id = R.dimen.large_spacing),
-                        bottom = dimensionResource(id = R.dimen.tiny_spacing)
+                        top = dimensionResource(id = com.blockchain.componentlib.R.dimen.large_spacing),
+                        bottom = dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing)
                     )
             )
         }
@@ -255,9 +256,13 @@ fun SecurityCodeScreen(
 
 private fun UpdateSecurityCodeError.errorMessage(context: Context): String = when (this) {
     is UpdateSecurityCodeError.CardDetailsFailed ->
-        if (message.isNullOrEmpty()) context.getString(R.string.something_went_wrong_try_again) else message
+        if (message.isNullOrEmpty()) context.getString(
+            com.blockchain.stringResources.R.string.something_went_wrong_try_again
+        ) else message
     is UpdateSecurityCodeError.UpdateCvvFailed ->
-        if (message.isNullOrEmpty()) context.getString(R.string.something_went_wrong_try_again) else message
+        if (message.isNullOrEmpty()) context.getString(
+            com.blockchain.stringResources.R.string.something_went_wrong_try_again
+        ) else message
 }
 
 @Composable

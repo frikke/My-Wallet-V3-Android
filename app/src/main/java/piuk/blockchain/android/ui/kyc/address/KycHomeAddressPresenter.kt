@@ -45,7 +45,7 @@ class KycHomeAddressPresenter(
     private val eligibilityService: EligibilityService,
     private val nabuUserSync: NabuUserSync,
     private val kycNextStepDecision: KycHomeAddressNextStepDecision,
-    private val kycTiersStore: KycTiersStore,
+    private val kycTiersStore: KycTiersStore
 ) : BasePresenter<KycHomeAddressView>() {
 
     val countryCodeSingle: Single<SortedMap<String, String>> by unsafeLazy {
@@ -62,7 +62,7 @@ class KycHomeAddressPresenter(
 
     private data class State(
         val progressToKycNextStep: KycNextStepDecision.NextStep,
-        val countryCode: String,
+        val countryCode: String
     )
 
     internal fun onContinueClicked(address: AddressDetails) {

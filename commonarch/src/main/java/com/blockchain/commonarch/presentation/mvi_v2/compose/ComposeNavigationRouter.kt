@@ -91,7 +91,6 @@ fun <TNavEvent : NavigationEvent> MviBottomSheetNavHost(
     route: String? = null,
     builder: NavGraphBuilder.() -> Unit
 ) {
-
     LaunchedEffect(key1 = Unit) {
         navEvents.collectLatest { navigationEvent ->
             navigationRouter.route(navigationEvent)
@@ -104,8 +103,8 @@ fun <TNavEvent : NavigationEvent> MviBottomSheetNavHost(
     ModalBottomSheetLayout(
         bottomSheetNavigator = bottomSheetNavigator,
         sheetShape = RoundedCornerShape(
-            topEnd = dimensionResource(R.dimen.small_spacing),
-            topStart = dimensionResource(R.dimen.small_spacing)
+            topEnd = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing),
+            topStart = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)
         ),
         sheetBackgroundColor = AppTheme.colors.background,
         scrimColor = AppTheme.colors.overlay
@@ -139,7 +138,6 @@ fun <TNavEvent : NavigationEvent> MviFragmentNavHost(
     route: String? = null,
     builder: NavGraphBuilder.() -> Unit
 ) {
-
     LaunchedEffect(key1 = Unit) {
         navEvents.collectLatest { navigationEvent ->
             navigationRouter.route(navigationEvent)
@@ -225,7 +223,7 @@ fun NavGraphBuilder.bottomSheet(
 @Composable
 fun rememberBottomSheetNavigator(
     animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
-    skipHalfExpanded: Boolean = true,
+    skipHalfExpanded: Boolean = true
 ): BottomSheetNavigator {
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,

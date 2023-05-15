@@ -33,7 +33,6 @@ fun ExpandableItemBordered(
     textButtonToExpand: String,
     textButtonToCollapse: String
 ) {
-
     var isExpanded by rememberSaveable { mutableStateOf(false) }
     var isExpandable by rememberSaveable { mutableStateOf(false) }
 
@@ -81,7 +80,7 @@ fun ExpandableItemBordered(
                     },
                     text = if (isExpanded) textButtonToCollapse else textButtonToExpand,
                     style = AppTheme.typography.body2,
-                    color = AppTheme.colors.primary,
+                    color = AppTheme.colors.primary
                 )
             }
         }
@@ -96,6 +95,6 @@ fun PreviewExpandableItemBordered() {
         text = "Kyoto Angels is a Collection of 10000 Kawaii Dolls Manufactured by Collection of 10000 Kawaii Dolls",
         numLinesVisible = 2,
         textButtonToExpand = "See More",
-        textButtonToCollapse = "See Less",
+        textButtonToCollapse = "See Less"
     )
 }

@@ -115,8 +115,8 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
                 setOnClickListener {
                     promptForAccountLabel(
                         ctx = requireContext(),
-                        title = R.string.edit_wallet_name,
-                        msg = R.string.edit_wallet_name_helper_text,
+                        title = com.blockchain.stringResources.R.string.edit_wallet_name,
+                        msg = com.blockchain.stringResources.R.string.edit_wallet_name_helper_text,
                         initialText = account.label,
                         okAction = { s -> handleUpdateLabel(s, account) }
                     )
@@ -140,14 +140,14 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
     private fun handleUpdateLabel(newLabel: String, account: CryptoNonCustodialAccount) {
         val labelCopy = newLabel.trim { it.isWhitespace() }
         if (labelCopy.isEmpty()) {
-            showError(R.string.label_cant_be_empty)
+            showError(com.blockchain.stringResources.R.string.label_cant_be_empty)
         } else {
             disposables += coincore.isLabelUnique(newLabel)
                 .flatMapCompletable {
                     if (it) {
                         account.updateLabel(labelCopy)
                     } else {
-                        showError(R.string.label_name_match)
+                        showError(com.blockchain.stringResources.R.string.label_name_match)
                         Completable.complete()
                     }
                 }.observeOn(AndroidSchedulers.mainThread())
@@ -159,7 +159,7 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
                         analytics.logEvent(WalletAnalytics.EditWalletName)
                     },
                     onError = {
-                        showError(R.string.remote_save_failed)
+                        showError(com.blockchain.stringResources.R.string.remote_save_failed)
                     }
                 )
         }
@@ -175,6 +175,7 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
                         DISABLED_ALPHA
                     isClickable = false
                 }
+
                 account.isInternalAccount -> {
                     visible()
                     alpha =
@@ -182,6 +183,7 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
                     isClickable = true
                     setOnClickListener { makeDefault(account) }
                 }
+
                 else -> gone()
             }
         }
@@ -198,7 +200,7 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
                     //                    updateReceiveAddressShortcuts()
                 },
                 onError = {
-                    showError(R.string.remote_save_failed)
+                    showError(com.blockchain.stringResources.R.string.remote_save_failed)
                 }
             )
     }
@@ -206,16 +208,18 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
     private fun configureShowXpub(account: CryptoNonCustodialAccount) {
         with(binding) {
             if (account.isInternalAccount) {
-                tvXpub.setText(R.string.extended_public_key)
+                tvXpub.setText(com.blockchain.stringResources.R.string.extended_public_key)
                 tvXpubDescription.visible()
 
                 if (account.currency == CryptoCurrency.BCH) {
-                    tvXpubDescription.setText(R.string.extended_public_key_description_bch_only)
+                    tvXpubDescription.setText(
+                        com.blockchain.stringResources.R.string.extended_public_key_description_bch_only
+                    )
                 } else {
-                    tvXpubDescription.setText(R.string.extended_public_key_description)
+                    tvXpubDescription.setText(com.blockchain.stringResources.R.string.extended_public_key_description)
                 }
             } else {
-                tvXpub.setText(R.string.address)
+                tvXpub.setText(com.blockchain.stringResources.R.string.address)
                 tvXpubDescription.gone()
             }
 
@@ -247,9 +251,9 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
             context?.let { ctx ->
                 showAddressQrCode(
                     ctx,
-                    R.string.extended_public_key,
-                    R.string.scan_this_code,
-                    R.string.copy_xpub,
+                    com.blockchain.stringResources.R.string.extended_public_key,
+                    com.blockchain.stringResources.R.string.scan_this_code,
+                    com.blockchain.stringResources.R.string.copy_xpub,
                     bmp,
                     qrString
                 )
@@ -265,9 +269,9 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
         generateQrCode(qrString)?.let {
             showAddressQrCode(
                 requireContext(),
-                R.string.address,
+                com.blockchain.stringResources.R.string.address,
                 qrString,
-                R.string.copy_address,
+                com.blockchain.stringResources.R.string.copy_address,
                 it,
                 qrString
             )
@@ -288,8 +292,8 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
 
     private fun configureArchive(account: CryptoNonCustodialAccount, isArchived: Boolean) {
         if (isArchived) {
-            binding.tvArchiveHeader.setText(R.string.unarchive)
-            binding.tvArchiveDescription.setText(R.string.archived_description)
+            binding.tvArchiveHeader.setText(com.blockchain.stringResources.R.string.unarchive)
+            binding.tvArchiveDescription.setText(com.blockchain.stringResources.R.string.archived_description)
             with(binding.archiveContainer) {
                 alpha = ENABLED_ALPHA
                 visibility = View.VISIBLE
@@ -298,8 +302,10 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
             }
         } else {
             if (account.isDefault) {
-                binding.tvArchiveHeader.setText(R.string.archive)
-                binding.tvArchiveDescription.setText(R.string.default_account_description)
+                binding.tvArchiveHeader.setText(com.blockchain.stringResources.R.string.archive)
+                binding.tvArchiveDescription.setText(
+                    com.blockchain.stringResources.R.string.default_account_description
+                )
                 with(binding.archiveContainer) {
                     alpha =
                         DISABLED_ALPHA
@@ -308,9 +314,8 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
                     setOnClickListener { /* not clickable */ }
                 }
             } else {
-
-                binding.tvArchiveHeader.setText(R.string.archive)
-                binding.tvArchiveDescription.setText(R.string.not_archived_description)
+                binding.tvArchiveHeader.setText(com.blockchain.stringResources.R.string.archive)
+                binding.tvArchiveDescription.setText(com.blockchain.stringResources.R.string.not_archived_description)
                 with(binding.archiveContainer) {
                     alpha =
                         ENABLED_ALPHA
@@ -323,8 +328,12 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
     }
 
     private fun toggleArchived(account: CryptoNonCustodialAccount, isArchived: Boolean) {
-        val title = if (isArchived) R.string.unarchive else R.string.archive
-        val msg = if (isArchived) R.string.unarchive_are_you_sure else R.string.archive_are_you_sure
+        val title =
+            if (isArchived) com.blockchain.stringResources.R.string.unarchive else
+                com.blockchain.stringResources.R.string.archive
+        val msg =
+            if (isArchived) com.blockchain.stringResources.R.string.unarchive_are_you_sure else
+                com.blockchain.stringResources.R.string.archive_are_you_sure
         promptArchive(
             requireContext(),
             title,
@@ -341,12 +350,12 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
             .showProgress()
             .updateUi(account)
             .subscribeBy(
-                onError = { showError(R.string.remote_save_failed) },
+                onError = { showError(com.blockchain.stringResources.R.string.remote_save_failed) },
                 onComplete = {
                     configureArchive(account, !isArchived)
-                    if (!account.isArchived)
+                    if (!account.isArchived) {
                         analytics.logEvent(WalletAnalytics.UnArchiveWallet)
-                    else
+                    } else
                         analytics.logEvent(WalletAnalytics.ArchiveWallet)
                 }
             )
@@ -375,7 +384,7 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
         doHideProgress()
         progressDialog = MaterialProgressDialog(requireContext()).apply {
             setCancelable(false)
-            setMessage(R.string.please_wait)
+            setMessage(com.blockchain.stringResources.R.string.please_wait)
             show()
         }
     }

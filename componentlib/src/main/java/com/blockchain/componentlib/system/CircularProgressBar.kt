@@ -25,7 +25,7 @@ import com.blockchain.componentlib.theme.Grey600
 fun CircularProgressBar(
     modifier: Modifier = Modifier,
     text: String? = null,
-    progress: Float? = null,
+    progress: Float? = null
 ) {
     val color = AppTheme.colors.primary
     val backgroundColor = Grey000
@@ -80,7 +80,7 @@ fun CircularProgressBar(
 fun CircularProgressBarWithSmallText(
     modifier: Modifier = Modifier,
     text: String? = null,
-    progress: Float? = null,
+    progress: Float? = null
 ) {
     val color = AppTheme.colors.primary
     val backgroundColor = Grey000

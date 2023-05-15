@@ -9,18 +9,18 @@ import info.blockchain.balance.Currency
 sealed class DexUiError {
     data class InsufficientFunds(val currency: Currency) : DexUiError(), AlertError {
         override fun message(context: Context): String =
-            context.getString(R.string.not_enough_funds, currency.displayTicker)
+            context.getString(com.blockchain.stringResources.R.string.not_enough_funds, currency.displayTicker)
     }
 
     object LiquidityError : DexUiError(), AlertError {
         override fun message(context: Context): String =
-            context.getString(R.string.unable_to_swap_tokens)
+            context.getString(com.blockchain.stringResources.R.string.unable_to_swap_tokens)
     }
 
     data class TokenNotAllowed(val token: Currency) : DexUiError()
     data class NotEnoughGas(val gasCurrency: Currency) : DexUiError(), AlertError {
         override fun message(context: Context): String =
-            context.getString(R.string.not_enough_gas, gasCurrency.displayTicker)
+            context.getString(com.blockchain.stringResources.R.string.not_enough_gas, gasCurrency.displayTicker)
     }
 
     /**
@@ -49,8 +49,9 @@ fun DexTransaction.toUiErrors(): List<DexUiError> {
             is DexTxError.FatalTxError -> DexUiError.UnknownError(it.exception)
             is DexTxError.TxInProgress -> DexUiError.TransactionInProgressError
             is DexTxError.QuoteError ->
-                if (it.isLiquidityError()) DexUiError.LiquidityError
-                else DexUiError.CommonUiError(
+                if (it.isLiquidityError()) {
+                    DexUiError.LiquidityError
+                } else DexUiError.CommonUiError(
                     it.title,
                     it.message
                 )

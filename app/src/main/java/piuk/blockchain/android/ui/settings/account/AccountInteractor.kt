@@ -24,7 +24,7 @@ class AccountInteractor internal constructor(
     private val currencyPrefs: CurrencyPrefs,
     private val exchangeLinkingState: ExchangeLinking,
     private val localSettingsPrefs: LocalSettingsPrefs,
-    private val fiatCurrenciesService: FiatCurrenciesService,
+    private val fiatCurrenciesService: FiatCurrenciesService
 ) {
 
     fun getWalletInfo(): Single<AccountInformation> =

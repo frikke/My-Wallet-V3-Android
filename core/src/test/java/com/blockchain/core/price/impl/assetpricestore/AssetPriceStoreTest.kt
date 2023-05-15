@@ -48,7 +48,8 @@ class AssetPriceStoreTest {
             verify {
                 cache.stream(
                     KeyedFreshnessStrategy.Cached(
-                        AssetPriceStoreCache.Key.GetAllCurrent(USD.networkTicker), RefreshStrategy.RefreshIfStale
+                        AssetPriceStoreCache.Key.GetAllCurrent(USD.networkTicker),
+                        RefreshStrategy.RefreshIfStale
                     )
                 )
             }
@@ -102,7 +103,8 @@ class AssetPriceStoreTest {
                 verify {
                     cache.stream(
                         KeyedFreshnessStrategy.Cached(
-                            AssetPriceStoreCache.Key.GetAllYesterday(USD.networkTicker), RefreshStrategy.RefreshIfStale
+                            AssetPriceStoreCache.Key.GetAllYesterday(USD.networkTicker),
+                            RefreshStrategy.RefreshIfStale
                         )
                     )
                 }
@@ -166,28 +168,28 @@ class AssetPriceStoreTest {
             quote = "USD",
             rate = 2.0.toBigDecimal(),
             fetchedAt = 1L,
-            marketCap = 0.0,
+            marketCap = 0.0
         )
         private val RECORD_ETH_USD = AssetPriceRecord(
             base = "ETH",
             quote = "USD",
             rate = 2.0.toBigDecimal(),
             fetchedAt = 1L,
-            marketCap = 0.0,
+            marketCap = 0.0
         )
         private val RECORD_BTC_EUR = AssetPriceRecord(
             base = "BTC",
             quote = "EUR",
             rate = 1.5.toBigDecimal(),
             fetchedAt = 2L,
-            marketCap = 0.0,
+            marketCap = 0.0
         )
         private val RECORD_ETH_EUR = AssetPriceRecord(
             base = "ETH",
             quote = "EUR",
             rate = 1.5.toBigDecimal(),
             fetchedAt = 2L,
-            marketCap = 0.0,
+            marketCap = 0.0
         )
         private val RECORDS_LIST = listOf(
             RECORD_ETH_EUR,
@@ -201,21 +203,21 @@ class AssetPriceStoreTest {
                 quote = "USD",
                 rate = 2.0.toBigDecimal(),
                 fetchedAt = 10L,
-                marketCap = 0.0,
+                marketCap = 0.0
             ),
             AssetPriceRecord(
                 base = "BTC",
                 quote = "USD",
                 rate = 1.8.toBigDecimal(),
                 fetchedAt = 20L,
-                marketCap = 0.0,
+                marketCap = 0.0
             ),
             AssetPriceRecord(
                 base = "BTC",
                 quote = "USD",
                 rate = 1.6.toBigDecimal(),
                 fetchedAt = 30L,
-                marketCap = 0.0,
+                marketCap = 0.0
             )
         )
     }

@@ -25,12 +25,12 @@ import kotlinx.coroutines.withContext
 
 class ProveRepository(
     private val api: ProveApiService,
-    private val mobileAuthSDK: ProveAuthSDK,
+    private val mobileAuthSDK: ProveAuthSDK
 ) : ProveService {
 
     override suspend fun isMobileAuthPossible(): Boolean = instrument(
         "true" to true,
-        "false" to false,
+        "false" to false
     ) {
         withContext(Dispatchers.IO) {
             try {
@@ -44,7 +44,7 @@ class ProveRepository(
 
     override suspend fun verifyPossessionWithMobileAuth(): Outcome<Exception, ProveAuthResult> = instrument(
         "success" to Outcome.Success(ProveAuthResult("961234567")),
-        "failure" to Outcome.Failure(Exception("Some error")),
+        "failure" to Outcome.Failure(Exception("Some error"))
     ) {
         withContext(Dispatchers.IO) {
             try {
@@ -64,7 +64,7 @@ class ProveRepository(
     override suspend fun startInstantLinkAuth(mobileNumber: String): Outcome<Exception, StartInstantLinkAuthResult> =
         instrument(
             "success" to Outcome.Success(StartInstantLinkAuthResult(60)),
-            "failure" to Outcome.Failure(Exception("Some error")),
+            "failure" to Outcome.Failure(Exception("Some error"))
         ) {
             api.startInstantLinkAuth(mobileNumber)
                 .map { it.toDomain() }
@@ -75,7 +75,7 @@ class ProveRepository(
             "verified" to Outcome.Success(PossessionState.Verified("961234567")),
             "unverified" to Outcome.Success(PossessionState.Unverified),
             "failed" to Outcome.Success(PossessionState.Failed),
-            "failure error" to Outcome.Failure(Exception("Some error")),
+            "failure error" to Outcome.Failure(Exception("Some error"))
         ) {
             api.getPossessionState().toPossessionStateDomainOutcome()
         }
@@ -93,33 +93,42 @@ class ProveRepository(
         },
         until = { it.isVerified },
         timerInSec = 3,
-        retries = 5 * 60 / 5, // 5 mins / timerInSec
+        retries = 5 * 60 / 5 // 5 mins / timerInSec
     ).map { it.value }.toPossessionStateDomainOutcome()
 
     override suspend fun getPrefillData(
-        dob: String,
+        dob: String
     ): Outcome<Exception, PrefillData> =
         instrument(
             "MultipleAddresses" to Outcome.Success(
                 PrefillData(
-                    firstName = "John", lastName = "Doe", addresses = listOf(address1, address2), dob = "1990-01-20",
+                    firstName = "John",
+                    lastName = "Doe",
+                    addresses = listOf(address1, address2),
+                    dob = "1990-01-20",
                     phoneNumber = "+1-202-555-0100"
                 )
             ),
             "OnlyOneAddress" to Outcome.Success(
                 PrefillData(
-                    firstName = "John", lastName = "Doe", addresses = listOf(address1), dob = "1990-01-20",
+                    firstName = "John",
+                    lastName = "Doe",
+                    addresses = listOf(address1),
+                    dob = "1990-01-20",
                     phoneNumber = "+1-202-555-0100"
                 )
             ),
             "NoAddresses" to Outcome.Success(
                 PrefillData(
-                    firstName = "John", lastName = "Doe", addresses = emptyList(), dob = "1990-01-20",
+                    firstName = "John",
+                    lastName = "Doe",
+                    addresses = emptyList(),
+                    dob = "1990-01-20",
                     phoneNumber = "+1-202-555-0100"
                 )
             ),
             "NoData" to Outcome.Failure(Exception("Some error")),
-            "Failure" to Outcome.Failure(Exception("Some error")),
+            "Failure" to Outcome.Failure(Exception("Some error"))
         ) {
             api.getPrefillData(dob)
                 .map { it.toDomain() }
@@ -131,7 +140,7 @@ class ProveRepository(
         city = "Albany",
         state = "AK",
         postCode = "12207",
-        country = "US",
+        country = "US"
     )
 
     private val address2 = Address(
@@ -140,14 +149,14 @@ class ProveRepository(
         city = "Farmerville",
         state = "NY",
         postCode = "71241",
-        country = "US",
+        country = "US"
     )
 
     override suspend fun submitData(data: PrefillDataSubmission): Outcome<Exception, Unit> =
         instrument(
             "success" to Outcome.Success(Unit),
             "wrong info" to Outcome.Failure(VerificationWrongInfoException),
-            "failure" to Outcome.Failure(Exception("Some error")),
+            "failure" to Outcome.Failure(Exception("Some error"))
         ) {
             api.submitData(data.toNetwork())
                 .mapError { error ->

@@ -36,7 +36,7 @@ fun ProvePrefillScreen(
     countryIso: CountryIso,
     stateIso: StateIso?,
     showDatePicker: () -> Unit,
-    launchContactSupport: () -> Unit,
+    launchContactSupport: () -> Unit
 ) {
     val viewModel: ProvePrefillModel = getViewModel(scope = payloadScope)
 
@@ -63,7 +63,7 @@ fun ProvePrefillScreen(
             if (error != null) {
                 scaffoldState.snackbarHostState.showSnackbar(
                     message = error.errorMessage(context),
-                    duration = SnackbarDuration.Long,
+                    duration = SnackbarDuration.Long
                 )
             }
         }
@@ -76,14 +76,18 @@ fun ProvePrefillScreen(
                 Screen.INSTANT_LINK_PHONE_AND_DOB_ENTRY ->
                     InstantLinkPhoneAndDobEntry(state, onIntent, showDatePicker)
                 Screen.WAITING_INSTANT_LINK_VALIDATION -> WaitingInstantLinkValidation(state, onIntent)
-                Screen.WAITING_PREFILL_DATA -> Loading(stringResource(R.string.prove_waiting_prefill_data_loading))
+                Screen.WAITING_PREFILL_DATA -> Loading(
+                    stringResource(com.blockchain.stringResources.R.string.prove_waiting_prefill_data_loading)
+                )
                 Screen.VIEW_PREFILL_DATA -> ViewPrefillData(state, onIntent)
                 Screen.MANUAL_ADDRESS_ENTRY -> AddressVerificationScreen(
                     Args(countryIso, stateIso, state.manualEntryAddress, true),
-                    addressVerificationHost,
+                    addressVerificationHost
                 )
                 Screen.WAITING_PREFILL_DATA_SUBMISSION ->
-                    Loading(stringResource(R.string.prove_waiting_prefill_submission_loading))
+                    Loading(
+                        stringResource(com.blockchain.stringResources.R.string.prove_waiting_prefill_submission_loading)
+                    )
             }
         }
     }
@@ -105,11 +109,15 @@ internal val defaultViewState: ProvePrefillViewState = ProvePrefillViewState(
     isAddressDropdownOpen = false,
     prefillDob = null,
     prefillMobileNumber = "",
-    prefillContinueButtonState = ButtonState.Disabled,
+    prefillContinueButtonState = ButtonState.Disabled
 )
 
 private fun ProveError.errorMessage(context: Context): String = when (this) {
-    is ProveError.Generic -> message ?: context.getString(R.string.something_went_wrong_try_again)
+    is ProveError.Generic -> message ?: context.getString(
+        com.blockchain.stringResources.R.string.something_went_wrong_try_again
+    )
     ProveError.PossessionVerificationTimeout ->
-        context.getString(R.string.prove_instant_link_phone_and_dob_entry_verification_timeout)
+        context.getString(
+            com.blockchain.stringResources.R.string.prove_instant_link_phone_and_dob_entry_verification_timeout
+        )
 }

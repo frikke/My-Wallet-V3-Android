@@ -55,7 +55,7 @@ class MainModel(
     initialState,
     mainScheduler,
     environmentConfig,
-    remoteLogger,
+    remoteLogger
 ) {
 
     private val compositeDisposable = CompositeDisposable()
@@ -234,7 +234,8 @@ class MainModel(
                             process(
                                 MainIntent.UpdateViewToLaunch(
                                     ViewToLaunch.LaunchTxFlowWithAccountForAction(
-                                        LaunchFlowForAccount.NoAccount, intent.action
+                                        LaunchFlowForAccount.NoAccount,
+                                        intent.action
                                     )
                                 )
                             )
@@ -526,7 +527,8 @@ class MainModel(
                 process(
                     MainIntent.UpdateViewToLaunch(
                         ViewToLaunch.LaunchOpenBankingApprovalDepositComplete(
-                            it.amount, interactor.getEstimatedDepositCompletionTime()
+                            it.amount,
+                            interactor.getEstimatedDepositCompletionTime()
                         )
                     )
                 )
@@ -560,7 +562,8 @@ class MainModel(
                         interactor.getSimpleBuySyncLocalState()?.let {
                             handleOrderState(it)
                         } ?: process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingBuyApprovalError))
-                    }, onError = {
+                    },
+                    onError = {
                         Timber.e("Error doing SB sync for bank linking $it")
                         interactor.resetLocalBankAuthState()
                         process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingBuyApprovalError))

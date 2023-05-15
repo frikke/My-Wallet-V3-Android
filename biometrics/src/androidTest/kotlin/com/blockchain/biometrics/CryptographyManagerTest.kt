@@ -10,7 +10,7 @@ import org.robolectric.annotation.Config
 
 // NOTE: roboelectric runner needed for Base64 Android implementations
 @Suppress("PrivatePropertyName")
-@Config(sdk = [24])
+@Config(sdk = [26])
 @RunWith(RobolectricTestRunner::class)
 class CryptographyManagerTest {
 

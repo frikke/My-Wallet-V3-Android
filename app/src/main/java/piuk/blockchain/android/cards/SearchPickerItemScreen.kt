@@ -34,7 +34,7 @@ import piuk.blockchain.android.R
 fun SearchPickerItemScreen(
     suggestedPick: PickerItem?,
     items: List<PickerItem>,
-    onItemClicked: (PickerItem) -> Unit,
+    onItemClicked: (PickerItem) -> Unit
 ) {
     var searchInput by remember { mutableStateOf("") }
 
@@ -47,8 +47,9 @@ fun SearchPickerItemScreen(
 
     Column(Modifier.fillMaxHeight()) {
         val searchInputIcon =
-            if (searchInput.isNotEmpty()) ImageResource.Local(R.drawable.ic_close_circle)
-            else ImageResource.None
+            if (searchInput.isNotEmpty()) {
+                ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_close_circle)
+            } else ImageResource.None
         OutlinedTextInput(
             modifier = Modifier
                 .fillMaxWidth()
@@ -56,11 +57,11 @@ fun SearchPickerItemScreen(
             value = searchInput,
             onValueChange = { searchInput = it },
             singleLine = true,
-            placeholder = stringResource(R.string.common_search),
+            placeholder = stringResource(com.blockchain.stringResources.R.string.common_search),
             leadingIcon = ImageResource.Local(R.drawable.ic_search),
             focusedTrailingIcon = searchInputIcon,
             unfocusedTrailingIcon = searchInputIcon,
-            onTrailingIconClicked = { searchInput = "" },
+            onTrailingIconClicked = { searchInput = "" }
         )
 
         LazyColumn() {
@@ -68,10 +69,10 @@ fun SearchPickerItemScreen(
                 item {
                     SimpleText(
                         modifier = Modifier.padding(start = AppTheme.dimensions.mediumSpacing),
-                        text = stringResource(R.string.country_selection_suggested),
+                        text = stringResource(com.blockchain.stringResources.R.string.country_selection_suggested),
                         style = ComposeTypographies.Caption1,
                         color = ComposeColors.Title,
-                        gravity = ComposeGravities.Start,
+                        gravity = ComposeGravities.Start
                     )
 
                     PickerItemContent(suggestedPick, onItemClicked)
@@ -98,7 +99,7 @@ private fun PickerItemContent(item: PickerItem, onClick: (PickerItem) -> Unit) {
             .fillMaxWidth()
             .clickable { onClick(item) }
             .padding(horizontal = AppTheme.dimensions.mediumSpacing),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         item.icon?.let { icon ->
             Text(text = icon, fontSize = 30.sp)
@@ -107,7 +108,7 @@ private fun PickerItemContent(item: PickerItem, onClick: (PickerItem) -> Unit) {
             modifier = Modifier.padding(AppTheme.dimensions.smallSpacing),
             text = item.label,
             fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
+            fontWeight = FontWeight.Medium
         )
     }
 }
@@ -130,7 +131,7 @@ private fun PreviewScreen() {
     SearchPickerItemScreen(
         suggestedPick = suggestedPick,
         items = items,
-        onItemClicked = {},
+        onItemClicked = {}
     )
 }
 

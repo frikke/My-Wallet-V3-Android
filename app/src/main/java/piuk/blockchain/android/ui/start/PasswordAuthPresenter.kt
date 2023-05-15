@@ -63,7 +63,7 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
         }
     }
 
-    override fun onViewDetached() { /* no-op */
+    override fun onViewDetached() { // no-op
     }
 
     override val alwaysDisableScreenshots = true
@@ -78,11 +78,11 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
         code: String?
     ) {
         if (code.isNullOrEmpty()) {
-            view?.showSnackbar(R.string.two_factor_null_error, SnackbarType.Error)
+            view?.showSnackbar(com.blockchain.stringResources.R.string.two_factor_null_error, SnackbarType.Error)
         } else {
             compositeDisposable += authDataManager.submitTwoFactorCode(guid, code)
                 .doOnSubscribe {
-                    view?.showProgressDialog(R.string.please_wait)
+                    view?.showProgressDialog(com.blockchain.stringResources.R.string.please_wait)
                 }
                 .doAfterTerminate { view?.dismissProgressDialog() }
                 .subscribe(
@@ -98,7 +98,7 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
                         handleResponse(password, guid, payload)
                     },
                     {
-                        showErrorSnackbar(R.string.two_factor_incorrect_error)
+                        showErrorSnackbar(com.blockchain.stringResources.R.string.two_factor_incorrect_error)
                     }
                 )
         }
@@ -111,7 +111,7 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
     fun verifyPassword(password: String, guid: String) {
         compositeDisposable += getSessionId()
             .doOnSubscribe {
-                view?.showProgressDialog(R.string.validating_password)
+                view?.showProgressDialog(com.blockchain.stringResources.R.string.validating_password)
             }
             .flatMap { sessionId -> authDataManager.getEncryptedPayload(guid, resend2FASms = false) }
             .subscribeBy(
@@ -123,7 +123,7 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
     fun requestNew2FaCode(password: String, guid: String) {
         compositeDisposable += authDataManager.getEncryptedPayload(guid = guid, resend2FASms = true)
             .doOnSubscribe {
-                view?.showProgressDialog(R.string.two_fa_new_request)
+                view?.showProgressDialog(com.blockchain.stringResources.R.string.two_fa_new_request)
             }
             .subscribeBy(
                 onSuccess = { response -> handleResponse(password, guid, response) },
@@ -160,10 +160,13 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
             val json = JSONObject(errorBody)
             val errorReason = json.getString(INITIAL_ERROR)
             remoteLogger.logState(INITIAL_ERROR, errorReason)
-            view?.showErrorSnackbarWithParameter(R.string.common_replaceable_value, errorReason)
+            view?.showErrorSnackbarWithParameter(
+                com.blockchain.stringResources.R.string.common_replaceable_value,
+                errorReason
+            )
         } catch (e: Exception) {
             remoteLogger.logState(INITIAL_ERROR, e.message!!)
-            view?.showSnackbar(R.string.common_error, SnackbarType.Error)
+            view?.showSnackbar(com.blockchain.stringResources.R.string.common_error, SnackbarType.Error)
         }
     }
 
@@ -188,7 +191,10 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
     private fun startTimer() {
         timerDisposable += authDataManager.createCheckEmailTimer()
             .doOnSubscribe {
-                view?.showProgressDialog(R.string.check_email_to_auth_login, ::onProgressCancelled)
+                view?.showProgressDialog(
+                    com.blockchain.stringResources.R.string.check_email_to_auth_login,
+                    ::onProgressCancelled
+                )
             }
             .observeOn(AndroidSchedulers.mainThread())
             .doOnNext { integer ->
@@ -202,7 +208,7 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
             }
             .subscribeBy(
                 onError = {
-                    showErrorSnackbar(R.string.auth_failed)
+                    showErrorSnackbar(com.blockchain.stringResources.R.string.auth_failed)
                 }
             )
     }
@@ -266,9 +272,13 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
                 },
                 onError = { throwable ->
                     when (throwable) {
-                        is HDWalletException -> showErrorSnackbar(R.string.pairing_failed)
-                        is DecryptionException -> showErrorSnackbar(R.string.invalid_password)
-                        else -> showErrorSnackbarAndRestartApp(R.string.auth_failed)
+                        is HDWalletException -> showErrorSnackbar(
+                            com.blockchain.stringResources.R.string.pairing_failed
+                        )
+                        is DecryptionException -> showErrorSnackbar(
+                            com.blockchain.stringResources.R.string.invalid_password
+                        )
+                        else -> showErrorSnackbarAndRestartApp(com.blockchain.stringResources.R.string.auth_failed)
                     }
                 }
             )

@@ -52,8 +52,11 @@ class OnboardingStepViewHolder(
     fun bind(item: CompletableDashboardOnboardingStep, onClick: (CompletableDashboardOnboardingStep) -> Unit) {
         with(binding) {
             binding.root.cardElevation =
-                if (item.state == DashboardOnboardingStepState.INCOMPLETE) 2.px.toFloat()
-                else 0f
+                if (item.state == DashboardOnboardingStepState.INCOMPLETE) {
+                    2.px.toFloat()
+                } else {
+                    0f
+                }
             if (item.isCompleted) {
                 binding.root.setOnClickListener(null)
             } else {
@@ -65,17 +68,20 @@ class OnboardingStepViewHolder(
             textSubtitle.setText(
                 when (item.state) {
                     DashboardOnboardingStepState.INCOMPLETE -> item.step.subtitleRes
-                    DashboardOnboardingStepState.PENDING -> R.string.dashboard_onboarding_step_pending
-                    DashboardOnboardingStepState.COMPLETE -> R.string.dashboard_onboarding_step_complete
+                    DashboardOnboardingStepState.PENDING ->
+                        com.blockchain.stringResources.R.string.dashboard_onboarding_step_pending
+
+                    DashboardOnboardingStepState.COMPLETE ->
+                        com.blockchain.stringResources.R.string.dashboard_onboarding_step_complete
                 }
             )
             textSubtitle.setTextColor(
                 ContextCompat.getColor(
                     context,
                     when (item.state) {
-                        DashboardOnboardingStepState.INCOMPLETE -> R.color.grey_600
-                        DashboardOnboardingStepState.PENDING -> R.color.grey_800
-                        DashboardOnboardingStepState.COMPLETE -> R.color.paletteBaseSuccess
+                        DashboardOnboardingStepState.INCOMPLETE -> com.blockchain.common.R.color.grey_600
+                        DashboardOnboardingStepState.PENDING -> com.blockchain.common.R.color.grey_800
+                        DashboardOnboardingStepState.COMPLETE -> com.blockchain.componentlib.R.color.paletteBaseSuccess
                     }
                 )
             )

@@ -91,8 +91,9 @@ fun Coinview(
 
         accounts = viewState.accounts,
         onAccountClick = { account ->
-            if (account.isClickable)
+            if (account.isClickable) {
                 viewModel.onIntent(CoinviewIntent.AccountSelected(account))
+            }
         },
         onLockedAccountClick = {
             viewModel.onIntent(CoinviewIntent.LockedAccountSelected)
@@ -169,7 +170,7 @@ fun CoinviewScreen(
                     assetState.l1Network?.let { l1Network ->
                         StackedIcon.SmallTag(
                             main = ImageResource.Remote(assetState.asset.logo),
-                            tag = ImageResource.Remote(l1Network.logo),
+                            tag = ImageResource.Remote(l1Network.logo)
                         )
                     } ?: StackedIcon.SingleIcon(ImageResource.Remote(assetState.asset.logo))
                 } ?: StackedIcon.None,
@@ -181,7 +182,11 @@ fun CoinviewScreen(
                                 Icons.Filled.Star
                             } else {
                                 Icons.Star
-                            }.copy(contentDescription = stringResource(R.string.accessibility_filter)),
+                            }.copy(
+                                contentDescription = stringResource(
+                                    com.blockchain.stringResources.R.string.accessibility_filter
+                                )
+                            ),
                             onIconClick = {
                                 (asset as? DataResource.Data)?.data?.asset?.networkTicker?.let {
                                     analytics.logEvent(
@@ -220,7 +225,7 @@ fun CoinviewScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(1F)
-                                .verticalScroll(rememberScrollState()),
+                                .verticalScroll(rememberScrollState())
                         ) {
                             AssetPrice(
                                 data = price,

@@ -22,5 +22,5 @@ data class StakingSummaryModelState(
     val canDeposit: Boolean = false,
     val canWithdraw: Boolean = false,
     val pendingWithdrawals: List<EarnWithdrawal> = emptyList(),
-    val unbondingDays: Int = 2,
+    val unbondingDays: Int = 2
 ) : ModelState

@@ -35,7 +35,7 @@ data class GenericMetadataWallet(
         this.copy(
             accounts = accounts.replace(
                 old = accounts[index],
-                new = accounts[index].updateXpub(xPub),
+                new = accounts[index].updateXpub(xPub)
             )
         )
 

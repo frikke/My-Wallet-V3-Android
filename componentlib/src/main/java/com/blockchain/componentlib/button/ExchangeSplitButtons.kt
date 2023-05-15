@@ -18,21 +18,21 @@ fun ExchangeSplitButtons(
     exchangeSellButtonOnClick: () -> Unit,
     modifier: Modifier = Modifier,
     exchangeBuyButtonState: ButtonState = ButtonState.Enabled,
-    exchangeSellButtonState: ButtonState = ButtonState.Enabled,
+    exchangeSellButtonState: ButtonState = ButtonState.Enabled
 ) {
     Row(modifier) {
         ExchangeBuyButton(
             text = exchangeBuyButtonText,
             onClick = exchangeBuyButtonOnClick,
             state = exchangeBuyButtonState,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f)
         )
         Spacer(modifier = Modifier.width(8.dp))
         ExchangeSellButton(
             text = exchangeSellButtonText,
             onClick = exchangeSellButtonOnClick,
             state = exchangeSellButtonState,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f)
         )
     }
 }
@@ -46,7 +46,7 @@ private fun ExchangeSplitButtonPreview() {
                 exchangeBuyButtonText = "Buy",
                 exchangeBuyButtonOnClick = {},
                 exchangeSellButtonText = "Sell",
-                exchangeSellButtonOnClick = {},
+                exchangeSellButtonOnClick = {}
             )
         }
     }

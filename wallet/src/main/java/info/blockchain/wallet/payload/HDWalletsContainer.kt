@@ -75,7 +75,9 @@ class HDWalletsContainer {
     ) {
         val nbWords = if (_nbWords % 3 != 0 || _nbWords < 12 || _nbWords > 24) {
             12
-        } else _nbWords
+        } else {
+            _nbWords
+        }
 
         // len == 16 (12 words), len == 24 (18 words), len == 32 (24 words)
         val len = nbWords / 3 * 4

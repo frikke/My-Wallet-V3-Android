@@ -25,7 +25,6 @@ class CheckoutCardProcessor(
         billingAddress: CardBillingAddress?,
         apiKey: String
     ): Outcome<CardProcessingFailure, String> {
-
         // CheckoutAPIClient only supports callbacks for obtaining results from its calls. To transform
         // callback-style into suspending functions we need to suspend the coroutine that's currently
         // running and obtain its continuation - this is done by wrapping the block into suspendCoroutine.

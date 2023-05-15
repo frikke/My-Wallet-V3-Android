@@ -78,7 +78,7 @@ fun RecoveryPhraseScreen(
     showLoading: Boolean,
     backOnClick: () -> Unit,
     backUpCloudOnClick: () -> Unit,
-    backUpManualOnClick: () -> Unit,
+    backUpManualOnClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -88,30 +88,31 @@ fun RecoveryPhraseScreen(
     ) {
         NavigationBar(
             modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
-            title = stringResource(R.string.backup_phrase_title_secure_wallet),
+            title = stringResource(com.blockchain.stringResources.R.string.backup_phrase_title_secure_wallet),
             mutedBackground = false,
             onBackButtonClick = backOnClick
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing)))
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(dimensionResource(id = R.dimen.standard_spacing)),
+                .padding(dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.recovery_phrase_title),
+                text = stringResource(id = com.blockchain.stringResources.R.string.recovery_phrase_title),
                 style = ComposeTypographies.Title2,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
             )
 
             if (backupStatus == BackUpStatus.NO_BACKUP) {
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)))
+                Spacer(
+                    modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
+                )
 
                 BackupStatus(backupStatus)
             }
@@ -124,7 +125,7 @@ fun RecoveryPhraseScreen(
 
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.recovery_phrase_description),
+                text = stringResource(id = com.blockchain.stringResources.R.string.recovery_phrase_description),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
@@ -134,7 +135,7 @@ fun RecoveryPhraseScreen(
 
             PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.recovery_phrase_backup_cloud),
+                text = stringResource(id = com.blockchain.stringResources.R.string.recovery_phrase_backup_cloud),
                 state = if (showLoading) ButtonState.Loading else ButtonState.Enabled,
                 onClick = backUpCloudOnClick
             )
@@ -143,7 +144,7 @@ fun RecoveryPhraseScreen(
 
             SecondaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.recovery_phrase_backup_manual),
+                text = stringResource(id = com.blockchain.stringResources.R.string.recovery_phrase_backup_manual),
                 state = if (showLoading) ButtonState.Disabled else ButtonState.Enabled,
                 onClick = backUpManualOnClick
             )

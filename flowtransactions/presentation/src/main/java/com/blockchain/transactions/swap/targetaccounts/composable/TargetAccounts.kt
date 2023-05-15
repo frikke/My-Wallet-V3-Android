@@ -35,7 +35,7 @@ import org.koin.core.parameter.parametersOf
 data class TargetAccountsArgs(
     val sourceTicker: String,
     val targetTicker: String,
-    val mode: WalletMode,
+    val mode: WalletMode
 ) : Serializable
 
 @Composable
@@ -53,7 +53,6 @@ fun TargetAccounts(
     onClosePressed: () -> Unit,
     onBackPressed: () -> Unit
 ) {
-
     val viewState: TargetAccountsViewState by viewModel.viewState.collectAsStateLifecycleAware()
     LaunchedEffect(key1 = viewModel) {
         viewModel.onIntent(TargetAccountsIntent.LoadData)
@@ -83,7 +82,7 @@ fun TargetAccounts(
             viewModel.onIntent(TargetAccountsIntent.AccountSelected(it.id))
         },
         onClosePressed = onClosePressed,
-        onBackPressed = onBackPressed,
+        onBackPressed = onBackPressed
     )
 }
 
@@ -93,14 +92,14 @@ private fun TargetAccountsScreen(
     accounts: DataResource<List<AccountUiElement>>,
     accountSelected: (AccountUiElement) -> Unit,
     onClosePressed: () -> Unit,
-    onBackPressed: () -> Unit,
+    onBackPressed: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
         SheetFlatHeader(
             icon = StackedIcon.None,
-            title = stringResource(R.string.common_swap_select_account, targetTicker),
+            title = stringResource(com.blockchain.stringResources.R.string.common_swap_select_account, targetTicker),
             backOnClick = onBackPressed,
             onCloseClick = onClosePressed
         )

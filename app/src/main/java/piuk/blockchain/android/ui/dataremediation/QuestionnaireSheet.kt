@@ -106,8 +106,9 @@ class QuestionnaireSheet() :
                         if (showsDialog) dismiss()
                     },
                     onBackClicked = {
-                        if (showsDialog) dismiss()
-                        else requireActivity().onBackPressedDispatcher.onBackPressed()
+                        if (showsDialog) {
+                            dismiss()
+                        } else requireActivity().onBackPressedDispatcher.onBackPressed()
                     }
                 )
             }
@@ -117,13 +118,19 @@ class QuestionnaireSheet() :
     override fun onStateUpdated(state: QuestionnaireState) {
         if (state.error != null) {
             val errorMessage = when (state.error) {
-                is QuestionnaireError.InvalidNode -> getString(R.string.kyc_additional_info_invalid_node_error)
+                is QuestionnaireError.InvalidNode -> getString(
+                    com.blockchain.stringResources.R.string.kyc_additional_info_invalid_node_error
+                )
                 is QuestionnaireError.InvalidOpenEndedRegexMatch ->
-                    getString(R.string.questionnaire_error_invalid_format)
-                is QuestionnaireError.Unknown -> state.error.message ?: getString(R.string.server_unreachable_exit)
+                    getString(com.blockchain.stringResources.R.string.questionnaire_error_invalid_format)
+                is QuestionnaireError.Unknown -> state.error.message ?: getString(
+                    com.blockchain.stringResources.R.string.server_unreachable_exit
+                )
             }
             BlockchainSnackbar.make(
-                requireView(), errorMessage, type = SnackbarType.Error
+                requireView(),
+                errorMessage,
+                type = SnackbarType.Error
             ).show()
             model.onIntent(QuestionnaireIntent.ErrorHandled)
         }

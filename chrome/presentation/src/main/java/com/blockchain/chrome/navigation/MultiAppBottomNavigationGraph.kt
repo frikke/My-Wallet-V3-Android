@@ -70,7 +70,6 @@ fun MultiAppBottomNavigationHost(
     processAnnouncementUrl: (String) -> Unit,
     openSwap: () -> Unit
 ) {
-
     val walletMode by get<WalletModeService>(scope = payloadScope)
         .walletMode.collectAsStateLifecycleAware(initial = null)
 
@@ -189,7 +188,7 @@ fun MultiAppBottomNavigationHost(
                             selectedNavigationItem == ChromeBottomNavigationItem.Prices,
                         pricesNavigation = pricesNavigation,
                         openSettings = openSettings,
-                        launchQrScanner = launchQrScanner,
+                        launchQrScanner = launchQrScanner
                     )
                 }
             )
@@ -244,7 +243,7 @@ fun MultiAppBottomNavigationHost(
                     EarnDashboardScreen(
                         earnNavigation = earnNavigation,
                         openSettings = openSettings,
-                        launchQrScanner = launchQrScanner,
+                        launchQrScanner = launchQrScanner
                     )
                 }
             )

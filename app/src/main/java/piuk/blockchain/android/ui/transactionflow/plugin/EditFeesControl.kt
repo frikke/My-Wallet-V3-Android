@@ -88,14 +88,14 @@ class EditFeesControl @JvmOverloads constructor(
 
             val assetName = feeSelection.asset?.name ?: ""
 
-            val boldText = context.getString(R.string.tx_confirmation_fee_learn_more_1)
+            val boldText = context.getString(com.blockchain.stringResources.R.string.tx_confirmation_fee_learn_more_1)
             val networkText = context.getString(
-                R.string.tx_confirmation_fee_learn_more_2,
+                com.blockchain.stringResources.R.string.tx_confirmation_fee_learn_more_2,
                 assetName
             )
 
             val linkedText = stringUtils.getStringWithMappedAnnotations(
-                R.string.tx_confirmation_fee_learn_more_3,
+                com.blockchain.stringResources.R.string.tx_confirmation_fee_learn_more_3,
                 linksMap,
                 context
             )
@@ -126,18 +126,19 @@ class EditFeesControl @JvmOverloads constructor(
                 when (it) {
                     FeeLevel.None -> throw IllegalStateException("Fee level None not supported")
                     FeeLevel.Regular -> context.getString(
-                        R.string.fee_options_label,
-                        context.getString(R.string.fee_options_regular),
-                        context.getString(R.string.fee_options_regular_time)
+                        com.blockchain.stringResources.R.string.fee_options_label,
+                        context.getString(com.blockchain.stringResources.R.string.fee_options_regular),
+                        context.getString(com.blockchain.stringResources.R.string.fee_options_regular_time)
                     )
                     FeeLevel.Priority -> context.getString(
-                        R.string.fee_options_label, context.getString(R.string.fee_options_priority),
-                        context.getString(R.string.fee_options_priority_time)
+                        com.blockchain.stringResources.R.string.fee_options_label,
+                        context.getString(com.blockchain.stringResources.R.string.fee_options_priority),
+                        context.getString(com.blockchain.stringResources.R.string.fee_options_priority_time)
                     )
                     FeeLevel.Custom -> context.getString(
-                        R.string.fee_options_label,
-                        context.getString(R.string.fee_options_custom),
-                        context.getString(R.string.fee_options_custom_warning)
+                        com.blockchain.stringResources.R.string.fee_options_label,
+                        context.getString(com.blockchain.stringResources.R.string.fee_options_custom),
+                        context.getString(com.blockchain.stringResources.R.string.fee_options_custom_warning)
                     )
                 }
             )
@@ -150,19 +151,19 @@ class EditFeesControl @JvmOverloads constructor(
                 is FeeState.FeeUnderMinLimit -> {
                     setCustomFeeValues(
                         feeSelection.customAmount,
-                        context.getString(R.string.fee_options_sat_byte_min_error)
+                        context.getString(com.blockchain.stringResources.R.string.fee_options_sat_byte_min_error)
                     )
                 }
                 is FeeState.FeeUnderRecommended -> {
                     setCustomFeeValues(
                         feeSelection.customAmount,
-                        context.getString(R.string.fee_options_fee_too_low)
+                        context.getString(com.blockchain.stringResources.R.string.fee_options_fee_too_low)
                     )
                 }
                 is FeeState.FeeOverRecommended -> {
                     setCustomFeeValues(
                         feeSelection.customAmount,
-                        context.getString(R.string.fee_options_fee_too_high)
+                        context.getString(com.blockchain.stringResources.R.string.fee_options_fee_too_high)
                     )
                 }
                 is FeeState.ValidCustomFee -> {
@@ -172,8 +173,12 @@ class EditFeesControl @JvmOverloads constructor(
                     shouldHideFeeOptionValue = false
                     updateFeeOptionValueVisibility()
                     binding.feeOptionValue.text =
-                        context.getString(R.string.send_confirmation_insufficient_funds_for_fee)
-                    binding.feeOptionValue.setTextColor(context.getResolvedColor(R.color.red_600))
+                        context.getString(
+                            com.blockchain.stringResources.R.string.send_confirmation_insufficient_funds_for_fee
+                        )
+                    binding.feeOptionValue.setTextColor(
+                        context.getResolvedColor(com.blockchain.componentlib.R.color.red_600)
+                    )
                 }
                 is FeeState.FeeDetails -> {
                     setCustomFeeValues(feeSelection.customAmount)
@@ -271,7 +276,7 @@ class EditFeesControl @JvmOverloads constructor(
     private fun showCustomFeeUi(feeSelection: FeeSelection) =
         with(binding) {
             feeOptionCustomBounds.text = context.getString(
-                R.string.fee_options_sat_byte_inline_hint,
+                com.blockchain.stringResources.R.string.fee_options_sat_byte_inline_hint,
                 feeSelection.customLevelRates?.regularFee.toString(),
                 feeSelection.customLevelRates?.priorityFee.toString()
             )
@@ -304,7 +309,7 @@ private class CustomPaddingArrayAdapter<T>(context: Context, layoutId: Int, item
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val view = super.getView(position, convertView, parent)
-        val smallPadding = context.resources.getDimension(R.dimen.tiny_spacing).toInt()
+        val smallPadding = context.resources.getDimension(com.blockchain.componentlib.R.dimen.tiny_spacing).toInt()
         view.setPadding(0, smallPadding, view.paddingRight, smallPadding)
         return view
     }

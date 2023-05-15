@@ -49,7 +49,6 @@ object SwapGraph : NavGraph() {
 fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
     // TODO(aromano): navigation TEMP
     composable(SwapGraph::class.java.name) {
-
         val confirmationArgs = get<SwapConfirmationArgs>(scope = payloadScope)
         DisposableEffect(Unit) {
             onDispose {
@@ -61,7 +60,7 @@ fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
 
         TypedNavHost(
             graph = SwapGraph,
-            startDestination = SwapGraph.EnterAmount,
+            startDestination = SwapGraph.EnterAmount
         ) {
             typedComposable(SwapGraph.EnterAmount) {
                 ChromeSingleScreen {
@@ -131,7 +130,7 @@ fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
                                 popUpTo(SwapGraph)
                             }
                         },
-                        backClicked = { navigateUp() },
+                        backClicked = { navigateUp() }
                     )
                 }
             }
@@ -140,7 +139,7 @@ fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
                 ChromeSingleScreen {
                     NewOrderStateScreen(
                         args = args,
-                        exitSwap = { mainNavController.navigateUp() },
+                        exitSwap = { mainNavController.navigateUp() }
                     )
                 }
             }

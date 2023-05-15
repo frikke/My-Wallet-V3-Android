@@ -18,7 +18,7 @@ class HomeActivityLauncher {
         context: Context,
         launchAuthFlow: Boolean,
         pubKeyHash: String,
-        shouldBeNewTask: Boolean,
+        shouldBeNewTask: Boolean
     ): Intent = Intent(context, homeActivity).apply {
         putExtra(LAUNCH_AUTH_FLOW, launchAuthFlow)
         putExtra(AuthNewLoginSheet.PUB_KEY_HASH, pubKeyHash)
@@ -31,7 +31,7 @@ class HomeActivityLauncher {
     fun newIntent(
         context: Context,
         intentFromNotification: Boolean,
-        notificationAnalyticsPayload: Map<String, String>? = null,
+        notificationAnalyticsPayload: Map<String, String>? = null
     ): Intent =
         Intent(context, homeActivity).apply {
             putExtra(INTENT_FROM_NOTIFICATION, intentFromNotification)
@@ -56,7 +56,7 @@ class HomeActivityLauncher {
     fun newIntent(
         context: Context,
         intentData: String?,
-        shouldBeNewTask: Boolean,
+        shouldBeNewTask: Boolean
     ): Intent = Intent(context, homeActivity).apply {
         if (intentData != null) {
             data = Uri.parse(intentData)

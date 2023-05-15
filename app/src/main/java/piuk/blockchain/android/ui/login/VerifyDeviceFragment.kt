@@ -65,12 +65,17 @@ class VerifyDeviceFragment : Fragment(), Analytics by get(Analytics::class.java)
                 showCustomerSupportSheet()
             }
             customerSupport.visible()
-            verifyDeviceDescription.text = getString(R.string.verify_device_desc)
+            verifyDeviceDescription.text = getString(com.blockchain.stringResources.R.string.verify_device_desc)
             openEmailButton.setOnClickListener {
                 Intent(Intent.ACTION_MAIN).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     addCategory(Intent.CATEGORY_APP_EMAIL)
-                    startActivity(Intent.createChooser(this, getString(R.string.security_centre_email_check)))
+                    startActivity(
+                        Intent.createChooser(
+                            this,
+                            getString(com.blockchain.stringResources.R.string.security_centre_email_check)
+                        )
+                    )
                 }
             }
             resendEmailButton.setOnClickListener {
@@ -79,12 +84,14 @@ class VerifyDeviceFragment : Fragment(), Analytics by get(Analytics::class.java)
                     (requireActivity() as LoginIntentCoordinator)
                         .process(LoginIntents.SendEmail(email, captcha))
                     BlockchainSnackbar.make(
-                        root, getString(R.string.verify_device_email_resent),
+                        root,
+                        getString(com.blockchain.stringResources.R.string.verify_device_email_resent),
                         type = SnackbarType.Success
                     ).show()
                 } else {
                     BlockchainSnackbar.make(
-                        root, getString(R.string.verify_device_resend_blocked),
+                        root,
+                        getString(com.blockchain.stringResources.R.string.verify_device_resend_blocked),
                         type = SnackbarType.Error
                     ).show()
                 }

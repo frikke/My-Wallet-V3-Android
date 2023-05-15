@@ -75,7 +75,7 @@ class CryptoNetworkWallet(
         PublicKey(
             address = it,
             descriptor = config.descriptor,
-            style = config.style,
+            style = config.style
         )
     }
 }

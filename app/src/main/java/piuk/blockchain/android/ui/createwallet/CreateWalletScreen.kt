@@ -78,7 +78,7 @@ fun CreateWalletScreen(
     viewState: StateFlow<CreateWalletViewState>,
     onIntent: (CreateWalletIntent) -> Unit,
     showCountryBottomSheet: (CountryInputState.Loaded) -> Unit,
-    showStateBottomSheet: (StateInputState.Loaded) -> Unit,
+    showStateBottomSheet: (StateInputState.Loaded) -> Unit
 ) {
     val state by viewState.collectAsStateLifecycleAware()
 
@@ -96,7 +96,7 @@ fun CreateWalletScreen(
                         scaffoldState.snackbarHostState.showSnackbar(
                             message = error.errorMessage(context),
                             duration = SnackbarDuration.Long,
-                            actionLabel = context.getString(R.string.common_retry)
+                            actionLabel = context.getString(com.blockchain.stringResources.R.string.common_retry)
                         )
                         onIntent(CreateWalletIntent.ErrorHandled)
                     }
@@ -112,7 +112,7 @@ fun CreateWalletScreen(
         ) {
             NavigationBar(
                 title = "",
-                onBackButtonClick = { onIntent(CreateWalletIntent.BackClicked) },
+                onBackButtonClick = { onIntent(CreateWalletIntent.BackClicked) }
             )
 
             when (state.screen) {
@@ -120,7 +120,7 @@ fun CreateWalletScreen(
                     state,
                     onIntent,
                     showCountryBottomSheet,
-                    showStateBottomSheet,
+                    showStateBottomSheet
                 )
                 CreateWalletScreen.EMAIL_AND_PASSWORD -> EmailAndPasswordStep(state, onIntent)
                 CreateWalletScreen.CREATION_FAILED -> CreateWalletFailed(
@@ -140,13 +140,13 @@ private fun RegionAndReferralStep(
     state: CreateWalletViewState,
     onIntent: (CreateWalletIntent) -> Unit,
     showCountryBottomSheet: (CountryInputState.Loaded) -> Unit,
-    showStateBottomSheet: (StateInputState.Loaded) -> Unit,
+    showStateBottomSheet: (StateInputState.Loaded) -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = AppTheme.dimensions.smallSpacing),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
             modifier = Modifier.fillMaxWidth(),
@@ -154,12 +154,12 @@ private fun RegionAndReferralStep(
         ) {
             Image(
                 modifier = Modifier.padding(top = AppTheme.dimensions.hugeSpacing),
-                imageResource = ImageResource.Local(R.drawable.ic_world_blue),
+                imageResource = ImageResource.Local(R.drawable.ic_world_blue)
             )
         }
         SimpleText(
             modifier = Modifier.padding(top = AppTheme.dimensions.standardSpacing),
-            text = stringResource(R.string.create_wallet_step_1_header),
+            text = stringResource(com.blockchain.stringResources.R.string.create_wallet_step_1_header),
             style = ComposeTypographies.Title2,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Centre
@@ -169,7 +169,7 @@ private fun RegionAndReferralStep(
                 top = AppTheme.dimensions.tinySpacing,
                 bottom = AppTheme.dimensions.standardSpacing
             ),
-            text = stringResource(R.string.create_wallet_step_1_subheader),
+            text = stringResource(com.blockchain.stringResources.R.string.create_wallet_step_1_subheader),
             style = ComposeTypographies.Paragraph1,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Centre
@@ -177,8 +177,9 @@ private fun RegionAndReferralStep(
 
         val countryFocusRequester = remember { FocusRequester() }
         val countryInputIcon =
-            if (state.countryInputState is CountryInputState.Loading) ImageResource.None
-            else ImageResource.Local(R.drawable.ic_arrow_down)
+            if (state.countryInputState is CountryInputState.Loading) {
+                ImageResource.None
+            } else ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_arrow_down)
         Box {
             OutlinedTextInput(
                 modifier = Modifier
@@ -186,7 +187,7 @@ private fun RegionAndReferralStep(
                     .focusRequester(countryFocusRequester),
                 value = (state.countryInputState as? CountryInputState.Loaded)?.selected?.name.orEmpty(),
                 readOnly = true,
-                placeholder = stringResource(R.string.create_wallet_country),
+                placeholder = stringResource(com.blockchain.stringResources.R.string.create_wallet_country),
                 focusedTrailingIcon = countryInputIcon,
                 unfocusedTrailingIcon = countryInputIcon,
                 onValueChange = {
@@ -219,8 +220,9 @@ private fun RegionAndReferralStep(
         if (state.stateInputState !is StateInputState.Hidden) {
             val stateFocusRequester = remember { FocusRequester() }
             val stateInputIcon =
-                if (state.stateInputState is StateInputState.Loading) ImageResource.None
-                else ImageResource.Local(R.drawable.ic_arrow_down)
+                if (state.stateInputState is StateInputState.Loading) {
+                    ImageResource.None
+                } else ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_arrow_down)
             Box {
                 OutlinedTextInput(
                     modifier = Modifier
@@ -228,8 +230,8 @@ private fun RegionAndReferralStep(
                         .focusRequester(stateFocusRequester),
                     value = (state.stateInputState as? StateInputState.Loaded)?.selected?.name.orEmpty(),
                     readOnly = true,
-                    label = stringResource(R.string.create_wallet_state),
-                    placeholder = stringResource(R.string.state_not_selected),
+                    label = stringResource(com.blockchain.stringResources.R.string.create_wallet_state),
+                    placeholder = stringResource(com.blockchain.stringResources.R.string.state_not_selected),
                     focusedTrailingIcon = stateInputIcon,
                     unfocusedTrailingIcon = stateInputIcon,
                     onValueChange = {
@@ -261,20 +263,23 @@ private fun RegionAndReferralStep(
         }
 
         val referralInputState = if (state.isInvalidReferralErrorShowing) {
-            TextInputState.Error(stringResource(R.string.new_account_referral_code_invalid))
+            TextInputState.Error(
+                stringResource(com.blockchain.stringResources.R.string.new_account_referral_code_invalid)
+            )
         } else {
             TextInputState.Default(null)
         }
         val trailingIcon =
-            if (state.referralCodeInput.isNotEmpty()) ImageResource.Local(R.drawable.ic_close_circle)
-            else ImageResource.None
+            if (state.referralCodeInput.isNotEmpty()) {
+                ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_close_circle)
+            } else ImageResource.None
         OutlinedTextInput(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = AppTheme.dimensions.standardSpacing),
             value = state.referralCodeInput,
-            label = stringResource(R.string.new_account_referral_code_label),
-            placeholder = stringResource(R.string.new_account_referral_code),
+            label = stringResource(com.blockchain.stringResources.R.string.new_account_referral_code_label),
+            placeholder = stringResource(com.blockchain.stringResources.R.string.new_account_referral_code),
             focusedTrailingIcon = trailingIcon,
             unfocusedTrailingIcon = trailingIcon,
             singleLine = true,
@@ -294,13 +299,13 @@ private fun RegionAndReferralStep(
                 .fillMaxWidth()
                 .padding(
                     horizontal = AppTheme.dimensions.smallSpacing,
-                    vertical = AppTheme.dimensions.standardSpacing,
+                    vertical = AppTheme.dimensions.standardSpacing
                 ),
-            text = stringResource(R.string.common_next),
+            text = stringResource(com.blockchain.stringResources.R.string.common_next),
             state = state.nextButtonState,
             onClick = {
                 onIntent(CreateWalletIntent.RegionNextClicked)
-            },
+            }
         )
     }
 }
@@ -315,7 +320,7 @@ private fun EmailAndPasswordStep(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = AppTheme.dimensions.smallSpacing),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         val emailFocusRequester = FocusRequester()
         val passwordFocusRequester = FocusRequester()
@@ -329,32 +334,34 @@ private fun EmailAndPasswordStep(
 
         SimpleText(
             modifier = Modifier.padding(top = AppTheme.dimensions.standardSpacing),
-            text = stringResource(R.string.create_wallet_step_2_header),
+            text = stringResource(com.blockchain.stringResources.R.string.create_wallet_step_2_header),
             style = ComposeTypographies.Title2,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Centre
         )
         SimpleText(
             modifier = Modifier.padding(
-                top = AppTheme.dimensions.tinySpacing, bottom = AppTheme.dimensions.standardSpacing
+                top = AppTheme.dimensions.tinySpacing,
+                bottom = AppTheme.dimensions.standardSpacing
             ),
-            text = stringResource(R.string.create_wallet_step_2_subheader),
+            text = stringResource(com.blockchain.stringResources.R.string.create_wallet_step_2_subheader),
             style = ComposeTypographies.Paragraph1,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Centre
         )
 
         val emailTextState =
-            if (state.isShowingInvalidEmailError) TextInputState.Error(stringResource(R.string.invalid_email))
-            else TextInputState.Default(null)
+            if (state.isShowingInvalidEmailError) {
+                TextInputState.Error(stringResource(com.blockchain.stringResources.R.string.invalid_email))
+            } else TextInputState.Default(null)
         OutlinedTextInput(
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(emailFocusRequester),
             value = state.emailInput,
-            label = stringResource(R.string.sign_up_email),
+            label = stringResource(com.blockchain.stringResources.R.string.sign_up_email),
             state = emailTextState,
-            placeholder = stringResource(R.string.create_wallet_email_hint),
+            placeholder = stringResource(com.blockchain.stringResources.R.string.create_wallet_email_hint),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
             keyboardActions = KeyboardActions(onNext = { passwordFocusRequester.requestFocus() }),
@@ -368,11 +375,11 @@ private fun EmailAndPasswordStep(
         val keyboardController = LocalSoftwareKeyboardController.current
         val passwordTextState = when (state.passwordInputError) {
             CreateWalletPasswordError.InvalidPasswordTooLong ->
-                TextInputState.Error(stringResource(R.string.invalid_password))
+                TextInputState.Error(stringResource(com.blockchain.stringResources.R.string.invalid_password))
             CreateWalletPasswordError.InvalidPasswordTooShort ->
-                TextInputState.Error(stringResource(R.string.invalid_password_too_short))
+                TextInputState.Error(stringResource(com.blockchain.stringResources.R.string.invalid_password_too_short))
             CreateWalletPasswordError.InvalidPasswordTooWeak ->
-                TextInputState.Error(stringResource(R.string.weak_password))
+                TextInputState.Error(stringResource(com.blockchain.stringResources.R.string.weak_password))
             null -> TextInputState.Default(null)
         }
         OutlinedTextInput(
@@ -381,9 +388,9 @@ private fun EmailAndPasswordStep(
                 .padding(top = AppTheme.dimensions.standardSpacing)
                 .focusRequester(passwordFocusRequester),
             value = state.passwordInput,
-            label = stringResource(R.string.password),
+            label = stringResource(com.blockchain.stringResources.R.string.password),
             state = passwordTextState,
-            placeholder = stringResource(R.string.create_wallet_password_hint),
+            placeholder = stringResource(com.blockchain.stringResources.R.string.create_wallet_password_hint),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
             visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -409,7 +416,7 @@ private fun EmailAndPasswordStep(
                     .padding(
                         top = AppTheme.dimensions.smallestSpacing,
                         start = AppTheme.dimensions.tinySpacing,
-                        end = AppTheme.dimensions.tinySpacing,
+                        end = AppTheme.dimensions.tinySpacing
                     ),
                 factory = { context ->
                     PasswordStrengthView(context, null)
@@ -421,13 +428,14 @@ private fun EmailAndPasswordStep(
         }
 
         val checkboxTopPadding =
-            if (isPasswordStrengthVisible) AppTheme.dimensions.smallSpacing
-            else AppTheme.dimensions.standardSpacing
+            if (isPasswordStrengthVisible) {
+                AppTheme.dimensions.smallSpacing
+            } else AppTheme.dimensions.standardSpacing
         Row(
             Modifier
                 .fillMaxWidth()
                 .padding(top = checkboxTopPadding, bottom = AppTheme.dimensions.verySmallSpacing),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Checkbox(
                 state = if (state.areTermsOfServiceChecked) CheckboxState.Checked else CheckboxState.Unchecked,
@@ -444,7 +452,7 @@ private fun EmailAndPasswordStep(
             )
             val disclaimerText = AnnotatedStringUtils.getAnnotatedStringWithMappedAnnotations(
                 context,
-                R.string.password_disclaimer,
+                com.blockchain.stringResources.R.string.password_disclaimer,
                 linksMap
             )
             SimpleText(
@@ -470,13 +478,13 @@ private fun EmailAndPasswordStep(
                 .fillMaxWidth()
                 .padding(
                     horizontal = AppTheme.dimensions.smallSpacing,
-                    vertical = AppTheme.dimensions.standardSpacing,
+                    vertical = AppTheme.dimensions.standardSpacing
                 ),
-            text = stringResource(R.string.create_wallet_create_account),
+            text = stringResource(com.blockchain.stringResources.R.string.create_wallet_create_account),
             state = state.nextButtonState,
             onClick = {
                 onIntent(CreateWalletIntent.EmailPasswordNextClicked)
-            },
+            }
         )
     }
 }
@@ -489,7 +497,7 @@ private fun CreateWalletFailed(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = AppTheme.dimensions.smallSpacing),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Column(
             modifier = Modifier.weight(1F),
@@ -509,7 +517,7 @@ private fun CreateWalletFailed(
 
             Text(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(R.string.create_wallet_error_title),
+                text = stringResource(com.blockchain.stringResources.R.string.create_wallet_error_title),
                 style = AppTheme.typography.title3,
                 color = AppTheme.colors.title,
                 textAlign = TextAlign.Center
@@ -519,7 +527,7 @@ private fun CreateWalletFailed(
 
             Text(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(R.string.create_wallet_error_description),
+                text = stringResource(com.blockchain.stringResources.R.string.create_wallet_error_description),
                 style = AppTheme.typography.body1,
                 color = AppTheme.colors.body,
                 textAlign = TextAlign.Center
@@ -531,11 +539,11 @@ private fun CreateWalletFailed(
                 .fillMaxWidth()
                 .padding(
                     horizontal = AppTheme.dimensions.smallSpacing,
-                    vertical = AppTheme.dimensions.standardSpacing,
+                    vertical = AppTheme.dimensions.standardSpacing
                 ),
-            text = stringResource(R.string.common_go_back),
+            text = stringResource(com.blockchain.stringResources.R.string.common_go_back),
 
-            onClick = backOnClick,
+            onClick = backOnClick
         )
     }
 }
@@ -568,7 +576,7 @@ private fun Preview_RegionAndReferral() {
         viewState = MutableStateFlow(state),
         onIntent = {},
         showCountryBottomSheet = {},
-        showStateBottomSheet = {},
+        showStateBottomSheet = {}
     )
 }
 
@@ -594,20 +602,22 @@ private fun Preview_EmailAndPassword() {
         viewState = MutableStateFlow(state),
         onIntent = {},
         showCountryBottomSheet = {},
-        showStateBottomSheet = {},
+        showStateBottomSheet = {}
     )
 }
 
 private val states = listOf(
     Region.State("US", "Arkansas", true, "AK"),
-    Region.State("US", "New York", true, "NY"),
+    Region.State("US", "New York", true, "NY")
 )
 private val countries = listOf(
     Region.Country("PT", "Portugal", true, emptyList()),
-    Region.Country("US", "United States of America", true, states.map { it.stateCode }),
+    Region.Country("US", "United States of America", true, states.map { it.stateCode })
 )
 
 private fun CreateWalletError.errorMessage(context: Context): String = when (this) {
-    CreateWalletError.RecaptchaFailed -> context.getString(R.string.recaptcha_failed)
-    is CreateWalletError.Unknown -> this.message ?: context.getString(R.string.something_went_wrong_try_again)
+    CreateWalletError.RecaptchaFailed -> context.getString(com.blockchain.stringResources.R.string.recaptcha_failed)
+    is CreateWalletError.Unknown -> this.message ?: context.getString(
+        com.blockchain.stringResources.R.string.something_went_wrong_try_again
+    )
 }

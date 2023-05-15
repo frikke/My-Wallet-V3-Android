@@ -34,7 +34,8 @@ class PrivateKeyActivityViewModel(
     ActivityViewState,
     ActivityModelState<UnifiedActivityItem>,
     HomeNavEvent,
-    ModelConfigArgs.NoArgs>(ActivityModelState(walletMode = WalletMode.NON_CUSTODIAL)) {
+    ModelConfigArgs.NoArgs
+    >(ActivityModelState(walletMode = WalletMode.NON_CUSTODIAL)) {
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 

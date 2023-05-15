@@ -57,18 +57,19 @@ fun LabeledFiltersGroup(
 fun LabeledFilter(labelFilteredState: LabeledFilterState, selectedItem: MutableState<LabeledFilterState>) {
     if (labelFilteredState.text == selectedItem.value.text) {
         SelectedFilter(text = labelFilteredState.text)
-    } else
+    } else {
         UnSelectedFilter(
             item = labelFilteredState,
             selectedItem = selectedItem
         )
+    }
 }
 
 @Composable
 fun SelectedFilter(text: String) {
     Row(
         modifier = Modifier
-            .clip(RoundedCornerShape(size = dimensionResource(R.dimen.small_spacing)))
+            .clip(RoundedCornerShape(size = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
             .background(
                 AppTheme.colors.primary
             )
@@ -82,7 +83,9 @@ fun SelectedFilter(text: String) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(imageResource = ImageResource.Local(R.drawable.ic_check_light))
-        Spacer(modifier = Modifier.width(width = dimensionResource(R.dimen.minuscule_spacing)))
+        Spacer(
+            modifier = Modifier.width(width = dimensionResource(com.blockchain.componentlib.R.dimen.minuscule_spacing))
+        )
         Text(
             text = text,
             style = AppTheme.typography.body1,
@@ -95,7 +98,7 @@ fun SelectedFilter(text: String) {
 fun UnSelectedFilter(item: LabeledFilterState, selectedItem: MutableState<LabeledFilterState>) {
     Row(
         modifier = Modifier
-            .clip(RoundedCornerShape(size = dimensionResource(R.dimen.small_spacing)))
+            .clip(RoundedCornerShape(size = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
             .background(Color.White)
             .padding(
                 horizontal = AppTheme.dimensions.verySmallSpacing,
@@ -197,5 +200,5 @@ enum class FilterState {
 class LabeledFilterState(
     val text: String,
     val onSelected: (() -> Unit),
-    val state: FilterState,
+    val state: FilterState
 )

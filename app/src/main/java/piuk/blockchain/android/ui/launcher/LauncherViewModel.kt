@@ -56,14 +56,15 @@ class LauncherViewModel internal constructor(
     private val securityPrefs: SecurityPrefs,
     private val referralPrefs: ReferralPrefs,
     private val encryptedPrefs: EncryptedPrefs
-) : MviViewModel<LauncherIntent,
+) : MviViewModel<
+    LauncherIntent,
     LauncherState,
     LauncherState,
     LaunchNavigationEvent,
-    LauncherState>(LauncherState()) {
+    LauncherState
+    >(LauncherState()) {
 
     override fun viewCreated(args: LauncherState) {
-
         updateState { args }
 
         // check app maintenance status

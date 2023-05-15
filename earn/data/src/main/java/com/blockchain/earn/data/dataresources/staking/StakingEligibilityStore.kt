@@ -12,7 +12,7 @@ import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 
 class StakingEligibilityStore(
-    private val stakingApiService: StakingApiService,
+    private val stakingApiService: StakingApiService
 ) : Store<Map<String, EarnRewardsEligibilityDto>> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,

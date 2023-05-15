@@ -67,6 +67,6 @@ fun TextAnimatedBrush(
         text = text,
         style = style.copy(brush = brush),
         color = baseColor,
-        textAlign = textAlign,
+        textAlign = textAlign
     )
 }

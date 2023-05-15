@@ -29,7 +29,7 @@ class SuccessSwitchView @JvmOverloads constructor(
             AppSurface {
                 SuccessSwitch(
                     modifier = Modifier
-                        .padding(dimensionResource(R.dimen.very_small_spacing)),
+                        .padding(dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)),
                     isChecked = isChecked,
                     onCheckChanged = {
                         isChecked = it

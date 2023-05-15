@@ -159,8 +159,10 @@ class PricesRepository(
                             fetchAssetPrice(asset).map { asset to it }
                         }
                     ).toMap(
-                        /* keySelector = */ { (asset, _) -> asset },
-                        /* valueSelector = */ { (_, price) -> price }
+                        /* keySelector = */
+                        { (asset, _) -> asset },
+                        /* valueSelector = */
+                        { (_, price) -> price }
                     )
                 }
                 .map {

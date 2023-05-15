@@ -16,5 +16,5 @@ data class SecureChannelLoginData(
     val message: SecureChannelBrowserMessage,
     val originIp: String,
     val originLocation: String,
-    val originBrowser: String,
+    val originBrowser: String
 )

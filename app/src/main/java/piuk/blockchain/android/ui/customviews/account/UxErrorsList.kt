@@ -64,7 +64,7 @@ private class UxErrorsAdapter : ListAdapter<ServerSideUxErrorInfo, ExErrorViewHo
 }
 
 private class ExErrorViewHolder(
-    private val composeView: ComposeView,
+    private val composeView: ComposeView
 ) : RecyclerView.ViewHolder(composeView) {
     fun bind(error: ServerSideUxErrorInfo) {
         composeView.setContent {
@@ -76,7 +76,7 @@ private class ExErrorViewHolder(
                     subtitle = error.description,
                     alertType = AlertType.Warning,
                     isBordered = true,
-                    isDismissable = false,
+                    isDismissable = false
                 )
             }
         }

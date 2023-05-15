@@ -115,7 +115,7 @@ fun PricesScreen(
     listState: LazyListState,
     onSearchTermEntered: (String) -> Unit,
     onFilterSelected: (PricesFilter) -> Unit,
-    onAssetClick: (AssetInfo) -> Unit,
+    onAssetClick: (AssetInfo) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -165,7 +165,7 @@ fun ColumnScope.PricesScreenData(
     ) {
         CancelableOutlinedSearch(
             onValueChange = onSearchTermEntered,
-            placeholder = stringResource(R.string.search)
+            placeholder = stringResource(com.blockchain.stringResources.R.string.search)
         )
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
@@ -200,7 +200,7 @@ fun ColumnScope.PricesScreenData(
                 paddingValues = PaddingValues(horizontal = 16.dp)
             ) {
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
-                TableRowHeader(title = stringResource(R.string.prices_top_movers))
+                TableRowHeader(title = stringResource(com.blockchain.stringResources.R.string.prices_top_movers))
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
             }
 

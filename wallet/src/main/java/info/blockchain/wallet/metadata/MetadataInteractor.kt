@@ -32,8 +32,9 @@ class MetadataInteractor(
         }
 
     fun putMetadata(payloadJson: String, metadata: Metadata): Completable {
-        if (!FormatsUtil.isValidJson(payloadJson))
+        if (!FormatsUtil.isValidJson(payloadJson)) {
             return Completable.error(JSONException("Payload is not a valid json object."))
+        }
 
         val encryptedPayloadBytes: ByteArray =
             Base64.decode(AESUtil.encryptWithKey(metadata.encryptionKey, payloadJson))
@@ -82,8 +83,9 @@ class MetadataInteractor(
     private fun decryptMetadata(metadata: Metadata, payload: String): String =
         try {
             AESUtil.decryptWithKey(metadata.encryptionKey, payload).apply {
-                if (!FormatsUtil.isValidJson(this))
+                if (!FormatsUtil.isValidJson(this)) {
                     throw CryptoException("Malformed plaintext")
+                }
             }
         } catch (e: CryptoException) {
             metadata.unpaddedEncryptionKey?.let {

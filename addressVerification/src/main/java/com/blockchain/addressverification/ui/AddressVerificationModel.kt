@@ -41,11 +41,11 @@ data class Args(
     val countryIso: CountryIso,
     val stateIso: StateIso?,
     val prefilledAddress: AddressDetails?,
-    val allowManualOverride: Boolean,
+    val allowManualOverride: Boolean
 ) : ModelConfigArgs.ParcelableArgs
 
 class AddressVerificationModel(
-    private val addressVerificationService: AddressVerificationService,
+    private val addressVerificationService: AddressVerificationService
 ) : MviViewModel<
     AddressVerificationIntent,
     AddressVerificationState,
@@ -79,7 +79,7 @@ class AddressVerificationModel(
                     mainLineInput = prefilledAddress.firstLine,
                     secondLineInput = prefilledAddress.secondLine.orEmpty(),
                     cityInput = prefilledAddress.city,
-                    postCodeInput = prefilledAddress.postCode,
+                    postCodeInput = prefilledAddress.postCode
                 )
             }
         } else {
@@ -87,7 +87,7 @@ class AddressVerificationModel(
                 it.copy(
                     isShowingStateInput = countryIso == "US",
                     countryInput = Locale("", countryIso).displayCountry,
-                    stateInput = state?.displayName.orEmpty(),
+                    stateInput = state?.displayName.orEmpty()
                 )
             }
         }
@@ -225,7 +225,7 @@ class AddressVerificationModel(
                     city = modelState.cityInput,
                     postCode = modelState.postCodeInput,
                     countryIso = countryIso,
-                    stateIso = state?.iSOAbbreviation,
+                    stateIso = state?.iSOAbbreviation
                 )
                 navigate(Navigation.FinishSuccessfully(addressDetails))
             }
@@ -244,7 +244,7 @@ class AddressVerificationModel(
     private fun fetchAddressDetails(autocompleteAddress: AutocompleteAddress) {
         updateState {
             it.copy(
-                loadingAddressDetails = autocompleteAddress,
+                loadingAddressDetails = autocompleteAddress
             )
         }
         fetchAddressDetailsJob = viewModelScope.launch {
@@ -255,7 +255,7 @@ class AddressVerificationModel(
                         result.line2,
                         result.line3,
                         result.line4,
-                        result.line5,
+                        result.line5
                     ).filterNot { it.isNullOrEmpty() }
                         .joinToString(", ")
 
@@ -269,7 +269,7 @@ class AddressVerificationModel(
                         updateState {
                             it.copy(
                                 loadingAddressDetails = null,
-                                showInvalidStateErrorDialog = true,
+                                showInvalidStateErrorDialog = true
                             )
                         }
                         return@doOnSuccess
@@ -282,7 +282,7 @@ class AddressVerificationModel(
                             mainLineInput = mainLine.ifEmpty { autocompleteAddress.title },
                             cityInput = result.city.orEmpty(),
                             postCodeInput = result.postalCode.orEmpty(),
-                            showPostcodeError = false,
+                            showPostcodeError = false
                         )
                     }
                 }
@@ -313,7 +313,7 @@ class AddressVerificationModel(
                             isSearchLoading = false,
                             results = results,
                             areResultsHidden = false,
-                            showManualOverride = true,
+                            showManualOverride = true
                         )
                     }
                 }

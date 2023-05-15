@@ -28,7 +28,6 @@ class PairingBottomSheet : MviBottomSheet<PairingModel, PairingIntents, PairingS
     private lateinit var currentState: PairingState
 
     override fun render(newState: PairingState) {
-
         currentState = newState
 
         with(binding) {
@@ -42,7 +41,7 @@ class PairingBottomSheet : MviBottomSheet<PairingModel, PairingIntents, PairingS
                     progressBar.gone()
                     BlockchainSnackbar.make(
                         binding.root,
-                        getString(R.string.unexpected_error),
+                        getString(com.blockchain.stringResources.R.string.unexpected_error),
                         type = SnackbarType.Error
                     ).show()
                 }
@@ -61,8 +60,9 @@ class PairingBottomSheet : MviBottomSheet<PairingModel, PairingIntents, PairingS
 
     override fun initControls(binding: PairingSheetBinding) {
         with(binding) {
-
-            pairingWalletHeaderLabel.text = prepareHighlightedText(R.string.pairing_wallet_description)
+            pairingWalletHeaderLabel.text = prepareHighlightedText(
+                com.blockchain.stringResources.R.string.pairing_wallet_description
+            )
 
             showQrButton.setOnClickListener {
                 model.process(
@@ -73,7 +73,7 @@ class PairingBottomSheet : MviBottomSheet<PairingModel, PairingIntents, PairingS
                     }
                 )
             }
-            stepOne.text = prepareHighlightedText(R.string.pairing_wallet_instruction_1)
+            stepOne.text = prepareHighlightedText(com.blockchain.stringResources.R.string.pairing_wallet_instruction_1)
             blockchainIcon.setImageResource(R.drawable.ic_blockchain_round_white_bg)
         }
     }
@@ -83,7 +83,7 @@ class PairingBottomSheet : MviBottomSheet<PairingModel, PairingIntents, PairingS
             val span = indexOf(WEB_WALLET_LOGIN_URI)
             setSpan(
                 ForegroundColorSpan(
-                    getColor(requireContext(), R.color.blue_600)
+                    getColor(requireContext(), com.blockchain.componentlib.R.color.blue_600)
                 ),
                 span,
                 span + WEB_WALLET_LOGIN_URI.length,
@@ -105,9 +105,9 @@ class PairingBottomSheet : MviBottomSheet<PairingModel, PairingIntents, PairingS
         stepTwo.visibleIf { !newState.showQrCode }
         stepThree.visibleIf { !newState.showQrCode }
         showQrButton.text = if (newState.showQrCode) {
-            resources.getString(R.string.pairing_wallet_hide_qr)
+            resources.getString(com.blockchain.stringResources.R.string.pairing_wallet_hide_qr)
         } else {
-            resources.getString(R.string.pairing_wallet_show_qr)
+            resources.getString(com.blockchain.stringResources.R.string.pairing_wallet_show_qr)
         }
         progressBar.visibleIf { newState.imageStatus == QrCodeImageStatus.Loading }
         qrCode.visibleIf { newState.showQrCode }

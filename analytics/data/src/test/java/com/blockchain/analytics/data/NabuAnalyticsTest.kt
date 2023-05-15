@@ -26,12 +26,19 @@ import org.junit.Ignore
 import org.junit.Test
 import org.mockito.Mockito
 
-@OptIn(ExperimentalCoroutinesApi::class) class NabuAnalyticsTest {
+@OptIn(ExperimentalCoroutinesApi::class)
+class NabuAnalyticsTest {
     private val localAnalyticsPersistence = mock<AnalyticsLocalPersistence>()
 
     private val token: Optional<NabuSessionTokenResponse> = Optional.Some(
         NabuSessionTokenResponse(
-            "", "", "", true, "", "", ""
+            "",
+            "",
+            "",
+            true,
+            "",
+            "",
+            ""
         )
     )
 
@@ -56,8 +63,11 @@ import org.mockito.Mockito
     }
 
     private val subject = NabuAnalytics(
-        localAnalyticsPersistence = localAnalyticsPersistence, prefs = prefs,
-        remoteLogger = mock(), analyticsService = analyticsService, tokenStore = tokenStore,
+        localAnalyticsPersistence = localAnalyticsPersistence,
+        prefs = prefs,
+        remoteLogger = mock(),
+        analyticsService = analyticsService,
+        tokenStore = tokenStore,
         analyticsContextProvider = analyticsContextProvider,
         lifecycleObservable = lifecycleObservable
     )

@@ -91,8 +91,8 @@ fun RecurringBuyDashboardScreen(
             .background(AppTheme.colors.backgroundMuted)
     ) {
         NavigationBar(
-            title = stringResource(R.string.recurring_buy_toolbar),
-            onBackButtonClick = onBackPressed,
+            title = stringResource(com.blockchain.stringResources.R.string.recurring_buy_toolbar),
+            onBackButtonClick = onBackPressed
         )
 
         when (recurringBuys) {
@@ -120,7 +120,7 @@ fun RecurringBuyDashboardData(
     analytics: Analytics = get(),
     recurringBuys: ImmutableList<RecurringBuyViewState>,
     openRecurringBuyDetail: (id: String) -> Unit,
-    addOnClick: () -> Unit,
+    addOnClick: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.weight(1F)) {
@@ -153,7 +153,7 @@ fun RecurringBuyDashboardData(
             modifier = Modifier
                 .padding(AppTheme.dimensions.standardSpacing)
                 .fillMaxWidth(),
-            text = stringResource(R.string.recurring_buy_add),
+            text = stringResource(com.blockchain.stringResources.R.string.recurring_buy_add),
             onClick = {
                 addOnClick()
                 analytics.logEvent(RecurringBuysAnalyticsEvents.DashboardAddClicked)
@@ -188,21 +188,21 @@ fun PreviewRecurringBuyDashboardData() {
                 assetTicker = "",
                 iconUrl = "",
                 description = TextValue.StringValue("20 every Tuesday"),
-                status = TextValue.StringValue("Next buy on Tue, March 18"),
+                status = TextValue.StringValue("Next buy on Tue, March 18")
             ),
             RecurringBuyViewState(
                 id = "2",
                 assetTicker = "",
                 iconUrl = "",
                 description = TextValue.StringValue("20 every Tuesday"),
-                status = TextValue.StringValue("Next buy on Tue, March 18"),
+                status = TextValue.StringValue("Next buy on Tue, March 18")
             ),
             RecurringBuyViewState(
                 id = "3",
                 assetTicker = "",
                 iconUrl = "",
                 description = TextValue.StringValue("20 every Tuesday"),
-                status = TextValue.StringValue("Next buy on Tue, March 18"),
+                status = TextValue.StringValue("Next buy on Tue, March 18")
             )
         ),
         openRecurringBuyDetail = {},

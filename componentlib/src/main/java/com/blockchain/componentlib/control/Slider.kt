@@ -22,20 +22,20 @@ fun Slider(
     onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
     value: Float = 0f,
-    enabled: Boolean = true,
+    enabled: Boolean = true
 ) {
     androidx.compose.material.Slider(
         value = value,
         onValueChange = onValueChange,
         modifier = modifier
-            .padding(horizontal = dimensionResource(R.dimen.medium_spacing)),
+            .padding(horizontal = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)),
         enabled = enabled,
         steps = 0,
         colors = SliderDefaults.colors(
             thumbColor = AppTheme.colors.primary,
             disabledThumbColor = AppTheme.colors.primary.copy(alpha = ContentAlpha.disabled),
             activeTrackColor = AppTheme.colors.primary,
-            disabledActiveTrackColor = AppTheme.colors.primary.copy(alpha = SliderDefaults.DisabledActiveTrackAlpha),
+            disabledActiveTrackColor = AppTheme.colors.primary.copy(alpha = SliderDefaults.DisabledActiveTrackAlpha)
         )
     )
 }
@@ -50,7 +50,7 @@ private fun SliderPreview() {
                 value = value,
                 onValueChange = { value = it },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = true,
+                enabled = true
             )
         }
     }
@@ -66,7 +66,7 @@ private fun SliderPreviewDark() {
                 value = value,
                 onValueChange = { value = it },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = true,
+                enabled = true
             )
         }
     }
@@ -82,7 +82,7 @@ private fun SliderPreviewDisabled() {
                 value = value,
                 onValueChange = { value = it },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = false,
+                enabled = false
             )
         }
     }

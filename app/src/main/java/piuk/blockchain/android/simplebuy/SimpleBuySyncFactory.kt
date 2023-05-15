@@ -143,7 +143,11 @@ class SimpleBuySyncFactory(
                 Maybe.just(
                     toSimpleBuyState().copy(
                         selectedPaymentMethod = SelectedPaymentMethod(
-                            it.id, null, it.accountName, PaymentMethodType.BANK_TRANSFER, true
+                            it.id,
+                            null,
+                            it.accountName,
+                            PaymentMethodType.BANK_TRANSFER,
+                            true
                         )
                     )
                 )

@@ -54,13 +54,13 @@ class ConfirmationViewModel(
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val custodialWalletManager: CustodialWalletManager,
     private val swapTransactionsStore: SwapTransactionsStore,
-    private val tradingStore: TradingStore,
+    private val tradingStore: TradingStore
 ) : MviViewModel<
     ConfirmationIntent,
     ConfirmationViewState,
     ConfirmationModelState,
     ConfirmationNavigation,
-    ModelConfigArgs.NoArgs,
+    ModelConfigArgs.NoArgs
     >(
     ConfirmationModelState()
 ) {
@@ -112,9 +112,9 @@ class ConfirmationViewModel(
                             sourceAccount = sourceAccount,
                             txTarget = makeExternalAssetAddress(
                                 asset = sourceAccount.currency,
-                                address = sampleDepositAddress,
+                                address = sampleDepositAddress
                             ),
-                            exchangeRates = exchangeRatesDataManager,
+                            exchangeRates = exchangeRatesDataManager
                         )
                         depositTxEngine.doInitialiseTx().awaitOutcome()
                     }.flatMap { pendingTx ->
@@ -125,7 +125,7 @@ class ConfirmationViewModel(
                             val sourceFee = pendingTx.feeAmount as? CryptoValue
                             it.copy(
                                 isStartingDepositOnChainTxEngine = false,
-                                sourceNetworkFeeCryptoAmount = sourceFee,
+                                sourceNetworkFeeCryptoAmount = sourceFee
                             )
                         }
                     }.doOnFailure { error ->
@@ -170,9 +170,9 @@ class ConfirmationViewModel(
                                     sourceToTargetExchangeRate = ExchangeRate(
                                         rate = quote.rawPrice.toBigDecimal(),
                                         from = sourceAccount.currency,
-                                        to = targetAccount.currency,
+                                        to = targetAccount.currency
                                     ),
-                                    targetNetworkFeeCryptoAmount = quote.networkFee as CryptoValue?,
+                                    targetNetworkFeeCryptoAmount = quote.networkFee as CryptoValue?
                                 )
                             }
                         }
@@ -205,7 +205,7 @@ class ConfirmationViewModel(
         targetNetworkFeeFiatAmount = state.targetNetworkFeeCryptoAmount?.toUserFiat(),
         quoteRefreshRemainingPercentage = safeLet(
             state.quoteRefreshRemainingSeconds,
-            state.quoteRefreshTotalSeconds,
+            state.quoteRefreshTotalSeconds
         ) { remaining, total ->
             remaining.toFloat() / total.toFloat()
         },
@@ -214,7 +214,7 @@ class ConfirmationViewModel(
             state.isFetchQuoteLoading || state.isStartingDepositOnChainTxEngine -> ButtonState.Disabled
             state.isSubmittingOrderLoading -> ButtonState.Loading
             else -> ButtonState.Enabled
-        },
+        }
     )
 
     override suspend fun handleIntent(modelState: ConfirmationModelState, intent: ConfirmationIntent) {
@@ -236,18 +236,19 @@ class ConfirmationViewModel(
 
                 zipOutcomes(
                     sourceAccount.receiveAddress::awaitOutcome,
-                    targetAccount.receiveAddress::awaitOutcome,
+                    targetAccount.receiveAddress::awaitOutcome
                 ).flatMap { (sourceAddress, targetAddress) ->
                     custodialWalletManager.createCustodialOrder(
                         direction = transferDirection,
                         quoteId = quoteId,
                         volume = sourceCryptoAmount,
                         destinationAddress = if (requiresDestinationAddress) targetAddress.address else null,
-                        refundAddress = if (requireRefundAddress) sourceAddress.address else null,
+                        refundAddress = if (requireRefundAddress) sourceAddress.address else null
                     ).awaitOutcome()
                 }.flatMap { order ->
-                    if (sourceAccount is NonCustodialAccount) submitDepositTx(order)
-                    else Outcome.Success(order)
+                    if (sourceAccount is NonCustodialAccount) {
+                        submitDepositTx(order)
+                    } else Outcome.Success(order)
                 }.doOnSuccess { order ->
                     quoteRefreshingJob?.cancel()
                     swapTransactionsStore.invalidate()
@@ -280,9 +281,9 @@ class ConfirmationViewModel(
             txTarget = makeExternalAssetAddress(
                 asset = sourceAccount.currency,
                 address = depositAddress,
-                postTransactions = { Completable.complete() },
+                postTransactions = { Completable.complete() }
             ),
-            pendingTx = depositPendingTx,
+            pendingTx = depositPendingTx
         ).awaitOutcome()
             .flatMap { pendingTx ->
                 val depositTxResult = depositTxEngine.doExecute(pendingTx, secondPassword.orEmpty()).awaitOutcome()

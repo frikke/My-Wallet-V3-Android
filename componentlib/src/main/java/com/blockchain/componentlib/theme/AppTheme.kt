@@ -24,7 +24,6 @@ import coil.compose.LocalImageLoader
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.decode.SvgDecoder
-import com.blockchain.componentlib.BuildConfig
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -118,7 +117,7 @@ fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     themeProvider: AppThemeProvider = defValue(),
     setSystemColors: Boolean = false,
-    content: @Composable () -> Unit,
+    content: @Composable () -> Unit
 ) {
     val imageLoader = runCatching {
         ImageLoader.Builder(LocalContext.current)
@@ -137,9 +136,9 @@ fun AppTheme(
          * Note the only reason we have this getOrElse block is for previews. For some reason, SvgDecoder fails to
          * be found/initialized when we are looking at jetpack compose previews in split view in Android Studio.
          * Inorder to allow for previews to work we have this try catch block. This is why we are throwing this error */
-        if (BuildConfig.DEBUG.not()) {
+     /*   if (BuildConfig.DEBUG.not()) {
             throw IllegalStateException("SVG Decoder failed, this should not happen in release", throwable)
-        }
+        }*/
         /**
          * because if this code breaks in release we need to know about it, instead of silently failing as we are doing
          * here.
@@ -162,9 +161,9 @@ fun AppTheme(
         Color.White
     }
 
-    val colorsLocalProvider = if (darkTheme)
+    val colorsLocalProvider = if (darkTheme) {
         LocalDarkColors provides mTheme.colors.copy().apply { updateColorsFrom(mTheme.colors) }
-    else
+    } else
         LocalLightColors provides mTheme.colors.copy().apply { updateColorsFrom(mTheme.colors) }
 
     if (setSystemColors) {

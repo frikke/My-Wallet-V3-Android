@@ -21,5 +21,6 @@ task ktlintFormat(type: JavaExec, group: "formatting") {
     classpath = configurations.ktlint
     main = "com.pinterest.ktlint.Main"
     args "--android", "-F", "src/**/*.kt"
-    jvmArgs "--add-opens=java.base/java.lang=ALL-UNNAMED"
+    mainClass.set("com.pinterest.ktlint.Main")
+    jvmArgs("--add-opens", "java.base/java.lang=ALL-UNNAMED")
 }

@@ -27,7 +27,7 @@ val receiveCryptoModule = module {
                 environmentConfig = get(),
                 remoteLogger = get(),
                 walletModeService = get(),
-                coincore = get(),
+                coincore = get()
             )
         }
     }

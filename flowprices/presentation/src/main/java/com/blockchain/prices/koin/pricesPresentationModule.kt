@@ -12,7 +12,7 @@ val pricesPresentationModule = module {
                 walletModeService = get(),
                 currencyPrefs = get(),
                 userFeaturePermissionService = get(),
-                pricesService = get(),
+                pricesService = get()
             )
         }
     }

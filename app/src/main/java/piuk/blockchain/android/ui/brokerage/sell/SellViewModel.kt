@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 
 class SellViewModel(
     private val sellRepository: SellRepository,
-    private val walletModeService: WalletModeService,
+    private val walletModeService: WalletModeService
 ) : MviViewModel<
     SellIntent,
     SellViewState,
@@ -50,7 +50,7 @@ class SellViewModel(
                     if (data is DataResource.Data || modelState.sellEligibility !is DataResource.Data) {
                         updateState {
                             it.copy(
-                                sellEligibility = data,
+                                sellEligibility = data
                             )
                         }
                     }
@@ -101,8 +101,9 @@ class SellViewModel(
             return true
         }
         newList.forEach {
-            if (it !in currentList)
+            if (it !in currentList) {
                 return true
+            }
         }
         return newList.any { it !in currentList }
     }

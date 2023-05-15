@@ -1222,7 +1222,7 @@ private fun HorizonProxy.verifyJustTheOneDryRunNoSendsAndUpdate() {
     verifyNoMoreInteractions(this)
 }
 
-private fun <T> Single<T>.testSingle() = test().values().single()
+private fun <T : Any> Single<T>.testSingle() = test().values().single()
 
 private fun <T> Maybe<T>.testSingle() = test().values().single()
 
@@ -1315,7 +1315,6 @@ private fun givenXlmDataManager(
     lastTxUpdater: LastTxUpdater = givenLastTxUpdater(),
     eventLogger: EventLogger = mock()
 ): XlmDataManager {
-
     return XlmDataManager(
         horizonProxy,
         metaDataInitializer,

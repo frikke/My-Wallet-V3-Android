@@ -50,7 +50,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?,
+        savedInstanceState: Bundle?
     ): View {
         _binding = FragmentTransferAccountSelectorBinding.inflate(inflater, container, false)
 
@@ -71,7 +71,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
     fun initialiseAccountSelectorWithHeader(
         statusDecorator: StatusDecorator,
         onAccountSelected: (BlockchainAccount) -> Unit,
-        onExtraAccountInfoClicked: (AccountLocks) -> Unit = {},
+        onExtraAccountInfoClicked: (AccountLocks) -> Unit = {}
     ) {
         with(binding.accountSelectorAccountList) {
             this.onAccountSelected = onAccountSelected
@@ -80,7 +80,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
             initialise(
                 source = accounts(),
                 status = statusDecorator,
-                accountsLocks = showWithdrawalLocks(),
+                accountsLocks = showWithdrawalLocks()
             )
         }
     }
@@ -145,7 +145,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
         @StringRes title: Int,
         @StringRes label: Int,
         @StringRes ctaText: Int,
-        action: () -> Unit,
+        action: () -> Unit
     ) {
         binding.accountSelectorEmptyView.setDetails(
             title = title,
@@ -175,7 +175,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
     private fun doOnLoadError(t: Throwable) {
         BlockchainSnackbar.make(
             binding.root,
-            getString(R.string.transfer_wallets_load_error),
+            getString(com.blockchain.stringResources.R.string.transfer_wallets_load_error),
             duration = Snackbar.LENGTH_SHORT,
             type = SnackbarType.Error
         ).show()

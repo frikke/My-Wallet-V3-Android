@@ -22,14 +22,17 @@ class DexAllowanceStorage(
             apiService.allowance(
                 address = key.address,
                 currencyContract = key.currencyContract,
-                networkSymbol = key.networkSymbol,
+                networkSymbol = key.networkSymbol
             )
         }
     ),
     keySerializer = AllowanceKey.serializer(),
     dataSerializer = TokenAllowanceResponse.serializer(),
-    mediator = if (environmentConfig.isRunningInDebugMode()) FreshnessMediator(Freshness.ofSeconds(5)) else
+    mediator = if (environmentConfig.isRunningInDebugMode()) {
+        FreshnessMediator(Freshness.ofSeconds(5))
+    } else {
         productionMediator
+    }
 )
 
 private val productionMediator = object : Mediator<AllowanceKey, TokenAllowanceResponse> {
@@ -43,5 +46,5 @@ private val productionMediator = object : Mediator<AllowanceKey, TokenAllowanceR
 data class AllowanceKey(
     val address: String,
     val currencyContract: String,
-    val networkSymbol: String,
+    val networkSymbol: String
 )

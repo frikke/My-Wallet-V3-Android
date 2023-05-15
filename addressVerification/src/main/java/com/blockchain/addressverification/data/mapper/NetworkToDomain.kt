@@ -49,7 +49,7 @@ fun CompleteAddressDto.toDomain(): CompleteAddress = CompleteAddress(
     poBoxNumber = poBoxNumber,
     label = label,
     type = type,
-    dataLevel = dataLevel,
+    dataLevel = dataLevel
 )
 
 fun AutocompleteAddressDto.toDomain(): AutocompleteAddress {

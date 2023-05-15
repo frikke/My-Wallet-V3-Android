@@ -13,7 +13,7 @@ data class QuoteResponse(
     // it will only refer to the NC ETH networkFee, we'll still have to calculate the NC BTC networkFee ourselves
     val networkFee: String?, // destination curr
     val paymentMethod: String,
-    val orderProfileName: String,
+    val orderProfileName: String
 ) {
     companion object {
         const val FUNDS = "FUNDS" // default

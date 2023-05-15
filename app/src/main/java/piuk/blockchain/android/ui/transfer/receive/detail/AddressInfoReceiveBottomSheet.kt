@@ -24,17 +24,22 @@ class AddressInfoReceiveBottomSheet : ComposeModalBottomDialog() {
     override fun Sheet() {
         BottomSheetOneButton(
             onCloseClick = { dismiss() },
-            title = getString(R.string.common_did_you_know),
+            title = getString(com.blockchain.stringResources.R.string.common_did_you_know),
             headerImageResource = null,
             shouldShowHeaderDivider = false,
             subtitleAlign = TextAlign.Left,
             showTitleInHeader = true,
-            subtitle = getString(R.string.receive_rotating_address_desc, displayTicker, label),
+            subtitle = getString(
+                com.blockchain.stringResources.R.string.receive_rotating_address_desc,
+                displayTicker,
+                label
+            ),
             button = BottomSheetButton(
                 type = ButtonType.PRIMARY,
                 onClick = {
                     dismiss()
-                }, text = getString(R.string.common_ok)
+                },
+                text = getString(com.blockchain.stringResources.R.string.common_ok)
             )
         )
     }

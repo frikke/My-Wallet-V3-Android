@@ -29,7 +29,7 @@ import com.blockchain.kycproviders.prove.presentation.defaultViewState
 @Composable
 internal fun Intro(
     state: ProvePrefillViewState,
-    onIntent: (ProvePrefillIntent) -> Unit,
+    onIntent: (ProvePrefillIntent) -> Unit
 ) {
     Column(
         Modifier.background(White)
@@ -39,9 +39,9 @@ internal fun Intro(
                 .fillMaxWidth()
                 .weight(1f),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(ImageResource.Local(R.drawable.ic_blockchain, size = 88.dp))
+            Image(ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_blockchain, size = 88.dp))
 
             SimpleText(
                 modifier = Modifier
@@ -49,12 +49,12 @@ internal fun Intro(
                     .padding(
                         top = AppTheme.dimensions.standardSpacing,
                         start = AppTheme.dimensions.standardSpacing,
-                        end = AppTheme.dimensions.standardSpacing,
+                        end = AppTheme.dimensions.standardSpacing
                     ),
-                text = stringResource(R.string.prove_intro_title),
+                text = stringResource(com.blockchain.stringResources.R.string.prove_intro_title),
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
-                gravity = ComposeGravities.Centre,
+                gravity = ComposeGravities.Centre
             )
 
             SimpleText(
@@ -63,12 +63,12 @@ internal fun Intro(
                     .padding(
                         top = AppTheme.dimensions.tinySpacing,
                         start = AppTheme.dimensions.standardSpacing,
-                        end = AppTheme.dimensions.standardSpacing,
+                        end = AppTheme.dimensions.standardSpacing
                     ),
-                text = stringResource(R.string.prove_intro_subtitle),
+                text = stringResource(com.blockchain.stringResources.R.string.prove_intro_subtitle),
                 style = ComposeTypographies.Body1,
                 color = ComposeColors.Body,
-                gravity = ComposeGravities.Centre,
+                gravity = ComposeGravities.Centre
             )
         }
 
@@ -79,10 +79,10 @@ internal fun Intro(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(AppTheme.dimensions.smallSpacing),
-                text = stringResource(R.string.prove_intro_cta_info),
+                text = stringResource(com.blockchain.stringResources.R.string.prove_intro_cta_info),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Body,
-                gravity = ComposeGravities.Centre,
+                gravity = ComposeGravities.Centre
             )
 
             PrimaryButton(
@@ -93,7 +93,7 @@ internal fun Intro(
                         end = AppTheme.dimensions.smallSpacing,
                         bottom = AppTheme.dimensions.smallSpacing
                     ),
-                text = stringResource(R.string.common_continue),
+                text = stringResource(com.blockchain.stringResources.R.string.common_continue),
                 onClick = { onIntent(ProvePrefillIntent.IntroContinueClicked) }
             )
         }
@@ -105,6 +105,6 @@ internal fun Intro(
 private fun Preview() {
     Intro(
         state = defaultViewState,
-        onIntent = {},
+        onIntent = {}
     )
 }

@@ -16,7 +16,9 @@ class QrCodeDataServiceTest {
         mainTrampoline()
     }
 
-    @Test @Throws(Exception::class) fun generatePairingCode() {
+    @Test
+    @Throws(Exception::class)
+    fun generatePairingCode() {
         // Act
         val observer = subject.generatePairingCode(
             guid = GUID,
