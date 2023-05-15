@@ -6,8 +6,8 @@ import com.dex.domain.models.DexChain
 import kotlinx.coroutines.flow.Flow
 
 interface DexAccountsService {
-    fun sourceAccounts(chainId: Int): Flow<List<DexAccount>>
-    fun destinationAccounts(chainId: Int): Flow<List<DexAccount>>
+    fun sourceAccounts(): Flow<List<DexAccount>>
+    fun destinationAccounts(): Flow<List<DexAccount>>
     suspend fun defSourceAccount(chainId: Int): DexAccount?
     suspend fun defDestinationAccount(chainId: Int, sourceTicker: String): DexAccount?
     fun updatePersistedDestinationAccount(dexAccount: DexAccount)

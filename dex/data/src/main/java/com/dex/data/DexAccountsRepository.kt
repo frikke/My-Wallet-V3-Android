@@ -43,10 +43,13 @@ class DexAccountsRepository(
     private val assetCatalogue: AssetCatalogue,
     private val dexTokensDataStorage: DexTokensDataStorage,
 ) : DexAccountsService {
-    override fun sourceAccounts(
-        chainId: Int
-    ): Flow<List<DexAccount>> =
-        dexSourceAccounts(chainId = chainId).catch {
+    override fun sourceAccounts(): Flow<List<DexAccount>> =
+        dexSourceAccounts(chainId = dexPrefs.selectedChainId).catch {
+            emit(emptyList())
+        }
+
+    override fun destinationAccounts(): Flow<List<DexAccount>> =
+        dexDestinationAccounts(chainId = dexPrefs.selectedChainId).catch {
             emit(emptyList())
         }
 
@@ -66,7 +69,7 @@ class DexAccountsRepository(
             dexPrefs.selectedDestinationCurrencyTicker.takeIf { it.isNotEmpty() && it != sourceTicker }
                 ?: return null
         val currency = assetCatalogue.fromNetworkTicker(persistedCurrency) ?: return null
-        return destinationAccounts(chainId).firstOrNull()
+        return dexDestinationAccounts(chainId).firstOrNull()
             ?.firstOrNull { it.currency.networkTicker == currency.networkTicker }
     }
 
@@ -133,10 +136,10 @@ class DexAccountsRepository(
     private val allAccounts: Flow<SingleAccountList>
         get() = coincore.allWalletsInMode(WalletMode.NON_CUSTODIAL).map { it.accounts }.asFlow()
 
-    override fun destinationAccounts(
+    private fun dexDestinationAccounts(
         chainId: Int
-    ): Flow<List<DexAccount>> =
-        dexAvailableTokens(chainId = chainId).flatMapLatest { tokens ->
+    ): Flow<List<DexAccount>> {
+        return dexAvailableTokens(chainId = chainId).flatMapLatest { tokens ->
             val active = activeAccounts().map {
                 it.filterKeys { account ->
                     account.currency.coinNetwork?.chainId == chainId
@@ -196,6 +199,7 @@ class DexAccountsRepository(
             if (destinationAccountsCache.isNotEmpty())
                 emit(destinationAccountsCache)
         }
+    }
 
     private fun activeAccounts() =
         coincore.activeWalletsInMode(
