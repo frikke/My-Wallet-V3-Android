@@ -213,7 +213,7 @@ fun DexEnterAmountScreen(
             .fillMaxWidth()
             .clip(RoundedCornerShape(AppTheme.dimensions.mediumSpacing))
     ) {
-        (viewState as? InputAmountViewState.TransactionInputState)?.let {
+        (viewState as? InputAmountViewState.TransactionInputState)?.let { viewState ->
             item {
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
             }
