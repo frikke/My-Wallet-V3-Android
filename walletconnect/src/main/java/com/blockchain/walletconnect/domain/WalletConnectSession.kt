@@ -4,7 +4,12 @@ import com.trustwallet.walletconnect.models.WCPeerMeta
 import com.trustwallet.walletconnect.models.session.WCSession
 import java.io.Serializable
 
-class WalletConnectSession(val url: String, val dAppInfo: DAppInfo, val walletInfo: WalletInfo) : Serializable {
+class WalletConnectSession(
+    val url: String,
+    val dAppInfo: DAppInfo,
+    val walletInfo: WalletInfo,
+    val isV2: Boolean = false
+) : Serializable {
     companion object {
         fun fromWCSession(
             wcSession: WCSession,
@@ -50,3 +55,9 @@ data class ClientMeta(val description: String, val url: String, val icons: List<
     fun uiIcon(): String =
         icons.takeIf { it.isNotEmpty() }?.let { it[0] } ?: "https://www.blockchain.com/static/apple-touch-icon.png"
 }
+
+data class WalletConnectV2SessionProposal(
+    val dappName: String,
+    val dappDescription: String,
+    val dappLogoUrl: String
+) : Serializable

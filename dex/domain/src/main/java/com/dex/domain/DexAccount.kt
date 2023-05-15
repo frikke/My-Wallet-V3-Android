@@ -32,7 +32,8 @@ data class DexQuoteParams(
     val sourceAccount: DexAccount,
     val destinationAccount: DexAccount,
     val amount: Money,
-    val slippage: Double
+    val slippage: Double,
+    val sourceHasBeenAllowed: Boolean
 )
 
 data class DexCurrency(

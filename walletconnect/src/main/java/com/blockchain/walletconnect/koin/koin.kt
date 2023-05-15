@@ -1,10 +1,12 @@
 package com.blockchain.walletconnect.koin
 
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.walletConnectV2FeatureFlag
 import com.blockchain.walletconnect.data.EthWalletAddressProvider
 import com.blockchain.walletconnect.data.SignRequestHandler
 import com.blockchain.walletconnect.data.WalletConnectMetadataRepository
 import com.blockchain.walletconnect.data.WalletConnectService
+import com.blockchain.walletconnect.data.WalletConnectV2ServiceImpl
 import com.blockchain.walletconnect.domain.EthRequestSign
 import com.blockchain.walletconnect.domain.EthSendTransactionRequest
 import com.blockchain.walletconnect.domain.SessionRepository
@@ -12,6 +14,8 @@ import com.blockchain.walletconnect.domain.WalletConnectAddressProvider
 import com.blockchain.walletconnect.domain.WalletConnectEthAccountProvider
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectUrlValidator
+import com.blockchain.walletconnect.domain.WalletConnectV2Service
+import com.blockchain.walletconnect.domain.WalletConnectV2UrlValidator
 import com.blockchain.walletconnect.ui.dapps.DappsListModel
 import com.blockchain.walletconnect.ui.networks.SelectNetworkViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -37,9 +41,22 @@ val walletConnectModule = module {
             bind(WalletConnectUrlValidator::class)
         }
 
+        scoped {
+            WalletConnectV2ServiceImpl(
+                get(),
+                get(),
+                get(),
+                get(),
+                get(),
+            )
+        }.apply {
+            bind(WalletConnectV2Service::class)
+            bind(WalletConnectV2UrlValidator::class)
+        }
+
         factory {
             SignRequestHandler(
-                accountProvider = get()
+                accountProvider = get(),
             )
         }.apply {
             bind(EthRequestSign::class)
@@ -48,7 +65,8 @@ val walletConnectModule = module {
 
         factory {
             EthWalletAddressProvider(
-                coincore = get()
+                coincore = get(),
+                ethDataManager = get()
             )
         }.apply {
             bind(WalletConnectAddressProvider::class)
@@ -67,7 +85,9 @@ val walletConnectModule = module {
                 environmentConfig = get(),
                 remoteLogger = get(),
                 sessionsRepository = get(),
-                walletConnectServiceAPI = get()
+                walletConnectServiceAPI = get(),
+                walletConnectV2Service = get(),
+                walletConnectV2FeatureFlag = get(walletConnectV2FeatureFlag)
             )
         }
 

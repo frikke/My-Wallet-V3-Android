@@ -30,7 +30,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.analytics.Analytics
-import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -83,7 +82,6 @@ fun ConfirmationScreen(
     backClicked: () -> Unit,
 ) {
     LaunchedEffect(Unit) {
-        viewModel.viewCreated(ModelConfigArgs.NoArgs)
         analytics.logEvent(SwapAnalyticsEvents.ConfirmationViewed)
     }
 

@@ -55,6 +55,7 @@ import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.sellOrder
 import com.blockchain.koin.vgsFeatureFlag
+import com.blockchain.koin.walletConnectV2FeatureFlag
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.logging.DigitalTrust
@@ -73,6 +74,7 @@ import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.BackupWallet
 import com.blockchain.wallet.DefaultLabels
+import com.blockchain.walletconnect.ui.navigation.WalletConnectV2Navigation
 import exchange.ExchangeLinking
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -156,6 +158,7 @@ import piuk.blockchain.android.ui.home.RecurringBuyNavigationImpl
 import piuk.blockchain.android.ui.home.SettingsNavigationImpl
 import piuk.blockchain.android.ui.home.SupportNavigationImpl
 import piuk.blockchain.android.ui.home.TransactionFlowNavigationImpl
+import piuk.blockchain.android.ui.home.WalletConnectV2NavigationImpl
 import piuk.blockchain.android.ui.home.WalletLinkAndOpenBankingNavImpl
 import piuk.blockchain.android.ui.interest.EarnNavigationImpl
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
@@ -299,7 +302,8 @@ val applicationModule = module {
                 walletConnectServiceAPI = get(),
                 secureChannelService = get(),
                 assetService = get(),
-                assetCatalogue = get()
+                assetCatalogue = get(),
+                walletConnectV2Service = get(),
             )
         }.apply {
             bind(QrScanNavigation::class)
@@ -320,6 +324,16 @@ val applicationModule = module {
             )
         }.apply {
             bind(EarnNavigation::class)
+        }
+
+        factory { (activity: BlockchainActivity) ->
+            WalletConnectV2NavigationImpl(
+                activity = activity,
+                walletConnectV2Service = get(),
+                walletConnectV2FeatureFlag = get(walletConnectV2FeatureFlag),
+            )
+        }.apply {
+            bind(WalletConnectV2Navigation::class)
         }
 
         scoped {
@@ -471,7 +485,8 @@ val applicationModule = module {
             QrScanResultProcessor(
                 bitPayDataManager = get(),
                 walletConnectUrlValidator = get(),
-                analytics = get()
+                walletConnectV2UrlValidator = get(),
+                analytics = get(),
             )
         }
 
@@ -747,7 +762,8 @@ val applicationModule = module {
                 destinationArgs = get(),
                 notificationManager = get(),
                 analytics = get(),
-                homeActivityLauncher = get()
+                homeActivityLauncher = get(),
+                walletConnectV2Service = get(),
             )
         }
 

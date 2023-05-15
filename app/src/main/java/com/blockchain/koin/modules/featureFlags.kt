@@ -24,6 +24,7 @@ import com.blockchain.koin.googleWalletFeatureFlag
 import com.blockchain.koin.improvedPaymentUxFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.iterableAnnouncementsFeatureFlag
+import com.blockchain.koin.newSwapFlowFeatureFlag
 import com.blockchain.koin.paymentUxAssetDisplayBalanceFeatureFlag
 import com.blockchain.koin.paymentUxTotalDisplayBalanceFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
@@ -34,6 +35,7 @@ import com.blockchain.koin.stakingWithdrawalsFeatureFlag
 import com.blockchain.koin.topMoversInBuy
 import com.blockchain.koin.upsellAnotherAssetFeatureFlag
 import com.blockchain.koin.vgsFeatureFlag
+import com.blockchain.koin.walletConnectV2FeatureFlag
 import com.blockchain.remoteconfig.featureFlag
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -91,6 +93,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_dex",
                 "Dex"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(newSwapFlowFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_new_swap_flow",
+                "New Swap Flow"
             )
         )
     }.bind(FeatureFlag::class)
@@ -311,6 +322,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "blockchain_app_configuration_buy_intercom_bot",
                 "intercom bot in buy flow"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(walletConnectV2FeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_walletconnect_v2",
+                "Enable WalletConnect V2"
             )
         )
     }.bind(FeatureFlag::class)

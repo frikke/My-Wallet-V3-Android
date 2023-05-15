@@ -59,6 +59,7 @@ import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectSession
+import com.blockchain.walletconnect.domain.WalletConnectV2Service
 import com.blockchain.walletconnect.ui.networks.NetworkInfo
 import com.blockchain.walletconnect.ui.networks.SelectNetworkBottomSheet
 import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet
@@ -149,6 +150,8 @@ class MainActivity :
     private val simpleBuySyncFactory: SimpleBuySyncFactory by scopedInject()
 
     private val fraudService: FraudService by inject()
+
+    private val walletConnectV2Service: WalletConnectV2Service by inject()
 
     private val settingsResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
@@ -871,6 +874,14 @@ class MainActivity :
         analytics.logEvent(
             WalletConnectAnalytics.DappConnectionRejected
         )
+    }
+
+    override fun onApproveV2Session() {
+        walletConnectV2Service.approveLastSession()
+    }
+
+    override fun onRejectV2Session() {
+        walletConnectV2Service.clearSessionProposals()
     }
 
     override fun onCameraAccessAllowed() {

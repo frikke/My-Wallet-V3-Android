@@ -2824,6 +2824,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="dapp_is_now_rejected">%1s Connection was Rejected</string>
     <string name="go_back_to_your_browser">Go back to your browser and try again.</string>
     <string name="dapp_confirmation_warning">This dapp is requesting an action, which could take money from your wallet. Make sure you trust this site.</string>
+    <string name="dapp_network_not_supported">The dApp requested to use an unsupported network</string>
     <string name="common_chain">Chain</string>
     <string name="common_network">Network</string>
     <string name="message_from_dapp">Message from %1s</string>

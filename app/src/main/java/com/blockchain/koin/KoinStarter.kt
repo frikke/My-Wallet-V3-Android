@@ -193,7 +193,7 @@ object KoinStarter {
 }
 
 private class TimberLogger : Logger() {
-    override fun log(level: Level, msg: MESSAGE) {
+    override fun display(level: Level, msg: MESSAGE) {
         when (level) {
             Level.DEBUG -> Timber.d(msg)
             Level.INFO -> Timber.i(msg)
@@ -205,5 +205,5 @@ private class TimberLogger : Logger() {
 }
 
 private class NullLogger : Logger() {
-    override fun log(level: Level, msg: MESSAGE) {}
+    override fun display(level: Level, msg: MESSAGE) {}
 }

@@ -1629,7 +1629,7 @@ fun Money.toEnteredCurrency(
         input == CurrencyType.FIAT && this is CryptoValue -> {
             Money.fromMajor(
                 exchangeRate.to,
-                exchangeRate.convert(this, round = false).toBigDecimal().setScale(
+                exchangeRate.convert(this).toBigDecimal().setScale(
                     exchangeRate.to.precisionDp, roundingMode
                 )
             ).toStringWithSymbol()

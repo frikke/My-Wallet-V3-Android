@@ -7,6 +7,7 @@ import com.blockchain.home.presentation.activity.list.custodial.CustodialActivit
 import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActivityViewModel
 import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.allassets.EmptyScreenViewModel
+import com.blockchain.home.presentation.dapps.HomeDappsViewModel
 import com.blockchain.home.presentation.dashboard.CustodialEmptyCardViewModel
 import com.blockchain.home.presentation.earn.EarnViewModel
 import com.blockchain.home.presentation.fiat.actions.FiatActionsNavigator
@@ -21,6 +22,7 @@ import com.blockchain.koin.activeRewardsAccountFeatureFlag
 import com.blockchain.koin.dexFeatureFlag
 import com.blockchain.koin.iterableAnnouncementsFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.walletConnectV2FeatureFlag
 import kotlinx.coroutines.CoroutineScope
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -168,6 +170,15 @@ val homePresentationModule = module {
         viewModel {
             ReferralViewModel(
                 referralService = get()
+            )
+        }
+
+        viewModel {
+            HomeDappsViewModel(
+                sessionsRepository = get(),
+                walletConnectService = get(),
+                walletConnectV2Service = get(),
+                walletConnectV2FeatureFlag = get(walletConnectV2FeatureFlag),
             )
         }
     }

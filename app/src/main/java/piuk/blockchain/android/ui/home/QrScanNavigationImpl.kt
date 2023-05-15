@@ -20,6 +20,7 @@ import com.blockchain.utils.awaitOutcome
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.domain.WalletConnectSessionEvent
+import com.blockchain.walletconnect.domain.WalletConnectV2Service
 import com.blockchain.walletconnect.ui.networks.NetworkInfo
 import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet
 import com.blockchain.walletconnect.ui.sessionapproval.WCSessionUpdatedBottomSheet
@@ -40,7 +41,8 @@ class QrScanNavigationImpl(
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
     private val secureChannelService: SecureChannelService,
     private val assetService: DynamicAssetsService,
-    private val assetCatalogue: AssetCatalogue
+    private val assetCatalogue: AssetCatalogue,
+    private val walletConnectV2Service: WalletConnectV2Service
 ) : QrScanNavigation {
 
     private var resultLauncher: ActivityResultLauncher<Set<QrExpected>>?
@@ -163,6 +165,8 @@ class QrScanNavigationImpl(
                     .awaitOutcome()
                     .doOnFailure { Timber.e(it) }
             }
+            is ScanResult.WalletConnectV2Request ->
+                walletConnectV2Service.pair(scanResult.data)
         }
     }
 

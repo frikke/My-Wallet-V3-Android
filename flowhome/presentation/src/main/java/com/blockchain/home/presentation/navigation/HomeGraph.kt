@@ -26,6 +26,7 @@ import com.google.accompanist.navigation.material.ExperimentalMaterialNavigation
 fun NavGraphBuilder.homeGraph(
     launchApp: () -> Unit,
     openRecurringBuyDetail: (id: String) -> Unit,
+    openSwap: () -> Unit,
     openDex: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
     onBackPressed: () -> Unit,
@@ -121,7 +122,10 @@ fun NavGraphBuilder.homeGraph(
             SwapDexOptionScreen(
                 onBackPressed = onBackPressed,
                 openDex = openDex,
-                openSwap = { assetActionsNavigation.navigate(AssetAction.Swap) }
+                openSwap = { newFlow ->
+                    if (newFlow) openSwap()
+                    else assetActionsNavigation.navigate(AssetAction.Swap)
+                }
             )
         }
     }

@@ -18,6 +18,7 @@ import com.blockchain.coincore.TransferError
 import com.blockchain.coincore.eth.EthOnChainTxEngine
 import com.blockchain.coincore.eth.EthereumSendTransactionTarget
 import com.blockchain.coincore.eth.EthereumSignMessageTarget
+import com.blockchain.coincore.eth.WalletConnectV2SignMessageTarget
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.TradingToOnChainTxEngine
@@ -260,6 +261,7 @@ class TxProcessorFactory(
                     )
                 )
             )
+            is WalletConnectV2SignMessageTarget,
             is EthereumSignMessageTarget -> Single.just(
                 TransactionProcessor(
                     exchangeRates = exchangeRates,

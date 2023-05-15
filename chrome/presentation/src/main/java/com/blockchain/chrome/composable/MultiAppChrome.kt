@@ -82,6 +82,7 @@ import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.prices.navigation.PricesNavigation
+import com.blockchain.walletconnect.ui.navigation.WalletConnectV2Navigation
 import com.blockchain.walletmode.WalletMode
 import kotlin.math.min
 import kotlinx.collections.immutable.ImmutableList
@@ -127,6 +128,7 @@ fun MultiAppChrome(
     pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
     supportNavigation: SupportNavigation,
+    walletConnectV2Navigation: WalletConnectV2Navigation,
     openActivity: () -> Unit,
     openActivityDetail: (String, WalletMode) -> Unit,
     openReferral: () -> Unit,
@@ -205,6 +207,7 @@ fun MultiAppChrome(
             pricesNavigation = pricesNavigation,
             qrScanNavigation = qrScanNavigation,
             supportNavigation = supportNavigation,
+            walletConnectV2Navigation = walletConnectV2Navigation,
             onBalanceRevealed = {
                 viewModel.onIntent(MultiAppIntents.BalanceRevealed)
             },
@@ -246,6 +249,7 @@ fun MultiAppChromeScreen(
     pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
     supportNavigation: SupportNavigation,
+    walletConnectV2Navigation: WalletConnectV2Navigation,
     openActivity: () -> Unit,
     openActivityDetail: (String, WalletMode) -> Unit,
     openReferral: () -> Unit,
@@ -793,6 +797,7 @@ fun MultiAppChromeScreen(
                     navController = graphNavController,
                     qrScanNavigation = qrScanNavigation,
                     supportNavigation = supportNavigation,
+                    walletConnectV2Navigation = walletConnectV2Navigation,
                     startPhraseRecovery = startPhraseRecovery,
                     openExternalUrl = openExternalUrl,
                     openNftHelp = openNftHelp,

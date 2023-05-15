@@ -27,4 +27,8 @@ sealed class ScanResult(
     class WalletConnectRequest(
         val data: String
     ) : ScanResult(false)
+
+    class WalletConnectV2Request(
+        val data: String
+    ) : ScanResult(false)
 }

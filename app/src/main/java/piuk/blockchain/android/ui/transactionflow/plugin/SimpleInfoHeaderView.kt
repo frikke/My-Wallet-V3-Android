@@ -53,7 +53,7 @@ class SimpleInfoHeaderView @JvmOverloads constructor(
                 var newFiatAmount = ""
                 if (shouldShowExchange) {
                     state.confirmationRate?.let {
-                        newFiatAmount = it.convert(amount, false).toStringWithSymbol()
+                        newFiatAmount = it.convert(amount).toStringWithSymbol()
                         headerSubtitle.text = newFiatAmount
                     }
                 } else {
