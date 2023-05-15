@@ -118,15 +118,17 @@ class DexAccountsRepository(
                 }
             }
         }.onEach {
-            sourceAccountsCache = it
+            sourceAccountsCache[chainId] = it
         }.onStart {
-            if (sourceAccountsCache.isNotEmpty())
-                emit(sourceAccountsCache)
+            sourceAccountsCache[chainId]
+                .takeIf { !it.isNullOrEmpty() }
+                ?.let { emit(it) }
+
         }
     }
 
     private var destinationAccountsCache: List<DexAccount> = emptyList()
-    private var sourceAccountsCache: List<DexAccount> = emptyList()
+    private var sourceAccountsCache: MutableMap<Int, List<DexAccount>> = mutableMapOf()
 
     private val allAccounts: Flow<SingleAccountList>
         get() = coincore.allWalletsInMode(WalletMode.NON_CUSTODIAL).map { it.accounts }.asFlow()
