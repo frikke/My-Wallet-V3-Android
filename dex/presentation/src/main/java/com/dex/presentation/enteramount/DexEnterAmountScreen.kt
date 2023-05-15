@@ -691,7 +691,7 @@ private fun NetworkSelection(
 
                 Text(
                     modifier = Modifier.weight(1F),
-                    text = stringResource(R.string.common_network),
+                    text = stringResource(com.blockchain.stringResources.R.string.common_network),
                     style = AppTheme.typography.paragraph2,
                     color = AppTheme.colors.title
                 )

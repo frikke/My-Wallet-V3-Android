@@ -126,7 +126,6 @@ class DexAccountsRepository(
             sourceAccountsCache[chainId]
                 .takeIf { !it.isNullOrEmpty() }
                 ?.let { emit(it) }
-
         }
     }
 
