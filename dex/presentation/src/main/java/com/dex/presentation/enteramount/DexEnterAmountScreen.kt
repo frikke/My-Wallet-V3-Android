@@ -6,11 +6,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -275,6 +278,10 @@ fun DexEnterAmountScreen(
                         navController.navigate(DexDestination.SelectNetwork.route)
                         keyboardController?.hide()
                     },
+                    settingsOnClick = {
+                        navController.navigate(DexDestination.Settings.route)
+                        keyboardController?.hide()
+                    },
                     receive = startReceiving
                 )
             }
@@ -286,6 +293,7 @@ fun DexEnterAmountScreen(
 private fun NoInputScreen(
     networkSelection: DataResource<NetworkSelection>,
     selectNetworkOnClick: () -> Unit,
+    settingsOnClick: () -> Unit,
     receive: () -> Unit
 ) {
     Column(
@@ -293,7 +301,12 @@ private fun NoInputScreen(
             .fillMaxWidth()
     ) {
         ((networkSelection as? DataResource.Data)?.data as? NetworkSelection.Available)?.let {
-            NetworkSelection(logo = it.logo, name = it.name, onClick = selectNetworkOnClick)
+            NetworkSelection(
+                logo = it.logo,
+                name = it.name,
+                networkOnClick = selectNetworkOnClick,
+                settingsOnClick = settingsOnClick
+            )
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
         }
 
@@ -366,12 +379,17 @@ fun InputScreen(
 ) {
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         ((viewState.networkSelection as? DataResource.Data)?.data as? NetworkSelection.Available)?.let {
-            NetworkSelection(logo = it.logo, name = it.name, onClick = selectNetworkOnClick)
+            NetworkSelection(
+                logo = it.logo,
+                name = it.name,
+                networkOnClick = selectNetworkOnClick,
+                settingsOnClick = settingsOnClick
+            )
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
         }
 
@@ -630,48 +648,71 @@ private fun Settings(onClick: () -> Unit) {
 private fun NetworkSelection(
     logo: String,
     name: String,
-    onClick: () -> Unit
+    networkOnClick: () -> Unit,
+    settingsOnClick: () -> Unit
 ) {
-    Surface(
-        color = AppTheme.colors.background,
-        shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Max)
     ) {
-        Row(
-            Modifier
-                .clickable(onClick = onClick)
-                .padding(AppTheme.dimensions.tinySpacing)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+        Surface(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1F),
+            color = AppTheme.colors.background,
+            shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
         ) {
-            SmallTagIcon(
-                icon = StackedIcon.SmallTag(
-                    main = Icons.Filled.Network.withSize(16.dp),
-                    tag = ImageResource.Remote(logo)
-                ),
-                iconBackground = Grey000,
-                tagIconSize = 12.dp
+            Row(
+                Modifier
+                    .clickable(onClick = networkOnClick)
+                    .padding(AppTheme.dimensions.tinySpacing)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                SmallTagIcon(
+                    icon = StackedIcon.SmallTag(
+                        main = Icons.Filled.Network.withSize(16.dp),
+                        tag = ImageResource.Remote(logo)
+                    ),
+                    iconBackground = Grey000,
+                    tagIconSize = 12.dp
+                )
+
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+                Text(
+                    modifier = Modifier.weight(1F),
+                    text = stringResource(R.string.common_network),
+                    style = AppTheme.typography.paragraph2,
+                    color = AppTheme.colors.title
+                )
+
+                Text(
+                    text = name,
+                    style = AppTheme.typography.paragraph2,
+                    color = AppTheme.colors.title
+                )
+
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+                Image(Icons.ChevronRight)
+            }
+        }
+
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+
+        Surface(
+            modifier = Modifier.fillMaxHeight(),
+            color = AppTheme.colors.background,
+            shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
+        ) {
+            Image(
+                modifier = Modifier
+                    .padding(horizontal = AppTheme.dimensions.smallSpacing)
+                    .clickable(onClick = settingsOnClick),
+                imageResource = Icons.Settings.withSize(AppTheme.dimensions.standardSpacing)
             )
-
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-
-            Text(
-                modifier = Modifier.weight(1F),
-                text = stringResource(R.string.common_network),
-                style = AppTheme.typography.paragraph2,
-                color = AppTheme.colors.title
-            )
-
-            Spacer(modifier = Modifier.weight(1F))
-
-            Text(
-                text = name,
-                style = AppTheme.typography.paragraph2,
-                color = AppTheme.colors.title
-            )
-
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-
-            Image(Icons.ChevronRight)
         }
     }
 }
@@ -681,7 +722,7 @@ private fun NetworkSelection(
 private fun PreviewNetworkSelection() {
     NetworkSelection(
         logo = "", name = "ETH",
-        onClick = {}
+        networkOnClick = {}, settingsOnClick = {}
     )
 }
 
