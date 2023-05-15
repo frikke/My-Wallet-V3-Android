@@ -316,10 +316,10 @@ fun DexConfirmationScreen(
                                     networkFeeTicker = networkFee?.value?.currency?.networkTicker.orEmpty(),
                                     blockchainFee = blockchainFee?.value?.toStringWithoutSymbol().orEmpty(),
                                     blockchainFeeTicker = blockchainFee?.value?.currency?.networkTicker.orEmpty(),
-                                    inputNetwork = inputCurrency?.takeIf { it.isLayer2Token }?.coinNetwork?.networkTicker
-                                        ?: inputCurrency?.networkTicker.orEmpty(),
-                                    outputNetwork = outputCurrency?.takeIf { it.isLayer2Token }?.coinNetwork?.networkTicker
-                                        ?: dataState.inputCurrency?.networkTicker.orEmpty()
+                                    inputNetwork = inputCurrency?.takeIf { it.isLayer2Token }
+                                        ?.coinNetwork?.networkTicker ?: inputCurrency?.networkTicker.orEmpty(),
+                                    outputNetwork = outputCurrency?.takeIf { it.isLayer2Token }
+                                        ?.coinNetwork?.networkTicker ?: dataState.inputCurrency?.networkTicker.orEmpty()
                                 )
                             )
                         }
