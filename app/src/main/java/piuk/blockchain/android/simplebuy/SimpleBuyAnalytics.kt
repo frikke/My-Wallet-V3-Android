@@ -64,7 +64,7 @@ enum class SimpleBuyAnalytics(override val event: String, override val params: M
     WIRE_TRANSFER_LOADING_ERROR("sb_link_bank_loading_error"),
     WIRE_TRANSFER_SCREEN_SHOWN("sb_link_bank_screen_shown"),
 
-    ACH_SUCCESS("sb_ach_success");
+    ACH_SUCCESS("sb_ach_success")
 }
 
 fun PaymentMethod.toAnalyticsString(): String =
@@ -228,11 +228,11 @@ object BuyAssetScreenViewedEvent : AnalyticsEvent {
 }
 
 class BuyAssetSelectedEvent(
-    type: String,
+    type: String
 ) : AnalyticsEvent {
     override val event: String = AnalyticsNames.BUY_ASSET_SELECTED.eventName
     override val params: Map<String, String> = mapOf(
-        "type" to type,
+        "type" to type
     )
 }
 

@@ -41,7 +41,7 @@ fun ReferralComponent(
                 onClick = openReferral
             )
         } ?: CustomBackgroundCard(
-            title = stringResource(id = R.string.referral_program),
+            title = stringResource(id = com.blockchain.stringResources.R.string.referral_program),
             subtitle = referralData.rewardSubtitle,
             backgroundResource = ImageResource.Local(R.drawable.bkgd_button_blue),
             onClick = openReferral

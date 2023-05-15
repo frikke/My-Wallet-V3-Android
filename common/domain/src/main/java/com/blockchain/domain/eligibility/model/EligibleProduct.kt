@@ -11,5 +11,5 @@ enum class EligibleProduct {
     WITHDRAW_FIAT,
     DEPOSIT_STAKING,
     DEPOSIT_EARN_CC1W,
-    KYC,
+    KYC
 }

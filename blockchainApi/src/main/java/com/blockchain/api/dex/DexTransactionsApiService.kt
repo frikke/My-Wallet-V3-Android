@@ -7,7 +7,7 @@ class DexTransactionsApiService(private val api: DexTxApi) {
     suspend fun allowance(
         address: String,
         currencyContract: String,
-        networkSymbol: String,
+        networkSymbol: String
     ) = api.allowance(
         AllowanceBodyRequest(
             addressOwner = address,
@@ -21,7 +21,7 @@ class DexTransactionsApiService(private val api: DexTxApi) {
         destination: String,
         sources: List<PubKeySource>,
         network: String,
-        amount: String,
+        amount: String
     ) = api.buildTx(
         BuildDexTxBodyRequest(
             network = network,
@@ -108,14 +108,14 @@ data class BuildDexTransactionIntent(
     val maxVerificationVersion: Int,
     val spender: String,
     val amount: String?,
-    val swapTx: SwapTx?,
+    val swapTx: SwapTx?
 )
 
 @kotlinx.serialization.Serializable
 data class SwapTx(
     val data: String,
     val value: String,
-    val gasLimit: String,
+    val gasLimit: String
 )
 
 @kotlinx.serialization.Serializable

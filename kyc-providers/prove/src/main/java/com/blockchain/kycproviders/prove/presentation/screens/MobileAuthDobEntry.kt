@@ -36,7 +36,7 @@ import java.util.Locale
 internal fun MobileAuthDobEntry(
     state: ProvePrefillViewState,
     onIntent: (ProvePrefillIntent) -> Unit,
-    showDatePicker: () -> Unit,
+    showDatePicker: () -> Unit
 ) {
     Column(
         Modifier.background(White)
@@ -46,7 +46,7 @@ internal fun MobileAuthDobEntry(
                 .fillMaxWidth()
                 .weight(1f),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
                 Icons.User
@@ -60,12 +60,12 @@ internal fun MobileAuthDobEntry(
                     .padding(
                         top = AppTheme.dimensions.standardSpacing,
                         start = AppTheme.dimensions.smallSpacing,
-                        end = AppTheme.dimensions.smallSpacing,
+                        end = AppTheme.dimensions.smallSpacing
                     ),
-                text = stringResource(R.string.prove_mobile_auth_dob_entry_title),
+                text = stringResource(com.blockchain.stringResources.R.string.prove_mobile_auth_dob_entry_title),
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
-                gravity = ComposeGravities.Centre,
+                gravity = ComposeGravities.Centre
             )
 
             SimpleText(
@@ -74,12 +74,12 @@ internal fun MobileAuthDobEntry(
                     .padding(
                         top = AppTheme.dimensions.tinySpacing,
                         start = AppTheme.dimensions.smallSpacing,
-                        end = AppTheme.dimensions.smallSpacing,
+                        end = AppTheme.dimensions.smallSpacing
                     ),
-                text = stringResource(R.string.prove_mobile_auth_dob_entry_subtitle),
+                text = stringResource(com.blockchain.stringResources.R.string.prove_mobile_auth_dob_entry_subtitle),
                 style = ComposeTypographies.Body1,
                 color = ComposeColors.Body,
-                gravity = ComposeGravities.Centre,
+                gravity = ComposeGravities.Centre
             )
 
             Box(
@@ -88,7 +88,7 @@ internal fun MobileAuthDobEntry(
                     .padding(
                         top = AppTheme.dimensions.standardSpacing,
                         start = AppTheme.dimensions.smallSpacing,
-                        end = AppTheme.dimensions.smallSpacing,
+                        end = AppTheme.dimensions.smallSpacing
                     )
             ) {
                 val dobDisplayFormat = remember { SimpleDateFormat("MMMM dd, yyyy", Locale.US) }
@@ -97,8 +97,10 @@ internal fun MobileAuthDobEntry(
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     value = dob,
-                    label = stringResource(R.string.kyc_profile_dob_hint),
-                    placeholder = stringResource(R.string.prove_mobile_auth_dob_entry_placeholder),
+                    label = stringResource(com.blockchain.stringResources.R.string.kyc_profile_dob_hint),
+                    placeholder = stringResource(
+                        com.blockchain.stringResources.R.string.prove_mobile_auth_dob_entry_placeholder
+                    ),
                     readOnly = true,
                     onValueChange = {
                         // no op readonly
@@ -118,12 +120,12 @@ internal fun MobileAuthDobEntry(
                     .padding(
                         top = AppTheme.dimensions.smallestSpacing,
                         start = AppTheme.dimensions.smallSpacing,
-                        end = AppTheme.dimensions.smallSpacing,
+                        end = AppTheme.dimensions.smallSpacing
                     ),
-                text = stringResource(R.string.prove_mobile_auth_dob_entry_min_age),
+                text = stringResource(com.blockchain.stringResources.R.string.prove_mobile_auth_dob_entry_min_age),
                 style = ComposeTypographies.Caption1,
                 color = ComposeColors.Body,
-                gravity = ComposeGravities.Start,
+                gravity = ComposeGravities.Start
             )
         }
 
@@ -133,10 +135,10 @@ internal fun MobileAuthDobEntry(
                 .padding(
                     start = AppTheme.dimensions.smallSpacing,
                     end = AppTheme.dimensions.smallSpacing,
-                    bottom = AppTheme.dimensions.smallSpacing,
+                    bottom = AppTheme.dimensions.smallSpacing
                 ),
             state = state.possessionDataEntryContinueButtonState,
-            text = stringResource(R.string.common_continue),
+            text = stringResource(com.blockchain.stringResources.R.string.common_continue),
             onClick = { onIntent(ProvePrefillIntent.MobileAuthDobEntryContinueClicked) }
         )
     }
@@ -148,7 +150,7 @@ private fun PreviewEmpty() {
     MobileAuthDobEntry(
         state = defaultViewState,
         onIntent = {},
-        showDatePicker = {},
+        showDatePicker = {}
     )
 }
 
@@ -162,6 +164,6 @@ private fun PreviewFilled() {
             }
         ),
         onIntent = {},
-        showDatePicker = {},
+        showDatePicker = {}
     )
 }

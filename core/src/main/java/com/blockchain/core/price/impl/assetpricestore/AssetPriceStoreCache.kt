@@ -77,7 +77,7 @@ internal class AssetPriceStoreCache(
                 quote = this.quote,
                 rate = if (this.price.isNaN()) null else this.price.toBigDecimal(),
                 fetchedAt = this.timestampSeconds.toMillis(),
-                marketCap = this.marketCap,
+                marketCap = this.marketCap
             )
     }
 }

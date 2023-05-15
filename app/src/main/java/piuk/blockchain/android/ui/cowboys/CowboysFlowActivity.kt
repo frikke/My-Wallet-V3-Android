@@ -300,12 +300,12 @@ fun EmailKycHost(
         val emailKycFragment = remember { KycEmailVerificationFragment.newInstance(true) }
 
         NavigationBar(
-            title = stringResource(R.string.security_check),
+            title = stringResource(com.blockchain.stringResources.R.string.security_check),
             endNavigationBarButtons = if (shouldShowEmailSkipButton) {
                 listOf(
                     NavigationBarButton.Text(
                         color = Blue600,
-                        text = stringResource(R.string.common_skip),
+                        text = stringResource(com.blockchain.stringResources.R.string.common_skip),
                         onTextClick = emailSkipAction
                     )
                 )
@@ -330,7 +330,6 @@ fun CowboysInterstitial(
     onPrimaryCtaClick: () -> Unit,
     onCloseClicked: () -> Unit
 ) {
-
     ConstraintLayout {
         val (primaryButton, closeButton, icon, backgroundImage, foregroundImage, title, subtitle) = createRefs()
 
@@ -352,7 +351,7 @@ fun CowboysInterstitial(
             AsyncMediaItem(
                 modifier = Modifier
                     .wrapContentHeight()
-                    .padding(top = dimensionResource(R.dimen.large_spacing))
+                    .padding(top = dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing))
                     .constrainAs(foregroundImage) {
                         top.linkTo(parent.top)
                         start.linkTo(parent.start)
@@ -375,8 +374,8 @@ fun CowboysInterstitial(
             AsyncMediaItem(
                 modifier = Modifier
                     .requiredSizeIn(
-                        minWidth = dimensionResource(id = R.dimen.epic_spacing),
-                        minHeight = dimensionResource(id = R.dimen.epic_spacing),
+                        minWidth = dimensionResource(id = com.blockchain.componentlib.R.dimen.epic_spacing),
+                        minHeight = dimensionResource(id = com.blockchain.componentlib.R.dimen.epic_spacing),
                         maxWidth = 100.dp,
                         maxHeight = 100.dp
                     )
@@ -394,9 +393,9 @@ fun CowboysInterstitial(
         MarkdownText(
             modifier = Modifier
                 .padding(
-                    start = dimensionResource(id = R.dimen.standard_spacing),
-                    end = dimensionResource(id = R.dimen.standard_spacing),
-                    top = dimensionResource(id = R.dimen.very_small_spacing)
+                    start = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing),
+                    end = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing),
+                    top = dimensionResource(id = com.blockchain.componentlib.R.dimen.very_small_spacing)
                 )
                 .constrainAs(title) {
                     top.linkTo(
@@ -419,9 +418,9 @@ fun CowboysInterstitial(
         MarkdownText(
             modifier = Modifier
                 .padding(
-                    start = dimensionResource(id = R.dimen.standard_spacing),
-                    end = dimensionResource(id = R.dimen.standard_spacing),
-                    top = dimensionResource(id = R.dimen.tiny_spacing)
+                    start = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing),
+                    end = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing),
+                    top = dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing)
                 )
                 .constrainAs(subtitle) {
                     top.linkTo(title.bottom, margin = 16.dp)
@@ -436,7 +435,10 @@ fun CowboysInterstitial(
         )
 
         createVerticalChain(
-            foregroundImage, icon, title, subtitle,
+            foregroundImage,
+            icon,
+            title,
+            subtitle,
             chainStyle = ChainStyle.Packed(0f)
         )
 
@@ -455,9 +457,9 @@ fun CowboysInterstitial(
         }
 
         Image(
-            imageResource = ImageResource.Local(R.drawable.ic_close_circle, null),
+            imageResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_close_circle, null),
             modifier = Modifier
-                .padding(all = dimensionResource(id = R.dimen.standard_spacing))
+                .padding(all = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing))
                 .clickable(true, onClick = onCloseClicked)
                 .constrainAs(closeButton) {
                     top.linkTo(parent.top)
@@ -484,14 +486,17 @@ fun CowboysInterstitial() {
                     foregroundColorScheme = emptyList(),
                     actions = listOf(
                         ServerErrorAction(
-                            "primary cta", ""
+                            "primary cta",
+                            ""
                         ),
                         ServerErrorAction(
-                            "secondary cta", ""
+                            "secondary cta",
+                            ""
                         )
                     )
                 ),
-                onPrimaryCtaClick = { }, onCloseClicked = {}
+                onPrimaryCtaClick = { },
+                onCloseClicked = {}
             )
         }
     }

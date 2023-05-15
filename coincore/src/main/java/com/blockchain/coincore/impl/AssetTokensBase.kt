@@ -130,7 +130,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             )
             AssetFilter.Custodial,
             AssetFilter.Trading -> {
-                if (currency.isCustodial)
+                if (currency.isCustodial) {
                     Single.zip(
                         loadCustodialAccounts(),
                         loadInterestAccounts(),
@@ -143,7 +143,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                         Logger.e("$errorMsg: $it")
                         remoteLogger.logException(it, errorMsg)
                     }
-                else Single.just(emptyList())
+                } else Single.just(emptyList())
             }
             AssetFilter.Interest -> loadInterestAccounts()
             AssetFilter.Staking -> loadStakingAccounts()
@@ -179,7 +179,9 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                         walletModeService = walletModeService
                     )
                 )
-            } else emptyList()
+            } else {
+                emptyList()
+            }
         }
     }
 
@@ -205,7 +207,9 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                             internalAccountLabel = labels.getDefaultTradingWalletLabel()
                         )
                     )
-                } else emptyList()
+                } else {
+                    emptyList()
+                }
             }
         }
     }
@@ -230,7 +234,9 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                             custodialWalletManager = custodialManager
                         )
                     )
-                } else emptyList()
+                } else {
+                    emptyList()
+                }
             }
         }
     }
@@ -241,11 +247,13 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
         }
 
         return activeRewardsEnabledFlag.enabled.flatMap {
-            if (!it)
+            if (!it) {
                 return@flatMap Single.just(emptyList())
+            }
             custodialAccountsAccess.flatMap { hasCustodialAccess ->
-                if (!hasCustodialAccess) Single.just(emptyList())
-                else
+                if (!hasCustodialAccess) {
+                    Single.just(emptyList())
+                } else
                     activeRewardsService.getAvailabilityForAsset(currency).asSingle().map { avaialble ->
                         if (avaialble) {
                             listOf(
@@ -260,7 +268,9 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                                     custodialWalletManager = custodialManager
                                 )
                             )
-                        } else emptyList()
+                        } else {
+                            emptyList()
+                        }
                     }
             }
         }
@@ -330,7 +340,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
         exchangeRates.getHistoricRate(currency, epochWhen)
 
     final override fun historicRateSeries(
-        period: HistoricalTimeSpan,
+        period: HistoricalTimeSpan
     ): Flow<DataResource<HistoricalRateList>> =
         currency.startDate?.let {
             exchangeRates.getHistoricPriceSeries(asset = currency, span = period)
@@ -445,7 +455,7 @@ internal class ActiveAccountList {
 
     fun fetchAccountList(
         assetFilter: AssetFilter,
-        loader: (AssetFilter) -> Single<SingleAccountList>,
+        loader: (AssetFilter) -> Single<SingleAccountList>
     ): Single<SingleAccountList> =
         shouldRefresh(assetFilter).flatMap { refresh ->
             if (refresh) {
@@ -466,7 +476,7 @@ internal class ActiveAccountList {
     @Synchronized
     private fun updateWith(
         assetFilter: AssetFilter,
-        accounts: List<SingleAccount>,
+        accounts: List<SingleAccount>
     ): List<CryptoAccount> {
         val newActives = mutableSetOf<CryptoAccount>()
         accounts.filterIsInstance<CryptoAccount>()

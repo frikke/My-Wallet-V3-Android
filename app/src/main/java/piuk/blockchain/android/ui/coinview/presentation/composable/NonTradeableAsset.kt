@@ -38,8 +38,15 @@ fun NonTradeableAssetData(data: CoinviewAssetTradeableState.NonTradeable) {
             )
     ) {
         CardAlert(
-            title = stringResource(R.string.coinview_not_tradeable_title, data.assetName, data.assetTicker),
-            subtitle = stringResource(R.string.coinview_not_tradeable_subtitle, data.assetName),
+            title = stringResource(
+                com.blockchain.stringResources.R.string.coinview_not_tradeable_title,
+                data.assetName,
+                data.assetTicker
+            ),
+            subtitle = stringResource(
+                com.blockchain.stringResources.R.string.coinview_not_tradeable_subtitle,
+                data.assetName
+            ),
             isDismissable = false
         )
     }

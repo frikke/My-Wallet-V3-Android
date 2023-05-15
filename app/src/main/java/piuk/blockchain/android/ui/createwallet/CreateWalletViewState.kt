@@ -23,7 +23,7 @@ data class CreateWalletViewState(
     val isCreateWalletLoading: Boolean,
     val nextButtonState: ButtonState,
 
-    val error: CreateWalletError? = null,
+    val error: CreateWalletError? = null
 ) : ViewState
 
 sealed class CountryInputState {
@@ -31,7 +31,7 @@ sealed class CountryInputState {
     data class Loaded(
         val countries: List<Region.Country>,
         val selected: Region.Country?,
-        val suggested: Region.Country?,
+        val suggested: Region.Country?
     ) : CountryInputState()
 }
 

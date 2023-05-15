@@ -24,7 +24,7 @@ class ReceiveModel(
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger,
     private val walletModeService: WalletModeService,
-    private val coincore: Coincore,
+    private val coincore: Coincore
 ) : MviModel<ReceiveState, ReceiveIntent>(initialState, uiScheduler, environmentConfig, remoteLogger) {
 
     override fun performAction(previousState: ReceiveState, intent: ReceiveIntent): Disposable? {

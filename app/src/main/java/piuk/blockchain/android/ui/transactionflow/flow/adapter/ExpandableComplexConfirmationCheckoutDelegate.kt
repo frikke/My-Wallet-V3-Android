@@ -21,7 +21,7 @@ import piuk.blockchain.android.ui.transactionflow.flow.TxConfirmReadOnlyMapperCh
 
 class ExpandableComplexConfirmationCheckout(
     private val mapper: TxConfirmReadOnlyMapperCheckout,
-    private val onTooltipClicked: (TxConfirmationValue) -> Unit,
+    private val onTooltipClicked: (TxConfirmationValue) -> Unit
 ) :
     AdapterDelegate<TxConfirmationValue> {
     override fun isForViewType(items: List<TxConfirmationValue>, position: Int): Boolean {
@@ -72,7 +72,8 @@ private class ExpandableComplexConfirmationCheckoutItemViewHolder(
                 expandableComplexItemTitle.text = this[ConfirmationPropertyKey.TITLE] as String
                 expandableComplexItemSubtitle.text = this[ConfirmationPropertyKey.SUBTITLE] as String
                 expandableComplexItemExpansion.setText(
-                    this[ConfirmationPropertyKey.LINKED_NOTE] as SpannableStringBuilder, TextView.BufferType.SPANNABLE
+                    this[ConfirmationPropertyKey.LINKED_NOTE] as SpannableStringBuilder,
+                    TextView.BufferType.SPANNABLE
                 )
                 expandableComplexItemLabel.setOnClickListener {
                     isExpanded = !isExpanded
@@ -93,12 +94,12 @@ private class ExpandableComplexConfirmationCheckoutItemViewHolder(
         with(binding) {
             when {
                 item.isNewQuote -> {
-                    expandableComplexItemTitle.updateColour(R.color.blue_600)
-                    expandableComplexItemSubtitle.updateColour(R.color.blue_600)
+                    expandableComplexItemTitle.updateColour(com.blockchain.common.R.color.blue_600)
+                    expandableComplexItemSubtitle.updateColour(com.blockchain.common.R.color.blue_600)
                 }
                 else -> {
-                    expandableComplexItemTitle.updateColour(R.color.grey_800)
-                    expandableComplexItemSubtitle.updateColour(R.color.grey_600)
+                    expandableComplexItemTitle.updateColour(com.blockchain.common.R.color.grey_800)
+                    expandableComplexItemSubtitle.updateColour(com.blockchain.common.R.color.grey_600)
                 }
             }
         }
@@ -116,11 +117,11 @@ private class ExpandableComplexConfirmationCheckoutItemViewHolder(
 
             if (isExpanded) {
                 expandableComplexItemLabel.compoundDrawables[DRAWABLE_END]?.setTint(
-                    expandableComplexItemLabel.context.getResolvedColor(R.color.blue_600)
+                    expandableComplexItemLabel.context.getResolvedColor(com.blockchain.common.R.color.blue_600)
                 )
             } else {
                 expandableComplexItemLabel.compoundDrawables[DRAWABLE_END]?.setTint(
-                    expandableComplexItemLabel.context.getResolvedColor(R.color.grey_300)
+                    expandableComplexItemLabel.context.getResolvedColor(com.blockchain.common.R.color.grey_300)
                 )
             }
         }

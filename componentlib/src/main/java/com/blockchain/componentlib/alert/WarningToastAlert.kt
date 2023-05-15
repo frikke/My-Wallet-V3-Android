@@ -19,7 +19,6 @@ fun WarningToastAlert(
     text: String,
     @DrawableRes startIconDrawableRes: Int = ResourcesCompat.ID_NULL
 ) {
-
     val backgroundColor = if (!isSystemInDarkTheme()) {
         Dark800
     } else {

@@ -70,7 +70,8 @@ fun BottomSheetDialog.forceExpanded() {
     }
 }
 
-fun <TIntent : Intent<TModelState>,
+fun <
+    TIntent : Intent<TModelState>,
     TViewState : ViewState,
     TModelState : ModelState,
     NavEnt : NavigationEvent,

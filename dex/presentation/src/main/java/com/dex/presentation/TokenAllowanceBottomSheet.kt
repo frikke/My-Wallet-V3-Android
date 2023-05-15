@@ -106,7 +106,7 @@ private fun AssetAllowanceDescription(asset: AssetInfo) {
             top = AppTheme.dimensions.standardSpacing
         ),
         text = stringResource(
-            id = R.string.allow_bcdc_dex_to_use,
+            id = com.blockchain.stringResources.R.string.allow_bcdc_dex_to_use,
             asset.displayTicker
         ),
         textAlign = TextAlign.Center,
@@ -121,7 +121,7 @@ private fun AssetAllowanceDescription(asset: AssetInfo) {
         ),
         textAlign = TextAlign.Center,
         text = stringResource(
-            id = R.string.allowance_bcdc_expanation,
+            id = com.blockchain.stringResources.R.string.allowance_bcdc_expanation,
             asset.displayTicker
         ),
         style = AppTheme.typography.body1,
@@ -137,18 +137,18 @@ fun ApproveAndDenyButtons(onApprove: () -> Unit, onDecline: () -> Unit) {
                 start = AppTheme.dimensions.smallSpacing,
                 end = AppTheme.dimensions.smallSpacing,
                 bottom = AppTheme.dimensions.smallSpacing,
-                top = AppTheme.dimensions.smallestSpacing,
+                top = AppTheme.dimensions.smallestSpacing
             )
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.tinySpacing)
     ) {
         MinimalButton(
-            text = stringResource(id = R.string.common_decline),
+            text = stringResource(id = com.blockchain.stringResources.R.string.common_decline),
             onClick = onDecline,
             modifier = Modifier.weight(.5f)
         )
         PrimaryButton(
-            text = stringResource(id = R.string.common_approve),
+            text = stringResource(id = com.blockchain.stringResources.R.string.common_approve),
             onClick = onApprove,
             modifier = Modifier.weight(.5f)
         )
@@ -183,7 +183,7 @@ private fun AllowanceFee(assetInfo: AssetInfo, estimatedFiatFee: String) {
                 )
             }
             Text(
-                text = stringResource(id = R.string.estimated_fees),
+                text = stringResource(id = com.blockchain.stringResources.R.string.estimated_fees),
                 style = AppTheme.typography.paragraph1,
                 color = AppTheme.colors.muted
             )
@@ -208,15 +208,15 @@ private fun FeeNetwork(assetInfo: AssetInfo) {
                 .fillMaxWidth()
         ) {
             Text(
-                text = stringResource(id = R.string.common_wallet),
+                text = stringResource(id = com.blockchain.stringResources.R.string.common_wallet),
                 style = AppTheme.typography.caption1,
-                color = AppTheme.colors.body,
+                color = AppTheme.colors.body
             )
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = stringResource(id = R.string.common_network),
+                text = stringResource(id = com.blockchain.stringResources.R.string.common_network),
                 style = AppTheme.typography.caption1,
-                color = AppTheme.colors.body,
+                color = AppTheme.colors.body
             )
         }
 
@@ -226,9 +226,9 @@ private fun FeeNetwork(assetInfo: AssetInfo) {
                 .fillMaxWidth()
         ) {
             Text(
-                text = stringResource(id = R.string.defi_wallet_name),
+                text = stringResource(id = com.blockchain.stringResources.R.string.defi_wallet_name),
                 style = AppTheme.typography.body1,
-                color = AppTheme.colors.title,
+                color = AppTheme.colors.title
             )
             Spacer(modifier = Modifier.weight(1f))
             Row(verticalAlignment = Alignment.CenterVertically) {

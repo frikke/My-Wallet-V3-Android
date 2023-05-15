@@ -41,7 +41,6 @@ fun CtaAnnouncementCard(
     onClose: () -> Unit = {},
     isDarkTheme: Boolean = isSystemInDarkTheme()
 ) {
-
     val backgroundColor = if (!isDarkTheme) {
         Color.White
     } else {
@@ -56,7 +55,7 @@ fun CtaAnnouncementCard(
     ) {
         Surface(
             modifier = Modifier
-                .padding(dimensionResource(R.dimen.medium_spacing))
+                .padding(dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing))
         ) {
             Column(
                 modifier = Modifier
@@ -69,7 +68,7 @@ fun CtaAnnouncementCard(
                 ) {
                     Image(
                         modifier = Modifier
-                            .size(dimensionResource(R.dimen.large_spacing)),
+                            .size(dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)),
                         imageResource = iconResource
                     )
 
@@ -79,7 +78,6 @@ fun CtaAnnouncementCard(
                             .padding(start = 8.dp, end = 8.dp)
                             .background(backgroundColor)
                     ) {
-
                         Text(
                             text = header,
                             style = AppTheme.typography.caption2,
@@ -100,7 +98,9 @@ fun CtaAnnouncementCard(
                 }
 
                 Text(
-                    modifier = Modifier.padding(top = dimensionResource(R.dimen.medium_spacing)),
+                    modifier = Modifier.padding(
+                        top = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)
+                    ),
                     text = title,
                     style = AppTheme.typography.body2,
                     color = AppTheme.colors.title
@@ -114,7 +114,7 @@ fun CtaAnnouncementCard(
 
                 PrimaryButton(
                     modifier = Modifier
-                        .padding(top = dimensionResource(R.dimen.medium_spacing))
+                        .padding(top = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing))
                         .fillMaxWidth(),
                     defaultBackgroundColor = callToActionButton.backgroundColor,
                     text = callToActionButton.text,

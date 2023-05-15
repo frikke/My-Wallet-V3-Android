@@ -21,7 +21,7 @@ import java.time.ZoneId
 import java.util.Date
 
 class QuotesProvider(
-    private val nabuService: NabuService,
+    private val nabuService: NabuService
 ) {
 
     fun getSampleDepositAddress(
@@ -50,7 +50,7 @@ class QuotesProvider(
                 dynamicFee = it.staticFee,
                 networkFee = it.networkFee,
                 paymentMethod = PaymentMethodType.FUNDS,
-                orderProfileName = "",
+                orderProfileName = ""
             )
         }
 
@@ -79,7 +79,7 @@ class QuotesProvider(
             val rate = ExchangeRate(
                 rate = price.toBigDecimal(),
                 from = pair.source,
-                to = pair.destination,
+                to = pair.destination
             )
 
             BrokerageQuote(
@@ -98,7 +98,7 @@ class QuotesProvider(
                 feeDetails = QuoteFee(
                     fee = Money.zero(pair.source),
                     feeBeforePromo = Money.zero(pair.source),
-                    promo = Promo.NO_PROMO,
+                    promo = Promo.NO_PROMO
                 ),
                 createdAt = (it.createdAt.fromIso8601ToUtc()?.toLocalTime() ?: Date())
                     .toInstant()

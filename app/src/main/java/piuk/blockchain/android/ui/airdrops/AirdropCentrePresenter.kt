@@ -84,7 +84,6 @@ class AirdropCentrePresenter(
     }
 
     private fun parseAmount(item: AirdropStatus): Pair<Money?, Money?> {
-
         val tx = item.txResponseList
             .firstOrNull {
                 it.transactionState == CampaignTransactionState.FinishedWithdrawal

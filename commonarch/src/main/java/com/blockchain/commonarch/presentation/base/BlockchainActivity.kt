@@ -25,7 +25,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import com.blockchain.analytics.Analytics
 import com.blockchain.auth.LogoutTimer
-import com.blockchain.commonarch.BuildConfig
 import com.blockchain.commonarch.R
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
@@ -92,6 +91,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
             }
             field = dlg
         }
+
         @UiThread
         get
 
@@ -185,7 +185,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
             return
         }
 
-        val view = if (BuildConfig.DEBUG) {
+        val view = if (true) {
             val wrapper = FrameLayout(this).apply {
                 val params =
                     ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
@@ -224,7 +224,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
             val params =
                 ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
             layoutParams = params
-            setBackgroundColor(getColor(R.color.white))
+            setBackgroundColor(getColor(com.blockchain.componentlib.R.color.white))
         }
         view.visibility = View.GONE
         wrapper.addView(view)
@@ -243,7 +243,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
     fun updateToolbar(
         toolbarTitle: String = "",
         menuItems: List<NavigationBarButton>? = null,
-        backAction: (() -> Unit)? = null,
+        backAction: (() -> Unit)? = null
     ) {
         updateToolbarTitle(toolbarTitle)
         menuItems?.let { items ->
@@ -353,14 +353,14 @@ abstract class BlockchainActivity : ToolBarActivity() {
     }
 
     private fun overlayAlertDlg() =
-        AlertDialog.Builder(this, R.style.AlertDialogStyle)
-            .setTitle(R.string.screen_overlay_warning)
-            .setMessage(R.string.screen_overlay_note)
+        AlertDialog.Builder(this, com.blockchain.componentlib.R.style.AlertDialogStyle)
+            .setTitle(com.blockchain.stringResources.R.string.screen_overlay_warning)
+            .setMessage(com.blockchain.stringResources.R.string.screen_overlay_note)
             .setCancelable(false)
-            .setPositiveButton(R.string.dialog_continue) { _, _ ->
+            .setPositiveButton(com.blockchain.stringResources.R.string.dialog_continue) { _, _ ->
                 securityPrefs.trustScreenOverlay = true
             }
-            .setNegativeButton(R.string.exit) { _, _ -> this.finish() }
+            .setNegativeButton(com.blockchain.stringResources.R.string.exit) { _, _ -> this.finish() }
             .create()
 
     @UiThread
@@ -437,7 +437,7 @@ fun BlockchainActivity.setContent(
     parent: CompositionContext? = null,
     content: @Composable () -> Unit
 ) {
-    if (BuildConfig.DEBUG) {
+    if (true) {
         (this as ComponentActivity).setContent(parent) {
             InstrumentationScaffold {
                 content()

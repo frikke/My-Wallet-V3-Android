@@ -142,12 +142,12 @@ class AddNewCardFragment :
                 with(binding) {
                     when (cardNumber.cardType) {
                         CardType.MASTERCARD -> {
-                            cardCvvInput.hint = getString(R.string.card_cvc)
-                            cvv.setErrorMessage(R.string.invalid_cvc)
+                            cardCvvInput.hint = getString(com.blockchain.stringResources.R.string.card_cvc)
+                            cvv.setErrorMessage(com.blockchain.stringResources.R.string.invalid_cvc)
                         }
                         else -> {
-                            cardCvvInput.hint = getString(R.string.card_cvv)
-                            cvv.setErrorMessage(R.string.invalid_cvv)
+                            cardCvvInput.hint = getString(com.blockchain.stringResources.R.string.card_cvv)
+                            cvv.setErrorMessage(com.blockchain.stringResources.R.string.invalid_cvv)
                         }
                     }
                 }
@@ -159,11 +159,11 @@ class AddNewCardFragment :
         override fun onTextChange(view: InputFieldView, isEmpty: Boolean) {
             with(binding) {
                 if (vgsCardNumber.getState()?.cardBrand?.equals("MASTERCARD", ignoreCase = true) == true) {
-                    vgsCardCvvInput.setHint(R.string.card_cvc)
-                    vgsCardCvvInput.tag = getString(R.string.invalid_cvc)
+                    vgsCardCvvInput.setHint(com.blockchain.stringResources.R.string.card_cvc)
+                    vgsCardCvvInput.tag = getString(com.blockchain.stringResources.R.string.invalid_cvc)
                 } else {
-                    vgsCardCvvInput.setHint(R.string.card_cvv)
-                    vgsCardCvvInput.tag = getString(R.string.invalid_cvv)
+                    vgsCardCvvInput.setHint(com.blockchain.stringResources.R.string.card_cvv)
+                    vgsCardCvvInput.tag = getString(com.blockchain.stringResources.R.string.invalid_cvv)
                 }
             }
         }
@@ -215,7 +215,7 @@ class AddNewCardFragment :
             }
 
             btnNext.apply {
-                text = getString(R.string.common_next)
+                text = getString(com.blockchain.stringResources.R.string.common_next)
                 buttonState = ButtonState.Disabled
                 onClick = {
                     if (cardHasAlreadyBeenAdded()) {
@@ -239,7 +239,7 @@ class AddNewCardFragment :
 
             setupCardInfo()
         }
-        activity.updateToolbarTitle(getString(R.string.add_card_title))
+        activity.updateToolbarTitle(getString(com.blockchain.stringResources.R.string.add_card_title))
         analytics.logEvent(SimpleBuyAnalytics.ADD_CARD)
     }
 
@@ -284,12 +284,16 @@ class AddNewCardFragment :
                 setRule(rule)
             }
             addOnTextChangeListener(otherFieldsTextChangedListener)
-            addVgsErrorListeners(binding.vgsCardNameInput, this, { getString(R.string.invalid_card_name) })
+            addVgsErrorListeners(binding.vgsCardNameInput, this, {
+                getString(com.blockchain.stringResources.R.string.invalid_card_name)
+            })
         }
         with(binding.vgsCardNumber) {
             addOnTextChangeListener(cardTypeChangedListener)
             addOnTextChangeListener(cardTextChangedListener)
-            addVgsErrorListeners(binding.vgsCardInputForm, this, { getString(R.string.invalid_card_number) })
+            addVgsErrorListeners(binding.vgsCardInputForm, this, {
+                getString(com.blockchain.stringResources.R.string.invalid_card_number)
+            })
         }
         with(binding.vgsCvv) {
             addOnTextChangeListener(otherFieldsTextChangedListener)
@@ -297,7 +301,9 @@ class AddNewCardFragment :
         }
         with(binding.vgsExpiryDate) {
             addOnTextChangeListener(otherFieldsTextChangedListener)
-            addVgsErrorListeners(binding.vgsCardDateInput, this, { getString(R.string.invalid_date) })
+            addVgsErrorListeners(binding.vgsCardDateInput, this, {
+                getString(com.blockchain.stringResources.R.string.invalid_date)
+            })
         }
     }
 
@@ -341,7 +347,7 @@ class AddNewCardFragment :
                 }
 
                 btnNext.apply {
-                    text = getString(R.string.common_next)
+                    text = getString(com.blockchain.stringResources.R.string.common_next)
                     onClick = {
                         navigateToBillingDetails()
                     }
@@ -356,11 +362,11 @@ class AddNewCardFragment :
 
     private fun FragmentAddNewCardBinding.setupCardInfo() {
         creditCardDisclaimer.apply {
-            title = getString(R.string.card_info_title)
-            subtitle = getString(R.string.card_info_description)
+            title = getString(com.blockchain.stringResources.R.string.card_info_title)
+            subtitle = getString(com.blockchain.stringResources.R.string.card_info_description)
             isDismissable = false
             primaryCta = CardButton(
-                text = getString(R.string.common_learn_more),
+                text = getString(com.blockchain.stringResources.R.string.common_learn_more),
                 onClick = {
                     openUrl(URL_CREDIT_CARD_FAILURES)
                 }
@@ -377,8 +383,9 @@ class AddNewCardFragment :
                     ) &&
                     cardNumber.text?.toString()?.takeLast(4) == it.endDigits &&
                     cardNumber.cardType.isEquals(it.cardType)
-                )
+                ) {
                     return true
+                }
             }
             return false
         }
@@ -403,8 +410,9 @@ class AddNewCardFragment :
 
                     val error = state.error ?: ServerSideUxErrorInfo(
                         id = null,
-                        title = getString(R.string.card_issuer_always_rejects_title),
-                        description = getString(R.string.card_issuer_always_rejects_desc),
+                        title = getString(com.blockchain.stringResources.R.string.card_issuer_always_rejects_title),
+                        description =
+                        getString(com.blockchain.stringResources.R.string.card_issuer_always_rejects_desc),
                         iconUrl = "",
                         statusUrl = "",
                         actions = emptyList(),
@@ -455,7 +463,7 @@ class AddNewCardFragment :
             style = ComposeTypographies.Caption1
             textColor = ComposeColors.Primary
             gravity = ComposeGravities.Start
-            text = getString(R.string.common_learn_more)
+            text = getString(com.blockchain.stringResources.R.string.common_learn_more)
             isMultiline = false
             onClick = {
                 showBottomSheet(ErrorSlidingBottomDialog.newInstance(error))

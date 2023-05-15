@@ -85,15 +85,15 @@ class LoaderActivity :
             }
             ProgressStep.LOADING_PRICES -> {
                 updateProgressVisibility(true)
-                updateProgressText(R.string.loading_prices)
+                updateProgressText(com.blockchain.stringResources.R.string.loading_prices)
             }
             ProgressStep.SYNCING_ACCOUNT -> {
                 updateProgressVisibility(true)
-                updateProgressText(R.string.syncing_account)
+                updateProgressText(com.blockchain.stringResources.R.string.syncing_account)
             }
             ProgressStep.DECRYPTING_WALLET -> {
                 updateProgressVisibility(true)
-                updateProgressText(R.string.decrypting_wallet)
+                updateProgressText(com.blockchain.stringResources.R.string.decrypting_wallet)
             }
             ProgressStep.FINISH -> {
                 updateProgressVisibility(false)
@@ -114,8 +114,8 @@ class LoaderActivity :
                 binding.root,
                 getString(
                     when (newState.toastType) {
-                        ToastType.INVALID_PASSWORD -> R.string.invalid_password
-                        ToastType.UNEXPECTED_ERROR -> R.string.unexpected_error
+                        ToastType.INVALID_PASSWORD -> com.blockchain.stringResources.R.string.invalid_password
+                        ToastType.UNEXPECTED_ERROR -> com.blockchain.stringResources.R.string.unexpected_error
                     }
                 ),
                 type = SnackbarType.Error
@@ -125,12 +125,12 @@ class LoaderActivity :
 
     override fun onEmailEntryFragmentUpdated(showSkipButton: Boolean, buttonAction: () -> Unit) =
         updateToolbar(
-            toolbarTitle = getString(R.string.security_check),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.security_check),
             menuItems = if (showSkipButton) {
                 listOf(
                     NavigationBarButton.TextWithColorInt(
-                        getString(R.string.common_skip),
-                        R.color.blue_600,
+                        getString(com.blockchain.stringResources.R.string.common_skip),
+                        com.blockchain.common.R.color.blue_600,
                         buttonAction
                     )
                 )
@@ -195,11 +195,11 @@ class LoaderActivity :
 
     private fun showMetadataNodeFailure() {
         if (!isFinishing) {
-            AlertDialog.Builder(this, R.style.AlertDialogStyle)
-                .setTitle(R.string.app_name)
-                .setMessage(R.string.metadata_load_failure)
-                .setPositiveButton(R.string.retry) { _, _ -> onRequestPin() }
-                .setNegativeButton(R.string.exit) { _, _ -> finish() }
+            AlertDialog.Builder(this, com.blockchain.componentlib.R.style.AlertDialogStyle)
+                .setTitle(com.blockchain.stringResources.R.string.app_name)
+                .setMessage(com.blockchain.stringResources.R.string.metadata_load_failure)
+                .setPositiveButton(com.blockchain.stringResources.R.string.retry) { _, _ -> onRequestPin() }
+                .setNegativeButton(com.blockchain.stringResources.R.string.exit) { _, _ -> finish() }
                 .setCancelable(false)
                 .setOnDismissListener {
                     model.process(LoaderIntents.HideMetadataNodeFailure)
@@ -211,7 +211,7 @@ class LoaderActivity :
 
     private fun showSecondPasswordDialog() {
         val editText = AppCompatEditText(this)
-        editText.setHint(R.string.password)
+        editText.setHint(com.blockchain.stringResources.R.string.password)
         editText.inputType =
             InputType.TYPE_CLASS_TEXT or
             InputType.TYPE_TEXT_VARIATION_PASSWORD or
@@ -219,9 +219,9 @@ class LoaderActivity :
 
         val frameLayout = getAlertDialogPaddedView(editText)
 
-        AlertDialog.Builder(this, R.style.AlertDialogStyle)
-            .setTitle(R.string.second_password_dlg_title)
-            .setMessage(R.string.eth_second_password_prompt)
+        AlertDialog.Builder(this, com.blockchain.componentlib.R.style.AlertDialogStyle)
+            .setTitle(com.blockchain.stringResources.R.string.second_password_dlg_title)
+            .setMessage(com.blockchain.stringResources.R.string.eth_second_password_prompt)
             .setView(frameLayout)
             .setCancelable(false)
             .setPositiveButton(android.R.string.ok) { _, _ ->

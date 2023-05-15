@@ -19,7 +19,7 @@ fun ExchangeSellButton(
     text: String,
     onClick: () -> Unit,
     state: ButtonState,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Button(
         text = text,
@@ -41,7 +41,7 @@ fun ExchangeSellButton(
                 textColor = textColor,
                 contentAlpha = textAlpha
             )
-        },
+        }
     )
 }
 

@@ -65,7 +65,6 @@ fun BackedUpPhraseScreen(
     mnemonicCopied: () -> Unit,
     nextOnClick: () -> Unit
 ) {
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -74,7 +73,7 @@ fun BackedUpPhraseScreen(
     ) {
         NavigationBar(
             modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
-            title = stringResource(R.string.backup_phrase_title_secure_wallet),
+            title = stringResource(com.blockchain.stringResources.R.string.backup_phrase_title_secure_wallet),
             mutedBackground = false,
             onBackButtonClick = null
         )
@@ -87,10 +86,9 @@ fun BackedUpPhraseScreen(
                 .padding(AppTheme.dimensions.standardSpacing),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.recovery_phrase_title),
+                text = stringResource(id = com.blockchain.stringResources.R.string.recovery_phrase_title),
                 style = ComposeTypographies.Title2,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
@@ -116,7 +114,7 @@ fun BackedUpPhraseScreen(
 
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.recovery_phrase_description),
+                text = stringResource(id = com.blockchain.stringResources.R.string.recovery_phrase_description),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
@@ -126,7 +124,7 @@ fun BackedUpPhraseScreen(
 
             MinimalButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.recovery_phrase_backup_again),
+                text = stringResource(id = com.blockchain.stringResources.R.string.recovery_phrase_backup_again),
                 onClick = nextOnClick
             )
         }

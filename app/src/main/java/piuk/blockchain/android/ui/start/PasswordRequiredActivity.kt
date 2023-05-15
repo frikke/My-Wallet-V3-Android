@@ -12,15 +12,11 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.viewextensions.hideKeyboard
-import com.blockchain.logging.MomentEvent
-import com.blockchain.logging.MomentLogger
-import com.blockchain.logging.MomentParam
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.presentation.koin.scopedInject
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
-import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityPasswordRequiredBinding
 import piuk.blockchain.android.fraud.domain.service.FraudFlow
 import piuk.blockchain.android.fraud.domain.service.FraudService
@@ -41,8 +37,6 @@ class PasswordRequiredActivity :
     override val presenter: PasswordRequiredPresenter by scopedInject()
     override val view: PasswordRequiredView = this
     private val walletPrefs: WalletStatusPrefs by inject()
-
-    private val momentLogger: MomentLogger by inject()
     private val fraudService: FraudService by inject()
 
     private var isTwoFATimerRunning = false
@@ -71,30 +65,25 @@ class PasswordRequiredActivity :
         setContentView(binding.root)
 
         setupBackPress()
-
-        momentLogger.endEvent(
-            event = MomentEvent.SPLASH_TO_FIRST_SCREEN,
-            params = mapOf(MomentParam.SCREEN_NAME to javaClass.simpleName)
-        )
         fraudService.trackFlow(FraudFlow.LOGIN)
 
         with(binding) {
             walletIdentifier.apply {
-                labelText = getString(R.string.wallet_id)
+                labelText = getString(com.blockchain.stringResources.R.string.wallet_id)
                 state = TextInputState.Disabled()
             }
             buttonContinue.apply {
                 onClick = {
                     presenter.onContinueClicked(binding.fieldPassword.text.toString())
                 }
-                text = getString(R.string.btn_continue)
+                text = getString(com.blockchain.stringResources.R.string.btn_continue)
             }
             buttonForget.apply {
                 onClick = {
                     presenter.onForgetWalletClicked()
                     fraudService.endFlow(FraudFlow.LOGIN)
                 }
-                text = getString(R.string.wipe_wallet)
+                text = getString(com.blockchain.stringResources.R.string.wipe_wallet)
             }
             buttonRecover.setOnClickListener { launchRecoveryFlow() }
         }
@@ -147,8 +136,8 @@ class PasswordRequiredActivity :
     override fun updateWaitingForAuthDialog(secondsRemaining: Int) =
         updateProgressDialog(
             msg = getString(
-                R.string.common_spaced_strings,
-                getString(R.string.check_email_to_auth_login),
+                com.blockchain.stringResources.R.string.common_spaced_strings,
+                getString(com.blockchain.stringResources.R.string.check_email_to_auth_login),
                 secondsRemaining.toString()
             ),
             onCancel = {
@@ -160,10 +149,12 @@ class PasswordRequiredActivity :
 
     override fun showForgetWalletWarning() {
         showAlert(
-            AlertDialog.Builder(this, R.style.AlertDialogStyle)
-                .setTitle(R.string.warning)
-                .setMessage(R.string.forget_wallet_warning)
-                .setPositiveButton(R.string.forget_wallet) { _, _ -> presenter.onForgetWalletConfirmed() }
+            AlertDialog.Builder(this, com.blockchain.componentlib.R.style.AlertDialogStyle)
+                .setTitle(com.blockchain.stringResources.R.string.warning)
+                .setMessage(com.blockchain.stringResources.R.string.forget_wallet_warning)
+                .setPositiveButton(
+                    com.blockchain.stringResources.R.string.forget_wallet
+                ) { _, _ -> presenter.onForgetWalletConfirmed() }
                 .setNegativeButton(android.R.string.cancel) { _, _ -> }
                 .create()
         )
@@ -185,7 +176,8 @@ class PasswordRequiredActivity :
         hideKeyboard()
 
         val dialog = getTwoFactorDialog(
-            this, authType,
+            this,
+            authType,
             walletPrefs,
             positiveAction = {
                 presenter.submitTwoFactorCode(
@@ -194,11 +186,15 @@ class PasswordRequiredActivity :
                     password,
                     it
                 )
-            }, resendAction = { limitReached ->
+            },
+            resendAction = { limitReached ->
                 if (!limitReached) {
                     presenter.requestNew2FaCode(password, guid)
                 } else {
-                    showSnackbar(R.string.two_factor_retries_exceeded, SnackbarType.Error)
+                    showSnackbar(
+                        com.blockchain.stringResources.R.string.two_factor_retries_exceeded,
+                        SnackbarType.Error
+                    )
                     if (!isTwoFATimerRunning) {
                         twoFATimer.start()
                     }

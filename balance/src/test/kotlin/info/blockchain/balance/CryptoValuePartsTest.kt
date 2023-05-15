@@ -67,9 +67,9 @@ class CryptoValuePartsTest {
         5345678.987.ether()
             .toStringParts().apply {
                 symbol `should be equal to` "ETH"
-                major `should be equal to` "5 345 678"
+                major `should be equal to` "5 345 678"
                 minor `should be equal to` "987"
-                majorAndMinor`should be equal to` "5 345 678,987"
+                majorAndMinor`should be equal to` "5 345 678,987"
             }
     }
 

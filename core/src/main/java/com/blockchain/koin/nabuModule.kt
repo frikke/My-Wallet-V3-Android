@@ -76,7 +76,7 @@ val nabuModule = module {
                 walletReporter = get(uniqueId),
                 userReporter = get(uniqueUserAnalytics),
                 trust = get(),
-                userService = get(),
+                userService = get()
             )
         }.bind(NabuDataManager::class)
 
@@ -119,7 +119,7 @@ val nabuModule = module {
                 paymentMethodsEligibilityStore = get(),
                 fiatCurrenciesService = get(),
                 recurringBuyService = get(),
-                recurringBuyStore = get(),
+                recurringBuyStore = get()
             )
         }.bind(CustodialWalletManager::class)
 
@@ -165,13 +165,13 @@ val nabuModule = module {
                 userService = get(),
                 assetCatalogue = get(),
                 kycApiService = get(),
-                proveFeatureFlag = get(proveFeatureFlag),
+                proveFeatureFlag = get(proveFeatureFlag)
             )
         }
 
         scoped {
             KycTiersStore(
-                kycApiService = get(),
+                kycApiService = get()
             )
         }
 
@@ -183,7 +183,7 @@ val nabuModule = module {
             NabuUserSyncUpdateUserWalletInfoWithJWT(
                 nabuDataManager = get(),
                 nabuService = get(),
-                getUserStore = get(),
+                getUserStore = get()
             )
         }.bind(NabuUserSync::class)
 
@@ -213,7 +213,7 @@ val nabuModule = module {
 
         factory {
             QuotesProvider(
-                nabuService = get(),
+                nabuService = get()
             )
         }
     }
@@ -247,7 +247,7 @@ val nabuModule = module {
 
     single {
         ExperimentsStore(
-            experimentsApiService = get(),
+            experimentsApiService = get()
         )
     }
 }

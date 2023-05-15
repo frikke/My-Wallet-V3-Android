@@ -75,7 +75,9 @@ class L1EvmOnChainTxEngine(
                 txConfirmations = listOfNotNull(
                     TxConfirmationValue.From(sourceAccount, sourceAsset),
                     TxConfirmationValue.To(
-                        txTarget, AssetAction.Send, sourceAccount
+                        txTarget,
+                        AssetAction.Send,
+                        sourceAccount
                     ),
                     TxConfirmationValue.CompoundNetworkFee(
                         sendingFeeInfo = if (!pendingTx.feeAmount.isZero) {
@@ -85,7 +87,9 @@ class L1EvmOnChainTxEngine(
                                 sourceAsset,
                                 (sourceAccount as? L1EvmNonCustodialAccount)?.l1Network
                             )
-                        } else null,
+                        } else {
+                            null
+                        },
                         feeLevel = pendingTx.feeSelection.selectedLevel,
                         ignoreErc20LinkedNote = true
                     ),

@@ -14,7 +14,7 @@ object Versions {
     const val buildTools = "30.0.3"
 
     // Build tools and languages
-    const val androidPlugin = "7.2.1"
+    const val androidPlugin = "8.0.1"
     const val kotlin = "1.7.0"
 
     // Coroutines
@@ -42,7 +42,7 @@ object Versions {
     const val multidex = "2.0.1"
     const val desugaring = "1.1.5"
     const val installReferrer = "2.2"
-    const val navigation = "2.3.5"
+    const val navigation = "2.5.0"
     const val lifecycle = "2.4.1"
     const val camera = "1.0.0-rc04"
     const val cameraView = "1.0.0-alpha23"
@@ -179,8 +179,9 @@ object Versions {
     const val turbine = "0.8.0"
     const val mockk = "1.12.2"
     const val hamcrestJunit = "2.0.0.0"
-    const val junit = "4.12"
-    const val robolectric = "4.10.2"
+    const val junit = "4.13.2"
+    const val robolectric = "4.9"
+
     const val json = "20140107"
     const val espresso = "3.2.0"
     const val androidxTesting = "1.3.0"

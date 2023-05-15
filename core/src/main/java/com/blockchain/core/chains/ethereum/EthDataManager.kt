@@ -313,9 +313,11 @@ class EthDataManager(
 
     override fun signPreImage(preImage: PreImage): TransactionSignature {
         val account = ethDataStore.ethWallet?.account ?: throw IllegalStateException("No Eth wallet defined")
-        if (preImage.signatureAlgorithm != SignatureAlgorithm.SECP256K1) throw java.lang.IllegalArgumentException(
-            "Algorithm not supported"
-        )
+        if (preImage.signatureAlgorithm != SignatureAlgorithm.SECP256K1) {
+            throw java.lang.IllegalArgumentException(
+                "Algorithm not supported"
+            )
+        }
         val signature = account.signRawPreImage(
             rawPreImage = preImage.rawPreImage,
             masterKey = payloadDataManager.masterKey
@@ -351,7 +353,7 @@ class EthDataManager(
             val feeLevels = mapOf(
                 FeeLevel.LOW to feesResponse.LOW?.toBigInteger(),
                 FeeLevel.NORMAL to feesResponse.NORMAL?.toBigInteger(),
-                FeeLevel.HIGH to feesResponse.HIGH?.toBigInteger(),
+                FeeLevel.HIGH to feesResponse.HIGH?.toBigInteger()
             )
             val gasLimit = feesResponse.gasLimit?.toBigInteger() ?: BigInteger.ZERO
             val gasLimitContract = feesResponse.gasLimitContract?.toBigInteger() ?: BigInteger.ZERO

@@ -21,7 +21,6 @@ interface WebSocketConnection {
 }
 
 fun WebSocketConnection.openAsDisposable(): Disposable {
-
     open()
 
     return object : Disposable {

@@ -41,10 +41,10 @@ class AddCardDelegate(
 
         fun bind(paymentMethodItem: PaymentMethodItem) {
             root.setOnClickListener { paymentMethodItem.clickAction() }
-            title.text = if (canUseCreditCards)
-                title.context.getString(R.string.add_credit_or_debit_card_1)
-            else
-                title.context.getString(R.string.add_debit_card)
+            title.text = if (canUseCreditCards) {
+                title.context.getString(com.blockchain.stringResources.R.string.add_credit_or_debit_card_1)
+            } else
+                title.context.getString(com.blockchain.stringResources.R.string.add_debit_card)
         }
     }
 }

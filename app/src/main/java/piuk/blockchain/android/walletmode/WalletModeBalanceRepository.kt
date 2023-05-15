@@ -18,7 +18,7 @@ import piuk.blockchain.android.ui.dashboard.WalletModeBalanceCache
 class WalletModeBalanceRepository(
     private val balanceStore: WalletModeBalanceCache,
     private val coincore: Coincore,
-    private val currencyPrefs: CurrencyPrefs,
+    private val currencyPrefs: CurrencyPrefs
 ) : WalletModeBalanceService {
 
     override fun balanceFor(walletMode: WalletMode, freshnessStrategy: FreshnessStrategy): Flow<DataResource<Money>> {

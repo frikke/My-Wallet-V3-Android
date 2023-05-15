@@ -73,7 +73,7 @@ private fun MoreActionsScreen(
 
     Column(modifier = Modifier.fillMaxWidth()) {
         SheetHeader(
-            title = stringResource(id = R.string.common_more),
+            title = stringResource(id = com.blockchain.stringResources.R.string.common_more),
             onClosePress = dismiss,
             startImageResource = ImageResource.None,
             shouldShowDivider = false
@@ -88,7 +88,7 @@ private fun MoreActionsScreen(
                 secondaryText = stringResource(id = item.subtitle),
                 startImageResource = ImageResource.Local(item.icon),
                 endImageResource = if (item.enabled) {
-                    ImageResource.Local(R.drawable.ic_chevron_end)
+                    ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_chevron_end)
                 } else {
                     ImageResource.None
                 },
@@ -114,25 +114,25 @@ private fun PreviewMoreActionsScreen() {
         actions = listOf(
             MoreActionItem(
                 icon = R.drawable.ic_more_send,
-                title = R.string.common_send,
-                subtitle = R.string.transfer_to_other_wallets,
+                title = com.blockchain.stringResources.R.string.common_send,
+                subtitle = com.blockchain.stringResources.R.string.transfer_to_other_wallets,
                 action = QuickAction.TxAction(AssetAction.Send),
                 enabled = true
             ),
             MoreActionItem(
                 icon = R.drawable.ic_more_send,
-                title = R.string.common_send,
-                subtitle = R.string.transfer_to_other_wallets,
+                title = com.blockchain.stringResources.R.string.common_send,
+                subtitle = com.blockchain.stringResources.R.string.transfer_to_other_wallets,
                 action = QuickAction.TxAction(AssetAction.Send),
                 enabled = true
             ),
             MoreActionItem(
                 icon = R.drawable.ic_more_send,
-                title = R.string.common_send,
-                subtitle = R.string.transfer_to_other_wallets,
+                title = com.blockchain.stringResources.R.string.common_send,
+                subtitle = com.blockchain.stringResources.R.string.transfer_to_other_wallets,
                 action = QuickAction.TxAction(AssetAction.Send),
                 enabled = false
-            ),
+            )
         ),
         onActionClick = {},
         dismiss = {}

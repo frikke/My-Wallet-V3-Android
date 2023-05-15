@@ -50,10 +50,11 @@ class TxFlowAnalytics(
     fun onFlowCanceled(state: TransactionState) {
         when (state.action) {
             AssetAction.Send ->
-                if (state.currentStep == TransactionStep.CONFIRM_DETAIL)
+                if (state.currentStep == TransactionStep.CONFIRM_DETAIL) {
                     analytics.logEvent(SendAnalyticsEvent.CancelTransaction)
+                }
             AssetAction.Sell ->
-                if (state.currentStep == TransactionStep.CONFIRM_DETAIL)
+                if (state.currentStep == TransactionStep.CONFIRM_DETAIL) {
                     analytics.logEvent(
                         SellAnalyticsEvent(
                             event = SellAnalytics.CancelTransaction,
@@ -61,12 +62,15 @@ class TxFlowAnalytics(
                             source = state.sendingAccount.toCategory()
                         )
                     )
+                }
             AssetAction.Swap ->
-                if (state.currentStep == TransactionStep.CONFIRM_DETAIL)
+                if (state.currentStep == TransactionStep.CONFIRM_DETAIL) {
                     analytics.logEvent(SwapAnalyticsEvents.CancelTransaction)
+                }
             AssetAction.InterestDeposit ->
-                if (state.currentStep == TransactionStep.CONFIRM_DETAIL)
+                if (state.currentStep == TransactionStep.CONFIRM_DETAIL) {
                     analytics.logEvent(InterestDepositAnalyticsEvent.CancelTransaction)
+                }
             AssetAction.FiatWithdraw ->
                 if (state.currentStep == TransactionStep.CONFIRM_DETAIL) {
                     analytics.logEvent(
@@ -137,7 +141,8 @@ class TxFlowAnalytics(
             AssetAction.InterestDeposit -> triggerDepositScreenEvent(state.currentStep)
             AssetAction.InterestWithdraw -> triggerInterestWithdrawScreenEvent(state.currentStep)
             AssetAction.FiatWithdraw -> triggerWithdrawScreenEvent(
-                state.currentStep, (state.sendingAccount as FiatAccount).currency.networkTicker
+                state.currentStep,
+                (state.sendingAccount as FiatAccount).currency.networkTicker
             )
             else -> {
             }
@@ -209,7 +214,6 @@ class TxFlowAnalytics(
 
     private fun triggerDepositScreenEvent(step: TransactionStep) {
         when (step) {
-
             TransactionStep.ENTER_AMOUNT -> {
                 analytics.logEvent(EarnAnalytics.InterestDepositViewed)
                 analytics.logEvent(InterestDepositAnalyticsEvent.EnterAmountSeen)
@@ -404,13 +408,14 @@ class TxFlowAnalytics(
             AssetAction.Swap -> analytics.logEvent(SwapAnalyticsEvents.SwapFiatCryptoSwitcherClickedEvent(inputType))
             else -> {}
         }
-        if (state.action.shouldLogInputSwitch())
+        if (state.action.shouldLogInputSwitch()) {
             analytics.logEvent(
                 AmountSwitched(
                     action = state.action,
                     newInput = inputType
                 )
             )
+        }
     }
 
     fun onEnterAmountCtaClick(state: TransactionState) {
@@ -462,7 +467,8 @@ class TxFlowAnalytics(
             AssetAction.FiatWithdraw -> {
                 analytics.logEvent(
                     withdrawEvent(
-                        WithdrawAnalytics.WITHDRAW_CONFIRM, (state.sendingAccount as FiatAccount).currency.networkTicker
+                        WithdrawAnalytics.WITHDRAW_CONFIRM,
+                        (state.sendingAccount as FiatAccount).currency.networkTicker
                     )
                 )
                 val amount = state.pendingTx?.amount ?: throw IllegalArgumentException("Amount is missing")
@@ -673,7 +679,8 @@ class TxFlowAnalytics(
             AssetAction.FiatWithdraw ->
                 analytics.logEvent(
                     withdrawEvent(
-                        WithdrawAnalytics.WITHDRAW_SUCCESS, (state.sendingAccount as FiatAccount).currency.networkTicker
+                        WithdrawAnalytics.WITHDRAW_SUCCESS,
+                        (state.sendingAccount as FiatAccount).currency.networkTicker
                     )
                 )
             else -> {
@@ -712,7 +719,8 @@ class TxFlowAnalytics(
             AssetAction.FiatWithdraw ->
                 analytics.logEvent(
                     withdrawEvent(
-                        WithdrawAnalytics.WITHDRAW_ERROR, (state.sendingAccount as FiatAccount).currency.networkTicker
+                        WithdrawAnalytics.WITHDRAW_ERROR,
+                        (state.sendingAccount as FiatAccount).currency.networkTicker
                     )
                 )
             else -> {

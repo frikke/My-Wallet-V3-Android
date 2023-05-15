@@ -41,7 +41,6 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun TabSwitcher(tabs: ImmutableList<String>, initialTabIndex: Int, onTabChanged: (Int) -> Unit = {}) {
-
     val coroutineScope = rememberCoroutineScope()
     var tabLayoutWidthPx by remember { mutableStateOf(0) }
     var currentTabIndex by remember { mutableStateOf(initialTabIndex) }
@@ -52,11 +51,9 @@ fun TabSwitcher(tabs: ImmutableList<String>, initialTabIndex: Int, onTabChanged:
             .height(AppTheme.dimensions.xHugeSpacing)
             .background(AppTheme.colors.medium, RoundedCornerShape(AppTheme.dimensions.largeSpacing))
             .onSizeChanged { tabLayoutWidthPx = it.width },
-        contentAlignment = Alignment.CenterStart,
+        contentAlignment = Alignment.CenterStart
     ) {
-
         if (tabLayoutWidthPx > 0) {
-
             val indicatorWidth = tabLayoutWidthPx / tabs.size
             val indicatorWithDp = with(LocalDensity.current) {
                 indicatorWidth.toDp()
@@ -95,7 +92,7 @@ fun TabSwitcher(tabs: ImmutableList<String>, initialTabIndex: Int, onTabChanged:
                                 }
                                 onTabChanged(index)
                             },
-                        contentAlignment = Alignment.Center,
+                        contentAlignment = Alignment.Center
                     ) {
                         SimpleText(
                             text = tab,
@@ -105,7 +102,7 @@ fun TabSwitcher(tabs: ImmutableList<String>, initialTabIndex: Int, onTabChanged:
                             } else {
                                 ComposeColors.Body
                             },
-                            gravity = ComposeGravities.Centre,
+                            gravity = ComposeGravities.Centre
                         )
                     }
                 }
@@ -118,7 +115,6 @@ fun TabSwitcher(tabs: ImmutableList<String>, initialTabIndex: Int, onTabChanged:
 @Preview
 @Composable
 fun TabSwitcherLayoutPreview() {
-
     // Start in Interactive Mode to see it in the preview window
 
     val pagerState = rememberPagerState()

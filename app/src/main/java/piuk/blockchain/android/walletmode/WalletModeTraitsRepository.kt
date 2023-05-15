@@ -19,8 +19,9 @@ class WalletModeTraitsRepository : TraitsService {
                 "app_mode" to walletMode.toTraitsString(),
                 "buy_top_movers_enabled" to (topMoversInBuyFF?.coEnabled() ?: false).toString()
             )
-        } else
+        } else {
             emptyMap()
+        }
     }
 }
 

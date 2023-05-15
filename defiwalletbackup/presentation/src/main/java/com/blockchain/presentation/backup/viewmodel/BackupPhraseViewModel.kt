@@ -33,11 +33,13 @@ class BackupPhraseViewModel(
     private val analytics: Analytics,
     private val walletStatusPrefs: WalletStatusPrefs,
     private val authPrefs: AuthPrefs
-) : MviViewModel<BackupPhraseIntent,
+) : MviViewModel<
+    BackupPhraseIntent,
     BackupPhraseViewState,
     BackupPhraseModelState,
     BackupPhraseNavigationEvent,
-    BackupPhraseArgs>(
+    BackupPhraseArgs
+    >(
     initialState = BackupPhraseModelState()
 ) {
     override fun viewCreated(args: BackupPhraseArgs) {

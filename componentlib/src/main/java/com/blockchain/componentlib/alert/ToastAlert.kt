@@ -32,15 +32,14 @@ fun ToastAlert(
     onClick: () -> Unit = {},
     textColor: Color
 ) {
-
     Row(
         modifier = Modifier
             .clip(AppTheme.shapes.extraLarge)
             .background(backgroundColor)
             .wrapContentWidth()
             .padding(
-                horizontal = dimensionResource(R.dimen.standard_spacing),
-                vertical = dimensionResource(R.dimen.very_small_spacing)
+                horizontal = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                vertical = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)
             )
     ) {
         val composeImage =

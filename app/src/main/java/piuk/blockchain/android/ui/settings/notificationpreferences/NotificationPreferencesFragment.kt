@@ -67,7 +67,7 @@ class NotificationPreferencesFragment : MVIFragment<NotificationPreferencesViewS
         analytics.logEvent(NotificationPreferencesAnalyticsEvents.NotificationViewed)
 
         updateToolbar(
-            toolbarTitle = getString(R.string.notifications_toolbar)
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.notifications_toolbar)
         )
     }
 

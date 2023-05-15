@@ -17,7 +17,7 @@ internal object SwapGraph : NavGraph() {
 internal fun NavGraphBuilder.swapGraph() {
     navGraph(
         graph = SwapGraph,
-        startDestination = SwapGraph.EnterAmount,
+        startDestination = SwapGraph.EnterAmount
     ) {
         typedComposable(SwapGraph.EnterAmount) {
             SwapEnterAmountScreen(
@@ -40,7 +40,7 @@ internal fun NavGraphBuilder.swapGraph() {
 
         typedComposable(SwapGraph.OrderStatus) { args ->
             SwapOrderStatusScreen(
-                args = args,
+                args = args
             )
         }
     }

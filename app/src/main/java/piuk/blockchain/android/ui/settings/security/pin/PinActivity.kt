@@ -35,9 +35,6 @@ import com.blockchain.componentlib.viewextensions.showKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.MomentEvent
-import com.blockchain.logging.MomentLogger
-import com.blockchain.logging.MomentParam
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.google.android.play.core.appupdate.AppUpdateInfo
@@ -74,10 +71,12 @@ import piuk.blockchain.android.util.copyHashOnLongClick
 import piuk.blockchain.android.util.scopedInjectActivity
 
 class PinActivity :
-    MviActivity<PinModel,
+    MviActivity<
+        PinModel,
         PinIntent,
         PinState,
-        ActivityPinBinding>(),
+        ActivityPinBinding
+        >(),
     BiometricsEnrollmentBottomSheet.Host,
     TextWatcher {
 
@@ -95,8 +94,6 @@ class PinActivity :
     private val secondPasswordDialog: SecondPasswordDialog by scopedInjectActivity()
     private val biometricsController: BiometricsController by scopedInject()
     private var isBiometricsVisible = false
-
-    private val momentLogger: MomentLogger by inject()
 
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
@@ -130,11 +127,6 @@ class PinActivity :
 
         setupBackPress()
 
-        momentLogger.endEvent(
-            event = MomentEvent.SPLASH_TO_FIRST_SCREEN,
-            params = mapOf(MomentParam.SCREEN_NAME to javaClass.simpleName)
-        )
-
         appUpdateManager = AppUpdateManagerFactory.create(this)
 
         trackFraud()
@@ -144,7 +136,7 @@ class PinActivity :
         with(binding) {
             keyboard.addTextChangedListener(this@PinActivity)
             pinLogout.apply {
-                text = getString(R.string.logout)
+                text = getString(com.blockchain.stringResources.R.string.logout)
                 setOnClickListener { model.process(PinIntent.PinLogout) }
             }
             root.setOnClickListener {
@@ -175,6 +167,7 @@ class PinActivity :
                     model.process(PinIntent.UpdateAction(PinScreenView.CreateNewPin))
                     clearPin()
                 }
+
                 !isChangingPin -> finishWithResultOk(getIntroducedPin())
             }
         }
@@ -221,10 +214,12 @@ class PinActivity :
                     require(it.appUpdateInfo != null)
                     updateFlexibleNatively(appUpdateManager, it.appUpdateInfo)
                 }
+
                 UpgradeAppMethod.FORCED_NATIVELY -> {
                     require(it.appUpdateInfo != null)
                     updateForcedNatively(appUpdateManager, it.appUpdateInfo)
                 }
+
                 UpgradeAppMethod.FORCED_STORE -> handleForcedUpdateFromStore()
             }
         }
@@ -310,8 +305,9 @@ class PinActivity :
             OriginScreenToPin.MANUAL_PAIRING_SCREEN,
             OriginScreenToPin.LOGIN_AUTH_SCREEN,
             OriginScreenToPin.PASSWORD_REQUIRED_SCREEN -> fraudService.trackFlow(FraudFlow.LOGIN)
+
             else -> {
-                /*NO-OP*/
+                // NO-OP
             }
         }
     }
@@ -322,10 +318,11 @@ class PinActivity :
         when (originScreen) {
             OriginScreenToPin.CHANGE_PIN_SECURITY -> {
                 updateToolbar(
-                    toolbarTitle = getString(R.string.pin_toolbar_change),
+                    toolbarTitle = getString(com.blockchain.stringResources.R.string.pin_toolbar_change),
                     backAction = { onBackPressedDispatcher.onBackPressed() }
                 )
             }
+
             OriginScreenToPin.CREATE_WALLET,
             OriginScreenToPin.BACKUP_PHRASE,
             OriginScreenToPin.LAUNCHER_SCREEN,
@@ -354,12 +351,6 @@ class PinActivity :
             process(PinIntent.CheckApiStatus)
             process(PinIntent.GetCurrentPin)
             process(PinIntent.CheckFingerprint)
-            process(
-                PinIntent.CheckAppUpgradeStatus(
-                    versionName = BuildConfig.VERSION_NAME,
-                    appUpdateManager = appUpdateManager
-                )
-            )
         }
     }
 
@@ -377,22 +368,31 @@ class PinActivity :
             PasswordError.SERVER_CONNECTION_EXCEPTION,
             PasswordError.SERVER_TIMEOUT -> {
                 BlockchainSnackbar.make(
-                    binding.root, getString(R.string.server_unreachable_exit), type = SnackbarType.Error
+                    binding.root,
+                    getString(com.blockchain.stringResources.R.string.server_unreachable_exit),
+                    type = SnackbarType.Error
                 ).show()
                 util.restartApp()
             }
+
             PasswordError.HD_WALLET_EXCEPTION -> {
                 BlockchainSnackbar.make(
-                    binding.root, getString(R.string.unexpected_error), type = SnackbarType.Error
+                    binding.root,
+                    getString(com.blockchain.stringResources.R.string.unexpected_error),
+                    type = SnackbarType.Error
                 ).show()
             }
+
             PasswordError.ACCOUNT_LOCKED -> showAccountLockedDialog()
             PasswordError.UNKNOWN -> {
                 BlockchainSnackbar.make(
-                    binding.root, getString(R.string.invalid_password), type = SnackbarType.Error
+                    binding.root,
+                    getString(com.blockchain.stringResources.R.string.invalid_password),
+                    type = SnackbarType.Error
                 ).show()
                 showValidationDialog()
             }
+
             PasswordError.NONE -> {
             }
         }
@@ -402,41 +402,54 @@ class PinActivity :
         when (error) {
             PayloadError.CREDENTIALS_INVALID,
             PayloadError.DECRYPTION_EXCEPTION -> showValidationDialog()
+
             PayloadError.SERVER_CONNECTION_EXCEPTION,
             PayloadError.SERVER_TIMEOUT -> {
                 BlockchainSnackbar.make(
-                    binding.root, getString(R.string.server_unreachable_exit), type = SnackbarType.Error
+                    binding.root,
+                    getString(com.blockchain.stringResources.R.string.server_unreachable_exit),
+                    type = SnackbarType.Error
                 ).show()
                 util.restartApp()
             }
+
             PayloadError.UNSUPPORTED_VERSION_EXCEPTION -> showWalletVersionNotSupportedDialog("")
             PayloadError.HD_WALLET_EXCEPTION -> {
                 BlockchainSnackbar.make(
-                    binding.root, getString(R.string.unexpected_error), type = SnackbarType.Error
+                    binding.root,
+                    getString(com.blockchain.stringResources.R.string.unexpected_error),
+                    type = SnackbarType.Error
                 ).show()
             }
+
             PayloadError.INVALID_CIPHER_TEXT -> {
                 BlockchainSnackbar.make(
-                    binding.root, getString(R.string.password_changed_explanation), type = SnackbarType.Error
+                    binding.root,
+                    getString(com.blockchain.stringResources.R.string.password_changed_explanation),
+                    type = SnackbarType.Error
                 ).show()
                 util.clearCredentials()
             }
+
             PayloadError.ACCOUNT_LOCKED -> showAccountLockedDialog()
             PayloadError.UNKNOWN -> {
                 BlockchainSnackbar.make(
-                    binding.root, getString(R.string.unexpected_error), type = SnackbarType.Error
+                    binding.root,
+                    getString(com.blockchain.stringResources.R.string.unexpected_error),
+                    type = SnackbarType.Error
                 ).show()
             }
+
             PayloadError.NONE -> {}
         }
     }
 
     private fun showAccountLockedDialog() {
-        AlertDialog.Builder(this, R.style.AlertDialogStyle)
-            .setTitle(R.string.account_locked_title)
-            .setMessage(R.string.account_locked_message)
+        AlertDialog.Builder(this, com.blockchain.componentlib.R.style.AlertDialogStyle)
+            .setTitle(com.blockchain.stringResources.R.string.account_locked_title)
+            .setMessage(com.blockchain.stringResources.R.string.account_locked_message)
             .setCancelable(false)
-            .setPositiveButton(R.string.exit) { _, _ -> finish() }
+            .setPositiveButton(com.blockchain.stringResources.R.string.exit) { _, _ -> finish() }
             .create()
             .show()
     }
@@ -444,46 +457,72 @@ class PinActivity :
     private fun handleErrors(error: PinError) {
         when (error) {
             PinError.ERROR_CONNECTION ->
-                BlockchainSnackbar.make(binding.root, getString(R.string.api_fail), type = SnackbarType.Warning).show()
+                BlockchainSnackbar.make(
+                    binding.root,
+                    getString(com.blockchain.stringResources.R.string.api_fail),
+                    type = SnackbarType.Warning
+                ).show()
+
             PinError.DONT_MATCH -> {
                 BlockchainSnackbar.make(
-                    binding.root, getString(R.string.pin_mismatch_error_msg), type = SnackbarType.Warning
-                ).show()
-            }
-            PinError.INVALID_CREDENTIALS -> {
-                BlockchainSnackbar.make(binding.root, getString(R.string.invalid_pin), type = SnackbarType.Warning)
-                    .show()
-            }
-            PinError.ZEROS_PIN -> {
-                BlockchainSnackbar.make(binding.root, getString(R.string.zero_pin), type = SnackbarType.Warning).show()
-            }
-            PinError.PIN_INCOMPLETE -> {
-                BlockchainSnackbar.make(binding.root, getString(R.string.pin_num_digits), type = SnackbarType.Warning)
-                    .show()
-            }
-            PinError.CHANGE_TO_EXISTING_PIN -> {
-                BlockchainSnackbar.make(
-                    binding.root, getString(R.string.change_pin_new_matches_current),
+                    binding.root,
+                    getString(com.blockchain.stringResources.R.string.pin_mismatch_error_msg),
                     type = SnackbarType.Warning
                 ).show()
             }
+
+            PinError.INVALID_CREDENTIALS -> {
+                BlockchainSnackbar.make(
+                    binding.root,
+                    getString(com.blockchain.stringResources.R.string.invalid_pin),
+                    type = SnackbarType.Warning
+                )
+                    .show()
+            }
+
+            PinError.ZEROS_PIN -> {
+                BlockchainSnackbar.make(
+                    binding.root,
+                    getString(com.blockchain.stringResources.R.string.zero_pin),
+                    type = SnackbarType.Warning
+                ).show()
+            }
+
+            PinError.PIN_INCOMPLETE -> {
+                BlockchainSnackbar.make(
+                    binding.root,
+                    getString(com.blockchain.stringResources.R.string.pin_num_digits),
+                    type = SnackbarType.Warning
+                )
+                    .show()
+            }
+
+            PinError.CHANGE_TO_EXISTING_PIN -> {
+                BlockchainSnackbar.make(
+                    binding.root,
+                    getString(com.blockchain.stringResources.R.string.change_pin_new_matches_current),
+                    type = SnackbarType.Warning
+                ).show()
+            }
+
             PinError.CREATE_PIN_FAILED -> {
                 util.restartApp()
             }
+
             PinError.NUM_ATTEMPTS_EXCEEDED -> showMaxAttemptsDialog()
             else -> {}
         }
     }
 
     private fun onWalletUpgradeFailed() {
-        AlertDialog.Builder(this, R.style.AlertDialogStyle)
-            .setTitle(R.string.upgrade_fail_heading)
-            .setMessage(R.string.upgrade_fail_info)
+        AlertDialog.Builder(this, com.blockchain.componentlib.R.style.AlertDialogStyle)
+            .setTitle(com.blockchain.stringResources.R.string.upgrade_fail_heading)
+            .setMessage(com.blockchain.stringResources.R.string.upgrade_fail_info)
             .setCancelable(false)
-            .setPositiveButton(R.string.exit) { _, _ ->
+            .setPositiveButton(com.blockchain.stringResources.R.string.exit) { _, _ ->
                 util.logout(lastState.isIntercomEnabled)
             }
-            .setNegativeButton(R.string.logout) { _, _ ->
+            .setNegativeButton(com.blockchain.stringResources.R.string.logout) { _, _ ->
                 util.logout(lastState.isIntercomEnabled)
                 util.restartApp()
             }
@@ -508,20 +547,22 @@ class PinActivity :
         when (pinScreenView) {
             PinScreenView.LoginWithPin -> {
                 binding.apply {
-                    titleBox.setText(R.string.pin_entry)
+                    titleBox.setText(com.blockchain.stringResources.R.string.pin_entry)
                     subtitle.invisible()
                 }
             }
+
             PinScreenView.CreateNewPin -> {
                 binding.apply {
-                    titleBox.setText(R.string.pin_title_create)
-                    subtitle.setText(R.string.pin_subtitle)
+                    titleBox.setText(com.blockchain.stringResources.R.string.pin_title_create)
+                    subtitle.setText(com.blockchain.stringResources.R.string.pin_subtitle)
                     subtitle.visible()
                 }
             }
+
             PinScreenView.ConfirmNewPin -> {
                 binding.apply {
-                    titleBox.setText(R.string.pin_title_confirm)
+                    titleBox.setText(com.blockchain.stringResources.R.string.pin_title_confirm)
                     subtitle.invisible()
                 }
             }
@@ -533,7 +574,9 @@ class PinActivity :
         binding.layoutWarning.warningMessage.let {
             it.movementMethod = LinkMovementMethod.getInstance()
             it.text = StringUtils.getStringWithMappedAnnotations(
-                this, R.string.wallet_issue_message, learnMoreMap
+                this,
+                com.blockchain.stringResources.R.string.wallet_issue_message,
+                learnMoreMap
             )
         }
     }
@@ -551,12 +594,12 @@ class PinActivity :
     }
 
     private fun showMaxAttemptsDialog() {
-        AlertDialog.Builder(this, R.style.AlertDialogStyle)
-            .setTitle(R.string.app_name)
-            .setMessage(R.string.password_or_wipe)
+        AlertDialog.Builder(this, com.blockchain.componentlib.R.style.AlertDialogStyle)
+            .setTitle(com.blockchain.stringResources.R.string.app_name)
+            .setMessage(com.blockchain.stringResources.R.string.password_or_wipe)
             .setCancelable(true)
-            .setPositiveButton(R.string.use_password) { _, _ -> showValidationDialog() }
-            .setNegativeButton(R.string.common_cancel) { di, _ -> di.dismiss() }
+            .setPositiveButton(com.blockchain.stringResources.R.string.use_password) { _, _ -> showValidationDialog() }
+            .setNegativeButton(com.blockchain.stringResources.R.string.common_cancel) { di, _ -> di.dismiss() }
             .show()
     }
 
@@ -566,11 +609,11 @@ class PinActivity :
             InputType.TYPE_TEXT_VARIATION_PASSWORD or
             InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
 
-        password.setHint(R.string.password)
+        password.setHint(com.blockchain.stringResources.R.string.password)
 
-        AlertDialog.Builder(this, R.style.AlertDialogStyle)
-            .setTitle(R.string.app_name)
-            .setMessage(getString(R.string.password_entry))
+        AlertDialog.Builder(this, com.blockchain.componentlib.R.style.AlertDialogStyle)
+            .setTitle(com.blockchain.stringResources.R.string.app_name)
+            .setMessage(getString(com.blockchain.stringResources.R.string.password_entry))
             .setView(this.getAlertDialogPaddedView(password))
             .setCancelable(false)
             .setNegativeButton(android.R.string.cancel) { _, _ ->
@@ -609,19 +652,23 @@ class PinActivity :
                             model.process(PinIntent.UpdatePinErrorState(PinError.ZEROS_PIN))
                             errorPinBoxes()
                         }
+
                         isPinCommon(getIntroducedPin()) -> {
                             showCommonPinWarning()
                         }
+
                         lastState.isNewPinEqualToCurrentPin() -> {
                             model.process(PinIntent.UpdatePinErrorState(PinError.CHANGE_TO_EXISTING_PIN))
                             clearPin()
                             checkFingerprintStatus()
                         }
+
                         else -> {
                             validateAndConfirmPin()
                         }
                     }
                 }
+
                 PinScreenView.ConfirmNewPin,
                 PinScreenView.LoginWithPin -> validateAndConfirmPin()
             }
@@ -640,16 +687,19 @@ class PinActivity :
                     )
                 )
             }
+
             lastState.action == PinScreenView.CreateNewPin -> {
                 correctPinBoxes()
                 tempNewPin = getIntroducedPin()
                 clearPin()
                 model.process(PinIntent.UpdateAction(PinScreenView.ConfirmNewPin))
             }
+
             lastState.action == PinScreenView.ConfirmNewPin && getIntroducedPin() == tempNewPin -> {
                 correctPinBoxes()
                 model.process(PinIntent.CreatePIN(getIntroducedPin()))
             }
+
             else -> {
                 model.process(PinIntent.UpdatePinErrorState(PinError.DONT_MATCH))
                 model.process(PinIntent.UpdateAction(PinScreenView.CreateNewPin))
@@ -676,7 +726,10 @@ class PinActivity :
     }
 
     private fun handlePasswordValidated() {
-        BlockchainSnackbar.make(binding.root, getString(R.string.pin_4_strikes_password_accepted))
+        BlockchainSnackbar.make(
+            binding.root,
+            getString(com.blockchain.stringResources.R.string.pin_4_strikes_password_accepted)
+        )
         startActivity(
             newIntent(
                 context = this,
@@ -707,21 +760,21 @@ class PinActivity :
     private fun PinState.isNewPinEqualToCurrentPin(): Boolean = this.pinStatus.currentPin == getIntroducedPin()
 
     private fun showWalletVersionNotSupportedDialog(walletVersion: String) {
-        AlertDialog.Builder(this, R.style.AlertDialogStyle)
-            .setTitle(R.string.warning)
+        AlertDialog.Builder(this, com.blockchain.componentlib.R.style.AlertDialogStyle)
+            .setTitle(com.blockchain.stringResources.R.string.warning)
             .setMessage(
                 String.format(
-                    getString(R.string.unsupported_encryption_version),
+                    getString(com.blockchain.stringResources.R.string.unsupported_encryption_version),
                     walletVersion
                 )
             )
             .setCancelable(false)
             .setPositiveButton(
-                R.string.exit
+                com.blockchain.stringResources.R.string.exit
             ) { _, _ ->
                 util.logout(lastState.isIntercomEnabled)
             }
-            .setNegativeButton(R.string.logout) { _, _ ->
+            .setNegativeButton(com.blockchain.stringResources.R.string.logout) { _, _ ->
                 util.logout(lastState.isIntercomEnabled)
                 util.restartApp()
             }
@@ -729,17 +782,17 @@ class PinActivity :
     }
 
     private fun showCommonPinWarning() {
-        AlertDialog.Builder(this, R.style.AlertDialogStyle)
-            .setTitle(R.string.common_pin_dialog_title)
-            .setMessage(R.string.common_pin_dialog_message)
+        AlertDialog.Builder(this, com.blockchain.componentlib.R.style.AlertDialogStyle)
+            .setTitle(com.blockchain.stringResources.R.string.common_pin_dialog_title)
+            .setMessage(com.blockchain.stringResources.R.string.common_pin_dialog_message)
             .setPositiveButton(
-                R.string.common_pin_dialog_try_again
+                com.blockchain.stringResources.R.string.common_pin_dialog_try_again
             ) { _, _ ->
                 clearPin()
                 checkFingerprintStatus()
             }
             .setNegativeButton(
-                R.string.common_pin_dialog_continue
+                com.blockchain.stringResources.R.string.common_pin_dialog_continue
             ) { _, _ ->
                 validateAndConfirmPin()
             }
@@ -816,10 +869,12 @@ class PinActivity :
                 isForValidatingPinForResult -> {
                     finishWithResultCanceled()
                 }
+
                 originScreen == OriginScreenToPin.CHANGE_PIN_SECURITY -> {
                     fraudService.endFlow(FraudFlow.LOGIN)
                     finish()
                 }
+
                 else -> {
                     fraudService.endFlow(FraudFlow.LOGIN)
                     appUtil.logout(lastState.isIntercomEnabled)
@@ -893,11 +948,11 @@ class PinActivity :
     }
 
     private fun handleForcedUpdateFromStore() {
-        val alertDialog = AlertDialog.Builder(this, R.style.AlertDialogStyle)
-            .setTitle(R.string.app_name)
-            .setMessage(R.string.force_upgrade_message)
-            .setPositiveButton(R.string.update, null)
-            .setNegativeButton(R.string.exit, null)
+        val alertDialog = AlertDialog.Builder(this, com.blockchain.componentlib.R.style.AlertDialogStyle)
+            .setTitle(com.blockchain.stringResources.R.string.app_name)
+            .setMessage(com.blockchain.stringResources.R.string.force_upgrade_message)
+            .setPositiveButton(com.blockchain.stringResources.R.string.update, null)
+            .setNegativeButton(com.blockchain.stringResources.R.string.exit, null)
             .setCancelable(false)
             .create()
 
@@ -999,18 +1054,22 @@ class PinActivity :
                             is BiometricAuthError.BiometricAuthLockout -> BiometricPromptUtil.showAuthLockoutDialog(
                                 this@PinActivity
                             )
+
                             is BiometricAuthError.BiometricAuthLockoutPermanent -> {
                                 hideBiometricsUi()
                                 BiometricPromptUtil.showPermanentAuthLockoutDialog(this@PinActivity)
                             }
+
                             is BiometricAuthError.BiometricKeysInvalidated -> {
                                 hideBiometricsUi()
                                 BiometricPromptUtil.showInfoInvalidatedKeysDialog(this@PinActivity)
                             }
+
                             is BiometricAuthError.BiometricAuthOther -> {
                                 hideBiometricsUi()
                                 BiometricPromptUtil.showBiometricsGenericError(this@PinActivity, error.error)
                             }
+
                             else -> {
                                 // do nothing - this is handled by the Biometric Prompt framework
                             }
@@ -1027,7 +1086,8 @@ class PinActivity :
 
     override fun enrollBiometrics() {
         biometricsController.authenticate(
-            this, BiometricsType.TYPE_REGISTER,
+            this,
+            BiometricsType.TYPE_REGISTER,
             object : BiometricsCallback<WalletBiometricData> {
                 override fun onAuthSuccess(data: WalletBiometricData) {
                     model.process(PinIntent.CreatePINSucceeded)
@@ -1038,18 +1098,22 @@ class PinActivity :
                     when (error) {
                         is BiometricAuthError.BiometricAuthLockout ->
                             BiometricPromptUtil.showAuthLockoutDialog(this@PinActivity)
+
                         is BiometricAuthError.BiometricAuthLockoutPermanent -> {
                             hideBiometricsUi()
                             BiometricPromptUtil.showPermanentAuthLockoutDialog(this@PinActivity)
                         }
+
                         is BiometricAuthError.BiometricKeysInvalidated -> {
                             hideBiometricsUi()
                             BiometricPromptUtil.showInfoInvalidatedKeysDialog(this@PinActivity)
                         }
+
                         is BiometricAuthError.BiometricAuthOther -> {
                             hideBiometricsUi()
                             BiometricPromptUtil.showBiometricsGenericError(this@PinActivity, error.error)
                         }
+
                         else -> {
                             // do nothing - this is handled by the Biometric Prompt framework
                         }

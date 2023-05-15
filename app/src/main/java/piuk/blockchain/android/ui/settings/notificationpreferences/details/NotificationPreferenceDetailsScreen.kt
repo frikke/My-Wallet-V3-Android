@@ -38,7 +38,6 @@ fun NotificationPreferenceDetailsScreen(
                 .padding(AppTheme.dimensions.standardSpacing),
             horizontalAlignment = Alignment.Start
         ) {
-
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
                 text = state.description,
@@ -50,9 +49,9 @@ fun NotificationPreferenceDetailsScreen(
 
         Spacer(
             modifier = Modifier.padding(
-                start = dimensionResource(id = R.dimen.standard_spacing),
-                end = dimensionResource(id = R.dimen.standard_spacing),
-                bottom = dimensionResource(id = R.dimen.standard_spacing)
+                start = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing),
+                end = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing),
+                bottom = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing)
             )
         )
 
@@ -95,7 +94,7 @@ private fun PreferencesListPreview() {
                 ContactMethod("Emails", "EMAIL", true, true),
                 ContactMethod("Push notifications", "PUSH", true, false),
                 ContactMethod("In-app messages", "IN_APP", false, false),
-                ContactMethod("In-app messages", "IN_APP", false, true),
+                ContactMethod("In-app messages", "IN_APP", false, true)
             )
         )
     ) { _, _ -> }
@@ -109,7 +108,10 @@ fun PreferencesList(
     Column {
         methods.forEach { method ->
             val text = if (method.required) {
-                stringResource(id = R.string.settings_notification_required, method.title)
+                stringResource(
+                    id = com.blockchain.stringResources.R.string.settings_notification_required,
+                    method.title
+                )
             } else {
                 method.title
             }

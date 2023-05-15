@@ -150,7 +150,8 @@ class CardModelTest {
 
         val cardId = "1234"
         val cardToBeActivated = CardToBeActivated(
-            Partner.CARDPROVIDER, cardId
+            Partner.CARDPROVIDER,
+            cardId
         )
 
         whenever(interactor.addNewCard(any(), any(), any())).thenReturn(Single.just(cardToBeActivated))
@@ -257,7 +258,8 @@ class CardModelTest {
         val exitLink = "exitLink"
         val completeCardActivation: CompleteCardActivation =
             CompleteCardActivation.EverypayCompleteCardActivationDetails(
-                paymentLink, exitLink
+                paymentLink,
+                exitLink
             )
 
         whenever(cardActivator.activateCard(cardData, cardId)).thenReturn(Single.just(completeCardActivation))

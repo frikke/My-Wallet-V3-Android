@@ -23,7 +23,7 @@ import piuk.blockchain.android.databinding.DialogSheetAccountSelectorBinding
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 
 class AccountSelectSheet(
-    override val host: HostedBottomSheet.Host,
+    override val host: HostedBottomSheet.Host
 ) : SlidingModalBottomDialog<DialogSheetAccountSelectorBinding>() {
 
     private val activityRepo: AssetActivityRepository by scopedInject()
@@ -51,11 +51,11 @@ class AccountSelectSheet(
     private var _sheetTitle: Int = 0
 
     private val sheetTitle: Single<Int>
-        get() = if (_sheetTitle != 0)
+        get() = if (_sheetTitle != 0) {
             Single.just(_sheetTitle)
-        else walletModeService.walletModeSingle.map { it.selectAccountsTitle() }
+        } else walletModeService.walletModeSingle.map { it.selectAccountsTitle() }
 
-    private var sheetSubtitle: Int = R.string.empty
+    private var sheetSubtitle: Int = com.blockchain.stringResources.R.string.empty
     private var statusDecorator: StatusDecorator = { DefaultCellDecorator() }
 
     private fun doOnAccountSelected(account: BlockchainAccount) {
@@ -119,8 +119,8 @@ class AccountSelectSheet(
 
     @StringRes
     private fun WalletMode.selectAccountsTitle(): Int = when (this) {
-        WalletMode.NON_CUSTODIAL -> R.string.select_account_sheet_title_defi
-        WalletMode.CUSTODIAL -> R.string.select_account_sheet_title_brokerage
+        WalletMode.NON_CUSTODIAL -> com.blockchain.stringResources.R.string.select_account_sheet_title_defi
+        WalletMode.CUSTODIAL -> com.blockchain.stringResources.R.string.select_account_sheet_title_brokerage
     }
 
     companion object {
@@ -129,7 +129,7 @@ class AccountSelectSheet(
         fun newInstance(
             host: SelectionHost,
             accountList: Single<List<BlockchainAccount>>,
-            @StringRes sheetTitle: Int,
+            @StringRes sheetTitle: Int
         ): AccountSelectSheet =
             AccountSelectSheet(host).apply {
                 this.accountList = accountList.map { accounts ->
@@ -145,7 +145,7 @@ class AccountSelectSheet(
             accountList: Single<List<BlockchainAccount>>,
             @StringRes sheetTitle: Int,
             @StringRes sheetSubtitle: Int,
-            statusDecorator: StatusDecorator,
+            statusDecorator: StatusDecorator
         ): AccountSelectSheet =
             AccountSelectSheet(host).apply {
                 this.accountList = accountList.map { list ->

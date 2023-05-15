@@ -56,7 +56,8 @@ class BackupWalletVerifyFragment :
     }
 
     override fun showWordHints(hints: List<Int>) {
-        val mnemonicRequestHint = resources.getStringArray(R.array.mnemonic_word_requests)
+        val mnemonicRequestHint =
+            resources.getStringArray(com.blockchain.stringResources.R.array.mnemonic_word_requests)
         with(binding) {
             edittextFirstWord.hint = mnemonicRequestHint[hints[0]]
             edittextSecondWord.hint = mnemonicRequestHint[hints[1]]
@@ -74,7 +75,7 @@ class BackupWalletVerifyFragment :
         progressDialog = MaterialProgressDialog(
             requireContext()
         ).apply {
-            setMessage("${getString(R.string.please_wait)}…")
+            setMessage("${getString(com.blockchain.stringResources.R.string.please_wait)}…")
             setCancelable(false)
             show()
         }

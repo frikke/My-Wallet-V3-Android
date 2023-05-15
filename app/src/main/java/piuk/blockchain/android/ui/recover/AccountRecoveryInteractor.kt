@@ -21,7 +21,6 @@ class AccountRecoveryInteractor(
 ) {
 
     fun recoverCredentials(seedPhrase: String): Completable {
-
         val masterKey = payloadDataManager.generateMasterKeyFromSeed(seedPhrase)
         val metadataNode = metadataDerivation.deriveMetadataNode(masterKey)
 

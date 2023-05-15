@@ -43,12 +43,15 @@ class ForceBackupForSendSheet : SlidingModalBottomDialog<DialogBackupForSendBind
 
         if (remainingSendsWithoutBackup == 0) {
             binding.ctaLater.isEnabled = false
-            binding.backupSendsLabel.text = getString(R.string.backup_before_send_now_label)
+            binding.backupSendsLabel.text = getString(
+                com.blockchain.stringResources.R.string.backup_before_send_now_label
+            )
         } else {
             binding.ctaLater.isEnabled = true
             binding.backupSendsLabel.text =
                 resources.getQuantityString(
-                    R.plurals.backup_before_send_later_label, remainingSendsWithoutBackup,
+                    com.blockchain.stringResources.R.plurals.backup_before_send_later_label,
+                    remainingSendsWithoutBackup,
                     remainingSendsWithoutBackup
                 )
         }

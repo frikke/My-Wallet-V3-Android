@@ -10,7 +10,6 @@ fun Dialogue(
     firstButton: DialogueButton,
     secondButton: DialogueButton? = null
 ) {
-
     DialogueCard(
         body = body,
         firstButton = firstButton,

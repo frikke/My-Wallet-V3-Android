@@ -12,7 +12,7 @@ import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 
 class ActiveRewardsEligibilityStore(
-    private val activeRewardsApiService: ActiveRewardsApiService,
+    private val activeRewardsApiService: ActiveRewardsApiService
 ) : Store<Map<String, EarnRewardsEligibilityDto>> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,

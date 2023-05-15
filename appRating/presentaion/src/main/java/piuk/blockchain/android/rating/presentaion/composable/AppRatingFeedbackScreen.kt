@@ -51,44 +51,43 @@ fun AppRatingFeedbackScreen(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                start = dimensionResource(R.dimen.standard_spacing),
-                top = dimensionResource(R.dimen.standard_spacing),
-                end = dimensionResource(R.dimen.standard_spacing),
-                bottom = dimensionResource(R.dimen.small_spacing)
+                start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                top = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                end = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                bottom = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)
             ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         Text(
             style = AppTheme.typography.body2,
             color = Grey900,
             textAlign = TextAlign.Center,
-            text = stringResource(R.string.app_rating_feedback_title)
+            text = stringResource(com.blockchain.stringResources.R.string.app_rating_feedback_title)
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
         Text(
             style = AppTheme.typography.paragraph1,
             color = Grey600,
             textAlign = TextAlign.Center,
-            text = stringResource(R.string.app_rating_feedback_description)
+            text = stringResource(com.blockchain.stringResources.R.string.app_rating_feedback_description)
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)))
 
         TextInput(
             modifier = Modifier.height(160.dp),
             value = feedback,
             onValueChange = { feedback = it },
-            label = stringResource(R.string.app_rating_feedback_hint),
+            label = stringResource(com.blockchain.stringResources.R.string.app_rating_feedback_hint),
             maxLength = MAX_FEEDBACK_LENGTH
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)))
 
         SmallPrimaryButton(
-            text = stringResource(R.string.common_submit),
+            text = stringResource(com.blockchain.stringResources.R.string.common_submit),
             onClick = { onSubmit(feedback) },
             state = ButtonState.Enabled
         )

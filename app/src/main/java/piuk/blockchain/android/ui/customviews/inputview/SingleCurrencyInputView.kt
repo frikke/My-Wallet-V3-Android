@@ -70,8 +70,9 @@ class SingleCurrencyInputView(context: Context, attrs: AttributeSet) :
             Long.MAX_VALUE.toBigInteger()
         )
     ) { _, oldValue, newValue ->
-        if (newValue != oldValue)
+        if (newValue != oldValue) {
             updateFilters(binding.enterAmount.configuration.prefixOrSuffix)
+        }
     }
 
     private fun updateFilters(prefixOrSuffix: String) {
@@ -94,7 +95,8 @@ class SingleCurrencyInputView(context: Context, attrs: AttributeSet) :
                         isPrefix = newValue.currency.type == CurrencyType.FIAT,
                         initialText = newValue.predefinedAmount.toStringWithoutSymbol()
                             .replace(
-                                DecimalFormatSymbols(java.util.Locale.getDefault()).groupingSeparator.toString(), ""
+                                DecimalFormatSymbols(java.util.Locale.getDefault()).groupingSeparator.toString(),
+                                ""
                             )
                             .removeSuffix("${DecimalFormatSymbols(Locale.getDefault()).decimalSeparator}00")
                     )

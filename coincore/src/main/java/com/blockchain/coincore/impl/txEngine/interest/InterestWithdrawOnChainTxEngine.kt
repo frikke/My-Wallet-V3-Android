@@ -30,7 +30,7 @@ import io.reactivex.rxjava3.core.Single
 class InterestWithdrawOnChainTxEngine(
     private val interestBalanceStore: FlushableDataSource,
     private val interestService: InterestService,
-    private val walletManager: CustodialWalletManager,
+    private val walletManager: CustodialWalletManager
 ) : InterestBaseEngine(interestService) {
 
     override val flushableDataSources: List<FlushableDataSource>
@@ -57,7 +57,8 @@ class InterestWithdrawOnChainTxEngine(
                 limits = TxLimits.fromAmounts(
                     min = Money.fromMinor(sourceAsset, minLimits.minLimit),
                     max = (maxLimits.maxWithdrawalFiatValue as FiatValue).toCrypto(
-                        exchangeRates, sourceAsset as AssetInfo
+                        exchangeRates,
+                        sourceAsset as AssetInfo
                     )
                 ),
                 feeSelection = FeeSelection(),
@@ -107,7 +108,9 @@ class InterestWithdrawOnChainTxEngine(
                 txConfirmations = listOfNotNull(
                     TxConfirmationValue.From(sourceAccount, sourceAsset),
                     TxConfirmationValue.To(
-                        txTarget, AssetAction.InterestDeposit, sourceAccount
+                        txTarget,
+                        AssetAction.InterestDeposit,
+                        sourceAccount
                     ),
                     TxConfirmationValue.NetworkFee(
                         pendingTx.feeAmount,
@@ -139,7 +142,10 @@ class InterestWithdrawOnChainTxEngine(
         (txTarget as CryptoAccount).receiveAddress.flatMapCompletable { receiveAddress ->
             (txTarget as? CryptoTarget)?.memo?.let {
                 executeWithdrawal(
-                    sourceAssetInfo, pendingTx.amount, receiveAddress.address, it
+                    sourceAssetInfo,
+                    pendingTx.amount,
+                    receiveAddress.address,
+                    it
                 )
             } ?: kotlin.run {
                 executeWithdrawal(sourceAssetInfo, pendingTx.amount, receiveAddress.address)
@@ -152,7 +158,7 @@ class InterestWithdrawOnChainTxEngine(
         sourceAsset: AssetInfo,
         amount: Money,
         receiveAddress: String,
-        memo: String? = null,
+        memo: String? = null
     ) = interestService.withdraw(
         asset = sourceAsset,
         amount = amount,

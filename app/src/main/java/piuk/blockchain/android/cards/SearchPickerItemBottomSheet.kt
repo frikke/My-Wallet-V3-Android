@@ -23,7 +23,7 @@ class SearchPickerItemBottomSheet : ComposeModalBottomDialog() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setStyle(DialogFragment.STYLE_NORMAL, R.style.FloatingBottomSheet)
+        setStyle(DialogFragment.STYLE_NORMAL, com.blockchain.common.R.style.FloatingBottomSheet)
     }
 
     @Composable
@@ -34,7 +34,7 @@ class SearchPickerItemBottomSheet : ComposeModalBottomDialog() {
             onItemClicked = {
                 host.onItemPicked(it)
                 dismiss()
-            },
+            }
         )
     }
 

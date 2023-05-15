@@ -2,7 +2,6 @@ package com.blockchain.analytics.events
 
 import com.blockchain.analytics.AnalyticsEvent
 
-@Deprecated("Analytics events should be defined near point of use")
 enum class AnalyticsEvents(
     override val event: String,
     override val params: Map<String, String> = emptyMap()
@@ -431,9 +430,7 @@ enum class AnalyticsNames(val eventName: String) {
     SWAP_CONFIRMATION_VIEWED("Wallet Swap Confirmation Screen Viewed"),
     SWAP_CONFIRMATION_SWAP_CLICKED("Wallet Swap Confirmation Screen Confirm Swap Clicked"),
     SWAP_CONFIRMATION_PENDING_VIEWED("Wallet Swap Post Confirmation Pending Viewed"),
-    SWAP_CONFIRMATION_SUCCESS_VIEWED("Wallet Swap Post Confirmation Success Viewed"),
-
-    ;
+    SWAP_CONFIRMATION_SUCCESS_VIEWED("Wallet Swap Post Confirmation Success Viewed")
 }
 
 enum class LaunchOrigin {
@@ -471,5 +468,5 @@ enum class LaunchOrigin {
     LAUNCH_SCREEN,
     COIN_VIEW,
     NUX_LAUNCH_PROMO_LOG_IN,
-    NUX_LAUNCH_PROMO_BUY_CRYPTO;
+    NUX_LAUNCH_PROMO_BUY_CRYPTO
 }

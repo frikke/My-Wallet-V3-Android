@@ -13,8 +13,8 @@ fun InterestDashboardError(action: () -> Unit) {
         factory = { context ->
             EmptyStateView(context).apply {
                 setDetails(
-                    title = R.string.rewards_error_title,
-                    description = R.string.rewards_error_desc,
+                    title = com.blockchain.stringResources.R.string.rewards_error_title,
+                    description = com.blockchain.stringResources.R.string.rewards_error_desc,
                     contactSupportEnabled = true,
                     action = action,
                     onContactSupport = { context.startActivity(SupportCentreActivity.newIntent(context)) }

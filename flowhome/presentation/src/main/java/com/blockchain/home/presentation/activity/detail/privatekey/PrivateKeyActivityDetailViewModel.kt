@@ -33,7 +33,8 @@ class PrivateKeyActivityDetailViewModel(
     ActivityDetailViewState,
     ActivityDetailModelState<ActivityDetailGroups>,
     HomeNavEvent,
-    ModelConfigArgs.NoArgs>(ActivityDetailModelState()) {
+    ModelConfigArgs.NoArgs
+    >(ActivityDetailModelState()) {
 
     private var activityDetailJob: Job? = null
 

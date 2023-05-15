@@ -41,40 +41,42 @@ fun ButtonContent(
         Row(
             Modifier.alpha(contentAlpha),
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             when (icon) {
                 is ImageResource.Local -> {
                     Image(
                         imageResource = icon,
-                        modifier = Modifier.size(icon.size ?: dimensionResource(R.dimen.medium_spacing)),
+                        modifier = Modifier.size(
+                            icon.size ?: dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)
+                        )
                     )
                     if (text.isNotEmpty()) Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
                 }
                 is ImageResource.LocalWithResolvedDrawable -> {
                     Image(
                         imageResource = icon,
-                        modifier = Modifier.size(dimensionResource(R.dimen.medium_spacing)),
+                        modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing))
                     )
                     if (text.isNotEmpty()) Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
                 }
                 is ImageResource.LocalWithBackground -> {
                     Image(
                         imageResource = icon,
-                        modifier = Modifier.size(dimensionResource(R.dimen.medium_spacing)),
+                        modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing))
                     )
                     if (text.isNotEmpty()) Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
                 }
                 is ImageResource.Remote -> {
                     Image(
                         imageResource = icon,
-                        modifier = Modifier.size(dimensionResource(R.dimen.medium_spacing)),
+                        modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing))
                     )
                     if (text.isNotEmpty()) Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
                 }
                 is ImageResource.LocalWithResolvedBitmap,
                 is ImageResource.LocalWithBackgroundAndExternalResources,
-                ImageResource.None -> { /* no-op */
+                ImageResource.None -> { // no-op
                 }
             }
             Text(

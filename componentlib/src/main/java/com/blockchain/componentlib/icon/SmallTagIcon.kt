@@ -43,7 +43,6 @@ fun SmallTagIcon(
             }
             .size(mainIconSize + tagIconSize - overlap + borderSize)
     ) {
-
         Surface(
             modifier = Modifier
                 .size(mainIconSize),

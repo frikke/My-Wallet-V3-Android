@@ -31,7 +31,6 @@ internal object Coins {
         feePerKb: BigInteger,
         addReplayProtection: Boolean
     ): Pair<BigInteger, BigInteger> {
-
         var coinSortingMethod: CoinSortingMethod? = null
 
         if (addReplayProtection) {
@@ -63,7 +62,6 @@ internal object Coins {
         feePerKb: BigInteger,
         addReplayProtection: Boolean
     ): SpendableUnspentOutputs {
-
         val coinSortingMethod: CoinSortingMethod = if (addReplayProtection) {
             ReplayProtection(placeholderDustInput)
         } else {

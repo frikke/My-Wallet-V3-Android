@@ -66,7 +66,7 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
                             )
                         )
                     else -> {
-                        /*NO-OP*/
+                        // NO-OP
                     }
                 }
             },

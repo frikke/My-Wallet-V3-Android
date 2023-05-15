@@ -46,7 +46,6 @@ internal class AppRatingRepository(
 
     override fun postRatingData(appRating: AppRating) {
         coroutineScope.launch(dispatcher) {
-
             // get api keys from remote config
             val apiKeys: AppRatingApiKeys? = appRatingApiKeysRemoteConfig.getApiKeys().getOrDefault(null)
 

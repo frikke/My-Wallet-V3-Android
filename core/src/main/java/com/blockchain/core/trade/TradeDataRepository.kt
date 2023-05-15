@@ -29,7 +29,7 @@ class TradeDataRepository(
     override suspend fun getBuyQuotePrice(
         currencyPair: CurrencyPair,
         amount: Money,
-        paymentMethod: PaymentMethodType,
+        paymentMethod: PaymentMethodType
     ): Outcome<Exception, QuotePrice> =
         tradeService.getQuotePrice(
             currencyPair = currencyPair.rawValue,
@@ -43,13 +43,13 @@ class TradeDataRepository(
     override suspend fun getSellQuotePrice(
         currencyPair: CurrencyPair,
         amount: Money,
-        direction: TransferDirection,
+        direction: TransferDirection
     ): Outcome<Exception, QuotePrice> =
         tradeService.getQuotePrice(
             currencyPair = currencyPair.rawValue,
             amount = amount.toBigInteger().toString(),
             paymentMethod = direction.getQuotePaymentMethod(),
-            orderProfileName = direction.getQuoteOrderProfileName(),
+            orderProfileName = direction.getQuoteOrderProfileName()
         ).map { response ->
             response.toDomain(assetCatalogue)
         }
@@ -57,13 +57,13 @@ class TradeDataRepository(
     override suspend fun getSwapQuotePrice(
         currencyPair: CurrencyPair,
         amount: Money,
-        direction: TransferDirection,
+        direction: TransferDirection
     ): Outcome<Exception, QuotePrice> =
         tradeService.getQuotePrice(
             currencyPair = currencyPair.rawValue,
             amount = amount.toBigInteger().toString(),
             paymentMethod = direction.getQuotePaymentMethod(),
-            orderProfileName = direction.getQuoteOrderProfileName(),
+            orderProfileName = direction.getQuoteOrderProfileName()
         ).map { response ->
             response.toDomain(assetCatalogue)
         }

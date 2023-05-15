@@ -18,6 +18,6 @@ data class Preference(
     @SerialName("optionalMethods")
     val optionalMethods: List<String>,
     @SerialName("requiredMethods")
-    val requiredMethods: List<String>,
+    val requiredMethods: List<String>
 
 )

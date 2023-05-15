@@ -90,9 +90,14 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
         val effectiveLimitAmount = effectiveLimit.amount.toEnteredCurrency(input, exchangeRate, RoundingMode.FLOOR)
 
         val limitPeriodText = when (effectiveLimit.period) {
-            TxLimitPeriod.DAILY -> resources.getString(R.string.tx_periodic_limit_daily)
-            TxLimitPeriod.MONTHLY -> resources.getString(R.string.tx_periodic_limit_monthly)
-            TxLimitPeriod.YEARLY -> resources.getString(R.string.tx_periodic_limit_yearly)
+            TxLimitPeriod.DAILY -> resources.getString(com.blockchain.stringResources.R.string.tx_periodic_limit_daily)
+            TxLimitPeriod.MONTHLY -> resources.getString(
+                com.blockchain.stringResources.R.string.tx_periodic_limit_monthly
+            )
+
+            TxLimitPeriod.YEARLY -> resources.getString(
+                com.blockchain.stringResources.R.string.tx_periodic_limit_yearly
+            )
         }
 
         return if (state.limits.suggestedUpgrade != null) {
@@ -110,28 +115,30 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
         limitPeriodText: String,
         effectiveLimitAmount: String
     ): TransactionFlowBottomSheetInfo? {
-
         return when (state.action) {
             AssetAction.Send -> TransactionFlowBottomSheetInfo(
                 type = type,
-                title = resources.getString(R.string.over_your_limit),
+                title = resources.getString(com.blockchain.stringResources.R.string.over_your_limit),
                 description = infoDescriptionForPeriodicLimits(
-                    R.string.send_enter_amount_max_limit_from_custodial_info,
+                    com.blockchain.stringResources.R.string.send_enter_amount_max_limit_from_custodial_info,
                     effectiveLimitAmount,
                     limitPeriodText,
                     availableAmount
                 ),
                 action = infoActionForSuggestedUpgrade(state)
             )
+
             AssetAction.Swap -> TransactionFlowBottomSheetInfo(
                 type = type,
-                title = resources.getString(R.string.over_your_limit),
+                title = resources.getString(com.blockchain.stringResources.R.string.over_your_limit),
                 description = infoDescriptionForPeriodicLimits(
                     when (state.sourceAccountType) {
-                        AssetCategory.CUSTODIAL -> R.string.swap_enter_amount_max_limit_from_custodial_info
-                        AssetCategory.NON_CUSTODIAL -> R.string.swap_enter_amount_max_limit_from_noncustodial_info
+                        AssetCategory.CUSTODIAL ->
+                            com.blockchain.stringResources.R.string.swap_enter_amount_max_limit_from_custodial_info
+                        AssetCategory.NON_CUSTODIAL ->
+                            com.blockchain.stringResources.R.string.swap_enter_amount_max_limit_from_noncustodial_info
                         AssetCategory.DELEGATED_NON_CUSTODIAL ->
-                            R.string.swap_enter_amount_max_limit_from_noncustodial_info
+                            com.blockchain.stringResources.R.string.swap_enter_amount_max_limit_from_noncustodial_info
                     },
                     effectiveLimitAmount,
                     limitPeriodText,
@@ -139,11 +146,12 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                 ),
                 action = infoActionForSuggestedUpgrade(state)
             )
+
             AssetAction.Buy -> TransactionFlowBottomSheetInfo(
                 type = type,
-                title = resources.getString(R.string.over_your_limit),
+                title = resources.getString(com.blockchain.stringResources.R.string.over_your_limit),
                 description = infoDescriptionForPeriodicLimits(
-                    R.string.buy_enter_amount_max_limit_suggested_tier_upgrade_info,
+                    com.blockchain.stringResources.R.string.buy_enter_amount_max_limit_suggested_tier_upgrade_info,
                     effectiveLimitAmount,
                     limitPeriodText,
                     availableAmount
@@ -154,6 +162,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
             AssetAction.Sell,
             AssetAction.FiatWithdraw,
             AssetAction.FiatDeposit -> null
+
             else -> null
         }
     }
@@ -168,62 +177,79 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
         return when (state.action) {
             AssetAction.Send -> TransactionFlowBottomSheetInfo(
                 type = type,
-                title = resources.getString(R.string.maximum_with_value, availableAmount),
+                title = resources.getString(
+                    com.blockchain.stringResources.R.string.maximum_with_value, availableAmount
+                ),
                 description = infoDescriptionForPeriodicLimits(
-                    R.string.send_enter_amount_max_limit_from_custodial_info,
+                    com.blockchain.stringResources.R.string.send_enter_amount_max_limit_from_custodial_info,
                     effectiveLimitAmount,
                     limitPeriodText,
                     availableAmount
                 )
             )
+
             AssetAction.FiatWithdraw -> TransactionFlowBottomSheetInfo(
                 type = type,
-                title = resources.getString(R.string.maximum_with_value, availableAmount),
+                title = resources.getString(
+                    com.blockchain.stringResources.R.string.maximum_with_value, availableAmount
+                ),
                 description = infoDescriptionForPeriodicLimits(
-                    R.string.withdrawal_max_limit_info,
+                    com.blockchain.stringResources.R.string.withdrawal_max_limit_info,
                     effectiveLimitAmount,
                     limitPeriodText,
                     availableAmount
                 )
             )
+
             AssetAction.Swap -> {
                 val asset = state.sendingAsset
                 require(asset != null)
                 TransactionFlowBottomSheetInfo(
                     type = type,
-                    title = resources.getString(R.string.maximum_with_value, availableAmount),
+                    title = resources.getString(
+                        com.blockchain.stringResources.R.string.maximum_with_value,
+                        availableAmount
+                    ),
                     description = infoDescriptionForPeriodicLimits(
-                        R.string.max_swap_amount_description,
+                        com.blockchain.stringResources.R.string.max_swap_amount_description,
                         asset.displayTicker,
                         state.receivingAsset.displayTicker,
                         availableAmount
                     )
                 )
             }
+
             AssetAction.Sell -> {
                 val asset = state.sendingAsset
                 require(asset != null)
                 TransactionFlowBottomSheetInfo(
                     type = type,
-                    title = resources.getString(R.string.maximum_with_value, availableAmount),
+                    title = resources.getString(
+                        com.blockchain.stringResources.R.string.maximum_with_value,
+                        availableAmount
+                    ),
                     description = infoDescriptionForPeriodicLimits(
-                        R.string.max_sell_amount_description,
+                        com.blockchain.stringResources.R.string.max_sell_amount_description,
                         asset.displayTicker,
                         state.receivingAsset.displayTicker,
                         availableAmount
                     )
                 )
             }
+
             AssetAction.Buy -> TransactionFlowBottomSheetInfo(
                 type = type,
-                title = resources.getString(R.string.maximum_with_value, availableAmount),
+                title = resources.getString(
+                    com.blockchain.stringResources.R.string.maximum_with_value, availableAmount
+                ),
                 description = infoDescriptionForPeriodicLimits(
-                    R.string.buy_enter_amount_max_limit_without_upgrade_info,
+                    com.blockchain.stringResources.R.string.buy_enter_amount_max_limit_without_upgrade_info,
                     effectiveLimitAmount,
                     limitPeriodText,
                     availableAmount
                 )
             )
+
             AssetAction.FiatDeposit -> null
             else -> null
         }
@@ -248,14 +274,23 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
         val thirdBoldRange = availableAmountStartIndex..(availableAmountStartIndex + availableAmount.length)
 
         spannableStringBuilder.setSpan(
-            StyleSpan(Typeface.BOLD), firstBoldRange.first, firstBoldRange.last, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            StyleSpan(Typeface.BOLD),
+            firstBoldRange.first,
+            firstBoldRange.last,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
         spannableStringBuilder.setSpan(
-            StyleSpan(Typeface.BOLD), secondBoldRange.first, secondBoldRange.last, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            StyleSpan(Typeface.BOLD),
+            secondBoldRange.first,
+            secondBoldRange.last,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 
         spannableStringBuilder.setSpan(
-            StyleSpan(Typeface.BOLD), thirdBoldRange.first, thirdBoldRange.last, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            StyleSpan(Typeface.BOLD),
+            thirdBoldRange.first,
+            thirdBoldRange.last,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 
         return spannableStringBuilder
@@ -268,7 +303,9 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
     ): TransactionFlowBottomSheetInfo? {
         val fiatRate = state.fiatRate ?: return null
         val min = state.limits.minAmount.toEnteredCurrency(
-            input, fiatRate, RoundingMode.CEILING
+            input,
+            fiatRate,
+            RoundingMode.CEILING
         )
         return when (state.action) {
             AssetAction.Send -> null // TODO("Missing Designs- Replace once available")
@@ -276,54 +313,64 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                 return TransactionFlowBottomSheetInfo(
                     type = type,
                     title = resources.getString(
-                        R.string.minimum_with_value,
+                        com.blockchain.stringResources.R.string.minimum_with_value,
                         min
                     ),
                     description = resources.getString(
-                        R.string.minimum_withdraw_error_message, min
+                        com.blockchain.stringResources.R.string.minimum_withdraw_error_message,
+                        min
                     )
                 )
             }
+
             AssetAction.Swap -> return TransactionFlowBottomSheetInfo(
                 type = type,
                 title = resources.getString(
-                    R.string.minimum_with_value,
+                    com.blockchain.stringResources.R.string.minimum_with_value,
                     min
                 ),
                 description = resources.getString(
-                    R.string.minimum_swap_error_message, min
+                    com.blockchain.stringResources.R.string.minimum_swap_error_message,
+                    min
                 )
             )
+
             AssetAction.Buy -> return TransactionFlowBottomSheetInfo(
                 type = type,
                 title = resources.getString(
-                    R.string.minimum_with_value,
+                    com.blockchain.stringResources.R.string.minimum_with_value,
                     min
                 ),
                 description = resources.getString(
-                    R.string.minimum_buy_error_message, min
+                    com.blockchain.stringResources.R.string.minimum_buy_error_message,
+                    min
                 )
             )
+
             AssetAction.Sell -> return TransactionFlowBottomSheetInfo(
                 type = type,
                 title = resources.getString(
-                    R.string.minimum_with_value,
+                    com.blockchain.stringResources.R.string.minimum_with_value,
                     min
                 ),
                 description = resources.getString(
-                    R.string.minimum_sell_error_message, min
+                    com.blockchain.stringResources.R.string.minimum_sell_error_message,
+                    min
                 )
             )
+
             AssetAction.FiatDeposit -> return TransactionFlowBottomSheetInfo(
                 type = type,
                 title = resources.getString(
-                    R.string.minimum_with_value,
+                    com.blockchain.stringResources.R.string.minimum_with_value,
                     min
                 ),
                 description = resources.getString(
-                    R.string.minimum_deposit_error_message, min
+                    com.blockchain.stringResources.R.string.minimum_deposit_error_message,
+                    min
                 )
             )
+
             else -> null
         }
     }
@@ -336,12 +383,14 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
         val fiatRate = state.fiatRate ?: return null
         val upgradeAvailable = state.limits.suggestedUpgrade != null
         val title = if (upgradeAvailable) {
-            resources.getString(R.string.over_your_limit)
+            resources.getString(com.blockchain.stringResources.R.string.over_your_limit)
         } else {
             resources.getString(
-                R.string.maximum_with_value,
+                com.blockchain.stringResources.R.string.maximum_with_value,
                 state.limits.maxAmount.toEnteredCurrency(
-                    input, fiatRate, RoundingMode.FLOOR
+                    input,
+                    fiatRate,
+                    RoundingMode.FLOOR
                 )
             )
         }
@@ -350,12 +399,12 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
             AssetAction.Buy -> {
                 val description = if (upgradeAvailable) {
                     resources.getString(
-                        R.string.buy_above_payment_method_error_message,
+                        com.blockchain.stringResources.R.string.buy_above_payment_method_error_message,
                         state.limits.maxAmount.toEnteredCurrency(input, fiatRate, RoundingMode.FLOOR)
                     )
                 } else {
                     resources.getString(
-                        R.string.buy_above_payment_method_error_message_without_upgrade,
+                        com.blockchain.stringResources.R.string.buy_above_payment_method_error_message_without_upgrade,
                         state.limits.maxAmount.toEnteredCurrency(input, fiatRate, RoundingMode.FLOOR),
                         state.amount.toStringWithSymbol()
                     )
@@ -367,15 +416,17 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                     action = infoActionForSuggestedUpgrade(state)
                 )
             }
+
             AssetAction.FiatDeposit -> {
                 val description = if (upgradeAvailable) {
                     resources.getString(
-                        R.string.deposit_above_payment_method_error_message,
+                        com.blockchain.stringResources.R.string.deposit_above_payment_method_error_message,
                         state.limits.maxAmount.toEnteredCurrency(input, fiatRate, RoundingMode.FLOOR)
                     )
                 } else {
                     resources.getString(
-                        R.string.deposit_above_payment_method_error_message_without_upgrade,
+                        com.blockchain.stringResources.R
+                            .string.deposit_above_payment_method_error_message_without_upgrade,
                         state.limits.maxAmount.toEnteredCurrency(input, fiatRate, RoundingMode.FLOOR),
                         state.amount.toStringWithSymbol()
                     )
@@ -387,6 +438,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                     action = infoActionForSuggestedUpgrade(state)
                 )
             }
+
             else -> throw IllegalStateException(
                 "Error state ${state.errorState} is not applicable for action ${state.action}"
             )
@@ -399,16 +451,24 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
     ): TransactionFlowBottomSheetInfo =
         TransactionFlowBottomSheetInfo(
             type = type,
-            title = resources.getString(R.string.tx_enter_amount_transactions_limit_info_title),
+            title = resources.getString(
+                com.blockchain.stringResources.R.string.tx_enter_amount_transactions_limit_info_title
+            ),
             description = resources.getString(
-                R.string.tx_enter_amount_transactions_limit_info_description,
+                com.blockchain.stringResources.R.string.tx_enter_amount_transactions_limit_info_description,
                 (state.transactionsLimit as? TransactionsLimit.Limited)?.maxTransactionsLeft ?: 0
             ),
             action = InfoAction(
-                icon = R.drawable.ic_verification_badge,
-                title = resources.getString(R.string.tx_enter_amount_transactions_limit_info_action_title),
-                description = resources.getString(R.string.tx_enter_amount_transactions_limit_info_action_description),
-                ctaActionText = resources.getString(R.string.tx_tier_suggested_upgrade_info_action_cta_button),
+                icon = com.blockchain.common.R.drawable.ic_verification_badge,
+                title = resources.getString(
+                    com.blockchain.stringResources.R.string.tx_enter_amount_transactions_limit_info_action_title
+                ),
+                description = resources.getString(
+                    com.blockchain.stringResources.R.string.tx_enter_amount_transactions_limit_info_action_description
+                ),
+                ctaActionText = resources.getString(
+                    com.blockchain.stringResources.R.string.tx_tier_suggested_upgrade_info_action_cta_button
+                ),
                 actionType = InfoActionType.KYC_UPGRADE
             )
         )
@@ -416,10 +476,17 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
     private fun infoActionForSuggestedUpgrade(state: TransactionFlowStateInfo): InfoAction? =
         state.limits.suggestedUpgrade?.let {
             val title = when (state.action) {
-                AssetAction.Send -> resources.getString(R.string.send_enter_amount_max_limit_info_action_title)
+                AssetAction.Send -> resources.getString(
+                    com.blockchain.stringResources.R.string.send_enter_amount_max_limit_info_action_title
+                )
 
-                AssetAction.Swap -> resources.getString(R.string.swap_enter_amount_max_limit_info_action_title)
-                AssetAction.Buy -> resources.getString(R.string.buy_enter_amount_max_limit_info_action_title)
+                AssetAction.Swap -> resources.getString(
+                    com.blockchain.stringResources.R.string.swap_enter_amount_max_limit_info_action_title
+                )
+
+                AssetAction.Buy -> resources.getString(
+                    com.blockchain.stringResources.R.string.buy_enter_amount_max_limit_info_action_title
+                )
                 // We should never use those as actions are not permitted for upgradable accounts.
                 AssetAction.FiatWithdraw -> ""
                 AssetAction.Sell -> ""
@@ -428,9 +495,13 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
             }
             InfoAction(
                 icon = R.drawable.ic_gold_square,
-                description = resources.getString(R.string.tx_tier_suggested_upgrade_info_action_description),
+                description = resources.getString(
+                    com.blockchain.stringResources.R.string.tx_tier_suggested_upgrade_info_action_description
+                ),
                 title = title,
-                ctaActionText = resources.getString(R.string.tx_tier_suggested_upgrade_info_action_cta_button),
+                ctaActionText = resources.getString(
+                    com.blockchain.stringResources.R.string.tx_tier_suggested_upgrade_info_action_cta_button
+                ),
                 actionType = InfoActionType.KYC_UPGRADE
             )
         }
@@ -449,78 +520,112 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                 val diff = (state.amount - balance).toStringWithSymbol()
                 return TransactionFlowBottomSheetInfo(
                     type = type,
-                    title = resources.getString(R.string.not_enough_funds, sendingCurrencyTicker),
+                    title = resources.getString(
+                        com.blockchain.stringResources.R.string.not_enough_funds,
+                        sendingCurrencyTicker
+                    ),
                     description = resources.getString(
-                        R.string.not_enough_funds_send, balance.toStringWithSymbol(),
+                        com.blockchain.stringResources.R.string.not_enough_funds_send,
+                        balance.toStringWithSymbol(),
                         diff
                     ),
                     action = InfoAction(
                         icon = sendingCryptoCurrency.logo,
-                        description = resources.getString(R.string.tx_title_buy, diff),
-                        title = resources.getString(R.string.get_more, sendingCryptoCurrency.displayTicker),
-                        ctaActionText = resources.getString(R.string.common_buy),
+                        description = resources.getString(com.blockchain.stringResources.R.string.tx_title_buy, diff),
+                        title = resources.getString(
+                            com.blockchain.stringResources.R.string.get_more,
+                            sendingCryptoCurrency.displayTicker
+                        ),
+                        ctaActionText = resources.getString(com.blockchain.stringResources.R.string.common_buy),
                         actionType = InfoActionType.BUY
                     )
                 )
             }
+
             AssetAction.Sell -> {
                 return TransactionFlowBottomSheetInfo(
                     type = type,
-                    title = resources.getString(R.string.not_enough_funds, sendingCurrencyTicker),
+                    title = resources.getString(
+                        com.blockchain.stringResources.R.string.not_enough_funds,
+                        sendingCurrencyTicker
+                    ),
                     description = resources.getString(
-                        R.string.common_actions_not_enough_funds, sendingCurrencyTicker, action,
+                        com.blockchain.stringResources.R.string.common_actions_not_enough_funds,
+                        sendingCurrencyTicker,
+                        action,
                         balance.toStringWithSymbol()
                     )
                 )
             }
+
             AssetAction.FiatWithdraw -> {
                 return TransactionFlowBottomSheetInfo(
                     type = type,
-                    title = resources.getString(R.string.not_enough_funds, sendingCurrencyTicker),
+                    title = resources.getString(
+                        com.blockchain.stringResources.R.string.not_enough_funds,
+                        sendingCurrencyTicker
+                    ),
                     description = resources.getString(
-                        R.string.common_actions_not_enough_funds, sendingCurrencyTicker, action,
+                        com.blockchain.stringResources.R.string.common_actions_not_enough_funds,
+                        sendingCurrencyTicker,
+                        action,
                         balance.toStringWithSymbol()
                     )
                 )
             }
+
             AssetAction.Swap -> {
                 return TransactionFlowBottomSheetInfo(
                     type = type,
-                    title = resources.getString(R.string.not_enough_funds, sendingCurrencyTicker),
+                    title = resources.getString(
+                        com.blockchain.stringResources.R.string.not_enough_funds,
+                        sendingCurrencyTicker
+                    ),
                     description = resources.getString(
-                        R.string.common_actions_not_enough_funds, sendingCurrencyTicker, action,
+                        com.blockchain.stringResources.R.string.common_actions_not_enough_funds,
+                        sendingCurrencyTicker,
+                        action,
                         balance.toStringWithSymbol()
                     )
                 )
             }
+
             AssetAction.Buy -> {
                 return TransactionFlowBottomSheetInfo(
                     type = type,
-                    title = resources.getString(R.string.not_enough_funds, sendingCurrencyTicker),
+                    title = resources.getString(
+                        com.blockchain.stringResources.R.string.not_enough_funds,
+                        sendingCurrencyTicker
+                    ),
                     description = resources.getString(
-                        R.string.common_actions_not_enough_funds, sendingCurrencyTicker, action,
+                        com.blockchain.stringResources.R.string.common_actions_not_enough_funds,
+                        sendingCurrencyTicker,
+                        action,
                         balance.toStringWithSymbol()
                     )
                 )
             }
+
             else -> return null
         }
     }
 
     private fun AssetAction.toHumanReadable(): String {
         return when (this) {
-            AssetAction.Buy -> resources.getString(R.string.common_buy)
-            AssetAction.Sell -> resources.getString(R.string.common_sell)
-            AssetAction.Send -> resources.getString(R.string.common_send)
-            AssetAction.Swap -> resources.getString(R.string.common_swap)
+            AssetAction.Buy -> resources.getString(com.blockchain.stringResources.R.string.common_buy)
+            AssetAction.Sell -> resources.getString(com.blockchain.stringResources.R.string.common_sell)
+            AssetAction.Send -> resources.getString(com.blockchain.stringResources.R.string.common_send)
+            AssetAction.Swap -> resources.getString(com.blockchain.stringResources.R.string.common_swap)
             AssetAction.InterestDeposit,
             AssetAction.StakingDeposit,
             AssetAction.ActiveRewardsDeposit,
-            AssetAction.FiatDeposit -> resources.getString(R.string.common_deposit)
+            AssetAction.FiatDeposit -> resources.getString(com.blockchain.stringResources.R.string.common_deposit)
+
             AssetAction.FiatWithdraw,
             AssetAction.StakingWithdraw,
             AssetAction.ActiveRewardsWithdraw,
-            AssetAction.InterestWithdraw -> resources.getString(R.string.common_withdraw)
+            AssetAction.InterestWithdraw -> resources.getString(com.blockchain.stringResources.R.string.common_withdraw)
+
             else -> throw IllegalArgumentException("Action not supported by this customiser")
         }
     }

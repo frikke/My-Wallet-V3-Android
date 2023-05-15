@@ -47,7 +47,7 @@ abstract class SellTxEngineBase(
     override fun onLimitsForTierFetched(
         limits: TxLimits,
         pendingTx: PendingTx,
-        quotePrice: QuotePrice,
+        quotePrice: QuotePrice
     ): PendingTx = pendingTx.copy(
         limits = limits
     )
@@ -91,12 +91,13 @@ abstract class SellTxEngineBase(
         return TxConfirmationValue.CompoundNetworkFee(
             if (pendingTx.feeAmount.isZero) {
                 null
-            } else
+            } else {
                 FeeInfo(
                     pendingTx.feeAmount,
                     pendingTx.feeAmount.toUserFiat(exchangeRates),
                     sourceAsset
                 )
+            }
         )
     }
 
@@ -135,7 +136,7 @@ abstract class SellTxEngineBase(
                         pendingTx.amount.plus(feeInSourceCurrency(pendingTx))
                     ),
                     isNewQuote = false
-                ),
+                )
             )
         )
 
@@ -156,7 +157,7 @@ abstract class SellTxEngineBase(
         pendingTx: PendingTx,
         pricedQuote: PricedQuote,
         latestQuoteExchangeRate: ExchangeRate,
-        isNewQuote: Boolean,
+        isNewQuote: Boolean
     ): PendingTx {
         return pendingTx.addOrReplaceOption(
             TxConfirmationValue.QuoteCountDown(
@@ -166,13 +167,13 @@ abstract class SellTxEngineBase(
             TxConfirmationValue.ExchangePriceConfirmation(
                 money = pricedQuote.transferQuote.rawPrice,
                 asset = sourceAsset,
-                isNewQuote = isNewQuote,
+                isNewQuote = isNewQuote
             )
         ).addOrReplaceOption(
             TxConfirmationValue.Sale(
                 amount = pendingTx.amount,
                 exchange = latestQuoteExchangeRate.convert(pendingTx.amount),
-                isNewQuote = isNewQuote,
+                isNewQuote = isNewQuote
             )
         ).addOrReplaceOption(
             TxConfirmationValue.Total(
@@ -193,7 +194,8 @@ abstract class SellTxEngineBase(
         val ptx = if (isNewQuote) {
             pendingTx.copy(
                 engineState = pendingTx.engineState.copyAndPut(
-                    LATEST_QUOTE_ID, quote.transferQuote.id
+                    LATEST_QUOTE_ID,
+                    quote.transferQuote.id
                 )
             )
         } else {

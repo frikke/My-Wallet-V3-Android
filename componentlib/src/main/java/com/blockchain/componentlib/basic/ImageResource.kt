@@ -18,7 +18,7 @@ sealed class ImageResource {
         override val contentDescription: String? = null,
         val colorFilter: ColorFilter? = null,
         override val shape: Shape? = null,
-        override val size: Dp? = null,
+        override val size: Dp? = null
     ) : ImageResource() {
 
         fun withTint(tint: Color) = Local(
@@ -40,14 +40,14 @@ sealed class ImageResource {
         val bitmap: Bitmap,
         override val contentDescription: String? = null,
         override val shape: Shape? = null,
-        override val size: Dp? = null,
+        override val size: Dp? = null
     ) : ImageResource()
 
     class LocalWithResolvedDrawable(
         val drawable: Drawable,
         override val contentDescription: String? = null,
         override val shape: Shape? = null,
-        override val size: Dp? = null,
+        override val size: Dp? = null
     ) : ImageResource()
 
     class LocalWithBackground(
@@ -77,7 +77,7 @@ sealed class ImageResource {
             contentDescription,
             shape,
             size,
-            iconSize,
+            iconSize
         )
     }
 
@@ -88,7 +88,7 @@ sealed class ImageResource {
         val alpha: Float = 0.15F,
         override val contentDescription: String? = null,
         override val shape: Shape? = null,
-        override val size: Dp? = null,
+        override val size: Dp? = null
     ) : ImageResource()
 
     class Remote(
@@ -96,7 +96,7 @@ sealed class ImageResource {
         override val contentDescription: String? = null,
         val colorFilter: ColorFilter? = null,
         override val shape: Shape? = null,
-        override val size: Dp? = null,
+        override val size: Dp? = null
     ) : ImageResource()
 
     object None : ImageResource() {

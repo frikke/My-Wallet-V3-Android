@@ -36,7 +36,6 @@ private fun OutlinedSearch(
     showCloseButton: Boolean = false,
     onValueChange: (String) -> Unit = {}
 ) {
-
     val focusManager = LocalFocusManager.current
     var isFocused by remember { mutableStateOf(false) }
     var value by remember { mutableStateOf(prePopulatedText) }
@@ -93,10 +92,10 @@ private fun OutlinedSearch(
                             clearText()
                             focusManager.clearFocus(true)
                         },
-                    text = stringResource(R.string.common_cancel),
+                    text = stringResource(com.blockchain.stringResources.R.string.common_cancel),
                     style = AppTheme.typography.body1,
                     textAlign = TextAlign.Center,
-                    color = AppTheme.colors.primary,
+                    color = AppTheme.colors.primary
                 )
             }
         }
@@ -109,7 +108,7 @@ fun NonCancelableOutlinedSearch(
     prePopulatedText: String = "",
     placeholder: String = "",
     readOnly: Boolean = false,
-    onValueChange: (String) -> Unit = {},
+    onValueChange: (String) -> Unit = {}
 ) {
     OutlinedSearch(
         modifier = modifier,

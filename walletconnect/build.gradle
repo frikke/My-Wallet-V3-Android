@@ -2,12 +2,18 @@ apply from: rootProject.file('gradle/local/common-feature-android-presentation.g
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'kotlin-parcelize'
 
+android {
+    namespace 'com.blockchain.walletconnect'
+}
+
+
 dependencies {
     implementation project(':coincore')
     implementation project(':core')
     implementation project(':commonarch')
     implementation project(':metadata')
     implementation project(':componentlib')
+    implementation project(':componentlib-icons')
     implementation project(':common:interface')
     implementation project(':common:presentation')
     implementation project(':common-mp:utils:domain')

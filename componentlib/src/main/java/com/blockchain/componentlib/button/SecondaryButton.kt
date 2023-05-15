@@ -22,7 +22,7 @@ fun SecondaryButton(
     text: String,
     onClick: () -> Unit,
     state: ButtonState = ButtonState.Enabled,
-    icon: ImageResource = ImageResource.None,
+    icon: ImageResource = ImageResource.None
 ) {
     Button(
         text = text,
@@ -46,7 +46,7 @@ fun SecondaryButton(
                 contentAlpha = textAlpha,
                 icon = icon
             )
-        },
+        }
     )
 }
 

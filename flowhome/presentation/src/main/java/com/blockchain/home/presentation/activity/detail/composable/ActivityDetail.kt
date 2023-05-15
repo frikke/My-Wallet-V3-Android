@@ -165,7 +165,7 @@ fun ActivityDetailData(
 
     LazyColumn(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
     ) {
         activityDetail.detailItems.forEach { sectionItems ->
             item {

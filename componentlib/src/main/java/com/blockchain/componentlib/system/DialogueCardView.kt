@@ -32,7 +32,7 @@ class DialogueCardView @JvmOverloads constructor(
                     title = title,
                     body = body,
                     firstButton = firstButton,
-                    secondButton = secondButton,
+                    secondButton = secondButton
                 )
             }
         }

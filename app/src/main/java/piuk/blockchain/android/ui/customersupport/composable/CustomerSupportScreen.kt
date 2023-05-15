@@ -26,7 +26,6 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
 import com.blockchain.componentlib.theme.Grey700
 import piuk.blockchain.android.BuildConfig
-import piuk.blockchain.android.R
 
 @Composable
 fun CustomerSupportScreen(
@@ -44,81 +43,88 @@ fun CustomerSupportScreen(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(backgroundColor, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_spacing))),
+            .background(
+                backgroundColor,
+                RoundedCornerShape(dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing))
+            ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SheetHeader(
             onClosePress = onDismiss,
             shouldShowDivider = false
         )
-        Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
+        Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
         Image(
             imageResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_blockchain),
-            modifier = Modifier.size(dimensionResource(R.dimen.size_huge))
+            modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.size_huge))
         )
-        Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
+        Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
         Text(
-            text = stringResource(id = R.string.customer_support_title),
+            text = stringResource(id = com.blockchain.stringResources.R.string.customer_support_title),
             style = AppTheme.typography.title3,
-            color = AppTheme.colors.title,
+            color = AppTheme.colors.title
         )
 
-        Spacer(Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
+        Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)))
 
         Text(
-            text = stringResource(id = R.string.customer_support_description),
+            text = stringResource(id = com.blockchain.stringResources.R.string.customer_support_description),
             style = AppTheme.typography.paragraph1,
             textAlign = TextAlign.Center,
             color = AppTheme.colors.title,
             modifier = Modifier.padding(
-                start = dimensionResource(R.dimen.standard_spacing),
-                end = dimensionResource(R.dimen.standard_spacing)
+                start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                end = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
             )
         )
 
-        Spacer(Modifier.size(dimensionResource(R.dimen.standard_spacing)))
+        Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)))
 
         Text(
-            text = stringResource(id = R.string.app_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE),
+            text = stringResource(
+                id = com.blockchain.stringResources.R.string.app_version,
+                BuildConfig.VERSION_NAME,
+                BuildConfig.VERSION_CODE
+            ),
             style = AppTheme.typography.caption1,
             textAlign = TextAlign.Center,
             color = Grey700,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = dimensionResource(R.dimen.standard_spacing),
-                    end = dimensionResource(R.dimen.standard_spacing)
+                    start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                    end = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
                 )
         )
 
-        Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
+        Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
         MinimalButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = dimensionResource(R.dimen.standard_spacing),
-                    end = dimensionResource(R.dimen.standard_spacing)
+                    start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                    end = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
                 ),
-            text = stringResource(id = R.string.customer_support_contact_us),
+            text = stringResource(id = com.blockchain.stringResources.R.string.customer_support_contact_us),
             onClick = contactUsClicked
         )
 
-        Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
+        Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
         MinimalButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = dimensionResource(R.dimen.standard_spacing),
-                    end = dimensionResource(R.dimen.standard_spacing)
+                    start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                    end = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
                 ),
-            text = stringResource(id = R.string.customer_support_faq),
+            text = stringResource(id = com.blockchain.stringResources.R.string.customer_support_faq),
             onClick = faqClicked
         )
 
-        Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
+        Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
         if (BuildConfig.DEBUG) {
             Text(
@@ -129,13 +135,13 @@ fun CustomerSupportScreen(
                 modifier = Modifier
                     .clickable { copyCommitHash(BuildConfig.COMMIT_HASH) }
                     .padding(
-                        start = dimensionResource(R.dimen.standard_spacing),
-                        end = dimensionResource(R.dimen.standard_spacing)
+                        start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                        end = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
                     )
 
             )
 
-            Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
+            Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
         }
     }
 }

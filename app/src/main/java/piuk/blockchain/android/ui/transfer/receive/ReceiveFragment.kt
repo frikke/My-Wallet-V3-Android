@@ -74,7 +74,7 @@ class ReceiveFragment :
                             it.map { account ->
                                 AccountListViewItem(account)
                             }
-                        },
+                        }
                 )
                 onAccountSelected = {
                     (it as? CryptoAccount)?.let { cryptoAccount ->
@@ -97,7 +97,7 @@ class ReceiveFragment :
 
     private fun setupSearchBox() {
         with(binding.searchBoxLayout) {
-            placeholder = getString(R.string.search_wallets_hint)
+            placeholder = getString(com.blockchain.stringResources.R.string.search_wallets_hint)
             onValueChange = { term ->
                 model.process(ReceiveIntent.FilterAssets(term))
             }

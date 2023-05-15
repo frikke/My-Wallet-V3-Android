@@ -79,7 +79,9 @@ class GooglePayResponseInterceptorImplTest {
 
         // Act
         subject.interceptActivityResult(
-            GooglePayResponseInterceptor.GOOGLE_PAY_REQUEST_CODE, Activity.RESULT_OK, intent
+            GooglePayResponseInterceptor.GOOGLE_PAY_REQUEST_CODE,
+            Activity.RESULT_OK,
+            intent
         )
 
         // Assert
@@ -104,7 +106,9 @@ class GooglePayResponseInterceptorImplTest {
     fun `interceptActivityResult - cancelled`() {
         // Act
         subject.interceptActivityResult(
-            GooglePayResponseInterceptor.GOOGLE_PAY_REQUEST_CODE, Activity.RESULT_CANCELED, null
+            GooglePayResponseInterceptor.GOOGLE_PAY_REQUEST_CODE,
+            Activity.RESULT_CANCELED,
+            null
         )
 
         // Assert

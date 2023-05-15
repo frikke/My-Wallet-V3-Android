@@ -79,7 +79,7 @@ fun ConfirmationScreen(
     viewModel: ConfirmationViewModel = getViewModel(scope = payloadScope),
     analytics: Analytics = get(),
     openNewOrderState: (NewOrderStateArgs) -> Unit,
-    backClicked: () -> Unit,
+    backClicked: () -> Unit
 ) {
     LaunchedEffect(Unit) {
         analytics.logEvent(SwapAnalyticsEvents.ConfirmationViewed)
@@ -99,8 +99,8 @@ fun ConfirmationScreen(
 
     Column {
         NavigationBar(
-            title = stringResource(R.string.swap_confirmation_navbar),
-            onBackButtonClick = backClicked,
+            title = stringResource(com.blockchain.stringResources.R.string.swap_confirmation_navbar),
+            onBackButtonClick = backClicked
         )
 
         ConfirmationContent(
@@ -116,7 +116,7 @@ fun ConfirmationScreen(
                         destination = confirmationArgs.targetAccount.accountType()
                     )
                 )
-            },
+            }
         )
     }
 }
@@ -124,7 +124,7 @@ fun ConfirmationScreen(
 @Composable
 private fun ConfirmationContent(
     state: ConfirmationViewState,
-    submitOnClick: () -> Unit,
+    submitOnClick: () -> Unit
 ) {
     Box(Modifier.fillMaxHeight()) {
         Column(
@@ -143,7 +143,7 @@ private fun ConfirmationContent(
                 bottomSubtitle = state.targetAsset.displayTicker,
                 bottomEndTitle = state.targetCryptoAmount?.toStringWithSymbol().orEmpty(),
                 bottomEndSubtitle = state.targetFiatAmount?.toStringWithSymbol().orEmpty(),
-                bottomIcon = StackedIcon.SingleIcon(ImageResource.Remote(state.targetAsset.logo)),
+                bottomIcon = StackedIcon.SingleIcon(ImageResource.Remote(state.targetAsset.logo))
             )
 
             StandardVerticalSpacer()
@@ -157,7 +157,7 @@ private fun ConfirmationContent(
                     sourceNetworkFeeCryptoAmount = state.sourceNetworkFeeCryptoAmount,
                     sourceNetworkFeeFiatAmount = state.sourceNetworkFeeFiatAmount,
                     targetNetworkFeeCryptoAmount = state.targetNetworkFeeCryptoAmount,
-                    targetNetworkFeeFiatAmount = state.targetNetworkFeeFiatAmount,
+                    targetNetworkFeeFiatAmount = state.targetNetworkFeeFiatAmount
                 )
 
                 StandardVerticalSpacer()
@@ -165,7 +165,7 @@ private fun ConfirmationContent(
 
             SwapQuoteTimer(
                 remainingSeconds = state.quoteRefreshRemainingSeconds ?: 90,
-                remainingPercentage = state.quoteRefreshRemainingPercentage ?: 1f,
+                remainingPercentage = state.quoteRefreshRemainingPercentage ?: 1f
             )
 
             StandardVerticalSpacer()
@@ -180,9 +180,9 @@ private fun ConfirmationContent(
             modifier = Modifier.fillMaxWidth()
                 .padding(AppTheme.dimensions.smallSpacing)
                 .align(Alignment.BottomCenter),
-            text = stringResource(R.string.common_swap),
+            text = stringResource(com.blockchain.stringResources.R.string.common_swap),
             state = state.submitButtonState,
-            onClick = submitOnClick,
+            onClick = submitOnClick
         )
     }
 }
@@ -192,7 +192,7 @@ fun SwapDisclaimer() {
     val context = LocalContext.current
     val map = mapOf("refund_policy" to CHECKOUT_REFUND_POLICY)
     val disclaimer = AnnotatedStringUtils.getAnnotatedStringWithMappedAnnotations(
-        stringId = R.string.swap_confirmation_disclaimer_1,
+        stringId = com.blockchain.stringResources.R.string.swap_confirmation_disclaimer_1,
         linksMap = map,
         context = context
     )
@@ -219,14 +219,14 @@ fun SwapQuoteTimer(remainingSeconds: Int, remainingPercentage: Float, modifier: 
         modifier
             .background(White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
             .padding(AppTheme.dimensions.smallSpacing),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         val formattedTime = DateUtils.formatElapsedTime(remainingSeconds.toLong())
         SimpleText(
-            text = stringResource(R.string.swap_confirmation_quote_refresh_timer),
+            text = stringResource(com.blockchain.stringResources.R.string.swap_confirmation_quote_refresh_timer),
             style = ComposeTypographies.Paragraph2,
             color = ComposeColors.Title,
-            gravity = ComposeGravities.Start,
+            gravity = ComposeGravities.Start
         )
 
         CircularProgressBar(
@@ -242,7 +242,7 @@ fun SwapQuoteTimer(remainingSeconds: Int, remainingPercentage: Float, modifier: 
             text = formattedTime,
             style = ComposeTypographies.Paragraph2,
             color = ComposeColors.Title,
-            gravity = ComposeGravities.Start,
+            gravity = ComposeGravities.Start
         )
     }
 }
@@ -259,20 +259,20 @@ private fun SwapExchangeRate(rate: ExchangeRate?, modifier: Modifier = Modifier)
             .padding(AppTheme.dimensions.smallSpacing)
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             SimpleText(
-                text = stringResource(R.string.swap_confirmation_exchange_rate_label),
+                text = stringResource(com.blockchain.stringResources.R.string.swap_confirmation_exchange_rate_label),
                 style = ComposeTypographies.Paragraph2,
                 color = ComposeColors.Title,
-                gravity = ComposeGravities.Start,
+                gravity = ComposeGravities.Start
             )
 
             Image(
                 modifier = Modifier.padding(start = AppTheme.dimensions.smallestSpacing),
                 imageResource = Icons.Filled.Question
                     .withSize(AppTheme.dimensions.smallSpacing)
-                    .withTint(AppTheme.colors.medium),
+                    .withTint(AppTheme.colors.medium)
             )
 
             Spacer(Modifier.weight(1f))
@@ -280,13 +280,13 @@ private fun SwapExchangeRate(rate: ExchangeRate?, modifier: Modifier = Modifier)
             if (rate != null) {
                 SimpleText(
                     text = stringResource(
-                        R.string.swap_confirmation_exchange_rate_value,
+                        com.blockchain.stringResources.R.string.swap_confirmation_exchange_rate_value,
                         rate.from.displayTicker,
                         rate.price.toStringWithSymbol()
                     ),
                     style = ComposeTypographies.Paragraph2,
                     color = ComposeColors.Title,
-                    gravity = ComposeGravities.Start,
+                    gravity = ComposeGravities.Start
                 )
             }
         }
@@ -295,11 +295,17 @@ private fun SwapExchangeRate(rate: ExchangeRate?, modifier: Modifier = Modifier)
             val context = LocalContext.current
             val learnMoreString = AnnotatedStringUtils.getAnnotatedStringWithMappedAnnotations(
                 context = context,
-                stringId = R.string.common_linked_learn_more,
+                stringId = com.blockchain.stringResources.R.string.common_linked_learn_more,
                 linksMap = mapOf("learn_more_link" to EXCHANGE_SWAP_RATE_EXPLANATION)
             )
             val explainerString = buildAnnotatedString {
-                append(stringResource(R.string.checkout_swap_exchange_note, rate!!.to.symbol, rate.from.symbol))
+                append(
+                    stringResource(
+                        com.blockchain.stringResources.R.string.checkout_swap_exchange_note,
+                        rate!!.to.symbol,
+                        rate.from.symbol
+                    )
+                )
                 append(" ")
                 append(learnMoreString)
             }
@@ -329,7 +335,7 @@ private fun NetworkFees(
     sourceNetworkFeeFiatAmount: FiatValue?,
     targetNetworkFeeCryptoAmount: CryptoValue?,
     targetNetworkFeeFiatAmount: FiatValue?,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     ConfirmationSection(modifier = modifier) {
@@ -340,12 +346,12 @@ private fun NetworkFees(
         }
         val expandedIcon = if (isExpanded) Icons.ChevronUp else Icons.ChevronDown
         ConfirmationTableRow(
-            startTitle = stringResource(R.string.checkout_item_network_fee_label),
+            startTitle = stringResource(com.blockchain.stringResources.R.string.checkout_item_network_fee_label),
             endTitle = totalNetworkFeesFiatAmount?.toStringWithSymbol()?.withApproximationPrefix(),
             endImageResource = expandedIcon.withTint(AppTheme.colors.muted),
             onClick = {
                 isExpanded = !isExpanded
-            },
+            }
         )
 
         if (isExpanded) {
@@ -354,12 +360,12 @@ private fun NetworkFees(
 
                 ConfirmationTableRow(
                     startTitle = stringResource(
-                        R.string.checkout_item_network_fee,
+                        com.blockchain.stringResources.R.string.checkout_item_network_fee,
                         sourceNetworkFeeCryptoAmount.currency.displayTicker
                     ),
                     endTitle = sourceNetworkFeeFiatAmount?.toStringWithSymbol()?.withApproximationPrefix(),
                     endByline = sourceNetworkFeeCryptoAmount.toStringWithSymbol(),
-                    onClick = null,
+                    onClick = null
                 )
             }
 
@@ -368,12 +374,12 @@ private fun NetworkFees(
 
                 ConfirmationTableRow(
                     startTitle = stringResource(
-                        R.string.checkout_item_network_fee,
+                        com.blockchain.stringResources.R.string.checkout_item_network_fee,
                         targetNetworkFeeCryptoAmount.currency.displayTicker
                     ),
                     endTitle = targetNetworkFeeFiatAmount?.toStringWithSymbol()?.withApproximationPrefix(),
                     endByline = targetNetworkFeeCryptoAmount.toStringWithSymbol(),
-                    onClick = null,
+                    onClick = null
                 )
             }
         }
@@ -400,12 +406,12 @@ private fun PreviewInitialState() {
         targetNetworkFeeFiatAmount = null,
         quoteRefreshRemainingPercentage = null,
         quoteRefreshRemainingSeconds = null,
-        submitButtonState = ButtonState.Disabled,
+        submitButtonState = ButtonState.Disabled
     )
     Column {
         ConfirmationContent(
             state = state,
-            submitOnClick = {},
+            submitOnClick = {}
         )
     }
 }
@@ -424,7 +430,7 @@ private fun PreviewLoadedState() {
         sourceToTargetExchangeRate = ExchangeRate(
             rate = 12345678.0.toBigDecimal(),
             to = CryptoCurrency.ETHER,
-            from = CryptoCurrency.BTC,
+            from = CryptoCurrency.BTC
         ),
         sourceNetworkFeeCryptoAmount = CryptoValue.fromMinor(CryptoCurrency.ETHER, 123456.toBigDecimal()),
         sourceNetworkFeeFiatAmount = FiatValue.fromMajor(FiatCurrency.Dollars, 1.0.toBigDecimal()),
@@ -432,12 +438,12 @@ private fun PreviewLoadedState() {
         targetNetworkFeeFiatAmount = FiatValue.fromMajor(FiatCurrency.Dollars, 6.12.toBigDecimal()),
         quoteRefreshRemainingPercentage = 0.5f,
         quoteRefreshRemainingSeconds = 45,
-        submitButtonState = ButtonState.Enabled,
+        submitButtonState = ButtonState.Enabled
     )
     Column {
         ConfirmationContent(
             state = state,
-            submitOnClick = {},
+            submitOnClick = {}
         )
     }
 }

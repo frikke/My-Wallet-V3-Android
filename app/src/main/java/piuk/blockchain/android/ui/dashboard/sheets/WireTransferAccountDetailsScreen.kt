@@ -56,14 +56,14 @@ fun WireTransferAccountDetailsScreen(
     currency: String,
     details: WireTransferDetails,
     backClicked: () -> Unit,
-    onEntryCopied: (WireTransferDetailsSectionEntry) -> Unit,
+    onEntryCopied: (WireTransferDetailsSectionEntry) -> Unit
 ) {
     Column {
         SheetHeader(
             title = if (isForLink) {
-                stringResource(R.string.add_bank_with_currency, currency)
+                stringResource(com.blockchain.stringResources.R.string.add_bank_with_currency, currency)
             } else {
-                stringResource(R.string.deposit_currency, currency)
+                stringResource(com.blockchain.stringResources.R.string.deposit_currency, currency)
             },
             onClosePress = backClicked,
             shouldShowDivider = true
@@ -93,13 +93,13 @@ fun WireTransferAccountDetailsScreen(
 @Composable
 fun ColumnScope.Section(
     section: WireTransferDetailsSection,
-    onEntryCopied: (WireTransferDetailsSectionEntry) -> Unit,
+    onEntryCopied: (WireTransferDetailsSectionEntry) -> Unit
 ) {
     SimpleText(
         text = section.name,
         style = ComposeTypographies.Body2,
         color = ComposeColors.Body,
-        gravity = ComposeGravities.Start,
+        gravity = ComposeGravities.Start
     )
 
     Column(
@@ -128,7 +128,7 @@ fun Footer(footer: WireTransferDetailsFooter) {
                 title = footer.title,
                 subtitle = footer.message,
                 alertType = AlertType.Warning,
-                isDismissable = false,
+                isDismissable = false
             )
         } else {
             Row {
@@ -148,7 +148,7 @@ fun Footer(footer: WireTransferDetailsFooter) {
                             text = footer.title,
                             style = ComposeTypographies.Paragraph2,
                             color = ComposeColors.Title,
-                            gravity = ComposeGravities.Start,
+                            gravity = ComposeGravities.Start
                         )
                     }
                     SimpleText(
@@ -158,7 +158,7 @@ fun Footer(footer: WireTransferDetailsFooter) {
                         text = footer.message,
                         style = ComposeTypographies.Caption1,
                         color = ComposeColors.Body,
-                        gravity = ComposeGravities.Start,
+                        gravity = ComposeGravities.Start
                     )
                 }
             }
@@ -183,12 +183,12 @@ fun Footer(footer: WireTransferDetailsFooter) {
 @Composable
 fun SectionEntry(
     entry: WireTransferDetailsSectionEntry,
-    onEntryCopied: () -> Unit,
+    onEntryCopied: () -> Unit
 ) {
     var isHelpOpen by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier.padding(AppTheme.dimensions.smallSpacing),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Column(Modifier.weight(1f)) {
             if (entry.title.isNotEmpty()) {
@@ -197,7 +197,7 @@ fun SectionEntry(
                         text = entry.title,
                         style = ComposeTypographies.Caption1,
                         color = if (entry.isImportant) ComposeColors.Warning else ComposeColors.Body,
-                        gravity = ComposeGravities.Start,
+                        gravity = ComposeGravities.Start
                     )
 
                     if (!entry.help.isNullOrEmpty()) {
@@ -205,7 +205,7 @@ fun SectionEntry(
                             modifier = Modifier
                                 .padding(start = AppTheme.dimensions.tinySpacing)
                                 .clickableWithIndication { isHelpOpen = !isHelpOpen },
-                            imageResource = Icons.Filled.Question.withSize(AppTheme.dimensions.smallSpacing),
+                            imageResource = Icons.Filled.Question.withSize(AppTheme.dimensions.smallSpacing)
                         )
                     }
                 }
@@ -218,7 +218,7 @@ fun SectionEntry(
                 text = entry.message,
                 style = ComposeTypographies.Paragraph2,
                 color = if (entry.isImportant) ComposeColors.Warning else ComposeColors.Title,
-                gravity = ComposeGravities.Start,
+                gravity = ComposeGravities.Start
             )
 
             if (isHelpOpen) {
@@ -227,7 +227,7 @@ fun SectionEntry(
                     text = entry.help!!,
                     style = ComposeTypographies.Caption1,
                     color = ComposeColors.Body,
-                    gravity = ComposeGravities.Start,
+                    gravity = ComposeGravities.Start
                 )
             }
         }
@@ -264,7 +264,7 @@ fun PreviewFooterImportant() {
 fun PreviewSectionEntry() {
     SectionEntry(
         SECTION_ENTRY,
-        {},
+        {}
     )
 }
 
@@ -273,7 +273,7 @@ fun PreviewSectionEntry() {
 fun PreviewSectionEntryImportant() {
     SectionEntry(
         SECTION_ENTRY_IMPORTANT,
-        {},
+        {}
     )
 }
 
@@ -283,7 +283,7 @@ fun PreviewSection() {
     Column {
         Section(
             SECTION,
-            {},
+            {}
         )
     }
 }
@@ -296,7 +296,7 @@ fun PreviewWireTransferAccountDetailsScreen() {
         "USD",
         EXAMPLE_USD,
         {},
-        {},
+        {}
     )
 }
 
@@ -308,7 +308,7 @@ private val FOOTER = WireTransferDetailsFooter(
     actions = listOf(
         WireTransferDetailsAction(
             title = "Terms & Conditions",
-            url = "https://www.google.com",
+            url = "https://www.google.com"
         )
     )
 )
@@ -320,7 +320,7 @@ private val FOOTER_IMPORTANT = WireTransferDetailsFooter(
     actions = listOf(
         WireTransferDetailsAction(
             title = "Terms & Conditions",
-            url = "https://www.google.com",
+            url = "https://www.google.com"
         )
     )
 )
@@ -328,13 +328,13 @@ private val SECTION_ENTRY = WireTransferDetailsSectionEntry(
     title = "Business Name",
     message = "Blockchain.com, Inc.",
     isImportant = false,
-    help = null,
+    help = null
 )
 private val SECTION_ENTRY_IMPORTANT = WireTransferDetailsSectionEntry(
     title = "Reference ID (Required)",
     message = "BCDOEVC3",
     isImportant = true,
-    help = "Some helper text",
+    help = "Some helper text"
 )
 private val SECTION = WireTransferDetailsSection(
     name = "Beneficiary",

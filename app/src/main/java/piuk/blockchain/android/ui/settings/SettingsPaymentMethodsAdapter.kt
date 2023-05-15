@@ -83,12 +83,13 @@ private class CardSettingsViewHolder(
                         TagViewState(
                             card.cardRejectionState.error?.title
                                 ?: binding.root.context.getString(
-                                    R.string.card_issuer_always_rejects_title
+                                    com.blockchain.stringResources.R.string.card_issuer_always_rejects_title
                                 ),
                             TagType.Error()
                         )
                     )
                 }
+
                 is CardRejectionState.MaybeRejected -> {
                     listOf(
                         TagViewState(
@@ -97,6 +98,7 @@ private class CardSettingsViewHolder(
                         )
                     )
                 }
+
                 else -> null
             }
         }
@@ -126,10 +128,13 @@ private class BankSettingsViewHolder(
             tags = if (!bank.canBeUsedToTransact) {
                 listOf(
                     TagViewState(
-                        binding.root.context.getString(R.string.common_unavailable), TagType.Error()
+                        binding.root.context.getString(com.blockchain.stringResources.R.string.common_unavailable),
+                        TagType.Error()
                     )
                 )
-            } else emptyList()
+            } else {
+                emptyList()
+            }
             onClick = { onPaymentMethodClicked(bank) }
         }
     }
@@ -188,7 +193,7 @@ data class BankSettingsPaymentMethod(
     override val canBeUsedToTransact: Boolean,
     override val titleEnd: String,
     val bodyEnd: String?,
-    private val iconUrl: String?,
+    private val iconUrl: String?
 ) : SettingsPaymentMethod {
     override val icon: ImageResource
         get() = iconUrl?.let {
@@ -198,7 +203,7 @@ data class BankSettingsPaymentMethod(
 
 class SettingsPaymentMethodDiffUtil(
     private val oldItems: List<SettingsPaymentMethod>,
-    private val newItems: List<SettingsPaymentMethod>,
+    private val newItems: List<SettingsPaymentMethod>
 ) : DiffUtil.Callback() {
     override fun getOldListSize(): Int = oldItems.size
 

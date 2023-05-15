@@ -40,7 +40,6 @@ class WalletBody(
         sharedKey: String,
         iterations: Int
     ) {
-
         if (validatedSecondPassword != null && !HD.isDecrypted) {
             val encryptedSeedHex = walletBodyDto.seedHex
             val decryptedSeedHex = DoubleEncryptionFactory.decrypt(
@@ -96,7 +95,6 @@ class WalletBody(
     fun getAccount(accountId: Int) = walletBodyDto.accounts[accountId]
 
     fun upgradeAccountsToV4(secondPassword: String?, sharedKey: String, iterations: Int): WalletBody {
-
         val upgradedAccounts = walletBodyDto.accounts.mapIndexed { index, account ->
             val legacyHdAccount = HD.getLegacyAccount(index)
             val segWitHdAccount = HD.getSegwitAccount(index)!!
@@ -113,7 +111,7 @@ class WalletBody(
                         xpriv = accountV3.xpriv,
                         xpub = accountV3.legacyXpub,
                         cache = AddressCache.setCachedXPubs(legacyHdAccount),
-                        _addressLabels = account.addressLabels,
+                        _addressLabels = account.addressLabels
                     ),
                     segwitDerivation(segWitHdAccount)
                 )
@@ -230,7 +228,9 @@ class WalletBody(
          * Hardcoding v4. We dont support earlier versions
          */
         val account = createAccount(WalletWrapper.V4, label, legacyAccount, segwitAccount!!).encryptIfNeeded(
-            secondPassword, sharedKey, iterations
+            secondPassword,
+            sharedKey,
+            iterations
         )
         return WalletBody(
             version = version,
@@ -425,13 +425,14 @@ class WalletBody(
                         hd.getLegacyAccount(index),
                         hd.getSegwitAccount(index)
                     )
-                } else
+                } else {
                     createAccount(
                         wrapperVersion,
                         label,
                         hd.getLegacyAccount(index),
                         null
                     )
+                }
             } ?: emptyList()
 
             return WalletBody(
@@ -572,7 +573,9 @@ class WalletBody(
             val recoveredAccounts = legacyAccounts!!.mapIndexed { index, legacyAccount ->
                 val label = if (index > 0) {
                     defaultAccountName + " " + (index + 1)
-                } else defaultAccountName
+                } else {
+                    defaultAccountName
+                }
 
                 val segwitAccount = segwitAccounts!![index]
                 createAccount(
@@ -604,7 +607,6 @@ class WalletBody(
             bip44Wallet: HDWallet?,
             purpose: Int
         ): Int {
-
             var walletSize = _walletSize
             var currentGap = _currentGap
 

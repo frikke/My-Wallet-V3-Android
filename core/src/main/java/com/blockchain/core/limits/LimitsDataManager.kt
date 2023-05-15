@@ -34,7 +34,7 @@ interface LimitsDataManager {
 class LimitsDataManagerImpl(
     private val limitsService: TxLimitsService,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
-    private val assetCatalogue: AssetCatalogue,
+    private val assetCatalogue: AssetCatalogue
 ) : LimitsDataManager {
 
     override fun getLimits(
@@ -45,9 +45,9 @@ class LimitsDataManagerImpl(
         targetAccountType: AssetCategory,
         legacyLimits: Single<LegacyLimits>
     ): Single<TxLimits> {
-
         val legacyLimitsToOutputCurrency = legacyLimits.toOutputCurrency(
-            outputCurrency, exchangeRatesDataManager
+            outputCurrency,
+            exchangeRatesDataManager
         )
 
         return Single.zip(
@@ -152,11 +152,15 @@ class LimitsDataManagerImpl(
                         object : LegacyLimits {
                             override val min: Money
                                 get() = legacy.min.toOutputCryptoCurrency(
-                                    outputCurrency, exchangeRate, RoundingMode.CEILING
+                                    outputCurrency,
+                                    exchangeRate,
+                                    RoundingMode.CEILING
                                 )
                             override val max: Money?
                                 get() = legacy.max?.toOutputCryptoCurrency(
-                                    outputCurrency, exchangeRate, RoundingMode.FLOOR
+                                    outputCurrency,
+                                    exchangeRate,
+                                    RoundingMode.FLOOR
                                 )
                         }
                     }

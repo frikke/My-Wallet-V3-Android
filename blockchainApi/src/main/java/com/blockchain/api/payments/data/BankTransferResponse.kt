@@ -274,13 +274,13 @@ data class BankInfoResponse(
 data class BankTransferCapabilitiesResponse(
     val deposit: BankTransferCapabilityResponse?,
     val withdrawal: BankTransferCapabilityResponse?,
-    val brokerage: BankTransferCapabilityResponse?,
+    val brokerage: BankTransferCapabilityResponse?
 )
 
 @Serializable
 data class BankTransferCapabilityResponse(
     val enabled: Boolean,
-    val ux: NabuUxErrorResponse?,
+    val ux: NabuUxErrorResponse?
 )
 
 @Serializable

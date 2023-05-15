@@ -19,7 +19,9 @@ sealed class DataResource<out T> {
         override fun equals(other: Any?): Boolean {
             return if (other is Error) {
                 error.message == other.error.message
-            } else false
+            } else {
+                false
+            }
         }
 
         override fun hashCode(): Int {
@@ -109,8 +111,11 @@ fun <T> Flow<DataResource<T>>.onErrorReturn(errorToData: (Exception) -> T): Flow
 
 fun <T> Iterable<DataResource<T>>.merge(transform: (Iterable<T>) -> T): DataResource<T> {
     return if (none { it is DataResource.Data }) {
-        if (anyLoading()) DataResource.Loading
-        else getFirstError()
+        if (anyLoading()) {
+            DataResource.Loading
+        } else {
+            getFirstError()
+        }
     } else {
         DataResource.Data(
             transform(
@@ -124,7 +129,7 @@ fun <T> Iterable<DataResource<T>>.merge(transform: (Iterable<T>) -> T): DataReso
 fun <T1, T2, R> combineDataResourceFlows(
     flow1: Flow<DataResource<T1>>,
     flow2: Flow<DataResource<T2>>,
-    transform: (T1, T2) -> R,
+    transform: (T1, T2) -> R
 ): Flow<DataResource<R>> = combine(flow1, flow2) { t1, t2 ->
     combineDataResources(t1, t2, transform)
 }
@@ -133,7 +138,7 @@ fun <T1, T2, T3, R> combineDataResourceFlows(
     flow1: Flow<DataResource<T1>>,
     flow2: Flow<DataResource<T2>>,
     flow3: Flow<DataResource<T3>>,
-    transform: (T1, T2, T3) -> R,
+    transform: (T1, T2, T3) -> R
 ): Flow<DataResource<R>> = combine(flow1, flow2, flow3) { t1, t2, t3 ->
     combineDataResources(t1, t2, t3, transform)
 }
@@ -143,7 +148,7 @@ fun <T1, T2, T3, T4, R> combineDataResourceFlows(
     flow2: Flow<DataResource<T2>>,
     flow3: Flow<DataResource<T3>>,
     flow4: Flow<DataResource<T4>>,
-    transform: (T1, T2, T3, T4) -> R,
+    transform: (T1, T2, T3, T4) -> R
 ): Flow<DataResource<R>> = combine(flow1, flow2, flow3, flow4) { t1, t2, t3, t4 ->
     combineDataResources(t1, t2, t3, t4, transform)
 }
@@ -154,7 +159,7 @@ fun <T1, T2, T3, T4, T5, R> combineDataResourceFlows(
     flow3: Flow<DataResource<T3>>,
     flow4: Flow<DataResource<T4>>,
     flow5: Flow<DataResource<T5>>,
-    transform: (T1, T2, T3, T4, T5) -> R,
+    transform: (T1, T2, T3, T4, T5) -> R
 ): Flow<DataResource<R>> = combine(flow1, flow2, flow3, flow4, flow5) { t1, t2, t3, t4, t5 ->
     combineDataResources(t1, t2, t3, t4, t5, transform)
 }
@@ -166,7 +171,7 @@ fun <T1, T2, T3, T4, T5, T6, R> combineDataResourceFlows(
     flow4: Flow<DataResource<T4>>,
     flow5: Flow<DataResource<T5>>,
     flow6: Flow<DataResource<T6>>,
-    transform: (T1, T2, T3, T4, T5, T6) -> R,
+    transform: (T1, T2, T3, T4, T5, T6) -> R
 ): Flow<DataResource<R>> = combineMore(flow1, flow2, flow3, flow4, flow5, flow6) { t1, t2, t3, t4, t5, t6 ->
     combineDataResources(t1, t2, t3, t4, t5, t6, transform)
 }
@@ -179,7 +184,7 @@ fun <T1, T2, T3, T4, T5, T6, T7, R> combineDataResourceFlows(
     flow5: Flow<DataResource<T5>>,
     flow6: Flow<DataResource<T6>>,
     flow7: Flow<DataResource<T7>>,
-    transform: (T1, T2, T3, T4, T5, T6, T7) -> R,
+    transform: (T1, T2, T3, T4, T5, T6, T7) -> R
 ): Flow<DataResource<R>> = combineMore(flow1, flow2, flow3, flow4, flow5, flow6, flow7) { t1, t2, t3, t4, t5, t6, t7 ->
     combineDataResources(t1, t2, t3, t4, t5, t6, t7, transform)
 }

@@ -31,7 +31,7 @@ class LoginModel(
     private val interactor: LoginInteractor,
     private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase,
     private val analytics: Analytics,
-    private val authPrefs: AuthPrefs,
+    private val authPrefs: AuthPrefs
 ) : MviModel<LoginState, LoginIntents>(initialState, mainScheduler, environmentConfig, remoteLogger) {
 
     override fun performAction(previousState: LoginState, intent: LoginIntents): Disposable? {

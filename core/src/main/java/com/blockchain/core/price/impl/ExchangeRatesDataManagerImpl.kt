@@ -58,7 +58,7 @@ internal class ExchangeRatesDataManagerImpl(
 
     override fun exchangeRate(
         fromAsset: Currency,
-        toAsset: Currency,
+        toAsset: Currency
     ): Flow<DataResource<ExchangeRate>> {
         val shouldInverse = fromAsset.type == CurrencyType.FIAT && toAsset.type == CurrencyType.CRYPTO
         val base = if (shouldInverse) toAsset else fromAsset
@@ -89,9 +89,11 @@ internal class ExchangeRatesDataManagerImpl(
                     rate = it.rate
                 )
             }.map {
-                if (shouldInverse)
+                if (shouldInverse) {
                     it.inverse()
-                else it
+                } else {
+                    it
+                }
             }
     }
 
@@ -109,7 +111,7 @@ internal class ExchangeRatesDataManagerImpl(
             }
 
     override fun exchangeRateToUserFiatFlow(
-        fromAsset: Currency,
+        fromAsset: Currency
     ): Flow<DataResource<ExchangeRate>> {
         return priceStore
             .getCurrentPriceForAsset(
@@ -136,7 +138,7 @@ internal class ExchangeRatesDataManagerImpl(
 
     override fun getLastCryptoToFiatRate(
         sourceCrypto: AssetInfo,
-        targetFiat: FiatCurrency,
+        targetFiat: FiatCurrency
     ): ExchangeRate {
         return when (targetFiat) {
             userFiat -> getLastCryptoToUserFiatRate(sourceCrypto)
@@ -146,7 +148,7 @@ internal class ExchangeRatesDataManagerImpl(
 
     override fun getLastFiatToCryptoRate(
         sourceFiat: FiatCurrency,
-        targetCrypto: AssetInfo,
+        targetCrypto: AssetInfo
     ): ExchangeRate {
         return when (sourceFiat) {
             userFiat -> getLastCryptoToUserFiatRate(targetCrypto).inverse()
@@ -156,7 +158,7 @@ internal class ExchangeRatesDataManagerImpl(
 
     private fun getCryptoToFiatRate(
         sourceCrypto: AssetInfo,
-        targetFiat: FiatCurrency,
+        targetFiat: FiatCurrency
     ): ExchangeRate {
         val priceRate = priceStore.getCachedAssetPrice(sourceCrypto, targetFiat).rate
         return ExchangeRate(
@@ -199,7 +201,7 @@ internal class ExchangeRatesDataManagerImpl(
 
     override fun getHistoricRate(
         fromAsset: Currency,
-        secSinceEpoch: Long,
+        secSinceEpoch: Long
     ): Single<ExchangeRate> {
         return assetPriceService.getHistoricPrices(
             baseTickers = setOf(fromAsset.networkTicker),
@@ -279,7 +281,7 @@ internal class ExchangeRatesDataManagerImpl(
     override fun getHistoricPriceSeries(
         asset: Currency,
         span: HistoricalTimeSpan,
-        now: Calendar,
+        now: Calendar
     ): Flow<DataResource<HistoricalRateList>> {
         require(asset.startDate != null)
         return priceStore.getHistoricalPriceForAsset(asset, userFiat, span)
@@ -288,7 +290,7 @@ internal class ExchangeRatesDataManagerImpl(
     }
 
     override fun get24hPriceSeries(
-        asset: Currency,
+        asset: Currency
     ): Flow<DataResource<HistoricalRateList>> =
         priceStore.getHistoricalPriceForAsset(asset, userFiat, HistoricalTimeSpan.DAY)
             .mapData { prices -> prices.map { it.toHistoricalRate() } }

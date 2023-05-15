@@ -11,7 +11,7 @@ sealed class ExchangeCampaignAnalytics(
 
     data class ExchangeAwarenessPromptShown(
         val countOfPrompts: Int,
-        val isSSO: Boolean,
+        val isSSO: Boolean
     ) : ExchangeCampaignAnalytics(
         event = AnalyticsNames.EXCHANGE_AWARENESS_PROMPT_SHOWN.eventName,
         params = mapOf(

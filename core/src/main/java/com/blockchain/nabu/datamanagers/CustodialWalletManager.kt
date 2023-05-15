@@ -488,7 +488,7 @@ enum class Product {
     SAVINGS,
     TRADE,
     STAKING,
-    EARN_CC1W,
+    EARN_CC1W
 }
 
 data class TransferQuote(

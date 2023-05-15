@@ -26,7 +26,7 @@ val multiAppModule = module {
                 cancelOrderUseCase = get(),
                 bankService = get(),
                 bankBuyNavigation = get(),
-                bankLinkingPrefs = get(),
+                bankLinkingPrefs = get()
             )
         }
     }

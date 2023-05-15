@@ -36,8 +36,11 @@ class SettingsDataManagerTest : RxTest() {
     @Before
     fun setUp() {
         subject = SettingsDataManager(
-            settingsService, settingsStore, currencyPrefs,
-            walletSettingsService, assetCatalogue
+            settingsService,
+            settingsStore,
+            currencyPrefs,
+            walletSettingsService,
+            assetCatalogue
         )
     }
 
@@ -63,7 +66,9 @@ class SettingsDataManagerTest : RxTest() {
     @Test
     fun getSettings() {
         val mockSettings = mock(Settings::class.java)
-        whenever(settingsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))).thenReturn(flowOf(DataResource.Data(mockSettings)))
+        whenever(settingsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))).thenReturn(
+            flowOf(DataResource.Data(mockSettings))
+        )
         // Act
         val testObserver = subject.getSettings().test()
         // Assert

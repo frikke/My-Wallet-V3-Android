@@ -7,14 +7,14 @@ data class EmailVerificationModelState(
     val email: String? = null,
     val isVerified: Boolean = false,
     val showResendEmailConfirmation: Boolean = false,
-    val error: EmailVerificationError? = null,
+    val error: EmailVerificationError? = null
 ) : ModelState
 
 data class EmailVerificationViewState(
     val email: String?,
     val isVerified: Boolean,
     val showResendEmailConfirmation: Boolean,
-    val error: EmailVerificationError?,
+    val error: EmailVerificationError?
 ) : ViewState
 
 sealed class EmailVerificationError {

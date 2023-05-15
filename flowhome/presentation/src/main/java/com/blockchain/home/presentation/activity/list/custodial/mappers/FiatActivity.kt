@@ -21,8 +21,8 @@ internal fun FiatActivitySummaryItem.leadingTitle(): ActivityStackView {
     return ActivityStackView.Text(
         value = TextValue.IntResValue(
             value = when (type) {
-                TransactionType.DEPOSIT -> R.string.tx_title_deposited
-                TransactionType.WITHDRAWAL -> R.string.tx_title_withdrawn
+                TransactionType.DEPOSIT -> com.blockchain.stringResources.R.string.tx_title_deposited
+                TransactionType.WITHDRAWAL -> com.blockchain.stringResources.R.string.tx_title_withdrawn
             },
             args = listOf(account.currency.displayTicker)
         ),
@@ -41,7 +41,9 @@ internal fun FiatActivitySummaryItem.leadingSubtitle(): ActivityStackView {
             TransactionState.COMPLETED,
             TransactionState.MANUAL_REVIEW,
             TransactionState.PENDING -> TextValue.StringValue(date.toFormattedDate())
-            TransactionState.FAILED -> TextValue.IntResValue(R.string.activity_state_failed)
+            TransactionState.FAILED -> TextValue.IntResValue(
+                com.blockchain.stringResources.R.string.activity_state_failed
+            )
         },
         style = basicSubtitleStyle.copy(color = color)
     )

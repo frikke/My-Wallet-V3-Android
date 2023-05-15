@@ -25,7 +25,7 @@ class ConnectedDappsActivity : BlockchainActivity() {
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
                 .replace(
-                    R.id.content_frame,
+                    com.blockchain.componentlib.R.id.content_frame,
                     DappsListFragment.newInstance(),
                     DappsListFragment::class.simpleName
                 )

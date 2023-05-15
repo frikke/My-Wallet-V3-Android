@@ -17,7 +17,7 @@ fun rememberRippleIndicator(
     radius: Dp = AppTheme.dimensions.hugeSpacing
 ): Indication = rememberRipple(
     bounded = bounded,
-    radius = radius,
+    radius = radius
 )
 
 fun Modifier.clickableWithIndication(
@@ -28,7 +28,6 @@ fun Modifier.clickableWithIndication(
     role: Role? = null,
     onClick: () -> Unit
 ): Modifier = composed {
-
     val interactionSourceFinal = interactionSource ?: remember { MutableInteractionSource() }
     val indicationFinal = indication ?: rememberRippleIndicator()
 

@@ -5,11 +5,13 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 
 class CustomerSupportViewModel(
     customerSupportModelState: CustomerSupportModelState
-) : MviViewModel<CustomerSupportIntents,
+) : MviViewModel<
+    CustomerSupportIntents,
     CustomerSupportViewState,
     CustomerSupportModelState,
     CustomerSupportNavigationEvent,
-    ModelConfigArgs.NoArgs>(
+    ModelConfigArgs.NoArgs
+    >(
     customerSupportModelState
 ) {
 

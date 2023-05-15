@@ -64,7 +64,8 @@ class BtcAccountBalanceTest : CoincoreTestBase() {
 
         coEvery {
             unifiedBalancesService.balanceForWallet(
-                subject, any()
+                subject,
+                any()
             )
         } returns flowOf(
             DataResource.Data(
@@ -92,7 +93,8 @@ class BtcAccountBalanceTest : CoincoreTestBase() {
     fun `zero balance calculated correctly`() {
         coEvery {
             unifiedBalancesService.balanceForWallet(
-                subject, any()
+                subject,
+                any()
             )
         } returns flowOf(
             DataResource.Data(

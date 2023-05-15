@@ -101,9 +101,9 @@ class BalanceAndFeeView @JvmOverloads constructor(
     private fun showFiatOrCryptoValues(currencyType: CurrencyType, rate: ExchangeRate, value: Money) =
         when (currencyType) {
             CurrencyType.FIAT -> {
-                if (rate.canConvert(value))
+                if (rate.canConvert(value)) {
                     rate.convert(value).toStringWithSymbol()
-                else value.toStringWithSymbol()
+                } else value.toStringWithSymbol()
             }
             CurrencyType.CRYPTO -> value.toStringWithSymbol()
         }

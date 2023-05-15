@@ -39,7 +39,7 @@ class KycRepositoryTest {
         userService = userService,
         assetCatalogue = assetCatalogue,
         kycApiService = kycApiService,
-        proveFeatureFlag = proveFeatureFlag,
+        proveFeatureFlag = proveFeatureFlag
     )
 
     private val tiersResponse = KycTiersDto(
@@ -90,7 +90,8 @@ class KycRepositoryTest {
                     KycTierDetail(
                         KycTierState.None,
                         KycLimits(
-                            Money.fromMajor(USD, 25000.0.toBigDecimal()), null
+                            Money.fromMajor(USD, 25000.0.toBigDecimal()),
+                            null
                         )
                     )
             )
@@ -102,7 +103,7 @@ class KycRepositoryTest {
             listOf(
                 KycTierDto(0, "BRONZE", "VERIFIED", null),
                 KycTierDto(1, "SILVER", silverState, null),
-                KycTierDto(2, "GOLD", goldState, null),
+                KycTierDto(2, "GOLD", goldState, null)
             )
         )
     }

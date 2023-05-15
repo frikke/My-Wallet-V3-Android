@@ -69,7 +69,7 @@ class PrimaryButtonActivity : AppCompatActivity() {
             text = "Icon"
             buttonState = ButtonState.Enabled
             icon = ImageResource.Local(
-                id = R.drawable.ic_qr_code,
+                id = com.blockchain.componentlib.R.drawable.ic_qr_code,
                 contentDescription = null,
             )
         }

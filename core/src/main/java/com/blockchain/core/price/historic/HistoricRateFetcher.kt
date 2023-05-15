@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 
 // Moved here fromm app. This should be under, rather than over, ExchangeRateDM TODO
 class HistoricRateFetcher internal constructor(
-    private val historicRateStore: HistoricRateStore,
+    private val historicRateStore: HistoricRateStore
 ) {
     fun fetch(
         asset: Currency,
@@ -25,7 +25,7 @@ class HistoricRateFetcher internal constructor(
                 HistoricRateStore.Key(
                     fiatTicker = selectedFiat.networkTicker,
                     assetTicker = asset.networkTicker,
-                    requestedTimestamp = timestampMs,
+                    requestedTimestamp = timestampMs
                 ),
                 RefreshStrategy.RefreshIfStale
             )
@@ -33,7 +33,7 @@ class HistoricRateFetcher internal constructor(
             ExchangeRate(
                 rate = it.rate.toBigDecimal(),
                 from = asset,
-                to = selectedFiat,
+                to = selectedFiat
             ).convert(value)
         }
 }

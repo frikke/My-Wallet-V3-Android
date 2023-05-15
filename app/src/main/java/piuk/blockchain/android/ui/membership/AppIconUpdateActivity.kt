@@ -59,7 +59,8 @@ class AppIconUpdateActivity : BlockchainActivity() {
                 this@AppIconUpdateActivity,
                 aliasName
             ),
-            PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+            PackageManager.DONT_KILL_APP
         )
 
     private fun PackageManager.disableAlias(aliasName: Class<*>) =
@@ -68,7 +69,8 @@ class AppIconUpdateActivity : BlockchainActivity() {
                 this@AppIconUpdateActivity,
                 aliasName
             ),
-            PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+            PackageManager.DONT_KILL_APP
         )
 
     companion object {

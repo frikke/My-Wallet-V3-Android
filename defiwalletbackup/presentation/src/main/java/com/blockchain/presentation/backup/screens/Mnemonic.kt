@@ -79,7 +79,9 @@ private fun Mnemonic(mnemonic: List<String>, hidable: Boolean) {
                             }
                             true
                         }
-                    } else this
+                    } else {
+                        this
+                    }
                 },
             contentPadding = PaddingValues(AppTheme.dimensions.smallSpacing),
             columns = GridCells.Fixed(count = COLUMN_COUNT),
@@ -131,7 +133,7 @@ private fun Mnemonic(mnemonic: List<String>, hidable: Boolean) {
 fun MnemonicWord(index: Int, word: String) {
     Row {
         SimpleText(
-            modifier = Modifier.width(dimensionResource(R.dimen.standard_spacing)),
+            modifier = Modifier.width(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)),
             text = index.toString(),
             style = ComposeTypographies.ParagraphMono,
             color = ComposeColors.Muted,

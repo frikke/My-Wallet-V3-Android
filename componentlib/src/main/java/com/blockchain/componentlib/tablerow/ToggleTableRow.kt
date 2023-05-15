@@ -49,14 +49,14 @@ private fun ToggleTableRow(
                     PrimarySwitch(
                         isChecked = isChecked,
                         onCheckChanged = onCheckedChange,
-                        enabled = enabled,
+                        enabled = enabled
                     )
                 }
                 ToggleTableRowType.Success -> {
                     SuccessSwitch(
                         isChecked = isChecked,
                         onCheckChanged = onCheckedChange,
-                        enabled = enabled,
+                        enabled = enabled
                     )
                 }
             }
@@ -77,11 +77,11 @@ fun ToggleTableRow(
 ) {
     ToggleTableRow(
         paddingValues = PaddingValues(
-            start = dimensionResource(R.dimen.small_spacing),
+            start = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing),
             // Switch has a built-in padding and we need to consider it for the screen padding
-            end = dimensionResource(R.dimen.very_small_spacing),
-            top = dimensionResource(R.dimen.medium_spacing),
-            bottom = dimensionResource(R.dimen.medium_spacing),
+            end = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing),
+            top = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
+            bottom = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)
         ),
         onCheckedChange = onCheckedChange,
         primaryText = primaryText,
@@ -96,11 +96,11 @@ fun ToggleTableRow(
 @Composable
 fun FlexibleToggleTableRow(
     paddingValues: PaddingValues = PaddingValues(
-        start = dimensionResource(R.dimen.small_spacing),
+        start = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing),
         // Switch has a built-in padding and we need to consider it for the screen padding
-        end = dimensionResource(R.dimen.very_small_spacing),
-        top = dimensionResource(R.dimen.medium_spacing),
-        bottom = dimensionResource(R.dimen.medium_spacing),
+        end = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing),
+        top = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
+        bottom = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)
     ),
     onCheckedChange: (isChecked: Boolean) -> Unit,
     primaryText: String,

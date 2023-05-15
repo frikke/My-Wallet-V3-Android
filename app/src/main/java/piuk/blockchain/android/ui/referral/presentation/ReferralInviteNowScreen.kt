@@ -46,11 +46,10 @@ fun ReferralInviteNowScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(dimensionResource(R.dimen.standard_spacing)),
+                .padding(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.xlarge_spacing)))
+            Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.xlarge_spacing)))
 
             Image(
                 imageResource = ImageResource.Local(
@@ -58,34 +57,34 @@ fun ReferralInviteNowScreen(
                 )
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.xlarge_spacing)))
+            Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.xlarge_spacing)))
 
             Text(
                 style = AppTheme.typography.title2,
                 color = Color.White,
-                text = referralTitle,
+                text = referralTitle
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.very_small_spacing)))
+            Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)))
 
             Text(
                 style = AppTheme.typography.paragraph1,
                 color = Color.White,
-                text = referralSubtitle,
+                text = referralSubtitle
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
+            Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)))
 
             TertiaryButton(
-                text = stringResource(R.string.referral_invite_now),
+                text = stringResource(com.blockchain.stringResources.R.string.referral_invite_now),
                 onClick = onPositiveAction,
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.medium_spacing)))
+            Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)))
 
             PrimaryButton(
-                text = stringResource(R.string.common_skip),
+                text = stringResource(com.blockchain.stringResources.R.string.common_skip),
                 onClick = onNegativeAction,
                 modifier = Modifier.fillMaxWidth()
             )

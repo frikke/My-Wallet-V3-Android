@@ -23,7 +23,7 @@ class BuyFlowNavigator(
     private val userIdentity: UserIdentity,
     private val kycService: KycService,
     private val fiatCurrenciesService: FiatCurrenciesService,
-    private val custodialWalletManager: CustodialWalletManager,
+    private val custodialWalletManager: CustodialWalletManager
 ) {
 
     val currentState: SimpleBuyState
@@ -40,7 +40,6 @@ class BuyFlowNavigator(
             currentState.currentScreen == FlowScreen.KYC ||
             currentState.currentScreen == FlowScreen.KYC_VERIFICATION
         ) {
-
             Single.zip(
                 userIdentity.isVerifiedFor(Feature.TierLevel(KycTier.GOLD)),
                 kycService.isInProgress(),
@@ -48,10 +47,12 @@ class BuyFlowNavigator(
             ) { verifiedGold, kycInProgress, rejectedGold ->
                 when {
                     verifiedGold -> BuyNavigation.FlowScreenWithCurrency(
-                        FlowScreen.ENTER_AMOUNT, cryptoCurrency
+                        FlowScreen.ENTER_AMOUNT,
+                        cryptoCurrency
                     )
                     kycInProgress || rejectedGold -> BuyNavigation.FlowScreenWithCurrency(
-                        FlowScreen.KYC_VERIFICATION, cryptoCurrency
+                        FlowScreen.KYC_VERIFICATION,
+                        cryptoCurrency
                     )
                     else -> BuyNavigation.FlowScreenWithCurrency(FlowScreen.KYC, cryptoCurrency)
                 }
@@ -80,7 +81,7 @@ class BuyFlowNavigator(
         startedFromDashboard: Boolean,
         startedFromApprovalDeepLink: Boolean,
         preselectedCrypto: AssetInfo?,
-        failOnUnavailableCurrency: Boolean = false,
+        failOnUnavailableCurrency: Boolean = false
     ): Single<BuyNavigation> {
         val cryptoCurrency = preselectedCrypto
             ?: currentState.selectedCryptoAsset ?: throw IllegalStateException("CryptoCurrency is not available")

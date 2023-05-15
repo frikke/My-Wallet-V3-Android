@@ -23,7 +23,6 @@ fun DestructivePrimaryButton(
     defaultBackgroundColor: Color? = null,
     icon: ImageResource = ImageResource.None
 ) {
-
     Button(
         text = text,
         onClick = onClick,
@@ -44,9 +43,9 @@ fun DestructivePrimaryButton(
                 text = text,
                 textColor = textColor,
                 contentAlpha = textAlpha,
-                icon = icon,
+                icon = icon
             )
-        },
+        }
     )
 }
 

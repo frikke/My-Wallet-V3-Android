@@ -33,11 +33,13 @@ class TargetAssetsViewModel(
     private val pricesService: PricesService,
     private val currencyPrefs: CurrencyPrefs,
     private val walletModeService: WalletModeService
-) : MviViewModel<TargetAssetsIntent,
+) : MviViewModel<
+    TargetAssetsIntent,
     TargetAssetsViewState,
     TargetAssetsModelState,
     TargetAssetsNavigationEvent,
-    ModelConfigArgs.NoArgs>(
+    ModelConfigArgs.NoArgs
+    >(
     TargetAssetsModelState()
 ) {
 

@@ -14,7 +14,7 @@ fun DialogueCardPreview() {
     AppTheme {
         AppSurface {
             DialogueCard(
-                icon = R.drawable.ic_chip_checkmark,
+                icon = com.blockchain.componentlib.R.drawable.ic_chip_checkmark,
                 title = "Title",
                 body = "Body 2: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,",
                 firstButton = DialogueButton("Button 1") {},

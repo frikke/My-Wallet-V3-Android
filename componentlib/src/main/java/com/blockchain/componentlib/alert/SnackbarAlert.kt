@@ -34,7 +34,6 @@ fun SnackbarAlert(
     onActionClicked: () -> Unit = {},
     type: SnackbarType = SnackbarType.Info
 ) {
-
     val backgroundColour = if (!isSystemInDarkTheme()) {
         Dark800
     } else {
@@ -61,9 +60,8 @@ fun SnackbarAlert(
             .background(backgroundColour)
             // prevents click throughs to views underneath the snack bar
             .clickable(true, onClick = {})
-            .padding(horizontal = AppTheme.dimensions.smallSpacing, vertical = 14.dp),
+            .padding(horizontal = AppTheme.dimensions.smallSpacing, vertical = 14.dp)
     ) {
-
         icon?.let {
             Image(
                 modifier = Modifier
@@ -97,7 +95,7 @@ fun SnackbarAlert(
                     },
                 style = AppTheme.typography.paragraph2,
                 textAlign = TextAlign.End,
-                color = Blue400,
+                color = Blue400
             )
         }
     }

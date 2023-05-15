@@ -41,7 +41,7 @@ class VgsCardTokenizerRepository(
         cardNumber: InputFieldView,
         expiration: ExpirationDateEditText,
         cvv: InputFieldView,
-        cardTokenId: String,
+        cardTokenId: String
     ) {
         with(vgsForm) {
             bindView(name)

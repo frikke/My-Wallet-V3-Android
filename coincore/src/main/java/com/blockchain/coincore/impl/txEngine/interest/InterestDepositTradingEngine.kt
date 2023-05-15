@@ -29,7 +29,7 @@ class InterestDepositTradingEngine(
     private val interestBalanceStore: FlushableDataSource,
     interestService: InterestService,
     private val tradingStore: TradingStore,
-    private val walletManager: CustodialWalletManager,
+    private val walletManager: CustodialWalletManager
 ) : InterestBaseEngine(interestService) {
 
     override val flushableDataSources: List<FlushableDataSource>
@@ -103,7 +103,9 @@ class InterestDepositTradingEngine(
             txConfirmations = listOfNotNull(
                 TxConfirmationValue.From(sourceAccount, sourceAsset),
                 TxConfirmationValue.To(
-                    txTarget, AssetAction.InterestDeposit, sourceAccount
+                    txTarget,
+                    AssetAction.InterestDeposit,
+                    sourceAccount
                 ),
                 TxConfirmationValue.Total(
                     totalWithFee = (pendingTx.amount as CryptoValue).plus(

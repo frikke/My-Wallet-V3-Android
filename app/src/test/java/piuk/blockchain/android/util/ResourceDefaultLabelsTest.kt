@@ -10,7 +10,9 @@ import piuk.blockchain.android.R
 class ResourceDefaultLabelsTest {
 
     private val resources: Resources = mock {
-        on { getString(R.string.default_v2_crypto_non_custodial_wallet_label) }.thenReturn("Private Key")
+        on {
+            getString(com.blockchain.stringResources.R.string.default_v2_crypto_non_custodial_wallet_label)
+        }.thenReturn("Private Key")
     }
 
     private val defaultLabels: DefaultLabels =

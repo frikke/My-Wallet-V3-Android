@@ -10,5 +10,5 @@ data class EarnWithdrawalDto(
     val maxRequested: Boolean,
     val amount: String? = null,
     val unbondingStartDate: String? = null,
-    val unbondingExpiry: String? = null,
+    val unbondingExpiry: String? = null
 )

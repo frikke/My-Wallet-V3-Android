@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.rx3.asFlow
 
 class CustodialActivityRepository(
-    private val coincore: Coincore,
+    private val coincore: Coincore
 ) : CustodialActivityService {
     private var activityCache: List<CustodialTransaction> = emptyList()
     override fun getAllActivity(

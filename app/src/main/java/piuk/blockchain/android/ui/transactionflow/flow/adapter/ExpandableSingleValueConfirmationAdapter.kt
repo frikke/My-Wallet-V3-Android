@@ -79,10 +79,10 @@ private class ExpandableSingleValueCheckoutItemViewHolder(
         with(binding) {
             if (isExpanded) {
                 arrowIcon.setImageResource(R.drawable.expand_animated)
-                arrowIcon.setColorFilter(context.getResolvedColor(R.color.blue_600))
+                arrowIcon.setColorFilter(context.getResolvedColor(com.blockchain.common.R.color.blue_600))
             } else {
                 arrowIcon.setImageResource(R.drawable.collapse_animated)
-                arrowIcon.setColorFilter(context.getResolvedColor(R.color.grey_600))
+                arrowIcon.setColorFilter(context.getResolvedColor(com.blockchain.common.R.color.grey_600))
             }
         }
     }

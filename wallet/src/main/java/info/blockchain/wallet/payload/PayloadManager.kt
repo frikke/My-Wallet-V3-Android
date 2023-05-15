@@ -61,7 +61,7 @@ class PayloadManager(
     private val balanceManagerBch: BalanceManagerBch,
     private val device: Device,
     private val remoteLogger: RemoteLogger,
-    private val appVersion: AppVersion,
+    private val appVersion: AppVersion
 ) {
     private lateinit var walletBase: WalletBase
     private lateinit var password: String
@@ -179,7 +179,7 @@ class PayloadManager(
         sharedKey: String,
         guid: String,
         password: String,
-        sessionId: String,
+        sessionId: String
     ): Completable {
         this.password = password
         return walletApi.fetchWalletData(guid, sharedKey, sessionId).doOnSuccess {
@@ -267,37 +267,43 @@ class PayloadManager(
         } ?: emptyList()
 
         return saveAndSync(
-            walletBase.withWalletBody(payload.withUpdatedBodiesAndVersion(v4WalletBodies, 4)), password
+            walletBase.withWalletBody(payload.withUpdatedBodiesAndVersion(v4WalletBodies, 4)),
+            password
         )
     }
 
     fun updateDerivationsForAccounts(accounts: List<Account>): Completable {
         return saveAndSync(
-            walletBase.withUpdatedDerivationsForAccounts(accounts), password
+            walletBase.withUpdatedDerivationsForAccounts(accounts),
+            password
         )
     }
 
     fun updateAccountLabel(account: JsonSerializableAccount, label: String): Completable {
         return saveAndSync(
-            walletBase.withUpdatedLabel(account, label), password
+            walletBase.withUpdatedLabel(account, label),
+            password
         )
     }
 
     fun updateAccountsLabels(updatedAccounts: Map<Account, String>): Completable {
         return saveAndSync(
-            walletBase.withUpdatedAccountsLabel(updatedAccounts), password
+            walletBase.withUpdatedAccountsLabel(updatedAccounts),
+            password
         )
     }
 
     fun updateArchivedAccountState(account: JsonSerializableAccount, acrhived: Boolean): Completable {
         return saveAndSync(
-            walletBase.withUpdatedAccountState(account, acrhived), password
+            walletBase.withUpdatedAccountState(account, acrhived),
+            password
         )
     }
 
     fun updateMnemonicVerified(verified: Boolean): Completable {
         return saveAndSync(
-            walletBase.withMnemonicState(verified), password
+            walletBase.withMnemonicState(verified),
+            password
         )
     }
 
@@ -405,7 +411,6 @@ class PayloadManager(
         walletBody: WalletBody,
         payloadVersion: Int
     ): List<String> {
-
         // This matches what iOS is doing, but it seems to be massive overkill for mobile
         // devices. I'm also filtering out archived accounts here because I don't see the point
         // in sending them.
@@ -440,7 +445,6 @@ class PayloadManager(
         label: String,
         secondPassword: String?
     ): Single<Account> {
-
         val updatedWallet: Wallet = payload.addAccount(
             label,
             secondPassword
@@ -506,7 +510,8 @@ class PayloadManager(
     ): Single<ImportedAddress> {
         val address = payload.importedAddressFromKey(
             key,
-            secondPassword, device.osType,
+            secondPassword,
+            device.osType,
             appVersion.appVersion
         )
         val wallet: Wallet = payload.addImportedAddress(address)
@@ -562,7 +567,8 @@ class PayloadManager(
 
         return SigningKeyImpl(
             Tools.getECKeyFromKeyAndAddress(
-                decryptedPrivateKey!!, importedAddress.address
+                decryptedPrivateKey!!,
+                importedAddress.address
             )
         )
     }
@@ -637,7 +643,6 @@ class PayloadManager(
         limit: Int,
         offset: Int
     ): List<TransactionSummary> {
-
         return multiAddressFactory.getAccountTransactions(
             listOf(xpubs),
             null,
@@ -768,8 +773,9 @@ class PayloadManager(
         return hdAccount.receive
             .getAddressAt(
                 position,
-                if (derivationType === Derivation.LEGACY_TYPE)
-                    Derivation.LEGACY_PURPOSE else
+                if (derivationType === Derivation.LEGACY_TYPE) {
+                    Derivation.LEGACY_PURPOSE
+                } else
                     Derivation.SEGWIT_BECH32_PURPOSE
             ).formattedAddress
     }

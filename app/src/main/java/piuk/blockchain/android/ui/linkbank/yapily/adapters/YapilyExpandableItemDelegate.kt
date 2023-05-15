@@ -33,7 +33,8 @@ class YapilyExpandableItemDelegate(
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as YapilyExpandableItemViewHolder).bind(
-        items[position] as YapilyPermissionItem.YapilyExpandableItem, position
+        items[position] as YapilyPermissionItem.YapilyExpandableItem,
+        position
     )
 }
 
@@ -60,10 +61,10 @@ class YapilyExpandableItemViewHolder(
             expandableBlurb.visibleIf { isExpanded }
             if (isExpanded) {
                 expandableChevron.setImageResource(R.drawable.expand_animated)
-                expandableChevron.setColorFilter(context.getResolvedColor(R.color.blue_600))
+                expandableChevron.setColorFilter(context.getResolvedColor(com.blockchain.componentlib.R.color.blue_600))
             } else {
                 expandableChevron.setImageResource(R.drawable.collapse_animated)
-                expandableChevron.setColorFilter(context.getResolvedColor(R.color.grey_600))
+                expandableChevron.setColorFilter(context.getResolvedColor(com.blockchain.componentlib.R.color.grey_600))
             }
             if (playAnimation) {
                 val arrow = expandableChevron.drawable as Animatable

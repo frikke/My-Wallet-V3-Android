@@ -16,7 +16,7 @@ sealed class ActivityViewItemDto {
         @SerialName("leading")
         val leading: List<StackComponentDto>,
         @SerialName("trailing")
-        val trailing: List<StackComponentDto>,
+        val trailing: List<StackComponentDto>
     ) : ActivityViewItemDto()
 
     @Serializable

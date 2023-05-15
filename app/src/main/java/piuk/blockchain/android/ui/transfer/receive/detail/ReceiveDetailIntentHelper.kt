@@ -35,7 +35,6 @@ class ReceiveDetailIntentHelper(
         bitmap: Bitmap,
         asset: AssetInfo
     ): List<SendPaymentCodeData> {
-
         val file = getQrFile()
         val outputStream = getFileOutputStream(file)
 
@@ -60,10 +59,12 @@ class ReceiveDetailIntentHelper(
 
             when {
                 asset.networkTicker == CryptoCurrency.BTC.networkTicker -> emailIntent.setupIntentForEmailBtc(
-                    displayName, uri
+                    displayName,
+                    uri
                 )
                 asset.networkTicker == CryptoCurrency.BCH.networkTicker -> emailIntent.setupIntentForEmailBch(
-                    displayName, uri
+                    displayName,
+                    uri
                 )
                 asset.networkTicker == CryptoCurrency.XLM.networkTicker ->
                     emailIntent.setupIntentForEmailXlm(
@@ -161,36 +162,63 @@ class ReceiveDetailIntentHelper(
             if (addressUri.address != null) {
                 addressUri.address!!.toString()
             } else {
-                context.getString(R.string.email_request_body_fallback)
+                context.getString(com.blockchain.stringResources.R.string.email_request_body_fallback)
             }
-        val body = String.format(context.getString(R.string.email_request_body_btc), amount, address)
+        val body = String.format(
+            context.getString(com.blockchain.stringResources.R.string.email_request_body_btc),
+            amount,
+            address
+        )
 
         val text = "$body\n\n ${FormatsUtil.toBtcUri(address)}"
         putExtra(Intent.EXTRA_TEXT, text)
-        putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.email_request_subject, displayName))
+        putExtra(
+            Intent.EXTRA_SUBJECT,
+            context.getString(com.blockchain.stringResources.R.string.email_request_subject, displayName)
+        )
     }
 
     private fun Intent.setupIntentForEmailERC20(ticker: String, displayName: String, uri: String) {
         val address = uri.removePrefix("ethereum:")
-        val body = String.format(context.getString(R.string.email_request_body_erc20), ticker, displayName, address)
+        val body = String.format(
+            context.getString(com.blockchain.stringResources.R.string.email_request_body_erc20),
+            ticker,
+            displayName,
+            address
+        )
 
         putExtra(Intent.EXTRA_TEXT, body)
-        putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.email_request_subject, displayName))
+        putExtra(
+            Intent.EXTRA_SUBJECT,
+            context.getString(com.blockchain.stringResources.R.string.email_request_subject, displayName)
+        )
     }
 
     private fun Intent.setupIntentForEmailXlm(displayName: String, payment: StellarPayment) {
-        val body = String.format(context.getString(R.string.email_request_body_xlm), payment.public.accountId)
+        val body = String.format(
+            context.getString(com.blockchain.stringResources.R.string.email_request_body_xlm),
+            payment.public.accountId
+        )
 
         putExtra(Intent.EXTRA_TEXT, body)
-        putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.email_request_subject, displayName))
+        putExtra(
+            Intent.EXTRA_SUBJECT,
+            context.getString(com.blockchain.stringResources.R.string.email_request_subject, displayName)
+        )
     }
 
     private fun Intent.setupIntentForEmailBch(displayName: String, uri: String) {
         val address = uri.removePrefix("bitcoincash:")
-        val body = String.format(context.getString(R.string.email_request_body_bch), address)
+        val body = String.format(
+            context.getString(com.blockchain.stringResources.R.string.email_request_body_bch),
+            address
+        )
 
         putExtra(Intent.EXTRA_TEXT, body)
-        putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.email_request_subject, displayName))
+        putExtra(
+            Intent.EXTRA_SUBJECT,
+            context.getString(com.blockchain.stringResources.R.string.email_request_subject, displayName)
+        )
     }
 
     private fun Intent.setupIntentForImage(type: String?, file: File) {

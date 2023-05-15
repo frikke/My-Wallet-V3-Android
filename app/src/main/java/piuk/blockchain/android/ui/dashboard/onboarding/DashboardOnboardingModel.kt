@@ -26,7 +26,7 @@ class DashboardOnboardingModel(
     initialState = DashboardOnboardingState(steps = initialSteps),
     uiScheduler = uiScheduler,
     environmentConfig = environmentConfig,
-    remoteLogger = remoteLogger,
+    remoteLogger = remoteLogger
 ) {
 
     override fun performAction(
@@ -139,7 +139,9 @@ class DashboardOnboardingModel(
                         limits,
                         canBeUsedForPayment
                     )
-                } else null
+                } else {
+                    null
+                }
             PaymentMethodType.FUNDS,
             PaymentMethodType.UNKNOWN -> null
         }

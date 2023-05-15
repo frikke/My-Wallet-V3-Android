@@ -53,7 +53,7 @@ class SettingsInteractorTest {
             getAvailablePaymentMethodsTypesUseCase = getAvailablePaymentMethodsTypesUseCase,
             currencyPrefs = currencyPrefs,
             referralService = referralService,
-            nabuUserIdentity = nabuUserIdentity,
+            nabuUserIdentity = nabuUserIdentity
         )
     }
 

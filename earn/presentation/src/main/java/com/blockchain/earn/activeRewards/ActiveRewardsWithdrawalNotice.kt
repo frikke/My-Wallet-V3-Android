@@ -30,7 +30,7 @@ fun ActiveRewardsWithdrawalNotice(onLearnMorePressed: () -> Unit) {
             width = 1.dp,
             color = AppTheme.colors.warning
         ),
-        elevation = 0.dp,
+        elevation = 0.dp
     ) {
         Column(
             modifier = Modifier
@@ -38,7 +38,7 @@ fun ActiveRewardsWithdrawalNotice(onLearnMorePressed: () -> Unit) {
                 .padding(AppTheme.dimensions.smallSpacing)
         ) {
             SimpleText(
-                text = stringResource(R.string.common_important_information),
+                text = stringResource(com.blockchain.stringResources.R.string.common_important_information),
                 style = ComposeTypographies.Paragraph2,
                 color = ComposeColors.Warning,
                 gravity = ComposeGravities.Start
@@ -47,15 +47,16 @@ fun ActiveRewardsWithdrawalNotice(onLearnMorePressed: () -> Unit) {
             TinyVerticalSpacer()
 
             SimpleText(
-                text = stringResource(R.string.earn_active_rewards_withdrawal_blocked),
-                style = ComposeTypographies.Caption1, color = ComposeColors.Title,
+                text = stringResource(com.blockchain.stringResources.R.string.earn_active_rewards_withdrawal_blocked),
+                style = ComposeTypographies.Caption1,
+                color = ComposeColors.Title,
                 gravity = ComposeGravities.Start
             )
 
             SmallVerticalSpacer()
 
             SecondaryButton(
-                text = stringResource(id = R.string.common_learn_more),
+                text = stringResource(id = com.blockchain.stringResources.R.string.common_learn_more),
                 onClick = onLearnMorePressed
             )
         }
@@ -79,7 +80,7 @@ fun ActiveRewardsTradingWarning(onLearnMorePressed: () -> Unit) {
             width = 1.dp,
             color = AppTheme.colors.warning
         ),
-        elevation = 0.dp,
+        elevation = 0.dp
     ) {
         Column(
             modifier = Modifier
@@ -87,7 +88,7 @@ fun ActiveRewardsTradingWarning(onLearnMorePressed: () -> Unit) {
                 .padding(AppTheme.dimensions.smallSpacing)
         ) {
             SimpleText(
-                text = stringResource(R.string.common_important_information),
+                text = stringResource(com.blockchain.stringResources.R.string.common_important_information),
                 style = ComposeTypographies.Paragraph2,
                 color = ComposeColors.Warning,
                 gravity = ComposeGravities.Start
@@ -96,15 +97,16 @@ fun ActiveRewardsTradingWarning(onLearnMorePressed: () -> Unit) {
             TinyVerticalSpacer()
 
             SimpleText(
-                text = stringResource(R.string.earn_trading_disclaimer),
-                style = ComposeTypographies.Caption1, color = ComposeColors.Title,
+                text = stringResource(com.blockchain.stringResources.R.string.earn_trading_disclaimer),
+                style = ComposeTypographies.Caption1,
+                color = ComposeColors.Title,
                 gravity = ComposeGravities.Start
             )
 
             SmallVerticalSpacer()
 
             SecondaryButton(
-                text = stringResource(id = R.string.common_learn_more),
+                text = stringResource(id = com.blockchain.stringResources.R.string.common_learn_more),
                 onClick = onLearnMorePressed
             )
         }

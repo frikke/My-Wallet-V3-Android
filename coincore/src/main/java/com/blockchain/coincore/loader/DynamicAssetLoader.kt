@@ -76,7 +76,7 @@ internal class DynamicAssetLoader(
     private val selfCustodyService: NonCustodialService,
     private val stakingService: StakingService,
     private val currencyPrefs: CurrencyPrefs,
-    private val activeRewardsService: ActiveRewardsService,
+    private val activeRewardsService: ActiveRewardsService
 ) : AssetLoader {
 
     private val assetMap = mutableMapOf<Currency, Asset>()
@@ -93,16 +93,16 @@ internal class DynamicAssetLoader(
     }
 
     /*
-    * This methods responsibility is discover and persist the available assets that the application uses
-    * More specifically after it discovers it persists two sets of currencies (Assets). The first list
-    * consists of all the available assets that the app supports and the second persists the active assets of our
-    * application. As active we consider any of the following assets:
-    * - All the big standard PKWs L1s that are currently hardcoded in the App [BTC,BCH,ETH,XLM,MATIC]
-    * - All the PKW erc20s that user has a balance [erc20Datamanager.getActive()]
-    * - All custodial currencies that user has a trading OR an interest balance
-    * - All PKW subscriptions [selfCustodyService.getSubscriptions()]
-    * Every asset loads the corresponding accounts, based on what it supports.
-    * */
+     * This methods responsibility is discover and persist the available assets that the application uses
+     * More specifically after it discovers it persists two sets of currencies (Assets). The first list
+     * consists of all the available assets that the app supports and the second persists the active assets of our
+     * application. As active we consider any of the following assets:
+     * - All the big standard PKWs L1s that are currently hardcoded in the App [BTC,BCH,ETH,XLM,MATIC]
+     * - All the PKW erc20s that user has a balance [erc20Datamanager.getActive()]
+     * - All custodial currencies that user has a trading OR an interest balance
+     * - All PKW subscriptions [selfCustodyService.getSubscriptions()]
+     * Every asset loads the corresponding accounts, based on what it supports.
+     * */
     override fun initAndPreload(): Completable {
         return assetCatalogue.initialise()
             .doOnSubscribe { remoteLogger.logEvent("Coincore init started") }
@@ -135,13 +135,17 @@ internal class DynamicAssetLoader(
         }
         if ((this as? AssetInfo)?.isDelegatedNonCustodial == true) return loadSelfCustodialAsset(this)
         if ((this as? AssetInfo)?.isNonCustodial == true) return loadNonCustodialAsset(this)
-        if ((this as? AssetInfo)?.isCustodialOnly == true) return DynamicOnlyTradingAsset(
-            currency = this,
-            addressValidation = defaultCustodialAddressValidation
-        )
-        if (this is FiatCurrency) return FiatAsset(
-            this
-        )
+        if ((this as? AssetInfo)?.isCustodialOnly == true) {
+            return DynamicOnlyTradingAsset(
+                currency = this,
+                addressValidation = defaultCustodialAddressValidation
+            )
+        }
+        if (this is FiatCurrency) {
+            return FiatAsset(
+                this
+            )
+        }
         return null
     }
 
@@ -152,16 +156,17 @@ internal class DynamicAssetLoader(
     }
 
     /*
-    * Init the local non custodial assets currently BCH and ETH that require
-    * metadata initialisation.
-    * We need to make sure ETH is initialised before we request the supported erc20s
-    * */
+     * Init the local non custodial assets currently BCH and ETH that require
+     * metadata initialisation.
+     * We need to make sure ETH is initialised before we request the supported erc20s
+     * */
     private fun initNonCustodialAssets(assetList: List<Asset>): Completable =
         assetList.filterIsInstance<NonCustodialSupport>().map { asset ->
             Single.defer { asset.initToken().toSingle { } }.doOnError {
                 remoteLogger.logException(
                     CoincoreInitFailure(
-                        "Failed init: ${(asset as CryptoAsset).currency.networkTicker}", it
+                        "Failed init: ${(asset as CryptoAsset).currency.networkTicker}",
+                        it
                     )
                 )
             }
@@ -240,7 +245,7 @@ internal class DynamicAssetLoader(
             activeInterestFlow,
             supportedFiatsFlow,
             activeStakingFlow,
-            activeActiveRewardsFlow,
+            activeActiveRewardsFlow
         ) { activeTrading, activeInterest, supportedFiats, activeStaking, activeActive ->
             val allActives = setOf(activeTrading, activeInterest, activeStaking, activeActive)
                 .flatten()
@@ -280,7 +285,7 @@ internal class DynamicAssetLoader(
             currencyPrefs = currencyPrefs,
             walletPreferences = walletPreferences,
             formatUtils = formatUtils,
-            addressResolver = ethHotWalletAddressResolver,
+            addressResolver = ethHotWalletAddressResolver
         )
     }
 

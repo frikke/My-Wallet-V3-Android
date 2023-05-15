@@ -23,6 +23,8 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion Versions.composeCompiler
     }
+
+    namespace 'com.blockchain.dex.presentation'
 }
 
 dependencies {

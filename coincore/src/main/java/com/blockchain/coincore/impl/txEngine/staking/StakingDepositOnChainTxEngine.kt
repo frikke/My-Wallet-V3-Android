@@ -26,7 +26,7 @@ import io.reactivex.rxjava3.core.Single
 class StakingDepositOnChainTxEngine(
     private val stakingBalanceStore: FlushableDataSource,
     stakingService: StakingService,
-    private val onChainEngine: OnChainTxEngineBase,
+    private val onChainEngine: OnChainTxEngineBase
 ) : StakingBaseEngine(stakingService) {
 
     override val flushableDataSources: List<FlushableDataSource>

@@ -555,7 +555,7 @@ class TradingSellTxEngineTest : CoincoreTestBase() {
     }
 
     private fun verifyFeeLevels(
-        feeSelection: FeeSelection,
+        feeSelection: FeeSelection
     ) = feeSelection.selectedLevel == FeeLevel.None &&
         feeSelection.availableLevels == setOf(FeeLevel.None) &&
         feeSelection.availableLevels.contains(feeSelection.selectedLevel) &&

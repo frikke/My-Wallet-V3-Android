@@ -21,7 +21,7 @@ import kotlinx.collections.immutable.ImmutableList
 
 internal fun LazyListScope.homeTopMovers(
     data: DataResource<ImmutableList<PriceItemViewState>>,
-    assetOnClick: (AssetInfo) -> Unit,
+    assetOnClick: (AssetInfo) -> Unit
 ) {
     (data as? DataResource.Data)?.data?.let {
         if (it.isEmpty()) return
@@ -31,7 +31,7 @@ internal fun LazyListScope.homeTopMovers(
         ) {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
             TableRowHeader(
-                title = stringResource(R.string.prices_top_movers),
+                title = stringResource(com.blockchain.stringResources.R.string.prices_top_movers),
                 icon = Icons.Filled.Fire
                     .withSize(AppTheme.dimensions.smallSpacing)
                     .withTint(AppTheme.colors.warningMuted)

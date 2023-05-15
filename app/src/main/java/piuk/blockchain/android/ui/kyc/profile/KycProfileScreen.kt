@@ -48,7 +48,7 @@ import piuk.blockchain.android.ui.kyc.commonui.UserIcon
 fun KycProfileScreen(
     viewState: StateFlow<KycProfileViewState>,
     onIntent: (KycProfileIntent) -> Unit,
-    showDatePicker: () -> Unit,
+    showDatePicker: () -> Unit
 ) {
     val state by viewState.collectAsStateLifecycleAware()
 
@@ -63,7 +63,7 @@ fun KycProfileScreen(
                 keyboardController?.hide()
                 scaffoldState.snackbarHostState.showSnackbar(
                     message = error.errorMessage(context),
-                    duration = SnackbarDuration.Long,
+                    duration = SnackbarDuration.Long
                 )
                 onIntent(KycProfileIntent.ErrorHandled)
             }
@@ -75,18 +75,18 @@ fun KycProfileScreen(
                 .padding(padding)
                 .padding(all = AppTheme.dimensions.standardSpacing)
                 .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             UserIcon(
                 modifier = Modifier.padding(top = AppTheme.dimensions.xHugeSpacing),
-                iconRes = R.drawable.ic_bank_user,
+                iconRes = R.drawable.ic_bank_user
             )
 
             SimpleText(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = AppTheme.dimensions.largeSpacing),
-                text = stringResource(R.string.verify_your_identity),
+                text = stringResource(com.blockchain.stringResources.R.string.verify_your_identity),
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
@@ -96,7 +96,7 @@ fun KycProfileScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = AppTheme.dimensions.tinySpacing),
-                text = stringResource(R.string.kyc_profile_message),
+                text = stringResource(com.blockchain.stringResources.R.string.kyc_profile_message),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Body,
                 gravity = ComposeGravities.Centre
@@ -115,11 +115,11 @@ fun KycProfileScreen(
                 value = state.firstNameInput,
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Next,
-                    capitalization = KeyboardCapitalization.Words,
+                    capitalization = KeyboardCapitalization.Words
                 ),
                 keyboardActions = KeyboardActions(onNext = { localFocusManager.moveFocus(FocusDirection.Next) }),
-                label = stringResource(R.string.kyc_profile_first_name_hint),
-                onValueChange = { value -> onIntent(KycProfileIntent.FirstNameInputChanged(value)) },
+                label = stringResource(com.blockchain.stringResources.R.string.kyc_profile_first_name_hint),
+                onValueChange = { value -> onIntent(KycProfileIntent.FirstNameInputChanged(value)) }
             )
 
             OutlinedTextInput(
@@ -127,7 +127,9 @@ fun KycProfileScreen(
                     .fillMaxWidth()
                     .padding(top = AppTheme.dimensions.smallSpacing),
                 state = if (state.isNameInputErrorShowing) {
-                    TextInputState.Error(stringResource(R.string.kyc_profile_error_invalid_name))
+                    TextInputState.Error(
+                        stringResource(com.blockchain.stringResources.R.string.kyc_profile_error_invalid_name)
+                    )
                 } else {
                     TextInputState.Default(null)
                 },
@@ -135,15 +137,15 @@ fun KycProfileScreen(
                 value = state.lastNameInput,
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Next,
-                    capitalization = KeyboardCapitalization.Words,
+                    capitalization = KeyboardCapitalization.Words
                 ),
                 keyboardActions = KeyboardActions(onNext = {
                     keyboardController?.hide()
                     localFocusManager.clearFocus(force = true)
                     showDatePicker()
                 }),
-                label = stringResource(R.string.kyc_profile_last_name_hint),
-                onValueChange = { value -> onIntent(KycProfileIntent.LastNameInputChanged(value)) },
+                label = stringResource(com.blockchain.stringResources.R.string.kyc_profile_last_name_hint),
+                onValueChange = { value -> onIntent(KycProfileIntent.LastNameInputChanged(value)) }
             )
 
             Box(
@@ -157,7 +159,7 @@ fun KycProfileScreen(
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     value = dob,
-                    label = stringResource(R.string.kyc_profile_dob_hint),
+                    label = stringResource(com.blockchain.stringResources.R.string.kyc_profile_dob_hint),
                     readOnly = true,
                     onValueChange = {
                         // no op readonly
@@ -177,7 +179,7 @@ fun KycProfileScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = AppTheme.dimensions.standardSpacing),
-                text = stringResource(R.string.kyc_profile_next),
+                text = stringResource(com.blockchain.stringResources.R.string.kyc_profile_next),
                 state = state.continueButtonState,
                 onClick = { onIntent(KycProfileIntent.ContinueClicked) }
             )
@@ -186,7 +188,13 @@ fun KycProfileScreen(
 }
 
 private fun KycProfileError.errorMessage(context: Context) = when (this) {
-    is KycProfileError.Generic -> message?.ifEmpty { null } ?: context.getString(R.string.kyc_profile_error)
-    KycProfileError.UserConflict -> context.getString(R.string.kyc_profile_error_conflict)
-    KycProfileError.InvalidName -> context.getString(R.string.kyc_profile_error_invalid_name)
+    is KycProfileError.Generic -> message?.ifEmpty {
+        null
+    } ?: context.getString(com.blockchain.stringResources.R.string.kyc_profile_error)
+    KycProfileError.UserConflict -> context.getString(
+        com.blockchain.stringResources.R.string.kyc_profile_error_conflict
+    )
+    KycProfileError.InvalidName -> context.getString(
+        com.blockchain.stringResources.R.string.kyc_profile_error_invalid_name
+    )
 }

@@ -74,7 +74,6 @@ class NftCollectionViewModelTest {
         viewModel.onIntent(NftCollectionIntent.LoadData())
 
         viewModel.viewState.test {
-
             // first loading - should be loading
             dataResource.emit(DataResource.Loading)
             awaitItem().run {

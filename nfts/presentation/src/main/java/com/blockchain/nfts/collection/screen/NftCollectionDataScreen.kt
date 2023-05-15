@@ -60,9 +60,9 @@ fun NftCollectionDataScreen(
                 .padding(AppTheme.dimensions.smallSpacing)
         ) {
             Text(
-                text = stringResource(id = R.string.nft_collectibles),
+                text = stringResource(id = com.blockchain.stringResources.R.string.nft_collectibles),
                 style = AppTheme.typography.paragraph2,
-                color = AppTheme.colors.title,
+                color = AppTheme.colors.title
             )
 
             Spacer(modifier = Modifier.weight(1F))

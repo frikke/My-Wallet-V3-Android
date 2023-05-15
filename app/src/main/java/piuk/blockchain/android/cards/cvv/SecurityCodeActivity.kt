@@ -60,7 +60,7 @@ class SecurityCodeActivity :
 
     private fun finishUpdatingSecurityCode(
         hasSecurityCodeBeenUpdated: Boolean,
-        serverSideErrorInfo: ServerSideUxErrorInfo? = null,
+        serverSideErrorInfo: ServerSideUxErrorInfo? = null
     ) {
         setResult(
             RESULT_OK,

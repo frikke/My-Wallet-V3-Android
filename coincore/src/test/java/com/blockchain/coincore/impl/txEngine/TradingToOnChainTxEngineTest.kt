@@ -81,13 +81,15 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
                     WithdrawFeesAndMinLimitResponse(
                         minAmount = ExchangedAmountResponse(
                             AmountResponse(
-                                "XLM", "10"
+                                "XLM",
+                                "10"
                             )
                         ),
                         totalFees = ExchangedAmountResponse(
                             AmountResponse(
-                                "XLM", "1"
-                            ),
+                                "XLM",
+                                "1"
+                            )
                         )
                     )
                 )
@@ -419,7 +421,7 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
 
     private fun mockSourceAccount(
         totalBalance: Money = CryptoValue.zero(ASSET),
-        actionable: Money = CryptoValue.zero(ASSET),
+        actionable: Money = CryptoValue.zero(ASSET)
     ): Erc20NonCustodialAccount {
         val accountBalance = AccountBalance(
             total = totalBalance,

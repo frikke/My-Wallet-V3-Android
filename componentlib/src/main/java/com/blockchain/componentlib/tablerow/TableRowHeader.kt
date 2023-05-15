@@ -47,7 +47,7 @@ fun TableRowHeader(
                 modifier = Modifier.clickableNoEffect(onClick),
                 text = text,
                 style = AppTheme.typography.paragraph2,
-                color = AppTheme.colors.primary,
+                color = AppTheme.colors.primary
             )
         }
     }

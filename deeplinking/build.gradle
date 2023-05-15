@@ -1,7 +1,9 @@
 apply from: rootProject.file('gradle/local/common-feature-android-data.gradle')
 apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlinx-serialization'
-
+android {
+    namespace 'com.blockchain.deeplinking'
+}
 dependencies {
     implementation project(':common:interface')
     implementation project(':common-mp:utils:domain')

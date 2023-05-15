@@ -34,7 +34,8 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 
-/*internal*/ class BtcCryptoWalletAccount internal constructor(
+/*internal*/
+class BtcCryptoWalletAccount internal constructor(
     private val payloadDataManager: PayloadDataManager,
     private val sendDataManager: SendDataManager,
     private val feeDataManager: FeeDataManager,
@@ -45,7 +46,7 @@ import io.reactivex.rxjava3.core.Single
     val isHDAccount: Boolean,
     private val walletPreferences: WalletStatusPrefs,
     private val refreshTrigger: AccountRefreshTrigger,
-    override val addressResolver: AddressResolver,
+    override val addressResolver: AddressResolver
 ) : CryptoNonCustodialAccount(
     CryptoCurrency.BTC
 ) {
@@ -146,7 +147,9 @@ import io.reactivex.rxjava3.core.Single
                         it.action == AssetAction.Receive
                     }
                 }.toSet()
-            } else actions
+            } else {
+                actions
+            }
         }
 
     override fun updateLabel(newLabel: String): Completable {
@@ -270,7 +273,7 @@ import io.reactivex.rxjava3.core.Single
             exchangeRates: ExchangeRatesDataManager,
             walletPreferences: WalletStatusPrefs,
             refreshTrigger: AccountRefreshTrigger,
-            addressResolver: AddressResolver,
+            addressResolver: AddressResolver
         ) = BtcCryptoWalletAccount(
             payloadDataManager = payloadDataManager,
             hdAccountIndex = hdAccountIndex,
@@ -292,7 +295,7 @@ import io.reactivex.rxjava3.core.Single
             exchangeRates: ExchangeRatesDataManager,
             walletPreferences: WalletStatusPrefs,
             refreshTrigger: AccountRefreshTrigger,
-            addressResolver: AddressResolver,
+            addressResolver: AddressResolver
         ) = BtcCryptoWalletAccount(
             payloadDataManager = payloadDataManager,
             hdAccountIndex = IMPORTED_ACCOUNT_NO_INDEX,

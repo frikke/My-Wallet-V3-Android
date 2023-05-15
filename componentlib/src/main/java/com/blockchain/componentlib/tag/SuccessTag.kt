@@ -12,7 +12,6 @@ import com.blockchain.componentlib.theme.Green800
 
 @Composable
 fun SuccessTag(text: String, size: TagSize = TagSize.Primary, onClick: (() -> Unit)? = null) {
-
     val defaultBackgroundColor = if (!isSystemInDarkTheme()) {
         Green000
     } else {

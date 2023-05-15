@@ -9,5 +9,5 @@ data class TradingCurrencies(
     // used to display Funds in Portfolio and Sell, eg. ARG user will have: [ARS, USD]
     val allRecommended: List<FiatCurrency>,
     // All the trading currencies available for this user, eg. ARG user will have [ARS, USD, EUR, GBP]
-    val allAvailable: List<FiatCurrency>,
+    val allAvailable: List<FiatCurrency>
 )

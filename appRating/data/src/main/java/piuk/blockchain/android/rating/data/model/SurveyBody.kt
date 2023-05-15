@@ -86,11 +86,11 @@ internal data class SurveyBody private constructor(
 @Serializable
 internal data class SurveyQuestionResponses(
     @SerialName("QuestionId") val questionId: Int,
-    @SerialName("Responses") val responses: List<SurveyResponse>,
+    @SerialName("Responses") val responses: List<SurveyResponse>
 )
 
 @Serializable
 internal data class SurveyResponse(
     @SerialName("ResponseId") val responseId: Int,
-    @SerialName("Value") val value: String? = null,
+    @SerialName("Value") val value: String? = null
 )

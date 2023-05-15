@@ -50,7 +50,9 @@ class YodleeSplashFragment : Fragment() {
             yodleeSplashBlurb.movementMethod = LinkMovementMethod.getInstance()
             yodleeSplashBlurb.text =
                 stringUtils.getStringWithMappedAnnotations(
-                    R.string.yodlee_splash_blurb, learnMoreMap, requireActivity()
+                    com.blockchain.stringResources.R.string.yodlee_splash_blurb,
+                    learnMoreMap,
+                    requireActivity()
                 )
 
             yodleeSplashCta.setOnClickListener {

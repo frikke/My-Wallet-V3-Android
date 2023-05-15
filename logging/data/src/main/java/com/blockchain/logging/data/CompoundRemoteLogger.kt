@@ -6,7 +6,7 @@ import timber.log.Timber
 
 class CompoundRemoteLogger(
     private val remoteLoggers: List<RemoteLogger>,
-    private val environmentConfig: EnvironmentConfig,
+    private val environmentConfig: EnvironmentConfig
 ) : RemoteLogger {
 
     override val isDebugBuild: Boolean

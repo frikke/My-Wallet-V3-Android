@@ -28,9 +28,11 @@ class TxConfirmReadOnlyMapperCheckout(
             is TxConfirmationValue.To -> formatters.first { it is ToPropertyFormatter }.format(property)
             is TxConfirmationValue.ToWithNameAndAddress -> formatters.first { it is ToWithNameAndAddressFormatter }
                 .format(property)
+
             is TxConfirmationValue.From -> formatters.first { it is FromPropertyFormatter }.format(property)
             is TxConfirmationValue.ExchangePriceConfirmation ->
                 formatters.first { it is ExchangePriceFormatter }.format(property)
+
             is TxConfirmationValue.NetworkFee -> formatters.first { it is NetworkFormatter }.format(property)
             is TxConfirmationValue.TransactionFee -> formatters.first { it is TransactionFeeFormatter }.format(property)
             is TxConfirmationValue.ProcessingFee -> formatters.first { it is ProcessingFeeFormatter }.format(property)
@@ -40,24 +42,34 @@ class TxConfirmReadOnlyMapperCheckout(
             is TxConfirmationValue.EstimatedCompletion ->
                 formatters.first { it is EstimatedCompletionPropertyFormatter }
                     .format(property)
+
             is TxConfirmationValue.PaymentMethod ->
                 formatters.first { it is PaymentMethodPropertyFormatter }.format(property)
+
             is TxConfirmationValue.DAppInfo ->
                 formatters.first { it is DAppInfoPropertyFormatter }.format(property)
+
             is TxConfirmationValue.Chain ->
                 formatters.first { it is ChainPropertyFormatter }.format(property)
+
             is TxConfirmationValue.SwapExchange ->
                 formatters.first { it is SwapExchangeRateFormatter }.format(property)
+
             is TxConfirmationValue.CompoundNetworkFee -> formatters.first { it is CompoundNetworkFeeFormatter }
                 .format(property)
+
             is TxConfirmationValue.SignEthMessage -> formatters.first { it is SignEthMessagePropertyFormatter }
                 .format(property)
+
             is TxConfirmationValue.AvailableToTrade -> formatters.first { it is AvailableToTradePropertyFormatter }
                 .format(property)
+
             is TxConfirmationValue.AvailableToWithdraw ->
                 formatters.first { it is AvailableToWithdrawPropertyFormatter }.format(property)
+
             is TxConfirmationValue.AchTermsAndConditions ->
                 formatters.first { it is ReadMoreDisclaimerPropertyFormatter }.format(property)
+
             else -> throw IllegalStateException("No formatter found for property: $property")
         }
     }
@@ -85,12 +97,16 @@ class ExchangePriceFormatter(
         require(property is TxConfirmationValue.ExchangePriceConfirmation)
         return mapOf(
             ConfirmationPropertyKey.LABEL to context.resources.getString(
-                R.string.quote_price, property.asset.displayTicker
+                com.blockchain.stringResources.R.string.quote_price,
+                property.asset.displayTicker
             ),
             ConfirmationPropertyKey.TITLE to property.money.toStringWithSymbol(),
             ConfirmationPropertyKey.LINKED_NOTE to StringUtils.getResolvedStringWithAppendedMappedLearnMore(
-                context.resources.getString(R.string.checkout_item_price_note), R.string.common_linked_learn_more,
-                CHECKOUT_PRICE_EXPLANATION, context, R.color.blue_600
+                context.resources.getString(com.blockchain.stringResources.R.string.checkout_item_price_note),
+                com.blockchain.stringResources.R.string.common_linked_learn_more,
+                CHECKOUT_PRICE_EXPLANATION,
+                context,
+                com.blockchain.common.R.color.blue_600
             )
         )
     }
@@ -104,14 +120,18 @@ class ToPropertyFormatter(
         require(property is TxConfirmationValue.To)
         return if (property.assetAction == AssetAction.Sell || property.assetAction == AssetAction.FiatDeposit) {
             mapOf(
-                ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.checkout_item_deposit_to),
+                ConfirmationPropertyKey.LABEL to context.resources.getString(
+                    com.blockchain.stringResources.R.string.checkout_item_deposit_to
+                ),
                 ConfirmationPropertyKey.TITLE to property.txTarget.label
             )
         } else {
             require(property.sourceAccount is CryptoAccount)
             val asset = (property.sourceAccount as CryptoAccount).currency
             mapOf(
-                ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.checkout_item_send_to),
+                ConfirmationPropertyKey.LABEL to context.resources.getString(
+                    com.blockchain.stringResources.R.string.checkout_item_send_to
+                ),
                 ConfirmationPropertyKey.TITLE to getLabelForTarget(
                     property.txTarget,
                     defaultLabel.getDefaultNonCustodialWalletLabel(),
@@ -128,7 +148,9 @@ class ToWithNameAndAddressFormatter(
     override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
         require(property is TxConfirmationValue.ToWithNameAndAddress)
         return mapOf(
-            ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.common_to),
+            ConfirmationPropertyKey.LABEL to context.resources.getString(
+                com.blockchain.stringResources.R.string.common_to
+            ),
             ConfirmationPropertyKey.TITLE to property.label,
             ConfirmationPropertyKey.SUBTITLE to property.address
         )
@@ -140,7 +162,9 @@ class EstimatedCompletionPropertyFormatter(
 ) : TxOptionsFormatterCheckout {
     override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
         return mapOf(
-            ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.send_confirmation_eta),
+            ConfirmationPropertyKey.LABEL to context.resources.getString(
+                com.blockchain.stringResources.R.string.send_confirmation_eta
+            ),
             ConfirmationPropertyKey.TITLE to TransactionFlowCustomiserImpl.getEstimatedTransactionCompletionTime()
         )
     }
@@ -152,7 +176,9 @@ class SalePropertyFormatter(
     override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
         require(property is TxConfirmationValue.Sale)
         return mapOf(
-            ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.checkout_item_sale),
+            ConfirmationPropertyKey.LABEL to context.resources.getString(
+                com.blockchain.stringResources.R.string.checkout_item_sale
+            ),
             ConfirmationPropertyKey.TITLE to property.exchange.toStringWithSymbol(),
             ConfirmationPropertyKey.SUBTITLE to property.amount.toStringWithSymbol()
         )
@@ -166,14 +192,19 @@ class PaymentMethodPropertyFormatter(
         require(property is TxConfirmationValue.PaymentMethod)
         return mapOf(
             if (property.assetAction == AssetAction.FiatDeposit) {
-                ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.payment_method)
+                ConfirmationPropertyKey.LABEL to context.resources.getString(
+                    com.blockchain.stringResources.R.string.payment_method
+                )
             } else {
-                ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.checkout_item_withdraw_to)
+                ConfirmationPropertyKey.LABEL to context.resources.getString(
+                    com.blockchain.stringResources.R.string.checkout_item_withdraw_to
+                )
             },
             ConfirmationPropertyKey.TITLE to property.paymentTitle,
             if (property.accountType.isNullOrBlank()) {
                 ConfirmationPropertyKey.SUBTITLE to context.getString(
-                    R.string.checkout_item_account_number, property.paymentSubtitle
+                    com.blockchain.stringResources.R.string.checkout_item_account_number,
+                    property.paymentSubtitle
                 )
             } else {
                 ConfirmationPropertyKey.SUBTITLE to property.paymentSubtitle
@@ -188,7 +219,7 @@ class DAppInfoPropertyFormatter(
     override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
         require(property is TxConfirmationValue.DAppInfo)
         return mapOf(
-            ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.app),
+            ConfirmationPropertyKey.LABEL to context.resources.getString(com.blockchain.stringResources.R.string.app),
             ConfirmationPropertyKey.TITLE to property.name,
             ConfirmationPropertyKey.SUBTITLE to property.url
         )
@@ -201,7 +232,9 @@ class ChainPropertyFormatter(
     override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
         require(property is TxConfirmationValue.Chain)
         return mapOf(
-            ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.common_chain),
+            ConfirmationPropertyKey.LABEL to context.resources.getString(
+                com.blockchain.stringResources.R.string.common_chain
+            ),
             ConfirmationPropertyKey.TITLE to property.assetInfo.name
         )
     }
@@ -213,7 +246,10 @@ class SignEthMessagePropertyFormatter(
     override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
         require(property is TxConfirmationValue.SignEthMessage)
         return mapOf(
-            ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.message_from_dapp, property.dAppName),
+            ConfirmationPropertyKey.LABEL to context.resources.getString(
+                com.blockchain.stringResources.R.string.message_from_dapp,
+                property.dAppName
+            ),
             ConfirmationPropertyKey.TITLE to property.message
         )
     }
@@ -226,7 +262,9 @@ class FromPropertyFormatter(
     override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
         require(property is TxConfirmationValue.From)
         return mapOf(
-            ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.common_from),
+            ConfirmationPropertyKey.LABEL to context.resources.getString(
+                com.blockchain.stringResources.R.string.common_from
+            ),
             property.sourceAsset?.let {
                 ConfirmationPropertyKey.TITLE to getLabel(
                     property.sourceAccount.label,
@@ -244,7 +282,9 @@ class TransactionFeeFormatter(
     override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
         require(property is TxConfirmationValue.TransactionFee)
         return mapOf(
-            ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.checkout_item_fee_to),
+            ConfirmationPropertyKey.LABEL to context.resources.getString(
+                com.blockchain.stringResources.R.string.checkout_item_fee_to
+            ),
             ConfirmationPropertyKey.TITLE to property.feeAmount.toStringWithSymbol()
         )
     }
@@ -257,21 +297,29 @@ class NetworkFormatter(
         require(property is TxConfirmationValue.NetworkFee)
         return mapOf(
             ConfirmationPropertyKey.LABEL to context.resources.getString(
-                R.string.checkout_item_network_fee, property.asset.displayTicker
+                com.blockchain.stringResources.R.string.checkout_item_network_fee,
+                property.asset.displayTicker
             ),
             ConfirmationPropertyKey.TITLE to property.exchange.toStringWithSymbol(),
             ConfirmationPropertyKey.SUBTITLE to property.feeAmount.toStringWithSymbol(),
             if (property.asset.isLayer2Token) {
                 ConfirmationPropertyKey.LINKED_NOTE to StringUtils.getResolvedStringWithAppendedMappedLearnMore(
-                    context.resources.getString(R.string.swap_erc_20_tooltip),
-                    R.string.common_linked_learn_more, NETWORK_ERC20_EXPLANATION, context, R.color.blue_600
+                    context.resources.getString(com.blockchain.stringResources.R.string.swap_erc_20_tooltip),
+                    com.blockchain.stringResources.R.string.common_linked_learn_more,
+                    NETWORK_ERC20_EXPLANATION,
+                    context,
+                    com.blockchain.common.R.color.blue_600
                 )
             } else {
                 ConfirmationPropertyKey.LINKED_NOTE to StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                     context.resources.getString(
-                        R.string.checkout_item_network_fee_note, property.asset.name
+                        com.blockchain.stringResources.R.string.checkout_item_network_fee_note,
+                        property.asset.name
                     ),
-                    R.string.common_linked_learn_more, NETWORK_FEE_EXPLANATION, context, R.color.blue_600
+                    com.blockchain.stringResources.R.string.common_linked_learn_more,
+                    NETWORK_FEE_EXPLANATION,
+                    context,
+                    com.blockchain.common.R.color.blue_600
                 )
             }
         )
@@ -289,22 +337,32 @@ class CompoundNetworkFeeFormatter(
             ConfirmationPropertyKey.FEE_ITEM_SENDING to property.sendingFeeInfo,
             ConfirmationPropertyKey.FEE_ITEM_RECEIVING to property.receivingFeeInfo,
             ConfirmationPropertyKey.LINKED_NOTE to buildLinkedNoteItem(
-                property.sendingFeeInfo, property.receivingFeeInfo, property.ignoreErc20LinkedNote
+                property.sendingFeeInfo,
+                property.receivingFeeInfo,
+                property.ignoreErc20LinkedNote
             )
         ).filterNotNullValues()
     }
 
     private fun buildFeeLabel(feeLevel: FeeLevel?): String = when (feeLevel) {
         FeeLevel.Regular -> context.resources.getString(
-            R.string.checkout_item_network_fee_level_label, context.resources.getString(R.string.fee_options_regular)
+            com.blockchain.stringResources.R.string.checkout_item_network_fee_level_label,
+            context.resources.getString(com.blockchain.stringResources.R.string.fee_options_regular)
         )
+
         FeeLevel.Priority -> context.resources.getString(
-            R.string.checkout_item_network_fee_level_label, context.resources.getString(R.string.fee_options_priority)
+            com.blockchain.stringResources.R.string.checkout_item_network_fee_level_label,
+            context.resources.getString(com.blockchain.stringResources.R.string.fee_options_priority)
         )
+
         FeeLevel.Custom -> context.resources.getString(
-            R.string.checkout_item_network_fee_level_label, context.resources.getString(R.string.fee_options_custom)
+            com.blockchain.stringResources.R.string.checkout_item_network_fee_level_label,
+            context.resources.getString(com.blockchain.stringResources.R.string.fee_options_custom)
         )
-        FeeLevel.None, null -> context.resources.getString(R.string.checkout_item_network_fee_label)
+
+        FeeLevel.None, null -> context.resources.getString(
+            com.blockchain.stringResources.R.string.checkout_item_network_fee_label
+        )
     }
 
     private fun buildLinkedNoteItem(
@@ -315,13 +373,19 @@ class CompoundNetworkFeeFormatter(
         return when {
             sendingFeeInfo != null && receivingFeeInfo != null -> getDoubleFeeNote(sendingFeeInfo, receivingFeeInfo)
             sendingFeeInfo != null && receivingFeeInfo == null -> getSingleFeeNote(
-                sendingFeeInfo, ignoreErc20LinkedNote
+                sendingFeeInfo,
+                ignoreErc20LinkedNote
             )
+
             sendingFeeInfo == null && receivingFeeInfo != null -> getSingleFeeNote(
-                receivingFeeInfo, ignoreErc20LinkedNote
+                receivingFeeInfo,
+                ignoreErc20LinkedNote
             )
+
             else -> {
-                SpannableStringBuilder().append(context.resources.getString(R.string.checkout_fee_free))
+                SpannableStringBuilder().append(
+                    context.resources.getString(com.blockchain.stringResources.R.string.checkout_fee_free)
+                )
             }
         }
     }
@@ -335,47 +399,64 @@ class CompoundNetworkFeeFormatter(
                 !receivingFeeInfo.asset.isLayer2Token -> {
                 StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                     context.resources.getString(
-                        R.string.checkout_dual_fee_note, sendingFeeInfo.asset.name,
+                        com.blockchain.stringResources.R.string.checkout_dual_fee_note,
+                        sendingFeeInfo.asset.name,
                         receivingFeeInfo.asset.name
                     ),
-                    R.string.checkout_fee_link, NETWORK_FEE_EXPLANATION, context, R.color.blue_600
+                    com.blockchain.stringResources.R.string.checkout_fee_link,
+                    NETWORK_FEE_EXPLANATION,
+                    context,
+                    com.blockchain.common.R.color.blue_600
                 )
             }
+
             sendingFeeInfo.asset.isLayer2Token &&
                 !receivingFeeInfo.asset.isLayer2Token -> {
                 StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                     context.resources.getString(
-                        R.string.checkout_one_erc_20_one_not_fee_note,
+                        com.blockchain.stringResources.R.string.checkout_one_erc_20_one_not_fee_note,
                         sendingFeeInfo.asset.name,
                         CryptoCurrency.ETHER.name,
                         receivingFeeInfo.asset.name
                     ),
-                    R.string.checkout_fee_link, NETWORK_ERC20_EXPLANATION, context, R.color.blue_600
+                    com.blockchain.stringResources.R.string.checkout_fee_link,
+                    NETWORK_ERC20_EXPLANATION,
+                    context,
+                    com.blockchain.common.R.color.blue_600
                 )
             }
+
             !sendingFeeInfo.asset.isLayer2Token &&
                 receivingFeeInfo.asset.isLayer2Token -> {
                 StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                     context.resources.getString(
-                        R.string.checkout_one_erc_20_one_not_fee_note,
+                        com.blockchain.stringResources.R.string.checkout_one_erc_20_one_not_fee_note,
                         receivingFeeInfo.asset.name,
                         CryptoCurrency.ETHER.name,
                         sendingFeeInfo.asset.name
                     ),
-                    R.string.checkout_fee_link, NETWORK_ERC20_EXPLANATION, context, R.color.blue_600
+                    com.blockchain.stringResources.R.string.checkout_fee_link,
+                    NETWORK_ERC20_EXPLANATION,
+                    context,
+                    com.blockchain.common.R.color.blue_600
                 )
             }
+
             sendingFeeInfo.asset.isLayer2Token &&
                 receivingFeeInfo.asset.isLayer2Token -> {
                 StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                     context.resources.getString(
-                        R.string.checkout_both_erc_20_fee_note,
+                        com.blockchain.stringResources.R.string.checkout_both_erc_20_fee_note,
                         sendingFeeInfo.asset.name,
                         sendingFeeInfo.asset.name
                     ),
-                    R.string.checkout_fee_link, NETWORK_ERC20_EXPLANATION, context, R.color.blue_600
+                    com.blockchain.stringResources.R.string.checkout_fee_link,
+                    NETWORK_ERC20_EXPLANATION,
+                    context,
+                    com.blockchain.common.R.color.blue_600
                 )
             }
+
             else -> {
                 null
             }
@@ -390,27 +471,28 @@ class CompoundNetworkFeeFormatter(
                 val networkName = item.l1EvmNetwork?.name ?: item.asset.name
                 StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                     context.resources.getString(
-                        R.string.checkout_one_fee_note,
+                        com.blockchain.stringResources.R.string.checkout_one_fee_note,
                         networkName
                     ),
-                    R.string.checkout_fee_link,
+                    com.blockchain.stringResources.R.string.checkout_fee_link,
                     NETWORK_FEE_EXPLANATION,
                     context,
-                    R.color.blue_600
+                    com.blockchain.common.R.color.blue_600
                 )
             }
+
             else -> {
                 val networkName = item.l1EvmNetwork?.name ?: item.asset.name
                 StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                     context.resources.getString(
-                        R.string.checkout_one_erc_20_fee_note,
+                        com.blockchain.stringResources.R.string.checkout_one_erc_20_fee_note,
                         item.asset.name,
                         networkName
                     ),
-                    R.string.checkout_fee_link,
+                    com.blockchain.stringResources.R.string.checkout_fee_link,
                     NETWORK_ERC20_EXPLANATION,
                     context,
-                    R.color.blue_600
+                    com.blockchain.common.R.color.blue_600
                 )
             }
         }
@@ -423,20 +505,28 @@ class CompoundNetworkFeeFormatter(
         when {
             sendingFeeInfo != null && receivingFeeInfo != null -> {
                 val addedFees = sendingFeeInfo.fiatAmount.plus(receivingFeeInfo.fiatAmount)
-                context.getString(R.string.checkout_item_network_fee_estimate, addedFees.toStringWithSymbol())
+                context.getString(
+                    com.blockchain.stringResources.R.string.checkout_item_network_fee_estimate,
+                    addedFees.toStringWithSymbol()
+                )
             }
+
             sendingFeeInfo != null && receivingFeeInfo == null -> {
                 context.getString(
-                    R.string.checkout_item_network_fee_estimate, sendingFeeInfo.fiatAmount.toStringWithSymbol()
+                    com.blockchain.stringResources.R.string.checkout_item_network_fee_estimate,
+                    sendingFeeInfo.fiatAmount.toStringWithSymbol()
                 )
             }
+
             sendingFeeInfo == null && receivingFeeInfo != null -> {
                 context.getString(
-                    R.string.checkout_item_network_fee_estimate, receivingFeeInfo.fiatAmount.toStringWithSymbol()
+                    com.blockchain.stringResources.R.string.checkout_item_network_fee_estimate,
+                    receivingFeeInfo.fiatAmount.toStringWithSymbol()
                 )
             }
+
             else -> {
-                context.resources.getString(R.string.common_free)
+                context.resources.getString(com.blockchain.stringResources.R.string.common_free)
             }
         }
 }
@@ -446,14 +536,21 @@ class SwapExchangeRateFormatter(private val context: Context) :
     override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
         require(property is TxConfirmationValue.SwapExchange)
         return mapOf(
-            ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.exchange_rate),
+            ConfirmationPropertyKey.LABEL to context.resources.getString(
+                com.blockchain.stringResources.R.string.exchange_rate
+            ),
             ConfirmationPropertyKey.TITLE to property.unitCryptoCurrency.toStringWithSymbol(),
             ConfirmationPropertyKey.SUBTITLE to property.price.toStringWithSymbol(),
             ConfirmationPropertyKey.LINKED_NOTE to StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                 context.resources.getString(
-                    R.string.checkout_swap_exchange_note, property.price.symbol, property.unitCryptoCurrency.symbol
+                    com.blockchain.stringResources.R.string.checkout_swap_exchange_note,
+                    property.price.symbol,
+                    property.unitCryptoCurrency.symbol
                 ),
-                R.string.common_linked_learn_more, EXCHANGE_SWAP_RATE_EXPLANATION, context, R.color.blue_600
+                com.blockchain.stringResources.R.string.common_linked_learn_more,
+                EXCHANGE_SWAP_RATE_EXPLANATION,
+                context,
+                com.blockchain.common.R.color.blue_600
             )
         )
     }
@@ -463,7 +560,9 @@ class TotalFormatter(private val context: Context) : TxOptionsFormatterCheckout 
     override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
         require(property is TxConfirmationValue.Total)
         return mapOf(
-            ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.common_total),
+            ConfirmationPropertyKey.LABEL to context.resources.getString(
+                com.blockchain.stringResources.R.string.common_total
+            ),
             ConfirmationPropertyKey.TITLE to property.exchange.toStringWithSymbol(),
             ConfirmationPropertyKey.SUBTITLE to property.totalWithFee.toStringWithSymbol(),
             ConfirmationPropertyKey.IS_IMPORTANT to true
@@ -475,7 +574,9 @@ class ProcessingFeeFormatter(private val context: Context) : TxOptionsFormatterC
     override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
         require(property is TxConfirmationValue.ProcessingFee)
         return mapOf(
-            ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.processing_fee),
+            ConfirmationPropertyKey.LABEL to context.resources.getString(
+                com.blockchain.stringResources.R.string.processing_fee
+            ),
             ConfirmationPropertyKey.TITLE to "~${property.exchangeFee.toStringWithSymbol()}",
             ConfirmationPropertyKey.SUBTITLE to property.feeAmount.toStringWithSymbol(),
             ConfirmationPropertyKey.IS_IMPORTANT to false
@@ -488,9 +589,13 @@ class AmountFormatter(private val context: Context) : TxOptionsFormatterCheckout
         require(property is TxConfirmationValue.Amount)
         return mapOf(
             if (property.isImportant) {
-                ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.common_total)
+                ConfirmationPropertyKey.LABEL to context.resources.getString(
+                    com.blockchain.stringResources.R.string.common_total
+                )
             } else {
-                ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.amount)
+                ConfirmationPropertyKey.LABEL to context.resources.getString(
+                    com.blockchain.stringResources.R.string.amount
+                )
             },
             ConfirmationPropertyKey.TITLE to property.amount.toStringWithSymbol(),
             ConfirmationPropertyKey.IS_IMPORTANT to property.isImportant
@@ -504,7 +609,9 @@ class AvailableToTradePropertyFormatter(
     override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
         require(property is TxConfirmationValue.AvailableToTrade)
         return mapOf(
-            ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.available_to_trade_checkout),
+            ConfirmationPropertyKey.LABEL to context.resources.getString(
+                com.blockchain.stringResources.R.string.available_to_trade_checkout
+            ),
             ConfirmationPropertyKey.TITLE to property.value
         )
     }
@@ -516,7 +623,9 @@ class AvailableToWithdrawPropertyFormatter(
     override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
         require(property is TxConfirmationValue.AvailableToWithdraw)
         return mapOf(
-            ConfirmationPropertyKey.LABEL to context.resources.getString(R.string.available_to_withdraw_checkout),
+            ConfirmationPropertyKey.LABEL to context.resources.getString(
+                com.blockchain.stringResources.R.string.available_to_withdraw_checkout
+            ),
             ConfirmationPropertyKey.TITLE to property.value
         )
     }
@@ -528,7 +637,9 @@ class ReadMoreDisclaimerPropertyFormatter(
     override fun format(property: TxConfirmationValue): Map<ConfirmationPropertyKey, Any> {
         require(property is TxConfirmationValue.AchTermsAndConditions)
         return mapOf(
-            ConfirmationPropertyKey.CTA to context.resources.getString(R.string.coinview_expandable_button),
+            ConfirmationPropertyKey.CTA to context.resources.getString(
+                com.blockchain.stringResources.R.string.coinview_expandable_button
+            ),
             ConfirmationPropertyKey.LABEL to property.value
         )
     }

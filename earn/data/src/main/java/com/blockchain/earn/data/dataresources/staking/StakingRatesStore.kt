@@ -10,7 +10,7 @@ import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelig
 import com.blockchain.storedatasource.FlushableDataSource
 
 class StakingRatesStore(
-    private val stakingApiService: StakingApiService,
+    private val stakingApiService: StakingApiService
 ) : Store<StakingRatesDto> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,

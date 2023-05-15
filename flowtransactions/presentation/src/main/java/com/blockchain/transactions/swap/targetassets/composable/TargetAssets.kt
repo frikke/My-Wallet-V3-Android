@@ -124,7 +124,7 @@ fun TargetAssetsScreen(
     ) {
         SheetFlatHeader(
             icon = StackedIcon.None,
-            title = stringResource(R.string.common_swap_to),
+            title = stringResource(com.blockchain.stringResources.R.string.common_swap_to),
             onCloseClick = onBackPressed
         )
 
@@ -135,7 +135,7 @@ fun TargetAssetsScreen(
                 horizontal = AppTheme.dimensions.smallSpacing
             ),
             onValueChange = onSearchTermEntered,
-            placeholder = stringResource(R.string.search)
+            placeholder = stringResource(com.blockchain.stringResources.R.string.search)
         )
 
         if (showModeFilter && selectedMode != null) {
@@ -193,7 +193,7 @@ private fun PreviewSelectTargetScreen() {
             )
         ),
         accountOnClick = {},
-        onBackPressed = {},
+        onBackPressed = {}
     )
 }
 
@@ -228,6 +228,6 @@ private fun PreviewSelectTargetScreen_WithFilter() {
             )
         ),
         accountOnClick = {},
-        onBackPressed = {},
+        onBackPressed = {}
     )
 }

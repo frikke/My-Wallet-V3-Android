@@ -37,7 +37,7 @@ class CreateBuyOrderUseCase(
     private val brokerageDataManager: BrokerageDataManager,
     private val custodialWalletManager: CustodialWalletManager,
     private val _activityIndicator: Lazy<ActivityIndicator?>,
-    buyQuoteRefreshFF: FeatureFlag,
+    buyQuoteRefreshFF: FeatureFlag
 ) {
     private var latestPendingOrder: BuyOrderAndQuote? = null
     private val stop = PublishSubject.create<Unit>()
@@ -62,7 +62,7 @@ class CreateBuyOrderUseCase(
         selectedCryptoAsset: AssetInfo?,
         selectedPaymentMethod: SelectedPaymentMethod?,
         order: SimpleBuyOrder,
-        recurringBuyFrequency: RecurringBuyFrequency,
+        recurringBuyFrequency: RecurringBuyFrequency
     ) {
         compositeDisposable.clear()
 
@@ -110,13 +110,13 @@ class CreateBuyOrderUseCase(
         amount: Money,
         paymentMethodId: String? = null,
         paymentMethod: PaymentMethodType,
-        recurringBuyFrequency: RecurringBuyFrequency?,
+        recurringBuyFrequency: RecurringBuyFrequency?
     ): Single<BuyOrderAndQuote> =
         brokerageDataManager.getBuyQuote(
             pair = CurrencyPair(amount.currency, cryptoAsset),
             amount = amount,
             paymentMethodType = getPaymentMethodType(paymentMethod),
-            paymentMethodId = getPaymentMethodId(paymentMethodId, paymentMethod),
+            paymentMethodId = getPaymentMethodId(paymentMethodId, paymentMethod)
         ).flatMap { quote ->
             custodialWalletManager.createOrder(
                 custodialWalletOrder = CustodialWalletOrder(
@@ -124,10 +124,12 @@ class CreateBuyOrderUseCase(
                     pair = "${cryptoAsset.networkTicker}-${amount.currencyCode}",
                     action = Product.BUY.name,
                     input = OrderInput(
-                        amount.currencyCode, amount.toBigInteger().toString()
+                        amount.currencyCode,
+                        amount.toBigInteger().toString()
                     ),
                     output = OrderOutput(
-                        cryptoAsset.networkTicker, null
+                        cryptoAsset.networkTicker,
+                        null
                     ),
                     paymentMethodId = getPaymentMethodId(paymentMethodId, paymentMethod),
                     paymentType = getPaymentMethodType(paymentMethod).name,
@@ -144,7 +146,7 @@ class CreateBuyOrderUseCase(
         selectedCryptoAsset: AssetInfo?,
         selectedPaymentMethod: SelectedPaymentMethod?,
         order: SimpleBuyOrder,
-        recurringBuyFrequency: RecurringBuyFrequency,
+        recurringBuyFrequency: RecurringBuyFrequency
     ): Single<BuyOrderAndQuote> {
         return (
             oldId?.let {
@@ -155,7 +157,7 @@ class CreateBuyOrderUseCase(
                 selectedCryptoAsset = selectedCryptoAsset,
                 selectedPaymentMethod = selectedPaymentMethod,
                 order = order,
-                recurringBuyFrequency = recurringBuyFrequency.takeIf { it != RecurringBuyFrequency.ONE_TIME },
+                recurringBuyFrequency = recurringBuyFrequency.takeIf { it != RecurringBuyFrequency.ONE_TIME }
             )
         }
     }
@@ -164,7 +166,7 @@ class CreateBuyOrderUseCase(
         selectedCryptoAsset: AssetInfo?,
         selectedPaymentMethod: SelectedPaymentMethod?,
         order: SimpleBuyOrder,
-        recurringBuyFrequency: RecurringBuyFrequency?,
+        recurringBuyFrequency: RecurringBuyFrequency?
     ): Single<BuyOrderAndQuote> {
         require(selectedCryptoAsset != null) { "Missing Cryptocurrency" }
         require(order.amount != null) { "Missing amount" }
@@ -174,7 +176,7 @@ class CreateBuyOrderUseCase(
             amount = order.amount,
             paymentMethodId = selectedPaymentMethod.concreteId(),
             paymentMethod = selectedPaymentMethod.paymentMethodType,
-            recurringBuyFrequency = recurringBuyFrequency,
+            recurringBuyFrequency = recurringBuyFrequency
         )
     }
 
@@ -196,7 +198,9 @@ class CreateBuyOrderUseCase(
 
     private fun getPaymentMethodId(paymentMethodId: String? = null, paymentMethod: PaymentMethodType) =
         // The API cannot handle GOOGLE_PAY as a payment method, so we're sending a null paymentMethodId
-        if (paymentMethod == PaymentMethodType.GOOGLE_PAY || paymentMethodId == PaymentMethod.GOOGLE_PAY_PAYMENT_ID)
+        if (paymentMethod == PaymentMethodType.GOOGLE_PAY || paymentMethodId == PaymentMethod.GOOGLE_PAY_PAYMENT_ID) {
             null
-        else paymentMethodId
+        } else {
+            paymentMethodId
+        }
 }

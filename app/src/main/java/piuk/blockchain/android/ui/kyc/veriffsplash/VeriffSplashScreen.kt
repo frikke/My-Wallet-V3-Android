@@ -37,7 +37,7 @@ import piuk.blockchain.android.ui.kyc.commonui.UserIcon
 fun VeriffSplashScreen(
     viewState: StateFlow<VeriffSplashViewState>,
     onIntent: (VeriffSplashIntent) -> Unit,
-    nextClicked: () -> Unit,
+    nextClicked: () -> Unit
 ) {
     val state by viewState.collectAsStateLifecycleAware()
 
@@ -49,7 +49,7 @@ fun VeriffSplashScreen(
             if (error != null) {
                 scaffoldState.snackbarHostState.showSnackbar(
                     message = error.errorMessage(context),
-                    duration = SnackbarDuration.Long,
+                    duration = SnackbarDuration.Long
                 )
                 onIntent(VeriffSplashIntent.ErrorHandled)
             }
@@ -61,7 +61,7 @@ fun VeriffSplashScreen(
                 .background(Color.White)
                 .padding(padding)
                 .padding(all = AppTheme.dimensions.standardSpacing),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             UserIcon(
                 modifier = Modifier.padding(top = AppTheme.dimensions.xHugeSpacing),
@@ -72,7 +72,7 @@ fun VeriffSplashScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = AppTheme.dimensions.largeSpacing),
-                text = stringResource(R.string.kyc_veriff_splash_title),
+                text = stringResource(com.blockchain.stringResources.R.string.kyc_veriff_splash_title),
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
@@ -82,25 +82,31 @@ fun VeriffSplashScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = AppTheme.dimensions.tinySpacing),
-                text = stringResource(R.string.kyc_veriff_splash_subtitle),
+                text = stringResource(com.blockchain.stringResources.R.string.kyc_veriff_splash_subtitle),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Body,
-                gravity = ComposeGravities.Centre,
+                gravity = ComposeGravities.Centre
             )
 
             Column(
                 modifier = Modifier
                     .padding(top = AppTheme.dimensions.xLargeSpacing)
                     .padding(vertical = AppTheme.dimensions.verySmallSpacing),
-                verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.standardSpacing),
+                verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.standardSpacing)
             ) {
                 state.supportedDocuments.forEach { document ->
                     val documentName = when (document) {
-                        SupportedDocuments.PASSPORT -> stringResource(R.string.kyc_veriff_splash_passport)
-                        SupportedDocuments.DRIVING_LICENCE -> stringResource(R.string.kyc_veriff_splash_drivers_license)
-                        SupportedDocuments.NATIONAL_IDENTITY_CARD -> stringResource(R.string.kyc_veriff_splash_id_card)
+                        SupportedDocuments.PASSPORT -> stringResource(
+                            com.blockchain.stringResources.R.string.kyc_veriff_splash_passport
+                        )
+                        SupportedDocuments.DRIVING_LICENCE -> stringResource(
+                            com.blockchain.stringResources.R.string.kyc_veriff_splash_drivers_license
+                        )
+                        SupportedDocuments.NATIONAL_IDENTITY_CARD -> stringResource(
+                            com.blockchain.stringResources.R.string.kyc_veriff_splash_id_card
+                        )
                         SupportedDocuments.RESIDENCE_PERMIT ->
-                            stringResource(R.string.kyc_veriff_splash_residence_permit)
+                            stringResource(com.blockchain.stringResources.R.string.kyc_veriff_splash_residence_permit)
                     }
 
                     SimpleText(
@@ -108,7 +114,7 @@ fun VeriffSplashScreen(
                         text = "• $documentName",
                         style = ComposeTypographies.Body2,
                         color = ComposeColors.Title,
-                        gravity = ComposeGravities.Start,
+                        gravity = ComposeGravities.Start
                     )
                 }
             }
@@ -117,12 +123,12 @@ fun VeriffSplashScreen(
 
             PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(R.string.kyc_veriff_splash_continue),
+                text = stringResource(com.blockchain.stringResources.R.string.kyc_veriff_splash_continue),
                 state = state.continueButtonState,
                 onClick = {
                     nextClicked()
                     onIntent(VeriffSplashIntent.ContinueClicked)
-                },
+                }
             )
         }
     }
@@ -136,16 +142,18 @@ private fun PreviewVeriffSplashScreen() {
             isLoading = true,
             supportedDocuments = SupportedDocuments.values().toSortedSet(),
             error = VeriffSplashError.Generic,
-            continueButtonState = ButtonState.Disabled,
+            continueButtonState = ButtonState.Disabled
         )
     )
     VeriffSplashScreen(
         viewState = viewState,
         onIntent = {},
-        nextClicked = {},
+        nextClicked = {}
     )
 }
 
 private fun VeriffSplashError.errorMessage(context: Context) = when (this) {
-    VeriffSplashError.Generic -> context.getString(R.string.kyc_veriff_splash_verification_error)
+    VeriffSplashError.Generic -> context.getString(
+        com.blockchain.stringResources.R.string.kyc_veriff_splash_verification_error
+    )
 }

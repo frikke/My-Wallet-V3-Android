@@ -63,7 +63,8 @@ class DynamicHDAccountTest {
         HDWalletFactory.Language.US,
         seedHex,
         "",
-        1, Derivation.LEGACY_PURPOSE
+        1,
+        Derivation.LEGACY_PURPOSE
     )
 
     companion object {

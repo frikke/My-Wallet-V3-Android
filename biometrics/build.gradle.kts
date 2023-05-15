@@ -73,6 +73,7 @@ android {
             res.srcDirs(file("src/androidTest/res"))
         }
     }
+    namespace = "com.blockchain.biometrics"
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().all {

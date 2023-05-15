@@ -15,7 +15,6 @@ fun DefaultTag(
     size: TagSize = TagSize.Primary,
     onClick: (() -> Unit)? = null
 ) {
-
     val defaultBackgroundColor = if (!isSystemInDarkTheme()) {
         Color.White
     } else {

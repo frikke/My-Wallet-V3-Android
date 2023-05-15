@@ -31,13 +31,12 @@ class ScanAndConnectBottomSheet : SlidingModalBottomDialog<ScanAndConnectBottomS
 
     override fun initControls(binding: ScanAndConnectBottomSheetLayoutBinding) {
         with(binding) {
-
             sheetHeader.apply {
-                title = getString(R.string.scan_connect)
+                title = getString(com.blockchain.stringResources.R.string.scan_connect)
                 onClosePress = { dismiss() }
             }
             cta.apply {
-                text = getString(R.string.allow_camera_access)
+                text = getString(com.blockchain.stringResources.R.string.allow_camera_access)
                 onClick = {
                     (host as? Host)?.onCameraAccessAllowed()
                     dismiss()
@@ -49,18 +48,22 @@ class ScanAndConnectBottomSheet : SlidingModalBottomDialog<ScanAndConnectBottomS
                 ScanBenefitsAdapter(
                     listOf(
                         ScanBenefit(
-                            title = getString(R.string.scan_friends_qr),
-                            description = getString(R.string.scan_friends_qr_description),
-                            image = ImageResource.Local(R.drawable.ic_region, size = 24.dp)
+                            title = getString(com.blockchain.stringResources.R.string.scan_friends_qr),
+                            description = getString(
+                                com.blockchain.stringResources.R.string.scan_friends_qr_description
+                            ),
+                            image = ImageResource.Local(com.blockchain.earn.R.drawable.ic_region, size = 24.dp)
                         ),
                         ScanBenefit(
-                            title = getString(R.string.web_access),
-                            description = getString(R.string.web_access_description),
+                            title = getString(com.blockchain.stringResources.R.string.web_access),
+                            description = getString(com.blockchain.stringResources.R.string.web_access_description),
                             image = ImageResource.Local(R.drawable.ic_subtract_pc)
                         ),
                         ScanBenefit(
-                            title = getString(R.string.connect_to_dapps),
-                            description = getString(R.string.connect_to_dapps_description),
+                            title = getString(com.blockchain.stringResources.R.string.connect_to_dapps),
+                            description = getString(
+                                com.blockchain.stringResources.R.string.connect_to_dapps_description
+                            ),
                             image = ImageResource.Local(R.drawable.ic_walletconnect)
                         )
                     )
@@ -100,10 +103,14 @@ private class ScanBenefitsViewHolder(private val binding: ItemScanBenefitLayoutB
             primaryText = scanBenefit.title
             secondaryText = scanBenefit.description
             endImageResource = ImageResource.None
-            endTag = if (scanBenefit.isBeta)
+            endTag = if (scanBenefit.isBeta) {
                 TagViewState(
-                    context.getString(R.string.beta).uppercase(Locale.UK), TagType.InfoAlt()
-                ) else null
+                    context.getString(com.blockchain.stringResources.R.string.beta).uppercase(Locale.UK),
+                    TagType.InfoAlt()
+                )
+            } else {
+                null
+            }
         }
     }
 }

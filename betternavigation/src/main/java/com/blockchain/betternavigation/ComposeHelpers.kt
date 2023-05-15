@@ -24,7 +24,7 @@ internal fun rememberArgsHolder(): NavArgsHolder {
             restore = { value ->
                 @Suppress("UNCHECKED_CAST")
                 NavArgsHolder(value as MutableMap<String, Serializable>)
-            },
+            }
         )
     ) {
         NavArgsHolder()

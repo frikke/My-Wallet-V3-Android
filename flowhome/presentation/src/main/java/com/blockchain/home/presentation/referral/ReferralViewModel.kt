@@ -23,7 +23,8 @@ class ReferralViewModel(
     ReferralViewState,
     ReferralModelState,
     HomeNavEvent,
-    ModelConfigArgs.NoArgs>(
+    ModelConfigArgs.NoArgs
+    >(
     ReferralModelState()
 ) {
     private var referralJob: Job? = null
@@ -63,7 +64,8 @@ class ReferralViewModel(
         referralJob = viewModelScope.launch {
             referralService.fetchReferralData(
                 freshnessStrategy = PullToRefresh.freshnessStrategy(
-                    forceRefresh, RefreshStrategy.RefreshIfOlderThan(1, TimeUnit.HOURS)
+                    forceRefresh,
+                    RefreshStrategy.RefreshIfOlderThan(1, TimeUnit.HOURS)
                 )
             )
                 .onEach { dataResource ->

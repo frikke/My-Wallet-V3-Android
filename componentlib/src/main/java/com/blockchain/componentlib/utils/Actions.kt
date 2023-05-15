@@ -8,7 +8,7 @@ import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.blockchain.componentlib.R
+import com.blockchain.stringResources.R
 
 fun Context.copyToClipboard(label: String, text: String) {
     (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).apply {
@@ -20,7 +20,7 @@ fun Context.copyToClipboard(label: String, text: String) {
 
 @Composable
 fun CopyText(
-    label: String = stringResource(id = R.string.app_name),
+    label: String = stringResource(id = com.blockchain.stringResources.R.string.app_name),
     textToCopy: String
 ) {
     LocalContext.current.copyToClipboard(

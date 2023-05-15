@@ -29,7 +29,7 @@ fun InfoButton(
     text: String,
     onClick: () -> Unit,
     state: ButtonState,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Button(
         text = text,
@@ -46,7 +46,7 @@ fun InfoButton(
                 if (state == ButtonState.Loading) {
                     ButtonLoadingIndicator(
                         modifier = Modifier.align(Alignment.Center),
-                        loadingIconResId = R.drawable.ic_loading,
+                        loadingIconResId = R.drawable.ic_loading
                     )
                 }
 
@@ -54,7 +54,7 @@ fun InfoButton(
                 Row(
                     Modifier.alpha(alpha),
                     horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Image(
                         painter = painterResource(R.drawable.ic_information),
@@ -70,6 +70,6 @@ fun InfoButton(
                     )
                 }
             }
-        },
+        }
     )
 }

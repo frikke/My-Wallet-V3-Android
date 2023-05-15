@@ -313,7 +313,8 @@ class MultiAppActivity :
 
             is DeeplinkNavigationStep.OpenBankingApprovalDepositComplete ->
                 walletLinkAndOpenBankingNavigation.depositComplete(
-                    step.amount, step.estimationTime
+                    step.amount,
+                    step.estimationTime
                 )
             is DeeplinkNavigationStep.OpenBankingApprovalDepositInProgress ->
                 walletLinkAndOpenBankingNavigation.depositInProgress(
@@ -375,7 +376,8 @@ class MultiAppActivity :
             is Destination.AssetBuyDestination -> {
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
                     assetActionsNavigation.buyCrypto(
-                        currency = assetInfo, amount = destination.amount,
+                        currency = assetInfo,
+                        amount = destination.amount,
                         preselectedFiatTicker = destination.fiatTicker
                     )
                 } ?: run {
@@ -473,10 +475,11 @@ class MultiAppActivity :
             view = window.decorView.rootView,
             message = when (error) {
                 is InterestError.UnknownAsset -> getString(
-                    R.string.earn_summary_sheet_error_unknown_asset, error.assetTicker
+                    com.blockchain.stringResources.R.string.earn_summary_sheet_error_unknown_asset,
+                    error.assetTicker
                 )
-                InterestError.Other -> getString(R.string.earn_summary_sheet_error_other)
-                InterestError.None -> getString(R.string.empty)
+                InterestError.Other -> getString(com.blockchain.stringResources.R.string.earn_summary_sheet_error_other)
+                InterestError.None -> getString(com.blockchain.stringResources.R.string.empty)
             },
             duration = Snackbar.LENGTH_SHORT,
             type = SnackbarType.Error
@@ -506,10 +509,11 @@ class MultiAppActivity :
             view = window.decorView.rootView,
             message = when (error) {
                 is StakingError.UnknownAsset -> getString(
-                    R.string.earn_summary_sheet_error_unknown_asset, error.assetTicker
+                    com.blockchain.stringResources.R.string.earn_summary_sheet_error_unknown_asset,
+                    error.assetTicker
                 )
-                StakingError.Other -> getString(R.string.earn_summary_sheet_error_other)
-                StakingError.None -> getString(R.string.empty)
+                StakingError.Other -> getString(com.blockchain.stringResources.R.string.earn_summary_sheet_error_other)
+                StakingError.None -> getString(com.blockchain.stringResources.R.string.empty)
             },
             duration = Snackbar.LENGTH_SHORT,
             type = SnackbarType.Error
@@ -539,10 +543,13 @@ class MultiAppActivity :
             view = window.decorView.rootView,
             message = when (error) {
                 is ActiveRewardsError.UnknownAsset -> getString(
-                    R.string.earn_summary_sheet_error_unknown_asset, error.assetTicker
+                    com.blockchain.stringResources.R.string.earn_summary_sheet_error_unknown_asset,
+                    error.assetTicker
                 )
-                ActiveRewardsError.Other -> getString(R.string.earn_summary_sheet_error_other)
-                ActiveRewardsError.None -> getString(R.string.empty)
+                ActiveRewardsError.Other -> getString(
+                    com.blockchain.stringResources.R.string.earn_summary_sheet_error_other
+                )
+                ActiveRewardsError.None -> getString(com.blockchain.stringResources.R.string.empty)
             },
             duration = Snackbar.LENGTH_SHORT,
             type = SnackbarType.Error

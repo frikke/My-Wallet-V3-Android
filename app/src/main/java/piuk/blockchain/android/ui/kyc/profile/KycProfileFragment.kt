@@ -59,7 +59,7 @@ class KycProfileFragment : MVIFragment<KycProfileViewState>(), NavigationRouter<
                 KycProfileScreen(
                     viewState = viewModel.viewState,
                     onIntent = viewModel::onIntent,
-                    showDatePicker = ::showDatePicker,
+                    showDatePicker = ::showDatePicker
                 )
             }
         }
@@ -70,13 +70,13 @@ class KycProfileFragment : MVIFragment<KycProfileViewState>(), NavigationRouter<
         bindViewModel(
             viewModel,
             this,
-            Args(countryCode, stateCode, isCowboysUser),
+            Args(countryCode, stateCode, isCowboysUser)
         )
 
         logEvent(AnalyticsEvents.KycProfile)
         fraudService.trackFlow(FraudFlow.ONBOARDING)
 
-        progressListener.setupHostToolbar(R.string.kyc_profile_title)
+        progressListener.setupHostToolbar(com.blockchain.stringResources.R.string.kyc_profile_title)
 
         if (isCowboysUser) {
             analytics.logEvent(CowboysAnalytics.KycPersonalInfoViewed)
@@ -107,7 +107,7 @@ class KycProfileFragment : MVIFragment<KycProfileViewState>(), NavigationRouter<
             calendar.get(Calendar.MONTH),
             calendar.get(Calendar.DAY_OF_MONTH)
         ).apply {
-            setTitle(requireContext().getString(R.string.kyc_profile_dob_hint))
+            setTitle(requireContext().getString(com.blockchain.stringResources.R.string.kyc_profile_dob_hint))
             maxDate = calendar
             showYearPickerFirst(true)
             show(requireActivity().fragmentManager, tag)

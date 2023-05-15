@@ -49,7 +49,7 @@ class SimpleBuyBlockedFragment : Fragment() {
         }
 
         (activity as BlockchainActivity).updateToolbar(
-            toolbarTitle = getString(R.string.empty),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.empty),
             menuItems = emptyList(),
             backAction = { activity?.finish() }
         )
@@ -86,16 +86,21 @@ class SimpleBuyBlockedFragment : Fragment() {
             val data = when (val reason = access.reason) {
                 is BlockedReason.NotEligible -> {
                     BlockedBuyData(
-                        title = resources.getString(R.string.sell_is_coming_soon),
-                        description = resources.getString(R.string.sell_is_coming_soon_description),
+                        title = resources.getString(com.blockchain.stringResources.R.string.sell_is_coming_soon),
+                        description = resources.getString(
+                            com.blockchain.stringResources.R.string.sell_is_coming_soon_description
+                        ),
                         icon = R.drawable.ic_trade_not_eligible,
                         error = INELIGIBLE
                     )
                 }
                 is BlockedReason.TooManyInFlightTransactions -> {
                     BlockedBuyData(
-                        title = resources.getString(R.string.pending_transaction_limit),
-                        description = resources.getString(R.string.pending_buys_description, reason.maxTransactions),
+                        title = resources.getString(com.blockchain.stringResources.R.string.pending_transaction_limit),
+                        description = resources.getString(
+                            com.blockchain.stringResources.R.string.pending_buys_description,
+                            reason.maxTransactions
+                        ),
                         icon = R.drawable.ic_trolley_market,
                         error = PENDING_ORDERS_LIMIT_REACHED
                     )

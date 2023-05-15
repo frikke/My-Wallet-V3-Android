@@ -32,7 +32,8 @@ class RecurringBuysViewModel(
     RecurringBuysViewState,
     RecurringBuysModelState,
     HomeNavEvent,
-    ModelConfigArgs.NoArgs>(initialState = RecurringBuysModelState()) {
+    ModelConfigArgs.NoArgs
+    >(initialState = RecurringBuysModelState()) {
     private var recurringBuysJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
@@ -52,7 +53,8 @@ class RecurringBuysViewModel(
                                         assetTicker = recurringBuy.asset.networkTicker,
                                         iconUrl = recurringBuy.asset.logo,
                                         description = TextValue.IntResValue(
-                                            R.string.dashboard_recurring_buy_item_title_1,
+                                            com.blockchain.stringResources.R.string
+                                                .dashboard_recurring_buy_item_title_1,
                                             listOf(
                                                 recurringBuy.amount.toStringWithSymbol(),
                                                 recurringBuy.recurringBuyFrequency.toHumanReadableRecurringBuy()
@@ -60,12 +62,14 @@ class RecurringBuysViewModel(
                                         ),
                                         status = if (recurringBuy.state == RecurringBuyState.ACTIVE) {
                                             TextValue.IntResValue(
-                                                R.string.dashboard_recurring_buy_item_label,
+                                                com.blockchain.stringResources.R
+                                                    .string.dashboard_recurring_buy_item_label,
                                                 listOf(recurringBuy.nextPaymentDate.toFormattedDateWithoutYear())
                                             )
                                         } else {
                                             TextValue.IntResValue(
-                                                R.string.dashboard_recurring_buy_item_label_error
+                                                com.blockchain.stringResources.R
+                                                    .string.dashboard_recurring_buy_item_label_error
                                             )
                                         }
                                     )
@@ -116,12 +120,12 @@ class RecurringBuysViewModel(
 
 @StringRes fun RecurringBuyFrequency.toHumanReadableRecurringBuy(): Int {
     return when (this) {
-        RecurringBuyFrequency.ONE_TIME -> R.string.recurring_buy_one_time_selector
-        RecurringBuyFrequency.DAILY -> R.string.recurring_buy_daily_1
-        RecurringBuyFrequency.WEEKLY -> R.string.recurring_buy_weekly_1
-        RecurringBuyFrequency.BI_WEEKLY -> R.string.recurring_buy_bi_weekly_1
-        RecurringBuyFrequency.MONTHLY -> R.string.recurring_buy_monthly_1
-        else -> R.string.common_unknown
+        RecurringBuyFrequency.ONE_TIME -> com.blockchain.stringResources.R.string.recurring_buy_one_time_selector
+        RecurringBuyFrequency.DAILY -> com.blockchain.stringResources.R.string.recurring_buy_daily_1
+        RecurringBuyFrequency.WEEKLY -> com.blockchain.stringResources.R.string.recurring_buy_weekly_1
+        RecurringBuyFrequency.BI_WEEKLY -> com.blockchain.stringResources.R.string.recurring_buy_bi_weekly_1
+        RecurringBuyFrequency.MONTHLY -> com.blockchain.stringResources.R.string.recurring_buy_monthly_1
+        else -> com.blockchain.stringResources.R.string.common_unknown
     }
 }
 
@@ -129,13 +133,14 @@ fun RecurringBuyFrequency.toHumanReadableRecurringDate(dateTime: ZonedDateTime):
     return when (this) {
         RecurringBuyFrequency.DAILY -> {
             TextValue.IntResValue(
-                R.string.recurring_buy_frequency_subtitle_each_day,
+                com.blockchain.stringResources.R.string.recurring_buy_frequency_subtitle_each_day,
                 listOf(dateTime.to12HourFormat())
             )
         }
+
         RecurringBuyFrequency.BI_WEEKLY, RecurringBuyFrequency.WEEKLY -> {
             TextValue.IntResValue(
-                R.string.recurring_buy_frequency_subtitle,
+                com.blockchain.stringResources.R.string.recurring_buy_frequency_subtitle,
                 listOf(
                     dateTime.dayOfWeek
                         .getDisplayName(TextStyle.FULL, Locale.getDefault())
@@ -143,18 +148,20 @@ fun RecurringBuyFrequency.toHumanReadableRecurringDate(dateTime: ZonedDateTime):
                 )
             )
         }
+
         RecurringBuyFrequency.MONTHLY -> {
             if (dateTime.isLastDayOfTheMonth()) {
                 TextValue.IntResValue(
-                    R.string.recurring_buy_frequency_subtitle_monthly_last_day
+                    com.blockchain.stringResources.R.string.recurring_buy_frequency_subtitle_monthly_last_day
                 )
             } else {
                 TextValue.IntResValue(
-                    R.string.recurring_buy_frequency_subtitle_monthly,
+                    com.blockchain.stringResources.R.string.recurring_buy_frequency_subtitle_monthly,
                     listOf(dateTime.dayOfMonth.toString())
                 )
             }
         }
+
         RecurringBuyFrequency.ONE_TIME,
         RecurringBuyFrequency.UNKNOWN -> TextValue.StringValue("")
     }

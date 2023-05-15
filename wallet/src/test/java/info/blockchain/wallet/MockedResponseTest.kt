@@ -20,6 +20,7 @@ import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 
 abstract class MockedResponseTest {
     protected var mockInterceptor: MockInterceptor? = null
+
     @Before fun initBlockchainFramework() {
         mockInterceptor = MockInterceptor()
     }

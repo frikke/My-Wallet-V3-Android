@@ -36,7 +36,7 @@ class SectionHeadersActivity : AppCompatActivity() {
             this.sectionHeader = LargeSectionHeaderType.Icon(
                 title = "Title",
                 icon = ImageResource.Local(
-                    id = R.drawable.ic_qr_code,
+                    id = com.blockchain.componentlib.R.drawable.ic_qr_code,
                     contentDescription = null
                 ),
                 onIconClicked = {

@@ -17,7 +17,7 @@ fun ImageResource.Local.withBackground(
     backgroundColor: Color = AppTheme.colors.light,
     iconSize: Dp = AppTheme.dimensions.standardSpacing,
     backgroundSize: Dp = AppTheme.dimensions.xHugeSpacing,
-    shape: Shape? = null,
+    shape: Shape? = null
 ): ImageResource.LocalWithBackground = ImageResource.LocalWithBackground(
     id = id,
     iconColorFilter = colorFilter ?: ColorFilter.tint(AppTheme.colors.title),

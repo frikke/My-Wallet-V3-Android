@@ -96,7 +96,9 @@ class WalletConnectTransactionEngine(
                                 fiatAmount = fees.toUserFiat(exchangeRates),
                                 asset = sourceAsset
                             )
-                        } else null,
+                        } else {
+                            null
+                        },
                         feeLevel = pendingTx.feeSelection.selectedLevel
                     ),
                     TxConfirmationValue.Total(
@@ -217,7 +219,8 @@ class WalletConnectTransactionEngine(
                 EthereumSendTransactionTarget.Method.SIGN ->
                     Single.just(
                         TxResult.HashedTxResult(
-                            txId = EthUtils.decorateAndEncode(signed), amount = pendingTx.amount
+                            txId = EthUtils.decorateAndEncode(signed),
+                            amount = pendingTx.amount
                         )
                     )
             }

@@ -193,10 +193,12 @@ class FiatCryptoInputView(
             fakeHint.visible()
             fakeHint.afterMeasured {
                 it.translationX =
-                    if (hasPrefix) (enterAmount.width / 2f + textSize / 2f) +
-                        resources.getDimensionPixelOffset(R.dimen.smallest_spacing) else
+                    if (hasPrefix) {
+                        (enterAmount.width / 2f + textSize / 2f) +
+                            resources.getDimensionPixelOffset(com.blockchain.componentlib.R.dimen.smallest_spacing)
+                    } else
                         enterAmount.width / 2f - textSize / 2f - it.width -
-                            resources.getDimensionPixelOffset(R.dimen.smallest_spacing)
+                            resources.getDimensionPixelOffset(com.blockchain.componentlib.R.dimen.smallest_spacing)
             }
         }
     }
@@ -224,7 +226,8 @@ class FiatCryptoInputView(
     }
 
     fun onAmountValidationUpdated(isValid: Boolean) {
-        val colour = if (isValid) R.color.grey_800 else R.color.red_400
+        val colour = if (isValid) com.blockchain.componentlib.R.color.grey_800 else
+            com.blockchain.common.R.color.red_400
         binding.enterAmount.setTextColor(resources.getColor(colour, null))
         binding.exchangeAmount.setTextColor(resources.getColor(colour, null))
     }

@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
-import androidx.navigation.fragment.NavHostFragment.findNavController
+import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.data.logEvent
@@ -78,11 +78,13 @@ internal class KycCountrySelectionFragment :
         when (regionType) {
             RegionType.Country -> {
                 logEvent(AnalyticsEvents.KycCountry)
-                progressListener.setupHostToolbar(R.string.kyc_country_selection_title_1)
+                progressListener.setupHostToolbar(com.blockchain.stringResources.R.string.kyc_country_selection_title_1)
             }
             RegionType.State -> {
                 logEvent(AnalyticsEvents.KycStates)
-                progressListener.setupHostToolbar(R.string.kyc_country_selection_state_title)
+                progressListener.setupHostToolbar(
+                    com.blockchain.stringResources.R.string.kyc_country_selection_state_title
+                )
             }
         }
         onViewReady()
@@ -162,7 +164,7 @@ internal class KycCountrySelectionFragment :
         progressDialog = MaterialProgressDialog(
             requireContext()
         ).apply {
-            setMessage(R.string.kyc_country_selection_please_wait)
+            setMessage(com.blockchain.stringResources.R.string.kyc_country_selection_please_wait)
             setOnCancelListener { presenter.onRequestCancelled() }
             show()
         }

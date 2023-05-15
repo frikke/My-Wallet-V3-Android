@@ -24,18 +24,21 @@ fun SmallMinimalButton(
     icon: ImageResource = ImageResource.None,
     isTransparent: Boolean = true
 ) {
-
     val contentPadding = PaddingValues(
         start = if (state == ButtonState.Loading) {
-            dimensionResource(R.dimen.medium_spacing)
+            dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)
         } else {
-            dimensionResource(R.dimen.very_small_spacing)
+            dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)
         },
         top = ButtonDefaults.ContentPadding.calculateTopPadding(),
-        end = if (state == ButtonState.Loading) dimensionResource(R.dimen.medium_spacing) else dimensionResource(
-            R.dimen.very_small_spacing
-        ),
-        bottom = ButtonDefaults.ContentPadding.calculateBottomPadding(),
+        end = if (state == ButtonState.Loading) {
+            dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)
+        } else {
+            dimensionResource(
+                com.blockchain.componentlib.R.dimen.very_small_spacing
+            )
+        },
+        bottom = ButtonDefaults.ContentPadding.calculateBottomPadding()
     )
 
     OutlinedButton(
@@ -43,7 +46,9 @@ fun SmallMinimalButton(
         onClick = onClick,
         shape = AppTheme.shapes.extraLarge,
         state = state,
-        modifier = modifier.requiredHeightIn(min = dimensionResource(R.dimen.large_spacing)),
+        modifier = modifier.requiredHeightIn(
+            min = dimensionResource(R.dimen.large_spacing)
+        ),
         contentPadding = contentPadding,
         icon = icon,
         backgroundColour = if (isTransparent) {
@@ -108,7 +113,7 @@ private fun SmallMinimalButton_Loading() {
             SmallMinimalButton(
                 onClick = { },
                 text = "Small Minimal button",
-                state = ButtonState.Loading,
+                state = ButtonState.Loading
             )
         }
     }
@@ -122,7 +127,7 @@ private fun SmallMinimalButton_Disabled() {
             SmallMinimalButton(
                 onClick = { },
                 text = "Small Minimal button",
-                state = ButtonState.Disabled,
+                state = ButtonState.Disabled
             )
         }
     }
@@ -149,7 +154,7 @@ private fun SmallMinimalButton_DarkLoading() {
             SmallMinimalButton(
                 onClick = { },
                 text = "Small Minimal button",
-                state = ButtonState.Loading,
+                state = ButtonState.Loading
             )
         }
     }
@@ -163,7 +168,7 @@ private fun SmallMinimalButton_DarkDisabled() {
             SmallMinimalButton(
                 onClick = { },
                 text = "Small Minimal Button",
-                state = ButtonState.Disabled,
+                state = ButtonState.Disabled
             )
         }
     }

@@ -65,7 +65,7 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.txProgressView.setupPrimaryCta(
-            text = getString(R.string.common_ok),
+            text = getString(com.blockchain.stringResources.R.string.common_ok),
             onClick = { activity.finish() }
         )
     }
@@ -81,7 +81,7 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
     }
 
     private fun handleStatusUpdates(
-        newState: TransactionState,
+        newState: TransactionState
     ) {
         when (newState.executionStatus) {
             is TxExecutionStatus.InProgress -> binding.txProgressView.showTxInProgress(
@@ -104,14 +104,17 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
                 model.process(TransactionIntent.ApprovalTriggered)
                 startActivityForResult(
                     BankAuthActivity.newInstance(
-                        newState.executionStatus.approvalData, BankAuthSource.DEPOSIT, requireContext()
+                        newState.executionStatus.approvalData,
+                        BankAuthSource.DEPOSIT,
+                        requireContext()
                     ),
                     PAYMENT_APPROVAL
                 )
             }
             is TxExecutionStatus.Error -> {
                 analyticsHooks.onTransactionFailure(
-                    newState, collectStackTraceString(newState.executionStatus.exception)
+                    newState,
+                    collectStackTraceString(newState.executionStatus.exception)
                 )
                 customiser.transactionProgressExceptionIcon(newState).run {
                     with(binding.txProgressView) {
@@ -127,14 +130,14 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
                                 showServerSideError(
                                     iconUrl = iconResource.iconUrl,
                                     title = customiser.transactionProgressExceptionTitle(newState),
-                                    description = customiser.transactionProgressExceptionDescription(newState),
+                                    description = customiser.transactionProgressExceptionDescription(newState)
                                 )
                             is ErrorStateIcon.RemoteIconWithStatus ->
                                 showServerSideError(
                                     iconUrl = iconResource.iconUrl,
                                     statusIconUrl = iconResource.statusIconUrl,
                                     title = customiser.transactionProgressExceptionTitle(newState),
-                                    description = customiser.transactionProgressExceptionDescription(newState),
+                                    description = customiser.transactionProgressExceptionDescription(newState)
                                 )
                         }
                         val settlementActions = customiser.transactionSettlementExceptionAction(newState)
@@ -183,7 +186,7 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
         analyticsPair: Pair<String, String>,
         action: String,
         nabuApiException: NabuApiException?,
-        errorDescription: String?,
+        errorDescription: String?
     ) {
         analytics.logEvent(
             ClientErrorAnalytics.ClientLogError(
@@ -206,137 +209,158 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
 
         val nabuApiException = if (error is TransactionError.HttpError) {
             error.nabuApiException
-        } else null
+        } else {
+            null
+        }
 
         val pair = when (error) {
             TransactionError.OrderLimitReached -> Pair(
                 getString(
-                    R.string.trading_order_limit, getActionStringResource(state.action)
+                    com.blockchain.stringResources.R.string.trading_order_limit,
+                    getActionStringResource(state.action)
                 ),
                 PENDING_ORDERS_LIMIT_REACHED
             )
             TransactionError.OrderNotCancelable -> Pair(
                 getString(
-                    R.string.trading_order_not_cancelable, getActionStringResource(state.action)
+                    com.blockchain.stringResources.R.string.trading_order_not_cancelable,
+                    getActionStringResource(state.action)
                 ),
                 ORDER_NOT_CANCELABLE
             )
             TransactionError.WithdrawalAlreadyPending -> Pair(
-                getString(R.string.trading_pending_withdrawal),
+                getString(com.blockchain.stringResources.R.string.trading_pending_withdrawal),
                 WITHDRAW_ALREADY_PENDING
             )
             TransactionError.WithdrawalBalanceLocked -> Pair(
-                getString(R.string.trading_withdrawal_balance_locked),
+                getString(com.blockchain.stringResources.R.string.trading_withdrawal_balance_locked),
                 WITHDRAW_BALANCE_LOCKED
             )
             TransactionError.WithdrawalInsufficientFunds -> Pair(
-                getString(R.string.trading_withdrawal_insufficient_funds),
+                getString(com.blockchain.stringResources.R.string.trading_withdrawal_insufficient_funds),
                 INSUFFICIENT_FUNDS
             )
             TransactionError.InternalServerError -> {
                 Pair(
-                    getString(R.string.trading_internal_server_error),
+                    getString(com.blockchain.stringResources.R.string.trading_internal_server_error),
                     INTERNAL_SERVER_ERROR
                 )
             }
             TransactionError.TradingTemporarilyDisabled -> Pair(
-                getString(R.string.trading_service_temp_disabled),
+                getString(com.blockchain.stringResources.R.string.trading_service_temp_disabled),
                 TRADING_DISABLED
             )
             TransactionError.InsufficientBalance -> Pair(
-                getString(R.string.trading_insufficient_balance, getActionStringResource(state.action)),
+                getString(
+                    com.blockchain.stringResources.R.string.trading_insufficient_balance,
+                    getActionStringResource(state.action)
+                ),
                 OVER_MAXIMUM_PERSONAL_LIMIT
             )
             TransactionError.OrderBelowMin -> Pair(
                 getString(
-                    R.string.trading_amount_below_min, getActionStringResource(state.action)
+                    com.blockchain.stringResources.R.string.trading_amount_below_min,
+                    getActionStringResource(state.action)
                 ),
                 BELOW_MINIMUM_LIMIT
             )
             TransactionError.OrderAboveMax -> Pair(
-                getString(R.string.trading_amount_above_max, getActionStringResource(state.action)),
+                getString(
+                    com.blockchain.stringResources.R.string.trading_amount_above_max,
+                    getActionStringResource(state.action)
+                ),
                 OVER_MAXIMUM_SOURCE_LIMIT
             )
             TransactionError.SwapDailyLimitExceeded -> Pair(
                 getString(
-                    R.string.trading_daily_limit_exceeded, getActionStringResource(state.action)
+                    com.blockchain.stringResources.R.string.trading_daily_limit_exceeded,
+                    getActionStringResource(state.action)
                 ),
                 OVER_MAXIMUM_SOURCE_LIMIT
             )
             TransactionError.SwapWeeklyLimitExceeded -> Pair(
                 getString(
-                    R.string.trading_weekly_limit_exceeded, getActionStringResource(state.action)
+                    com.blockchain.stringResources.R.string.trading_weekly_limit_exceeded,
+                    getActionStringResource(state.action)
                 ),
                 OVER_MAXIMUM_SOURCE_LIMIT
             )
             TransactionError.SwapYearlyLimitExceeded -> Pair(
                 getString(
-                    R.string.trading_yearly_limit_exceeded, getActionStringResource(state.action)
+                    com.blockchain.stringResources.R.string.trading_yearly_limit_exceeded,
+                    getActionStringResource(state.action)
                 ),
                 OVER_MAXIMUM_SOURCE_LIMIT
             )
             TransactionError.InvalidCryptoAddress -> {
-                Pair(getString(R.string.trading_invalid_address), INVALID_ADDRESS)
+                Pair(getString(com.blockchain.stringResources.R.string.trading_invalid_address), INVALID_ADDRESS)
             }
             TransactionError.InvalidCryptoCurrency -> {
-                Pair(getString(R.string.trading_invalid_currency), INVALID_CRYPTO_CURRENCY)
+                Pair(
+                    getString(com.blockchain.stringResources.R.string.trading_invalid_currency),
+                    INVALID_CRYPTO_CURRENCY
+                )
             }
             TransactionError.InvalidFiatCurrency -> {
-                Pair(getString(R.string.trading_invalid_fiat), INVALID_FIAT_CURRENCY)
+                Pair(getString(com.blockchain.stringResources.R.string.trading_invalid_fiat), INVALID_FIAT_CURRENCY)
             }
             TransactionError.OrderDirectionDisabled -> Pair(
-                getString(R.string.trading_direction_disabled),
+                getString(com.blockchain.stringResources.R.string.trading_direction_disabled),
                 ORDER_DIRECTION_DISABLED
             )
             TransactionError.InvalidOrExpiredQuote -> Pair(
                 getString(
-                    R.string.trading_quote_invalid_or_expired
+                    com.blockchain.stringResources.R.string.trading_quote_invalid_or_expired
                 ),
                 INVALID_QUOTE
             )
             TransactionError.IneligibleForSwap -> Pair(
-                getString(R.string.trading_ineligible_for_swap),
+                getString(com.blockchain.stringResources.R.string.trading_ineligible_for_swap),
                 INELIGIBLE
             )
             TransactionError.InvalidDestinationAmount -> Pair(
                 getString(
-                    R.string.trading_invalid_destination_amount
+                    com.blockchain.stringResources.R.string.trading_invalid_destination_amount
                 ),
                 INVALID_AMOUNT
             )
             TransactionError.InvalidPostcode -> Pair(
                 getString(
-                    R.string.address_verification_postcode_error
+                    com.blockchain.stringResources.R.string.address_verification_postcode_error
                 ),
                 INVALID_POSTCODE
             )
             is TransactionError.ExecutionFailed -> Pair(
                 getString(
-                    R.string.executing_transaction_error, state.sendingAsset.displayTicker
+                    com.blockchain.stringResources.R.string.executing_transaction_error,
+                    state.sendingAsset.displayTicker
                 ),
                 EXECUTION_FAILED
             )
             is TransactionError.InternetConnectionError -> Pair(
                 getString(
-                    R.string.executing_connection_error
+                    com.blockchain.stringResources.R.string.executing_connection_error
                 ),
                 INTERNET_CONNECTION_ERROR
             )
             is TransactionError.HttpError ->
                 Pair(
                     getString(
-                        R.string.common_http_error_with_new_line_message,
-                        error.nabuApiException.getErrorDescription(),
+                        com.blockchain.stringResources.R.string.common_http_error_with_new_line_message,
+                        error.nabuApiException.getErrorDescription()
                     ),
                     NABU_ERROR
                 )
             TransactionError.InvalidDomainAddress -> Pair(
                 getString(
-                    R.string.invalid_domain_address
+                    com.blockchain.stringResources.R.string.invalid_domain_address
                 ),
                 INVALID_ADDRESS
             )
-            TransactionError.TransactionDenied -> Pair(getString(R.string.transaction_denied), UNKNOWN_ERROR)
+            TransactionError.TransactionDenied -> Pair(
+                getString(com.blockchain.stringResources.R.string.transaction_denied),
+                UNKNOWN_ERROR
+            )
             is TransactionError.FiatDepositError -> Pair(
                 customiser.transactionProgressExceptionTitle(state),
                 error.errorCode
@@ -371,22 +395,22 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
     private fun getActionStringResource(action: AssetAction): String =
         resources.getString(
             when (action) {
-                AssetAction.Send -> R.string.common_send
+                AssetAction.Send -> com.blockchain.stringResources.R.string.common_send
                 AssetAction.FiatWithdraw,
                 AssetAction.ActiveRewardsWithdraw,
                 AssetAction.StakingWithdraw,
-                AssetAction.InterestWithdraw -> R.string.common_withdraw
-                AssetAction.Swap -> R.string.common_swap
-                AssetAction.Sell -> R.string.common_sell
-                AssetAction.Sign -> R.string.common_sign
+                AssetAction.InterestWithdraw -> com.blockchain.stringResources.R.string.common_withdraw
+                AssetAction.Swap -> com.blockchain.stringResources.R.string.common_swap
+                AssetAction.Sell -> com.blockchain.stringResources.R.string.common_sell
+                AssetAction.Sign -> com.blockchain.stringResources.R.string.common_sign
                 AssetAction.InterestDeposit,
                 AssetAction.StakingDeposit,
                 AssetAction.ActiveRewardsDeposit,
-                AssetAction.FiatDeposit -> R.string.common_deposit
-                AssetAction.ViewActivity -> R.string.common_activity
-                AssetAction.Receive -> R.string.common_receive
-                AssetAction.ViewStatement -> R.string.common_summary
-                AssetAction.Buy -> R.string.common_buy
+                AssetAction.FiatDeposit -> com.blockchain.stringResources.R.string.common_deposit
+                AssetAction.ViewActivity -> com.blockchain.stringResources.R.string.common_activity
+                AssetAction.Receive -> com.blockchain.stringResources.R.string.common_receive
+                AssetAction.ViewStatement -> com.blockchain.stringResources.R.string.common_summary
+                AssetAction.Buy -> com.blockchain.stringResources.R.string.common_buy
             }
         )
 

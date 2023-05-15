@@ -90,7 +90,7 @@ class DefaultBottomSheetDialogFragment() : BottomSheetDialogFragment() {
     }
 
     override fun getTheme(): Int {
-        return R.style.CustomBottomSheetDialog
+        return com.blockchain.componentlib.R.style.CustomBottomSheetDialog
     }
 }
 
@@ -111,7 +111,7 @@ class BylineBottomSheetDialogFragment() : BottomSheetDialogFragment() {
     }
 
     override fun getTheme(): Int {
-        return R.style.CustomBottomSheetDialog
+        return com.blockchain.componentlib.R.style.CustomBottomSheetDialog
     }
 }
 
@@ -126,7 +126,7 @@ class IconBottomSheetDialogFragment() : BottomSheetDialogFragment() {
                 .apply {
                     this.title = "Title"
                     this.startImageResource = ImageResource.Local(
-                        id = R.drawable.ic_qr_code,
+                        id = com.blockchain.componentlib.R.drawable.ic_qr_code,
                         contentDescription = null,
                     )
                 },
@@ -135,7 +135,7 @@ class IconBottomSheetDialogFragment() : BottomSheetDialogFragment() {
     }
 
     override fun getTheme(): Int {
-        return R.style.CustomBottomSheetDialog
+        return com.blockchain.componentlib.R.style.CustomBottomSheetDialog
     }
 }
 
@@ -148,16 +148,16 @@ class NoTitleBottomSheetDialogFragment : BottomSheetDialogFragment() {
         return BottomSheetDummyView(
             bottomSheetHeaderView = SheetHeaderView(requireContext())
                 .apply {
-                   this.onClosePress = {
-                       dismiss()
-                   }
+                    this.onClosePress = {
+                        dismiss()
+                    }
                 },
             context = requireContext(),
         )
     }
 
     override fun getTheme(): Int {
-        return R.style.CustomBottomSheetDialog
+        return com.blockchain.componentlib.R.style.CustomBottomSheetDialog
     }
 }
 
@@ -177,7 +177,7 @@ class BackDefaultBottomSheetDialogFragment() : BottomSheetDialogFragment() {
     }
 
     override fun getTheme(): Int {
-        return R.style.CustomBottomSheetDialog
+        return com.blockchain.componentlib.R.style.CustomBottomSheetDialog
     }
 }
 
@@ -198,7 +198,7 @@ class BackBylineBottomSheetDialogFragment() : BottomSheetDialogFragment() {
     }
 
     override fun getTheme(): Int {
-        return R.style.CustomBottomSheetDialog
+        return com.blockchain.componentlib.R.style.CustomBottomSheetDialog
     }
 }
 
@@ -218,7 +218,7 @@ class BackCancelBottomSheetDialogFragment() : BottomSheetDialogFragment() {
     }
 
     override fun getTheme(): Int {
-        return R.style.CustomBottomSheetDialog
+        return com.blockchain.componentlib.R.style.CustomBottomSheetDialog
     }
 }
 
@@ -239,7 +239,7 @@ class BackNextBottomSheetDialogFragment() : BottomSheetDialogFragment() {
     }
 
     override fun getTheme(): Int {
-        return R.style.CustomBottomSheetDialog
+        return com.blockchain.componentlib.R.style.CustomBottomSheetDialog
     }
 }
 

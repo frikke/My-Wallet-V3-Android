@@ -11,7 +11,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 
 class TokenAllowanceViewModel(
-    private val assetCatalogue: AssetCatalogue,
+    private val assetCatalogue: AssetCatalogue
 ) : MviViewModel<
     AllowanceIntent,
     AllowanceViewState,
@@ -54,13 +54,13 @@ class TokenAllowanceViewModel(
 data class AllowanceModelState(
     val networkFeeString: String?,
     val nativeAsset: AssetInfo?,
-    val assetInfo: AssetInfo?,
+    val assetInfo: AssetInfo?
 ) : ModelState
 
 data class AllowanceViewState(
     val networkFee: String?,
     val nativeAsset: AssetInfo?,
-    val assetInfo: AssetInfo?,
+    val assetInfo: AssetInfo?
 ) : ViewState
 
 sealed class AllowanceIntent : Intent<AllowanceModelState> {

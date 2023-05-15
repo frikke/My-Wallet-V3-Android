@@ -89,7 +89,7 @@ fun BackupPhraseIntroScreen(
     showSkipBackup: Boolean,
     backOnClick: () -> Unit,
     backUpNowOnClick: () -> Unit,
-    skipOnClick: () -> Unit,
+    skipOnClick: () -> Unit
 ) {
     var allAcknowledgementsChecked by remember { mutableStateOf(false) }
 
@@ -100,7 +100,7 @@ fun BackupPhraseIntroScreen(
     ) {
         NavigationBar(
             modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
-            title = stringResource(R.string.backup_phrase_title_secure_wallet),
+            title = stringResource(com.blockchain.stringResources.R.string.backup_phrase_title_secure_wallet),
             mutedBackground = false,
             onBackButtonClick = backOnClick
         )
@@ -111,7 +111,6 @@ fun BackupPhraseIntroScreen(
                 .padding(AppTheme.dimensions.standardSpacing),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             BackupStatus(backupStatus)
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
@@ -122,9 +121,9 @@ fun BackupPhraseIntroScreen(
 
             BackupPhraseIntroAcknowledgments(
                 acknowledgments = listOf(
-                    R.string.backup_phrase_intro_ack_1,
-                    R.string.backup_phrase_intro_ack_2,
-                    R.string.backup_phrase_intro_ack_3,
+                    com.blockchain.stringResources.R.string.backup_phrase_intro_ack_1,
+                    com.blockchain.stringResources.R.string.backup_phrase_intro_ack_2,
+                    com.blockchain.stringResources.R.string.backup_phrase_intro_ack_3
                 )
             ) {
                 allAcknowledgementsChecked = true
@@ -134,7 +133,7 @@ fun BackupPhraseIntroScreen(
 
             PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.back_up_now),
+                text = stringResource(id = com.blockchain.stringResources.R.string.back_up_now),
                 state = if (allAcknowledgementsChecked) ButtonState.Enabled else ButtonState.Disabled,
                 onClick = backUpNowOnClick
             )
@@ -144,7 +143,7 @@ fun BackupPhraseIntroScreen(
 
                 MinimalButton(
                     modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(id = R.string.common_skip),
+                    text = stringResource(id = com.blockchain.stringResources.R.string.common_skip),
                     onClick = skipOnClick
                 )
             }
@@ -159,11 +158,10 @@ fun BackupPhraseIntroScreenDescription() {
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         Image(
             imageResource = ImageResource.Local(
-                id = R.drawable.lock_on,
-                contentDescription = stringResource(R.string.backup_phrase_intro_title),
+                id = com.blockchain.componentlib.icons.R.drawable.lock_on,
+                contentDescription = stringResource(com.blockchain.stringResources.R.string.backup_phrase_intro_title),
                 colorFilter = ColorFilter.tint(AppTheme.colors.primary)
             ),
             modifier = Modifier.size(32.dp)
@@ -172,7 +170,7 @@ fun BackupPhraseIntroScreenDescription() {
         SmallVerticalSpacer()
 
         SimpleText(
-            text = stringResource(R.string.backup_phrase_intro_title),
+            text = stringResource(com.blockchain.stringResources.R.string.backup_phrase_intro_title),
             style = ComposeTypographies.Title2,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Centre
@@ -181,7 +179,7 @@ fun BackupPhraseIntroScreenDescription() {
         SmallVerticalSpacer()
 
         SimpleText(
-            text = stringResource(R.string.backup_phrase_intro_description),
+            text = stringResource(com.blockchain.stringResources.R.string.backup_phrase_intro_description),
             style = ComposeTypographies.Paragraph1,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Centre
@@ -192,7 +190,7 @@ fun BackupPhraseIntroScreenDescription() {
 @Composable
 fun BackupPhraseIntroAcknowledgmentItem(
     text: String,
-    onAccepted: () -> Unit,
+    onAccepted: () -> Unit
 ) {
     var isChecked by remember { mutableStateOf(false) }
 
@@ -210,7 +208,7 @@ fun BackupPhraseIntroAcknowledgmentItem(
             .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
             .padding(
                 horizontal = AppTheme.dimensions.smallSpacing,
-                vertical = dimensionResource(R.dimen.very_small_spacing)
+                vertical = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -222,7 +220,7 @@ fun BackupPhraseIntroAcknowledgmentItem(
             modifier = Modifier.weight(1f)
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
         RadioCheckMark(
             state = if (isChecked) RadioButtonState.Selected else RadioButtonState.Unselected,
@@ -251,7 +249,7 @@ fun BackupPhraseIntroAcknowledgments(@StringRes acknowledgments: List<Int>, allC
             }
 
             if (index != acknowledgments.lastIndex) {
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
+                Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)))
             }
         }
     }
@@ -265,8 +263,11 @@ fun BackupPhraseIntroAcknowledgments(@StringRes acknowledgments: List<Int>, allC
 @Composable
 fun PreviewBackupPhraseIntroScreen_NoBackup_Skip() {
     BackupPhraseIntroScreen(
-        BackUpStatus.NO_BACKUP, showSkipBackup = true,
-        backOnClick = {}, backUpNowOnClick = {}, skipOnClick = {}
+        BackUpStatus.NO_BACKUP,
+        showSkipBackup = true,
+        backOnClick = {},
+        backUpNowOnClick = {},
+        skipOnClick = {}
     )
 }
 
@@ -274,8 +275,11 @@ fun PreviewBackupPhraseIntroScreen_NoBackup_Skip() {
 @Composable
 fun PreviewBackupPhraseIntroScreen_NoBackup_NoSkip() {
     BackupPhraseIntroScreen(
-        BackUpStatus.NO_BACKUP, showSkipBackup = false,
-        backOnClick = {}, backUpNowOnClick = {}, skipOnClick = {}
+        BackUpStatus.NO_BACKUP,
+        showSkipBackup = false,
+        backOnClick = {},
+        backUpNowOnClick = {},
+        skipOnClick = {}
     )
 }
 
@@ -283,8 +287,11 @@ fun PreviewBackupPhraseIntroScreen_NoBackup_NoSkip() {
 @Composable
 fun PreviewBackupPhraseIntroScreenBackedUp() {
     BackupPhraseIntroScreen(
-        BackUpStatus.BACKED_UP, showSkipBackup = true,
-        backOnClick = {}, backUpNowOnClick = {}, skipOnClick = {}
+        BackUpStatus.BACKED_UP,
+        showSkipBackup = true,
+        backOnClick = {},
+        backUpNowOnClick = {},
+        skipOnClick = {}
     )
 }
 
@@ -297,7 +304,10 @@ fun PreviewBackupPhraseIntroScreenDescription() {
 @Preview(name = "Acknowledgment Item", showBackground = true)
 @Composable
 fun PreviewBackupPhraseIntroAcknowledgmentItem() {
-    BackupPhraseIntroAcknowledgmentItem(text = stringResource(id = R.string.backup_phrase_intro_ack_1)) {}
+    BackupPhraseIntroAcknowledgmentItem(
+        text = stringResource(id = com.blockchain.stringResources.R.string.backup_phrase_intro_ack_1)
+    ) {
+    }
 }
 
 @Preview(name = "Acknowledgments", showBackground = true)
@@ -305,9 +315,9 @@ fun PreviewBackupPhraseIntroAcknowledgmentItem() {
 fun PreviewBackupPhraseIntroAcknowledgments() {
     BackupPhraseIntroAcknowledgments(
         acknowledgments = listOf(
-            R.string.backup_phrase_intro_ack_1,
-            R.string.backup_phrase_intro_ack_2,
-            R.string.backup_phrase_intro_ack_3,
+            com.blockchain.stringResources.R.string.backup_phrase_intro_ack_1,
+            com.blockchain.stringResources.R.string.backup_phrase_intro_ack_2,
+            com.blockchain.stringResources.R.string.backup_phrase_intro_ack_3
         )
     ) {}
 }

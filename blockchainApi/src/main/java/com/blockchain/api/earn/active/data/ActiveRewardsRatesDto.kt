@@ -18,5 +18,5 @@ data class ActiveRewardsTokenRateDto(
     val commission: Double,
 
     @SerialName("triggerPrice")
-    val triggerPrice: String?,
+    val triggerPrice: String?
 )

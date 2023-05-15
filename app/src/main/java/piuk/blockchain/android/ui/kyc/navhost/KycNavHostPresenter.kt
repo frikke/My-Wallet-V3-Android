@@ -29,7 +29,7 @@ class KycNavHostPresenter(
     private val kycTiersStore: KycTiersStore,
     private val productEligibilityStore: ProductsEligibilityStore,
     private val getUserStore: GetUserStore,
-    private val analytics: Analytics,
+    private val analytics: Analytics
 ) : BasePresenter<KycNavHostView>() {
 
     override fun onViewReady() {
@@ -53,7 +53,7 @@ class KycNavHostPresenter(
                             // No user, hide loading and start full KYC flow
                             view.displayLoading(false)
                         } else {
-                            view.showErrorSnackbarAndFinish(R.string.kyc_status_error)
+                            view.showErrorSnackbarAndFinish(com.blockchain.stringResources.R.string.kyc_status_error)
                         }
                     }
                 )
@@ -70,6 +70,7 @@ class KycNavHostPresenter(
             view.campaignType == CampaignType.Resubmission || user.isMarkedForResubmission -> {
                 view.navigateToResubmissionSplash()
             }
+
             view.campaignType == CampaignType.SimpleBuy ||
                 view.campaignType == CampaignType.Interest ||
                 view.campaignType == CampaignType.FiatFunds ||
@@ -82,6 +83,7 @@ class KycNavHostPresenter(
                         onSuccess = { view.navigate(it) }
                     )
             }
+
             user.state != UserState.None && user.kycState == KycState.None -> {
                 val current = user.tiers?.current
                 if (current == null || current == 0) {
@@ -94,7 +96,9 @@ class KycNavHostPresenter(
                             },
                             onError = {
                                 Timber.e(it)
-                                view.showErrorSnackbarAndFinish(R.string.kyc_status_error)
+                                view.showErrorSnackbarAndFinish(
+                                    com.blockchain.stringResources.R.string.kyc_status_error
+                                )
                             }
                         )
                 }

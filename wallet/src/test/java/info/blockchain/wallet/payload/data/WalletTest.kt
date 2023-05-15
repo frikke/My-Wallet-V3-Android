@@ -150,7 +150,8 @@ class WalletTest : WalletApiMockedResponseTest() {
         assertTrue(true)
     }
 
-    @Test(expected = DecryptionException::class) fun validateSecondPassword_fail() {
+    @Test(expected = DecryptionException::class)
+    fun validateSecondPassword_fail() {
         val wallet = givenWalletFromResource("wallet_body_1.txt")
         wallet.validateSecondPassword("bogus")
     }
@@ -207,7 +208,9 @@ class WalletTest : WalletApiMockedResponseTest() {
 
         // Private key will be encrypted
         val decryptedXpriv = DoubleEncryptionFactory.decrypt(
-            account.xpriv, wallet.sharedKey, "hello",
+            account.xpriv,
+            wallet.sharedKey,
+            "hello",
             wallet.options.pbkdf2Iterations!!
         )
         /**
@@ -306,14 +309,17 @@ class WalletTest : WalletApiMockedResponseTest() {
             SigningKeyImpl(
                 DeterministicKey.fromPrivate(Base58.decode(getImportedAddress().privateKey))
             ),
-            "hello", "2312", "41231"
+            "hello",
+            "2312",
+            "41231"
         )
 
         val wallet = walletFromResource.addImportedAddress(address)
 
         val decryptedOriginalPrivateKey = AESUtil
             .decrypt(
-                address.privateKey, wallet.sharedKey + "hello",
+                address.privateKey,
+                wallet.sharedKey + "hello",
                 wallet.options.pbkdf2Iterations!!
             )
 
@@ -324,7 +330,10 @@ class WalletTest : WalletApiMockedResponseTest() {
 
         // Set private key
         val unecryptedAddressKey = walletFromResource.importedAddressFromKey(
-            key, "hello", "2312", "41231"
+            key,
+            "hello",
+            "2312",
+            "41231"
         )
         val unecryptedAddressWallet = wallet.addImportedAddress(unecryptedAddressKey)
 
@@ -332,7 +341,8 @@ class WalletTest : WalletApiMockedResponseTest() {
         val addr = unecryptedAddressWallet.importedAddressList[wallet.importedAddressList.size - 1]
         val decryptedSetPrivateKey = AESUtil
             .decrypt(
-                addr.privateKey, unecryptedAddressWallet.sharedKey + "hello",
+                addr.privateKey,
+                unecryptedAddressWallet.sharedKey + "hello",
                 unecryptedAddressWallet.options.pbkdf2Iterations!!
             )
 
@@ -350,7 +360,8 @@ class WalletTest : WalletApiMockedResponseTest() {
         val address = wallet.importedAddressList[wallet.importedAddressList.size - 1]
         val decryptedOriginalPrivateKey = AESUtil
             .decrypt(
-                address.privateKey, wallet.sharedKey + "hello",
+                address.privateKey,
+                wallet.sharedKey + "hello",
                 wallet.options.pbkdf2Iterations!!
             )
 
@@ -529,7 +540,8 @@ class WalletTest : WalletApiMockedResponseTest() {
         assertEquals(789, paymentBundle.absoluteFee.toLong())
         wallet.decryptHDWallet("hello")
         val keyList = wallet.walletBody?.getHDKeysForSigning(
-            wallet.walletBody!!.getAccount(0), paymentBundle
+            wallet.walletBody!!.getAccount(0),
+            paymentBundle
         )
 
         // Contains 5 matching keys for signing

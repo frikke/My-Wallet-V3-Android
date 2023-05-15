@@ -72,15 +72,15 @@ class ActionActivity :
         showLoading()
         return when (action) {
             AssetAction.Send -> {
-                updateToolbarTitle(getString(R.string.toolbar_send))
+                updateToolbarTitle(getString(com.blockchain.stringResources.R.string.toolbar_send))
                 TransferSendFragment.newInstance()
             }
             AssetAction.Swap -> {
-                updateToolbarTitle(getString(R.string.toolbar_swap))
+                updateToolbarTitle(getString(com.blockchain.stringResources.R.string.toolbar_swap))
                 SwapFragment.newInstance()
             }
             AssetAction.Receive -> {
-                updateToolbarTitle(getString(R.string.toolbar_receive))
+                updateToolbarTitle(getString(com.blockchain.stringResources.R.string.toolbar_receive))
                 ReceiveFragment.newInstance(cryptoTicker = cryptoTicker)
             }
             AssetAction.Sell,
@@ -88,11 +88,11 @@ class ActionActivity :
                 BuySellFragment.newInstance(
                     viewType = when (action) {
                         AssetAction.Sell -> {
-                            updateToolbarTitle(getString(R.string.common_sell))
+                            updateToolbarTitle(getString(com.blockchain.stringResources.R.string.common_sell))
                             BuySellViewType.TYPE_SELL
                         }
                         else -> {
-                            updateToolbarTitle(getString(R.string.common_buy))
+                            updateToolbarTitle(getString(com.blockchain.stringResources.R.string.common_buy))
                             BuySellViewType.TYPE_BUY
                         }
                     },

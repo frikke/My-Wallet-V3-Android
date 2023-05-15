@@ -76,7 +76,11 @@ fun ManualBackupScreen(
     ) {
         NavigationBar(
             modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
-            title = stringResource(R.string.backup_phrase_title_steps, STEP_INDEX, TOTAL_STEP_COUNT),
+            title = stringResource(
+                com.blockchain.stringResources.R.string.backup_phrase_title_steps,
+                STEP_INDEX,
+                TOTAL_STEP_COUNT
+            ),
             mutedBackground = false,
             onBackButtonClick = backOnClick
         )
@@ -86,13 +90,12 @@ fun ManualBackupScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(dimensionResource(id = R.dimen.standard_spacing)),
+                .padding(dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.manual_backup_title),
+                text = stringResource(id = com.blockchain.stringResources.R.string.manual_backup_title),
                 style = ComposeTypographies.Title2,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
@@ -102,7 +105,7 @@ fun ManualBackupScreen(
 
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.manual_backup_description),
+                text = stringResource(id = com.blockchain.stringResources.R.string.manual_backup_description),
                 style = ComposeTypographies.Body1,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
@@ -124,7 +127,7 @@ fun ManualBackupScreen(
 
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.manual_backup_copy_description),
+                text = stringResource(id = com.blockchain.stringResources.R.string.manual_backup_copy_description),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
@@ -134,7 +137,7 @@ fun ManualBackupScreen(
 
             PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.common_next),
+                text = stringResource(id = com.blockchain.stringResources.R.string.common_next),
                 onClick = nextOnClick
             )
         }

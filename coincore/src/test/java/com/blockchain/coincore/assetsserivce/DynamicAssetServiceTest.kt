@@ -23,7 +23,7 @@ class DynamicAssetServiceTest {
             isFiat = false,
             precision = 12,
             minConfirmations = 1,
-            products = setOf(DynamicAssetProducts.PrivateKey, DynamicAssetProducts.DynamicSelfCustody),
+            products = setOf(DynamicAssetProducts.PrivateKey, DynamicAssetProducts.DynamicSelfCustody)
         )
 
         val assetInfo = dynamicAsset.toAssetInfo(
@@ -54,7 +54,7 @@ class DynamicAssetServiceTest {
             isFiat = false,
             precision = 12,
             minConfirmations = 1,
-            products = setOf(DynamicAssetProducts.CustodialWalletBalance),
+            products = setOf(DynamicAssetProducts.CustodialWalletBalance)
         )
 
         val assetInfo = dynamicAsset.toAssetInfo(listOf(network))

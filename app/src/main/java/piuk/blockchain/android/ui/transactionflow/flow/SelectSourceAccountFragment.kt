@@ -72,7 +72,7 @@ class SelectSourceAccountFragment :
             }
 
             addMethod.apply {
-                text = getString(R.string.add_payment_method)
+                text = getString(com.blockchain.stringResources.R.string.add_payment_method)
                 onClick = {
                     binding.progress.visible()
                     model.process(TransactionIntent.CheckAvailableOptionsForFiatDeposit)
@@ -137,14 +137,14 @@ class SelectSourceAccountFragment :
     private fun FragmentTxAccountSelectorBinding.setupSearch() {
         sourceSelectSearch.visible()
         sourceSelectSearch.apply {
-            placeholder = getString(R.string.search_wallets_hint)
+            placeholder = getString(com.blockchain.stringResources.R.string.search_wallets_hint)
             onValueChange = { searchTerm ->
                 this@setupSearch.onSearchTermUpdated(searchTerm)
             }
         }
 
         sourceListSearchEmpty.apply {
-            text = getString(R.string.select_target_source_no_search_results)
+            text = getString(com.blockchain.stringResources.R.string.select_target_source_no_search_results)
             gravity = ComposeGravities.Centre
             style = ComposeTypographies.Body1
         }
@@ -234,9 +234,13 @@ class SelectSourceAccountFragment :
                 showBottomSheet(
                     ErrorSlidingBottomDialog.newInstance(
                         ErrorDialogData(
-                            title = getString(R.string.bank_linking_max_accounts_title),
-                            description = getString(R.string.bank_linking_max_accounts_subtitle),
-                            errorButtonCopies = ErrorButtonCopies(primaryButtonText = getString(R.string.common_ok)),
+                            title = getString(com.blockchain.stringResources.R.string.bank_linking_max_accounts_title),
+                            description = getString(
+                                com.blockchain.stringResources.R.string.bank_linking_max_accounts_subtitle
+                            ),
+                            errorButtonCopies = ErrorButtonCopies(
+                                primaryButtonText = getString(com.blockchain.stringResources.R.string.common_ok)
+                            ),
                             error = nabuError.getErrorDescription(),
                             nabuApiException = nabuError,
                             analyticsCategories = nabuError.getServerSideErrorInfo()?.categories ?: emptyList()
@@ -247,9 +251,13 @@ class SelectSourceAccountFragment :
                 showBottomSheet(
                     ErrorSlidingBottomDialog.newInstance(
                         ErrorDialogData(
-                            title = getString(R.string.bank_linking_max_attempts_title),
-                            description = getString(R.string.bank_linking_max_attempts_subtitle),
-                            errorButtonCopies = ErrorButtonCopies(primaryButtonText = getString(R.string.common_ok)),
+                            title = getString(com.blockchain.stringResources.R.string.bank_linking_max_attempts_title),
+                            description = getString(
+                                com.blockchain.stringResources.R.string.bank_linking_max_attempts_subtitle
+                            ),
+                            errorButtonCopies = ErrorButtonCopies(
+                                primaryButtonText = getString(com.blockchain.stringResources.R.string.common_ok)
+                            ),
                             error = nabuError.getErrorDescription(),
                             nabuApiException = nabuError,
                             analyticsCategories = nabuError.getServerSideErrorInfo()?.categories ?: emptyList()
@@ -262,7 +270,9 @@ class SelectSourceAccountFragment :
 
     private fun displayErrorSnackbar() {
         BlockchainSnackbar.make(
-            binding.root, getString(R.string.common_error), type = SnackbarType.Error
+            binding.root,
+            getString(com.blockchain.stringResources.R.string.common_error),
+            type = SnackbarType.Error
         ).show()
     }
 

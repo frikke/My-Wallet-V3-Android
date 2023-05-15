@@ -87,7 +87,9 @@ class DynamicOnChainTxEngine(
                                 pendingTx.feeAmount.toUserFiat(exchangeRates),
                                 sourceAsset
                             )
-                        } else null,
+                        } else {
+                            null
+                        },
                         feeLevel = pendingTx.feeSelection.selectedLevel
                     ),
                     buildConfirmationTotal(pendingTx),
@@ -97,7 +99,9 @@ class DynamicOnChainTxEngine(
                             text = memo,
                             id = null
                         )
-                    } else null
+                    } else {
+                        null
+                    }
                 )
             )
         )
@@ -129,7 +133,7 @@ class DynamicOnChainTxEngine(
                     selectedLevel = selectedLevel,
                     availableLevels = fees.keys,
                     feesForLevels = fees,
-                    asset = feeCurrency,
+                    asset = feeCurrency
                 ),
                 selectedFiat = userFiat
             )
@@ -141,7 +145,7 @@ class DynamicOnChainTxEngine(
 
         return Single.zip(
             sourceAccount.balanceRx().firstOrError(),
-            feeOptions,
+            feeOptions
         ) { balance, fees ->
             val fees = fees[pendingTx.feeSelection.selectedLevel] ?: Money.zero(sourceAsset)
 
@@ -150,7 +154,7 @@ class DynamicOnChainTxEngine(
                 totalBalance = balance.total,
                 availableBalance = Money.max(balance.withdrawable - fees, Money.zero(sourceAsset)),
                 feeForFullAvailable = fees,
-                feeAmount = fees,
+                feeAmount = fees
             )
         }
     }

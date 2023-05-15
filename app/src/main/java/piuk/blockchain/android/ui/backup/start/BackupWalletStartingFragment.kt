@@ -18,10 +18,12 @@ import piuk.blockchain.android.ui.settings.security.pin.PinActivity
 import piuk.blockchain.android.util.scopedInjectActivity
 
 class BackupWalletStartingFragment :
-    MviFragment<BackupWalletStartingModel,
+    MviFragment<
+        BackupWalletStartingModel,
         BackupWalletStartingIntents,
         BackupWalletStartingState,
-        FragmentBackupStartBinding>() {
+        FragmentBackupStartBinding
+        >() {
 
     private val secondPasswordDialog: SecondPasswordDialog by scopedInjectActivity()
 

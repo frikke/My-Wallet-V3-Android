@@ -38,7 +38,8 @@ class FiatFundsDetailViewModel(
     FiatFundsDetailViewState,
     FiatFundsDetailModelState,
     FiatFundsDetailNavEvent,
-    ModelConfigArgs.NoArgs>(
+    ModelConfigArgs.NoArgs
+    >(
     FiatFundsDetailModelState()
 ) {
     companion object {
@@ -64,8 +65,10 @@ class FiatFundsDetailViewModel(
             showWithdrawChecksLoading = withdrawChecksLoading,
             actionError = when (actionError) {
                 FiatActionError.None -> null
-                FiatActionError.WithdrawalInProgress -> R.string.fiat_funds_detail_pending_withdrawal
-                FiatActionError.Unknown -> R.string.common_error
+                FiatActionError.WithdrawalInProgress ->
+                    com.blockchain.stringResources.R.string.fiat_funds_detail_pending_withdrawal
+
+                FiatActionError.Unknown -> com.blockchain.stringResources.R.string.common_error
             }?.let {
                 FiatActionErrorState(message = it)
             }
@@ -86,6 +89,7 @@ class FiatFundsDetailViewModel(
                         shouldLaunchBankLinkTransfer = false,
                         shouldSkipQuestionnaire = false
                     )
+
                     AssetAction.FiatWithdraw -> handleWithdraw(intent)
                     else -> error("unsupported")
                 }
@@ -152,6 +156,7 @@ class FiatFundsDetailViewModel(
                                 )
                             }
                         }
+
                         is DataResource.Data -> {
                             updateState { it.copy(withdrawChecksLoading = false) }
 
@@ -169,6 +174,7 @@ class FiatFundsDetailViewModel(
                                 }
                             }
                         }
+
                         is DataResource.Error -> {
                             updateState {
                                 it.copy(

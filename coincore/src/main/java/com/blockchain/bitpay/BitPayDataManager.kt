@@ -25,15 +25,13 @@ class BitPayDataManager constructor(
             chain = currencyCode.toUpperCase(Locale.getDefault())
         ).applySchedulers()
 
-    fun paymentVerificationRequest(invoiceId: String, paymentRequest: BitPaymentRequest):
-        Completable =
+    fun paymentVerificationRequest(invoiceId: String, paymentRequest: BitPaymentRequest): Completable =
         bitPayService.getPaymentVerificationRequest(
             invoiceId = invoiceId,
             body = paymentRequest
         ).applySchedulers()
 
-    fun paymentSubmitRequest(invoiceId: String, paymentRequest: BitPaymentRequest):
-        Completable =
+    fun paymentSubmitRequest(invoiceId: String, paymentRequest: BitPaymentRequest): Completable =
         bitPayService.getPaymentSubmitRequest(
             invoiceId = invoiceId,
             body = paymentRequest

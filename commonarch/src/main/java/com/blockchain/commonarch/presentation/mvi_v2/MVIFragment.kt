@@ -35,7 +35,8 @@ fun <TViewState : ViewState, TFragment : MVIFragment<TViewState>, TArgs : Parcel
     }
 }
 
-fun <TIntent : Intent<TModelState>,
+fun <
+    TIntent : Intent<TModelState>,
     TViewState : ViewState,
     TModelState : ModelState,
     NavEnt : NavigationEvent,

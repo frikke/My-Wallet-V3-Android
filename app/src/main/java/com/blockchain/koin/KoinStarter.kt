@@ -72,7 +72,6 @@ import piuk.blockchain.android.ui.brokerage.brokeragePresentationModule
 import piuk.blockchain.android.ui.coinview.domain.coinviewDomainModule
 import piuk.blockchain.android.ui.coinview.presentation.coinviewPresentationModule
 import piuk.blockchain.android.ui.customersupport.customerSupportModule
-import piuk.blockchain.android.ui.dashboard.announcements.dashboardAnnouncementsModule
 import piuk.blockchain.android.ui.dashboard.dashboardModule
 import piuk.blockchain.android.ui.debug.remoteFeatureFlagsModule
 import piuk.blockchain.android.ui.home.mainModule
@@ -135,7 +134,6 @@ object KoinStarter {
                     coreModule,
                     coreAndroidModule,
                     pricesModule,
-                    dashboardAnnouncementsModule,
                     environmentModule,
                     coinviewPresentationModule, coinviewDomainModule,
                     brokeragePresentationModule,
@@ -185,7 +183,7 @@ object KoinStarter {
                     earnDataModule, earnPresentationModule,
                     pricesDataModule,
                     proveModule,
-                    transactionsPresentationModule, transactionsDataModule,
+                    transactionsPresentationModule, transactionsDataModule
                 )
             )
         }

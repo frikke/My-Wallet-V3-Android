@@ -27,7 +27,7 @@ class DialogueView @JvmOverloads constructor(
                 Dialogue(
                     body = body,
                     firstButton = firstButton,
-                    secondButton = secondButton,
+                    secondButton = secondButton
                 )
             }
         }

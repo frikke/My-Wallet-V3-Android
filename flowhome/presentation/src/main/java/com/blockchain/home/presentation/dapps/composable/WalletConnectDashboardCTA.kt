@@ -71,7 +71,7 @@ fun WalletConnectDashboardCTA(
                     content = {
                         Image(
                             imageResource = ImageResource.Local(
-                                R.drawable.viewfinder_off,
+                                com.blockchain.componentlib.icons.R.drawable.viewfinder_off,
                                 colorFilter = ColorFilter.tint(Color.White)
                             )
                         )

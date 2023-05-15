@@ -95,7 +95,7 @@ class FiatAsset(
         exchangeRates.getHistoricRate(currency, epochWhen)
 
     override fun historicRateSeries(
-        period: HistoricalTimeSpan,
+        period: HistoricalTimeSpan
     ): Flow<DataResource<HistoricalRateList>> =
         currency.startDate?.let {
             exchangeRates.getHistoricPriceSeries(asset = currency, span = period)

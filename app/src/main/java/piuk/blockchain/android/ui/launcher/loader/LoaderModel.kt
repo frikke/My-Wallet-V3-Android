@@ -25,7 +25,7 @@ class LoaderModel(
     private val payloadDataManager: PayloadDataManager,
     private val prerequisites: Prerequisites,
     private val authPrefs: AuthPrefs,
-    private val interactor: LoaderInteractor,
+    private val interactor: LoaderInteractor
 ) : MviModel<LoaderState, LoaderIntents>(initialState, mainScheduler, environmentConfig, remoteLogger) {
     override fun performAction(previousState: LoaderState, intent: LoaderIntents): Disposable? {
         return when (intent) {
@@ -59,7 +59,6 @@ class LoaderModel(
         loginMethod: LoginMethod,
         referralCode: String?
     ): Disposable? {
-
         val hasLoginInfo = authPrefs.walletGuid.isNotEmpty() && authPrefs.pinId.isNotEmpty()
 
         return when {

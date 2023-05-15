@@ -8,6 +8,7 @@ android {
         }
         debug {}
     }
+    namespace 'com.blockchain.membership.data'
 
     lintOptions {
         warningsAsErrors true

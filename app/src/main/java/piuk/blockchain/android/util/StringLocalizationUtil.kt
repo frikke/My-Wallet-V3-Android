@@ -15,32 +15,33 @@ class StringLocalizationUtil {
 
         @JvmStatic fun getBankDepositTitle(currencyTicker: String): Int =
             if (currencyTicker == TRADING_CURRENCY_DOLLARS) {
-                R.string.wire_transfer
+                com.blockchain.stringResources.R.string.wire_transfer
             } else {
-                R.string.bank_transfer
+                com.blockchain.stringResources.R.string.bank_transfer
             }
 
         fun subtitleForBankAccount(currencyCode: String): Int = when (currencyCode) {
-            TRADING_CURRENCY_DOLLARS -> R.string.payment_wire_transfer_subtitle_dollars
-            TRADING_CURRENCY_POUNDS -> R.string.payment_wire_transfer_subtitle_pounds
-            TRADING_CURRENCY_EUROS -> R.string.payment_wire_transfer_subtitle_euros
-            TRADING_CURRENCY_ARGENTINE_PESO -> R.string.payment_wire_transfer_subtitle_ars
-            else -> R.string.payment_wire_transfer_subtitle_default
+            TRADING_CURRENCY_DOLLARS -> com.blockchain.stringResources.R.string.payment_wire_transfer_subtitle_dollars
+            TRADING_CURRENCY_POUNDS -> com.blockchain.stringResources.R.string.payment_wire_transfer_subtitle_pounds
+            TRADING_CURRENCY_EUROS -> com.blockchain.stringResources.R.string.payment_wire_transfer_subtitle_euros
+            TRADING_CURRENCY_ARGENTINE_PESO ->
+                com.blockchain.stringResources.R.string.payment_wire_transfer_subtitle_ars
+            else -> com.blockchain.stringResources.R.string.payment_wire_transfer_subtitle_default
         }
 
         fun blurbForBankAccount(currencyCode: String): Int = when (currencyCode) {
-            TRADING_CURRENCY_DOLLARS -> R.string.bank_transfer_blurb_dollars
-            TRADING_CURRENCY_POUNDS -> R.string.bank_transfer_blurb_pounds
-            TRADING_CURRENCY_EUROS -> R.string.bank_transfer_blurb_euros
-            TRADING_CURRENCY_ARGENTINE_PESO -> R.string.bank_transfer_blurb_ars
-            else -> R.string.bank_transfer_blurb_default
+            TRADING_CURRENCY_DOLLARS -> com.blockchain.stringResources.R.string.bank_transfer_blurb_dollars
+            TRADING_CURRENCY_POUNDS -> com.blockchain.stringResources.R.string.bank_transfer_blurb_pounds
+            TRADING_CURRENCY_EUROS -> com.blockchain.stringResources.R.string.bank_transfer_blurb_euros
+            TRADING_CURRENCY_ARGENTINE_PESO -> com.blockchain.stringResources.R.string.bank_transfer_blurb_ars
+            else -> com.blockchain.stringResources.R.string.bank_transfer_blurb_default
         }
 
         fun subtitleForEasyTransfer(currencyCode: String): Int = when (currencyCode) {
-            TRADING_CURRENCY_DOLLARS -> R.string.payment_deposit_subtitle_dollars
-            TRADING_CURRENCY_POUNDS -> R.string.payment_deposit_subtitle_pounds
-            TRADING_CURRENCY_EUROS -> R.string.payment_deposit_subtitle_euros
-            else -> R.string.payment_deposit_subtitle_default
+            TRADING_CURRENCY_DOLLARS -> com.blockchain.stringResources.R.string.payment_deposit_subtitle_dollars
+            TRADING_CURRENCY_POUNDS -> com.blockchain.stringResources.R.string.payment_deposit_subtitle_pounds
+            TRADING_CURRENCY_EUROS -> com.blockchain.stringResources.R.string.payment_deposit_subtitle_euros
+            else -> com.blockchain.stringResources.R.string.payment_deposit_subtitle_default
         }
 
         fun getFormattedDepositTerms(
@@ -53,16 +54,23 @@ class StringLocalizationUtil {
             val maxDay = Calendar.getInstance().apply { add(Calendar.MINUTE, max) }.time
 
             return when (displayMode) {
-                DepositTerms.DisplayMode.IMMEDIATELY -> resources.getString(R.string.deposit_terms_immediately)
+                DepositTerms.DisplayMode.IMMEDIATELY -> resources.getString(
+                    com.blockchain.stringResources.R.string.deposit_terms_immediately
+                )
                 DepositTerms.DisplayMode.MAX_MINUTE -> String.format(
-                    resources.getString(R.string.deposit_terms_max_minutes), max
+                    resources.getString(com.blockchain.stringResources.R.string.deposit_terms_max_minutes),
+                    max
                 )
                 DepositTerms.DisplayMode.MAX_DAY -> maxDay.toDayAndMonth()
                 DepositTerms.DisplayMode.MINUTE_RANGE ->
-                    String.format(resources.getString(R.string.deposit_terms_between_minutes), min, max)
+                    String.format(
+                        resources.getString(com.blockchain.stringResources.R.string.deposit_terms_between_minutes),
+                        min,
+                        max
+                    )
                 DepositTerms.DisplayMode.DAY_RANGE ->
                     String.format(
-                        resources.getString(R.string.deposit_terms_between_days),
+                        resources.getString(com.blockchain.stringResources.R.string.deposit_terms_between_days),
                         minDay.toDayAndMonth(),
                         maxDay.toDayAndMonth()
                     )

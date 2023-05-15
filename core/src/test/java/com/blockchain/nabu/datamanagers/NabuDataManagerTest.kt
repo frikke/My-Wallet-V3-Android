@@ -67,7 +67,7 @@ class NabuDataManagerTest {
             digitalTrust,
             payloadDataManager,
             prefs,
-            userService,
+            userService
         )
     }
 
@@ -174,21 +174,21 @@ class NabuDataManagerTest {
             nabuService.createBasicUser(
                 firstName,
                 lastName,
-                dateOfBirth,
+                dateOfBirth
             )
         ).thenReturn(Outcome.Success(Unit))
         // Act
         val result = subject.createBasicUser(
             firstName,
             lastName,
-            dateOfBirth,
+            dateOfBirth
         )
         // Assert
         result shouldBeEqualTo Outcome.Success(Unit)
         verify(nabuService).createBasicUser(
             firstName,
             lastName,
-            dateOfBirth,
+            dateOfBirth
         )
     }
 

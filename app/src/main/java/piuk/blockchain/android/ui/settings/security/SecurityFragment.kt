@@ -85,37 +85,37 @@ class SecurityFragment :
 
     private fun initUi() {
         updateToolbar(
-            toolbarTitle = getString(R.string.security_toolbar),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.security_toolbar),
             menuItems = emptyList()
         )
 
         with(binding) {
             securityTwoFa.apply {
-                primaryText = getString(R.string.security_two_fa_title)
+                primaryText = getString(com.blockchain.stringResources.R.string.security_two_fa_title)
                 onCheckedChange = {
                     model.process(SecurityIntent.ToggleTwoFa)
                 }
             }
 
             securityChangePassword.apply {
-                primaryText = getString(R.string.security_password_title)
-                secondaryText = getString(R.string.security_password_subtitle)
+                primaryText = getString(com.blockchain.stringResources.R.string.security_password_title)
+                secondaryText = getString(com.blockchain.stringResources.R.string.security_password_subtitle)
                 onClick = {
                     model.process(SecurityIntent.CheckCanChangePassword)
                 }
             }
 
             securityChangePin.apply {
-                primaryText = getString(R.string.security_pin_title)
-                secondaryText = getString(R.string.security_pin_subtitle)
+                primaryText = getString(com.blockchain.stringResources.R.string.security_pin_title)
+                secondaryText = getString(com.blockchain.stringResources.R.string.security_pin_subtitle)
                 onClick = {
                     navigator().goToPinChange()
                 }
             }
 
             securityBackupPhrase.apply {
-                primaryText = getString(R.string.security_backup_phrase_title)
-                secondaryText = getString(R.string.security_backup_phrase_subtitle)
+                primaryText = getString(com.blockchain.stringResources.R.string.security_backup_phrase_title)
+                secondaryText = getString(com.blockchain.stringResources.R.string.security_backup_phrase_subtitle)
                 onClick = {
                     startBackupPhraseFlow()
                 }
@@ -123,7 +123,7 @@ class SecurityFragment :
 
             securityBiometrics.apply {
                 gone()
-                primaryText = getString(R.string.security_biometrics_title)
+                primaryText = getString(com.blockchain.stringResources.R.string.security_biometrics_title)
                 onCheckedChange = {
                     model.process(SecurityIntent.ToggleBiometrics)
                 }
@@ -131,23 +131,23 @@ class SecurityFragment :
             biometricsBottomDivider.gone()
 
             securityScreenshots.apply {
-                primaryText = getString(R.string.security_screenshots_title)
+                primaryText = getString(com.blockchain.stringResources.R.string.security_screenshots_title)
                 onCheckedChange = {
                     model.process(SecurityIntent.ToggleScreenshots)
                 }
             }
 
             securityTor.apply {
-                primaryText = getString(R.string.security_tor_title)
-                secondaryText = getString(R.string.security_tor_subtitle)
+                primaryText = getString(com.blockchain.stringResources.R.string.security_tor_title)
+                secondaryText = getString(com.blockchain.stringResources.R.string.security_tor_subtitle)
                 onCheckedChange = {
                     model.process(SecurityIntent.ToggleTor)
                 }
             }
 
             securityCloudBackup.apply {
-                primaryText = getString(R.string.enable_cloud_backup)
-                secondaryText = getString(R.string.enable_cloud_backup_summary)
+                primaryText = getString(com.blockchain.stringResources.R.string.enable_cloud_backup)
+                secondaryText = getString(com.blockchain.stringResources.R.string.enable_cloud_backup_summary)
                 onCheckedChange = {
                     model.process(SecurityIntent.ToggleCloudBackup)
                 }
@@ -179,32 +179,41 @@ class SecurityFragment :
             SecurityViewState.ConfirmBiometricsDisabling -> {
                 showDisableBiometricsConfirmationSheet()
             }
+
             SecurityViewState.ShowEnrollBiometrics -> {
                 showNoBiometricsAddedSheet()
             }
+
             SecurityViewState.ShowEnableBiometrics -> {
                 showBiometricsConfirmationSheet()
             }
+
             SecurityViewState.ShowEnterPhoneNumberRequired -> {
                 showPhoneNumberRequired()
             }
+
             is SecurityViewState.ShowVerifyPhoneNumberRequired -> {
                 showBottomSheet(SMSPhoneVerificationBottomSheet.newInstance(viewState.phoneNumber))
             }
+
             SecurityViewState.ShowDisablingOnWebRequired -> {
                 showBottomSheet(
                     TwoFactorInfoSheet.newInstance(TwoFactorInfoSheet.Companion.TwoFaSheetMode.DISABLE_ON_WEB)
                 )
             }
+
             SecurityViewState.ShowConfirmTwoFaEnabling -> {
                 showBottomSheet(TwoFactorInfoSheet.newInstance(TwoFactorInfoSheet.Companion.TwoFaSheetMode.ENABLE))
             }
+
             SecurityViewState.LaunchPasswordChange -> {
                 navigator().goToPasswordChange()
             }
+
             SecurityViewState.ShowMustBackWalletUp -> {
                 showBottomSheet(BackupPhraseInfoSheet.newInstance())
             }
+
             SecurityViewState.None -> {
                 // do nothing
             }
@@ -224,9 +233,21 @@ class SecurityFragment :
             }
             securityBackupPhrase.apply {
                 tags = if (securityInfo.isWalletBackedUp) {
-                    listOf(TagViewState(getString(R.string.security_backup_phrase_pill_backed_up), TagType.Success()))
+                    listOf(
+                        TagViewState(
+                            getString(com.blockchain.stringResources.R.string.security_backup_phrase_pill_backed_up),
+                            TagType.Success()
+                        )
+                    )
                 } else {
-                    listOf(TagViewState(getString(R.string.security_backup_phrase_pill_not_backed_up), TagType.Error()))
+                    listOf(
+                        TagViewState(
+                            getString(
+                                com.blockchain.stringResources.R.string.security_backup_phrase_pill_not_backed_up
+                            ),
+                            TagType.Error()
+                        )
+                    )
                 }
             }
             securityTwoFa.isChecked = securityInfo.isTwoFaEnabled
@@ -241,25 +262,31 @@ class SecurityFragment :
     private fun processError(errorState: SecurityError) {
         when (errorState) {
             SecurityError.LOAD_INITIAL_INFO_FAIL -> {
-                showErrorSnackbar(R.string.security_error_initial_info_load)
+                showErrorSnackbar(com.blockchain.stringResources.R.string.security_error_initial_info_load)
                 (requireActivity() as BlockchainActivity).onBackPressed()
             }
+
             SecurityError.PIN_MISSING_EXCEPTION -> {
-                showErrorSnackbar(R.string.security_error_pin_missing)
+                showErrorSnackbar(com.blockchain.stringResources.R.string.security_error_pin_missing)
                 (requireActivity() as BlockchainActivity).onBackPressed()
             }
+
             SecurityError.BIOMETRICS_DISABLING_FAIL -> {
-                showErrorSnackbar(R.string.security_error_biometrics_disable)
+                showErrorSnackbar(com.blockchain.stringResources.R.string.security_error_biometrics_disable)
             }
+
             SecurityError.TWO_FA_TOGGLE_FAIL -> {
-                showErrorSnackbar(R.string.security_error_two_fa)
+                showErrorSnackbar(com.blockchain.stringResources.R.string.security_error_two_fa)
             }
+
             SecurityError.TOR_FILTER_UPDATE_FAIL -> {
-                showErrorSnackbar(R.string.security_error_two_fa)
+                showErrorSnackbar(com.blockchain.stringResources.R.string.security_error_two_fa)
             }
+
             SecurityError.SCREENSHOT_UPDATE_FAIL -> {
-                showErrorSnackbar(R.string.security_error_screenshots)
+                showErrorSnackbar(com.blockchain.stringResources.R.string.security_error_screenshots)
             }
+
             SecurityError.NONE -> {
                 // do nothing
             }
@@ -277,7 +304,8 @@ class SecurityFragment :
 
     private fun showBiometricsConfirmationSheet() {
         biometricsController.authenticate(
-            this, BiometricsType.TYPE_REGISTER,
+            this,
+            BiometricsType.TYPE_REGISTER,
             object : BiometricsCallback<WalletBiometricData> {
                 override fun onAuthSuccess(data: WalletBiometricData) {
                     model.process(SecurityIntent.ToggleBiometrics)
@@ -313,12 +341,15 @@ class SecurityFragment :
                     )
                 }
             )
+
             is BiometricAuthError.BiometricsNoSuitableMethods -> showNoBiometricsAddedSheet()
             is BiometricAuthError.BiometricAuthLockout -> BiometricPromptUtil.showAuthLockoutDialog(requireContext())
             is BiometricAuthError.BiometricAuthLockoutPermanent ->
                 BiometricPromptUtil.showPermanentAuthLockoutDialog(requireContext())
+
             is BiometricAuthError.BiometricAuthOther ->
                 BiometricPromptUtil.showBiometricsGenericError(requireContext(), error.error)
+
             else -> {
                 // do nothing
             }
@@ -342,9 +373,11 @@ class SecurityFragment :
     private fun showPhoneNumberRequired() {
         showBottomSheet(
             BottomSheetInformation.newInstance(
-                title = getString(R.string.security_missing_phone_number),
-                description = getString(R.string.security_missing_phone_number_description),
-                primaryCtaText = getString(R.string.security_missing_phone_number_cta),
+                title = getString(com.blockchain.stringResources.R.string.security_missing_phone_number),
+                description = getString(
+                    com.blockchain.stringResources.R.string.security_missing_phone_number_description
+                ),
+                primaryCtaText = getString(com.blockchain.stringResources.R.string.security_missing_phone_number_cta)
             )
         )
     }
@@ -366,6 +399,7 @@ class SecurityFragment :
             BiometricsInfoSheet.Companion.BiometricSheetMode.DISABLE_CONFIRMATION -> {
                 model.process(SecurityIntent.DisableBiometrics)
             }
+
             BiometricsInfoSheet.Companion.BiometricSheetMode.NO_BIOMETRICS_ADDED -> {
                 onBiometricsAddedResult.launch(
                     Intent(

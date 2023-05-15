@@ -5,5 +5,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 class IsProfileNameValidRequest(
     val firstName: String,
-    val lastName: String,
+    val lastName: String
 )

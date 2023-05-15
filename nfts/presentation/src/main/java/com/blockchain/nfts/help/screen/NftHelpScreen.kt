@@ -54,14 +54,14 @@ fun NftHelpScreen(onBuyClick: () -> Unit) {
                 .padding(
                     start = AppTheme.dimensions.smallSpacing,
                     top = AppTheme.dimensions.verySmallSpacing,
-                    end = AppTheme.dimensions.smallSpacing,
+                    end = AppTheme.dimensions.smallSpacing
                 )
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(R.string.nft_help_title),
+                text = stringResource(com.blockchain.stringResources.R.string.nft_help_title),
                 style = AppTheme.typography.title3,
                 color = AppTheme.colors.title
             )
@@ -73,7 +73,7 @@ fun NftHelpScreen(onBuyClick: () -> Unit) {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
             Text(
-                text = stringResource(R.string.nft_help_buy_title),
+                text = stringResource(com.blockchain.stringResources.R.string.nft_help_buy_title),
                 style = AppTheme.typography.title2,
                 color = AppTheme.colors.title
             )
@@ -81,7 +81,7 @@ fun NftHelpScreen(onBuyClick: () -> Unit) {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
 
             Text(
-                text = stringResource(R.string.nft_help_buy_description),
+                text = stringResource(com.blockchain.stringResources.R.string.nft_help_buy_description),
                 style = AppTheme.typography.paragraph1,
                 color = Grey700
             )
@@ -90,7 +90,7 @@ fun NftHelpScreen(onBuyClick: () -> Unit) {
 
             MinimalButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(R.string.nft_help_buy_cta_opensea),
+                text = stringResource(com.blockchain.stringResources.R.string.nft_help_buy_cta_opensea),
                 icon = ImageResource.Local(
                     id = R.drawable.ic_opensea,
                     size = AppTheme.dimensions.standardSpacing
@@ -111,23 +111,23 @@ fun Instructions() {
     val instructions = remember {
         listOf(
             Instruction(
-                title = R.string.nft_help_instructions_1_title
+                title = com.blockchain.stringResources.R.string.nft_help_instructions_1_title
             ),
             Instruction(
-                title = R.string.nft_help_instructions_2_title
+                title = com.blockchain.stringResources.R.string.nft_help_instructions_2_title
             ),
             Instruction(
-                title = R.string.nft_help_instructions_3_title,
-                description = R.string.nft_help_instructions_3_description
+                title = com.blockchain.stringResources.R.string.nft_help_instructions_3_title,
+                description = com.blockchain.stringResources.R.string.nft_help_instructions_3_description
             ),
             Instruction(
-                title = R.string.nft_help_instructions_4_title,
-                description = R.string.nft_help_instructions_4_description
+                title = com.blockchain.stringResources.R.string.nft_help_instructions_4_title,
+                description = com.blockchain.stringResources.R.string.nft_help_instructions_4_description
             ),
             Instruction(
-                title = R.string.nft_help_instructions_5_title,
-                description = R.string.nft_help_instructions_5_description
-            ),
+                title = com.blockchain.stringResources.R.string.nft_help_instructions_5_title,
+                description = com.blockchain.stringResources.R.string.nft_help_instructions_5_description
+            )
         )
     }
 
@@ -142,7 +142,7 @@ fun Instructions() {
     ) {
         Text(
             modifier = Modifier.padding(AppTheme.dimensions.smallSpacing),
-            text = stringResource(R.string.nft_help_instructions),
+            text = stringResource(com.blockchain.stringResources.R.string.nft_help_instructions),
             style = AppTheme.typography.paragraph2,
             color = AppTheme.colors.title
         )

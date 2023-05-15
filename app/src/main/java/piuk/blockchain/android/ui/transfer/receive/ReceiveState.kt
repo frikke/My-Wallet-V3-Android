@@ -9,7 +9,7 @@ import io.reactivex.rxjava3.core.Single
 
 data class ReceiveItem(
     val assetInfo: AssetInfo,
-    val priceWithDelta: Prices24HrWithDelta? = null,
+    val priceWithDelta: Prices24HrWithDelta? = null
 )
 
 data class ReceiveState(

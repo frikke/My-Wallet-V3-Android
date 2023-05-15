@@ -40,11 +40,11 @@ internal fun CustodialActiveRewardsActivitySummaryItem.iconDetail(): ImageResour
 
 internal fun CustodialActiveRewardsActivitySummaryItem.title(): TextValue = TextValue.IntResValue(
     value = when (type) {
-        TransactionSummary.TransactionType.DEPOSIT -> R.string.tx_title_added
-        TransactionSummary.TransactionType.WITHDRAW -> R.string.tx_title_withdrawn
-        TransactionSummary.TransactionType.INTEREST_EARNED -> R.string.tx_title_rewards
-        TransactionSummary.TransactionType.DEBIT -> R.string.tx_title_debited
-        else -> R.string.tx_title_transferred
+        TransactionSummary.TransactionType.DEPOSIT -> com.blockchain.stringResources.R.string.tx_title_added
+        TransactionSummary.TransactionType.WITHDRAW -> com.blockchain.stringResources.R.string.tx_title_withdrawn
+        TransactionSummary.TransactionType.INTEREST_EARNED -> com.blockchain.stringResources.R.string.tx_title_rewards
+        TransactionSummary.TransactionType.DEBIT -> com.blockchain.stringResources.R.string.tx_title_debited
+        else -> com.blockchain.stringResources.R.string.tx_title_transferred
     },
     args = listOf(account.currency.displayTicker)
 )
@@ -62,7 +62,7 @@ internal fun CustodialActiveRewardsActivitySummaryItem.detailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.amount),
+                        value = TextValue.IntResValue(com.blockchain.stringResources.R.string.amount),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -86,7 +86,7 @@ internal fun CustodialActiveRewardsActivitySummaryItem.detailItems(
                 id = toString(),
                 leading = listOfNotNull(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.common_status),
+                        value = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_status),
                         style = basicTitleStyle.muted()
                     ),
                     pendingConfirmations()?.let { pendingConfirmations: TextValue ->
@@ -119,7 +119,7 @@ internal fun CustodialActiveRewardsActivitySummaryItem.detailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.date),
+                        value = TextValue.IntResValue(com.blockchain.stringResources.R.string.date),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -136,7 +136,9 @@ internal fun CustodialActiveRewardsActivitySummaryItem.detailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.activity_details_buy_tx_id),
+                        value = TextValue.IntResValue(
+                            com.blockchain.stringResources.R.string.activity_details_buy_tx_id
+                        ),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -151,7 +153,7 @@ internal fun CustodialActiveRewardsActivitySummaryItem.detailItems(
             // copy txid
             ActivityComponent.Button(
                 id = toString(),
-                value = TextValue.IntResValue(R.string.activity_details_copy_tx_id),
+                value = TextValue.IntResValue(com.blockchain.stringResources.R.string.activity_details_copy_tx_id),
                 style = ActivityButtonStyle.Tertiary,
                 action = ActivityButtonAction(
                     type = ActivityButtonAction.ActivityButtonActionType.Copy,
@@ -167,12 +169,12 @@ private fun CustodialActiveRewardsActivitySummaryItem.statusValue(): TextValue =
         EarnRewardsState.COMPLETE,
         EarnRewardsState.REFUNDED,
         EarnRewardsState.UNKNOWN,
-        EarnRewardsState.CLEARED -> R.string.activity_details_label_complete
-        EarnRewardsState.PROCESSING -> R.string.activity_details_label_pending
-        EarnRewardsState.PENDING -> R.string.activity_details_label_processing
-        EarnRewardsState.MANUAL_REVIEW -> R.string.activity_details_label_manual_review
+        EarnRewardsState.CLEARED -> com.blockchain.stringResources.R.string.activity_details_label_complete
+        EarnRewardsState.PROCESSING -> com.blockchain.stringResources.R.string.activity_details_label_pending
+        EarnRewardsState.PENDING -> com.blockchain.stringResources.R.string.activity_details_label_processing
+        EarnRewardsState.MANUAL_REVIEW -> com.blockchain.stringResources.R.string.activity_details_label_manual_review
         EarnRewardsState.REJECTED,
-        EarnRewardsState.FAILED -> R.string.activity_details_label_failed
+        EarnRewardsState.FAILED -> com.blockchain.stringResources.R.string.activity_details_label_failed
     }
 )
 
@@ -190,7 +192,7 @@ private fun CustodialActiveRewardsActivitySummaryItem.statusStyle(): ActivityTag
 
 private fun CustodialActiveRewardsActivitySummaryItem.pendingConfirmations(): TextValue? = when {
     isPending() -> TextValue.IntResValue(
-        value = R.string.activity_details_label_confirmations_single_line,
+        value = com.blockchain.stringResources.R.string.activity_details_label_confirmations_single_line,
         args = listOf(confirmations.coerceAtLeast(0), account.currency.requiredConfirmations)
     )
     else -> null
@@ -200,13 +202,13 @@ private fun CustodialActiveRewardsActivitySummaryItem.fromLabel(): ActivityCompo
     id = toString(),
     leading = listOf(
         ActivityStackView.Text(
-            value = TextValue.IntResValue(R.string.activity_details_from),
+            value = TextValue.IntResValue(com.blockchain.stringResources.R.string.activity_details_from),
             style = basicTitleStyle.muted()
         )
     ),
     trailing = listOf(
         ActivityStackView.Text(
-            value = TextValue.IntResValue(R.string.common_company_name),
+            value = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_company_name),
             style = basicTitleStyle
         )
     )
@@ -216,7 +218,7 @@ private fun CustodialActiveRewardsActivitySummaryItem.toLabel(): ActivityCompone
     id = toString(),
     leading = listOf(
         ActivityStackView.Text(
-            value = TextValue.IntResValue(R.string.activity_details_to),
+            value = TextValue.IntResValue(com.blockchain.stringResources.R.string.activity_details_to),
             style = basicTitleStyle.muted()
         )
     ),

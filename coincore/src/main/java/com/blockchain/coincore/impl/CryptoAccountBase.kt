@@ -75,7 +75,7 @@ abstract class CryptoAccountBase : CryptoAccount {
         custodialWalletManager: CustodialWalletManager,
         asset: AssetInfo,
         activityList: List<ActivitySummaryItem>,
-        freshnessStrategy: FreshnessStrategy,
+        freshnessStrategy: FreshnessStrategy
     ): Observable<ActivitySummaryList> =
         custodialWalletManager.getCustodialActivityForAsset(asset, directions, freshnessStrategy)
             .map { swapItems ->
@@ -113,7 +113,7 @@ abstract class CryptoAccountBase : CryptoAccount {
 
     protected abstract fun reconcileSwaps(
         tradeItems: List<TradeActivitySummaryItem>,
-        activity: List<ActivitySummaryItem>,
+        activity: List<ActivitySummaryItem>
     ): List<ActivitySummaryItem>
 
     companion object {
@@ -128,17 +128,19 @@ abstract class CryptoAccountBase : CryptoAccount {
         )
 
         internal val defaultCustodialActions = defaultNonCustodialActions + setOf(
-            AssetAction.Buy, AssetAction.InterestWithdraw
+            AssetAction.Buy,
+            AssetAction.InterestWithdraw
         )
     }
 }
 
-/*internal*/ class CryptoExchangeAccount internal constructor(
+/*internal*/
+class CryptoExchangeAccount internal constructor(
     override val currency: AssetInfo,
     override val label: String,
     private val currencyPrefs: CurrencyPrefs,
     private val address: String,
-    override val exchangeRates: ExchangeRatesDataManager,
+    override val exchangeRates: ExchangeRatesDataManager
 ) : CryptoAccountBase(), ExchangeAccount {
 
     override val baseActions: Single<Set<AssetAction>> = Single.just(emptySet())
@@ -190,7 +192,7 @@ abstract class CryptoAccountBase : CryptoAccount {
     // unmodified - they should both be empty anyway
     override fun reconcileSwaps(
         tradeItems: List<TradeActivitySummaryItem>,
-        activity: List<ActivitySummaryItem>,
+        activity: List<ActivitySummaryItem>
     ): List<ActivitySummaryItem> = activity
 }
 
@@ -245,7 +247,7 @@ abstract class CryptoNonCustodialAccount(
                 pending = it.unconfirmedBalance,
                 exchangeRate = it.exchangeRate,
                 withdrawable = it.balance,
-                dashboardDisplay = it.balance,
+                dashboardDisplay = it.balance
             )
         }
     }
@@ -274,8 +276,8 @@ abstract class CryptoNonCustodialAccount(
         }
 
     /*
-    * TODO(antonis-bc) remove this from account
-    * */
+     * TODO(antonis-bc) remove this from account
+     * */
     override fun requireSecondPassword(): Single<Boolean> =
         Single.fromCallable { payloadDataManager.isDoubleEncrypted }
 
@@ -286,7 +288,7 @@ abstract class CryptoNonCustodialAccount(
 
     override fun reconcileSwaps(
         tradeItems: List<TradeActivitySummaryItem>,
-        activity: List<ActivitySummaryItem>,
+        activity: List<ActivitySummaryItem>
     ): List<ActivitySummaryItem> {
         val activityList = activity.toMutableList()
         tradeItems.forEach { custodialItem ->
@@ -377,7 +379,8 @@ abstract class CryptoNonCustodialAccount(
 
     private fun sellActionEligibility(activeAndFunded: Boolean): Single<StateAwareAction> {
         val sellEligibility = identity.userAccessForFeature(
-            Feature.Sell, defFreshness
+            Feature.Sell,
+            defFreshness
         )
         val fiatAccounts = rxSingle {
             custodialWalletManager.getSupportedFundsFiats(freshnessStrategy = defFreshness).first()
@@ -500,7 +503,7 @@ abstract class CryptoNonCustodialAccount(
  */
 class CryptoAccountCustodialSingleGroup(
     override val label: String,
-    override val accounts: SingleAccountList,
+    override val accounts: SingleAccountList
 ) : SameCurrencyAccountGroup {
 
     init {
@@ -522,7 +525,7 @@ class CryptoAccountCustodialSingleGroup(
  */
 class CryptoAccountCustodialGroup(
     override val label: String,
-    override val accounts: SingleAccountList,
+    override val accounts: SingleAccountList
 ) : SameCurrencyAccountGroup {
 
     init {
@@ -546,7 +549,7 @@ class CryptoAccountCustodialGroup(
 class CryptoAccountNonCustodialGroup(
     val asset: AssetInfo,
     override val label: String,
-    override val accounts: SingleAccountList,
+    override val accounts: SingleAccountList
 ) : SameCurrencyAccountGroup {
 
     override val currency: Currency

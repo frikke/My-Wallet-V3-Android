@@ -31,7 +31,7 @@ class LinkedBankAccount(
     override val currency: FiatCurrency,
     val custodialWalletManager: CustodialWalletManager,
     val type: PaymentMethodType,
-    val capabilities: LinkedBankCapabilities?,
+    val capabilities: LinkedBankCapabilities?
 ) : FiatAccount, BankAccount {
 
     init {

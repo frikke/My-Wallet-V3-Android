@@ -99,46 +99,60 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
         when (selectedAccount) {
             is TradingAccount -> {
                 AccountExplainerDetails(
-                    title = getString(R.string.explainer_custodial_title),
-                    description = getString(R.string.explainer_custodial_description),
+                    title = getString(com.blockchain.stringResources.R.string.explainer_custodial_title),
+                    description = getString(com.blockchain.stringResources.R.string.explainer_custodial_description),
                     icon = R.drawable.ic_custodial_explainer,
-                    buttonText = getString(R.string.common_i_understand)
+                    buttonText = getString(com.blockchain.stringResources.R.string.common_i_understand)
                 )
             }
+
             is NonCustodialAccount -> {
                 AccountExplainerDetails(
-                    title = getString(R.string.explainer_non_custodial_title),
-                    description = getString(R.string.explainer_non_custodial_description),
+                    title = getString(com.blockchain.stringResources.R.string.explainer_non_custodial_title),
+                    description = getString(
+                        com.blockchain.stringResources.R.string.explainer_non_custodial_description
+                    ),
                     icon = R.drawable.ic_non_custodial_explainer,
-                    buttonText = getString(R.string.common_i_understand)
+                    buttonText = getString(com.blockchain.stringResources.R.string.common_i_understand)
                 )
             }
+
             is EarnRewardsAccount.Interest -> {
                 AccountExplainerDetails(
-                    title = getString(R.string.explainer_rewards_title),
-                    description = getString(R.string.explainer_rewards_description, interestRate.toString()),
+                    title = getString(com.blockchain.stringResources.R.string.explainer_rewards_title),
+                    description = getString(
+                        com.blockchain.stringResources.R.string.explainer_rewards_description,
+                        interestRate.toString()
+                    ),
                     icon = R.drawable.ic_rewards_explainer,
-                    buttonText = getString(R.string.common_i_understand)
+                    buttonText = getString(com.blockchain.stringResources.R.string.common_i_understand)
                 )
             }
+
             is EarnRewardsAccount.Staking -> {
                 AccountExplainerDetails(
-                    title = getString(R.string.explainer_staking_title),
-                    description = getString(R.string.explainer_staking_description, stakingRate.toString()),
+                    title = getString(com.blockchain.stringResources.R.string.explainer_staking_title),
+                    description = getString(
+                        com.blockchain.stringResources.R.string.explainer_staking_description,
+                        stakingRate.toString()
+                    ),
                     icon = R.drawable.ic_staking_explainer,
-                    buttonText = getString(R.string.common_i_understand)
+                    buttonText = getString(com.blockchain.stringResources.R.string.common_i_understand)
                 )
             }
+
             is EarnRewardsAccount.Active -> {
                 AccountExplainerDetails(
-                    title = getString(R.string.explainer_active_rewards_title),
+                    title = getString(com.blockchain.stringResources.R.string.explainer_active_rewards_title),
                     description = getString(
-                        R.string.explainer_active_rewards_description, activeRewardsRate.toString()
+                        com.blockchain.stringResources.R.string.explainer_active_rewards_description,
+                        activeRewardsRate.toString()
                     ),
                     icon = R.drawable.ic_active_rewards_explainer,
-                    buttonText = getString(R.string.common_i_understand)
+                    buttonText = getString(com.blockchain.stringResources.R.string.common_i_understand)
                 )
             }
+
             else -> AccountExplainerDetails()
         }
 
@@ -201,7 +215,7 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
             interestRate: Double,
             stakingRate: Double,
             activeRewardsRate: Double,
-            stateAwareActions: Array<StateAwareAction>,
+            stateAwareActions: Array<StateAwareAction>
         ): AccountExplainerBottomSheet {
             return AccountExplainerBottomSheet().apply {
                 arguments = Bundle().apply {

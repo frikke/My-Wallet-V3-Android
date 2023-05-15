@@ -3,7 +3,6 @@ package piuk.blockchain.android.util.wiper
 import com.blockchain.api.interceptors.SessionInfo
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.ethereum.EthDataManager
-import com.blockchain.core.walletoptions.WalletOptionsState
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.preferences.WalletStatusPrefs
@@ -21,7 +20,6 @@ class DataWiperImplTest {
 
     private val ethDataManager: EthDataManager = mock()
     private val bchDataManager: BchDataManager = mock()
-    private val walletOptionsState: WalletOptionsState = mock()
     private val nabuDataManager: NabuDataManager = mock()
     private val walletConnectServiceAPI: WalletConnectServiceAPI = mock()
     private val assetActivityRepository: AssetActivityRepository = mock()
@@ -37,7 +35,6 @@ class DataWiperImplTest {
         subject = DataWiperImpl(
             ethDataManager,
             bchDataManager,
-            walletOptionsState,
             nabuDataManager,
             activityWebSocketService = mock(),
             walletConnectServiceAPI,
@@ -61,7 +58,6 @@ class DataWiperImplTest {
         verify(assetActivityRepository).clear()
         verify(nabuDataManager).clearAccessToken()
         verify(walletConnectServiceAPI).clear()
-        verify(walletOptionsState).wipe()
         verify(payloadScopeWiper).wipe()
         verify(sessionInfo).clearUserId()
         assertFalse(walletPrefs.isAppUnlocked)

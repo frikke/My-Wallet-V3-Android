@@ -37,7 +37,8 @@ class MultiAppViewModel(
     MultiAppViewState,
     MultiAppModelState,
     MultiAppNavigationEvent,
-    ModelConfigArgs.NoArgs>(
+    ModelConfigArgs.NoArgs
+    >(
     MultiAppModelState()
 ) {
 

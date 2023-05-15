@@ -55,7 +55,7 @@ class RecurringBuyOnboardingActivity : BlockchainActivity() {
         updateToolbarBackAction {
             onBackPressedDispatcher.onBackPressed()
         }
-        updateToolbarTitle(getString(R.string.recurring_buy_toolbar))
+        updateToolbarTitle(getString(com.blockchain.stringResources.R.string.recurring_buy_toolbar))
 
         val recurringBuyOnBoardingPagerAdapter =
             RecurringBuyOnBoardingPagerAdapter(this, createListOfRecurringBuyInfo())
@@ -64,7 +64,7 @@ class RecurringBuyOnboardingActivity : BlockchainActivity() {
             viewpager.adapter = recurringBuyOnBoardingPagerAdapter
             indicator.setViewPager(viewpager)
             recurringBuyCta.apply {
-                text = getString(R.string.recurring_buy_cta_1)
+                text = getString(com.blockchain.stringResources.R.string.recurring_buy_cta_1)
                 onClick = {
                     goToRecurringSetUpScreen()
                     finish()
@@ -125,25 +125,25 @@ class RecurringBuyOnboardingActivity : BlockchainActivity() {
 
     private fun createListOfRecurringBuyInfo(): List<RecurringBuyInfo> = listOf(
         RecurringBuyInfo(
-            title1 = getString(R.string.recurring_buy_title_1_1),
-            title2 = getString(R.string.recurring_buy_title_1_2)
+            title1 = getString(com.blockchain.stringResources.R.string.recurring_buy_title_1_1),
+            title2 = getString(com.blockchain.stringResources.R.string.recurring_buy_title_1_2)
         ),
         RecurringBuyInfo(
-            title1 = getString(R.string.recurring_buy_title_2_1),
-            title2 = getString(R.string.recurring_buy_title_2_2)
+            title1 = getString(com.blockchain.stringResources.R.string.recurring_buy_title_2_1),
+            title2 = getString(com.blockchain.stringResources.R.string.recurring_buy_title_2_2)
         ),
         RecurringBuyInfo(
-            title1 = getString(R.string.recurring_buy_title_3_1),
-            title2 = getString(R.string.recurring_buy_title_3_2)
+            title1 = getString(com.blockchain.stringResources.R.string.recurring_buy_title_3_1),
+            title2 = getString(com.blockchain.stringResources.R.string.recurring_buy_title_3_2)
         ),
         RecurringBuyInfo(
-            title1 = getString(R.string.recurring_buy_title_4_1),
-            title2 = getString(R.string.recurring_buy_title_4_2)
+            title1 = getString(com.blockchain.stringResources.R.string.recurring_buy_title_4_1),
+            title2 = getString(com.blockchain.stringResources.R.string.recurring_buy_title_4_2)
         ),
         RecurringBuyInfo(
-            title1 = getString(R.string.recurring_buy_title_5_1),
-            title2 = getString(R.string.recurring_buy_title_5_2),
-            noteLink = R.string.recurring_buy_note
+            title1 = getString(com.blockchain.stringResources.R.string.recurring_buy_title_5_1),
+            title2 = getString(com.blockchain.stringResources.R.string.recurring_buy_title_5_2),
+            noteLink = com.blockchain.stringResources.R.string.recurring_buy_note
         )
     )
 

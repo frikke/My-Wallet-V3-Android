@@ -18,7 +18,7 @@ data class SettingsState(
     val tier: KycTier = KycTier.BRONZE,
     val error: SettingsError = SettingsError.None,
     val referralInfo: ReferralInfo = ReferralInfo.NotAvailable,
-    val canPayWithBind: Boolean = false,
+    val canPayWithBind: Boolean = false
 ) : MviState
 
 sealed class ViewToLaunch {

@@ -65,7 +65,7 @@ val redesignSettingsModule = module {
                 getAvailablePaymentMethodsTypesUseCase = get(),
                 currencyPrefs = get(),
                 referralService = get(),
-                nabuUserIdentity = get(),
+                nabuUserIdentity = get()
             )
         }
 
@@ -102,7 +102,7 @@ val redesignSettingsModule = module {
         factory {
             ProfileInteractor(
                 settingsDataManager = get(),
-                authPrefs = get(),
+                authPrefs = get()
             )
         }
 
@@ -193,7 +193,7 @@ val redesignSettingsModule = module {
                 currencyPrefs = get(),
                 exchangeLinkingState = get(),
                 localSettingsPrefs = get(),
-                fiatCurrenciesService = get(),
+                fiatCurrenciesService = get()
             )
         }
 
@@ -246,7 +246,6 @@ val redesignSettingsModule = module {
                 remoteLogger = get(),
                 specificAnalytics = get(),
                 analytics = get(),
-                momentLogger = get()
             )
         }
 

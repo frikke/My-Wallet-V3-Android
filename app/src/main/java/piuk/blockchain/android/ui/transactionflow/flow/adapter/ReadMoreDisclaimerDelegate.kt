@@ -13,7 +13,7 @@ import piuk.blockchain.android.ui.transactionflow.flow.TxConfirmReadOnlyMapperCh
 
 class ReadMoreDisclaimerDelegate(
     private val mapper: TxConfirmReadOnlyMapperCheckout,
-    private val onTooltipClicked: (TxConfirmationValue) -> Unit,
+    private val onTooltipClicked: (TxConfirmationValue) -> Unit
 ) : AdapterDelegate<TxConfirmationValue> {
     override fun isForViewType(items: List<TxConfirmationValue>, position: Int): Boolean {
         return items[position].confirmation == TxConfirmation.DISCLAIMER_READ_MORE

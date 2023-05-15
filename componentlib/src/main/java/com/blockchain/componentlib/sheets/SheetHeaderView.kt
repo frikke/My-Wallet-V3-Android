@@ -32,7 +32,7 @@ class SheetHeaderView @JvmOverloads constructor(
                     byline = byline,
                     startImageResource = startImageResource,
                     onClosePress = onClosePress,
-                    closePressContentDescription = closePressContentDescription,
+                    closePressContentDescription = closePressContentDescription
                 )
             }
         }

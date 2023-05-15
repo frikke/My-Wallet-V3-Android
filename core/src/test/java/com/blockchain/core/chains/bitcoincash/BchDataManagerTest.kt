@@ -84,7 +84,6 @@ class BchDataManagerTest {
     }
 
     private fun mockRestoringSingleBchWallet(xpub: String): GenericMetadataWallet {
-
         val mnemonic = split("all all all all all all all all all all all all")
         whenever(payloadDataManager.mnemonic).thenReturn(mnemonic)
 
@@ -182,7 +181,6 @@ class BchDataManagerTest {
 
     @Test
     fun `fetchMetadata doesn't exist`() {
-
         // Arrange
         mockAbsentMetadata()
 
@@ -196,7 +194,6 @@ class BchDataManagerTest {
 
     @Test
     fun `fetchMetadata exists`() {
-
         // Arrange
         val walletJson = mockSingleMetadata()
 
@@ -210,7 +207,6 @@ class BchDataManagerTest {
 
     @Test
     fun `restoreBchWallet with 2nd pw 1 account`() {
-
         // Arrange
         whenever(payloadDataManager.isDoubleEncrypted).thenReturn(true)
         val xpub = "xpub"
@@ -226,7 +222,6 @@ class BchDataManagerTest {
 
     @Test
     fun `restoreBchWallet with 2nd pw 2 account`() {
-
         // Arrange
         whenever(payloadDataManager.isDoubleEncrypted).thenReturn(true)
         val mnemonic = split("all all all all all all all all all all all all")
@@ -260,7 +255,6 @@ class BchDataManagerTest {
 
     @Test
     fun `restoreBchWallet no 2nd pw 1 account`() {
-
         // Arrange
         whenever(payloadDataManager.isDoubleEncrypted).thenReturn(false)
         val mnemonic = split("all all all all all all all all all all all all")
@@ -283,7 +277,6 @@ class BchDataManagerTest {
 
     @Test
     fun `restoreBchWallet no 2nd pw 2 account`() {
-
         // Arrange
         whenever(payloadDataManager.isDoubleEncrypted).thenReturn(false)
         val mnemonic = split("all all all all all all all all all all all all")
@@ -456,7 +449,8 @@ class BchDataManagerTest {
             bchDataStore.bchMetadata,
             times(btcAccountsNeeded + mockCallCount - 1)
         )!!.updateXpubForAccountIndex(
-            any(), any()
+            any(),
+            any()
         )
 
         verifyNoMoreInteractions(payloadDataManager)

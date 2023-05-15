@@ -16,7 +16,7 @@ import com.blockchain.componentlib.theme.White
 fun ColumnScope.UserIcon(
     modifier: Modifier = Modifier,
     @DrawableRes iconRes: Int,
-    @DrawableRes statusIconRes: Int? = null,
+    @DrawableRes statusIconRes: Int? = null
 ) {
     ConstraintLayout(modifier) {
         val (userIconRef, statusIconRef) = createRefs()
@@ -34,8 +34,8 @@ fun ColumnScope.UserIcon(
                 alpha = 1f,
                 size = AppTheme.dimensions.epicSpacing,
                 iconSize = AppTheme.dimensions.hugeSpacing,
-                shape = RoundedCornerShape(24.dp),
-            ),
+                shape = RoundedCornerShape(24.dp)
+            )
         )
 
         if (statusIconRes != null) {
@@ -48,8 +48,8 @@ fun ColumnScope.UserIcon(
                 },
                 imageResource = ImageResource.Local(
                     id = statusIconRes,
-                    size = AppTheme.dimensions.hugeSpacing,
-                ),
+                    size = AppTheme.dimensions.hugeSpacing
+                )
             )
         }
     }

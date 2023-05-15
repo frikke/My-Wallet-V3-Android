@@ -215,7 +215,8 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
         val sourceAccount = fundedSourceAccount(totalBalance, availableBalance)
 
         val unspentOutputs = listOf<Utxo>(
-            mock(), mock()
+            mock(),
+            mock()
         )
 
         whenever(sendDataManager.getUnspentBchOutputs(SOURCE_XPUB))

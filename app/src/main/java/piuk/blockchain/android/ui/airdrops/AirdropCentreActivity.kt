@@ -43,7 +43,7 @@ class AirdropCentreActivity :
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         updateToolbar(
-            toolbarTitle = getString(R.string.airdrop_activity_title),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.airdrop_activity_title),
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         binding.airdropList.layoutManager = LinearLayoutManager(this)
@@ -75,7 +75,7 @@ class AirdropCentreActivity :
     }
 
     override fun onSheetClosed() {
-        /* no-op */
+        // no-op
     }
 }
 
@@ -105,9 +105,9 @@ class StatusViewHolder(private val binding: ItemAirdropStatusBinding) :
             binding.root.setOnClickListenerDebounced { onClick(item.airdrop.name) }
             date.text = context.resources.getString(
                 if (item.airdrop.isActive) {
-                    R.string.airdrop_status_date_active
+                    com.blockchain.stringResources.R.string.airdrop_status_date_active
                 } else {
-                    R.string.airdrop_status_date_inactive
+                    com.blockchain.stringResources.R.string.airdrop_status_date_inactive
                 },
                 formatted
             )

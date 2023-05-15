@@ -57,8 +57,8 @@ fun PreferenceToggleRow(
                 .wrapContentHeight()
                 .background(AppTheme.colors.background)
                 .padding(
-                    start = dimensionResource(R.dimen.standard_spacing),
-                    end = dimensionResource(R.dimen.standard_spacing)
+                    start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                    end = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
                 ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
@@ -66,7 +66,7 @@ fun PreferenceToggleRow(
         ) {
             Text(
                 text = primaryText,
-                style = AppTheme.typography.body2,
+                style = AppTheme.typography.body2
             )
 
             PrimarySwitch(

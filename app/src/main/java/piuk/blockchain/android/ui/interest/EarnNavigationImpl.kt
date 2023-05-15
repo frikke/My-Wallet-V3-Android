@@ -31,38 +31,57 @@ class EarnNavigationImpl(
             is EarnDashboardNavigationEvent.OpenInterestSummarySheet -> openInterestSummarySheet(
                 assetTicker = navigationEvent.assetTicker
             )
+
             is EarnDashboardNavigationEvent.OpenStakingSummarySheet -> openStakingSummarySheet(
                 assetTicker = navigationEvent.assetTicker
             )
+
             is EarnDashboardNavigationEvent.OpenActiveRewardsSummarySheet -> openActiveRewardsSummarySheet(
                 assetTicker = navigationEvent.assetTicker
             )
+
             is EarnDashboardNavigationEvent.OpenKycUpgradeNowSheet ->
                 activity?.showBottomSheet(KycUpgradeNowSheet.newInstance())
+
             is EarnDashboardNavigationEvent.OpenBlockedForRegionSheet -> {
                 activity?.let {
                     showBlockedAccessSheet(
-                        title = activity.getString(R.string.earn_access_blocked_region_title),
+                        title = activity.getString(
+                            com.blockchain.stringResources.R.string.earn_access_blocked_region_title
+                        ),
                         paragraph = activity.getString(
-                            R.string.earn_access_blocked_region_paragraph,
+                            com.blockchain.stringResources.R.string.earn_access_blocked_region_paragraph,
                             when (navigationEvent.earnType) {
-                                EarnType.Passive -> activity.getString(R.string.earn_rewards_label_passive)
-                                EarnType.Staking -> activity.getString(R.string.earn_rewards_label_staking)
-                                EarnType.Active -> activity.getString(R.string.earn_rewards_label_active)
+                                EarnType.Passive -> activity.getString(
+                                    com.blockchain.stringResources.R.string.earn_rewards_label_passive
+                                )
+
+                                EarnType.Staking -> activity.getString(
+                                    com.blockchain.stringResources.R.string.earn_rewards_label_staking
+                                )
+
+                                EarnType.Active -> activity.getString(
+                                    com.blockchain.stringResources.R.string.earn_rewards_label_active
+                                )
                             }
                         )
                     )
                 }
             }
+
             is EarnDashboardNavigationEvent.OpenUrl -> openExternalUrl(url = navigationEvent.url)
             is EarnDashboardNavigationEvent.OpenBuyOrReceiveSheet -> showBuyUpsellSheet(
                 account = navigationEvent.account,
                 action = navigationEvent.assetAction,
                 canBuy = navigationEvent.availableToBuy
             )
+
             is EarnDashboardNavigationEvent.OpenBuy -> launchBuySell(
-                BuySellViewType.TYPE_BUY, navigationEvent.assetInfo, false
+                BuySellViewType.TYPE_BUY,
+                navigationEvent.assetInfo,
+                false
             )
+
             is EarnDashboardNavigationEvent.OpenReceive -> launchReceive(navigationEvent.networkTicker)
             EarnDashboardNavigationEvent.OpenKyc -> startKycClicked()
 
@@ -98,7 +117,9 @@ class EarnNavigationImpl(
     override fun showBuyUpsellSheet(account: BlockchainAccount, action: AssetAction, canBuy: Boolean) {
         activity?.showBottomSheet(
             NoBalanceActionBottomSheet.newInstance(
-                account, action, canBuy
+                account,
+                action,
+                canBuy
             )
         )
     }

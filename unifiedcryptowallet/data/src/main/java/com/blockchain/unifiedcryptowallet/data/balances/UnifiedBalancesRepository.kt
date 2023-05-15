@@ -34,7 +34,7 @@ internal class UnifiedBalancesRepository(
     private val unifiedBalancesSubscribeStore: UnifiedBalancesSubscribeStore,
     private val unifiedBalancesStore: UnifiedBalancesStore,
     private val assetCatalogue: AssetCatalogue,
-    private val currencyPrefs: CurrencyPrefs,
+    private val currencyPrefs: CurrencyPrefs
 ) : UnifiedBalancesService {
     /**
      * Specify those to get the balance of a specific Wallet.
@@ -44,12 +44,10 @@ internal class UnifiedBalancesRepository(
         freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<List<NetworkBalance>>> {
         return flow {
-
             val pubKeys = networkAccountsService.allNetworkWallets().filterNot { it.isImported }.associateWith {
                 it.publicKey()
             }
             when (val subscribeResult = subscribe(pubKeys)) {
-
                 is Outcome.Failure -> {
                     emit(subscribeResult.toDataResource())
                 }
@@ -58,8 +56,9 @@ internal class UnifiedBalancesRepository(
                         unifiedBalancesStore.stream(freshnessStrategy)
                             .mapData { response ->
                                 response.balances.filter {
-                                    if (wallet == null) true
-                                    else it.currency == wallet.currency.networkTicker &&
+                                    if (wallet == null) {
+                                        true
+                                    } else it.currency == wallet.currency.networkTicker &&
                                         it.account.index == wallet.index
                                 }.mapNotNull {
                                     if (it.price == null) return@mapNotNull null

@@ -17,7 +17,7 @@ class AssetRepository(
 ) : AssetService {
 
     override fun getAssetInformation(
-        asset: AssetInfo,
+        asset: AssetInfo
     ): Flow<DataResource<DetailedAssetInformation>> {
         return assetInformationStore
             .stream(

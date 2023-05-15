@@ -52,7 +52,11 @@ class BuyFlowNavigatorTest {
     @Before
     fun setUp() {
         subject = BuyFlowNavigator(
-            simpleBuySyncFactory, userIdentity, kycService, fiatCurrenciesService, custodialWalletManager
+            simpleBuySyncFactory,
+            userIdentity,
+            kycService,
+            fiatCurrenciesService,
+            custodialWalletManager
         )
     }
 

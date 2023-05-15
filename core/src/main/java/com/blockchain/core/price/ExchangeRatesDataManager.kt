@@ -27,7 +27,7 @@ enum class HistoricalTimeSpan(val value: Int) {
 
 data class HistoricalRate(
     val timestamp: Seconds,
-    val rate: Double,
+    val rate: Double
 )
 
 typealias HistoricalRateList = List<HistoricalRate>
@@ -36,7 +36,7 @@ data class Prices24HrWithDelta(
     val delta24h: Double,
     val previousRate: ExchangeRate,
     val currentRate: ExchangeRate,
-    val marketCap: Double? = null,
+    val marketCap: Double? = null
 )
 
 interface ExchangeRates {
@@ -64,15 +64,15 @@ interface ExchangeRatesDataManager : ExchangeRates {
 
     fun exchangeRate(
         fromAsset: Currency,
-        toAsset: Currency,
+        toAsset: Currency
     ): Flow<DataResource<ExchangeRate>>
 
     fun exchangeRateToUserFiat(
-        fromAsset: Currency,
+        fromAsset: Currency
     ): Observable<ExchangeRate>
 
     fun exchangeRateToUserFiatFlow(
-        fromAsset: Currency,
+        fromAsset: Currency
     ): Flow<DataResource<ExchangeRate>>
 
     fun getHistoricRate(fromAsset: Currency, secSinceEpoch: Long): Single<ExchangeRate>
@@ -95,12 +95,12 @@ interface ExchangeRatesDataManager : ExchangeRates {
     fun getHistoricPriceSeries(
         asset: Currency,
         span: HistoricalTimeSpan,
-        now: Calendar = Calendar.getInstance(),
+        now: Calendar = Calendar.getInstance()
     ): Flow<DataResource<HistoricalRateList>>
 
     // Specialised call to historic rates for sparkline caching
     fun get24hPriceSeries(
-        asset: Currency,
+        asset: Currency
     ): Flow<DataResource<HistoricalRateList>>
 
     fun getCurrentAssetPrice(

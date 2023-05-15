@@ -73,7 +73,6 @@ class AppRatingServiceTest {
 
     @Before
     fun setUp() {
-
         every { currencyPrefs.selectedFiatCurrency } returns FiatCurrency.Dollars
 
         every { appRatingPrefs.promptDateMillis = any() } just Runs

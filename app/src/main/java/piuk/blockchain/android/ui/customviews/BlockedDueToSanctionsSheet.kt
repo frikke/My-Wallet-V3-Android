@@ -36,10 +36,10 @@ class BlockedDueToSanctionsSheet : ComposeModalBottomDialog() {
             return ComposeView(requireContext()).apply {
                 setContent {
                     CustomEmptyState(
-                        title = R.string.account_restricted,
+                        title = com.blockchain.stringResources.R.string.account_restricted,
                         descriptionText = descriptionText,
                         icon = Icons.Filled.User.id,
-                        ctaText = R.string.common_learn_more,
+                        ctaText = com.blockchain.stringResources.R.string.common_learn_more,
                         ctaAction = {
                             actionUrl?.let {
                                 context.openUrl(it)
@@ -55,7 +55,7 @@ class BlockedDueToSanctionsSheet : ComposeModalBottomDialog() {
     @Composable
     override fun Sheet() {
         BottomSheetTwoButtons(
-            title = getString(R.string.account_restricted),
+            title = getString(com.blockchain.stringResources.R.string.account_restricted),
             showTitleInHeader = true,
             subtitle = descriptionText,
             shouldShowHeaderDivider = false,
@@ -63,7 +63,7 @@ class BlockedDueToSanctionsSheet : ComposeModalBottomDialog() {
             headerImageResource = null,
             button1 = BottomSheetButton(
                 type = ButtonType.MINIMAL,
-                text = stringResource(R.string.common_learn_more),
+                text = stringResource(com.blockchain.stringResources.R.string.common_learn_more),
                 onClick = {
                     actionUrl?.let {
                         context.openUrl(it)
@@ -72,7 +72,7 @@ class BlockedDueToSanctionsSheet : ComposeModalBottomDialog() {
             ),
             button2 = BottomSheetButton(
                 type = ButtonType.PRIMARY,
-                text = stringResource(R.string.common_i_understand),
+                text = stringResource(com.blockchain.stringResources.R.string.common_i_understand),
                 onClick = { dismiss() }
             )
         )

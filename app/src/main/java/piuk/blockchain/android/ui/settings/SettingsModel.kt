@@ -43,7 +43,8 @@ class SettingsModel(
                                     referralInfo = userDetails.referralInfo
                                 )
                             )
-                        }, onError = {
+                        },
+                        onError = {
                             process(SettingsIntent.UpdateContactSupportEligibility(tier = KycTier.BRONZE))
                         }
                     )
@@ -68,7 +69,8 @@ class SettingsModel(
                 .subscribeBy(
                     onSuccess = { bankTransferInfo ->
                         process(SettingsIntent.UpdateViewToLaunch(ViewToLaunch.BankTransfer(bankTransferInfo)))
-                    }, onError = {
+                    },
+                    onError = {
                         when ((it as? NabuApiException)?.getErrorCode()) {
                             MaxPaymentBankAccounts ->
                                 process(SettingsIntent.UpdateErrorState(SettingsError.BankLinkMaxAccountsReached(it)))
@@ -98,7 +100,8 @@ class SettingsModel(
                     .subscribeBy(
                         onSuccess = { available ->
                             process(SettingsIntent.UpdateAvailablePaymentMethods(available))
-                        }, onError = {
+                        },
+                        onError = {
                             process(SettingsIntent.UpdateErrorState(SettingsError.PaymentMethodsLoadFail))
                         }
                     )

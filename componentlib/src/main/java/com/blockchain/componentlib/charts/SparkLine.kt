@@ -22,7 +22,7 @@ import com.blockchain.componentlib.theme.AppTheme
 @Composable
 fun SparkLine(
     historicalRates: List<SparkLineHistoricalRate>,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     if (historicalRates.isEmpty()) {
         return
@@ -38,7 +38,6 @@ fun SparkLine(
     val strokeColor = AppTheme.colors.primary
 
     Canvas(modifier.background(AppTheme.colors.background)) {
-
         val height = this.size.height
         val width = this.size.width
         val interval = width / historicalRates.size
@@ -51,7 +50,7 @@ fun SparkLine(
         val gradient = Brush.horizontalGradient(
             colors = listOf(Color.Transparent, strokeColor),
             startX = 0.0f,
-            endX = width / 2f,
+            endX = width / 2f
         )
 
         val path = Path()
@@ -69,7 +68,7 @@ fun SparkLine(
         drawPath(
             path = path,
             brush = gradient,
-            style = Stroke(width = 2.dp.toPx()),
+            style = Stroke(width = 2.dp.toPx())
         )
     }
 }
@@ -88,7 +87,7 @@ private fun SparkLinePreview() {
         AppSurface {
             SparkLine(
                 historicalRates = data,
-                modifier = Modifier.size(64.dp, dimensionResource(R.dimen.medium_spacing))
+                modifier = Modifier.size(64.dp, dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing))
             )
         }
     }

@@ -60,7 +60,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
                 toggle.apply {
                     primaryText = recurringBuyFrequency.toRecurringBuySuggestionTitle(context)
                     secondaryText = context.getString(
-                        R.string.checkout_rb_subtitle,
+                        com.blockchain.stringResources.R.string.checkout_rb_subtitle,
                         recurringBuyFrequency.toHumanReadableRecurringBuy(context).lowercase(),
                         recurringBuyFrequency.toHumanReadableRecurringDate(context, ZonedDateTime.now())
                     )
@@ -129,7 +129,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     fun showTxSuccess(
         title: String,
         subtitle: String,
-        icon: Int = R.drawable.ic_check_circle,
+        icon: Int = R.drawable.ic_check_circle
     ) {
         with(binding) {
             txStateIndicator.setImageResource(icon)
@@ -142,7 +142,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     fun showPendingTx(
         title: String,
         subtitle: String,
-        locksNote: SpannableStringBuilder,
+        locksNote: SpannableStringBuilder
     ) {
         with(binding) {
             txStateIndicator.setImageResource(R.drawable.ic_check_circle)
@@ -160,7 +160,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     fun showTxError(
         title: String,
         subtitle: CharSequence,
-        @DrawableRes statusIcon: Int = R.drawable.ic_alert_white_bkgd,
+        @DrawableRes statusIcon: Int = R.drawable.ic_alert_white_bkgd
     ) {
         with(binding) {
             txStateIndicator.setImageResource(statusIcon)
@@ -175,7 +175,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
         statusIconUrl: String = "", // not all server side errors will have a status icon
         title: String,
         description: String,
-        @DrawableRes defaultErrorStatusIcon: Int = R.drawable.ic_alert_white_bkgd,
+        @DrawableRes defaultErrorStatusIcon: Int = R.drawable.ic_alert_white_bkgd
     ) {
         when {
             // we have been provided both icon and status
@@ -211,7 +211,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
         statusIconUrl: String,
         title: String,
         description: String,
-        @DrawableRes defaultStatusIcon: Int,
+        @DrawableRes defaultStatusIcon: Int
     ) {
         context.loadRemoteErrorAndStatusIcons(
             iconUrl,
@@ -251,7 +251,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
         iconUrl: String,
         title: String,
         description: String,
-        @DrawableRes defaultStatusIcon: Int,
+        @DrawableRes defaultStatusIcon: Int
     ) {
         context.loadRemoteErrorIcon(
             iconUrl,
@@ -283,7 +283,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     private fun updateStatusIcon(
         title: String,
         subtitle: CharSequence,
-        statusIcon: Drawable,
+        statusIcon: Drawable
     ) {
         with(binding) {
             txStateIndicator.setImageDrawable(statusIcon)
@@ -296,7 +296,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     private fun updateErrorIcon(
         title: String,
         subtitle: CharSequence,
-        icon: Drawable,
+        icon: Drawable
     ) {
         with(binding) {
             txIcon.setImageDrawable(icon)
@@ -309,7 +309,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     fun showFiatTxSuccess(title: String, subtitle: String, currency: String) {
         setFiatAssetIcon(currency)
         with(binding.txStateIndicator) {
-            setImageResource(R.drawable.ic_tx_deposit_w_green_bkgd)
+            setImageResource(com.blockchain.common.R.drawable.ic_tx_deposit_w_green_bkgd)
             visible()
         }
         showEndStateUi()
@@ -334,7 +334,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     fun showServerSideActionErrorCtas(
         list: List<ServerErrorAction>,
         currencyCode: String,
-        onActionsClickedCallback: TransactionProgressActions,
+        onActionsClickedCallback: TransactionProgressActions
     ) {
         list.mapIndexed { index, item ->
             when (index) {
@@ -373,7 +373,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     }
 
     private fun String.asButtonCopyOrDefault() =
-        this.ifEmpty { context.getString(R.string.common_ok) }
+        this.ifEmpty { context.getString(com.blockchain.stringResources.R.string.common_ok) }
 
     private fun redirectToDeeplinkProcessor(link: String, currencyCode: String) {
         compositeDisposable += deeplinkRedirector.processDeeplinkURL(

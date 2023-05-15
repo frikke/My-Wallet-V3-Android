@@ -6,14 +6,14 @@ import java.io.Serializable
 internal data class SwapConfirmationArgs(
     val amount: String,
     val source: String,
-    val target: String,
+    val target: String
 ) : Serializable
 
 @Composable
 internal fun SwapConfirmationScreen(
     args: SwapConfirmationArgs,
     viewModel: SwapConfirmationViewModel = getViewModel(args),
-    navigateToOrderStatus: (Order) -> Unit,
+    navigateToOrderStatus: (Order) -> Unit
 ) {
 }
 

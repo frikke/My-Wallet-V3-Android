@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class GeolocationResponse(
     val countryCode: CountryIso,
-    val state: StateIso? = null,
+    val state: StateIso? = null
 )

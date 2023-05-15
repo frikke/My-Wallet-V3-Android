@@ -19,7 +19,7 @@ class ExchangeBuyButtonView @JvmOverloads constructor(
                 ExchangeBuyButton(
                     onClick = onClick,
                     text = text,
-                    state = buttonState,
+                    state = buttonState
                 )
             }
         }

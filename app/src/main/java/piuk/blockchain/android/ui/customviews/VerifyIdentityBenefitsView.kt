@@ -20,7 +20,9 @@ class VerifyIdentityBenefitsView @JvmOverloads constructor(context: Context, att
     ConstraintLayout(context, attrs) {
 
     private val binding: VerifyIdentityBenefitsLayoutBinding = VerifyIdentityBenefitsLayoutBinding.inflate(
-        LayoutInflater.from(context), this, true
+        LayoutInflater.from(context),
+        this,
+        true
     )
 
     fun initWithBenefits(

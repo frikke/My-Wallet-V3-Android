@@ -34,13 +34,13 @@ import com.blockchain.componentlib.theme.AppTheme
 @Composable
 fun CustomEmptyState(
     modifier: Modifier = Modifier.fillMaxSize(),
-    @StringRes title: Int = R.string.common_empty_title,
-    @StringRes description: Int = R.string.common_empty_details,
+    @StringRes title: Int = com.blockchain.stringResources.R.string.common_empty_title,
+    @StringRes description: Int = com.blockchain.stringResources.R.string.common_empty_details,
     descriptionText: String? = null,
     @DrawableRes icon: Int = Icons.Filled.User.id,
     @StringRes secondaryText: Int? = null,
     secondaryAction: (() -> Unit)? = null,
-    @StringRes ctaText: Int = R.string.common_empty_cta,
+    @StringRes ctaText: Int = com.blockchain.stringResources.R.string.common_empty_cta,
     ctaAction: () -> Unit
 ) {
     Column(
@@ -55,7 +55,6 @@ fun CustomEmptyState(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             SmallTagIcon(
                 icon = StackedIcon.SmallTag(
                     ImageResource.Local(icon, size = 55.dp),

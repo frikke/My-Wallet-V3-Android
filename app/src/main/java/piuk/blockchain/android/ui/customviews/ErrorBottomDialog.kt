@@ -56,7 +56,7 @@ abstract class ErrorBottomDialog<E : ViewBinding> : BottomSheetDialogFragment() 
     abstract fun init(content: Content)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val contextThemeWrapper = ContextThemeWrapper(activity, R.style.AppTheme)
+        val contextThemeWrapper = ContextThemeWrapper(activity, com.blockchain.common.R.style.AppTheme)
         val themedInflater = layoutInflater.cloneInContext(contextThemeWrapper)
         _binding = initBinding(themedInflater, container)
         return binding.root

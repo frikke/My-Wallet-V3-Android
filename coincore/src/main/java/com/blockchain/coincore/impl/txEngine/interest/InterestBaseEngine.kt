@@ -30,7 +30,7 @@ abstract class InterestBaseEngine(
     protected fun modifyEngineConfirmations(
         pendingTx: PendingTx,
         termsChecked: Boolean = getTermsOptionValue(pendingTx),
-        agreementChecked: Boolean = getTermsOptionValue(pendingTx),
+        agreementChecked: Boolean = getTermsOptionValue(pendingTx)
     ): PendingTx =
         pendingTx.removeOption(TxConfirmation.DESCRIPTION)
             .addOrReplaceOption(

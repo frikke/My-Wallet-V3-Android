@@ -55,7 +55,7 @@ class CardVerificationFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity.updateToolbarTitle(getString(R.string.card_verification))
+        activity.updateToolbarTitle(getString(com.blockchain.stringResources.R.string.card_verification))
         binding.checkoutCardForm.initCheckoutPaymentForm()
     }
 
@@ -150,8 +150,8 @@ class CardVerificationFragment :
         with(binding.transactionProgressView) {
             setAssetIcon(R.drawable.ic_card_icon)
             showTxInProgress(
-                title = getString(R.string.linking_card_title),
-                subtitle = getString(R.string.linking_card_subtitle)
+                title = getString(com.blockchain.stringResources.R.string.linking_card_title),
+                subtitle = getString(com.blockchain.stringResources.R.string.linking_card_subtitle)
             )
         }
     }
@@ -159,12 +159,12 @@ class CardVerificationFragment :
     private fun renderSuccessState(card: PaymentMethod.Card) {
         binding.transactionProgressView.apply {
             showTxSuccess(
-                title = getString(R.string.linking_card_success_title),
-                subtitle = getString(R.string.linking_card_success_subtitle)
+                title = getString(com.blockchain.stringResources.R.string.linking_card_success_title),
+                subtitle = getString(com.blockchain.stringResources.R.string.linking_card_success_subtitle)
             )
 
             setupPrimaryCta(
-                text = getString(R.string.common_ok),
+                text = getString(com.blockchain.stringResources.R.string.common_ok),
                 onClick = {
                     navigator.exitWithSuccess(card)
                 }
@@ -200,8 +200,8 @@ class CardVerificationFragment :
                         list = error.actions.ifEmpty {
                             listOf(
                                 ServerErrorAction(
-                                    title = getString(R.string.common_ok),
-                                    deeplinkPath = getString(R.string.empty)
+                                    title = getString(com.blockchain.stringResources.R.string.common_ok),
+                                    deeplinkPath = getString(com.blockchain.stringResources.R.string.empty)
                                 )
                             )
                         },
@@ -222,80 +222,80 @@ class CardVerificationFragment :
                     )
                 }
                 CardError.ActivationFailed -> renderLegacyError(
-                    title = R.string.title_cardCreateBankDeclined,
-                    subtitle = R.string.could_not_activate_card
+                    title = com.blockchain.stringResources.R.string.title_cardCreateBankDeclined,
+                    subtitle = com.blockchain.stringResources.R.string.could_not_activate_card
                 )
                 CardError.CardAcquirerDeclined -> renderLegacyError(
-                    title = R.string.title_cardCreateBankDeclined,
-                    subtitle = R.string.msg_cardAcquirerDecline
+                    title = com.blockchain.stringResources.R.string.title_cardCreateBankDeclined,
+                    subtitle = com.blockchain.stringResources.R.string.msg_cardAcquirerDecline
                 )
                 CardError.CardBankDeclined -> renderLegacyError(
-                    title = R.string.title_cardBankDecline,
-                    subtitle = R.string.msg_cardBankDecline
+                    title = com.blockchain.stringResources.R.string.title_cardBankDecline,
+                    subtitle = com.blockchain.stringResources.R.string.msg_cardBankDecline
                 )
                 CardError.CardBlockchainDeclined -> renderLegacyError(
-                    title = R.string.title_cardBlockchainDecline,
-                    subtitle = R.string.msg_cardBlockchainDecline
+                    title = com.blockchain.stringResources.R.string.title_cardBlockchainDecline,
+                    subtitle = com.blockchain.stringResources.R.string.msg_cardBlockchainDecline
                 )
                 CardError.CardCreateBankDeclined -> renderLegacyError(
-                    title = R.string.title_cardCreateBankDeclined,
-                    subtitle = R.string.msg_cardCreateBankDeclined
+                    title = com.blockchain.stringResources.R.string.title_cardCreateBankDeclined,
+                    subtitle = com.blockchain.stringResources.R.string.msg_cardCreateBankDeclined
                 )
                 CardError.CardCreateDebitOnly -> renderLegacyError(
-                    title = R.string.title_cardCreateDebitOnly,
-                    subtitle = R.string.msg_cardCreateDebitOnly
+                    title = com.blockchain.stringResources.R.string.title_cardCreateDebitOnly,
+                    subtitle = com.blockchain.stringResources.R.string.msg_cardCreateDebitOnly
                 )
                 CardError.CardCreateNoToken -> renderLegacyError(
-                    title = R.string.title_cardCreateNoToken,
-                    subtitle = R.string.msg_cardCreateNoToken
+                    title = com.blockchain.stringResources.R.string.title_cardCreateNoToken,
+                    subtitle = com.blockchain.stringResources.R.string.msg_cardCreateNoToken
                 )
                 CardError.CardCreatedAbandoned -> renderLegacyError(
-                    title = R.string.title_cardCreateAbandoned,
-                    subtitle = R.string.msg_cardCreateAbandoned
+                    title = com.blockchain.stringResources.R.string.title_cardCreateAbandoned,
+                    subtitle = com.blockchain.stringResources.R.string.msg_cardCreateAbandoned
                 )
                 CardError.CardCreatedExpired -> renderLegacyError(
-                    title = R.string.title_cardCreateExpired,
-                    subtitle = R.string.msg_cardCreateExpired
+                    title = com.blockchain.stringResources.R.string.title_cardCreateExpired,
+                    subtitle = com.blockchain.stringResources.R.string.msg_cardCreateExpired
                 )
                 CardError.CardCreatedFailed -> renderLegacyError(
-                    title = R.string.title_cardCreateFailed,
-                    subtitle = R.string.msg_cardCreateFailed
+                    title = com.blockchain.stringResources.R.string.title_cardCreateFailed,
+                    subtitle = com.blockchain.stringResources.R.string.msg_cardCreateFailed
                 )
                 CardError.CardDuplicated -> renderLegacyError(
-                    title = R.string.title_cardDuplicate,
-                    subtitle = R.string.msg_cardDuplicate
+                    title = com.blockchain.stringResources.R.string.title_cardDuplicate,
+                    subtitle = com.blockchain.stringResources.R.string.msg_cardDuplicate
                 )
                 CardError.CardLimitReach -> renderLegacyError(
-                    title = R.string.card_limit_reached_title,
-                    subtitle = R.string.card_limit_reached_desc
+                    title = com.blockchain.stringResources.R.string.card_limit_reached_title,
+                    subtitle = com.blockchain.stringResources.R.string.card_limit_reached_desc
                 )
                 CardError.CardPaymentDebitOnly -> renderLegacyError(
-                    title = R.string.title_cardPaymentDebitOnly,
-                    subtitle = R.string.msg_cardPaymentDebitOnly
+                    title = com.blockchain.stringResources.R.string.title_cardPaymentDebitOnly,
+                    subtitle = com.blockchain.stringResources.R.string.msg_cardPaymentDebitOnly
                 )
                 CardError.CardPaymentFailed -> renderLegacyError(
-                    title = R.string.title_cardPaymentFailed,
-                    subtitle = R.string.msg_cardPaymentFailed
+                    title = com.blockchain.stringResources.R.string.title_cardPaymentFailed,
+                    subtitle = com.blockchain.stringResources.R.string.msg_cardPaymentFailed
                 )
                 CardError.CardPaymentNotSupportedDeclined -> renderLegacyError(
-                    title = R.string.title_cardPaymentNotSupported,
-                    subtitle = R.string.msg_cardPaymentNotSupported
+                    title = com.blockchain.stringResources.R.string.title_cardPaymentNotSupported,
+                    subtitle = com.blockchain.stringResources.R.string.msg_cardPaymentNotSupported
                 )
                 CardError.CreationFailed -> renderLegacyError(
-                    title = R.string.linking_card_error_title,
-                    subtitle = R.string.could_not_save_card
+                    title = com.blockchain.stringResources.R.string.linking_card_error_title,
+                    subtitle = com.blockchain.stringResources.R.string.could_not_save_card
                 )
                 CardError.InsufficientCardBalance -> renderLegacyError(
-                    title = R.string.title_cardInsufficientFunds,
-                    subtitle = R.string.msg_cardInsufficientFunds
+                    title = com.blockchain.stringResources.R.string.title_cardInsufficientFunds,
+                    subtitle = com.blockchain.stringResources.R.string.msg_cardInsufficientFunds
                 )
                 CardError.LinkFailed -> renderLegacyError(
-                    title = R.string.linking_card_error_title,
-                    subtitle = R.string.card_link_failed
+                    title = com.blockchain.stringResources.R.string.linking_card_error_title,
+                    subtitle = com.blockchain.stringResources.R.string.card_link_failed
                 )
                 CardError.PendingAfterPoll -> renderLegacyError(
-                    title = R.string.card_still_pending,
-                    subtitle = R.string.card_link_failed
+                    title = com.blockchain.stringResources.R.string.card_still_pending,
+                    subtitle = com.blockchain.stringResources.R.string.card_link_failed
                 )
             }
         }
@@ -304,7 +304,7 @@ class CardVerificationFragment :
     private fun renderLegacyError(@StringRes title: Int, @StringRes subtitle: Int) {
         with(binding.transactionProgressView) {
             setupPrimaryCta(
-                text = getString(R.string.common_ok),
+                text = getString(com.blockchain.stringResources.R.string.common_ok),
                 onClick = { requireActivity().finish() }
             )
             showTxError(

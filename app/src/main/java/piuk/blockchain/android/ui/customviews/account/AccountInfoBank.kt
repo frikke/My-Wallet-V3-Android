@@ -49,9 +49,9 @@ class AccountInfoBank @JvmOverloads constructor(
             bankName.text = account.label
             bankLogo.setImageResource(R.drawable.ic_bank_icon)
             bankDetails.text = context.getString(
-                R.string.common_hyphenated_strings,
+                com.blockchain.stringResources.R.string.common_hyphenated_strings,
                 if (account.accountType.isBlank()) {
-                    context.getString(R.string.bank_account_info_default)
+                    context.getString(com.blockchain.stringResources.R.string.bank_account_info_default)
                 } else {
                     account.accountType
                 },
@@ -69,8 +69,9 @@ class AccountInfoBank @JvmOverloads constructor(
                 "Using incorrect payment method for Bank view"
             }
 
-            if (account.accountId == accountId)
+            if (account.accountId == accountId) {
                 return
+            }
             accountId = account.accountId
 
             getFeeOrShowDefault(account, action)
@@ -104,11 +105,15 @@ class AccountInfoBank @JvmOverloads constructor(
                         bankStatusFee.visible()
                         if (it.fee.isZero) {
                             bankStatusFee.update(
-                                context.getString(R.string.common_free), StatusPill.StatusType.UPSELL
+                                context.getString(com.blockchain.stringResources.R.string.common_free),
+                                StatusPill.StatusType.UPSELL
                             )
                         } else {
                             bankStatusFee.update(
-                                context.getString(R.string.bank_wire_transfer_fee, it.fee.toStringWithSymbol()),
+                                context.getString(
+                                    com.blockchain.stringResources.R.string.bank_wire_transfer_fee,
+                                    it.fee.toStringWithSymbol()
+                                ),
                                 StatusPill.StatusType.WARNING
                             )
                         }
@@ -116,7 +121,8 @@ class AccountInfoBank @JvmOverloads constructor(
                             bankStatusMin.visible()
                             bankStatusMin.update(
                                 context.getString(
-                                    R.string.bank_wire_transfer_min_withdrawal, it.minLimit.toStringWithSymbol()
+                                    com.blockchain.stringResources.R.string.bank_wire_transfer_min_withdrawal,
+                                    it.minLimit.toStringWithSymbol()
                                 ),
                                 StatusPill.StatusType.LABEL
                             )

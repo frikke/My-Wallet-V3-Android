@@ -18,7 +18,7 @@ import io.reactivex.rxjava3.core.Single
 
 internal class DynamicAssetsDataManagerImpl(
     private val discoveryService: AssetDiscoveryApiService,
-    private val fiatAssetsStore: FiatAssetsStore,
+    private val fiatAssetsStore: FiatAssetsStore
 ) : DynamicAssetsDataManager {
 
     override fun availableFiatAssets(): Single<FiatAssetList> =

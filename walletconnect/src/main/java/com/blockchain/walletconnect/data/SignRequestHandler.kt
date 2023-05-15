@@ -36,7 +36,7 @@ class SignRequestHandler(
         message: WCEthereumSignMessage,
         session: WalletConnectSession,
         onTxCompleted: (TxResult) -> Completable,
-        onTxCancelled: () -> Completable,
+        onTxCancelled: () -> Completable
     ): Single<WalletConnectUserEvent.SignMessage> {
         return accountProvider.account().map { account ->
             val target = EthereumSignMessageTarget(
@@ -45,7 +45,7 @@ class SignRequestHandler(
                 dAppLogoUrl = session.dAppInfo.peerMeta.uiIcon(),
                 message = message.toEthSignedMessage(),
                 onTxCompleted = onTxCompleted,
-                onTxCancelled = onTxCancelled,
+                onTxCancelled = onTxCancelled
             )
             WalletConnectUserEvent.SignMessage(
                 source = account,
@@ -110,7 +110,7 @@ class SignRequestHandler(
         session: WalletConnectSession,
         method: EthereumSendTransactionTarget.Method,
         onTxCompleted: (TxResult) -> Completable,
-        onTxCancelled: () -> Completable,
+        onTxCancelled: () -> Completable
     ): Single<WalletConnectUserEvent.SendTransaction> {
         return accountProvider.account().map { account ->
             val target = EthereumSendTransactionTarget(

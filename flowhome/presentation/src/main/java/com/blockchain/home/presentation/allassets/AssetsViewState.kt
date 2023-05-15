@@ -16,7 +16,7 @@ data class AssetsViewState(
     val filters: List<AssetFilter>,
     val showNoResults: Boolean,
     val showFilterIcon: Boolean,
-    val fundsLocks: DataResource<FundsLocks?>,
+    val fundsLocks: DataResource<FundsLocks?>
 ) : ViewState
 
 sealed interface HomeAsset {
@@ -40,7 +40,7 @@ data class NonCustodialAssetState(
     override val icon: List<String>,
     override val name: String,
     override val balance: DataResource<Money>,
-    override val fiatBalance: DataResource<Money>,
+    override val fiatBalance: DataResource<Money>
 ) : HomeCryptoAsset
 
 data class FiatAssetState(

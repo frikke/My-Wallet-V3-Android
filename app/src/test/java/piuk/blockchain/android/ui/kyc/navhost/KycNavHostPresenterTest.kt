@@ -51,12 +51,14 @@ class KycNavHostPresenterTest {
             userService = userService,
             reentryDecision = reentryDecision,
             kycNavigator = ReentryDecisionKycNavigator(
-                userService, reentryDecision, analytics
+                userService,
+                reentryDecision,
+                analytics
             ),
             kycTiersStore = kycTiersStore,
             getUserStore = getUserStore,
             analytics = mock(),
-            productEligibilityStore = mock(),
+            productEligibilityStore = mock()
         )
         subject.initView(view)
     }

@@ -46,8 +46,9 @@ class SMSVerificationInteractor internal constructor(
                 return@flatMap Single.just(it)
             }
             val notificationsUpdate =
-                if (enable) settingsDataManager.enableNotification(type, it.notificationsType)
-                else settingsDataManager.disableNotification(type, it.notificationsType)
+                if (enable) {
+                    settingsDataManager.enableNotification(type, it.notificationsType)
+                } else settingsDataManager.disableNotification(type, it.notificationsType)
             notificationsUpdate.flatMapCompletable {
                 if (enable) {
                     payloadDataManager.syncPayloadAndPublicKeys()

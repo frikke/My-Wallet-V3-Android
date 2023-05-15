@@ -30,7 +30,7 @@ class BackupPhraseInfoSheet : SlidingModalBottomDialog<BottomSheetBackupPhraseIn
     override fun initControls(binding: BottomSheetBackupPhraseInfoBinding) {
         with(binding) {
             sheetHeader.apply {
-                title = getString(R.string.security_backup_sheet_title)
+                title = getString(com.blockchain.stringResources.R.string.security_backup_sheet_title)
                 onClosePress = {
                     this@BackupPhraseInfoSheet.dismiss()
                 }
@@ -40,14 +40,14 @@ class BackupPhraseInfoSheet : SlidingModalBottomDialog<BottomSheetBackupPhraseIn
                 image = ImageResource.Local(id = R.drawable.ic_lock, size = Dp(48f))
             }
             backupBlurb.apply {
-                text = getString(R.string.security_backup_sheet_blurb)
+                text = getString(com.blockchain.stringResources.R.string.security_backup_sheet_blurb)
                 textColor = ComposeColors.Body
                 style = ComposeTypographies.Paragraph1
                 gravity = ComposeGravities.Centre
             }
 
             ctaEnable.apply {
-                text = getString(R.string.security_backup_sheet_cta)
+                text = getString(com.blockchain.stringResources.R.string.security_backup_sheet_cta)
                 onClick = {
                     dismiss()
                     host.onBackupNow()

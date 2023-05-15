@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 class DexConfirmationViewModel(
     private val transactionProcessor: DexTransactionProcessor,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
-    private val currencyPrefs: CurrencyPrefs,
+    private val currencyPrefs: CurrencyPrefs
 ) : MviViewModel<
     ConfirmationIntent,
     ConfirmationScreenViewState,
@@ -52,7 +52,8 @@ class DexConfirmationViewModel(
             } ?: Money.zero(currencyPrefs.selectedFiatCurrency),
             outputAmount = transaction.quote?.outputAmount?.expectedOutput,
             outputExchangeAmount = safeLet(
-                transaction.quote?.outputAmount?.expectedOutput, state.outputToFiatExchangeRate
+                transaction.quote?.outputAmount?.expectedOutput,
+                state.outputToFiatExchangeRate
             ) { amount, rate ->
                 rate.convert(amount)
             } ?: Money.zero(currencyPrefs.selectedFiatCurrency),
@@ -66,32 +67,35 @@ class DexConfirmationViewModel(
             ),
             slippage = transaction.slippage,
             minAmount = safeLet(
-                transaction.quote?.outputAmount?.minOutputAmount, state.outputToFiatExchangeRate
+                transaction.quote?.outputAmount?.minOutputAmount,
+                state.outputToFiatExchangeRate
             ) { amount, exchangeRate ->
                 ConfirmationScreenExchangeAmount(
                     value = amount,
-                    exchange = exchangeRate.convert(amount),
+                    exchange = exchangeRate.convert(amount)
                 )
             },
             networkFee = safeLet(
-                transaction.quote?.networkFees, state.networkFeesToFiatExchangeRate
+                transaction.quote?.networkFees,
+                state.networkFeesToFiatExchangeRate
             ) { amount, exchangeRate ->
                 ConfirmationScreenExchangeAmount(
                     value = amount,
-                    exchange = exchangeRate.convert(amount),
+                    exchange = exchangeRate.convert(amount)
                 )
             },
             blockchainFee = safeLet(
-                transaction.quote?.blockchainFees, state.outputToFiatExchangeRate
+                transaction.quote?.blockchainFees,
+                state.outputToFiatExchangeRate
             ) { amount, exchangeRate ->
                 ConfirmationScreenExchangeAmount(
                     value = amount,
-                    exchange = exchangeRate.convert(amount),
+                    exchange = exchangeRate.convert(amount)
                 )
             },
             /*
-            * Ignore this error in the confirmation screen
-            * */
+             * Ignore this error in the confirmation screen
+             * */
             errors = transaction.toUiErrors().filter { it != DexUiError.TransactionInProgressError },
             newPriceAvailable = state.priceUpdatedAndNotAccepted
         )
@@ -181,8 +185,8 @@ class DexConfirmationViewModel(
 
     private fun priceHasBeenAccepted(quote: DexQuote.ExchangeQuote, acceptedQuoteRates: List<Money>): Boolean {
         /*
-        * we assume that 1st quote is accepted
-        * */
+         * we assume that 1st quote is accepted
+         * */
         return acceptedQuoteRates.isEmpty() || acceptedQuoteRates.contains(quote.price)
     }
 
@@ -236,7 +240,7 @@ data class ConfirmationModelState(
     val priceUpdatedAndNotAccepted: Boolean,
     val acceptedQuoteRates: List<Money> = emptyList(),
     val networkFeesToFiatExchangeRate: ExchangeRate?,
-    val operationInProgress: Boolean = false,
+    val operationInProgress: Boolean = false
 ) : ModelState
 
 sealed class ConfirmationIntent : Intent<ConfirmationModelState> {
@@ -271,7 +275,7 @@ sealed class ConfirmationScreenViewState : ViewState {
         val errors: List<DexUiError> = emptyList(),
         val minAmount: ConfirmationScreenExchangeAmount?,
         val networkFee: ConfirmationScreenExchangeAmount?,
-        val blockchainFee: ConfirmationScreenExchangeAmount?,
+        val blockchainFee: ConfirmationScreenExchangeAmount?
     ) : ConfirmationScreenViewState() {
         val alertError: AlertError?
             get() = errors.filterIsInstance<AlertError>().firstOrNull()

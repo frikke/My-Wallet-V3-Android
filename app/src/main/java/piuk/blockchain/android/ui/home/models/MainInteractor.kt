@@ -112,7 +112,8 @@ class MainInteractor internal constructor(
 
     fun updateOpenBankingConsent(consentToken: String): Completable =
         bankService.updateOpenBankingConsent(
-            bankLinkingPrefs.getDynamicOneTimeTokenUrl(), consentToken
+            bankLinkingPrefs.getDynamicOneTimeTokenUrl(),
+            consentToken
         ).doOnError {
             resetLocalBankAuthState()
         }

@@ -332,7 +332,7 @@ class XlmMetaDataInitializerTest {
                     publicKey = "GDRXE2BQUC3AZNPVFSCEZ76NJ3WWL25FYFK6RGZGIEKWE4SOOHSUJUJ6",
                     _label = "My Lumen Wallet",
                     _archived = false,
-                    pubKey = "@!£2",
+                    pubKey = "@!£2"
                 )
             ),
             transactionNotes = emptyMap()
@@ -498,7 +498,7 @@ class XlmMetaDataInitializerTest {
                     publicKey = "GDRXE2BQUC3AZNPVFSCEZ76NJ3WWL25FYFK6RGZGIEKWE4SOOHSUJUJ6",
                     _label = "My Lumen Wallet",
                     _archived = false,
-                    pubKey = "3998db92ebfd1e8c190c9845ea006cd094fad28088ac91847ec994079cc9906d",
+                    pubKey = "3998db92ebfd1e8c190c9845ea006cd094fad28088ac91847ec994079cc9906d"
                 )
             ),
             transactionNotes = emptyMap()
@@ -615,10 +615,14 @@ class XlmMetaDataInitializerTest {
 
         repository.assertSaved(expectedData)
         verify(repository, times(2)).loadMetadata(
-            metadataType = MetadataEntry.METADATA_XLM, XlmMetaData::class.serializer(), XlmMetaData::class.java
+            metadataType = MetadataEntry.METADATA_XLM,
+            XlmMetaData::class.serializer(),
+            XlmMetaData::class.java
         )
         verify(repository, times(2)).loadMetadata(
-            any(), eq(XlmMetaData::class.serializer()), eq(XlmMetaData::class.java)
+            any(),
+            eq(XlmMetaData::class.serializer()),
+            eq(XlmMetaData::class.java)
         )
 
         verifyNoMoreInteractions(remoteLogger)
@@ -701,7 +705,9 @@ class XlmMetaDataInitializerTest {
     private fun KStubbing<MetadataRepository>.emptyLoad() {
         on {
             loadMetadata(
-                MetadataEntry.METADATA_XLM, XlmMetaData::class.serializer(), XlmMetaData::class.java
+                MetadataEntry.METADATA_XLM,
+                XlmMetaData::class.serializer(),
+                XlmMetaData::class.java
             )
         }.thenReturn(Maybe.empty())
     }
@@ -709,7 +715,9 @@ class XlmMetaDataInitializerTest {
     private fun KStubbing<MetadataRepository>.loads(expectedData: XlmMetaData) {
         on {
             loadMetadata(
-                MetadataEntry.METADATA_XLM, XlmMetaData::class.serializer(), XlmMetaData::class.java
+                MetadataEntry.METADATA_XLM,
+                XlmMetaData::class.serializer(),
+                XlmMetaData::class.java
             )
         }.thenReturn(
             Maybe.just(
@@ -722,7 +730,9 @@ class XlmMetaDataInitializerTest {
         var count = 1
         on {
             loadMetadata(
-                MetadataEntry.METADATA_XLM, XlmMetaData::class.serializer(), XlmMetaData::class.java
+                MetadataEntry.METADATA_XLM,
+                XlmMetaData::class.serializer(),
+                XlmMetaData::class.java
             )
         }.thenReturn(
             Maybe.defer {

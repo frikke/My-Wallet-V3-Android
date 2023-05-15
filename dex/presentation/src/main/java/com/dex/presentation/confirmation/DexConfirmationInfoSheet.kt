@@ -61,7 +61,7 @@ fun DexConfirmationInfoSheet(closeClicked: () -> Unit, title: String, descriptio
                     horizontal = AppTheme.dimensions.smallSpacing,
                     vertical = AppTheme.dimensions.standardSpacing
                 ),
-            text = stringResource(id = R.string.common_got_it),
+            text = stringResource(id = com.blockchain.stringResources.R.string.common_got_it),
             onClick = closeClicked
         )
         Spacer(modifier = Modifier.size(navBarHeight))

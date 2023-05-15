@@ -44,7 +44,7 @@ internal class SwapRepository(
     private val coincore: Coincore,
     private val custodialRepository: CustodialRepository,
     private val limitsDataManager: LimitsDataManager,
-    private val walletManager: CustodialWalletManager,
+    private val walletManager: CustodialWalletManager
 ) : SwapService {
 
     private fun Flow<DataResource<List<CryptoAccount>>>.withBalance() = flatMapData {

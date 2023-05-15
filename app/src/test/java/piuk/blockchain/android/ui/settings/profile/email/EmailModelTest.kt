@@ -68,7 +68,6 @@ class EmailModelTest {
 
     @Test
     fun `when LoadProfile is successfully loaded from Cache then state will update user settings`() {
-
         whenever(interactor.cachedSettings).thenReturn(Single.just(settings))
 
         val testState = model.state.test()
@@ -108,7 +107,6 @@ class EmailModelTest {
 
     @Test
     fun `when FetchProfile is successfully then state will update user settings`() {
-
         val testState = model.state.test()
         model.process(EmailIntent.FetchProfile)
 

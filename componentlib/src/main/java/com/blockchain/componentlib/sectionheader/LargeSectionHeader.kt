@@ -32,10 +32,13 @@ import com.blockchain.componentlib.theme.Grey400
 fun LargeSectionHeader(
     headerType: LargeSectionHeaderType,
     modifier: Modifier = Modifier,
-    isDarkMode: Boolean = isSystemInDarkTheme(),
+    isDarkMode: Boolean = isSystemInDarkTheme()
 ) {
     Row(
-        modifier = modifier.padding(vertical = 14.dp, horizontal = dimensionResource(R.dimen.medium_spacing)),
+        modifier = modifier.padding(
+            vertical = 14.dp,
+            horizontal = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)
+        ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -77,7 +80,7 @@ fun LargeSectionHeader(
                 )
             }
             is LargeSectionHeaderType.Default -> {
-                /* no-op */
+                // no-op
             }
         }
     }
@@ -90,9 +93,9 @@ private fun LargeSectionHeaderPreview() {
         AppSurface {
             LargeSectionHeader(
                 headerType = LargeSectionHeaderType.Default(
-                    title = "Destination Address",
+                    title = "Destination Address"
                 ),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
@@ -108,11 +111,11 @@ private fun LargeSectionHeaderIconPreview() {
                     title = "Destination Address",
                     icon = ImageResource.Local(
                         id = R.drawable.ic_qr_code,
-                        contentDescription = null,
+                        contentDescription = null
                     ),
                     onIconClicked = {}
                 ),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
@@ -131,7 +134,7 @@ private fun LargeSectionHeaderFilterPreview() {
                     onOptionSelected = { selected = it },
                     optionIndexSelected = selected
                 ),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }

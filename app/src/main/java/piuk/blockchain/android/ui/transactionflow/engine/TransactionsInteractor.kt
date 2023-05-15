@@ -99,7 +99,7 @@ class TransactionInteractor(
     private val dynamicAssetRepository: UniversalDynamicAssetRepository,
     private val stakingService: StakingService,
     private val transactionPrefs: TransactionPrefs,
-    private val activeRewardsService: ActiveRewardsService,
+    private val activeRewardsService: ActiveRewardsService
 ) {
     private var transactionProcessor: TransactionProcessor? = null
     private val invalidate = PublishSubject.create<Unit>()
@@ -124,13 +124,14 @@ class TransactionInteractor(
     fun initialiseTransaction(
         sourceAccount: BlockchainAccount,
         target: TransactionTarget,
-        action: AssetAction,
+        action: AssetAction
     ): Observable<PendingTx> =
         coincore.createTransactionProcessor(sourceAccount, target, action)
             .doOnSubscribe { Timber.d("!TRANSACTION!> SUBSCRIBE") }
             .doOnSuccess {
-                if (transactionProcessor != null)
+                if (transactionProcessor != null) {
                     throw IllegalStateException("TxProcessor double init")
+                }
             }
             .doOnSuccess { transactionProcessor = it }
             .doOnError {
@@ -188,8 +189,11 @@ class TransactionInteractor(
             val selectedTradingAccount =
                 fiatAccounts.find { it.currency == selectedTradingCurrency }
 
-            if (selectedTradingAccount != null) listOf(selectedTradingAccount)
-            else fiatAccounts
+            if (selectedTradingAccount != null) {
+                listOf(selectedTradingAccount)
+            } else {
+                fiatAccounts
+            }
         }
     }
 
@@ -345,7 +349,8 @@ class TransactionInteractor(
         val availableFiats =
             rxSingle { custodialWalletManager.getSupportedFundsFiats(currencyPrefs.selectedFiatCurrency).first() }
         return Single.zip(
-            custodialWalletManager.getSupportedBuySellCryptoCurrencies(), availableFiats
+            custodialWalletManager.getSupportedBuySellCryptoCurrencies(),
+            availableFiats
         ) { supportedPairs, fiats ->
             supportedPairs
                 .filter { fiats.contains(it.destination) }

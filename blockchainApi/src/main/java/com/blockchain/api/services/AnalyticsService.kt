@@ -21,7 +21,6 @@ class AnalyticsService internal constructor(
         device: String,
         authorization: String?
     ): Completable {
-
         return api.postAnalytics(
             authorization,
             AnalyticsRequestBody(

@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.customviews
 
 import android.content.Context
 import android.content.res.TypedArray
-import android.os.Build
 import android.util.AttributeSet
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatTextView
@@ -34,39 +33,35 @@ class StatusPill(context: Context, attrs: AttributeSet) : AppCompatTextView(cont
         }
 
     private fun setupLabel() {
-        setupStyle(R.style.Text_Semibold_12)
+        setupStyle(com.blockchain.common.R.style.Text_Semibold_12)
         background = context.getResolvedDrawable(R.drawable.bkgd_grey_100_rounded)
-        setTextColor(context.getResolvedColor(R.color.grey_600))
+        setTextColor(context.getResolvedColor(com.blockchain.common.R.color.grey_600))
     }
 
     private fun setupError() {
-        setupStyle(R.style.Text_Error)
+        setupStyle(com.blockchain.common.R.style.Text_Error)
         background = context.getResolvedDrawable(R.drawable.rounded_error_text_background)
     }
 
     private fun setupInfo() {
-        setupStyle(R.style.Text_Info)
+        setupStyle(com.blockchain.common.R.style.Text_Info)
         background = context.getResolvedDrawable(R.drawable.rounded_info_text_bkgd)
     }
 
     private fun setupWarning() {
-        setupStyle(R.style.Text_Semibold_12)
+        setupStyle(com.blockchain.common.R.style.Text_Semibold_12)
         background = context.getResolvedDrawable(R.drawable.bkgd_orange_100_rounded)
-        setTextColor(context.getResolvedColor(R.color.orange_600))
+        setTextColor(context.getResolvedColor(com.blockchain.common.R.color.orange_600))
     }
 
     private fun setupUpsell() {
-        setupStyle(R.style.Text_Semibold_12)
+        setupStyle(com.blockchain.common.R.style.Text_Semibold_12)
         background = context.getResolvedDrawable(R.drawable.bkgd_green_100_rounded)
-        setTextColor(context.getResolvedColor(R.color.green_600))
+        setTextColor(context.getResolvedColor(com.blockchain.common.R.color.green_600))
     }
 
     private fun setupStyle(@StyleRes style: Int) {
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
-            setTextAppearance(context, style)
-        } else {
-            setTextAppearance(style)
-        }
+        setTextAppearance(style)
     }
 
     private fun setupView(context: Context, attrs: AttributeSet) {

@@ -10,7 +10,7 @@ import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelig
 import com.blockchain.storedatasource.FlushableDataSource
 
 class ActiveRewardsRatesStore(
-    private val activeRewardsApiService: ActiveRewardsApiService,
+    private val activeRewardsApiService: ActiveRewardsApiService
 ) : Store<ActiveRewardsRatesDto> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,

@@ -174,7 +174,6 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
         userAccessForFeature: FeatureAccess = FeatureAccess.Granted(),
         accountBalance: CryptoValue = CryptoValue.zero(TEST_ASSET)
     ) {
-
         whenever(kycService.getHighestApprovedTierLevelLegacy()).thenReturn(Single.just(tier))
         whenever(userIdentity.userAccessForFeature(eq(Feature.DepositInterest), any())).thenReturn(
             Single.just(userAccessForFeature)

@@ -210,7 +210,7 @@ fun extractStatesInfo(
 private fun extractStatesInfo(
     isFirstItemVisibleProvider: () -> Boolean,
     isFirstVisibleItemOffsetZeroProvider: () -> Boolean,
-    isPullRefreshInProgressProvider: () -> Boolean,
+    isPullRefreshInProgressProvider: () -> Boolean
 ): ListStateInfo {
     val isFirstItemVisible by remember {
         derivedStateOf {

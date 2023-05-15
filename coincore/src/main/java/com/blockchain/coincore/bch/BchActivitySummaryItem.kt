@@ -11,7 +11,8 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 
-/*internal*/ class BchActivitySummaryItem internal constructor(
+/*internal*/
+class BchActivitySummaryItem internal constructor(
     private val transactionSummary: TransactionSummary,
     override val exchangeRates: ExchangeRatesDataManager,
     override val account: CryptoAccount,

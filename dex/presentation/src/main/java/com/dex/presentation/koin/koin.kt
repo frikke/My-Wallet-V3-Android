@@ -58,13 +58,13 @@ val dexPresentation = module {
         viewModel {
             SettingsViewModel(
                 slippageService = get(),
-                txProcessor = get(),
+                txProcessor = get()
             )
         }
 
         viewModel {
             TokenAllowanceViewModel(
-                assetCatalogue = get(),
+                assetCatalogue = get()
             )
         }
 

@@ -120,7 +120,8 @@ class NabuUserIdentity(
                 Single.zip(
                     rxSingleOutcome {
                         eligibilityService.getProductEligibilityLegacy(
-                            EligibleProduct.BUY, freshnessStrategy
+                            EligibleProduct.BUY,
+                            freshnessStrategy
                         )
                     },
                     simpleBuyService.getEligibility(freshnessStrategy).asSingle()
@@ -141,70 +142,80 @@ class NabuUserIdentity(
             Feature.Swap ->
                 rxSingleOutcome {
                     eligibilityService.getProductEligibilityLegacy(
-                        EligibleProduct.SWAP, freshnessStrategy
+                        EligibleProduct.SWAP,
+                        freshnessStrategy
                     )
                 }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.Sell ->
                 rxSingleOutcome {
                     eligibilityService.getProductEligibilityLegacy(
-                        EligibleProduct.SELL, freshnessStrategy
+                        EligibleProduct.SELL,
+                        freshnessStrategy
                     )
                 }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.DepositFiat ->
                 rxSingleOutcome {
                     eligibilityService.getProductEligibilityLegacy(
-                        EligibleProduct.DEPOSIT_FIAT, freshnessStrategy
+                        EligibleProduct.DEPOSIT_FIAT,
+                        freshnessStrategy
                     )
                 }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.DepositCrypto ->
                 rxSingleOutcome {
                     eligibilityService.getProductEligibilityLegacy(
-                        EligibleProduct.DEPOSIT_CRYPTO, freshnessStrategy
+                        EligibleProduct.DEPOSIT_CRYPTO,
+                        freshnessStrategy
                     )
                 }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.DepositInterest ->
                 rxSingleOutcome {
                     eligibilityService.getProductEligibilityLegacy(
-                        EligibleProduct.DEPOSIT_INTEREST, freshnessStrategy
+                        EligibleProduct.DEPOSIT_INTEREST,
+                        freshnessStrategy
                     )
                 }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.WithdrawFiat ->
                 rxSingleOutcome {
                     eligibilityService.getProductEligibilityLegacy(
-                        EligibleProduct.WITHDRAW_FIAT, freshnessStrategy
+                        EligibleProduct.WITHDRAW_FIAT,
+                        freshnessStrategy
                     )
                 }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.DepositStaking ->
                 rxSingleOutcome {
                     eligibilityService.getProductEligibilityLegacy(
-                        EligibleProduct.DEPOSIT_STAKING, freshnessStrategy
+                        EligibleProduct.DEPOSIT_STAKING,
+                        freshnessStrategy
                     )
                 }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.DepositActiveRewards ->
                 rxSingleOutcome {
                     eligibilityService.getProductEligibilityLegacy(
-                        EligibleProduct.DEPOSIT_EARN_CC1W, freshnessStrategy
+                        EligibleProduct.DEPOSIT_EARN_CC1W,
+                        freshnessStrategy
                     )
                 }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.CustodialAccounts ->
                 rxSingleOutcome {
                     eligibilityService.getProductEligibilityLegacy(
-                        EligibleProduct.USE_CUSTODIAL_ACCOUNTS, freshnessStrategy
+                        EligibleProduct.USE_CUSTODIAL_ACCOUNTS,
+                        freshnessStrategy
                     )
                 }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.Kyc ->
                 rxSingleOutcome {
                     eligibilityService.getProductEligibilityLegacy(
-                        EligibleProduct.KYC, freshnessStrategy
+                        EligibleProduct.KYC,
+                        freshnessStrategy
                     )
                 }
                     .map(ProductEligibility::toFeatureAccess)
@@ -264,8 +275,9 @@ class NabuUserIdentity(
 }
 
 private fun ProductEligibility.toFeatureAccess(): FeatureAccess =
-    if (canTransact) FeatureAccess.Granted(maxTransactionsCap)
-    else FeatureAccess.Blocked(
+    if (canTransact) {
+        FeatureAccess.Granted(maxTransactionsCap)
+    } else FeatureAccess.Blocked(
         when (val reason = reasonNotEligible) {
             ProductNotEligibleReason.InsufficientTier.Tier1TradeLimitExceeded ->
                 BlockedReason.InsufficientTier.Tier1TradeLimitExceeded

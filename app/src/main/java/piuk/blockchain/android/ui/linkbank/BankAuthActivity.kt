@@ -102,23 +102,22 @@ class BankAuthActivity :
         if (savedInstanceState == null) {
             when {
                 isFromDeepLink -> {
-                    title = getString(R.string.link_a_bank)
+                    title = getString(com.blockchain.stringResources.R.string.link_a_bank)
                     checkBankLinkingState(linkingId)
                 }
                 approvalDetails != null -> {
-
                     approvalDetails?.let {
-                        title = getString(R.string.approve_payment)
+                        title = getString(com.blockchain.stringResources.R.string.approve_payment)
 
                         yapilyApprovalAccepted(it)
                     } ?: launchBankLinkingWithError(BankAuthError.GenericError)
                 }
                 refreshBankAccountId != null -> {
-                    title = getString(R.string.link_a_bank)
+                    title = getString(com.blockchain.stringResources.R.string.link_a_bank)
                     launchPlaidRefresh()
                 }
                 else -> {
-                    title = getString(R.string.link_a_bank)
+                    title = getString(com.blockchain.stringResources.R.string.link_a_bank)
                     checkPartnerAndLaunchFlow(linkBankTransfer)
                 }
             }
@@ -359,7 +358,7 @@ class BankAuthActivity :
         fun newInstance(
             linkBankTransfer: LinkBankTransfer,
             authSource: BankAuthSource,
-            context: Context,
+            context: Context
         ): Intent {
             val intent = Intent(context, BankAuthActivity::class.java)
             intent.putExtra(LINK_BANK_TRANSFER_KEY, linkBankTransfer)
@@ -378,7 +377,7 @@ class BankAuthActivity :
         fun newBankRefreshInstance(
             accountId: String,
             authSource: BankAuthSource,
-            context: Context,
+            context: Context
         ): Intent {
             val intent = Intent(context, BankAuthActivity::class.java)
             intent.putExtra(REFRESH_BANK_ACCOUNT_ID, accountId)

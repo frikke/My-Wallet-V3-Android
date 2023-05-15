@@ -17,7 +17,7 @@ import kotlinx.coroutines.rx3.await
 
 class HomeAccountsRepository(
     private val coincore: Coincore,
-    private val unifiedBalancesService: UnifiedBalancesService,
+    private val unifiedBalancesService: UnifiedBalancesService
 ) : HomeAccountsService {
     override fun accounts(
         walletMode: WalletMode,
@@ -29,8 +29,9 @@ class HomeAccountsRepository(
         }
     }
 
-    private fun activeNonCustodialWallets(freshnessStrategy: FreshnessStrategy):
-        Flow<DataResource<List<SingleAccount>>> {
+    private fun activeNonCustodialWallets(
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<List<SingleAccount>>> {
         val activeAssets = unifiedBalancesService.balances(freshnessStrategy = freshnessStrategy).mapData {
             it.map { balance ->
                 coincore[balance.currency]

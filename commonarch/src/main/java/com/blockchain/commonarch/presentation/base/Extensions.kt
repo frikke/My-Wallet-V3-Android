@@ -12,7 +12,9 @@ fun Fragment.updateToolbar(
     backAction: (() -> Unit)? = null
 ) {
     (activity as? BlockchainActivity)?.updateToolbar(
-        toolbarTitle = toolbarTitle, menuItems = menuItems, backAction = backAction
+        toolbarTitle = toolbarTitle,
+        menuItems = menuItems,
+        backAction = backAction
     )
 }
 
@@ -40,8 +42,8 @@ fun Fragment.updateToolbarMenuItems(menuItems: List<NavigationBarButton>) {
 
 fun FragmentTransaction.addTransactionAnimation(): FragmentTransaction =
     this.setCustomAnimations(
-        R.anim.fragment_slide_left_enter,
-        R.anim.fragment_slide_left_exit,
-        R.anim.fragment_slide_right_enter,
-        R.anim.fragment_slide_right_exit
+        com.blockchain.componentlib.R.anim.fragment_slide_left_enter,
+        com.blockchain.componentlib.R.anim.fragment_slide_left_exit,
+        com.blockchain.componentlib.R.anim.fragment_slide_right_enter,
+        com.blockchain.componentlib.R.anim.fragment_slide_right_exit
     )

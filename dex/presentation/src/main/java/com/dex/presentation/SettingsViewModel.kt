@@ -59,7 +59,7 @@ class SettingsViewModel(
 }
 
 data class SettingsModelState(
-    val availableSlippages: List<Slippage>,
+    val availableSlippages: List<Slippage>
 ) : ModelState
 
 data class Slippage(

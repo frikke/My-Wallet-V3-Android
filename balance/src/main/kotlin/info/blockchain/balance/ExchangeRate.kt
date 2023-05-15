@@ -63,8 +63,9 @@ class ExchangeRate(
 
     companion object {
         private fun validateCurrency(expected: Currency, got: Currency) {
-            if (expected != got)
+            if (expected != got) {
                 throw ValueTypeMismatchException("exchange", expected.networkTicker, got.networkTicker)
+            }
         }
 
         fun zeroRateExchangeRate(from: Currency, to: Currency = from): ExchangeRate =

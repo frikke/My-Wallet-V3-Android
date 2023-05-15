@@ -54,10 +54,10 @@ fun SwapDexOptionScreen(
             .background(color = BackgroundMuted),
     ) {
         NavigationBar(
-            title = stringResource(id = R.string.select_an_option),
+            title = stringResource(id = com.blockchain.stringResources.R.string.select_an_option),
             navigationBarButtons = listOf(
                 NavigationBarButton.IconResource(
-                    ImageResource.Local(R.drawable.ic_close_circle_white),
+                    ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_close_circle),
                     onIconClick = { onBackPressed() }
                 )
             )
@@ -68,19 +68,19 @@ fun SwapDexOptionScreen(
                 top = AppTheme.dimensions.standardSpacing,
                 bottom = AppTheme.dimensions.tinySpacing
             ),
-            text = stringResource(id = R.string.choose_how_to_swap),
+            text = stringResource(id = com.blockchain.stringResources.R.string.choose_how_to_swap),
             style = AppTheme.typography.body2,
             color = Grey700
         )
         val items = listOf(
             SwapOption(
-                title = stringResource(id = R.string.bcdc_swap),
-                subtitle = stringResource(id = R.string.cross_chain_limited_tokens),
+                title = stringResource(id = com.blockchain.stringResources.R.string.bcdc_swap),
+                subtitle = stringResource(id = com.blockchain.stringResources.R.string.cross_chain_limited_tokens),
                 type = SwapType.BCDC_SWAP,
             ),
             SwapOption(
-                title = stringResource(id = R.string.dex_swap),
-                subtitle = stringResource(id = R.string.single_chain_eth_tokens),
+                title = stringResource(id = com.blockchain.stringResources.R.string.dex_swap),
+                subtitle = stringResource(id = com.blockchain.stringResources.R.string.single_chain_eth_tokens),
                 type = SwapType.DEX,
 
             )
@@ -144,7 +144,7 @@ private fun SwapOptionCell(
         contentEnd = {
             Image(
                 imageResource = ImageResource.Local(
-                    id = R.drawable.ic_chevron_end,
+                    id = com.blockchain.componentlib.R.drawable.ic_chevron_end,
                     colorFilter = ColorFilter.tint(Grey400)
                 ),
                 modifier = Modifier.requiredSizeIn(
@@ -161,8 +161,8 @@ private fun SwapOptionCell(
                 },
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .padding(end = dimensionResource(R.dimen.medium_spacing))
-                    .size(dimensionResource(R.dimen.standard_spacing)),
+                    .padding(end = dimensionResource(com.blockchain.common.R.dimen.medium_spacing))
+                    .size(dimensionResource(com.blockchain.common.R.dimen.standard_spacing)),
             )
         },
         contentBottom = {

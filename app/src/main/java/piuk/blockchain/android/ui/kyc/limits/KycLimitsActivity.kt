@@ -43,7 +43,7 @@ class KycLimitsActivity : BlockchainActivity(), KycUpgradeNowSheet.Host {
         setContentView(binding.root)
 
         updateToolbar(
-            toolbarTitle = getString(R.string.feature_limits_toolbar),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.feature_limits_toolbar),
             backAction = { finish() }
         )
     }
@@ -52,15 +52,18 @@ class KycLimitsActivity : BlockchainActivity(), KycUpgradeNowSheet.Host {
         super.onResume()
         disposables += Singles.zip(
             kycService.getHighestApprovedTierLevelLegacy(),
-            userFeaturePermissionService.isEligibleFor(Feature.Kyc).asSingle(),
+            userFeaturePermissionService.isEligibleFor(Feature.Kyc).asSingle()
         )
             .applySchedulers()
             .doOnSubscribe { showLoading() }
             .doOnTerminate { hideLoading() }
             .subscribeBy(
                 onSuccess = { (tier, isEligibleToKyc) ->
-                    if (tier == KycTier.GOLD || !isEligibleToKyc) showLimits()
-                    else showUpgradeNow()
+                    if (tier == KycTier.GOLD || !isEligibleToKyc) {
+                        showLimits()
+                    } else {
+                        showUpgradeNow()
+                    }
                 },
                 onError = {
                     showLimits()
@@ -74,7 +77,7 @@ class KycLimitsActivity : BlockchainActivity(), KycUpgradeNowSheet.Host {
             .commit()
 
         updateToolbar(
-            toolbarTitle = getString(R.string.upgrade_now),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.upgrade_now),
             backAction = { finish() }
         )
     }
@@ -85,7 +88,7 @@ class KycLimitsActivity : BlockchainActivity(), KycUpgradeNowSheet.Host {
             .commit()
 
         updateToolbar(
-            toolbarTitle = getString(R.string.feature_limits_toolbar),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.feature_limits_toolbar),
             backAction = { finish() }
         )
     }

@@ -28,7 +28,8 @@ class InterestSummaryViewModel(
     private val coincore: Coincore,
     private val interestService: InterestService,
     private val exchangeRatesDataManager: ExchangeRatesDataManager
-) : MviViewModel<InterestSummaryIntent,
+) : MviViewModel<
+    InterestSummaryIntent,
     InterestSummaryViewState,
     InterestSummaryModelState,
     InterestSummaryNavigationEvent,
@@ -124,7 +125,7 @@ class InterestSummaryViewModel(
 
 @Parcelize
 data class InterestSummaryArgs(
-    val cryptoTicker: String,
+    val cryptoTicker: String
 ) : ModelConfigArgs.ParcelableArgs
 
 private data class InterestSummaryData(
@@ -132,5 +133,5 @@ private data class InterestSummaryData(
     val balance: InterestAccountBalance,
     val limits: InterestLimits,
     val rate: Double,
-    val eligibility: EarnRewardsEligibility,
+    val eligibility: EarnRewardsEligibility
 )

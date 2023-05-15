@@ -18,17 +18,19 @@ import com.blockchain.componentlib.theme.Grey100
 @Composable
 fun SheetNub(
     modifier: Modifier = Modifier,
-    isDarkMode: Boolean = isSystemInDarkTheme(),
+    isDarkMode: Boolean = isSystemInDarkTheme()
 ) {
     Box(
         modifier = modifier
             .size(
-                width = dimensionResource(R.dimen.standard_spacing),
-                height = dimensionResource(R.dimen.smallest_spacing)
+                width = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                height = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
             )
             .background(
                 color = if (isDarkMode) Dark300 else Grey100,
-                shape = RoundedCornerShape(size = dimensionResource(R.dimen.smallest_spacing))
+                shape = RoundedCornerShape(
+                    size = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
+                )
             )
     )
 }

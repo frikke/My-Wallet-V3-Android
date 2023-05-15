@@ -13,7 +13,7 @@ class AddressVerificationApiService(
         searchQuery: String,
         countryIso: String?,
         stateIso: String?,
-        containerId: String?,
+        containerId: String?
     ): Outcome<Exception, AutocompleteAddressResponse> = api.getAutocompleteAddresses(
         searchQuery,
         countryIso,

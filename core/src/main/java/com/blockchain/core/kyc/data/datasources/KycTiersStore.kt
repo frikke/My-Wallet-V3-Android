@@ -15,7 +15,7 @@ import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 class KycTiersStore internal constructor(
-    private val kycApiService: KycApiService,
+    private val kycApiService: KycApiService
 ) : Store<KycTiersDto> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,

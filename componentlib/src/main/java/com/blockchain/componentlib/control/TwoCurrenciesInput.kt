@@ -84,7 +84,7 @@ fun TwoCurrenciesInput(
     onCurrency1ValueChange: (String) -> Unit,
     currency2: CurrencyValue,
     onCurrency2ValueChange: (String) -> Unit,
-    onFlipInputs: () -> Unit,
+    onFlipInputs: () -> Unit
 ) {
     val localDensity = LocalDensity.current
 
@@ -206,7 +206,7 @@ private fun BoxScope.CurrencyInput(
     focusRequester: FocusRequester,
     currency: CurrencyValue,
     value: TextFieldValue,
-    onCurrencyValueChange: (TextFieldValue) -> Unit,
+    onCurrencyValueChange: (TextFieldValue) -> Unit
 ) {
     val pattern = remember(currency.maxFractionDigits) {
         val decimalSeparator = DecimalFormatSymbols(Locale.getDefault()).decimalSeparator.toString()
@@ -266,7 +266,7 @@ private fun BoxScope.CurrencyInput(
             isPrefix = currency.isPrefix,
             separateWithSpace = currency.separateWithSpace
         ),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
     ) { innerTextField ->
         TextFieldDefaults.TextFieldDecorationBox(
             value = value.text,
@@ -281,7 +281,7 @@ private fun BoxScope.CurrencyInput(
                     modifier = Modifier.fillMaxWidth(),
                     text = currency.zeroHint(),
                     style = AppTheme.typography.display.copy(
-                        fontSize = textSizeAnim.sp,
+                        fontSize = textSizeAnim.sp
                     ),
                     textAlign = TextAlign.Center
                 )

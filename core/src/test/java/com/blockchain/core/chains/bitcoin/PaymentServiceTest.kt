@@ -297,18 +297,33 @@ class PaymentServiceTest {
         val mockOutputs: SpendableUnspentOutputs = mock()
         whenever(
             payment.getSpendableCoins(
-                mockUnspent, targetOutputType, changeOutputType, mockPayment, mockFee, false
+                mockUnspent,
+                targetOutputType,
+                changeOutputType,
+                mockPayment,
+                mockFee,
+                false
             )
         )
             .thenReturn(mockOutputs)
         // Act
         val result = subject.getSpendableCoins(
-            mockUnspent, targetOutputType, changeOutputType, mockPayment, mockFee, false
+            mockUnspent,
+            targetOutputType,
+            changeOutputType,
+            mockPayment,
+            mockFee,
+            false
         )
         // Assert
         assertEquals(mockOutputs, result)
         verify(payment).getSpendableCoins(
-            mockUnspent, targetOutputType, changeOutputType, mockPayment, mockFee, false
+            mockUnspent,
+            targetOutputType,
+            changeOutputType,
+            mockPayment,
+            mockFee,
+            false
         )
         verifyNoMoreInteractions(payment)
     }

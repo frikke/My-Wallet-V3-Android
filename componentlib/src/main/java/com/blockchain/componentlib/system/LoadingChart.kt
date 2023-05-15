@@ -64,7 +64,7 @@ fun LoadingChart(
             Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .padding(top = dimensionResource(R.dimen.medium_spacing))
+                .padding(top = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing))
         ) {
             val width = this.size.width
             val interval = width / historicalRates.size

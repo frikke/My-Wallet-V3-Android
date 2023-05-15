@@ -28,7 +28,8 @@ class OpenBankingPermissionViewModelTest {
     private val institution = mockk<YapilyInstitution>()
     private val args = OpenBankingPermissionArgs(
         institution = institution,
-        entity = "", authSource = mockk()
+        entity = "",
+        authSource = mockk()
     )
 
     @Before
@@ -55,7 +56,6 @@ class OpenBankingPermissionViewModelTest {
     @Test
     fun `WHEN ApproveClicked is triggered, THEN AgreementAccepted should be triggered`() =
         runTest {
-
             viewModel.viewCreated(args)
 
             viewModel.navigationEventFlow.test {

@@ -193,7 +193,7 @@ fun HomeScreen(
             .fillMaxSize()
             .background(
                 AppTheme.colors.backgroundMuted
-            ),
+            )
     ) {
         stickyHeader {
             MenuOptionsScreen(
@@ -341,7 +341,7 @@ fun HomeScreen(
                         recurringBuys = recurringBuys,
                         manageOnclick = openRecurringBuys,
                         upsellOnClick = recurringBuyNavigation::openOnboarding,
-                        recurringBuyOnClick = openRecurringBuyDetail,
+                        recurringBuyOnClick = openRecurringBuyDetail
                     )
                 }
         }
@@ -361,7 +361,7 @@ fun HomeScreen(
                         )
                     )
                 }
-            },
+            }
         )
 
         walletMode?.let {

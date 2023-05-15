@@ -37,7 +37,7 @@ internal class XlmCryptoWalletAccount(
     private val walletOptionsDataManager: WalletOptionsDataManager,
     private val walletPreferences: WalletStatusPrefs,
     private val custodialWalletManager: CustodialWalletManager,
-    override val addressResolver: AddressResolver,
+    override val addressResolver: AddressResolver
 ) : CryptoNonCustodialAccount(
     CryptoCurrency.XLM
 ) {

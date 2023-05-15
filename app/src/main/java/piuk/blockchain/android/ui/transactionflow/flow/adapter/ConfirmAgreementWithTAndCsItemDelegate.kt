@@ -49,7 +49,6 @@ private class AgreementItemViewHolder(private val binding: ItemSendConfirmAgreem
         isFirstItemInList: Boolean,
         isLastItemInList: Boolean
     ) {
-
         val linksMap = mapOf<String, Uri>(
             "interest_tos" to Uri.parse(INTEREST_TERMS_OF_SERVICE),
             "interest_pp" to Uri.parse(INTEREST_PRIVACY_POLICY)
@@ -61,7 +60,7 @@ private class AgreementItemViewHolder(private val binding: ItemSendConfirmAgreem
             confirmDetailsCheckboxText.apply {
                 text = StringUtils.getStringWithMappedAnnotations(
                     binding.root.context,
-                    R.string.send_confirmation_rewards_tos_pp,
+                    com.blockchain.stringResources.R.string.send_confirmation_rewards_tos_pp,
                     linksMap
                 )
                 movementMethod = LinkMovementMethod.getInstance()

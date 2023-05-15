@@ -23,7 +23,7 @@ import piuk.blockchain.android.ui.dashboard.format
 class UpSellAnotherAssetViewModel(
     private val pricesService: PricesService,
     private val currencyPrefs: CurrencyPrefs,
-    private val dismissRecorder: DismissRecorder,
+    private val dismissRecorder: DismissRecorder
 ) : MviViewModel<
     UpSellAnotherAssetIntent,
     UpsellAnotherAssetViewState,
@@ -51,7 +51,7 @@ class UpSellAnotherAssetViewModel(
             assetsToUpSell = assetsToUpSell.mapList {
                 it.toPriceItemViewState()
             }.toImmutableList(),
-            isLoading = isLoading,
+            isLoading = isLoading
         )
     }
 
@@ -107,5 +107,5 @@ class UpSellAnotherAssetViewModel(
 
 @Parcelize
 data class UpSellAnotherAssetArgs(
-    val assetJustBoughtTicker: String,
+    val assetJustBoughtTicker: String
 ) : ModelConfigArgs.ParcelableArgs

@@ -23,7 +23,7 @@ class DexInProgressTxViewModel(private val txProcessor: DexTransactionProcessor)
     ModelConfigArgs.NoArgs
     >(
     initialState = InProgressModelState(
-        transaction = null,
+        transaction = null
     )
 ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {

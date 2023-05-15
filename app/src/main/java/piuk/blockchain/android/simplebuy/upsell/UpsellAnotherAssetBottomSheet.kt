@@ -89,7 +89,7 @@ class UpsellAnotherAssetBottomSheet :
                     onClose = {
                         host.onCloseUpsellAnotherAsset()
                         dismiss()
-                    },
+                    }
                 )
             }
         }
@@ -118,7 +118,7 @@ fun UpsellAnotherAssetScreen(
     viewModel: UpSellAnotherAssetViewModel,
     analytics: Analytics,
     onBuyMostPopularAsset: (String) -> Unit,
-    onClose: () -> Unit,
+    onClose: () -> Unit
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
@@ -156,7 +156,7 @@ fun UpsellAnotherAssetScreen(
                         onClose = {
                             analytics.logEvent(UpSellAnotherAssetDismissed)
                             onClose()
-                        },
+                        }
                     )
                 }
                 else -> {

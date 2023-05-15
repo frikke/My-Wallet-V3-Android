@@ -33,7 +33,7 @@ fun SheetHeaderBackAndClose(
     modifier: Modifier = Modifier,
     byline: String? = null,
     backPressContentDescription: String? = null,
-    closePressContentDescription: String? = null,
+    closePressContentDescription: String? = null
 ) {
     Box(
         modifier = modifier
@@ -47,16 +47,15 @@ fun SheetHeaderBackAndClose(
             modifier = modifier.heightIn(56.dp)
         ) {
             Row {
-
                 SheetHeaderBackButton(
                     onBackPress = onBackPress,
                     backPressContentDescription = backPressContentDescription,
                     modifier = Modifier
                         .padding(
-                            start = dimensionResource(R.dimen.very_small_spacing),
-                            top = dimensionResource(R.dimen.medium_spacing)
+                            start = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing),
+                            top = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)
                         )
-                        .size(dimensionResource(R.dimen.standard_spacing))
+                        .size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
                 )
 
                 SheetHeaderTitle(
@@ -65,15 +64,15 @@ fun SheetHeaderBackAndClose(
                     modifier = Modifier
                         .weight(1f)
                         .padding(
-                            top = dimensionResource(R.dimen.medium_spacing),
-                            start = dimensionResource(R.dimen.standard_spacing)
+                            top = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
+                            start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
                         )
                 )
 
                 SheetHeaderCloseButton(
                     onClosePress = onClosePress,
                     backPressContentDescription = closePressContentDescription,
-                    modifier = Modifier.padding(dimensionResource(R.dimen.medium_spacing))
+                    modifier = Modifier.padding(dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing))
                 )
             }
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
@@ -86,30 +85,30 @@ private fun SheetHeaderTitle(
     title: String,
     modifier: Modifier = Modifier,
     byline: String? = null,
-    isDarkMode: Boolean = isSystemInDarkTheme(),
+    isDarkMode: Boolean = isSystemInDarkTheme()
 ) {
     Column(
         modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (byline == null) {
-            Spacer(Modifier.height(dimensionResource(R.dimen.smallest_spacing)))
+            Spacer(Modifier.height(dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)))
         }
 
         Text(
             text = title,
             style = AppTheme.typography.body2,
             color = AppTheme.colors.title,
-            textAlign = TextAlign.Center,
+            textAlign = TextAlign.Center
         )
         if (byline != null) {
             Text(
                 text = byline,
                 style = AppTheme.typography.caption1,
                 color = if (isDarkMode) Dark200 else Grey600,
-                textAlign = TextAlign.Center,
+                textAlign = TextAlign.Center
             )
-            Spacer(Modifier.height(dimensionResource(R.dimen.minuscule_spacing)))
+            Spacer(Modifier.height(dimensionResource(com.blockchain.componentlib.R.dimen.minuscule_spacing)))
         }
     }
 }
@@ -122,7 +121,7 @@ private fun SheetHeaderBackAndClosePreview() {
             SheetHeaderBackAndClose(
                 title = "Title",
                 onBackPress = { /* no-op */ },
-                onClosePress = { /* no-op */ },
+                onClosePress = { /* no-op */ }
             )
         }
     }
@@ -137,7 +136,7 @@ private fun SheetHeaderBackAndCloseBylinePreview() {
                 title = "Title",
                 onBackPress = { /* no-op */ },
                 byline = "Byline",
-                onClosePress = { /* no-op */ },
+                onClosePress = { /* no-op */ }
             )
         }
     }

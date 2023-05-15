@@ -34,7 +34,7 @@ class SettingsInteractor internal constructor(
     private val getAvailablePaymentMethodsTypesUseCase: GetAvailablePaymentMethodsTypesUseCase,
     private val currencyPrefs: CurrencyPrefs,
     private val referralService: ReferralService,
-    private val nabuUserIdentity: NabuUserIdentity,
+    private val nabuUserIdentity: NabuUserIdentity
 ) {
     val userSelectedFiat: FiatCurrency
         get() = currencyPrefs.selectedFiatCurrency
@@ -121,7 +121,7 @@ class SettingsInteractor internal constructor(
         getAvailablePaymentMethodsTypesUseCase(
             GetAvailablePaymentMethodsTypesUseCase.Request(
                 currency = fiatCurrency,
-                onlyEligible = true,
+                onlyEligible = true
             )
         ).map { available ->
             val allowedTypes = listOf(
@@ -140,7 +140,7 @@ class SettingsInteractor internal constructor(
     private fun getLinkedBanks(
         fiatCurrency: FiatCurrency,
         available: List<AvailablePaymentMethodType>,
-        limits: PaymentLimits,
+        limits: PaymentLimits
     ): Single<List<BankItem>> =
         bankService.getLinkedBanks()
             .map { banks ->

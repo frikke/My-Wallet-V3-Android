@@ -34,7 +34,7 @@ class KycRepository(
     private val userService: UserService,
     private val assetCatalogue: AssetCatalogue,
     private val kycApiService: KycApiService,
-    private val proveFeatureFlag: FeatureFlag,
+    private val proveFeatureFlag: FeatureFlag
 ) : KycService {
 
     private fun getKycTiersFlow(freshnessStrategy: FreshnessStrategy): Flow<DataResource<KycTiers>> {

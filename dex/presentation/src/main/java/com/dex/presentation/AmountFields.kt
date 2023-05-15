@@ -63,7 +63,7 @@ fun SendAndReceiveAmountFields(
     modifier: Modifier = Modifier,
     onValueChanged: (TextFieldValue) -> Unit,
     sendAmountFieldConfig: AmountFieldConfig,
-    receiveAmountFieldConfig: AmountFieldConfig,
+    receiveAmountFieldConfig: AmountFieldConfig
 ) {
     var input by remember {
         mutableStateOf(
@@ -92,7 +92,7 @@ fun SendAndReceiveAmountFields(
                 modifier = Modifier
                     .background(
                         color = Color.White,
-                        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+                        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing)
                     )
                     .onGloballyPositioned { coordinates ->
                         size = coordinates.size
@@ -105,7 +105,9 @@ fun SendAndReceiveAmountFields(
                             TextFieldValue(
                                 sendAmountFieldConfig.amount?.toStringWithoutSymbol().orEmpty()
                             )
-                        } else input,
+                        } else {
+                            input
+                        },
                         onValueChanged = {
                             if (!sendAmountFieldConfig.isReadOnly &&
                                 (it.text.isEmpty() || it.text.toDoubleOrNull() != null)
@@ -135,6 +137,7 @@ fun SendAndReceiveAmountFields(
                                     onValueChanged(input)
                                 }
                             )
+
                             sendAmountFieldConfig.balance != null -> BalanceAmount(sendAmountFieldConfig.balance)
                         }
                     }
@@ -145,7 +148,7 @@ fun SendAndReceiveAmountFields(
                 modifier = Modifier
                     .background(
                         color = Color.White,
-                        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+                        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing)
                     )
             ) {
                 Column {
@@ -189,7 +192,7 @@ private fun ReceiveAmountAndCurrencySelection(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                end = AppTheme.dimensions.smallSpacing,
+                end = AppTheme.dimensions.smallSpacing
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -230,7 +233,7 @@ private fun ReceiveAmountAndCurrencySelection(
         CurrencySelection(
             onClick = onClick,
             enabled = canChangeCurrency,
-            currency = currency,
+            currency = currency
         )
     }
 }
@@ -243,13 +246,13 @@ private fun AmountAndCurrencySelection(
     canChangeCurrency: Boolean,
     onClick: () -> Unit,
     currency: Currency?,
-    onValueChanged: (TextFieldValue) -> Unit,
+    onValueChanged: (TextFieldValue) -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                end = AppTheme.dimensions.smallSpacing,
+                end = AppTheme.dimensions.smallSpacing
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -282,7 +285,7 @@ private fun AmountAndCurrencySelection(
         CurrencySelection(
             onClick = onClick,
             enabled = canChangeCurrency,
-            currency = currency,
+            currency = currency
         )
     }
 }
@@ -322,7 +325,7 @@ private fun RowScope.ExchangeAmount(money: Money, isEnabled: Boolean, shouldAnim
 private fun CurrencySelection(
     onClick: () -> Unit,
     enabled: Boolean,
-    currency: Currency?,
+    currency: Currency?
 ) {
     Row(
         modifier = Modifier
@@ -354,20 +357,23 @@ private fun CurrencySelection(
                 start = AppTheme.dimensions.tinySpacing,
                 end = AppTheme.dimensions.tinySpacing,
                 top = AppTheme.dimensions.smallestSpacing,
-                bottom = AppTheme.dimensions.smallestSpacing,
+                bottom = AppTheme.dimensions.smallestSpacing
             ),
-            text = currency?.displayTicker ?: stringResource(id = R.string.common_select),
+            text = currency?.displayTicker ?: stringResource(
+                id = com.blockchain.stringResources.R.string.common_select
+            ),
             style = AppTheme.typography.body1,
             color = Grey900
         )
-        if (enabled)
+        if (enabled) {
             Image(
                 ImageResource.Local(
-                    id = R.drawable.ic_chevron_end,
+                    id = com.blockchain.componentlib.R.drawable.ic_chevron_end,
                     colorFilter = ColorFilter.tint(Grey700),
                     size = 10.dp
                 )
             )
+        }
     }
 }
 
@@ -396,7 +402,7 @@ private fun MaskedCircleArrow(parentSize: IntSize) {
                 .size(dimensionResource(id = com.blockchain.componentlib.R.dimen.xlarge_spacing)),
             onDraw = {
                 drawCircle(
-                    color = BackgroundMuted,
+                    color = BackgroundMuted
                 )
             }
         )
@@ -404,7 +410,7 @@ private fun MaskedCircleArrow(parentSize: IntSize) {
             imageResource = Icons.ArrowDown.withBackground(
                 backgroundColor = Color.White,
                 backgroundSize = AppTheme.dimensions.standardSpacing,
-                iconSize = AppTheme.dimensions.standardSpacing,
+                iconSize = AppTheme.dimensions.standardSpacing
             )
         )
     }
@@ -423,7 +429,7 @@ private fun RowScope.MaxAmount(maxAvailable: Money, maxClick: () -> Unit) {
             .wrapContentSize()
     ) {
         Text(
-            text = stringResource(id = R.string.common_max),
+            text = stringResource(id = com.blockchain.stringResources.R.string.common_max),
             style = AppTheme.typography.micro2,
             color = Grey700
         )
@@ -448,7 +454,7 @@ private fun BalanceAmount(amount: Money) {
             .wrapContentSize()
     ) {
         Text(
-            text = stringResource(id = R.string.common_balance),
+            text = stringResource(id = com.blockchain.stringResources.R.string.common_balance),
             style = AppTheme.typography.micro2,
             color = Grey700
         )
@@ -473,7 +479,7 @@ private fun RowScope.Balance() {
             .wrapContentSize()
     ) {
         Text(
-            text = stringResource(id = R.string.common_balance),
+            text = stringResource(id = com.blockchain.stringResources.R.string.common_balance),
             style = AppTheme.typography.micro2,
             color = Grey700
         )

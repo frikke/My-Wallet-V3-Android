@@ -59,13 +59,13 @@ fun AsyncMediaItem(
                 onRetry = { _, _ ->
                     retrySignal.retry()
                     true
-                },
+                }
             )
 
             LottieAnimation(
                 modifier = modifier,
                 composition = composition,
-                iterations = LottieConstants.IterateForever,
+                iterations = LottieConstants.IterateForever
             )
         }
         UrlType.JPG.name,

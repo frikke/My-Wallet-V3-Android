@@ -43,7 +43,7 @@ fun NoPaddingRadio(
     state: RadioButtonState,
     onSelectedChanged: ((Boolean) -> Unit)? = null,
     enabled: Boolean = true,
-    isDarkMode: Boolean = isSystemInDarkTheme(),
+    isDarkMode: Boolean = isSystemInDarkTheme()
 ) {
     Radio(
         state = state,
@@ -61,7 +61,7 @@ fun Radio(
     onSelectedChanged: ((Boolean) -> Unit)? = null,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    isDarkMode: Boolean = isSystemInDarkTheme(),
+    isDarkMode: Boolean = isSystemInDarkTheme()
 ) {
     Radio(
         state = state,
@@ -80,9 +80,8 @@ private fun Radio(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     isDarkMode: Boolean = isSystemInDarkTheme(),
-    withPadding: Boolean = true,
+    withPadding: Boolean = true
 ) {
-
     val selectedColor = AppTheme.colors.primary
     val unselectedColor = AppTheme.colors.medium
     val errorColor = AppTheme.colors.error
@@ -146,8 +145,8 @@ private fun Radio(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = rememberRipple(
                             bounded = false,
-                            radius = dimensionResource(R.dimen.standard_spacing),
-                        ),
+                            radius = dimensionResource(R.dimen.standard_spacing)
+                        )
                     ) {
                         onSelectedChanged(
                             when (state) {
@@ -161,11 +160,15 @@ private fun Radio(
                     this
                 }
             }
-            .padding(dimensionResource(if (withPadding) R.dimen.very_small_spacing else R.dimen.zero_spacing))
+            .padding(
+                dimensionResource(
+                    if (withPadding) R.dimen.very_small_spacing else R.dimen.zero_spacing
+                )
+            )
             .size(dimensionResource(R.dimen.standard_spacing))
             .background(
                 color = animateColorAsState(targetValue = radioFillColor).value,
-                shape = CircleShape,
+                shape = CircleShape
             )
             .border(
                 width = 2.dp,
@@ -175,8 +178,8 @@ private fun Radio(
             .padding(5.dp)
             .background(
                 color = animateColorAsState(targetValue = radioCenterColor).value,
-                shape = CircleShape,
-            ),
+                shape = CircleShape
+            )
     )
 }
 
@@ -191,7 +194,7 @@ private fun RadioPreview_NotChecked() {
         AppSurface {
             Radio(
                 state = RadioButtonState.Unselected,
-                onSelectedChanged = {},
+                onSelectedChanged = {}
             )
         }
     }
@@ -204,7 +207,7 @@ private fun RadioPreview_Error() {
         AppSurface {
             Radio(
                 state = RadioButtonState.Error,
-                onSelectedChanged = {},
+                onSelectedChanged = {}
             )
         }
     }
@@ -217,7 +220,7 @@ private fun RadioPreview_IsChecked() {
         AppSurface {
             Radio(
                 state = RadioButtonState.Selected,
-                onSelectedChanged = {},
+                onSelectedChanged = {}
             )
         }
     }
@@ -231,7 +234,7 @@ private fun RadioPreview_NotChecked_NotEnabled() {
             Radio(
                 state = RadioButtonState.Unselected,
                 onSelectedChanged = {},
-                enabled = false,
+                enabled = false
             )
         }
     }
@@ -245,7 +248,7 @@ private fun RadioPreview_IsChecked_NotEnabled() {
             Radio(
                 state = RadioButtonState.Selected,
                 onSelectedChanged = {},
-                enabled = false,
+                enabled = false
             )
         }
     }
@@ -273,7 +276,8 @@ fun RadioCheckMark(state: RadioButtonState, onSelectedChanged: () -> Unit, modif
             ) {
                 Image(
                     imageResource = ImageResource.Local(
-                        R.drawable.ic_check_green, colorFilter = ColorFilter.tint(White)
+                        R.drawable.ic_check_green,
+                        colorFilter = ColorFilter.tint(White)
                     ),
                     modifier = Modifier
                         .fillMaxSize()
@@ -297,7 +301,6 @@ fun RadioCheckMark(state: RadioButtonState, onSelectedChanged: () -> Unit, modif
 @Preview
 @Composable
 fun CircleCheckboxPreview() {
-
     // Use interactive mode to preview the animation
 
     var isChecked by remember { mutableStateOf(false) }

@@ -138,7 +138,7 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
                         dismiss()
                         host.startBankTransferWithdrawal(fiatAccount = account)
                     } else {
-                        showErrorSnackbar(R.string.fiat_funds_detail_pending_withdrawal)
+                        showErrorSnackbar(com.blockchain.stringResources.R.string.fiat_funds_detail_pending_withdrawal)
                     }
                 },
                 onError = {
@@ -148,7 +148,7 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
             )
     }
 
-    private fun showErrorSnackbar(@StringRes error: Int = R.string.common_error) {
+    private fun showErrorSnackbar(@StringRes error: Int = com.blockchain.stringResources.R.string.common_error) {
         BlockchainSnackbar.make(
             binding.root,
             getString(error),

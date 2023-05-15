@@ -56,7 +56,7 @@ fun DexAccountSelection(
             onValueChange = {
                 onSearchTermUpdated(it)
             },
-            placeholder = stringResource(R.string.search)
+            placeholder = stringResource(com.blockchain.stringResources.R.string.search)
         )
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
@@ -69,7 +69,7 @@ fun DexAccountSelection(
                 if (!accounts.all { it.balance.isPositive }) {
                     item {
                         TableRowHeader(
-                            title = stringResource(com.blockchain.componentlib.R.string.all_tokens),
+                            title = stringResource(com.blockchain.stringResources.R.string.all_tokens)
                         )
                         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
                     }
@@ -102,14 +102,18 @@ fun DexAccountSelection(
                 )
 
                 item {
-                    Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.standard_spacing)))
+                    Spacer(
+                        modifier = Modifier.size(
+                            dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing)
+                        )
+                    )
                 }
             }
             if (accounts.any { it.balance.isZero }) {
                 if (!accounts.all { it.balance.isZero }) {
                     item {
                         TableRowHeader(
-                            title = stringResource(com.blockchain.componentlib.R.string.all_tokens),
+                            title = stringResource(com.blockchain.stringResources.R.string.all_tokens)
                         )
                         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
                     }
@@ -148,7 +152,7 @@ private fun NoResults() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = AppTheme.dimensions.smallSpacing),
-            text = stringResource(R.string.assets_no_result),
+            text = stringResource(com.blockchain.stringResources.R.string.assets_no_result),
             style = ComposeTypographies.Body2,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Centre
@@ -164,8 +168,8 @@ private fun NoBalanceDexAccountTableRow(dexAccount: DexAccount, onAccountSelecte
                 modifier = Modifier
                     .size(AppTheme.dimensions.standardSpacing),
                 imageResource = ImageResource.Remote(
-                    url = dexAccount.currency.logo,
-                ),
+                    url = dexAccount.currency.logo
+                )
             )
         },
         content = {
@@ -174,7 +178,6 @@ private fun NoBalanceDexAccountTableRow(dexAccount: DexAccount, onAccountSelecte
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.Start

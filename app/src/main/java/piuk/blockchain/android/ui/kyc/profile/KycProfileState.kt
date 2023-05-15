@@ -11,7 +11,7 @@ data class KycProfileModelState(
     val isNameInputErrorShowing: Boolean = false,
     val dateOfBirthInput: Calendar? = null,
     val isSavingProfileLoading: Boolean = false,
-    val error: KycProfileError? = null,
+    val error: KycProfileError? = null
 ) : ModelState
 
 data class KycProfileViewState(
@@ -20,7 +20,7 @@ data class KycProfileViewState(
     val isNameInputErrorShowing: Boolean,
     val dateOfBirthInput: Calendar?,
     val continueButtonState: ButtonState,
-    val error: KycProfileError?,
+    val error: KycProfileError?
 ) : ViewState
 
 sealed class KycProfileError {

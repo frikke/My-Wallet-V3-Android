@@ -247,7 +247,7 @@ val transactionModule = module {
                 dynamicAssetRepository = payloadScope.get(),
                 stakingService = payloadScope.get(),
                 transactionPrefs = payloadScope.get(),
-                activeRewardsService = payloadScope.get(),
+                activeRewardsService = payloadScope.get()
             )
         }
 

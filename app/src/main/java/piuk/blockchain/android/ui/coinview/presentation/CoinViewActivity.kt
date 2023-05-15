@@ -113,7 +113,7 @@ class CoinViewActivity :
             analytics.logEvent(
                 CoinViewAnalytics.CoinViewOpen(
                     origin = it,
-                    currency = args.networkTicker,
+                    currency = args.networkTicker
                 )
             )
         }
@@ -148,7 +148,7 @@ class CoinViewActivity :
                     activeRewardsRate = navigationEvent.activeRewardsRate,
                     actions = navigationEvent.actions,
                     balanceCrypto = navigationEvent.cryptoBalance,
-                    fiatBalance = navigationEvent.fiatBalance,
+                    fiatBalance = navigationEvent.fiatBalance
                 )
             }
 
@@ -222,7 +222,8 @@ class CoinViewActivity :
 
                 startActivity(
                     ReceiveDetailActivity.newIntent(
-                        context = this, account = navigationEvent.cvAccount.account as CryptoAccount
+                        context = this,
+                        account = navigationEvent.cvAccount.account as CryptoAccount
                     )
                 )
             }
@@ -253,14 +254,14 @@ class CoinViewActivity :
             is CoinviewNavigationEvent.NavigateToStakingStatement ->
                 showBottomSheet(
                     StakingSummaryBottomSheet.newInstance(
-                        (navigationEvent.cvAccount.account as CryptoAccount).currency.networkTicker,
+                        (navigationEvent.cvAccount.account as CryptoAccount).currency.networkTicker
                     )
                 )
 
             is CoinviewNavigationEvent.NavigateToActiveRewardsStatement ->
                 showBottomSheet(
                     ActiveRewardsSummaryBottomSheet.newInstance(
-                        (navigationEvent.cvAccount.account as CryptoAccount).currency.networkTicker,
+                        (navigationEvent.cvAccount.account as CryptoAccount).currency.networkTicker
                     )
                 )
 
@@ -489,10 +490,11 @@ class CoinViewActivity :
             view = window.decorView.rootView,
             message = when (error) {
                 is InterestError.UnknownAsset -> getString(
-                    R.string.earn_summary_sheet_error_unknown_asset, error.assetTicker
+                    com.blockchain.stringResources.R.string.earn_summary_sheet_error_unknown_asset,
+                    error.assetTicker
                 )
-                InterestError.Other -> getString(R.string.earn_summary_sheet_error_other)
-                InterestError.None -> getString(R.string.empty)
+                InterestError.Other -> getString(com.blockchain.stringResources.R.string.earn_summary_sheet_error_other)
+                InterestError.None -> getString(com.blockchain.stringResources.R.string.empty)
             },
             duration = Snackbar.LENGTH_SHORT,
             type = SnackbarType.Error
@@ -558,10 +560,11 @@ class CoinViewActivity :
             view = window.decorView.rootView,
             message = when (error) {
                 is StakingError.UnknownAsset -> getString(
-                    R.string.earn_summary_sheet_error_unknown_asset, error.assetTicker
+                    com.blockchain.stringResources.R.string.earn_summary_sheet_error_unknown_asset,
+                    error.assetTicker
                 )
-                StakingError.Other -> getString(R.string.earn_summary_sheet_error_other)
-                StakingError.None -> getString(R.string.empty)
+                StakingError.Other -> getString(com.blockchain.stringResources.R.string.earn_summary_sheet_error_other)
+                StakingError.None -> getString(com.blockchain.stringResources.R.string.empty)
             },
             duration = Snackbar.LENGTH_SHORT,
             type = SnackbarType.Error
@@ -572,10 +575,13 @@ class CoinViewActivity :
             view = window.decorView.rootView,
             message = when (error) {
                 is ActiveRewardsError.UnknownAsset -> getString(
-                    R.string.earn_summary_sheet_error_unknown_asset, error.assetTicker
+                    com.blockchain.stringResources.R.string.earn_summary_sheet_error_unknown_asset,
+                    error.assetTicker
                 )
-                ActiveRewardsError.Other -> getString(R.string.earn_summary_sheet_error_other)
-                ActiveRewardsError.None -> getString(R.string.empty)
+                ActiveRewardsError.Other -> getString(
+                    com.blockchain.stringResources.R.string.earn_summary_sheet_error_other
+                )
+                ActiveRewardsError.None -> getString(com.blockchain.stringResources.R.string.empty)
             },
             duration = Snackbar.LENGTH_SHORT,
             type = SnackbarType.Error

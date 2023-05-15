@@ -21,9 +21,9 @@ fun TextView.renderTermsLinks(
     privacyPolicyUrl: String = URL_PRIVACY_POLICY
 ) {
     val disclaimerStart = context.getString(startText) + "\n"
-    val terms = context.getString(R.string.kyc_splash_terms_and_conditions_terms)
+    val terms = context.getString(com.blockchain.stringResources.R.string.kyc_splash_terms_and_conditions_terms)
     val ampersand = "&"
-    val privacy = context.getString(R.string.kyc_splash_terms_and_conditions_privacy)
+    val privacy = context.getString(com.blockchain.stringResources.R.string.kyc_splash_terms_and_conditions_privacy)
     val termsClickSpan = context.goToUrlClickableSpan(tos)
     val privacyClickSpan = context.goToUrlClickableSpan(privacyPolicyUrl)
 

@@ -20,7 +20,7 @@ class SecondaryButtonView @JvmOverloads constructor(
                     onClick = onClick,
                     text = text,
                     state = buttonState,
-                    icon = icon,
+                    icon = icon
                 )
             }
         }

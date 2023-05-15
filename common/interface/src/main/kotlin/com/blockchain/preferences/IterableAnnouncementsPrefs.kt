@@ -11,6 +11,7 @@ interface IterableAnnouncementsPrefs {
      * update seen list with the new one from api
      */
     fun updateSeenAnnouncements(ids: List<String>)
+
     /**
      * discard any deleted announcements that api didn't return
      */

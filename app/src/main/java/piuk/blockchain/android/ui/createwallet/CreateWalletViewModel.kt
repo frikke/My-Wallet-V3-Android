@@ -36,7 +36,7 @@ import piuk.blockchain.android.util.FormatChecker
 enum class CreateWalletPasswordError {
     InvalidPasswordTooLong,
     InvalidPasswordTooShort,
-    InvalidPasswordTooWeak,
+    InvalidPasswordTooWeak
 }
 
 data class CreateWalletModelState(
@@ -111,7 +111,7 @@ class CreateWalletViewModel(
     private val eligibilityService: EligibilityService,
     private val referralService: ReferralService,
     private val payloadDataManager: PayloadDataManager,
-    private val nabuUserDataManager: NabuUserDataManager,
+    private val nabuUserDataManager: NabuUserDataManager
 ) : MviViewModel<
     CreateWalletIntent,
     CreateWalletViewState,
@@ -140,7 +140,7 @@ class CreateWalletViewModel(
                             countryInputState = CountryInputState.Loaded(
                                 countries = localisedCountries,
                                 selected = null,
-                                suggested = suggested,
+                                suggested = suggested
                             )
                         )
                     }
@@ -261,13 +261,15 @@ class CreateWalletViewModel(
                     if (isReferralValid) {
                         updateState {
                             it.copy(
-                                isReferralValidationLoading = false, screen = CreateWalletScreen.EMAIL_AND_PASSWORD
+                                isReferralValidationLoading = false,
+                                screen = CreateWalletScreen.EMAIL_AND_PASSWORD
                             )
                         }
                     } else {
                         updateState {
                             it.copy(
-                                isReferralValidationLoading = false, isInvalidReferralErrorShowing = true
+                                isReferralValidationLoading = false,
+                                isInvalidReferralErrorShowing = true
                             )
                         }
                     }
@@ -331,7 +333,7 @@ class CreateWalletViewModel(
                                 screen = CreateWalletScreen.CREATION_FAILED,
                                 emailInput = "",
                                 passwordInput = "",
-                                areTermsOfServiceChecked = false,
+                                areTermsOfServiceChecked = false
                             )
                         }
                         appUtil.clearCredentials()

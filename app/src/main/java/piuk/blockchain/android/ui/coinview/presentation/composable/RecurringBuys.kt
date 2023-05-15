@@ -50,16 +50,17 @@ fun RecurringBuys(
     Column(
         modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
     ) {
-
         when (rBuysState) {
             DataResource.Loading -> {
                 RecurringBuysTitle()
                 RecurringBuysLoading()
             }
+
             is DataResource.Error -> {
                 RecurringBuysTitle()
                 RecurringBuysError()
             }
+
             is DataResource.Data -> {
                 rBuysState.data.let { rbState ->
                     when (rbState) {
@@ -72,8 +73,9 @@ fun RecurringBuys(
                         }
 
                         is CoinviewRecurringBuysState.Data -> {
-                            if (rbState.recurringBuys.isNotEmpty())
+                            if (rbState.recurringBuys.isNotEmpty()) {
                                 RecurringBuysTitle()
+                            }
                             RecurringBuysData(
                                 analytics = analytics,
                                 data = rbState,
@@ -91,7 +93,7 @@ fun RecurringBuys(
 @Composable
 private fun RecurringBuysTitle() {
     TableRowHeader(
-        title = stringResource(R.string.recurring_buy_toolbar),
+        title = stringResource(com.blockchain.stringResources.R.string.recurring_buy_toolbar)
     )
     Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 }
@@ -115,12 +117,14 @@ fun RecurringBuysError() {
             .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
     ) {
         CardAlert(
-            title = stringResource(R.string.coinview_recuring_buy_load_error_title),
-            subtitle = stringResource(R.string.coinview_recuring_buy_load_error_subtitle),
+            title = stringResource(com.blockchain.stringResources.R.string.coinview_recuring_buy_load_error_title),
+            subtitle = stringResource(
+                com.blockchain.stringResources.R.string.coinview_recuring_buy_load_error_subtitle
+            ),
             alertType = AlertType.Warning,
             backgroundColor = AppTheme.colors.background,
             isBordered = false,
-            isDismissable = false,
+            isDismissable = false
         )
     }
 }
@@ -135,14 +139,13 @@ fun RecurringBuysUpsell(
             .fillMaxWidth(),
         shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
     ) {
-
-        val title = stringResource(R.string.recurring_buy_automate_title)
+        val title = stringResource(com.blockchain.stringResources.R.string.recurring_buy_automate_title)
 
         ButtonTableRow(
             title = title,
-            subtitle = stringResource(R.string.recurring_buy_automate_description),
+            subtitle = stringResource(com.blockchain.stringResources.R.string.recurring_buy_automate_description),
             imageResource = Icons.Filled.Sync.withTint(AppTheme.colors.primary),
-            actionText = stringResource(R.string.common_go),
+            actionText = stringResource(com.blockchain.stringResources.R.string.common_go),
             onClick = {
                 analytics.logEvent(RecurringBuyAnalytics.RecurringBuyLearnMoreClicked(LaunchOrigin.CURRENCY_PAGE))
                 analytics.logEvent(RecurringBuyAnalytics.RecurringBuyLearnMoreXSellClicked(dcaTitle = title))
@@ -170,7 +173,7 @@ fun RecurringBuysData(
                 primaryText = recurringBuy.description.value(),
                 secondaryText = recurringBuy.status.value(),
                 startImageResource = ImageResource.Local(
-                    id = R.drawable.ic_tx_rb,
+                    id = com.blockchain.common.R.drawable.ic_tx_rb,
                     colorFilter = ColorFilter.tint(
                         Color(android.graphics.Color.parseColor(recurringBuy.assetColor))
                     ),
@@ -201,7 +204,10 @@ fun RecurringBuysData(
 fun PreviewRecurringBuys_Loading() {
     RecurringBuys(
         previewAnalytics,
-        DataResource.Loading, assetTicker = "ETH", {}, {}
+        DataResource.Loading,
+        assetTicker = "ETH",
+        {},
+        {}
     )
 }
 
@@ -210,7 +216,10 @@ fun PreviewRecurringBuys_Loading() {
 fun PreviewRecurringBuys_Error() {
     RecurringBuys(
         previewAnalytics,
-        DataResource.Error(Exception()), assetTicker = "ETH", {}, {}
+        DataResource.Error(Exception()),
+        assetTicker = "ETH",
+        {},
+        {}
     )
 }
 
@@ -219,7 +228,10 @@ fun PreviewRecurringBuys_Error() {
 fun PreviewRecurringBuys_Upsell() {
     RecurringBuys(
         previewAnalytics,
-        DataResource.Data(CoinviewRecurringBuysState.Upsell), assetTicker = "ETH", {}, {}
+        DataResource.Data(CoinviewRecurringBuysState.Upsell),
+        assetTicker = "ETH",
+        {},
+        {}
     )
 }
 
@@ -253,6 +265,7 @@ fun PreviewRecurringBuys_Data() {
             )
         ),
         assetTicker = "ETH",
-        {}, {}
+        {},
+        {}
     )
 }

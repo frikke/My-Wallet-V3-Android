@@ -45,13 +45,13 @@ class UnifiedBalancesStore(
 
 internal class UnifiedBalancesSubscribeStore(
     private val selfCustodyService: DynamicSelfCustodyService,
-    private val unifiedBalancesStore: UnifiedBalancesStore,
+    private val unifiedBalancesStore: UnifiedBalancesStore
 ) : KeyedStore<List<SubscriptionInfo>, CommonResponse> by PersistedJsonSqlDelightStoreBuilder().buildKeyed(
     storeId = STORE_ID,
     fetcher = Fetcher.Keyed.ofOutcome(
         mapper = { key ->
             selfCustodyService.subscribe(
-                data = key,
+                data = key
             ).doOnSuccess {
                 unifiedBalancesStore.invalidate()
             }

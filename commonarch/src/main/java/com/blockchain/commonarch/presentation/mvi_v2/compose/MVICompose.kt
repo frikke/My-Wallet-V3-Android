@@ -24,7 +24,7 @@ import kotlinx.coroutines.cancel
 fun <VS : ViewState, N : NavigationEvent, A : ModelConfigArgs> bindViewModel(
     viewModel: MviViewModel<*, VS, *, N, A>,
     args: A,
-    route: (N) -> Unit,
+    route: (N) -> Unit
 ) {
     val activity = LocalContext.current.getActivity()
     if ((activity as? BlockchainActivity)?.processDeathOccurredAndThisIsNotLauncherActivity == true) {

@@ -83,7 +83,7 @@ class YodleeWebViewFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        updateTitleToolbar(getString(R.string.link_a_bank))
+        updateTitleToolbar(getString(com.blockchain.stringResources.R.string.link_a_bank))
         setupWebView()
         binding.yodleeRetry.setOnClickListener {
             loadYodlee()
@@ -132,8 +132,8 @@ class YodleeWebViewFragment :
                 updateViewsVisibility(true)
                 with(binding) {
                     yodleeWebview.clearCache(true)
-                    yodleeStatusLabel.text = getString(R.string.yodlee_connection_title)
-                    yodleeSubtitle.text = getString(R.string.yodlee_connection_subtitle)
+                    yodleeStatusLabel.text = getString(com.blockchain.stringResources.R.string.yodlee_connection_title)
+                    yodleeSubtitle.text = getString(com.blockchain.stringResources.R.string.yodlee_connection_subtitle)
                     yodleeWebview.gone()
                     yodleeRetry.gone()
                     yodleeWebview.postUrl(attributes.fastlinkUrl, yodleeQuery.toByteArray())
@@ -147,14 +147,16 @@ class YodleeWebViewFragment :
         analytics.logEvent(SimpleBuyAnalytics.ACH_SUCCESS)
         requireActivity().runOnUiThread {
             navigator().launchBankLinking(
-                accountProviderId = providerAccountId, accountId = accountId, bankId = linkingBankId
+                accountProviderId = providerAccountId,
+                accountId = accountId,
+                bankId = linkingBankId
             )
         }
     }
 
     override fun flowError(error: FastLinkInterfaceHandler.FastLinkFlowError, reason: String?) {
         requireActivity().runOnUiThread {
-            showError(getString(R.string.yodlee_parsing_error), reason)
+            showError(getString(com.blockchain.stringResources.R.string.yodlee_parsing_error), reason)
         }
     }
 
@@ -190,7 +192,7 @@ class YodleeWebViewFragment :
             remoteLogger.logException(e, "Underlying binding is null")
             BlockchainSnackbar.make(
                 binding.root,
-                getString(R.string.common_error),
+                getString(com.blockchain.stringResources.R.string.common_error),
                 type = SnackbarType.Error
             ).show()
             navigator().bankAuthCancelled()

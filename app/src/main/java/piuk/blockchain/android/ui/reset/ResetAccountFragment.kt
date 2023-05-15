@@ -51,16 +51,16 @@ class ResetAccountFragment :
     private fun showInfoScreen() {
         with(binding) {
             resetImage.setImageResource(R.drawable.ic_reset_round)
-            resetAccountLabel.text = getString(R.string.reset_account_title)
-            resetAccountDesc.text = getString(R.string.reset_account_description_1)
+            resetAccountLabel.text = getString(com.blockchain.stringResources.R.string.reset_account_title)
+            resetAccountDesc.text = getString(com.blockchain.stringResources.R.string.reset_account_description_1)
             resetButton.apply {
-                text = getString(R.string.reset_account_cta)
+                text = getString(com.blockchain.stringResources.R.string.reset_account_cta)
                 setOnClickListener {
                     model.process(ResetAccountIntents.UpdateStatus(ResetAccountStatus.SHOW_WARNING))
                 }
             }
             retryButton.apply {
-                text = getString(R.string.retry_recovery_phrase_cta)
+                text = getString(com.blockchain.stringResources.R.string.retry_recovery_phrase_cta)
                 setOnClickListener {
                     model.process(ResetAccountIntents.UpdateStatus(ResetAccountStatus.RETRY))
                 }
@@ -72,16 +72,16 @@ class ResetAccountFragment :
     private fun showWarningScreen() {
         with(binding) {
             resetImage.setImageResource(R.drawable.ic_triangle_warning_circle)
-            resetAccountLabel.text = getString(R.string.reset_account_warning_title)
-            resetAccountDesc.text = getString(R.string.reset_account_warning_description)
+            resetAccountLabel.text = getString(com.blockchain.stringResources.R.string.reset_account_warning_title)
+            resetAccountDesc.text = getString(com.blockchain.stringResources.R.string.reset_account_warning_description)
             resetButton.apply {
-                text = getString(R.string.reset_account_cta)
+                text = getString(com.blockchain.stringResources.R.string.reset_account_cta)
                 setOnClickListener {
                     model.process(ResetAccountIntents.UpdateStatus(ResetAccountStatus.RESET))
                 }
             }
             retryButton.apply {
-                text = getString(R.string.common_go_back)
+                text = getString(com.blockchain.stringResources.R.string.common_go_back)
                 setOnClickListener {
                     model.process(ResetAccountIntents.UpdateStatus(ResetAccountStatus.SHOW_INFO))
                 }

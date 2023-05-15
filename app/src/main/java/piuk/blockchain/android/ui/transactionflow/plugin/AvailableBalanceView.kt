@@ -114,8 +114,8 @@ fun TxFlowEnterAmountBalanceRow(
             .fillMaxWidth()
             .background(AppTheme.colors.light)
             .padding(
-                horizontal = dimensionResource(id = R.dimen.small_spacing),
-                vertical = dimensionResource(R.dimen.tiny_spacing)
+                horizontal = dimensionResource(id = com.blockchain.componentlib.R.dimen.small_spacing),
+                vertical = dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)
             )
             .clickable(enabled = true, onClick = onClick)
     ) {
@@ -129,12 +129,12 @@ fun TxFlowEnterAmountBalanceRow(
         if (isTappable) {
             Spacer(
                 modifier = Modifier.size(
-                    width = dimensionResource(id = R.dimen.tiny_spacing),
-                    height = dimensionResource(id = R.dimen.smallest_spacing)
+                    width = dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing),
+                    height = dimensionResource(id = com.blockchain.componentlib.R.dimen.smallest_spacing)
                 )
             )
 
-            Image(imageResource = ImageResource.Local(R.drawable.ic_question))
+            Image(imageResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_question))
         }
 
         Spacer(

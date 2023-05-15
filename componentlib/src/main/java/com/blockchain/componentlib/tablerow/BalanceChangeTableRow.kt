@@ -78,7 +78,7 @@ fun BalanceChangeTableRow(
         imageResource = ImageResource.Remote(data.logo),
         defaultIconSize = defaultIconSize,
         withChevron = withChevron,
-        onClick = onClick,
+        onClick = onClick
     )
 }
 
@@ -178,7 +178,6 @@ private fun BalanceChangeTableRow(
     contentStart: @Composable (RowScope.() -> Unit)? = null,
     onClick: () -> Unit
 ) {
-
     TableRow(
         modifier = modifier,
         contentStart = contentStart,
@@ -190,7 +189,7 @@ private fun BalanceChangeTableRow(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(
-                    modifier = Modifier.weight(weight = 1F, fill = true),
+                    modifier = Modifier.weight(weight = 1F, fill = true)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
@@ -303,7 +302,6 @@ private fun BalanceChangeTableRowWithChevron(
     contentStart: @Composable (RowScope.() -> Unit)? = null,
     onClick: () -> Unit
 ) {
-
     TableRow(
         modifier = modifier,
         contentStart = contentStart,

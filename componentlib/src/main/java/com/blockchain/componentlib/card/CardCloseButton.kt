@@ -36,14 +36,16 @@ fun CardCloseButton(
             .clickable {
                 onClick.invoke()
             }
-            .size(dimensionResource(R.dimen.standard_spacing))
+            .size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
             .background(color = backgroundColor, shape = CircleShape)
     ) {
         Image(
             modifier = Modifier.align(Alignment.Center),
             imageResource = ImageResource.Local(
-                R.drawable.ic_close, null, ColorFilter.tint(crossColor)
-            ),
+                R.drawable.ic_close,
+                null,
+                ColorFilter.tint(crossColor)
+            )
         )
     }
 }

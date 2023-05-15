@@ -97,7 +97,9 @@ class FcmCallbackService : FirebaseMessagingService() {
                 title = remoteMessage.notification?.title,
                 body = remoteMessage.notification?.body,
                 pendingIntent = PendingIntent.getActivity(
-                    applicationContext, 0, Intent(),
+                    applicationContext,
+                    0,
+                    Intent(),
                     PendingIntent.FLAG_UPDATE_CURRENT or
                         PendingIntent.FLAG_IMMUTABLE
                 ),
@@ -153,15 +155,16 @@ class FcmCallbackService : FirebaseMessagingService() {
                             startActivity(notifyIntent)
                         } else {
                             triggerNotification(
-                                title = getString(R.string.secure_channel_notif_title),
-                                body = getString(R.string.secure_channel_notif_summary),
+                                title = getString(com.blockchain.stringResources.R.string.secure_channel_notif_title),
+                                body = getString(com.blockchain.stringResources.R.string.secure_channel_notif_summary),
                                 pendingIntent = intent,
-                                notificationId = notificationId,
+                                notificationId = notificationId
                             )
                         }
                     } else if (payload.deeplinkURL != null) {
                         deeplinkRedirector.processDeeplinkURL(
-                            Uri.parse(payload.deeplinkURL), payload
+                            Uri.parse(payload.deeplinkURL),
+                            payload
                         ).emptySubscribe()
                     } else {
                         triggerNotification(
@@ -216,8 +219,8 @@ class FcmCallbackService : FirebaseMessagingService() {
             text = body,
             pendingIntent = pendingIntent,
             id = notificationId,
-            appName = R.string.app_name,
-            colorRes = R.color.primary_navy_medium,
+            appName = com.blockchain.stringResources.R.string.app_name,
+            colorRes = com.blockchain.common.R.color.primary_navy_medium,
             source = "FcmCallbackService"
         )
     }

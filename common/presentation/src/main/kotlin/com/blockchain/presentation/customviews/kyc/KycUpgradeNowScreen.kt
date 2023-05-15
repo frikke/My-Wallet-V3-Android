@@ -57,7 +57,7 @@ import org.koin.androidx.compose.get
 fun KycUpgradeNowScreen(
     startKycClicked: () -> Unit,
     analytics: Analytics = get(scope = payloadScope),
-    kycService: KycService = get(scope = payloadScope),
+    kycService: KycService = get(scope = payloadScope)
 ) {
     // I didn't want to create a VM just to have this call on startup, hence why it's here
     val highestTierFlow = remember {
@@ -80,13 +80,13 @@ fun KycUpgradeNowScreen(
                 AnalyticsType.GetVerifiedClicked.log(analytics, it)
             }
             startKycClicked()
-        },
+        }
     )
 }
 
 @Composable
 private fun KycUpgradeNow(
-    ctaClicked: () -> Unit,
+    ctaClicked: () -> Unit
 ) {
     Column(
         Modifier
@@ -100,18 +100,18 @@ private fun KycUpgradeNow(
                 Modifier.padding(start = AppTheme.dimensions.smallSpacing)
             ) {
                 SimpleText(
-                    text = stringResource(R.string.kyc_upgrade_now_sheet_title),
+                    text = stringResource(com.blockchain.stringResources.R.string.kyc_upgrade_now_sheet_title),
                     style = ComposeTypographies.Paragraph2,
                     color = ComposeColors.Title,
-                    gravity = ComposeGravities.Start,
+                    gravity = ComposeGravities.Start
                 )
 
                 SimpleText(
                     modifier = Modifier.padding(top = AppTheme.dimensions.smallestSpacing),
-                    text = stringResource(R.string.kyc_upgrade_now_sheet_subtitle),
+                    text = stringResource(com.blockchain.stringResources.R.string.kyc_upgrade_now_sheet_subtitle),
                     style = ComposeTypographies.Caption1,
                     color = ComposeColors.Body,
-                    gravity = ComposeGravities.Start,
+                    gravity = ComposeGravities.Start
                 )
             }
         }
@@ -151,8 +151,8 @@ fun CustomTabLayout(pagerState: PagerState, coroutineScope: CoroutineScope) {
         Row(Modifier.fillMaxWidth()) {
             Tab.values().forEach { tab ->
                 val text = when (tab) {
-                    Tab.BASIC -> stringResource(R.string.kyc_upgrade_now_tab_basic)
-                    Tab.VERIFIED -> stringResource(R.string.kyc_upgrade_now_tab_verified)
+                    Tab.BASIC -> stringResource(com.blockchain.stringResources.R.string.kyc_upgrade_now_tab_basic)
+                    Tab.VERIFIED -> stringResource(com.blockchain.stringResources.R.string.kyc_upgrade_now_tab_verified)
                 }
 
                 Box(
@@ -192,38 +192,46 @@ private fun Verified(ctaClicked: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
                 backgroundColor = Color.Transparent,
                 startImageResource = Icons.Filled.Verified.withTint(White),
-                primaryText = stringResource(R.string.kyc_upgrade_now_verified_level),
+                primaryText = stringResource(com.blockchain.stringResources.R.string.kyc_upgrade_now_verified_level),
                 primaryTextColor = White,
                 endTag = TagViewState(
-                    stringResource(R.string.kyc_upgrade_now_verified_full_access),
+                    stringResource(com.blockchain.stringResources.R.string.kyc_upgrade_now_verified_full_access),
                     TagType.InfoAlt()
                 ),
                 secondaryTextColor = AppTheme.colors.light,
-                onClick = null,
+                onClick = null
             )
             HorizontalDivider(Modifier.fillMaxWidth())
             DefaultTableRow(
                 modifier = Modifier.fillMaxWidth(),
                 backgroundColor = Color.Transparent,
                 startImageResource = Icons.Filled.Swap.withTint(White),
-                primaryText = stringResource(R.string.kyc_upgrade_now_verified_swap_title),
+                primaryText = stringResource(
+                    com.blockchain.stringResources.R.string.kyc_upgrade_now_verified_swap_title
+                ),
                 primaryTextColor = White,
-                secondaryText = stringResource(R.string.kyc_upgrade_now_verified_swap_description),
+                secondaryText = stringResource(
+                    com.blockchain.stringResources.R.string.kyc_upgrade_now_verified_swap_description
+                ),
                 secondaryTextColor = AppTheme.colors.light,
                 endImageResource = Icons.Check.withTint(White),
-                onClick = null,
+                onClick = null
             )
             HorizontalDivider(Modifier.fillMaxWidth())
             DefaultTableRow(
                 modifier = Modifier.fillMaxWidth(),
                 backgroundColor = Color.Transparent,
                 startImageResource = Icons.Filled.Plus.withTint(White),
-                primaryText = stringResource(R.string.kyc_upgrade_now_verified_buy_title),
+                primaryText = stringResource(
+                    com.blockchain.stringResources.R.string.kyc_upgrade_now_verified_buy_title
+                ),
                 primaryTextColor = White,
-                secondaryText = stringResource(R.string.kyc_upgrade_now_verified_buy_description),
+                secondaryText = stringResource(
+                    com.blockchain.stringResources.R.string.kyc_upgrade_now_verified_buy_description
+                ),
                 secondaryTextColor = AppTheme.colors.light,
                 endImageResource = Icons.Check.withTint(White),
-                onClick = null,
+                onClick = null
             )
             HorizontalDivider(Modifier.fillMaxWidth())
             DefaultTableRow(
@@ -234,14 +242,18 @@ private fun Verified(ctaClicked: () -> Unit) {
                     .withBackground(
                         backgroundColor = White,
                         iconSize = AppTheme.dimensions.smallSpacing,
-                        backgroundSize = AppTheme.dimensions.standardSpacing,
+                        backgroundSize = AppTheme.dimensions.standardSpacing
                     ),
-                primaryText = stringResource(R.string.kyc_upgrade_now_verified_interest_title),
+                primaryText = stringResource(
+                    com.blockchain.stringResources.R.string.kyc_upgrade_now_verified_interest_title
+                ),
                 primaryTextColor = White,
-                secondaryText = stringResource(R.string.kyc_upgrade_now_verified_interest_description),
+                secondaryText = stringResource(
+                    com.blockchain.stringResources.R.string.kyc_upgrade_now_verified_interest_description
+                ),
                 secondaryTextColor = AppTheme.colors.light,
                 endImageResource = Icons.Check.withTint(White),
-                onClick = null,
+                onClick = null
             )
 
             Button(
@@ -249,7 +261,7 @@ private fun Verified(ctaClicked: () -> Unit) {
                     .fillMaxWidth()
                     .padding(AppTheme.dimensions.standardSpacing)
                     .requiredHeightIn(min = 48.dp),
-                text = stringResource(R.string.kyc_upgrade_now_verified_cta),
+                text = stringResource(com.blockchain.stringResources.R.string.kyc_upgrade_now_verified_cta),
                 onClick = ctaClicked,
                 state = ButtonState.Enabled,
                 defaultTextColor = AppTheme.colors.primary,
@@ -267,9 +279,9 @@ private fun Verified(ctaClicked: () -> Unit) {
                         text = text,
                         textColor = textColor,
                         contentAlpha = textAlpha,
-                        icon = icon,
+                        icon = icon
                     )
-                },
+                }
             )
         }
     }
@@ -289,14 +301,14 @@ private enum class AnalyticsType {
     GetBasicClicked,
     GetVerifiedClicked,
     Viewed,
-    Dismissed,
+    Dismissed
 }
 
 @Preview
 @Composable
 private fun Preview() {
     KycUpgradeNow(
-        ctaClicked = {},
+        ctaClicked = {}
     )
 }
 

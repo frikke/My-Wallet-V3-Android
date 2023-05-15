@@ -47,11 +47,13 @@ class AddPaymentMethodsBottomSheet : SlidingModalBottomDialog<DialogSheetAddPaym
         val tradingCurrencyTicker = fiatCurrenciesService.selectedTradingCurrency.networkTicker
         with(binding) {
             with(addCardParent) {
-                primaryText = getString(R.string.add_credit_or_debit_card_1)
+                primaryText = getString(com.blockchain.stringResources.R.string.add_credit_or_debit_card_1)
                 startImageResource = ImageResource.Local(R.drawable.ic_payment_card, null)
-                secondaryText = getString(R.string.buy_small_amounts)
-                paragraphText = getString(R.string.instantly_buy_crypto_with_card)
-                tags = listOf(TagViewState(getString(R.string.most_popular), TagType.Success()))
+                secondaryText = getString(com.blockchain.stringResources.R.string.buy_small_amounts)
+                paragraphText = getString(com.blockchain.stringResources.R.string.instantly_buy_crypto_with_card)
+                tags = listOf(
+                    TagViewState(getString(com.blockchain.stringResources.R.string.most_popular), TagType.Success())
+                )
                 onClick = {
                     dismiss()
                     host.onAddCardSelected()
@@ -60,10 +62,10 @@ class AddPaymentMethodsBottomSheet : SlidingModalBottomDialog<DialogSheetAddPaym
             }
 
             with(addBankLinkParent) {
-                primaryText = getString(R.string.easy_bank_transfer)
+                primaryText = getString(com.blockchain.stringResources.R.string.easy_bank_transfer)
                 startImageResource = ImageResource.Local(R.drawable.ic_bank_icon, null)
                 secondaryText = getString(StringLocalizationUtil.subtitleForEasyTransfer(tradingCurrencyTicker))
-                paragraphText = getString(R.string.easy_bank_transfer_blurb)
+                paragraphText = getString(com.blockchain.stringResources.R.string.easy_bank_transfer_blurb)
                 onClick = {
                     dismiss()
                     host.onLinkBankSelected()
@@ -93,7 +95,7 @@ class AddPaymentMethodsBottomSheet : SlidingModalBottomDialog<DialogSheetAddPaym
         fun newInstance(
             canAddCard: Boolean,
             canLinkBank: Boolean,
-            canWireTransfer: Boolean,
+            canWireTransfer: Boolean
         ): AddPaymentMethodsBottomSheet {
             val bundle = Bundle()
             bundle.putBoolean(CAN_ADD_CARD, canAddCard)

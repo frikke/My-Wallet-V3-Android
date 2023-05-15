@@ -23,7 +23,7 @@ fun SmallSecondaryButton(
     text: String,
     onClick: () -> Unit,
     state: ButtonState,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val contentPadding = PaddingValues(
         start = if (state == ButtonState.Loading) {
@@ -32,10 +32,14 @@ fun SmallSecondaryButton(
             dimensionResource(R.dimen.very_small_spacing)
         },
         top = ButtonDefaults.ContentPadding.calculateTopPadding(),
-        end = if (state == ButtonState.Loading) dimensionResource(R.dimen.medium_spacing) else dimensionResource(
-            R.dimen.very_small_spacing
-        ),
-        bottom = ButtonDefaults.ContentPadding.calculateBottomPadding(),
+        end = if (state == ButtonState.Loading) {
+            dimensionResource(R.dimen.medium_spacing)
+        } else {
+            dimensionResource(
+                R.dimen.very_small_spacing
+            )
+        },
+        bottom = ButtonDefaults.ContentPadding.calculateBottomPadding()
     )
 
     Button(
@@ -51,7 +55,9 @@ fun SmallSecondaryButton(
         disabledBackgroundLightColor = Grey500,
         disabledBackgroundDarkColor = Dark800,
         pressedBackgroundColor = Grey900,
-        modifier = modifier.requiredHeightIn(min = dimensionResource(R.dimen.large_spacing)),
+        modifier = modifier.requiredHeightIn(
+            min = dimensionResource(R.dimen.large_spacing)
+        ),
         contentPadding = contentPadding,
         buttonContent = { state: ButtonState, text: String, textColor: Color, textAlpha: Float, _: ImageResource ->
             ButtonContentSmall(
@@ -60,7 +66,7 @@ fun SmallSecondaryButton(
                 textColor = textColor,
                 contentAlpha = textAlpha
             )
-        },
+        }
     )
 }
 

@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.settings.security.pin
 
 import com.blockchain.commonarch.presentation.mvi.MviIntent
-import com.google.android.play.core.appupdate.AppUpdateManager
 import piuk.blockchain.android.ui.auth.MobileNoticeDialog
 
 sealed class PinIntent : MviIntent<PinState> {
@@ -71,7 +70,7 @@ sealed class PinIntent : MviIntent<PinState> {
                     isPinValidated = true,
                     currentPin = oldState.pinStatus.currentPin,
                     isFromPinCreation = oldState.pinStatus.isFromPinCreation
-                ),
+                )
             )
     }
 
@@ -249,13 +248,6 @@ sealed class PinIntent : MviIntent<PinState> {
     }
 
     data class ValidatePassword(val password: String) : PinIntent() {
-        override fun reduce(oldState: PinState): PinState = oldState
-    }
-
-    data class CheckAppUpgradeStatus(
-        val versionName: String,
-        val appUpdateManager: AppUpdateManager
-    ) : PinIntent() {
         override fun reduce(oldState: PinState): PinState = oldState
     }
 

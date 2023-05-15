@@ -83,7 +83,7 @@ fun DefaultTableRow(
     titleColor: Color = AppTheme.colors.title,
     titleStyle: TextStyle = AppTheme.typography.body2,
     bylineColor: Color = AppTheme.colors.muted,
-    bylineStyle: TextStyle = AppTheme.typography.paragraph1,
+    bylineStyle: TextStyle = AppTheme.typography.paragraph1
 ) {
     DefaultTableRow(
         modifier = modifier,
@@ -102,7 +102,7 @@ fun DefaultTableRow(
         titleColor = titleColor,
         titleStyle = titleStyle,
         bylineColor = bylineColor,
-        bylineStyle = bylineStyle,
+        bylineStyle = bylineStyle
     )
 }
 
@@ -136,7 +136,7 @@ fun DefaultTableRow(
         endImageResource = endImageResource,
         backgroundColor = backgroundColor,
         titleColor = primaryTextColor,
-        bylineColor = secondaryTextColor,
+        bylineColor = secondaryTextColor
     )
 }
 
@@ -158,7 +158,7 @@ fun DefaultTableRow(
     titleColor: Color = AppTheme.colors.title,
     titleStyle: TextStyle = AppTheme.typography.body2,
     bylineColor: Color = AppTheme.colors.muted,
-    bylineStyle: TextStyle = AppTheme.typography.paragraph1,
+    bylineStyle: TextStyle = AppTheme.typography.paragraph1
 ) {
     TableRow(
         modifier = modifier,
@@ -193,7 +193,7 @@ fun DefaultTableRow(
             Spacer(Modifier.weight(1f))
 
             Column(
-                horizontalAlignment = Alignment.End,
+                horizontalAlignment = Alignment.End
             ) {
                 if (endTitle != null) {
                     Text(
@@ -223,8 +223,8 @@ fun DefaultTableRow(
                     imageResource = endImageResource,
                     modifier = Modifier.requiredSizeIn(
                         maxWidth = dimensionResource(R.dimen.standard_spacing),
-                        maxHeight = dimensionResource(R.dimen.standard_spacing),
-                    ),
+                        maxHeight = dimensionResource(R.dimen.standard_spacing)
+                    )
                 )
             }
         },
@@ -253,7 +253,7 @@ fun DefaultTableRow(
             }
         },
         backgroundColor = backgroundColor,
-        backgroundShape = backgroundShape,
+        backgroundShape = backgroundShape
     )
 }
 
@@ -324,7 +324,7 @@ fun DefaultTableRow_ThreeLine() {
                 startTitle = "Coffee Beans Inc.",
                 onClick = {},
                 endTitle = "Jun 21, 2022",
-                endByline = "$100.00",
+                endByline = "$100.00"
             )
         }
     }
@@ -340,7 +340,7 @@ fun DefaultTableRow_FourLine() {
                 startByline = "Jun 21, 2022",
                 onClick = {},
                 endTitle = "1.0 BTC",
-                endByline = "$100.00",
+                endByline = "$100.00"
             )
         }
     }
@@ -538,7 +538,7 @@ fun DefaultTableRow_Local_ImageStart_EndTag() {
                     id = R.drawable.carousel_rewards,
                     contentDescription = null
                 ),
-                endTag = TagViewState("Complete", TagType.Success()),
+                endTag = TagViewState("Complete", TagType.Success())
             )
         }
     }

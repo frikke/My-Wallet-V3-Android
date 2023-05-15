@@ -13,7 +13,7 @@ class ProveApiService(
 ) {
 
     suspend fun startInstantLinkAuth(
-        mobileNumber: String,
+        mobileNumber: String
     ): Outcome<Exception, StartInstantLinkAuthResponse> =
         api.startInstantLinkAuth(mobileNumber)
 
@@ -27,12 +27,12 @@ class ProveApiService(
         api.getPossessionState()
 
     suspend fun getPrefillData(
-        dob: String, // ISO 8601
+        dob: String // ISO 8601
     ): Outcome<Exception, PrefillDataResponse> =
         api.getPrefillData(dob)
 
     suspend fun submitData(
-        data: PrefillDataSubmissionRequest,
+        data: PrefillDataSubmissionRequest
     ): Outcome<Exception, Unit> =
         api.submitData(data)
 }

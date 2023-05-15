@@ -5,7 +5,7 @@ import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.data.DataResource
 
 data class RecurringBuysViewState(
-    val recurringBuys: DataResource<RecurringBuyEligibleState>,
+    val recurringBuys: DataResource<RecurringBuyEligibleState>
 ) : ViewState
 
 sealed interface RecurringBuyEligibleState {

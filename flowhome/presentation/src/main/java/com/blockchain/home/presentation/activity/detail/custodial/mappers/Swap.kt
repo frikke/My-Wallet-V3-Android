@@ -27,7 +27,7 @@ internal fun TradeActivitySummaryItem.swapIconDetail(): ImageResource {
 }
 
 internal fun TradeActivitySummaryItem.swapTitle(): TextValue = TextValue.IntResValue(
-    value = R.string.tx_title_swapped,
+    value = com.blockchain.stringResources.R.string.tx_title_swapped,
     args = listOf(
         currencyPair.source.displayTicker,
         currencyPair.destination.displayTicker
@@ -47,7 +47,7 @@ internal fun TradeActivitySummaryItem.swapDetailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.amount),
+                        value = TextValue.IntResValue(com.blockchain.stringResources.R.string.amount),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -63,7 +63,9 @@ internal fun TradeActivitySummaryItem.swapDetailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.activity_details_swap_for),
+                        value = TextValue.IntResValue(
+                            com.blockchain.stringResources.R.string.activity_details_swap_for
+                        ),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -81,14 +83,16 @@ internal fun TradeActivitySummaryItem.swapDetailItems(
                     id = toString(),
                     leading = listOf(
                         ActivityStackView.Text(
-                            value = TextValue.IntResValue(R.string.activity_details_exchange_rate),
+                            value = TextValue.IntResValue(
+                                com.blockchain.stringResources.R.string.activity_details_exchange_rate
+                            ),
                             style = basicTitleStyle.muted()
                         )
                     ),
                     trailing = listOf(
                         ActivityStackView.Text(
                             value = TextValue.IntResValue(
-                                value = R.string.activity_details_exchange_rate_value,
+                                value = com.blockchain.stringResources.R.string.activity_details_exchange_rate_value,
                                 args = listOf(
                                     price.toStringWithSymbol(),
                                     sendingValue.currency.displayTicker
@@ -106,7 +110,7 @@ internal fun TradeActivitySummaryItem.swapDetailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.common_total),
+                        value = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_total),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -130,7 +134,7 @@ internal fun TradeActivitySummaryItem.swapDetailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.common_status),
+                        value = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_status),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -146,7 +150,7 @@ internal fun TradeActivitySummaryItem.swapDetailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.activity_details_from),
+                        value = TextValue.IntResValue(com.blockchain.stringResources.R.string.activity_details_from),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -174,7 +178,7 @@ internal fun TradeActivitySummaryItem.swapDetailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.date),
+                        value = TextValue.IntResValue(com.blockchain.stringResources.R.string.date),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -191,7 +195,9 @@ internal fun TradeActivitySummaryItem.swapDetailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.activity_details_buy_tx_id),
+                        value = TextValue.IntResValue(
+                            com.blockchain.stringResources.R.string.activity_details_buy_tx_id
+                        ),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -206,7 +212,7 @@ internal fun TradeActivitySummaryItem.swapDetailItems(
             // copy txid
             ActivityComponent.Button(
                 id = toString(),
-                value = TextValue.IntResValue(R.string.activity_details_copy_tx_id),
+                value = TextValue.IntResValue(com.blockchain.stringResources.R.string.activity_details_copy_tx_id),
                 style = ActivityButtonStyle.Tertiary,
                 action = ActivityButtonAction(
                     type = ActivityButtonAction.ActivityButtonActionType.Copy,
@@ -219,18 +225,19 @@ internal fun TradeActivitySummaryItem.swapDetailItems(
 
 private fun TradeActivitySummaryItem.statusValue(): TextValue = TextValue.IntResValue(
     when (state) {
-        CustodialOrderState.FINISHED -> R.string.activity_details_completed
+        CustodialOrderState.FINISHED -> com.blockchain.stringResources.R.string.activity_details_completed
         CustodialOrderState.CREATED,
         CustodialOrderState.PENDING_EXECUTION,
         CustodialOrderState.PENDING_CONFIRMATION,
         CustodialOrderState.PENDING_LEDGER,
         CustodialOrderState.PENDING_DEPOSIT,
         CustodialOrderState.PENDING_WITHDRAWAL,
-        CustodialOrderState.FINISH_DEPOSIT -> R.string.activity_details_label_pending
-        CustodialOrderState.CANCELED -> R.string.activity_details_label_cancelled
+        CustodialOrderState.FINISH_DEPOSIT -> com.blockchain.stringResources.R.string.activity_details_label_pending
+
+        CustodialOrderState.CANCELED -> com.blockchain.stringResources.R.string.activity_details_label_cancelled
         CustodialOrderState.EXPIRED,
         CustodialOrderState.UNKNOWN,
-        CustodialOrderState.FAILED -> R.string.activity_details_label_failed
+        CustodialOrderState.FAILED -> com.blockchain.stringResources.R.string.activity_details_label_failed
     }
 )
 
@@ -243,6 +250,7 @@ private fun TradeActivitySummaryItem.statusStyle(): ActivityTagStyle = when (sta
     CustodialOrderState.PENDING_DEPOSIT,
     CustodialOrderState.PENDING_WITHDRAWAL,
     CustodialOrderState.FINISH_DEPOSIT -> ActivityTagStyle.Info
+
     CustodialOrderState.CANCELED -> ActivityTagStyle.Warning
     CustodialOrderState.EXPIRED,
     CustodialOrderState.UNKNOWN,
@@ -257,13 +265,13 @@ internal fun TradeActivitySummaryItem.buildSwapActivityDetail(
     extras = mapOf(
         CustodialActivityDetailExtraKey.Fee to CustodialActivityDetailExtra(
             title = TextValue.IntResValue(
-                R.string.tx_confirmation_network_fee,
+                com.blockchain.stringResources.R.string.tx_confirmation_network_fee,
                 args = listOf(fee.currency.displayTicker)
             ),
             value = TextValue.StringValue(fee.toStringWithSymbol())
         ),
         CustodialActivityDetailExtraKey.ToLabel to CustodialActivityDetailExtra(
-            title = TextValue.IntResValue(R.string.activity_details_to),
+            title = TextValue.IntResValue(com.blockchain.stringResources.R.string.activity_details_to),
             value = TextValue.StringValue(toLabel)
         )
     )

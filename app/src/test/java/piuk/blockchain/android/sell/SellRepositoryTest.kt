@@ -73,7 +73,8 @@ class SellRepositoryTest {
     fun `given sell checks when user has insufficient kyc tier then not eligible is returned`() = runTest {
         every {
             userFeaturePermissionService.getAccessForFeature(
-                Feature.Sell, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+                Feature.Sell,
+                FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
             )
         } returns flowOf(DataResource.Data(FeatureAccess.Blocked(BlockedReason.InsufficientTier.Tier2Required)))
 
@@ -86,7 +87,8 @@ class SellRepositoryTest {
 
         verify(exactly = 1) {
             userFeaturePermissionService.getAccessForFeature(
-                Feature.Sell, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+                Feature.Sell,
+                FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
             )
         }
         verify(exactly = 0) { kycService.getTiers(FreshnessStrategy.Fresh) }
@@ -100,7 +102,8 @@ class SellRepositoryTest {
     fun `given sell checks when user is not eligible then not eligible is returned`() = runTest {
         every {
             userFeaturePermissionService.getAccessForFeature(
-                Feature.Sell, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+                Feature.Sell,
+                FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
             )
         } returns flowOf(DataResource.Data(FeatureAccess.Blocked(BlockedReason.NotEligible("test"))))
 
@@ -113,7 +116,8 @@ class SellRepositoryTest {
 
         verify(exactly = 1) {
             userFeaturePermissionService.getAccessForFeature(
-                Feature.Sell, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+                Feature.Sell,
+                FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
             )
         }
         verify(exactly = 0) { kycService.getTiers(FreshnessStrategy.Fresh) }
@@ -127,7 +131,8 @@ class SellRepositoryTest {
     fun `given sell checks when user is sanctioned then not eligible is returned`() = runTest {
         every {
             userFeaturePermissionService.getAccessForFeature(
-                Feature.Sell, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+                Feature.Sell,
+                FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
             )
         } returns flowOf(DataResource.Data(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5("reason"))))
 
@@ -140,7 +145,8 @@ class SellRepositoryTest {
 
         verify(exactly = 1) {
             userFeaturePermissionService.getAccessForFeature(
-                Feature.Sell, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+                Feature.Sell,
+                FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
             )
         }
         verify(exactly = 0) { kycService.getTiers(FreshnessStrategy.Fresh) }
@@ -154,7 +160,8 @@ class SellRepositoryTest {
     fun `given sell checks when user state valid, rejected for gold then rejected state is returned`() = runTest {
         every {
             userFeaturePermissionService.getAccessForFeature(
-                Feature.Sell, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+                Feature.Sell,
+                FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
             )
         } returns flowOf(DataResource.Data(FeatureAccess.Granted()))
 
@@ -173,7 +180,8 @@ class SellRepositoryTest {
 
         verify(exactly = 1) {
             userFeaturePermissionService.getAccessForFeature(
-                Feature.Sell, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+                Feature.Sell,
+                FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
             )
         }
         verify(exactly = 0) { custodialWalletManager.getSupportedFundsFiats() }
@@ -185,7 +193,8 @@ class SellRepositoryTest {
     fun `given sell checks when user state valid, gold but not eligible then rejected state is returned`() = runTest {
         every {
             userFeaturePermissionService.getAccessForFeature(
-                Feature.Sell, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+                Feature.Sell,
+                FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
             )
         } returns flowOf(DataResource.Data(FeatureAccess.Granted()))
 
@@ -205,7 +214,8 @@ class SellRepositoryTest {
 
         verify(exactly = 1) {
             userFeaturePermissionService.getAccessForFeature(
-                Feature.Sell, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+                Feature.Sell,
+                FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
             )
         }
         verify(exactly = 0) { custodialWalletManager.getSupportedFundsFiats() }
@@ -217,7 +227,8 @@ class SellRepositoryTest {
     fun `given sell checks when user state valid, silver then  non kyc state is returned`() = runTest {
         every {
             userFeaturePermissionService.getAccessForFeature(
-                Feature.Sell, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+                Feature.Sell,
+                FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
             )
         } returns flowOf(DataResource.Data(FeatureAccess.Granted()))
 
@@ -237,7 +248,8 @@ class SellRepositoryTest {
 
         verify(exactly = 1) {
             userFeaturePermissionService.getAccessForFeature(
-                Feature.Sell, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+                Feature.Sell,
+                FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
             )
         }
         verify(exactly = 0) { custodialWalletManager.getSupportedFundsFiats() }
@@ -249,7 +261,8 @@ class SellRepositoryTest {
     fun `given sell checks when user state valid, gold & eligible then sell list returned`() = runTest {
         every {
             userFeaturePermissionService.getAccessForFeature(
-                Feature.Sell, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+                Feature.Sell,
+                FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
             )
         } returns flowOf(DataResource.Data(FeatureAccess.Granted()))
 
@@ -280,7 +293,8 @@ class SellRepositoryTest {
 
         verify(exactly = 1) {
             userFeaturePermissionService.getAccessForFeature(
-                Feature.Sell, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+                Feature.Sell,
+                FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
             )
         }
         verify(exactly = 1) { custodialWalletManager.getSupportedFundsFiats(FiatCurrency.Dollars) }
@@ -292,7 +306,8 @@ class SellRepositoryTest {
     fun `given sell checks when user state valid, gold & eligible sell list errors then error is returned`() = runTest {
         every {
             userFeaturePermissionService.getAccessForFeature(
-                Feature.Sell, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+                Feature.Sell,
+                FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
             )
         } returns flowOf(DataResource.Data(FeatureAccess.Granted()))
 
@@ -320,7 +335,8 @@ class SellRepositoryTest {
 
         verify(exactly = 1) {
             userFeaturePermissionService.getAccessForFeature(
-                Feature.Sell, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+                Feature.Sell,
+                FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
             )
         }
         verify(exactly = 1) { custodialWalletManager.getSupportedFundsFiats(FiatCurrency.Dollars) }
@@ -333,7 +349,8 @@ class SellRepositoryTest {
         runTest {
             every {
                 userFeaturePermissionService.getAccessForFeature(
-                    Feature.Sell, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+                    Feature.Sell,
+                    FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
                 )
             } returns flowOf(DataResource.Data(FeatureAccess.Granted()))
 
@@ -368,7 +385,8 @@ class SellRepositoryTest {
 
             verify(exactly = 1) {
                 userFeaturePermissionService.getAccessForFeature(
-                    Feature.Sell, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+                    Feature.Sell,
+                    FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
                 )
             }
             verify(exactly = 1) { custodialWalletManager.getSupportedFundsFiats(FiatCurrency.Dollars) }

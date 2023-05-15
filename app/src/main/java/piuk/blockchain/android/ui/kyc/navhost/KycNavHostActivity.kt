@@ -133,7 +133,7 @@ class KycNavHostActivity :
 
     override fun navigate(directions: NavDirections) {
         if (directions.actionId != R.id.action_startTierCurrentState) {
-            updateToolbarTitle(getString(R.string.identity_verification))
+            updateToolbarTitle(getString(com.blockchain.stringResources.R.string.identity_verification))
         }
         navController.navigate(directions)
         navInitialDestination = navController.currentDestination
@@ -155,7 +155,7 @@ class KycNavHostActivity :
 
     override fun onEmailEntryFragmentUpdated(showSkipButton: Boolean, buttonAction: () -> Unit) {
         updateToolbarTitle(
-            title = getString(R.string.kyc_email_title)
+            title = getString(com.blockchain.stringResources.R.string.kyc_email_title)
         )
     }
 
@@ -182,7 +182,7 @@ class KycNavHostActivity :
                     onError = {
                         BlockchainSnackbar.make(
                             binding.root,
-                            getString(R.string.common_error),
+                            getString(com.blockchain.stringResources.R.string.common_error),
                             type = SnackbarType.Error
                         ).show()
                     }

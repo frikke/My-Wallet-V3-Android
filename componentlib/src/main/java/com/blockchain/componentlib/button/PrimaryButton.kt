@@ -24,9 +24,8 @@ fun PrimaryButton(
     state: ButtonState = ButtonState.Enabled,
     defaultBackgroundColor: Color? = null,
     icon: ImageResource = ImageResource.None,
-    minHeight: Dp = 48.dp,
+    minHeight: Dp = 48.dp
 ) {
-
     Button(
         text = text,
         onClick = onClick,
@@ -50,7 +49,7 @@ fun PrimaryButton(
                 contentAlpha = textAlpha,
                 icon = icon
             )
-        },
+        }
     )
 }
 

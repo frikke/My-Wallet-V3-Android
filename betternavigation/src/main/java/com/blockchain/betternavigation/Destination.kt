@@ -17,7 +17,7 @@ abstract class Destination : DestinationWithArgs<Nothing>() {
 
     internal fun navigate(
         navController: NavController,
-        navOptions: (NavOptionsBuilder.() -> Unit)? = null,
+        navOptions: (NavOptionsBuilder.() -> Unit)? = null
     ) {
         if (navOptions != null) {
             navController.navigate(route, navOptions)
@@ -37,7 +37,7 @@ abstract class DestinationWithArgs<Args : Serializable?> {
         navController: NavController,
         argsHolder: NavArgsHolder,
         args: Args,
-        navOptions: (NavOptionsBuilder.() -> Unit)? = null,
+        navOptions: (NavOptionsBuilder.() -> Unit)? = null
     ) {
         val argsId = UUID.randomUUID().toString()
         argsHolder[argsId] = args

@@ -37,8 +37,11 @@ internal class InAppReviewSettingsImpl(
     private suspend fun ReviewManager.getReviewInfo(): ReviewInfo? = suspendCancellableCoroutine { continuation ->
         requestReviewFlow().addOnCompleteListener { task ->
             continuation.resume(
-                if (task.isSuccessful) task.result
-                else null
+                if (task.isSuccessful) {
+                    task.result
+                } else {
+                    null
+                }
             )
         }
     }

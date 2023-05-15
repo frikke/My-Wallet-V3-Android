@@ -26,7 +26,7 @@ data class StakingSummaryViewState(
     val canDeposit: Boolean,
     val canWithdraw: Boolean,
     val pendingWithdrawals: List<EarnWithdrawalUiElement>,
-    val unbondingDays: Int,
+    val unbondingDays: Int
 ) : ViewState
 
 data class EarnWithdrawalUiElement(
@@ -35,7 +35,7 @@ data class EarnWithdrawalUiElement(
     val amountFiat: String,
     val unbondingStartDate: String,
     val unbondingExpiryDate: String,
-    val withdrawalTimestamp: Date?,
+    val withdrawalTimestamp: Date?
 )
 
 sealed class StakingError {

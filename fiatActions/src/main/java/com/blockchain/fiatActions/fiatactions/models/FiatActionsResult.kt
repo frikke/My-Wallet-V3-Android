@@ -58,11 +58,11 @@ sealed interface FiatActionsResult : NavigationEvent {
     data class BankLinkFlow(
         override val account: FiatAccount,
         override val action: AssetAction,
-        val linkBankTransfer: LinkBankTransfer,
+        val linkBankTransfer: LinkBankTransfer
     ) : FiatActionsResult
 
     data class KycDepositCashBenefits(
-        val currency: FiatCurrency,
+        val currency: FiatCurrency
     ) : FiatActionsResult {
         override val account: FiatAccount
             get() = NullFiatAccount

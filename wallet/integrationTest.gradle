@@ -27,8 +27,8 @@ task integrationTest(type: Test) {
     classpath = sourceSets.integrationTest.runtimeClasspath
 
     reports {
-        html.enabled = true
-        junitXml.enabled = true
+        html.required = true
+        junitXml.required = true
     }
 }
 

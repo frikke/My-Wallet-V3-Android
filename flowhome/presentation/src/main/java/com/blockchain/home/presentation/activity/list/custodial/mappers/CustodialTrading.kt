@@ -24,8 +24,8 @@ internal fun CustodialTradingActivitySummaryItem.leadingTitle(): ActivityStackVi
         value = TextValue.IntResValue(
             value = when (type) {
                 OrderType.BUY,
-                OrderType.RECURRING_BUY -> R.string.tx_title_bought
-                OrderType.SELL -> R.string.tx_title_sold
+                OrderType.RECURRING_BUY -> com.blockchain.stringResources.R.string.tx_title_bought
+                OrderType.SELL -> com.blockchain.stringResources.R.string.tx_title_sold
             },
             args = listOf(account.currency.displayTicker)
         ),
@@ -43,14 +43,22 @@ internal fun CustodialTradingActivitySummaryItem.leadingSubtitle(): ActivityStac
     return ActivityStackView.Text(
         value = when (state) {
             OrderState.FINISHED -> TextValue.StringValue(Date(timeStampMs).toFormattedDate())
-            OrderState.UNINITIALISED -> TextValue.IntResValue(R.string.activity_state_uninitialised)
-            OrderState.INITIALISED -> TextValue.IntResValue(R.string.activity_state_initialised)
+            OrderState.UNINITIALISED -> TextValue.IntResValue(
+                com.blockchain.stringResources.R.string.activity_state_uninitialised
+            )
+            OrderState.INITIALISED -> TextValue.IntResValue(
+                com.blockchain.stringResources.R.string.activity_state_initialised
+            )
             OrderState.AWAITING_FUNDS,
             OrderState.PENDING_EXECUTION,
-            OrderState.PENDING_CONFIRMATION -> TextValue.IntResValue(R.string.activity_state_pending)
-            OrderState.UNKNOWN -> TextValue.IntResValue(R.string.activity_state_unknown)
-            OrderState.CANCELED -> TextValue.IntResValue(R.string.activity_state_canceled)
-            OrderState.FAILED -> TextValue.IntResValue(R.string.activity_state_failed)
+            OrderState.PENDING_CONFIRMATION -> TextValue.IntResValue(
+                com.blockchain.stringResources.R.string.activity_state_pending
+            )
+            OrderState.UNKNOWN -> TextValue.IntResValue(com.blockchain.stringResources.R.string.activity_state_unknown)
+            OrderState.CANCELED -> TextValue.IntResValue(
+                com.blockchain.stringResources.R.string.activity_state_canceled
+            )
+            OrderState.FAILED -> TextValue.IntResValue(com.blockchain.stringResources.R.string.activity_state_failed)
         },
         style = basicSubtitleStyle.copy(color = color)
     )

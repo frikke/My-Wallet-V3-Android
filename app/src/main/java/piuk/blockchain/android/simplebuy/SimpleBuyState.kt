@@ -295,11 +295,11 @@ sealed class ErrorState : Serializable {
 
 data class SimpleBuyOrder(
     val orderState: OrderState = OrderState.UNINITIALISED,
-    val amount: FiatValue? = null,
+    val amount: FiatValue? = null
 )
 
 data class PaymentOptions(
-    val availablePaymentMethods: List<PaymentMethod> = emptyList(),
+    val availablePaymentMethods: List<PaymentMethod> = emptyList()
 )
 
 @kotlinx.serialization.Serializable
@@ -395,7 +395,7 @@ data class BuyQuote(
 data class BuyFees(
     val feeBeforePromo: FiatValue,
     val fee: FiatValue,
-    val promo: Promo,
+    val promo: Promo
 )
 
 @kotlinx.serialization.Serializable
@@ -404,7 +404,7 @@ data class SelectedPaymentMethod(
     val partner: Partner? = null,
     val label: String? = "",
     val paymentMethodType: PaymentMethodType,
-    val isEligible: Boolean,
+    val isEligible: Boolean
 ) {
     fun isCard() = paymentMethodType == PaymentMethodType.PAYMENT_CARD
     fun isBank() = paymentMethodType == PaymentMethodType.BANK_TRANSFER

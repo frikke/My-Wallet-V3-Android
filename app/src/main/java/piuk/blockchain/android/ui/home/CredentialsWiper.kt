@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.home
 import com.blockchain.api.services.ActivityWebSocketService
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.ethereum.EthDataManager
-import com.blockchain.core.walletoptions.WalletOptionsState
+import com.blockchain.core.walletoptions.WalletOptionsStore
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.metadata.MetadataService
 import com.blockchain.nabu.datamanagers.NabuDataManager
@@ -31,7 +31,7 @@ class CredentialsWiper(
     private val bchDataManager: BchDataManager,
     private val metadataService: MetadataService,
     private val nabuDataManager: NabuDataManager,
-    private val walletOptionsState: WalletOptionsState,
+    private val walletOptionsStore: WalletOptionsStore,
     private val storeWiper: StoreWiper,
     private val intercomEnabledFF: FeatureFlag
 ) {
@@ -46,7 +46,7 @@ class CredentialsWiper(
                 nabuDataManager.clearAccessToken()
                 walletModeService.reset()
                 metadataService.reset()
-                walletOptionsState.wipe()
+                walletOptionsStore.markAsStale()
             }
         }.onErrorComplete()
             .then {

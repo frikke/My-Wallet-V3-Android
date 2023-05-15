@@ -16,7 +16,7 @@ val proveModule = module {
                 mobileAuthSDK = object : ProveAuthSDK {
                     override fun isAuthenticationPossible() {}
                     override fun authenticate(): Boolean = true
-                },
+                }
             )
         }
 
@@ -24,7 +24,7 @@ val proveModule = module {
             ProvePrefillModel(
                 proveService = get(),
                 userService = get(),
-                kycTiersStore = get(),
+                kycTiersStore = get()
             )
         }
     }

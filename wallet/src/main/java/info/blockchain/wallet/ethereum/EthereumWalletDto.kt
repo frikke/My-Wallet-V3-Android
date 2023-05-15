@@ -57,7 +57,9 @@ class EthereumWalletDto(
     val account: EthereumAccount?
         get() = if (walletData.accounts.isEmpty()) {
             null
-        } else EthereumAccount(walletData.accounts[ACCOUNT_INDEX])
+        } else {
+            EthereumAccount(walletData.accounts[ACCOUNT_INDEX])
+        }
 
     val txNotes: Map<String, String>
         get() = walletData.txNotes

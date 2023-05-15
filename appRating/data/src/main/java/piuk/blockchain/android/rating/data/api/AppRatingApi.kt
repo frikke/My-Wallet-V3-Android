@@ -11,7 +11,7 @@ internal interface AppRatingApi {
 }
 
 internal class AppRatingApiService(
-    private val appRatingEndpoints: AppRatingEndpoints,
+    private val appRatingEndpoints: AppRatingEndpoints
 ) : AppRatingApi {
     /**
      * Post rating data to checkmarket

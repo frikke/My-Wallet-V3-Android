@@ -152,7 +152,11 @@ class SimpleBuyInteractorTest {
         val defaultAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(50))
 
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+            limits,
+            assetCode,
+            fiatCurrency,
+            false,
+            FiatValue.zero(FiatCurrency.Dollars)
         ).test()
         test.assertValue {
             it.first == defaultAmount &&
@@ -179,7 +183,11 @@ class SimpleBuyInteractorTest {
         val prefilledAmount = if (defaultAmount < minAmount) minAmount else defaultAmount
 
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+            limits,
+            assetCode,
+            fiatCurrency,
+            false,
+            FiatValue.zero(FiatCurrency.Dollars)
         ).test()
         test.assertValue {
             it.first == prefilledAmount &&
@@ -205,7 +213,11 @@ class SimpleBuyInteractorTest {
         val prefilledAmount = if (defaultAmount > maxAmount) maxAmount else defaultAmount
 
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+            limits,
+            assetCode,
+            fiatCurrency,
+            false,
+            FiatValue.zero(FiatCurrency.Dollars)
         ).test()
         test.assertValue {
             it.first == prefilledAmount &&
@@ -226,7 +238,11 @@ class SimpleBuyInteractorTest {
         val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
 
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+            limits,
+            assetCode,
+            fiatCurrency,
+            false,
+            FiatValue.zero(FiatCurrency.Dollars)
         ).test()
         test.assertValue {
             it.first == FiatValue.fromMajor(fiatCurrency, BigDecimal(100)) &&
@@ -250,7 +266,11 @@ class SimpleBuyInteractorTest {
         val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
 
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+            limits,
+            assetCode,
+            fiatCurrency,
+            false,
+            FiatValue.zero(FiatCurrency.Dollars)
         ).test()
         test.assertValue {
             it.first == maxAmount &&
@@ -272,7 +292,11 @@ class SimpleBuyInteractorTest {
         val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
 
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+            limits,
+            assetCode,
+            fiatCurrency,
+            false,
+            FiatValue.zero(FiatCurrency.Dollars)
         ).test()
         test.assertValue {
             it.first == minAmount &&
@@ -295,7 +319,11 @@ class SimpleBuyInteractorTest {
         val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
 
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+            limits,
+            assetCode,
+            fiatCurrency,
+            false,
+            FiatValue.zero(FiatCurrency.Dollars)
         ).test()
         test.assertValue {
             it.first == limits.minAmount &&
@@ -320,7 +348,11 @@ class SimpleBuyInteractorTest {
 
         val prepopulatedAmount = Money.fromMajor(FiatCurrency.Dollars, BigDecimal(50))
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, true, prepopulatedAmount
+            limits,
+            assetCode,
+            fiatCurrency,
+            true,
+            prepopulatedAmount
         ).test()
 
         test.assertValue {

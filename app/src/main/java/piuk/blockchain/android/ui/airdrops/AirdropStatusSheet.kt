@@ -43,7 +43,6 @@ class AirdropStatusSheet : SlidingModalBottomDialog<DialogAirdropStatusBinding>(
 
     @SuppressLint("SetTextI18n")
     override fun renderList(statusList: List<Airdrop>) {
-
         val airdrop = statusList.find { it.name == airdropName }
             ?: throw IllegalStateException("No $airdropName airdrop found")
 
@@ -51,6 +50,7 @@ class AirdropStatusSheet : SlidingModalBottomDialog<DialogAirdropStatusBinding>(
             sunriverCampaignName -> {
                 renderSunriver(airdrop)
             }
+
             else -> {
                 // Do nothing.
             }
@@ -73,28 +73,32 @@ class AirdropStatusSheet : SlidingModalBottomDialog<DialogAirdropStatusBinding>(
         when (airdrop.status) {
             AirdropState.UNKNOWN ->
                 setStatusView(
-                    R.string.airdrop_status_unknown,
-                    R.color.black,
+                    com.blockchain.stringResources.R.string.airdrop_status_unknown,
+                    com.blockchain.common.R.color.black,
                     R.drawable.bkgd_status_unknown
                 )
+
             AirdropState.EXPIRED ->
                 setStatusView(
-                    R.string.airdrop_status_expired,
-                    R.color.grey_600,
+                    com.blockchain.stringResources.R.string.airdrop_status_expired,
+                    com.blockchain.common.R.color.grey_600,
                     R.drawable.bkgd_grey_100_rounded
                 )
+
             AirdropState.PENDING ->
                 setStatusView(
-                    R.string.airdrop_status_pending,
-                    R.color.blue_600,
+                    com.blockchain.stringResources.R.string.airdrop_status_pending,
+                    com.blockchain.common.R.color.blue_600,
                     R.drawable.bkgd_status_pending
                 )
+
             AirdropState.RECEIVED ->
                 setStatusView(
-                    R.string.airdrop_status_received,
-                    R.color.green_600,
+                    com.blockchain.stringResources.R.string.airdrop_status_received,
+                    com.blockchain.common.R.color.green_600,
                     R.drawable.bkgd_green_100_rounded
                 )
+
             AirdropState.REGISTERED -> throw NotImplementedError("AirdropState.REGISTERED")
         }.exhaustive
     }
@@ -120,7 +124,6 @@ class AirdropStatusSheet : SlidingModalBottomDialog<DialogAirdropStatusBinding>(
 
     @SuppressLint("SetTextI18n")
     private fun renderAmount(airdrop: Airdrop) {
-
         val amount = if (airdrop.amountCrypto != null) {
             "${airdrop.amountCrypto.toStringWithSymbol()} (${airdrop.amountFiat?.toStringWithSymbol()})"
         } else {

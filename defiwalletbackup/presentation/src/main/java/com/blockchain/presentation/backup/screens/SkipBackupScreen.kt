@@ -52,9 +52,8 @@ fun SkipBackup(
 fun SkipBackupScreen(
     backOnClick: () -> Unit,
     skipOnClick: () -> Unit,
-    backUpNowOnClick: () -> Unit,
+    backUpNowOnClick: () -> Unit
 ) {
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -63,7 +62,7 @@ fun SkipBackupScreen(
     ) {
         NavigationBar(
             modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
-            title = stringResource(R.string.backup_phrase_title_secure_wallet),
+            title = stringResource(com.blockchain.stringResources.R.string.backup_phrase_title_secure_wallet),
             mutedBackground = false,
             onBackButtonClick = backOnClick
         )
@@ -81,7 +80,7 @@ fun SkipBackupScreen(
             StandardVerticalSpacer()
 
             SimpleText(
-                text = stringResource(R.string.skip_backup_title),
+                text = stringResource(com.blockchain.stringResources.R.string.skip_backup_title),
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
@@ -90,7 +89,7 @@ fun SkipBackupScreen(
             TinyVerticalSpacer()
 
             SimpleText(
-                text = stringResource(R.string.skip_backup_description),
+                text = stringResource(com.blockchain.stringResources.R.string.skip_backup_description),
                 style = ComposeTypographies.Body1,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
@@ -100,7 +99,7 @@ fun SkipBackupScreen(
 
             PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.skip_backup_cta_skip),
+                text = stringResource(id = com.blockchain.stringResources.R.string.skip_backup_cta_skip),
                 onClick = skipOnClick
             )
 
@@ -108,7 +107,7 @@ fun SkipBackupScreen(
 
             MinimalButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.skip_backup_cta_backup),
+                text = stringResource(id = com.blockchain.stringResources.R.string.skip_backup_cta_backup),
                 onClick = backUpNowOnClick
             )
         }

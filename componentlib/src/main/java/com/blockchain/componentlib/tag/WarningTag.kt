@@ -16,7 +16,6 @@ fun WarningTag(
     size: TagSize = TagSize.Primary,
     onClick: (() -> Unit)? = null
 ) {
-
     val defaultBackgroundColor = if (!isSystemInDarkTheme()) {
         Orange100
     } else {

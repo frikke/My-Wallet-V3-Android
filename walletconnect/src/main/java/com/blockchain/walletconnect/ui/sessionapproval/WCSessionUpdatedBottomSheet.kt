@@ -47,15 +47,16 @@ class WCSessionUpdatedBottomSheet : SlidingModalBottomDialog<SessionApprovalBott
 
             title.text = getString(
                 if (approved)
-                    R.string.dapp_is_now_approved else R.string.dapp_is_now_rejected,
+                    com.blockchain.stringResources.R.string.dapp_is_now_approved else
+                    com.blockchain.stringResources.R.string.dapp_is_now_rejected,
                 sessionV2DappName ?: session?.dAppInfo?.peerMeta?.name
             )
             description.goneIf { approved }
             description.text =
                 if (!networkSupported)
-                    getString(R.string.dapp_network_not_supported)
+                    getString(com.blockchain.stringResources.R.string.dapp_network_not_supported)
                 else if (!approved)
-                    getString(R.string.go_back_to_your_browser)
+                    getString(com.blockchain.stringResources.R.string.go_back_to_your_browser)
                 else ""
 
             cancelButton.gone()
@@ -65,7 +66,7 @@ class WCSessionUpdatedBottomSheet : SlidingModalBottomDialog<SessionApprovalBott
             )
 
             approveButton.apply {
-                text = getString(R.string.common_ok)
+                text = getString(com.blockchain.stringResources.R.string.common_ok)
                 onClick = {
                     dismiss()
                 }

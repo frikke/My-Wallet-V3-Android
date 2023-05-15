@@ -76,9 +76,9 @@ class SendNetworkWarningSheet : BottomSheetDialogFragment() {
     private fun SheetContent() {
         BottomSheetOneButton(
             onCloseClick = { dismiss() },
-            title = stringResource(id = R.string.common_did_you_know),
+            title = stringResource(id = com.blockchain.stringResources.R.string.common_did_you_know),
             subtitle = stringResource(
-                id = R.string.send_select_wallet_warning_sheet_desc,
+                id = com.blockchain.stringResources.R.string.send_select_wallet_warning_sheet_desc,
                 info.currencyName,
                 info.network
             ),
@@ -86,7 +86,7 @@ class SendNetworkWarningSheet : BottomSheetDialogFragment() {
             button = BottomSheetButton(
                 type = ButtonType.PRIMARY,
                 onClick = { dismiss() },
-                text = stringResource(id = R.string.common_ok),
+                text = stringResource(id = com.blockchain.stringResources.R.string.common_ok)
             ),
             shouldShowHeaderDivider = false
         )

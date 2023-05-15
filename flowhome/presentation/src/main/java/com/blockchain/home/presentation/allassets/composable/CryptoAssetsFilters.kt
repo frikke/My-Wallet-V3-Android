@@ -50,7 +50,7 @@ fun CryptoAssetsFilters(
                 start = AppTheme.dimensions.smallSpacing,
                 top = AppTheme.dimensions.noSpacing,
                 end = AppTheme.dimensions.smallSpacing,
-                bottom = AppTheme.dimensions.smallSpacing,
+                bottom = AppTheme.dimensions.smallSpacing
             ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -64,7 +64,7 @@ fun CryptoAssetsFilters(
 
         Text(
             modifier = Modifier.fillMaxWidth(),
-            text = stringResource(R.string.assets_filter_title),
+            text = stringResource(com.blockchain.stringResources.R.string.assets_filter_title),
             style = AppTheme.typography.body2,
             color = AppTheme.colors.title,
             textAlign = TextAlign.Center
@@ -98,7 +98,7 @@ fun CryptoAssetsFilters(
 
         PrimaryButton(
             modifier = Modifier.fillMaxWidth(),
-            text = stringResource(R.string.common_confirm),
+            text = stringResource(com.blockchain.stringResources.R.string.common_confirm),
             onClick = { onConfirmClick(editableFilters.value) }
         )
     }
@@ -109,7 +109,7 @@ fun SmallBalancesFilter(assetFilter: AssetFilter.ShowSmallBalances, onCheckedCha
     FlexibleToggleTableRow(
         paddingValues = PaddingValues(horizontal = AppTheme.dimensions.smallSpacing),
         isChecked = assetFilter.enabled,
-        primaryText = stringResource(R.string.assets_filter_small_balances),
+        primaryText = stringResource(com.blockchain.stringResources.R.string.assets_filter_small_balances),
         onCheckedChange = { isChecked ->
             onCheckedChanged(isChecked)
         },

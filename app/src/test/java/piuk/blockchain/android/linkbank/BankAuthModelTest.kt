@@ -99,8 +99,11 @@ class BankAuthModelTest {
     @Test
     fun bankLinkUpdate_ok() {
         val intent = BankAuthIntent.UpdateAccountProvider(
-            accountProviderId = accountProviderId, accountId = accountId, linkingBankId = linkingBankId,
-            linkBankTransfer = linkBankTransfer, authSource = source
+            accountProviderId = accountProviderId,
+            accountId = accountId,
+            linkingBankId = linkingBankId,
+            linkBankTransfer = linkBankTransfer,
+            authSource = source
         )
 
         whenever(
@@ -117,7 +120,7 @@ class BankAuthModelTest {
         whenever(
             interactor.pollForLinkedBankState(
                 partner = any(),
-                id = any(),
+                id = any()
             )
         ).thenReturn(
             Single.just(
@@ -161,8 +164,11 @@ class BankAuthModelTest {
     @Test
     fun bankLinkUpdate_error() {
         val intent = BankAuthIntent.UpdateAccountProvider(
-            accountProviderId = accountProviderId, accountId = accountId, linkingBankId = linkingBankId,
-            linkBankTransfer = linkBankTransfer, authSource = source
+            accountProviderId = accountProviderId,
+            accountId = accountId,
+            linkingBankId = linkingBankId,
+            linkBankTransfer = linkBankTransfer,
+            authSource = source
         )
 
         whenever(
@@ -739,7 +745,11 @@ class BankAuthModelTest {
         val bankAuthSource: BankAuthSource = mock()
 
         val intent = BankAuthIntent.LinkPlaidAccount(
-            linkingBankId, linkBankAccountId, linkBankToken, linkBankTransfer, bankAuthSource
+            linkingBankId,
+            linkBankAccountId,
+            linkBankToken,
+            linkBankTransfer,
+            bankAuthSource
         )
 
         val expectedBank = LinkedBank(
@@ -789,7 +799,11 @@ class BankAuthModelTest {
         val bankAuthSource: BankAuthSource = mock()
 
         val intent = BankAuthIntent.LinkPlaidAccount(
-            linkingBankId, linkBankAccountId, linkBankToken, linkBankTransfer, bankAuthSource
+            linkingBankId,
+            linkBankAccountId,
+            linkBankToken,
+            linkBankTransfer,
+            bankAuthSource
         )
 
         whenever(bankService.linkPlaidBankAccount(linkingBankId, linkBankAccountId, linkBankToken)).thenReturn(

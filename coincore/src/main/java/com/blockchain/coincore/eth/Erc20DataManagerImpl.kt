@@ -19,7 +19,7 @@ import org.web3j.crypto.RawTransaction
 
 internal class Erc20DataManagerImpl(
     private val ethDataManager: EthDataManager,
-    private val historyCallCache: Erc20HistoryCallCache,
+    private val historyCallCache: Erc20HistoryCallCache
 ) : Erc20DataManager {
 
     override val accountHash: String
@@ -115,7 +115,6 @@ internal class Erc20DataManagerImpl(
         gasLimitGwei: BigInteger,
         hotWalletAddress: String
     ): Single<RawTransaction> {
-
         return getNonce(evmNetwork)
             .map { nonce ->
                 // If we couldn't find a hot wallet address for any reason (in which case the HotWalletService is

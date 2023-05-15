@@ -38,7 +38,7 @@ class BankAliasLinkActivity :
         setContentView(binding.root)
 
         updateToolbar(
-            toolbarTitle = getString(R.string.withdraw_to),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.withdraw_to),
             backAction = { onSupportNavigateUp() }
         )
 
@@ -59,7 +59,10 @@ class BankAliasLinkActivity :
             }
             is BankAliasNavigationEvent.UnhandledError -> {
                 BlockchainSnackbar.make(
-                    binding.root, getString(R.string.common_error), Snackbar.LENGTH_SHORT, SnackbarType.Error
+                    binding.root,
+                    getString(com.blockchain.stringResources.R.string.common_error),
+                    Snackbar.LENGTH_SHORT,
+                    SnackbarType.Error
                 ).show()
             }
         }.exhaustive

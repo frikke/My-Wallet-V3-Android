@@ -31,7 +31,6 @@ internal fun ChipOptionItem(
     onClick: () -> Unit,
     state: ChipState = ChipState.Enabled
 ) {
-
     val defaultBackgroundColor = Color.White
     val selectedBackgroundColor = Grey800
 
@@ -74,8 +73,8 @@ internal fun ChipOptionItem(
             .background(backgroundColor, AppTheme.shapes.extraLarge)
             .border(1.dp, strokeColor, AppTheme.shapes.extraLarge)
             .padding(
-                horizontal = dimensionResource(R.dimen.very_small_spacing),
-                vertical = dimensionResource(R.dimen.smallest_spacing)
+                horizontal = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing),
+                vertical = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
             )
     ) {
         Text(

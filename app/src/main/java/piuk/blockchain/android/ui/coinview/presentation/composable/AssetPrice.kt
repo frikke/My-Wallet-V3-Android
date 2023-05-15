@@ -157,11 +157,11 @@ fun AssetPriceInfoData(
 
 @StringRes private fun HistoricalTimeSpan.toSimpleName(): Int {
     return when (this) {
-        HistoricalTimeSpan.DAY -> R.string.coinview_chart_tab_day
-        HistoricalTimeSpan.WEEK -> R.string.coinview_chart_tab_week
-        HistoricalTimeSpan.MONTH -> R.string.coinview_chart_tab_month
-        HistoricalTimeSpan.YEAR -> R.string.coinview_chart_tab_year
-        HistoricalTimeSpan.ALL_TIME -> R.string.coinview_chart_tab_all
+        HistoricalTimeSpan.DAY -> com.blockchain.stringResources.R.string.coinview_chart_tab_day
+        HistoricalTimeSpan.WEEK -> com.blockchain.stringResources.R.string.coinview_chart_tab_week
+        HistoricalTimeSpan.MONTH -> com.blockchain.stringResources.R.string.coinview_chart_tab_month
+        HistoricalTimeSpan.YEAR -> com.blockchain.stringResources.R.string.coinview_chart_tab_year
+        HistoricalTimeSpan.ALL_TIME -> com.blockchain.stringResources.R.string.coinview_chart_tab_all
     }
 }
 
@@ -175,8 +175,8 @@ fun AssetPriceError() {
         contentAlignment = Alignment.Center
     ) {
         CardAlert(
-            title = stringResource(R.string.coinview_chart_load_error_title),
-            subtitle = stringResource(R.string.coinview_chart_load_error_subtitle),
+            title = stringResource(com.blockchain.stringResources.R.string.coinview_chart_load_error_title),
+            subtitle = stringResource(com.blockchain.stringResources.R.string.coinview_chart_load_error_subtitle),
             alertType = AlertType.Warning,
             isBordered = true,
             isDismissable = false
@@ -192,7 +192,7 @@ fun LoadingChart() {
                 override val timestamp: Long = it.toLong()
                 override val rate: Double = Random.nextDouble(50.0, 150.0)
             }
-        },
+        }
     )
 }
 
@@ -204,7 +204,7 @@ fun ContentChart(
     chartData: List<ChartEntry>,
     selectedTimeSpan: HistoricalTimeSpan,
     onChartEntryHighlighted: (Entry) -> Unit,
-    resetPriceInformation: () -> Unit,
+    resetPriceInformation: () -> Unit
 ) {
     var isInteractingWithChart by remember { mutableStateOf(false) }
 
@@ -279,7 +279,7 @@ fun PreviewAssetPrice_Data() {
             price = "$4,570.27",
             priceChange = "$969.25",
             percentChange = 5.58,
-            intervalName = R.string.coinview_price_day,
+            intervalName = com.blockchain.stringResources.R.string.coinview_price_day,
             chartData = CoinviewPriceState.Data.CoinviewChartState.Data(
                 listOf(ChartEntry(1.4f, 43f), ChartEntry(3.4f, 4f))
             ),

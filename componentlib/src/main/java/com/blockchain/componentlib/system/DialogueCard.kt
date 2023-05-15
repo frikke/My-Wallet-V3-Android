@@ -46,11 +46,11 @@ fun DialogueCard(
     firstButton: DialogueButton,
     secondButton: DialogueButton? = null,
     onDismissRequest: () -> Unit = {},
-    properties: DialogProperties = DialogProperties(),
+    properties: DialogProperties = DialogProperties()
 ) {
     Dialog(
         onDismissRequest = onDismissRequest,
-        properties = properties,
+        properties = properties
     ) {
         val backgroundColor = if (!isSystemInDarkTheme()) {
             White
@@ -75,18 +75,18 @@ fun DialogueCard(
             shape = AppTheme.shapes.small,
             backgroundColor = backgroundColor,
             modifier = Modifier
-                .padding(dimensionResource(R.dimen.smallest_spacing))
+                .padding(dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing))
                 .defaultMinSize(280.dp)
         ) {
             Surface(
                 modifier = Modifier
                     .padding(
-                        top = dimensionResource(R.dimen.standard_spacing),
-                        bottom = dimensionResource(R.dimen.medium_spacing),
-                        start = dimensionResource(R.dimen.standard_spacing),
-                        end = dimensionResource(R.dimen.standard_spacing)
+                        top = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                        bottom = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
+                        start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                        end = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
                     )
-                    .background(backgroundColor),
+                    .background(backgroundColor)
             ) {
                 Column(
                     modifier = Modifier.background(backgroundColor),
@@ -116,8 +116,8 @@ fun DialogueCard(
                         modifier = Modifier
                             .background(backgroundColor)
                             .padding(
-                                top = dimensionResource(R.dimen.medium_spacing),
-                                bottom = dimensionResource(R.dimen.large_spacing)
+                                top = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
+                                bottom = dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)
                             ),
                         text = body,
                         style = AppTheme.typography.paragraph1,
@@ -160,7 +160,7 @@ fun DialogueCardPreview() {
             title = "Some title",
             body = "Body 2: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ",
             firstButton = DialogueButton("Button 1", {}),
-            secondButton = DialogueButton("Button2", {}),
+            secondButton = DialogueButton("Button2", {})
         )
     }
 }

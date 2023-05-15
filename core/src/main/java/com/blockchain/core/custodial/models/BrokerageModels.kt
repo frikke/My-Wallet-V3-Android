@@ -36,13 +36,13 @@ data class BrokerageQuote(
 
 data class BuyOrderAndQuote(
     val buyOrder: BuySellOrder,
-    val quote: BrokerageQuote,
+    val quote: BrokerageQuote
 )
 
 data class QuoteFee(
     val fee: Money,
     val feeBeforePromo: Money,
-    val promo: Promo,
+    val promo: Promo
 )
 
 enum class Promo {

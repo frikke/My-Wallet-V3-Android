@@ -43,7 +43,7 @@ import org.koin.androidx.compose.getViewModel
 fun DexInProgressTransactionScreen(
     closeFlow: () -> Unit = {},
     retry: () -> Unit = {},
-    viewModel: DexInProgressTxViewModel = getViewModel(scope = payloadScope),
+    viewModel: DexInProgressTxViewModel = getViewModel(scope = payloadScope)
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -106,13 +106,12 @@ private fun ColumnScope.FailureScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-
         Image(
             imageResource = ImageResource.Local(R.drawable.dex_transaction_failed)
         )
         Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
         SimpleText(
-            text = stringResource(R.string.swap_failed),
+            text = stringResource(com.blockchain.stringResources.R.string.swap_failed),
             style = ComposeTypographies.Title3,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Centre
@@ -120,7 +119,7 @@ private fun ColumnScope.FailureScreen(
         Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
         SimpleText(
             text = stringResource(
-                R.string.swap_failed_message,
+                com.blockchain.stringResources.R.string.swap_failed_message
             ),
             style = ComposeTypographies.Body1,
             color = ComposeColors.Body,
@@ -133,13 +132,13 @@ private fun ColumnScope.FailureScreen(
     ) {
         MinimalButton(
             modifier = Modifier.fillMaxWidth(),
-            text = stringResource(id = R.string.common_cancel),
+            text = stringResource(id = com.blockchain.stringResources.R.string.common_cancel),
             onClick = cancelClicked
         )
         Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
         PrimaryButton(
             modifier = Modifier.fillMaxWidth(),
-            text = stringResource(id = R.string.common_try_again),
+            text = stringResource(id = com.blockchain.stringResources.R.string.common_try_again),
             onClick = tryAgain
         )
     }
@@ -164,7 +163,11 @@ private fun ColumnScope.SuccessScreen(
         )
         Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
         SimpleText(
-            text = stringResource(R.string.swapping_with_currencies, sourceCurrency, destinationCurrency),
+            text = stringResource(
+                com.blockchain.stringResources.R.string.swapping_with_currencies,
+                sourceCurrency,
+                destinationCurrency
+            ),
             style = ComposeTypographies.Title3,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Centre
@@ -172,7 +175,7 @@ private fun ColumnScope.SuccessScreen(
         Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
         SimpleText(
             text = stringResource(
-                R.string.your_swap_is_confirmed,
+                com.blockchain.stringResources.R.string.your_swap_is_confirmed,
                 sourceCurrency,
                 destinationCurrency
             ),
@@ -187,7 +190,7 @@ private fun ColumnScope.SuccessScreen(
     ) {
         MinimalButton(
             modifier = Modifier.fillMaxWidth(),
-            text = stringResource(id = R.string.view_on_explorer),
+            text = stringResource(id = com.blockchain.stringResources.R.string.view_on_explorer),
             onClick = {
                 uriHandler.openUri(explorerUrl)
             }
@@ -195,7 +198,7 @@ private fun ColumnScope.SuccessScreen(
         Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
         PrimaryButton(
             modifier = Modifier.fillMaxWidth(),
-            text = stringResource(id = R.string.common_done),
+            text = stringResource(id = com.blockchain.stringResources.R.string.common_done),
             onClick = doneClicked
         )
     }

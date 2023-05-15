@@ -249,11 +249,11 @@ open class BitcoinCashWallet : DeterministicWallet {
         account: DeterministicAccount,
         unspentOutputs: List<Utxo>
     ): List<SigningKey> {
-        if (!account.node.hasPrivKey())
+        if (!account.node.hasPrivKey()) {
             throw HDWalletException(
                 "Wallet private key unavailable. First decrypt with second password."
             )
-        else {
+        } else {
             val keys = ArrayList<SigningKey>()
 
             for (unspentOutput in unspentOutputs) {

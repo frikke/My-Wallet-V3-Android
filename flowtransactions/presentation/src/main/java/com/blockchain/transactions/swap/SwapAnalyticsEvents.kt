@@ -7,7 +7,7 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 
 sealed class SwapAnalyticsEvents(
     override val event: String,
-    override val params: Map<String, String> = emptyMap(),
+    override val params: Map<String, String> = emptyMap()
 ) : AnalyticsEvent {
 
     object EnterAmountViewed : SwapAnalyticsEvents(
@@ -59,7 +59,7 @@ sealed class SwapAnalyticsEvents(
             INPUT_CURRENCY to fromTicker,
             INPUT_AMOUNT to fromAmount,
             OUTPUT_CURRENCY to toTicker,
-            DESTINATION to destination.name,
+            DESTINATION to destination.name
         )
     )
 

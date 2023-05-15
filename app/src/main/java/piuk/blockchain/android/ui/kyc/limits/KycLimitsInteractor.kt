@@ -12,7 +12,7 @@ import io.reactivex.rxjava3.core.Single
 class KycLimitsInteractor(
     private val limitsDataManager: LimitsDataManager,
     private val kycService: KycService,
-    private val userFeaturePermissionService: UserFeaturePermissionService,
+    private val userFeaturePermissionService: UserFeaturePermissionService
 ) {
     fun fetchLimits(): Single<List<FeatureWithLimit>> = limitsDataManager.getFeatureLimits()
 

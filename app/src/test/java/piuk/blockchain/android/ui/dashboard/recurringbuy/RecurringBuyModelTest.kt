@@ -152,7 +152,9 @@ class RecurringBuyModelTest {
         whenever(interactor.getRecurringBuyById(rbId)).thenReturn(Single.just(rbMock))
         whenever(
             interactor.loadPaymentDetails(
-                rbMock.paymentMethodType, rbMock.paymentMethodId.orEmpty(), rbMock.amount.currencyCode
+                rbMock.paymentMethodType,
+                rbMock.paymentMethodId.orEmpty(),
+                rbMock.amount.currencyCode
             )
         ).thenReturn(Single.just(pdMock))
 
@@ -194,7 +196,9 @@ class RecurringBuyModelTest {
         whenever(interactor.getRecurringBuyById(rbId)).thenReturn(Single.just(rbMock))
         whenever(
             interactor.loadPaymentDetails(
-                rbMock.paymentMethodType, rbMock.paymentMethodId.orEmpty(), rbMock.amount.currencyCode
+                rbMock.paymentMethodType,
+                rbMock.paymentMethodId.orEmpty(),
+                rbMock.amount.currencyCode
             )
         ).thenReturn(Single.error(exception))
 
@@ -230,7 +234,9 @@ class RecurringBuyModelTest {
         whenever(interactor.getRecurringBuyById(rbId)).thenReturn(Single.just(rbMock))
         whenever(
             interactor.loadPaymentDetails(
-                rbMock.paymentMethodType, rbMock.paymentMethodId.orEmpty(), rbMock.amount.currencyCode
+                rbMock.paymentMethodType,
+                rbMock.paymentMethodId.orEmpty(),
+                rbMock.amount.currencyCode
             )
         ).thenReturn(Single.error(Exception()))
 

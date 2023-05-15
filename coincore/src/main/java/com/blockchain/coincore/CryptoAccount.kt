@@ -24,7 +24,7 @@ data class AccountBalance internal constructor(
     val withdrawable: Money,
     val pending: Money,
     val dashboardDisplay: Money,
-    val exchangeRate: ExchangeRate,
+    val exchangeRate: ExchangeRate
 ) {
     val totalFiat: Money by lazy {
         exchangeRate.convert(total)
@@ -210,9 +210,9 @@ interface AccountGroup : BlockchainAccount {
 
     override fun stateOfAction(assetAction: AssetAction): Single<ActionState> {
         return stateAwareActions.map { set ->
-            if (set.map { it.action }.contains(assetAction))
+            if (set.map { it.action }.contains(assetAction)) {
                 ActionState.Available
-            else ActionState.Unavailable
+            } else ActionState.Unavailable
         }
     }
 
@@ -220,9 +220,9 @@ interface AccountGroup : BlockchainAccount {
         get() = throw IllegalStateException("ReceiveAddress is not supported")
 
     private fun allActivities(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> {
-        return if (accounts.isEmpty())
+        return if (accounts.isEmpty()) {
             Observable.just(emptyList())
-        else Single.just(accounts).flattenAsObservable { it }
+        } else Single.just(accounts).flattenAsObservable { it }
             .flatMap { account ->
                 account.activity(freshnessStrategy)
                     .onErrorResumeNext { Observable.just(emptyList()) }.map {
@@ -242,9 +242,9 @@ interface SameCurrencyAccountGroup : AccountGroup {
     val currency: Currency
 
     override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> {
-        return if (accounts.isEmpty())
+        return if (accounts.isEmpty()) {
             Observable.just(AccountBalance.zero(currency, ExchangeRate.identityExchangeRate(currency)))
-        else Single.just(accounts).flattenAsObservable { it }.flatMap { account ->
+        } else Single.just(accounts).flattenAsObservable { it }.flatMap { account ->
             account.balanceRx(freshnessStrategy).map { balance ->
                 mapOf(account to DataResource.Data(balance) as DataResource<AccountBalance>)
             }.onErrorResumeNext {
@@ -264,7 +264,8 @@ interface SameCurrencyAccountGroup : AccountGroup {
                         )
                     ) { acc, accountBalance ->
                         AccountBalance.totalOf(
-                            acc, accountBalance
+                            acc,
+                            accountBalance
                         )
                     }
             }
@@ -278,9 +279,9 @@ interface MultipleCurrenciesAccountGroup : AccountGroup {
      * balance will be null if failed to load
      */
     override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> {
-        return if (accounts.isEmpty())
+        return if (accounts.isEmpty()) {
             Observable.just(AccountBalance.zero(baseCurrency, ExchangeRate.identityExchangeRate(baseCurrency)))
-        else
+        } else
             Single.just(accounts).flattenAsObservable { it }.flatMap { account ->
                 account.balanceRx(freshnessStrategy).map { balance ->
                     mapOf(account to DataResource.Data(balance) as DataResource<AccountBalance>)

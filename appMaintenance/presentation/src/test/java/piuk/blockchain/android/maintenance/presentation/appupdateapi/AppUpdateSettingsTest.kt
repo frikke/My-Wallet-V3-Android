@@ -15,7 +15,8 @@ import piuk.blockchain.android.maintenance.domain.appupdateapi.AppUpdateInfoFact
 class AppUpdateSettingsTest {
     private val appUpdateManager = mockk<AppUpdateManager>()
     private val appUpdateInfoFactory = mockk<AppUpdateInfoFactory>()
-    private val inAppUpdateSettings: InAppUpdateSettings = InAppUpdateSettingsImpl(appUpdateManager, appUpdateInfoFactory)
+    private val inAppUpdateSettings: InAppUpdateSettings =
+        InAppUpdateSettingsImpl(appUpdateManager, appUpdateInfoFactory)
 
     private val activity = mockk<Activity>()
     private val appUpdateInfo = mockk<AppUpdateInfo>()

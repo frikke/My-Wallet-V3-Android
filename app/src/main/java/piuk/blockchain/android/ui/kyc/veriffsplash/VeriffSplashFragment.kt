@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity.RESULT_OK
 import androidx.compose.ui.platform.ComposeView
-import androidx.navigation.fragment.NavHostFragment.findNavController
+import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.data.logEvent
 import com.blockchain.analytics.events.AnalyticsEvents
@@ -25,7 +25,6 @@ import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent
 import org.koin.core.scope.Scope
 import piuk.blockchain.android.KycNavXmlDirections
-import piuk.blockchain.android.R
 import piuk.blockchain.android.fraud.domain.service.FraudFlow
 import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
@@ -78,7 +77,7 @@ class VeriffSplashFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        progressListener.setupHostToolbar(R.string.kyc_veriff_splash_title)
+        progressListener.setupHostToolbar(com.blockchain.stringResources.R.string.kyc_veriff_splash_title)
         analytics.logEvent(AnalyticsEvents.KycVerifyIdentity)
         analytics.logEvent(KYCAnalyticsEvents.MoreInfoViewed)
         fraudService.trackFlow(FraudFlow.KYC)
@@ -92,8 +91,11 @@ class VeriffSplashFragment :
     }
 
     override fun onStateUpdated(state: VeriffSplashViewState) {
-        if (state.isLoading) showProgressDialog()
-        else dismissProgressDialog()
+        if (state.isLoading) {
+            showProgressDialog()
+        } else {
+            dismissProgressDialog()
+        }
     }
 
     override fun route(navigationEvent: Navigation) {
@@ -120,7 +122,7 @@ class VeriffSplashFragment :
     private fun showProgressDialog() {
         if (progressDialog != null) return
         progressDialog = MaterialProgressDialog(requireContext()).apply {
-            setMessage(R.string.kyc_country_selection_please_wait)
+            setMessage(com.blockchain.stringResources.R.string.kyc_country_selection_please_wait)
             setCancelable(false)
             show()
         }

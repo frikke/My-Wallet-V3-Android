@@ -43,7 +43,7 @@ class InternalAccountsHeaderDelegate(
             item: AccountListItem.InternalHeader,
             listener: AccountAdapter.Listener
         ) {
-            header.setText(R.string.common_wallets)
+            header.setText(com.blockchain.stringResources.R.string.common_wallets)
 
             if (item.enableCreate) {
                 itemView.setOnClickListener { listener.onCreateNewClicked() }

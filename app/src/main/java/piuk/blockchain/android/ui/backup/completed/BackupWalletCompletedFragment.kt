@@ -55,7 +55,7 @@ class BackupWalletCompletedFragment :
     override fun showLastBackupDate(lastBackup: Long) {
         val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
         val date = dateFormat.format(Date(lastBackup * 1000))
-        val message = String.format(resources.getString(R.string.backup_last), date)
+        val message = String.format(resources.getString(com.blockchain.stringResources.R.string.backup_last), date)
         binding.subheadingDate.text = message
     }
 
@@ -73,7 +73,7 @@ class BackupWalletCompletedFragment :
     override fun showErrorToast() {
         BlockchainSnackbar.make(
             binding.root,
-            getString(R.string.common_error),
+            getString(com.blockchain.stringResources.R.string.common_error),
             type = SnackbarType.Error
         ).show()
     }

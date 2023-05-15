@@ -4,7 +4,7 @@ sealed interface ActivityDataItem {
     data class Stack(
         val leadingImage: ActivityIcon,
         val leading: List<StackComponent>,
-        val trailing: List<StackComponent>,
+        val trailing: List<StackComponent>
     ) : ActivityDataItem
 
     data class Button(

@@ -29,7 +29,7 @@ fun NavGraphBuilder.homeGraph(
     openSwap: () -> Unit,
     openDex: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
-    onBackPressed: () -> Unit,
+    onBackPressed: () -> Unit
 ) {
     composable(navigationEvent = HomeDestination.Introduction) { backStackEntry ->
         val walletMode = backStackEntry.arguments?.getString(ARG_WALLET_MODE)?.run {
@@ -49,7 +49,7 @@ fun NavGraphBuilder.homeGraph(
             DeFiOnboarding(
                 showCloseIcon = isFromModeSwitch,
                 closeOnClick = if (isFromModeSwitch) onBackPressed else launchApp,
-                enableDeFiOnClick = if (isFromModeSwitch) onBackPressed else launchApp,
+                enableDeFiOnClick = if (isFromModeSwitch) onBackPressed else launchApp
             )
         }
     }

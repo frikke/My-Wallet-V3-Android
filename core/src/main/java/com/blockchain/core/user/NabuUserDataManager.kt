@@ -22,7 +22,7 @@ interface NabuUserDataManager {
 
 class NabuUserDataManagerImpl(
     private val nabuUserService: NabuUserService,
-    private val kycService: KycService,
+    private val kycService: KycService
 ) : NabuUserDataManager {
 
     override fun saveUserInitialLocation(countryIsoCode: String, stateIsoCode: String?): Completable =

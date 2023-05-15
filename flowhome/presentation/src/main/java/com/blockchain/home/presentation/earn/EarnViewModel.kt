@@ -54,10 +54,15 @@ class EarnViewModel(
     private val coincore: Coincore,
     private val exchangeRates: ExchangeRatesDataManager,
     private val walletModeService: WalletModeService,
-    private val activeRewardsFeatureFlag: FeatureFlag,
+    private val activeRewardsFeatureFlag: FeatureFlag
 ) :
     MviViewModel<
-        EarnIntent, EarnViewState, EarnModelState, EarnNavEvent, ModelConfigArgs.NoArgs>(
+        EarnIntent,
+        EarnViewState,
+        EarnModelState,
+        EarnNavEvent,
+        ModelConfigArgs.NoArgs
+        >(
         initialState = EarnModelState(
             interestAssets = DataResource.Loading,
             stakingAssets = DataResource.Loading,
@@ -176,7 +181,8 @@ class EarnViewModel(
                     )
                 ) { exchangeRateUserFiatData, exchangeRateUsdData ->
                     combineDataResources(
-                        exchangeRateUserFiatData, exchangeRateUsdData
+                        exchangeRateUserFiatData,
+                        exchangeRateUsdData
                     ) { exchangeRateUserFiat, exchangeRateUsd -> exchangeRateUserFiat to exchangeRateUsd }
                 }.mapData { (exchangeRateUserFiat, exchangeRateUsd) ->
                     EarnAsset(
@@ -217,7 +223,8 @@ class EarnViewModel(
                         )
                     ) { exchangeRateUserFiatData, exchangeRateUsdData ->
                         combineDataResources(
-                            exchangeRateUserFiatData, exchangeRateUsdData
+                            exchangeRateUserFiatData,
+                            exchangeRateUsdData
                         ) { exchangeRateUserFiat, exchangeRateUsd -> exchangeRateUserFiat to exchangeRateUsd }
                     }.mapData { (exchangeRateUserFiat, exchangeRateUsd) ->
                         EarnAsset(
@@ -258,7 +265,8 @@ class EarnViewModel(
                         )
                     ) { exchangeRateUserFiatData, exchangeRateUsdData ->
                         combineDataResources(
-                            exchangeRateUserFiatData, exchangeRateUsdData
+                            exchangeRateUserFiatData,
+                            exchangeRateUsdData
                         ) { exchangeRateUserFiat, exchangeRateUsd -> exchangeRateUserFiat to exchangeRateUsd }
                     }.mapData { (exchangeRateUserFiat, exchangeRateUsd) ->
                         EarnAsset(
@@ -331,7 +339,6 @@ class EarnViewModel(
     }
 
     private fun updateInterestAssetsIfNeeded(assets: Set<AssetInfo>) {
-
         val currentInterestAssets = modelState.interestAssets
         val newAssets = assets.map { it.networkTicker }.toSet()
 
@@ -346,8 +353,9 @@ class EarnViewModel(
                 .dataOrElse(emptySet())
                 .map { it.currency.networkTicker }.toSet()
 
-            if (currentInterestAssetsSet == newAssets)
+            if (currentInterestAssetsSet == newAssets) {
                 return
+            }
 
             currentInterestAssetsSet.forEach { asset ->
                 if (asset !in newAssets) {
@@ -365,7 +373,6 @@ class EarnViewModel(
     }
 
     private fun updateStakingAssetsIfNeeded(assets: Set<AssetInfo>) {
-
         val currentStackingAssets = modelState.stakingAssets
         val newAssets = assets.map { it.networkTicker }.toSet()
 
@@ -380,8 +387,9 @@ class EarnViewModel(
                 .dataOrElse(emptySet())
                 .map { it.currency.networkTicker }.toSet()
 
-            if (currentStackingAssetsSet == newAssets)
+            if (currentStackingAssetsSet == newAssets) {
                 return
+            }
 
             currentStackingAssetsSet.forEach { asset ->
                 if (asset !in newAssets) {
@@ -399,7 +407,6 @@ class EarnViewModel(
     }
 
     private fun updateActiveRewardsAssetsIfNeeded(assets: Set<AssetInfo>) {
-
         val currentActiveRewardsAssets = modelState.activeRewardsAssets
         val newAssets = assets.map { it.networkTicker }.toSet()
 
@@ -414,8 +421,9 @@ class EarnViewModel(
                 .dataOrElse(emptySet())
                 .map { it.currency.networkTicker }.toSet()
 
-            if (currentActiveRewardsAssetsSet == newAssets)
+            if (currentActiveRewardsAssetsSet == newAssets) {
                 return
+            }
 
             currentActiveRewardsAssetsSet.forEach { asset ->
                 if (asset !in newAssets) {

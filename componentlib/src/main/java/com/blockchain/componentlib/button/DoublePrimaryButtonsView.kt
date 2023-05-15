@@ -24,7 +24,7 @@ class DoublePrimaryButtonsView @JvmOverloads constructor(
                     startButtonState = primaryButtonState,
                     endButtonState = secondaryButtonState,
                     startButtonIcon = startButtonIcon,
-                    endButtonIcon = endButtonIcon,
+                    endButtonIcon = endButtonIcon
                 )
             }
         }

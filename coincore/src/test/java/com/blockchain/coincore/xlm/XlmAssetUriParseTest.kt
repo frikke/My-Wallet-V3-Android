@@ -44,7 +44,6 @@ class XlmAssetUriParseTest : CoincoreTestBase() {
 
     @Test
     fun parseValidAddress() {
-
         val expectedResult = XlmAddress(
             _address = VALID_SCAN_URI,
             _label = VALID_SCAN_URI
@@ -58,7 +57,6 @@ class XlmAssetUriParseTest : CoincoreTestBase() {
 
     @Test
     fun parseInvalidAddress() {
-
         subject.parseAddress(INVALID_SCAN_URI)
             .test()
             .assertNoErrors()

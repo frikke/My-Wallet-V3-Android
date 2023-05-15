@@ -10,7 +10,7 @@ import kotlinx.serialization.json.Json
 
 class EmptyStateBuyAmountsRemoteConfig(
     private val remoteConfigService: RemoteConfigService,
-    private val json: Json,
+    private val json: Json
 ) {
     suspend fun getBuyAmounts(): Outcome<Exception, List<String>> {
         return remoteConfigService.getRawJson(BUY_AMOUNTS_KEY).awaitOutcome().getOrDefault("").let { buyAmountsJson ->

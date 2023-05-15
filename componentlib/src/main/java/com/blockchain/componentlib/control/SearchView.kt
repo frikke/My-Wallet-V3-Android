@@ -34,7 +34,9 @@ class SearchView @JvmOverloads constructor(
                     clearInput = if (shouldClearInput) {
                         shouldClearInput = false
                         true
-                    } else false
+                    } else {
+                        false
+                    }
                 )
             }
         }

@@ -32,7 +32,7 @@ fun AnimatedAmountCounter(
     style: ComposeTypographies,
     color: ComposeColors,
     gravity: ComposeGravities,
-    duration: Long = 666L,
+    duration: Long = 666L
 ) {
     var oldCount by remember {
         mutableStateOf(amountText)
@@ -90,9 +90,11 @@ fun NumberSwitchAnimation(
     val animSpec = if (currentNumberIndex == numbers.size - 1) {
         spring<IntOffset>(
             dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMediumLow,
+            stiffness = Spring.StiffnessMediumLow
         )
-    } else tween(durationMillis = (duration.toInt()) / 2, easing = LinearEasing)
+    } else {
+        tween(durationMillis = (duration.toInt()) / 2, easing = LinearEasing)
+    }
 
     AnimatedContent(
         targetState = numbers[currentNumberIndex],
@@ -104,7 +106,7 @@ fun NumberSwitchAnimation(
                 targetOffsetY = { -1 * factor * it },
                 animationSpec = animSpec
             )
-        },
+        }
 
     ) { number ->
         AnimatedTextContent(number.toString(), style, color, gravity)
@@ -128,7 +130,7 @@ private fun AnimatedTextContent(
         text = text,
         style = style,
         color = color,
-        gravity = gravity,
+        gravity = gravity
     )
 }
 

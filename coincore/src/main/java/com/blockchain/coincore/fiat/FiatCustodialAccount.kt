@@ -57,7 +57,7 @@ class FiatCustodialAccount internal constructor(
                 withdrawable = balance.withdrawable,
                 pending = balance.pending,
                 dashboardDisplay = balance.dashboardDisplay,
-                exchangeRate = rate,
+                exchangeRate = rate
             )
         }.doOnNext { hasFunds.set(it.total.isPositive) }
 
@@ -105,9 +105,14 @@ class FiatCustodialAccount internal constructor(
                     setOfNotNull(
                         StateAwareAction(ActionState.Available, AssetAction.ViewActivity),
                         StateAwareAction(ActionState.Available, AssetAction.FiatDeposit),
-                        if (hasActionableBalance) StateAwareAction(
-                            ActionState.Available, AssetAction.FiatWithdraw
-                        ) else null
+                        if (hasActionableBalance) {
+                            StateAwareAction(
+                                ActionState.Available,
+                                AssetAction.FiatWithdraw
+                            )
+                        } else {
+                            null
+                        }
                     )
                 } else {
                     setOf(StateAwareAction(ActionState.Available, AssetAction.ViewActivity))

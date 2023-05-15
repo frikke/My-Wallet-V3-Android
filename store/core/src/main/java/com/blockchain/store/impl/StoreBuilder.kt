@@ -26,7 +26,7 @@ class StoreBuilder {
             fetcher = fetcher,
             cache = cache,
             mediator = mediator,
-            scope = scope,
+            scope = scope
         )
 
         override fun stream(request: FreshnessStrategy): Flow<DataResource<T>> = backingStore.stream(

@@ -31,7 +31,9 @@ private class WebSocketChannelAdapter(private val underlingSocket: StringWebSock
         underlingSocket.send(
             json.encodeToString(
                 SubscribeUnsubscribeJson(
-                    action = "subscribe", channel = name, params = params
+                    action = "subscribe",
+                    channel = name,
+                    params = params
                 )
             )
         )
@@ -44,7 +46,6 @@ class ErrorFromServer(val fullJson: String) : Exception("Server returned error")
 private fun StringWebSocket.asChannel(
     name: String
 ): WebSocketChannel<String> {
-
     return object : WebSocketChannel<String> {
 
         val channelMessageFilter = this@asChannel.channelMessageFilter(name, throwErrors = true)
@@ -55,7 +56,9 @@ private fun StringWebSocket.asChannel(
             this@asChannel.send(
                 json.encodeToString(
                     SubscribeUnsubscribeJson(
-                        action = "unsubscribe", channel = name, params = params
+                        action = "unsubscribe",
+                        channel = name,
+                        params = params
                     )
                 )
             )
@@ -71,7 +74,6 @@ private fun StringWebSocket.asChannel(
  * Filters messages to those that match the channel name and are not subscribe/unsubscribe messages.
  */
 fun WebSocketReceive<String>.channelMessageFilter(name: String, throwErrors: Boolean = true): WebSocketReceive<String> {
-
     return object : WebSocketReceive<String> {
 
         override val responses: Observable<String>

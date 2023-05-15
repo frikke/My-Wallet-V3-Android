@@ -47,8 +47,10 @@ fun LocalSettingsScreen(state: LocalSettingsViewState, viewModel: LocalSettingsV
         AppSurface(color = Color.White) {
             Column(modifier = Modifier.fillMaxSize()) {
                 ToggleTableRow(
-                    primaryText = stringResource(R.string.settings_chart_vibration),
-                    secondaryText = stringResource(R.string.settings_chart_vibration_desc),
+                    primaryText = stringResource(com.blockchain.stringResources.R.string.settings_chart_vibration),
+                    secondaryText = stringResource(
+                        com.blockchain.stringResources.R.string.settings_chart_vibration_desc
+                    ),
                     onCheckedChange = { isChecked ->
                         viewModel.onIntent(LocalSettingsIntent.ToggleChartVibration(isVibrationEnabled = isChecked))
                     },
@@ -62,8 +64,8 @@ fun LocalSettingsScreen(state: LocalSettingsViewState, viewModel: LocalSettingsV
                 HorizontalDivider(dividerColor = AppTheme.colors.medium)
 
                 ToggleTableRow(
-                    primaryText = stringResource(R.string.settings_dust_title),
-                    secondaryText = stringResource(R.string.settings_dust_desc),
+                    primaryText = stringResource(com.blockchain.stringResources.R.string.settings_dust_title),
+                    secondaryText = stringResource(com.blockchain.stringResources.R.string.settings_dust_desc),
                     onCheckedChange = { isChecked ->
                         viewModel.onIntent(LocalSettingsIntent.ToggleSmallBalances(areSmallBalancesEnabled = isChecked))
                     },

@@ -22,15 +22,15 @@ class ManualPairingPresenter(
 
     internal fun onContinueClicked(guid: String, password: String) {
         when {
-            guid.isEmpty() -> showErrorSnackbar(R.string.invalid_guid)
-            password.isEmpty() -> showErrorSnackbar(R.string.invalid_password)
+            guid.isEmpty() -> showErrorSnackbar(com.blockchain.stringResources.R.string.invalid_guid)
+            password.isEmpty() -> showErrorSnackbar(com.blockchain.stringResources.R.string.invalid_password)
             else -> verifyPassword(password, guid)
         }
     }
 
     override fun onAuthFailed() {
         super.onAuthFailed()
-        showErrorSnackbar(R.string.auth_failed)
+        showErrorSnackbar(com.blockchain.stringResources.R.string.auth_failed)
     }
 
     override fun onAuthComplete() {

@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class KycFlowResponse(
-    val nextFlow: String,
+    val nextFlow: String
 )

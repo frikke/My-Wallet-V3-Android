@@ -62,7 +62,7 @@ class BackupVerifyPresenterTest {
         subject.onVerifyClicked(pairOne.second, pairTwo.second, pairTwo.second)
         // Assert
         verify(view).getPageBundle()
-        verify(view).showSnackbar(R.string.backup_word_mismatch, SnackbarType.Error)
+        verify(view).showSnackbar(com.blockchain.stringResources.R.string.backup_word_mismatch, SnackbarType.Error)
         verifyNoMoreInteractions(view)
         verify(backupWallet).getConfirmSequence(null)
         verifyNoMoreInteractions(backupWallet)

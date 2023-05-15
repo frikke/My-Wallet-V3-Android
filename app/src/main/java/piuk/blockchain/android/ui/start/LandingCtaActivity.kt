@@ -30,8 +30,8 @@ class LandingCtaActivity : BlockchainActivity() {
 
         binding.toolbar.apply {
             startNavigationButton = NavigationBarButton.Icon(
-                drawable = R.drawable.ic_close_circle_v2,
-                contentDescription = R.string.accessibility_close,
+                drawable = com.blockchain.common.R.drawable.ic_close_circle_v2,
+                contentDescription = com.blockchain.stringResources.R.string.accessibility_close,
                 color = null,
                 onIconClick = {
                     onboardingPrefs.isLandingCtaDismissed = true
@@ -40,7 +40,7 @@ class LandingCtaActivity : BlockchainActivity() {
             )
             endNavigationBarButtons = listOf(
                 NavigationBarButton.Text(
-                    text = getString(R.string.landing_cta_login),
+                    text = getString(com.blockchain.stringResources.R.string.landing_cta_login),
                     color = Blue600,
                     onTextClick = {
                         analytics.logEvent(LandingAnalytics.LogInClicked)

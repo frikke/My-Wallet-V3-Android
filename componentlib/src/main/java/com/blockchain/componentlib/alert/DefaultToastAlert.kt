@@ -19,7 +19,6 @@ fun DefaultToastAlert(
     onClick: () -> Unit = {},
     startIcon: ImageResource = ImageResource.None
 ) {
-
     val backgroundColor = if (!isSystemInDarkTheme()) {
         Dark800
     } else {

@@ -15,9 +15,8 @@ import com.blockchain.componentlib.theme.White600
 
 @Composable
 fun ErrorToastAlert(
-    text: String,
+    text: String
 ) {
-
     val backgroundColor = if (!isSystemInDarkTheme()) {
         Dark800
     } else {
