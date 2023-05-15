@@ -66,14 +66,14 @@ class SelectNetworkViewModel(
         }
     }
 
-    private fun CoinNetwork.toDexNetwork(selectedChainId: Int): DexNetwork {
+    private fun CoinNetwork.toDexNetwork(selectedChainId: Int): DexNetworkViewState {
         val chainId = chainId
         val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(networkTicker)
         check(chainId != null)
         check(assetInfo != null)
-        return DexNetwork(
+        return DexNetworkViewState(
             chainId = chainId,
-            icon = assetInfo.logo,
+            logo = assetInfo.logo,
             name = name,
             selected = chainId == selectedChainId
         )

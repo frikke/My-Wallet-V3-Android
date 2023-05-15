@@ -34,7 +34,6 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
-import com.blockchain.dex.presentation.R
 import com.blockchain.koin.payloadScope
 import org.koin.androidx.compose.getViewModel
 
@@ -56,8 +55,8 @@ fun SelectNetwork(
 
 @Composable
 private fun SelectNetworkScreen(
-    networks: DataResource<List<DexNetwork>>,
-    networkOnClick: (DexNetwork) -> Unit,
+    networks: DataResource<List<DexNetworkViewState>>,
+    networkOnClick: (DexNetworkViewState) -> Unit,
     closeClicked: () -> Unit,
 ) {
     val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -85,8 +84,8 @@ private fun SelectNetworkScreen(
 
 @Composable
 private fun ColumnScope.Networks(
-    networks: DataResource<List<DexNetwork>>,
-    networkOnClick: (DexNetwork) -> Unit
+    networks: DataResource<List<DexNetworkViewState>>,
+    networkOnClick: (DexNetworkViewState) -> Unit
 ) {
     when (networks) {
         DataResource.Loading -> {
@@ -115,8 +114,8 @@ private fun ColumnScope.Networks(
 
 @Composable
 private fun Network(
-    network: DexNetwork,
-    onClick: (DexNetwork) -> Unit
+    network: DexNetworkViewState,
+    onClick: (DexNetworkViewState) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -126,7 +125,7 @@ private fun Network(
     ) {
         Image(
             ImageResource.Remote(
-                url = network.icon,
+                url = network.logo,
                 size = AppTheme.dimensions.standardSpacing
             )
         )
@@ -168,15 +167,15 @@ private fun PreviewSelectNetworkScreen() {
     SelectNetworkScreen(
         networks = DataResource.Data(
             listOf(
-                DexNetwork(
+                DexNetworkViewState(
                     chainId = 0,
-                    icon = "",
+                    logo = "",
                     name = "Ethereum",
                     selected = true
                 ),
-                DexNetwork(
+                DexNetworkViewState(
                     chainId = 0,
-                    icon = "",
+                    logo = "",
                     name = "Polygon",
                     selected = false
                 )
@@ -191,9 +190,9 @@ private fun PreviewSelectNetworkScreen() {
 @Composable
 private fun PreviewNetworkSelected() {
     Network(
-        network = DexNetwork(
+        network = DexNetworkViewState(
             chainId = 0,
-            icon = "",
+            logo = "",
             name = "Ethereum",
             selected = true
         ),
@@ -205,9 +204,9 @@ private fun PreviewNetworkSelected() {
 @Composable
 private fun PreviewNetworkUnselected() {
     Network(
-        network = DexNetwork(
+        network = DexNetworkViewState(
             chainId = 0,
-            icon = "",
+            logo = "",
             name = "Ethereum",
             selected = false
         ),

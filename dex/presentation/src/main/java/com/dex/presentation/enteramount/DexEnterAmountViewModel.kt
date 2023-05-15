@@ -9,6 +9,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
+import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.enviroment.EnvironmentConfig
@@ -25,6 +26,7 @@ import com.dex.domain.DexTransaction
 import com.dex.domain.DexTransactionProcessor
 import com.dex.domain.DexTxError
 import com.dex.domain.SlippageService
+import com.dex.presentation.network.DexNetworkViewState
 import com.dex.presentation.uierrors.AlertError
 import com.dex.presentation.uierrors.DexUiError
 import com.dex.presentation.uierrors.toUiErrors
@@ -91,15 +93,37 @@ class DexEnterAmountViewModel(
         }
     }
 
+    private fun AmountModelState.reduceSelectedNetwork(): DataResource<DexNetworkViewState> {
+        return networks.map { coinNetworks ->
+            coinNetworks.first { it.chainId == selectedChain }
+        }.map { coinNetwork ->
+            val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(coinNetwork.networkTicker)
+            check(assetInfo != null)
+            DexNetworkViewState(
+                chainId = selectedChain!!,
+                logo = assetInfo.logo,
+                name = coinNetwork.name,
+                selected = true
+            )
+        }
+    }
+
+    private fun AmountModelState.reduceAllowNetworkSelection(): Boolean {
+        return networks.map { it.size > 1 }.dataOrElse(false)
+    }
+
     private fun showNoInoutUi(state: AmountModelState): InputAmountViewState =
         InputAmountViewState.NoInputViewState(
-            networkSelection = state.networkSelection()
+            selectedNetwork = state.reduceSelectedNetwork(),
+            allowNetworkSelection = state.reduceAllowNetworkSelection()
         )
 
     private fun showInputUi(state: AmountModelState): InputAmountViewState {
         val transaction = state.transaction
+
         return InputAmountViewState.TransactionInputState(
-            networkSelection = state.networkSelection(),
+            selectedNetwork = state.reduceSelectedNetwork(),
+            allowNetworkSelection = state.reduceAllowNetworkSelection(),
             sourceCurrency = transaction?.sourceAccount?.currency,
             destinationCurrency = transaction?.destinationAccount?.currency,
             maxAmount = transaction?.sourceAccount?.takeIf { !it.currency.isNetworkNativeAsset() }?.balance,
@@ -143,6 +167,7 @@ class DexEnterAmountViewModel(
             } else {
                 ActionButtonState.DISABLED
             }
+
             transaction.txErrors.any {
                 it is DexTxError.FatalTxError ||
                     it == DexTxError.NotEnoughFunds ||
@@ -150,6 +175,7 @@ class DexEnterAmountViewModel(
                     it is DexTxError.QuoteError ||
                     it == DexTxError.TokenNotAllowed
             } -> ActionButtonState.INVISIBLE
+
             else -> ActionButtonState.ENABLED
         }
     }
@@ -182,6 +208,7 @@ class DexEnterAmountViewModel(
                 loadNetworks()
                 initTransaction()
             }
+
             is InputAmountIntent.AmountUpdated -> {
                 val amount = when {
                     intent.amountString.isEmpty() -> BigDecimal.ZERO
@@ -196,6 +223,7 @@ class DexEnterAmountViewModel(
             InputAmountIntent.AllowanceTransactionApproved -> {
                 approveAllowanceTransaction()
             }
+
             InputAmountIntent.BuildAllowanceTransaction -> buildAllowanceTransaction()
             InputAmountIntent.RevokeSourceCurrencyAllowance -> revokeSourceAllowance(modelState)
             InputAmountIntent.SubscribeForTxUpdates -> txProcessor.subscribeForTxUpdates()
@@ -205,6 +233,7 @@ class DexEnterAmountViewModel(
                     it.copy(ignoredTxErrors = it.ignoredTxErrors.plus(DexUiError.TransactionInProgressError))
                 }
             }
+
             InputAmountIntent.AllowanceTransactionDeclined -> {
                 modelState.transaction?.sourceAccount?.currency?.displayTicker?.let {
                     navigate(
@@ -389,8 +418,10 @@ class DexEnterAmountViewModel(
                         operationInProgress = when {
                             isFetchingQuote && state.operationInProgress == DexOperation.NONE ->
                                 DexOperation.PRICE_FETCHING
+
                             !isFetchingQuote && state.operationInProgress == DexOperation.PRICE_FETCHING ->
                                 DexOperation.NONE
+
                             else -> state.operationInProgress
                         }
                     )
@@ -494,27 +525,12 @@ class DexEnterAmountViewModel(
             }
         }
     }
-
-    private fun AmountModelState.networkSelection(): DataResource<NetworkSelection> {
-        return networks.map { coinNetworks ->
-            coinNetworks.first { it.chainId == selectedChain }
-                .takeIf { coinNetworks.size > 1 }
-        }.map { coinNetwork ->
-            coinNetwork?.let {
-                val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(coinNetwork.networkTicker)
-                check(assetInfo != null)
-                NetworkSelection.Available(
-                    logo = assetInfo.logo,
-                    name = coinNetwork.name
-                )
-            } ?: NetworkSelection.Unavailable
-        }
-    }
 }
 
 sealed class InputAmountViewState : ViewState {
     data class TransactionInputState(
-        val networkSelection: DataResource<NetworkSelection>,
+        val selectedNetwork: DataResource<DexNetworkViewState>,
+        val allowNetworkSelection: Boolean,
         val sourceCurrency: Currency?,
         val destinationCurrency: Currency?,
         val maxAmount: Money?,
@@ -546,19 +562,11 @@ sealed class InputAmountViewState : ViewState {
     }
 
     data class NoInputViewState(
-        val networkSelection: DataResource<NetworkSelection>,
+        val selectedNetwork: DataResource<DexNetworkViewState>,
+        val allowNetworkSelection: Boolean,
     ) : InputAmountViewState()
 
     object Loading : InputAmountViewState()
-}
-
-sealed interface NetworkSelection {
-    data class Available(
-        val logo: String,
-        val name: String
-    ) : NetworkSelection
-
-    object Unavailable : NetworkSelection
 }
 
 data class UiFee(

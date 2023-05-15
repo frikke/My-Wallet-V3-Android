@@ -31,6 +31,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -59,7 +60,6 @@ import com.blockchain.componentlib.button.ButtonLoadingIndicator
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.icon.SmallTagIcon
 import com.blockchain.componentlib.icons.Alert
@@ -70,6 +70,7 @@ import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Network
 import com.blockchain.componentlib.icons.Question
 import com.blockchain.componentlib.icons.Settings
+import com.blockchain.componentlib.icons.Sync
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.tablerow.TableRow
@@ -78,14 +79,13 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Green700
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey400
-import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.theme.Orange600
 import com.blockchain.componentlib.theme.Red400
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.componentlib.utils.conditional
 import com.blockchain.data.DataResource
-import com.blockchain.dex.presentation.R
 import com.blockchain.koin.payloadScope
 import com.blockchain.preferences.DexPrefs
 import com.dex.presentation.ALLOWANCE_TRANSACTION_APPROVED
@@ -94,6 +94,7 @@ import com.dex.presentation.DexTxSubscribeScreen
 import com.dex.presentation.SendAndReceiveAmountFields
 import com.dex.presentation.graph.ARG_ALLOWANCE_TX
 import com.dex.presentation.graph.DexDestination
+import com.dex.presentation.network.DexNetworkViewState
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
@@ -272,7 +273,8 @@ fun DexEnterAmountScreen(
         (viewState as? InputAmountViewState.NoInputViewState)?.let {
             paddedItem(paddingValues = PaddingValues(spacing)) {
                 NoInputScreen(
-                    networkSelection = it.networkSelection,
+                    networkSelection = it.selectedNetwork,
+                    allowNetworkSelection = it.allowNetworkSelection,
                     selectNetworkOnClick = {
                         navController.navigate(DexDestination.SelectNetwork.route)
                         keyboardController?.hide()
@@ -290,7 +292,8 @@ fun DexEnterAmountScreen(
 
 @Composable
 private fun NoInputScreen(
-    networkSelection: DataResource<NetworkSelection>,
+    networkSelection: DataResource<DexNetworkViewState>,
+    allowNetworkSelection: Boolean,
     selectNetworkOnClick: () -> Unit,
     settingsOnClick: () -> Unit,
     receive: () -> Unit
@@ -299,15 +302,13 @@ private fun NoInputScreen(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        ((networkSelection as? DataResource.Data)?.data as? NetworkSelection.Available)?.let {
-            NetworkSelection(
-                logo = it.logo,
-                name = it.name,
-                networkOnClick = selectNetworkOnClick,
-                settingsOnClick = settingsOnClick
-            )
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
-        }
+        NetworkSelection(
+            selectedNetwork = networkSelection,
+            allowNetworkSelection = allowNetworkSelection,
+            networkOnClick = selectNetworkOnClick,
+            settingsOnClick = settingsOnClick
+        )
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
         Surface(
             color = AppTheme.colors.background,
@@ -385,15 +386,13 @@ fun InputScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        ((viewState.networkSelection as? DataResource.Data)?.data as? NetworkSelection.Available)?.let {
-            NetworkSelection(
-                logo = it.logo,
-                name = it.name,
-                networkOnClick = selectNetworkOnClick,
-                settingsOnClick = settingsOnClick
-            )
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
-        }
+        NetworkSelection(
+            selectedNetwork = viewState.selectedNetwork,
+            allowNetworkSelection = viewState.allowNetworkSelection,
+            networkOnClick = selectNetworkOnClick,
+            settingsOnClick = settingsOnClick
+        )
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
         viewState.topScreenUiError?.let {
             UiError(
@@ -443,10 +442,6 @@ fun InputScreen(
                 canChangeCurrency = true
             )
         )
-
-        ((viewState.networkSelection as? DataResource.Data)?.data as? NetworkSelection.Unavailable)?.let {
-            Settings(settingsOnClick)
-        }
 
         viewState.uiFee?.takeIf { viewState.operationInProgress == DexOperation.NONE }?.let { uiFee ->
             Fee(uiFee)
@@ -636,29 +631,14 @@ private fun PriceFetching() {
 }
 
 @Composable
-private fun Settings(onClick: () -> Unit) {
-    Row(
-        Modifier
-            .padding(top = AppTheme.dimensions.smallSpacing)
-            .fillMaxWidth()
-    ) {
-        Spacer(Modifier.weight(1f))
-        TertiaryButton(
-            text = stringResource(id = com.blockchain.stringResources.R.string.common_settings),
-            textColor = Grey900,
-            onClick = onClick,
-            icon = Icons.Settings
-        )
-    }
-}
-
-@Composable
 private fun NetworkSelection(
-    logo: String,
-    name: String,
+    selectedNetwork: DataResource<DexNetworkViewState>,
+    allowNetworkSelection: Boolean,
     networkOnClick: () -> Unit,
     settingsOnClick: () -> Unit
 ) {
+    val network = (selectedNetwork as? DataResource.Data)?.data
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -673,7 +653,12 @@ private fun NetworkSelection(
         ) {
             Row(
                 Modifier
-                    .clickable(onClick = networkOnClick)
+                    .conditional(allowNetworkSelection) {
+                        clickable(onClick = networkOnClick)
+                    }
+                    .graphicsLayer {
+                        alpha = network?.let { 1F } ?: 0.5F
+                    }
                     .padding(AppTheme.dimensions.tinySpacing)
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -681,7 +666,9 @@ private fun NetworkSelection(
                 SmallTagIcon(
                     icon = StackedIcon.SmallTag(
                         main = Icons.Filled.Network.withSize(16.dp),
-                        tag = ImageResource.Remote(logo)
+                        tag = network?.logo?.let {
+                            ImageResource.Remote(it)
+                        } ?: Icons.Sync
                     ),
                     iconBackground = Grey000,
                     tagIconSize = 12.dp
@@ -696,15 +683,19 @@ private fun NetworkSelection(
                     color = AppTheme.colors.title
                 )
 
-                Text(
-                    text = name,
-                    style = AppTheme.typography.paragraph2,
-                    color = AppTheme.colors.title
-                )
+                network?.name?.let {
+                    Text(
+                        text = it,
+                        style = AppTheme.typography.paragraph2,
+                        color = AppTheme.colors.title
+                    )
+                }
 
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
-                Image(Icons.ChevronRight)
+                if (allowNetworkSelection) {
+                    Image(Icons.ChevronRight)
+                }
             }
         }
 
@@ -729,7 +720,36 @@ private fun NetworkSelection(
 @Composable
 private fun PreviewNetworkSelection() {
     NetworkSelection(
-        logo = "", name = "ETH",
+        selectedNetwork = DataResource.Data(
+            DexNetworkViewState(
+                chainId = 0, logo = "", name = "Ethereum", selected = true
+            )
+        ),
+        allowNetworkSelection = true,
+        networkOnClick = {}, settingsOnClick = {}
+    )
+}
+
+@Preview
+@Composable
+private fun PreviewNetworkSelection_Single() {
+    NetworkSelection(
+        selectedNetwork = DataResource.Data(
+            DexNetworkViewState(
+                chainId = 0, logo = "", name = "Ethereum", selected = true
+            )
+        ),
+        allowNetworkSelection = false,
+        networkOnClick = {}, settingsOnClick = {}
+    )
+}
+
+@Preview
+@Composable
+private fun PreviewNetworkSelection_Loading() {
+    NetworkSelection(
+        selectedNetwork = DataResource.Loading,
+        allowNetworkSelection = true,
         networkOnClick = {}, settingsOnClick = {}
     )
 }
@@ -740,34 +760,12 @@ private fun PreviewInputScreen_NetworkSelection() {
     InputScreen(
         {}, {}, {}, {}, {}, {}, {}, {}, {},
         InputAmountViewState.TransactionInputState(
-            networkSelection = DataResource.Data(NetworkSelection.Available("", "ETH")),
-            sourceCurrency = CryptoCurrency.ETHER,
-            destinationCurrency = CryptoCurrency.BTC,
-            maxAmount = Money.fromMajor(CryptoCurrency.ETHER, 100.toBigDecimal()),
-            txAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
-            operationInProgress = DexOperation.NONE,
-            destinationAccountBalance = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
-            sourceAccountBalance = Money.fromMajor(CryptoCurrency.ETHER, 200.toBigDecimal()),
-            inputExchangeAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
-            outputExchangeAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
-            outputAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
-            allowanceCanBeRevoked = false,
-            uiFee = UiFee(
-                Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
-                Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
+            selectedNetwork = DataResource.Data(
+                DexNetworkViewState(
+                    chainId = 0, logo = "", name = "Ethereum", selected = true
+                )
             ),
-            previewActionButtonState = ActionButtonState.ENABLED,
-        )
-    )
-}
-
-@Preview
-@Composable
-private fun PreviewInputScreen_NoNetworkSelection() {
-    InputScreen(
-        {}, {}, {}, {}, {}, {}, {}, {}, {},
-        InputAmountViewState.TransactionInputState(
-            networkSelection = DataResource.Data(NetworkSelection.Unavailable),
+            allowNetworkSelection = true,
             sourceCurrency = CryptoCurrency.ETHER,
             destinationCurrency = CryptoCurrency.BTC,
             maxAmount = Money.fromMajor(CryptoCurrency.ETHER, 100.toBigDecimal()),

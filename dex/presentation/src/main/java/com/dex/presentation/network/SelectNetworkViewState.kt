@@ -4,12 +4,12 @@ import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.data.DataResource
 
 data class SelectNetworkViewState(
-    val networks: DataResource<List<DexNetwork>>,
+    val networks: DataResource<List<DexNetworkViewState>>,
 ) : ViewState
 
-data class DexNetwork(
+data class DexNetworkViewState(
     val chainId: Int,
-    val icon: String,
+    val logo: String,
     val name: String,
     val selected: Boolean
 )
