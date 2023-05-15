@@ -7,7 +7,7 @@ import info.blockchain.balance.Money
 import java.math.BigDecimal
 
 class CustodialEmptyCardRepository(
-    private val emptyStateBuyAmountsRemoteConfig: EmptyStateBuyAmountsRemoteConfig,
+    private val emptyStateBuyAmountsRemoteConfig: EmptyStateBuyAmountsRemoteConfig
 ) : CustodialEmptyCardService {
 
     private val defaultEmptyStateAmounts = listOf("100", "200")

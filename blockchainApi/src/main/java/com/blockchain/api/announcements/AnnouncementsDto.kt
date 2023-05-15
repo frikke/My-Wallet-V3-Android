@@ -15,7 +15,7 @@ data class AnnouncementDto(
     @SerialName("customPayload") val customPayload: AnnouncementPayloadDto,
     @SerialName("priorityLevel") val priorityLevel: Double,
     @SerialName("read") val isRead: Boolean,
-    @SerialName("expiresAt") val expiresAt: Long,
+    @SerialName("expiresAt") val expiresAt: Long
 )
 
 @Serializable

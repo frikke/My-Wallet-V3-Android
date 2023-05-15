@@ -64,7 +64,6 @@ class FiatAssetTransferTest : KoinTest {
 
     @Test
     fun transferListForCustodialSource() {
-
         whenever(labels.getDefaultCustodialFiatWalletLabel(any())).thenReturn(DEFAULT_LABEL)
 
         val sourceAccount: CustodialTradingAccount = mock()

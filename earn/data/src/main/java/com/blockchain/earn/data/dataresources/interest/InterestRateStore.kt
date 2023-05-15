@@ -11,7 +11,7 @@ import com.blockchain.storedatasource.KeyedFlushableDataSource
 import kotlinx.serialization.Serializable
 
 class InterestRateStore(
-    private val interestApiService: InterestApiService,
+    private val interestApiService: InterestApiService
 ) : KeyedStore<InterestRateStore.Key, InterestRateDto> by PersistedJsonSqlDelightStoreBuilder()
     .buildKeyed(
         storeId = STORE_ID,
@@ -29,7 +29,7 @@ class InterestRateStore(
 
     @Serializable
     data class Key(
-        val cryptoCurrencyTicker: String,
+        val cryptoCurrencyTicker: String
     )
 
     override fun invalidate(param: Key) {

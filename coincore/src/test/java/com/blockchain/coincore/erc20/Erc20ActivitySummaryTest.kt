@@ -209,7 +209,7 @@ class Erc20ActivitySummaryTest {
             categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
             precisionDp = 8,
             requiredConfirmations = 5,
-            colour = "#123456",
+            colour = "#123456"
         )
     }
 }

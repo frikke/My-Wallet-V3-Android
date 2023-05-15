@@ -27,7 +27,7 @@ class GetDashboardOnboardingStepsUseCase(
     private val bankService: BankService,
     private val cardService: CardService,
     private val tradeDataService: TradeDataService,
-    private val userFeaturePermissionService: UserFeaturePermissionService,
+    private val userFeaturePermissionService: UserFeaturePermissionService
 ) : OnBoardingStepsService, UseCase<Unit, Single<List<CompletableDashboardOnboardingStep>>>() {
 
     override fun execute(parameter: Unit): Single<List<CompletableDashboardOnboardingStep>> =
@@ -60,15 +60,19 @@ class GetDashboardOnboardingStepsUseCase(
                                 step = step,
                                 state = when (step) {
                                     DashboardOnboardingStep.UPGRADE_TO_GOLD ->
-                                        if (isGoldVerified) DashboardOnboardingStepState.COMPLETE
-                                        else if (isGoldPending) DashboardOnboardingStepState.PENDING
-                                        else DashboardOnboardingStepState.INCOMPLETE
+                                        if (isGoldVerified) {
+                                            DashboardOnboardingStepState.COMPLETE
+                                        } else if (isGoldPending) {
+                                            DashboardOnboardingStepState.PENDING
+                                        } else DashboardOnboardingStepState.INCOMPLETE
                                     DashboardOnboardingStep.LINK_PAYMENT_METHOD ->
-                                        if (hasLinkedPaymentMethod) DashboardOnboardingStepState.COMPLETE
-                                        else DashboardOnboardingStepState.INCOMPLETE
+                                        if (hasLinkedPaymentMethod) {
+                                            DashboardOnboardingStepState.COMPLETE
+                                        } else DashboardOnboardingStepState.INCOMPLETE
                                     DashboardOnboardingStep.BUY ->
-                                        if (hasBoughtCrypto) DashboardOnboardingStepState.COMPLETE
-                                        else DashboardOnboardingStepState.INCOMPLETE
+                                        if (hasBoughtCrypto) {
+                                            DashboardOnboardingStepState.COMPLETE
+                                        } else DashboardOnboardingStepState.INCOMPLETE
                                 }
                             )
                         }

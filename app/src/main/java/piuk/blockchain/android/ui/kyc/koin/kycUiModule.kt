@@ -34,7 +34,7 @@ val kycUiModule = module {
                 custodialWalletManager = get(),
                 dataRemediationService = get(),
                 kycService = get(),
-                userFeaturePermissionService = get(),
+                userFeaturePermissionService = get()
             )
         }.bind(ReentryDecision::class)
 
@@ -64,7 +64,7 @@ val kycUiModule = module {
                 analytics = get(),
                 nabuDataManager = get(),
                 userService = get(),
-                getUserStore = get(),
+                getUserStore = get()
             )
         }
 
@@ -74,7 +74,7 @@ val kycUiModule = module {
                 eligibilityService = get(),
                 nabuUserSync = get(),
                 kycNextStepDecision = get(),
-                kycTiersStore = get(),
+                kycTiersStore = get()
             )
         }
 
@@ -99,7 +99,7 @@ val kycUiModule = module {
                 nabuDataManager = get(),
                 kycTiersStore = get(),
                 analytics = get(),
-                sessionPrefs = get(),
+                sessionPrefs = get()
             )
         }
 
@@ -141,7 +141,7 @@ val kycUiModule = module {
             KycLimitsInteractor(
                 limitsDataManager = get(),
                 kycService = get(),
-                userFeaturePermissionService = get(),
+                userFeaturePermissionService = get()
             )
         }
     }

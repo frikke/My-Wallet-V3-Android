@@ -19,6 +19,6 @@ internal interface TradeApi {
         @Query("currencyPair") currencyPair: String,
         @Query("amount") amount: String,
         @Query("paymentMethod") paymentMethod: String,
-        @Query("orderProfileName") orderProfileName: String = "SIMPLEBUY",
+        @Query("orderProfileName") orderProfileName: String = "SIMPLEBUY"
     ): Outcome<Exception, QuoteResponse>
 }

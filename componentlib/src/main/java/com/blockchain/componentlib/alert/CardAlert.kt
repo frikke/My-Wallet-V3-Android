@@ -48,9 +48,8 @@ fun CardAlert(
     isDismissable: Boolean = true,
     onClose: () -> Unit = {},
     primaryCta: CardButton? = null,
-    secondaryCta: CardButton? = null,
+    secondaryCta: CardButton? = null
 ) {
-
     val typeColor = when (alertType) {
         AlertType.Default -> AppTheme.colors.title
         AlertType.Success -> AppTheme.colors.success
@@ -77,7 +76,7 @@ fun CardAlert(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(dimensionResource(R.dimen.small_spacing))
+                .padding(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing))
         ) {
             Row {
                 if (title.isNotEmpty()) {
@@ -98,7 +97,9 @@ fun CardAlert(
                 Text(
                     modifier = Modifier
                         .padding(
-                            top = if (title.isNotEmpty()) dimensionResource(id = R.dimen.tiny_spacing) else 0.dp
+                            top = if (title.isNotEmpty()) dimensionResource(
+                                id = com.blockchain.componentlib.R.dimen.tiny_spacing
+                            ) else 0.dp
                         ),
                     text = subtitle,
                     style = AppTheme.typography.paragraph1,
@@ -109,7 +110,7 @@ fun CardAlert(
             if (primaryCta != null) {
                 Row(
                     modifier = Modifier
-                        .padding(top = dimensionResource(id = R.dimen.small_spacing))
+                        .padding(top = dimensionResource(id = com.blockchain.componentlib.R.dimen.small_spacing))
                 ) {
                     SmallSecondaryButton(
                         text = primaryCta.text,
@@ -120,7 +121,7 @@ fun CardAlert(
                     if (secondaryCta != null) {
                         Spacer(
                             modifier = Modifier.size(
-                                size = dimensionResource(id = R.dimen.tiny_spacing)
+                                size = dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing)
                             )
                         )
 
@@ -138,18 +139,18 @@ fun CardAlert(
 
 @Composable
 fun CardCloseButton(
-    onClick: () -> Unit = {},
+    onClick: () -> Unit = {}
 ) {
     Box(
         modifier = Modifier
             .clickable {
                 onClick.invoke()
             }
-            .size(dimensionResource(R.dimen.standard_spacing))
+            .size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
     ) {
         Image(
             imageResource = ImageResource.Local(R.drawable.ic_close_circle),
-            modifier = Modifier.align(Alignment.Center),
+            modifier = Modifier.align(Alignment.Center)
         )
     }
 }
@@ -227,7 +228,7 @@ fun SuccessCardAlert_NoTitle() {
                     text = "Primary button",
                     onClick = {}
                 ),
-                isDismissable = false,
+                isDismissable = false
             )
         }
     }

@@ -9,6 +9,11 @@ android {
             buildConfigField "boolean", "USE_CRASHLYTICS", 'false'
         }
     }
+
+    buildFeatures {
+        buildConfig true
+    }
+    namespace 'com.blockchain.logging.data'
 }
 
 dependencies {
@@ -18,7 +23,7 @@ dependencies {
     implementation platform(Libraries.firebaseBom)
     implementation Libraries.firebaseCrashlytics
     implementation Libraries.firebaseAnalytics
-    implementation Libraries.embraceIOSDK
+   // implementation Libraries.embraceIOSDK
 
     implementation Libraries.koinAndroid
 

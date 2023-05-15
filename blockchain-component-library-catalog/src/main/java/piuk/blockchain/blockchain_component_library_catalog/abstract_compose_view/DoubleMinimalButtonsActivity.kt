@@ -101,7 +101,7 @@ class DoubleMinimalButtonsActivity : AppCompatActivity() {
             primaryButtonText = "Enabled"
             primaryButtonState = ButtonState.Enabled
             startButtonIcon = ImageResource.Local(
-                id = R.drawable.ic_qr_code,
+                id = com.blockchain.componentlib.R.drawable.ic_qr_code,
                 contentDescription = null,
             )
             onSecondaryButtonClick = {
@@ -116,7 +116,7 @@ class DoubleMinimalButtonsActivity : AppCompatActivity() {
             secondaryButtonText = "Enabled"
             secondaryButtonState = ButtonState.Enabled
             endButtonIcon = ImageResource.Local(
-                id = R.drawable.ic_qr_code,
+                id = com.blockchain.componentlib.R.drawable.ic_qr_code,
                 contentDescription = null,
             )
         }

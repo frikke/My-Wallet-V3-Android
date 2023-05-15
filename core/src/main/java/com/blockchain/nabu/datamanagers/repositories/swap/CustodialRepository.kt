@@ -49,7 +49,8 @@ class CustodialRepository(
             .mapData { response ->
                 response.mapNotNull {
                     val pair = CurrencyPair.fromRawPair(
-                        it.pair, assetCatalogue
+                        it.pair,
+                        assetCatalogue
                     ) ?: return@mapNotNull null
                     val fiatCurrency =
                         assetCatalogue.fiatFromNetworkTicker(it.fiatCurrency) ?: return@mapNotNull null

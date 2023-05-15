@@ -51,12 +51,12 @@ class KycStatusActivity :
         logEvent(AnalyticsEvents.KycComplete)
 
         val title = when (campaignType) {
-            CampaignType.Swap -> R.string.kyc_splash_title
+            CampaignType.Swap -> com.blockchain.stringResources.R.string.kyc_splash_title
             CampaignType.SimpleBuy,
             CampaignType.Resubmission,
             CampaignType.FiatFunds,
             CampaignType.None,
-            CampaignType.Interest -> R.string.identity_verification
+            CampaignType.Interest -> com.blockchain.stringResources.R.string.identity_verification
         }
         updateToolbar(
             toolbarTitle = getString(title),
@@ -98,16 +98,16 @@ class KycStatusActivity :
         with(binding) {
             imageViewKycStatus.setImageDrawable(getResolvedDrawable(R.drawable.vector_in_progress))
             textViewVerificationSubtitle.visible()
-            textViewVerificationState.setTextColor(getResolvedColor(R.color.kyc_in_progress))
-            textViewVerificationState.setText(R.string.kyc_status_title_in_progress)
+            textViewVerificationState.setTextColor(getResolvedColor(com.blockchain.common.R.color.kyc_in_progress))
+            textViewVerificationState.setText(com.blockchain.stringResources.R.string.kyc_status_title_in_progress)
             displayNotificationButton()
             val message = when (campaignType) {
                 CampaignType.Swap,
                 CampaignType.None,
-                CampaignType.Resubmission -> R.string.kyc_status_message_in_progress
+                CampaignType.Resubmission -> com.blockchain.stringResources.R.string.kyc_status_message_in_progress
                 CampaignType.SimpleBuy,
                 CampaignType.FiatFunds,
-                CampaignType.Interest -> R.string.sunriver_status_message
+                CampaignType.Interest -> com.blockchain.stringResources.R.string.sunriver_status_message
             }
             textViewVerificationMessage.setText(message)
         }
@@ -116,16 +116,16 @@ class KycStatusActivity :
     private fun onInReview() {
         with(binding) {
             imageViewKycStatus.setImageDrawable(getResolvedDrawable(R.drawable.vector_in_progress))
-            textViewVerificationState.setTextColor(getResolvedColor(R.color.kyc_in_progress))
-            textViewVerificationState.setText(R.string.kyc_status_title_in_review)
-            textViewVerificationMessage.setText(R.string.kyc_status_message_under_review)
+            textViewVerificationState.setTextColor(getResolvedColor(com.blockchain.common.R.color.kyc_in_progress))
+            textViewVerificationState.setText(com.blockchain.stringResources.R.string.kyc_status_title_in_review)
+            textViewVerificationMessage.setText(com.blockchain.stringResources.R.string.kyc_status_message_under_review)
             displayNotificationButton()
         }
     }
 
     private fun displayNotificationButton() {
         binding.buttonKycStatusNext.apply {
-            setText(R.string.kyc_status_button_notify_me)
+            setText(com.blockchain.stringResources.R.string.kyc_status_button_notify_me)
             setOnClickListener { presenter?.onClickNotifyUser() }
             visible()
         }
@@ -138,9 +138,9 @@ class KycStatusActivity :
     private fun onFailed() {
         with(binding) {
             imageViewKycStatus.setImageDrawable(getResolvedDrawable(R.drawable.vector_failed))
-            textViewVerificationState.setTextColor(getResolvedColor(R.color.product_red_medium))
-            textViewVerificationState.setText(R.string.kyc_status_title_failed)
-            textViewVerificationMessage.setText(R.string.kyc_status_message_failed)
+            textViewVerificationState.setTextColor(getResolvedColor(com.blockchain.common.R.color.product_red_medium))
+            textViewVerificationState.setText(com.blockchain.stringResources.R.string.kyc_status_title_failed)
+            textViewVerificationMessage.setText(com.blockchain.stringResources.R.string.kyc_status_message_failed)
             buttonKycStatusNext.gone()
         }
     }
@@ -148,11 +148,11 @@ class KycStatusActivity :
     private fun onVerified() {
         with(binding) {
             imageViewKycStatus.setImageDrawable(getResolvedDrawable(R.drawable.vector_verified))
-            textViewVerificationState.setTextColor(getResolvedColor(R.color.kyc_progress_green))
-            textViewVerificationState.setText(R.string.kyc_settings_status_verified)
-            textViewVerificationMessage.setText(R.string.kyc_status_message_verified)
+            textViewVerificationState.setTextColor(getResolvedColor(com.blockchain.common.R.color.kyc_progress_green))
+            textViewVerificationState.setText(com.blockchain.stringResources.R.string.kyc_settings_status_verified)
+            textViewVerificationMessage.setText(com.blockchain.stringResources.R.string.kyc_status_message_verified)
             buttonKycStatusNext.apply {
-                setText(R.string.kyc_status_button_get_started)
+                setText(com.blockchain.stringResources.R.string.kyc_status_button_get_started)
                 setOnClickListener { presenter?.onClickContinue() }
                 ConstraintSet().apply {
                     clone(constraintLayoutKycStatus)
@@ -178,9 +178,9 @@ class KycStatusActivity :
     }
 
     override fun showNotificationsEnabledDialog() {
-        AlertDialog.Builder(this, R.style.AlertDialogStyle)
-            .setTitle(R.string.kyc_status_button_notifications_enabled_title)
-            .setMessage(R.string.kyc_status_button_notifications_enabled_message)
+        AlertDialog.Builder(this, com.blockchain.componentlib.R.style.AlertDialogStyle)
+            .setTitle(com.blockchain.stringResources.R.string.kyc_status_button_notifications_enabled_title)
+            .setMessage(com.blockchain.stringResources.R.string.kyc_status_button_notifications_enabled_message)
             .setPositiveButton(android.R.string.ok, null)
             .setOnDismissListener { finish() }
             .show()
@@ -189,7 +189,7 @@ class KycStatusActivity :
     override fun showProgressDialog() {
         progressDialog = MaterialProgressDialog(this).apply {
             setOnCancelListener { presenter?.onProgressCancelled() }
-            setMessage(R.string.kyc_country_selection_please_wait)
+            setMessage(com.blockchain.stringResources.R.string.kyc_country_selection_please_wait)
             show()
         }
     }
@@ -197,7 +197,7 @@ class KycStatusActivity :
     override fun finishPage() {
         BlockchainSnackbar.make(
             binding.root,
-            getString(R.string.kyc_status_error),
+            getString(com.blockchain.stringResources.R.string.kyc_status_error),
             type = SnackbarType.Error
         ).show()
         finish()

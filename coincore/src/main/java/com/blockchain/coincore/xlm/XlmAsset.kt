@@ -31,7 +31,7 @@ internal class XlmAsset(
     private val xlmFeesFetcher: XlmFeesFetcher,
     private val walletOptionsDataManager: WalletOptionsDataManager,
     private val walletPreferences: WalletStatusPrefs,
-    private val addressResolver: IdentityAddressResolver,
+    private val addressResolver: IdentityAddressResolver
 ) : CryptoAssetBase() {
 
     override val currency: AssetInfo

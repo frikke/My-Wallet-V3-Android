@@ -17,7 +17,7 @@ internal fun ActivityViewItemDto.toActivityViewItem(): ActivityDataItem? = when 
             ActivityDataItem.Button(
                 value = value,
                 style = style.toButtonStyle(),
-                action = action,
+                action = action
             )
         }
     }

@@ -69,9 +69,9 @@ class FiatValuePartsTest {
         1512.99.usd()
             .toStringParts().apply {
                 symbol `should be equal to` "\$US"
-                major `should be equal to` "1 512"
+                major `should be equal to` "1 512"
                 minor `should be equal to` "99"
-                majorAndMinor `should be equal to` "1 512,99"
+                majorAndMinor `should be equal to` "1 512,99"
             }
     }
 

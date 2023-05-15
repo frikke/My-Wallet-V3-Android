@@ -31,26 +31,35 @@ import com.blockchain.earn.staking.viewmodel.EarnWithdrawalUiElement
 @Composable
 fun EarnPendingWithdrawalFullBalance(currencyTicker: String) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        TableRowHeader(title = stringResource(id = R.string.common_pending_activity))
+        TableRowHeader(title = stringResource(id = com.blockchain.stringResources.R.string.common_pending_activity))
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
         Card(
             modifier = Modifier
                 .fillMaxWidth(),
             shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-            elevation = 0.dp,
+            elevation = 0.dp
         ) {
             FlexibleTableRow(
                 paddingValues = PaddingValues(AppTheme.dimensions.smallSpacing),
                 contentStart = {
-                    CustomStackedIcon(icon = StackedIcon.SingleIcon(ImageResource.Local(R.drawable.send_off)))
+                    CustomStackedIcon(
+                        icon = StackedIcon.SingleIcon(
+                            ImageResource.Local(
+                                com.blockchain.componentlib.icons.R.drawable.send_off
+                            )
+                        )
+                    )
                 },
                 content = {
                     SmallHorizontalSpacer()
 
                     Column {
                         SimpleText(
-                            text = stringResource(R.string.earn_active_rewards_withdrawal_activity, currencyTicker),
+                            text = stringResource(
+                                com.blockchain.stringResources.R.string.earn_active_rewards_withdrawal_activity,
+                                currencyTicker
+                            ),
                             style = ComposeTypographies.Body2,
                             color = ComposeColors.Title,
                             gravity = ComposeGravities.Start
@@ -59,7 +68,7 @@ fun EarnPendingWithdrawalFullBalance(currencyTicker: String) {
                         SmallestVerticalSpacer()
 
                         SimpleText(
-                            text = stringResource(R.string.common_requested),
+                            text = stringResource(com.blockchain.stringResources.R.string.common_requested),
                             style = ComposeTypographies.Paragraph1,
                             color = ComposeColors.Primary,
                             gravity = ComposeGravities.Start
@@ -67,7 +76,9 @@ fun EarnPendingWithdrawalFullBalance(currencyTicker: String) {
                     }
 
                     SimpleText(
-                        text = stringResource(R.string.earn_active_rewards_withdrawal_close_date),
+                        text = stringResource(
+                            com.blockchain.stringResources.R.string.earn_active_rewards_withdrawal_close_date
+                        ),
                         style = ComposeTypographies.Caption1,
                         color = ComposeColors.Body,
                         gravity = ComposeGravities.End,
@@ -93,22 +104,27 @@ fun PreviewEarnPendingWithdrawalFullBalance() {
 @Composable
 fun EarnPendingWithdrawals(pendingWithdrawals: List<EarnWithdrawalUiElement>) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        TableRowHeader(title = stringResource(id = R.string.common_pending_activity))
+        TableRowHeader(title = stringResource(id = com.blockchain.stringResources.R.string.common_pending_activity))
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
         Card(
             modifier = Modifier
                 .fillMaxWidth(),
             shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-            elevation = 0.dp,
+            elevation = 0.dp
         ) {
-
             Column {
                 pendingWithdrawals.forEach { pendingWithdrawal ->
                     FlexibleTableRow(
                         paddingValues = PaddingValues(AppTheme.dimensions.smallSpacing),
                         contentStart = {
-                            CustomStackedIcon(icon = StackedIcon.SingleIcon(ImageResource.Local(R.drawable.send_off)))
+                            CustomStackedIcon(
+                                icon = StackedIcon.SingleIcon(
+                                    ImageResource.Local(
+                                        com.blockchain.componentlib.icons.R.drawable.send_off
+                                    )
+                                )
+                            )
                         },
                         content = {
                             SmallHorizontalSpacer()
@@ -138,7 +154,7 @@ fun EarnPendingWithdrawals(pendingWithdrawals: List<EarnWithdrawalUiElement>) {
                                     text = pendingWithdrawal.unbondingExpiryDate,
                                     style = ComposeTypographies.Caption1,
                                     color = ComposeColors.Body,
-                                    gravity = ComposeGravities.End,
+                                    gravity = ComposeGravities.End
                                 )
 
                                 SmallestVerticalSpacer()
@@ -147,7 +163,7 @@ fun EarnPendingWithdrawals(pendingWithdrawals: List<EarnWithdrawalUiElement>) {
                                     text = pendingWithdrawal.amountCrypto,
                                     style = ComposeTypographies.Caption1,
                                     color = ComposeColors.Body,
-                                    gravity = ComposeGravities.End,
+                                    gravity = ComposeGravities.End
                                 )
                             }
                         },

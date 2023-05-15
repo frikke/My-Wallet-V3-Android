@@ -80,7 +80,7 @@ private fun SheetHeader(
                     ),
                     text = title,
                     style = AppTheme.typography.body2,
-                    color = AppTheme.colors.title,
+                    color = AppTheme.colors.title
                 )
             }
 
@@ -132,7 +132,7 @@ fun PreviewSheetFloatingHeader_Overlap() {
     SheetFloatingHeader(
         icon = StackedIcon.OverlappingPair(
             front = ImageResource.Local(R.drawable.ic_close_circle_dark),
-            back = ImageResource.Local(R.drawable.ic_close_circle),
+            back = ImageResource.Local(R.drawable.ic_close_circle)
         ),
         title = "Swapped BTC -> ETH",
         backOnClick = {},
@@ -146,7 +146,7 @@ fun PreviewSheetFloatingHeader_SmallTag() {
     SheetFloatingHeader(
         icon = StackedIcon.SmallTag(
             main = ImageResource.Local(R.drawable.ic_close_circle_dark),
-            tag = ImageResource.Local(R.drawable.ic_close_circle),
+            tag = ImageResource.Local(R.drawable.ic_close_circle)
         ),
         title = "Swapped BTC -> ETH",
         onCloseClick = {}

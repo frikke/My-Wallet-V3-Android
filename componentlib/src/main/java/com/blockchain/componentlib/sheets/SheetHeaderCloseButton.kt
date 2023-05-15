@@ -17,18 +17,18 @@ internal fun SheetHeaderCloseButton(
     onClosePress: () -> Unit,
     modifier: Modifier = Modifier,
     backPressContentDescription: String? = null,
-    isDarkMode: Boolean = isSystemInDarkTheme(),
+    isDarkMode: Boolean = isSystemInDarkTheme()
 ) {
     Image(
         imageResource = ImageResource.Local(
             id = if (isDarkMode) R.drawable.ic_close_circle_dark else R.drawable.ic_close_circle_light,
-            contentDescription = backPressContentDescription,
+            contentDescription = backPressContentDescription
         ),
         modifier = modifier.clickable(
             interactionSource = remember { MutableInteractionSource() },
             indication = rememberRipple(bounded = false),
             onClick = { onClosePress() }
         ),
-        contentScale = ContentScale.None,
+        contentScale = ContentScale.None
     )
 }

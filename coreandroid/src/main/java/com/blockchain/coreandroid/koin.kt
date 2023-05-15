@@ -94,7 +94,8 @@ val coreAndroidModule = module {
 
     factory {
         PreferenceManager.getDefaultSharedPreferences(
-            /* context = */ get()
+            /* context = */
+            get()
         )
     }
 
@@ -107,7 +108,7 @@ val coreAndroidModule = module {
             firebaseRemoteConfig = get(),
             remoteConfigPrefs = get(),
             experimentsStore = get(),
-            json = get(),
+            json = get()
         )
     }.bind(RemoteConfigService::class)
 }

@@ -59,7 +59,7 @@ fun MenuOptionsScreen(
                 .fillMaxWidth()
                 .height(AppTheme.dimensions.xHugeSpacing)
                 .background(
-                    AppTheme.colors.backgroundMuted.copy(alpha = 0.9F),
+                    AppTheme.colors.backgroundMuted.copy(alpha = 0.9F)
                 )
         )
 
@@ -72,7 +72,7 @@ fun MenuOptionsScreen(
                 modifier = Modifier.matchParentSize(),
                 visible = showBackground,
                 enter = fadeIn(),
-                exit = fadeOut(),
+                exit = fadeOut()
             ) {
                 Surface(
                     modifier = Modifier
@@ -149,7 +149,8 @@ fun MenuOptionsScreen(
 fun PreviewMenuOptionsScreen() {
     MenuOptionsScreen(
         walletBalance = "123.456",
-        openSettings = {}, launchQrScanner = {},
+        openSettings = {},
+        launchQrScanner = {},
         showBackground = true,
         showBalance = true
     )

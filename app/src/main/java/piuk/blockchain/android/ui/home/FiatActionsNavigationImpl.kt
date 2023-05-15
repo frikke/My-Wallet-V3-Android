@@ -26,7 +26,7 @@ import piuk.blockchain.android.ui.linkbank.alias.BankAliasLinkActivity
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 
 class FiatActionsNavigationImpl(
-    private val activity: BlockchainActivity?,
+    private val activity: BlockchainActivity?
 ) : FiatActionsNavigation {
     override fun wireTransferDetail(account: FiatAccount, accountIsFunded: Boolean) {
         activity?.showBottomSheet(
@@ -83,9 +83,11 @@ class FiatActionsNavigationImpl(
                         AssetAction.FiatDeposit -> {
                             BankAuthSource.DEPOSIT
                         }
+
                         AssetAction.FiatWithdraw -> {
                             BankAuthSource.WITHDRAW
                         }
+
                         else -> {
                             throw IllegalStateException("Attempting to link from an unsupported action")
                         }
@@ -116,20 +118,30 @@ class FiatActionsNavigationImpl(
                 showBottomSheet(
                     KycBenefitsBottomSheet.newInstance(
                         KycBenefitsBottomSheet.BenefitsDetails(
-                            title = getString(R.string.fiat_funds_no_kyc_announcement_title),
-                            description = getString(R.string.fiat_funds_no_kyc_announcement_description),
+                            title = getString(
+                                com.blockchain.stringResources.R.string.fiat_funds_no_kyc_announcement_title
+                            ),
+                            description = getString(
+                                com.blockchain.stringResources.R.string.fiat_funds_no_kyc_announcement_description
+                            ),
                             listOfBenefits = listOf(
                                 VerifyIdentityNumericBenefitItem(
-                                    getString(R.string.fiat_funds_no_kyc_step_1_title),
-                                    getString(R.string.fiat_funds_no_kyc_step_1_description)
+                                    getString(com.blockchain.stringResources.R.string.fiat_funds_no_kyc_step_1_title),
+                                    getString(
+                                        com.blockchain.stringResources.R.string.fiat_funds_no_kyc_step_1_description
+                                    )
                                 ),
                                 VerifyIdentityNumericBenefitItem(
-                                    getString(R.string.fiat_funds_no_kyc_step_2_title),
-                                    getString(R.string.fiat_funds_no_kyc_step_2_description)
+                                    getString(com.blockchain.stringResources.R.string.fiat_funds_no_kyc_step_2_title),
+                                    getString(
+                                        com.blockchain.stringResources.R.string.fiat_funds_no_kyc_step_2_description
+                                    )
                                 ),
                                 VerifyIdentityNumericBenefitItem(
-                                    getString(R.string.fiat_funds_no_kyc_step_3_title),
-                                    getString(R.string.fiat_funds_no_kyc_step_3_description)
+                                    getString(com.blockchain.stringResources.R.string.fiat_funds_no_kyc_step_3_title),
+                                    getString(
+                                        com.blockchain.stringResources.R.string.fiat_funds_no_kyc_step_3_description
+                                    )
                                 )
                             ),
                             icon = currency.logo

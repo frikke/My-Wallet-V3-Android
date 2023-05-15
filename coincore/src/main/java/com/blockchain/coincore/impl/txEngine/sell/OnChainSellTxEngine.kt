@@ -36,7 +36,10 @@ class OnChainSellTxEngine(
     userIdentity: UserIdentity,
     quotesEngine: TransferQuotesEngine
 ) : SellTxEngineBase(
-    walletManager, limitsDataManager, userIdentity, quotesEngine
+    walletManager,
+    limitsDataManager,
+    userIdentity,
+    quotesEngine
 ) {
     private val swapActivityStore: CustodialSwapActivityStore by scopedInject()
     private val transactionsStore: TransactionsStore by scopedInject()
@@ -66,7 +69,7 @@ class OnChainSellTxEngine(
     override fun doInitialiseTx(): Single<PendingTx> =
         Observables.combineLatest(
             quotesEngine.getPriceQuote(),
-            quotesEngine.getSampleDepositAddress().toObservable(),
+            quotesEngine.getSampleDepositAddress().toObservable()
         )
             .firstOrError()
             .doOnSuccess { (_, sampleDepositAddress) ->
@@ -111,8 +114,9 @@ class OnChainSellTxEngine(
         }
 
     override fun feeInSourceCurrency(pendingTx: PendingTx): Money =
-        if (sourceAsset.isLayer2Token) Money.zero(sourceAsset)
-        else pendingTx.feeAmount
+        if (sourceAsset.isLayer2Token) {
+            Money.zero(sourceAsset)
+        } else pendingTx.feeAmount
 
     override fun doValidateAmount(pendingTx: PendingTx): Single<PendingTx> =
         engine.doValidateAmount(pendingTx)

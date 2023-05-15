@@ -30,13 +30,17 @@ class ReceiveMemoView @JvmOverloads constructor(
                 text = cryptoAddress.memo
                 setTextIsSelectable(true)
             }
-            memoLabel.text = resources.getString(R.string.receive_memo_title, assetName)
-            memoWarn.text = resources.getString(R.string.receive_memo_warning, assetName)
+            memoLabel.text = resources.getString(com.blockchain.stringResources.R.string.receive_memo_title, assetName)
+            memoWarn.text = resources.getString(com.blockchain.stringResources.R.string.receive_memo_warning, assetName)
 
             val linkMap = mapOf<String, Uri>("learn_more_link" to Uri.parse(URL_XLM_MEMO))
             memoLink.apply {
                 movementMethod = LinkMovementMethod.getInstance()
-                text = StringUtils.getStringWithMappedAnnotations(context, R.string.common_linked_learn_more, linkMap)
+                text = StringUtils.getStringWithMappedAnnotations(
+                    context,
+                    com.blockchain.stringResources.R.string.common_linked_learn_more,
+                    linkMap
+                )
             }
         }
     }

@@ -51,7 +51,7 @@ sealed class AssetInformation(
 
     class NonTradeable(
         override val isAddedToWatchlist: Boolean,
-        override val prices: Prices24HrWithDelta,
+        override val prices: Prices24HrWithDelta
     ) : AssetInformation(prices, isAddedToWatchlist)
 }
 
@@ -78,7 +78,14 @@ sealed class AssetDisplayInfo(
         override val stakingRate: Double,
         override val filter: AssetFilter
     ) : AssetDisplayInfo(
-        account, amount, pendingAmount, fiatValue, actions, interestRate, stakingRate, filter
+        account,
+        amount,
+        pendingAmount,
+        fiatValue,
+        actions,
+        interestRate,
+        stakingRate,
+        filter
     )
 
     data class DefiDisplayInfo(
@@ -86,9 +93,16 @@ sealed class AssetDisplayInfo(
         override val amount: Money,
         override val pendingAmount: Money,
         override val fiatValue: Money,
-        override val actions: Set<StateAwareAction>,
+        override val actions: Set<StateAwareAction>
     ) : AssetDisplayInfo(
-        account, amount, pendingAmount, fiatValue, actions, Double.NaN, Double.NaN, AssetFilter.NonCustodial
+        account,
+        amount,
+        pendingAmount,
+        fiatValue,
+        actions,
+        Double.NaN,
+        Double.NaN,
+        AssetFilter.NonCustodial
     )
 }
 

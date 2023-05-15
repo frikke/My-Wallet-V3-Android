@@ -64,23 +64,24 @@ fun Context.copyToClipboard(label: String, text: String) {
 
 fun Context.copyToClipboardWithConfirmationDialog(
     confirmationAnchorView: View,
-    @StringRes confirmationTitle: Int = R.string.app_name,
+    @StringRes confirmationTitle: Int = com.blockchain.stringResources.R.string.app_name,
     @StringRes confirmationMessage: Int,
     label: String,
     text: String
 ) {
-    AlertDialog.Builder(this, R.style.AlertDialogStyle)
+    AlertDialog.Builder(this, com.blockchain.componentlib.R.style.AlertDialogStyle)
         .setTitle(confirmationTitle)
         .setMessage(confirmationMessage)
         .setCancelable(false)
-        .setPositiveButton(R.string.common_yes) { _, _ ->
+        .setPositiveButton(com.blockchain.stringResources.R.string.common_yes) { _, _ ->
             copyToClipboard(label, text)
             BlockchainSnackbar.make(
                 confirmationAnchorView,
-                getString(R.string.copied_to_clipboard), type = SnackbarType.Success
+                getString(com.blockchain.stringResources.R.string.copied_to_clipboard),
+                type = SnackbarType.Success
             ).show()
         }
-        .setNegativeButton(R.string.common_no, null)
+        .setNegativeButton(com.blockchain.stringResources.R.string.common_no, null)
         .show()
 }
 
@@ -89,6 +90,6 @@ fun ComponentActivity.disableBackPress(
     callbackEnabled: Boolean = true
 ): OnBackPressedCallback {
     return onBackPressedDispatcher.addCallback(owner = owner, enabled = callbackEnabled) {
-        /* this will catch back press but would do nothing */
+        // this will catch back press but would do nothing
     }
 }

@@ -9,5 +9,5 @@ data class TargetAssetsModelState(
     val walletMode: WalletMode? = null,
     val selectedAssetsModeFilter: WalletMode? = null,
     val prices: DataResource<List<AssetPriceInfo>> = DataResource.Loading,
-    val filterTerm: String = "",
+    val filterTerm: String = ""
 ) : ModelState

@@ -19,7 +19,7 @@ class SmallSecondaryButtonView @JvmOverloads constructor(
                 SmallSecondaryButton(
                     onClick = onClick,
                     text = text,
-                    state = buttonState,
+                    state = buttonState
                 )
             }
         }

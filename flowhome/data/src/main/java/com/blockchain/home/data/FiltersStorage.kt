@@ -15,8 +15,9 @@ class FiltersStorage(private val smallBalancesPrefs: SmallBalancesPrefs) : Filte
 
     override fun updateFilters(filter: List<AssetFilter>) {
         filter.forEach {
-            if (it is AssetFilter.ShowSmallBalances)
+            if (it is AssetFilter.ShowSmallBalances) {
                 smallBalancesPrefs.showSmallBalances = it.enabled
+            }
         }
     }
 }

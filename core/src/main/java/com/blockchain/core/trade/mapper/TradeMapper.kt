@@ -32,7 +32,7 @@ fun QuoteResponse.toDomain(assetCatalogue: AssetCatalogue): QuotePrice {
         ),
         rawPrice = Money.fromMinor(
             currency = currencyPair.destination,
-            value = price.toBigInteger(),
+            value = price.toBigInteger()
         ),
         resultAmount = Money.fromMinor(
             currency = currencyPair.destination,
@@ -59,7 +59,7 @@ internal fun calcSourceToOutputRateFromInputAmountAndResultAmount(
     currencyPair: CurrencyPair,
     amountMoney: Money,
     quotePrice: BigInteger,
-    resultAmount: BigInteger,
+    resultAmount: BigInteger
 ): ExchangeRate {
     // There can be some cases where the resultAmount is very low, for example when selling 100minor XLM to EUR, 100minor XLM
     // isn't even 0.01EUR and thus resultAmount will be 0, this will skew the "price" rate massively depending on the resultAmount value.
@@ -77,6 +77,6 @@ internal fun calcSourceToOutputRateFromInputAmountAndResultAmount(
     return ExchangeRate(
         rate = rate,
         from = currencyPair.source,
-        to = currencyPair.destination,
+        to = currencyPair.destination
     )
 }

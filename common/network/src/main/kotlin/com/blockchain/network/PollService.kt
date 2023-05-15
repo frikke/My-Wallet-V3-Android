@@ -51,7 +51,7 @@ class PollService<T : Any>(
             fetch: suspend () -> Outcome<Exception, T>,
             until: (T) -> Boolean,
             timerInSec: Long = 5,
-            retries: Int = 20,
+            retries: Int = 20
         ): Outcome<Exception, PollResult<T>> {
             var lastFetched: T? = null
             var currentRetry = 0

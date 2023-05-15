@@ -21,9 +21,8 @@ class EmptyScreenViewModel(
     private val homeAssetsViewModel: AssetsViewModel,
     private val pkwActivityViewModel: PrivateKeyActivityViewModel,
     private val walletModeService: WalletModeService,
-    private val custodialActivityViewModel: CustodialActivityViewModel,
-) : MviViewModel
-<
+    private val custodialActivityViewModel: CustodialActivityViewModel
+) : MviViewModel<
     EmptyScreenIntent,
     EmptyScreenViewState,
     EmptyScreenModelState,
@@ -93,7 +92,7 @@ data class EmptyScreenViewState(val show: Boolean, val mode: WalletMode) : ViewS
 data class EmptyScreenModelState(
     val hasActivity: DataResource<Boolean>,
     val walletMode: WalletMode,
-    val hasAssets: DataResource<Boolean>,
+    val hasAssets: DataResource<Boolean>
 ) : ModelState
 
 class EmptyScreenNavigationEvent : NavigationEvent

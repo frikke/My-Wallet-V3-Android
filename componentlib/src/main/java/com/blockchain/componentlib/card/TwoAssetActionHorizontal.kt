@@ -55,7 +55,7 @@ private fun TwoAssetActionBody(
                 imageResource = Icons.ArrowRight.withBackground(
                     backgroundColor = Color.White,
                     backgroundSize = AppTheme.dimensions.standardSpacing,
-                    iconSize = AppTheme.dimensions.standardSpacing,
+                    iconSize = AppTheme.dimensions.standardSpacing
                 )
             )
         }
@@ -64,7 +64,7 @@ private fun TwoAssetActionBody(
 
 data class HorizontalAssetAction(
     val assetName: String,
-    val icon: StackedIcon,
+    val icon: StackedIcon
 )
 
 @Composable
@@ -72,7 +72,7 @@ fun TwoAssetActionHorizontal(
     start: HorizontalAssetAction,
     startOnClick: () -> Unit,
     end: HorizontalAssetAction?,
-    endOnClick: () -> Unit,
+    endOnClick: () -> Unit
 ) {
     TwoAssetActionBody(
         start = {
@@ -172,7 +172,7 @@ fun TwoAssetActionHorizontalLoading() {
             Box(modifier = Modifier.weight(1F)) {
                 ShimmerLoadingCard(
                     itemCount = 1,
-                    showEndBlocks = false,
+                    showEndBlocks = false
                 )
             }
         },
@@ -194,12 +194,12 @@ private fun PreviewTwoAssetAction() {
     TwoAssetActionHorizontal(
         start = HorizontalAssetAction(
             assetName = "ETH",
-            StackedIcon.SingleIcon(Icons.Receive),
+            StackedIcon.SingleIcon(Icons.Receive)
         ),
         startOnClick = {},
         end = HorizontalAssetAction(
             assetName = "BTC",
-            StackedIcon.SingleIcon(Icons.Receive),
+            StackedIcon.SingleIcon(Icons.Receive)
         ),
         endOnClick = {}
     )
@@ -211,7 +211,7 @@ private fun PreviewTwoAssetAction_Select() {
     TwoAssetActionHorizontal(
         start = HorizontalAssetAction(
             assetName = "ETH",
-            StackedIcon.SingleIcon(Icons.Receive),
+            StackedIcon.SingleIcon(Icons.Receive)
         ),
         startOnClick = {},
         end = null,

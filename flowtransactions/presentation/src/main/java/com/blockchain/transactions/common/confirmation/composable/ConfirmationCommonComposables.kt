@@ -15,7 +15,7 @@ import com.blockchain.componentlib.theme.White
 @Composable
 fun ConfirmationSection(
     modifier: Modifier = Modifier,
-    content: @Composable ColumnScope.() -> Unit,
+    content: @Composable ColumnScope.() -> Unit
 ) {
     Column(
         modifier
@@ -37,7 +37,7 @@ fun ConfirmationTableRow(
     tags: List<TagViewState>? = null,
     endTag: TagViewState? = null,
     startImageResource: ImageResource = ImageResource.None,
-    endImageResource: ImageResource = ImageResource.None,
+    endImageResource: ImageResource = ImageResource.None
 ) {
     DefaultTableRow(
         modifier = modifier,
@@ -56,6 +56,6 @@ fun ConfirmationTableRow(
         titleColor = AppTheme.colors.title,
         titleStyle = AppTheme.typography.paragraph2,
         bylineColor = AppTheme.colors.body,
-        bylineStyle = AppTheme.typography.caption1,
+        bylineStyle = AppTheme.typography.caption1
     )
 }

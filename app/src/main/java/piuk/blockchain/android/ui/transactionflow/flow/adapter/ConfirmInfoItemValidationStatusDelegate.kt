@@ -25,7 +25,8 @@ class ConfirmInfoItemValidationStatusDelegate<in T> :
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         ViewHolder(
-            ItemSendConfirmErrorNoticeBinding.inflate(LayoutInflater.from(parent.context), parent, false), parent
+            ItemSendConfirmErrorNoticeBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+            parent
         )
 
     override fun onBindViewHolder(
@@ -65,24 +66,36 @@ class ConfirmInfoItemValidationStatusDelegate<in T> :
             when (this.status) {
                 ValidationState.CAN_EXECUTE -> throw IllegalStateException("Displaying OK in error status")
                 ValidationState.UNINITIALISED -> throw IllegalStateException("Displaying OK in error status")
-                ValidationState.INSUFFICIENT_FUNDS -> ctx.getString(R.string.confirm_status_msg_insufficient_funds)
+                ValidationState.INSUFFICIENT_FUNDS -> ctx.getString(
+                    com.blockchain.stringResources.R.string.confirm_status_msg_insufficient_funds
+                )
                 ValidationState.INSUFFICIENT_GAS -> ctx.getString(
-                    R.string.confirm_status_msg_insufficient_gas,
+                    com.blockchain.stringResources.R.string.confirm_status_msg_insufficient_gas,
                     this.money?.currency?.asAssetInfoOrThrow()?.let { asset ->
                         asset.takeIf { it.isLayer2Token }?.coinNetwork?.networkTicker ?: asset.displayTicker
                     } ?: CryptoCurrency.ETHER.displayTicker
                 )
-                ValidationState.OPTION_INVALID -> ctx.getString(R.string.confirm_status_msg_option_invalid)
-                ValidationState.MEMO_INVALID -> ctx.getString(R.string.confirm_status_memo_invalid)
-                ValidationState.INVOICE_EXPIRED -> ctx.getString(R.string.confirm_status_msg_invoice_expired)
+                ValidationState.OPTION_INVALID -> ctx.getString(
+                    com.blockchain.stringResources.R.string.confirm_status_msg_option_invalid
+                )
+                ValidationState.MEMO_INVALID -> ctx.getString(
+                    com.blockchain.stringResources.R.string.confirm_status_memo_invalid
+                )
+                ValidationState.INVOICE_EXPIRED -> ctx.getString(
+                    com.blockchain.stringResources.R.string.confirm_status_msg_invoice_expired
+                )
                 ValidationState.UNDER_MIN_LIMIT -> {
                     this.money?.toStringWithSymbol()?.let {
-                        ctx.getString(R.string.min_with_value, it)
-                    } ?: ctx.getString(R.string.fee_options_sat_byte_min_error)
+                        ctx.getString(com.blockchain.stringResources.R.string.min_with_value, it)
+                    } ?: ctx.getString(com.blockchain.stringResources.R.string.fee_options_sat_byte_min_error)
                 }
-                ValidationState.INVALID_AMOUNT -> ctx.getString(R.string.fee_options_invalid_amount)
-                ValidationState.HAS_TX_IN_FLIGHT -> ctx.getString(R.string.send_error_tx_in_flight)
-                else -> ctx.getString(R.string.confirm_status_msg_unexpected_error)
+                ValidationState.INVALID_AMOUNT -> ctx.getString(
+                    com.blockchain.stringResources.R.string.fee_options_invalid_amount
+                )
+                ValidationState.HAS_TX_IN_FLIGHT -> ctx.getString(
+                    com.blockchain.stringResources.R.string.send_error_tx_in_flight
+                )
+                else -> ctx.getString(com.blockchain.stringResources.R.string.confirm_status_msg_unexpected_error)
             }
     }
 }

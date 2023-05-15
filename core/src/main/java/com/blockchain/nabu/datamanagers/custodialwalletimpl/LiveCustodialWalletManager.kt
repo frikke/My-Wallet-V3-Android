@@ -94,7 +94,7 @@ class LiveCustodialWalletManager(
     private val transactionErrorMapper: TransactionErrorMapper,
     private val fiatCurrenciesService: FiatCurrenciesService,
     private val recurringBuyService: RecurringBuyService,
-    private val recurringBuyStore: RecurringBuyStore,
+    private val recurringBuyStore: RecurringBuyStore
 ) : CustodialWalletManager {
 
     override val selectedFiatcurrency: FiatCurrency
@@ -102,7 +102,7 @@ class LiveCustodialWalletManager(
 
     override fun createOrder(
         custodialWalletOrder: CustodialWalletOrder,
-        stateAction: String?,
+        stateAction: String?
     ): Single<BuySellOrder> =
         nabuService.createOrder(
             custodialWalletOrder,
@@ -121,7 +121,7 @@ class LiveCustodialWalletManager(
     override fun fetchFiatWithdrawFeeAndMinLimit(
         fiatCurrency: FiatCurrency,
         product: Product,
-        paymentMethodType: PaymentMethodType,
+        paymentMethodType: PaymentMethodType
     ): Single<FiatWithdrawalFeeAndLimit> =
         nabuService.fetchWithdrawFeesAndLimits(product.toRequestString(), paymentMethodType.mapToRequest())
             .map { response ->
@@ -145,7 +145,7 @@ class LiveCustodialWalletManager(
 
     override fun fetchCryptoWithdrawFeeAndMinLimit(
         asset: AssetInfo,
-        product: Product,
+        product: Product
     ): Single<CryptoWithdrawalFeeAndLimit> =
         nabuService.fetchWithdrawFeesAndLimits(product.toRequestString(), WithdrawFeeRequest.DEFAULT)
             .map { response ->
@@ -162,7 +162,7 @@ class LiveCustodialWalletManager(
 
     override fun fetchWithdrawLocksTime(
         paymentMethodType: PaymentMethodType,
-        fiatCurrency: FiatCurrency,
+        fiatCurrency: FiatCurrency
     ): Single<BigInteger> =
         nabuService.fetchWithdrawLocksRules(
             paymentMethodType,
@@ -204,7 +204,7 @@ class LiveCustodialWalletManager(
         freshnessStrategy: FreshnessStrategy,
         asset: AssetInfo,
         product: Product,
-        type: String?,
+        type: String?
     ): Observable<List<CryptoTransaction>> =
         transactionsCache.stream(
             freshnessStrategy.withKey(
@@ -288,8 +288,9 @@ class LiveCustodialWalletManager(
     override fun availableFiatCurrenciesForTrading(assetInfo: AssetInfo): Single<List<FiatCurrency>> =
         simpleBuyService.getPairs().mapData {
             it.mapNotNull { simpleBuyPair ->
-                if (simpleBuyPair.pair.first != assetInfo.networkTicker) null
-                else assetCatalogue.fiatFromNetworkTicker(simpleBuyPair.pair.second)
+                if (simpleBuyPair.pair.first != assetInfo.networkTicker) {
+                    null
+                } else assetCatalogue.fiatFromNetworkTicker(simpleBuyPair.pair.second)
             }
         }
             .asSingle()
@@ -389,7 +390,7 @@ class LiveCustodialWalletManager(
         orderId: String,
         attributes: SimpleBuyConfirmationAttributes?,
         paymentMethodId: String?,
-        isBankPartner: Boolean?,
+        isBankPartner: Boolean?
     ): Single<BuySellOrder> =
         nabuService.confirmOrder(
             orderId,
@@ -398,7 +399,9 @@ class LiveCustodialWalletManager(
                 attributes = attributes,
                 paymentType = if (isBankPartner == true) {
                     PaymentMethodResponse.BANK_TRANSFER
-                } else null
+                } else {
+                    null
+                }
             )
         ).map { response ->
             response.toDomainOrThrow()
@@ -441,12 +444,12 @@ class LiveCustodialWalletManager(
     private fun paymentMethods(
         currency: Currency,
         freshnessStrategy: FreshnessStrategy,
-        eligibleOnly: Boolean,
+        eligibleOnly: Boolean
     ) = paymentMethodsEligibilityStore.stream(
         freshnessStrategy.withKey(
             PaymentMethodsEligibilityStore.Key(
                 currency.networkTicker,
-                eligibleOnly,
+                eligibleOnly
             )
         )
     )
@@ -470,7 +473,7 @@ class LiveCustodialWalletManager(
         quoteId: String,
         volume: Money,
         destinationAddress: String?,
-        refundAddress: String?,
+        refundAddress: String?
     ): Single<CustodialOrder> =
         nabuService.createCustodialOrder(
             CreateOrderRequest(
@@ -489,7 +492,7 @@ class LiveCustodialWalletManager(
     override fun getProductTransferLimits(
         currency: FiatCurrency,
         product: Product,
-        orderDirection: TransferDirection?,
+        orderDirection: TransferDirection?
     ): Single<TransferLimits> {
         val side = when (product) {
             Product.BUY,
@@ -499,7 +502,9 @@ class LiveCustodialWalletManager(
 
         val direction = if (product == Product.TRADE && orderDirection != null) {
             orderDirection.name
-        } else null
+        } else {
+            null
+        }
 
         return nabuService.fetchProductLimits(
             currency.networkTicker,
@@ -525,7 +530,7 @@ class LiveCustodialWalletManager(
     override fun getCustodialActivityForAsset(
         cryptoCurrency: AssetInfo,
         directions: Set<TransferDirection>,
-        freshnessStrategy: FreshnessStrategy,
+        freshnessStrategy: FreshnessStrategy
     ): Observable<List<TradeTransactionItem>> =
         custodialRepository.getCustodialActivityForAsset(cryptoCurrency, directions, freshnessStrategy)
 
@@ -540,7 +545,7 @@ class LiveCustodialWalletManager(
         address: String,
         hash: String,
         amount: Money,
-        product: Product,
+        product: Product
     ): Completable =
         nabuService.createDepositTransaction(
             currency = crypto.networkTicker,
@@ -575,7 +580,7 @@ class LiveCustodialWalletManager(
 
             outputMoney = CurrencyPair.fromRawPair(pair, assetCatalogue)?.let {
                 Money.fromMinor(it.destination, priceFunnel.outputMoney.toBigInteger())
-            } ?: return null,
+            } ?: return null
         )
     }
 
@@ -593,7 +598,7 @@ private fun WireTransferAccountDetailsResponse.toDomain(): WireTransferDetails =
                     title = entry.title,
                     message = entry.message,
                     isImportant = entry.isImportant == true,
-                    help = entry.help,
+                    help = entry.help
                 )
             }
         )
@@ -607,11 +612,11 @@ private fun WireTransferAccountDetailsResponse.toDomain(): WireTransferDetails =
             actions = footer.actions.orEmpty().map { action ->
                 WireTransferDetailsAction(
                     title = action.title,
-                    url = action.url,
+                    url = action.url
                 )
-            },
+            }
         )
-    },
+    }
 )
 
 private fun Product.toRequestString(): String =
@@ -626,7 +631,7 @@ fun String.toTransactionState(): TransactionState? =
     when (this) {
         TransactionResponse.COMPLETE -> TransactionState.COMPLETED
         TransactionResponse.REJECTED,
-        TransactionResponse.FAILED,
+        TransactionResponse.FAILED
         -> TransactionState.FAILED
         TransactionResponse.PENDING,
         TransactionResponse.CLEARED -> TransactionState.PENDING

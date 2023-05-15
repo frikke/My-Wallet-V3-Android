@@ -30,14 +30,14 @@ internal fun TradeActivitySummaryItem.leadingTitle(): ActivityStackView {
         value =
         when {
             isSwapPair() -> TextValue.IntResValue(
-                value = R.string.tx_title_swapped,
+                value = com.blockchain.stringResources.R.string.tx_title_swapped,
                 args = listOf(
                     currencyPair.source.displayTicker,
                     currencyPair.destination.displayTicker
                 )
             )
             isSellingPair() -> TextValue.IntResValue(
-                value = R.string.tx_title_sold,
+                value = com.blockchain.stringResources.R.string.tx_title_sold,
                 args = listOf(
                     currencyPair.source.displayTicker
                 )

@@ -14,7 +14,7 @@ object Versions {
     const val buildTools = "30.0.3"
 
     // Build tools and languages
-    const val androidPlugin = "7.2.1"
+    const val androidPlugin = "8.0.1"
     const val kotlin = "1.7.0"
 
     // Coroutines
@@ -42,7 +42,7 @@ object Versions {
     const val multidex = "2.0.1"
     const val desugaring = "1.1.5"
     const val installReferrer = "2.2"
-    const val navigation = "2.3.5"
+    const val navigation = "2.5.0"
     const val lifecycle = "2.4.1"
     const val camera = "1.0.0-rc04"
     const val cameraView = "1.0.0-alpha23"
@@ -74,8 +74,9 @@ object Versions {
     // SqlDelight
     const val sqlDelight = "1.5.0"
 
-    const val koin = "3.2.2"
-    const val koinAndroid = "3.3.0"
+    const val koin = "3.3.2"
+    const val koinAndroid = "3.3.1"
+    const val koinCompose = "3.3.0"
     const val rxJava = "3.0.7"
     const val rxKotlin = "3.0.1"
     const val rxAndroid = "3.0.0"
@@ -178,8 +179,9 @@ object Versions {
     const val turbine = "0.8.0"
     const val mockk = "1.12.2"
     const val hamcrestJunit = "2.0.0.0"
-    const val junit = "4.12"
-    const val robolectric = "4.4"
+    const val junit = "4.13.2"
+    const val robolectric = "4.9"
+
     const val json = "20140107"
     const val espresso = "3.2.0"
     const val androidxTesting = "1.3.0"
@@ -278,7 +280,7 @@ object Libraries {
     const val koinAndroid = "io.insert-koin:koin-android:${Versions.koinAndroid}"
     const val koinTest = "io.insert-koin:koin-test:${Versions.koin}"
     const val koinTestJunit = "io.insert-koin:koin-test-junit4:${Versions.koin}"
-    const val koinCompose = "io.insert-koin:koin-androidx-compose:${Versions.koinAndroid}"
+    const val koinCompose = "io.insert-koin:koin-androidx-compose:${Versions.koinCompose}"
     const val glide = "com.github.bumptech.glide:glide:${Versions.glide}"
     const val glideAnnotations = "com.github.bumptech.glide:compiler:${Versions.glide}"
     const val chuckerDebug = "com.github.chuckerteam.chucker:library:${Versions.chucker}"
@@ -297,6 +299,8 @@ object Libraries {
     const val bitcoinj = "org.bitcoinj:bitcoinj-core:${Versions.bitcoinj}"
     const val web3j = "org.web3j:core:${Versions.web3j}"
     const val walletConnect = "com.github.TrustWallet:wallet-connect-kotlin:${Versions.walletConnect}"
+    const val walletConnectV2Web3Wallet = "com.walletconnect:web3wallet:1.7.1"
+    const val walletConnectV2AndroidCore = "com.walletconnect:android-core:1.14.1"
     const val spongyCastle = "com.madgag.spongycastle:prov:${Versions.spongycastle}"
     const val jjwt = "io.jsonwebtoken:jjwt:${Versions.jjwt}"
     const val lambdaWorks = "com.lambdaworks:codec:${Versions.lambdaWorks}"

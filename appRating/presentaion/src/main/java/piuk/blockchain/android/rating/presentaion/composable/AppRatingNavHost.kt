@@ -14,7 +14,6 @@ import piuk.blockchain.android.rating.presentaion.AppRatingViewModel
 
 @Composable
 fun AppRatingNavHost(viewModel: AppRatingViewModel, appRatingTriggerSource: AppRatingTriggerSource) {
-
     viewModel.viewCreated(appRatingTriggerSource)
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -28,7 +27,7 @@ fun AppRatingNavHost(viewModel: AppRatingViewModel, appRatingTriggerSource: AppR
         navigationRouter = AppRatingNavigationRouter(
             navController = rememberNavController()
         ),
-        startDestination = AppRatingDestination.Stars,
+        startDestination = AppRatingDestination.Stars
     ) {
         // Rating Stars
         appRatingStarsDestination(viewModel)

@@ -51,9 +51,8 @@ fun Button(
     pressedBackgroundTimeShown: Long = 250L,
     isDarkTheme: Boolean = isSystemInDarkTheme(),
     icon: ImageResource = ImageResource.None,
-    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
+    contentPadding: PaddingValues = ButtonDefaults.ContentPadding
 ) {
-
     val interactionSource = remember { MutableInteractionSource() }
 
     var backgroundColor by remember(state, isDarkTheme) {
@@ -75,7 +74,6 @@ fun Button(
     }
 
     LaunchedEffect(interactionSource, state, isDarkTheme) {
-
         fun cancel() {
             backgroundColor = if (isDarkTheme) {
                 defaultBackgroundDarkColor
@@ -96,7 +94,7 @@ fun Button(
             },
             onCancel = {
                 cancel()
-            },
+            }
         )
     }
 
@@ -113,7 +111,7 @@ fun Button(
                 backgroundColor = animateColorAsState(targetValue = backgroundColor).value,
                 contentColor = Color.Unspecified,
                 disabledBackgroundColor = animateColorAsState(targetValue = disabledBackgroundColor).value,
-                disabledContentColor = Color.Unspecified,
+                disabledContentColor = Color.Unspecified
             ),
             contentPadding = contentPadding,
             elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
@@ -123,7 +121,7 @@ fun Button(
                     textColor = defaultTextColor,
                     text = text,
                     textAlpha = textAlpha,
-                    icon = icon,
+                    icon = icon
                 )
             }
         )

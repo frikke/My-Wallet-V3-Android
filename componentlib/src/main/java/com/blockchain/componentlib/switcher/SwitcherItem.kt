@@ -30,7 +30,7 @@ import com.blockchain.componentlib.theme.AppTheme
 @Stable
 data class SwitcherItemIndicator(
     val size: Dp = 8.dp,
-    val color: Color,
+    val color: Color
 )
 
 @Composable
@@ -44,7 +44,7 @@ fun SwitcherItem(
     ),
     state: SwitcherState = SwitcherState.Enabled,
     indicator: SwitcherItemIndicator? = null,
-    onClick: () -> Unit,
+    onClick: () -> Unit
 ) {
     val textColor = when (state) {
         SwitcherState.Enabled -> AppTheme.colors.title
@@ -68,7 +68,7 @@ fun SwitcherItem(
                     }
                     .padding(
                         vertical = AppTheme.dimensions.smallestSpacing,
-                        horizontal = AppTheme.dimensions.smallSpacing,
+                        horizontal = AppTheme.dimensions.smallSpacing
                     ),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -84,7 +84,7 @@ fun SwitcherItem(
                 Text(
                     text = text,
                     style = AppTheme.typography.body1,
-                    color = textColor,
+                    color = textColor
                 )
 
                 endIcon?.let {
@@ -104,7 +104,7 @@ fun SwitcherItem(
                     .padding(top = 3.dp)
                     .align(Alignment.TopEnd),
                 size = indicator.size,
-                color = indicator.color,
+                color = indicator.color
             )
         }
     }
@@ -120,7 +120,7 @@ fun Switcher_preview_enabled_light_mode() {
                 state = SwitcherState.Enabled,
                 startIcon = Icons.Pending,
                 endIcon = ImageResource.Local(R.drawable.ic_arrow_right),
-                onClick = { },
+                onClick = { }
             )
         }
     }
@@ -143,7 +143,7 @@ fun Switcher_preview_disabled_light_mode() {
                     size = 8.dp,
                     color = Color.Red
                 ),
-                onClick = { },
+                onClick = { }
             )
         }
     }
@@ -158,7 +158,7 @@ fun Switcher_preview_enabled_dark_mode() {
                 text = "One Time",
                 state = SwitcherState.Enabled,
                 endIcon = ImageResource.Local(R.drawable.ic_arrow_right),
-                onClick = { },
+                onClick = { }
             )
         }
     }
@@ -173,7 +173,7 @@ fun Switcher_preview_disabled_dark_mode() {
                 text = "One Time",
                 state = SwitcherState.Disabled,
                 endIcon = ImageResource.Local(R.drawable.ic_arrow_right),
-                onClick = { },
+                onClick = { }
             )
         }
     }

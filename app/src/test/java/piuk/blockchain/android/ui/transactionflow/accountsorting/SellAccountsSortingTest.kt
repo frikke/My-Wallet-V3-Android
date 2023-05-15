@@ -34,7 +34,7 @@ class SellAccountsSortingTest {
     @Before
     fun setup() {
         subject = SellAccountsSorting(
-            coincore = coincore,
+            coincore = coincore
         )
     }
 
@@ -56,10 +56,14 @@ class SellAccountsSortingTest {
                     Prices24HrWithDelta(
                         1.0,
                         ExchangeRate(
-                            BigDecimal.ONE, CryptoCurrency.ETHER, FiatCurrency.Dollars
+                            BigDecimal.ONE,
+                            CryptoCurrency.ETHER,
+                            FiatCurrency.Dollars
                         ),
                         ExchangeRate(
-                            BigDecimal.ONE, CryptoCurrency.ETHER, FiatCurrency.Dollars
+                            BigDecimal.ONE,
+                            CryptoCurrency.ETHER,
+                            FiatCurrency.Dollars
                         )
                     )
                 )
@@ -72,10 +76,14 @@ class SellAccountsSortingTest {
                     Prices24HrWithDelta(
                         1.0,
                         ExchangeRate(
-                            BigDecimal.ONE, CryptoCurrency.BTC, FiatCurrency.Dollars
+                            BigDecimal.ONE,
+                            CryptoCurrency.BTC,
+                            FiatCurrency.Dollars
                         ),
                         ExchangeRate(
-                            BigDecimal.ONE, CryptoCurrency.BTC, FiatCurrency.Dollars
+                            BigDecimal.ONE,
+                            CryptoCurrency.BTC,
+                            FiatCurrency.Dollars
                         )
                     )
                 )
@@ -100,7 +108,8 @@ class SellAccountsSortingTest {
                         TradingAccountBalance(
                             total = Money.fromMinor(CryptoCurrency.ETHER, BigInteger.valueOf(ETH_HIGH_BALANCE)),
                             dashboardDisplay = Money.fromMinor(
-                                CryptoCurrency.ETHER, BigInteger.valueOf(ETH_HIGH_BALANCE)
+                                CryptoCurrency.ETHER,
+                                BigInteger.valueOf(ETH_HIGH_BALANCE)
                             ),
                             withdrawable = mock(),
                             pending = mock(),
@@ -129,7 +138,8 @@ class SellAccountsSortingTest {
                         TradingAccountBalance(
                             total = Money.fromMinor(CryptoCurrency.BTC, BigInteger.valueOf(BTC_HIGH_BALANCE)),
                             dashboardDisplay = Money.fromMinor(
-                                CryptoCurrency.BTC, BigInteger.valueOf(BTC_HIGH_BALANCE)
+                                CryptoCurrency.BTC,
+                                BigInteger.valueOf(BTC_HIGH_BALANCE)
                             ),
                             withdrawable = mock(),
                             pending = mock(),
@@ -175,10 +185,14 @@ class SellAccountsSortingTest {
                     Prices24HrWithDelta(
                         1.0,
                         ExchangeRate(
-                            BigDecimal.ONE, CryptoCurrency.ETHER, FiatCurrency.Dollars
+                            BigDecimal.ONE,
+                            CryptoCurrency.ETHER,
+                            FiatCurrency.Dollars
                         ),
                         ExchangeRate(
-                            BigDecimal.ONE, CryptoCurrency.ETHER, FiatCurrency.Dollars
+                            BigDecimal.ONE,
+                            CryptoCurrency.ETHER,
+                            FiatCurrency.Dollars
                         )
                     )
                 )
@@ -191,10 +205,14 @@ class SellAccountsSortingTest {
                     Prices24HrWithDelta(
                         1.0,
                         ExchangeRate(
-                            BigDecimal.ONE, CryptoCurrency.BTC, FiatCurrency.Dollars
+                            BigDecimal.ONE,
+                            CryptoCurrency.BTC,
+                            FiatCurrency.Dollars
                         ),
                         ExchangeRate(
-                            BigDecimal.ONE, CryptoCurrency.BTC, FiatCurrency.Dollars
+                            BigDecimal.ONE,
+                            CryptoCurrency.BTC,
+                            FiatCurrency.Dollars
                         )
                     )
                 )
@@ -219,7 +237,8 @@ class SellAccountsSortingTest {
                         TradingAccountBalance(
                             total = Money.fromMinor(CryptoCurrency.ETHER, BigInteger.valueOf(ETH_HIGH_BALANCE)),
                             dashboardDisplay = Money.fromMinor(
-                                CryptoCurrency.ETHER, BigInteger.valueOf(ETH_HIGH_BALANCE)
+                                CryptoCurrency.ETHER,
+                                BigInteger.valueOf(ETH_HIGH_BALANCE)
                             ),
                             withdrawable = mock(),
                             pending = mock(),
@@ -248,7 +267,8 @@ class SellAccountsSortingTest {
                         TradingAccountBalance(
                             total = Money.fromMinor(CryptoCurrency.ETHER, BigInteger.valueOf(ETH_LOW_BALANCE)),
                             dashboardDisplay = Money.fromMinor(
-                                CryptoCurrency.ETHER, BigInteger.valueOf(ETH_LOW_BALANCE)
+                                CryptoCurrency.ETHER,
+                                BigInteger.valueOf(ETH_LOW_BALANCE)
                             ),
                             withdrawable = mock(),
                             pending = mock(),
@@ -277,7 +297,8 @@ class SellAccountsSortingTest {
                         TradingAccountBalance(
                             total = Money.fromMinor(CryptoCurrency.BTC, BigInteger.valueOf(BTC_HIGH_BALANCE)),
                             dashboardDisplay = Money.fromMinor(
-                                CryptoCurrency.BTC, BigInteger.valueOf(BTC_HIGH_BALANCE)
+                                CryptoCurrency.BTC,
+                                BigInteger.valueOf(BTC_HIGH_BALANCE)
                             ),
                             withdrawable = mock(),
                             pending = mock(),

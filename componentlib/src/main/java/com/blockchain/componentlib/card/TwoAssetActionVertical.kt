@@ -38,7 +38,7 @@ fun TwoAssetAction(
     bottomSubtitle: String,
     bottomEndTitle: String,
     bottomEndSubtitle: String,
-    bottomIcon: StackedIcon,
+    bottomIcon: StackedIcon
 ) {
     Box {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -72,7 +72,7 @@ fun TwoAssetAction(
                 imageResource = Icons.ArrowDown.withBackground(
                     backgroundColor = Color.White,
                     backgroundSize = AppTheme.dimensions.standardSpacing,
-                    iconSize = AppTheme.dimensions.standardSpacing,
+                    iconSize = AppTheme.dimensions.standardSpacing
                 )
             )
         }
@@ -102,7 +102,7 @@ private fun Asset(
             SmallHorizontalSpacer()
 
             Column(
-                modifier = Modifier.weight(weight = 1F, fill = true),
+                modifier = Modifier.weight(weight = 1F, fill = true)
             ) {
                 Text(
                     text = title,
@@ -120,7 +120,7 @@ private fun Asset(
             SmallHorizontalSpacer()
 
             Column(
-                horizontalAlignment = Alignment.End,
+                horizontalAlignment = Alignment.End
             ) {
                 Text(
                     text = endTitle,
@@ -151,7 +151,7 @@ private fun PreviewTwoAssetAction() {
         bottomSubtitle = "Bitcoin",
         bottomEndTitle = "0.00350795 BTC",
         bottomEndSubtitle = "96.99",
-        bottomIcon = StackedIcon.SingleIcon(Icons.Receive),
+        bottomIcon = StackedIcon.SingleIcon(Icons.Receive)
     )
 }
 

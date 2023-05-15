@@ -39,7 +39,7 @@ internal fun RecurringBuyActivitySummaryItem.iconDetail(): ImageResource {
 }
 
 internal fun RecurringBuyActivitySummaryItem.title(): TextValue = TextValue.IntResValue(
-    value = R.string.tx_title_bought,
+    value = com.blockchain.stringResources.R.string.tx_title_bought,
     args = listOf(account.currency.displayTicker)
 )
 
@@ -55,7 +55,7 @@ internal fun RecurringBuyActivitySummaryItem.detailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.amount),
+                        value = TextValue.IntResValue(com.blockchain.stringResources.R.string.amount),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -77,7 +77,7 @@ internal fun RecurringBuyActivitySummaryItem.detailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.activity_details_buy_fee),
+                        value = TextValue.IntResValue(com.blockchain.stringResources.R.string.activity_details_buy_fee),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -93,7 +93,7 @@ internal fun RecurringBuyActivitySummaryItem.detailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.common_total),
+                        value = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_total),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -118,7 +118,7 @@ internal fun RecurringBuyActivitySummaryItem.detailItems(
                 id = toString(),
                 leading = listOfNotNull(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.common_status),
+                        value = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_status),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -151,7 +151,7 @@ internal fun RecurringBuyActivitySummaryItem.detailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.date),
+                        value = TextValue.IntResValue(com.blockchain.stringResources.R.string.date),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -168,7 +168,9 @@ internal fun RecurringBuyActivitySummaryItem.detailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.activity_details_buy_tx_id),
+                        value = TextValue.IntResValue(
+                            com.blockchain.stringResources.R.string.activity_details_buy_tx_id
+                        ),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -183,7 +185,7 @@ internal fun RecurringBuyActivitySummaryItem.detailItems(
             // copy txid
             ActivityComponent.Button(
                 id = toString(),
-                value = TextValue.IntResValue(R.string.activity_details_copy_tx_id),
+                value = TextValue.IntResValue(com.blockchain.stringResources.R.string.activity_details_copy_tx_id),
                 style = ActivityButtonStyle.Tertiary,
                 action = ActivityButtonAction(
                     type = ActivityButtonAction.ActivityButtonActionType.Copy,
@@ -196,12 +198,12 @@ internal fun RecurringBuyActivitySummaryItem.detailItems(
 
 @StringRes fun RecurringBuyFrequency.title(): Int {
     return when (this) {
-        RecurringBuyFrequency.ONE_TIME -> R.string.recurring_buy_one_time_selector
-        RecurringBuyFrequency.DAILY -> R.string.recurring_buy_daily_1
-        RecurringBuyFrequency.WEEKLY -> R.string.recurring_buy_weekly_1
-        RecurringBuyFrequency.BI_WEEKLY -> R.string.recurring_buy_bi_weekly_1
-        RecurringBuyFrequency.MONTHLY -> R.string.recurring_buy_monthly_1
-        else -> R.string.common_unknown
+        RecurringBuyFrequency.ONE_TIME -> com.blockchain.stringResources.R.string.recurring_buy_one_time_selector
+        RecurringBuyFrequency.DAILY -> com.blockchain.stringResources.R.string.recurring_buy_daily_1
+        RecurringBuyFrequency.WEEKLY -> com.blockchain.stringResources.R.string.recurring_buy_weekly_1
+        RecurringBuyFrequency.BI_WEEKLY -> com.blockchain.stringResources.R.string.recurring_buy_bi_weekly_1
+        RecurringBuyFrequency.MONTHLY -> com.blockchain.stringResources.R.string.recurring_buy_monthly_1
+        else -> com.blockchain.stringResources.R.string.common_unknown
     }
 }
 
@@ -214,13 +216,13 @@ fun RecurringBuyFrequency.value(date: Date): TextValue {
     return when (this) {
         RecurringBuyFrequency.DAILY -> {
             TextValue.IntResValue(
-                value = R.string.recurring_buy_frequency_subtitle_each_day,
+                value = com.blockchain.stringResources.R.string.recurring_buy_frequency_subtitle_each_day,
                 args = listOf(dateTime.to12HourFormat())
             )
         }
         RecurringBuyFrequency.BI_WEEKLY, RecurringBuyFrequency.WEEKLY -> {
             TextValue.IntResValue(
-                value = R.string.recurring_buy_frequency_subtitle,
+                value = com.blockchain.stringResources.R.string.recurring_buy_frequency_subtitle,
                 args = listOf(
                     dateTime.dayOfWeek
                         .getDisplayName(TextStyle.FULL, Locale.getDefault())
@@ -230,10 +232,12 @@ fun RecurringBuyFrequency.value(date: Date): TextValue {
         }
         RecurringBuyFrequency.MONTHLY -> {
             if (dateTime.isLastDayOfTheMonth()) {
-                TextValue.IntResValue(R.string.recurring_buy_frequency_subtitle_monthly_last_day)
+                TextValue.IntResValue(
+                    com.blockchain.stringResources.R.string.recurring_buy_frequency_subtitle_monthly_last_day
+                )
             } else {
                 TextValue.IntResValue(
-                    value = R.string.recurring_buy_frequency_subtitle_monthly,
+                    value = com.blockchain.stringResources.R.string.recurring_buy_frequency_subtitle_monthly,
                     args = listOf(dateTime.dayOfMonth.toString())
                 )
             }
@@ -245,15 +249,15 @@ fun RecurringBuyFrequency.value(date: Date): TextValue {
 
 private fun RecurringBuyActivitySummaryItem.statusValue(): TextValue = TextValue.IntResValue(
     when (transactionState) {
-        OrderState.FINISHED -> R.string.activity_details_label_complete
+        OrderState.FINISHED -> com.blockchain.stringResources.R.string.activity_details_label_complete
         OrderState.PENDING_CONFIRMATION,
         OrderState.PENDING_EXECUTION,
-        OrderState.AWAITING_FUNDS -> R.string.activity_details_label_confirming
-        OrderState.CANCELED -> R.string.activity_details_label_cancelled
+        OrderState.AWAITING_FUNDS -> com.blockchain.stringResources.R.string.activity_details_label_confirming
+        OrderState.CANCELED -> com.blockchain.stringResources.R.string.activity_details_label_cancelled
         OrderState.UNINITIALISED,
         OrderState.INITIALISED,
         OrderState.UNKNOWN,
-        OrderState.FAILED -> R.string.activity_details_label_failed
+        OrderState.FAILED -> com.blockchain.stringResources.R.string.activity_details_label_failed
     }
 )
 
@@ -276,19 +280,21 @@ internal fun RecurringBuyActivitySummaryItem.buildActivityDetail(
     val rbExtras = recurringBuy?.let {
         mapOf(
             CustodialActivityDetailExtraKey.NextPaymentDate to CustodialActivityDetailExtra(
-                title = TextValue.IntResValue(R.string.recurring_buy_details_next_payment),
+                title = TextValue.IntResValue(
+                    com.blockchain.stringResources.R.string.recurring_buy_details_next_payment
+                ),
                 value = TextValue.StringValue(recurringBuy.nextPaymentDate.toFormattedString())
             ),
             CustodialActivityDetailExtraKey.Frequency to CustodialActivityDetailExtra(
-                title = TextValue.IntResValue(R.string.recurring_buy_frequency_label_1),
+                title = TextValue.IntResValue(com.blockchain.stringResources.R.string.recurring_buy_frequency_label_1),
                 value = TextValue.IntResValue(
-                    value = R.string.common_spaced_strings,
+                    value = com.blockchain.stringResources.R.string.common_spaced_strings,
                     args = listOf(
                         recurringBuy.recurringBuyFrequency.title(),
                         recurringBuy.recurringBuyFrequency.value(recurringBuy.nextPaymentDate)
                     )
                 )
-            ),
+            )
         )
     } ?: emptyMap()
 

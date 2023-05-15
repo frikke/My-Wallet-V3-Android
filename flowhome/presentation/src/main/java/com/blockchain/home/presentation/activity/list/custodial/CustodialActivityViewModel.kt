@@ -39,14 +39,14 @@ class CustodialActivityViewModel(
     ActivityViewState,
     ActivityModelState<CustodialTransaction>,
     HomeNavEvent,
-    ModelConfigArgs.NoArgs>(ActivityModelState(walletMode = WalletMode.CUSTODIAL)) {
+    ModelConfigArgs.NoArgs
+    >(ActivityModelState(walletMode = WalletMode.CUSTODIAL)) {
 
     private var activityJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
     override fun reduce(state: ActivityModelState<CustodialTransaction>): ActivityViewState = state.run {
-
         ActivityViewState(
             activity = state.activityItems
                 .filter { activityItem ->

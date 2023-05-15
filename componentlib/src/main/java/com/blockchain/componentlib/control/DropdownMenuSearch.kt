@@ -31,7 +31,7 @@ fun DropdownMenuSearch(
     onValueChange: (TextFieldValue) -> Unit,
     initialSuggestions: List<String>,
     label: String? = null,
-    state: TextInputState = TextInputState.Default(""),
+    state: TextInputState = TextInputState.Default("")
 ) {
     var expanded by remember { mutableStateOf(false) }
     var textFieldValueState by remember { mutableStateOf(value) }
@@ -40,8 +40,9 @@ fun DropdownMenuSearch(
     if (interactionSource.collectIsPressedAsState().value) expanded = true
 
     var trailingIcon =
-        if (textFieldValueState.text.isEmpty()) ImageResource.None
-        else ImageResource.Local(R.drawable.ic_close)
+        if (textFieldValueState.text.isEmpty()) {
+            ImageResource.None
+        } else ImageResource.Local(R.drawable.ic_close)
 
     Column {
         TextInput(

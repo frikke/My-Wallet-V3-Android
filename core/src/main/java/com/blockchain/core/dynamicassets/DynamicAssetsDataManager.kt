@@ -10,6 +10,7 @@ typealias FiatAssetList = List<FiatCurrency>
 
 interface DynamicAssetsDataManager {
     fun availableFiatAssets(): Single<FiatAssetList>
+
     @Deprecated("use flow AssetService:getAssetInformation")
     fun getAssetInformation(asset: AssetInfo): Single<DetailedAssetInformation>
 }

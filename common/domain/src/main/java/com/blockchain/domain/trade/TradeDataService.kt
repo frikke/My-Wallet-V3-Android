@@ -15,18 +15,18 @@ interface TradeDataService {
     suspend fun getBuyQuotePrice(
         currencyPair: CurrencyPair,
         amount: Money,
-        paymentMethod: PaymentMethodType,
+        paymentMethod: PaymentMethodType
     ): Outcome<Exception, QuotePrice>
 
     suspend fun getSellQuotePrice(
         currencyPair: CurrencyPair,
         amount: Money,
-        direction: TransferDirection,
+        direction: TransferDirection
     ): Outcome<Exception, QuotePrice>
 
     suspend fun getSwapQuotePrice(
         currencyPair: CurrencyPair,
         amount: Money,
-        direction: TransferDirection,
+        direction: TransferDirection
     ): Outcome<Exception, QuotePrice>
 }

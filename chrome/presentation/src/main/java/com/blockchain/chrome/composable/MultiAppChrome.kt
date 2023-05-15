@@ -82,6 +82,7 @@ import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.prices.navigation.PricesNavigation
+import com.blockchain.walletconnect.ui.navigation.WalletConnectV2Navigation
 import com.blockchain.walletmode.WalletMode
 import kotlin.math.min
 import kotlinx.collections.immutable.ImmutableList
@@ -127,6 +128,7 @@ fun MultiAppChrome(
     pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
     supportNavigation: SupportNavigation,
+    walletConnectV2Navigation: WalletConnectV2Navigation,
     openActivity: () -> Unit,
     openActivityDetail: (String, WalletMode) -> Unit,
     openReferral: () -> Unit,
@@ -140,7 +142,7 @@ fun MultiAppChrome(
     openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
-    openSwap: () -> Unit,
+    openSwap: () -> Unit
 ) {
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(MultiAppIntents.LoadData)
@@ -205,6 +207,7 @@ fun MultiAppChrome(
             pricesNavigation = pricesNavigation,
             qrScanNavigation = qrScanNavigation,
             supportNavigation = supportNavigation,
+            walletConnectV2Navigation = walletConnectV2Navigation,
             onBalanceRevealed = {
                 viewModel.onIntent(MultiAppIntents.BalanceRevealed)
             },
@@ -217,7 +220,7 @@ fun MultiAppChrome(
             nftNavigation = nftNavigation,
             earnNavigation = earnNavigation,
             processAnnouncementUrl = processAnnouncementUrl,
-            openSwap = openSwap,
+            openSwap = openSwap
         )
     }
 }
@@ -246,6 +249,7 @@ fun MultiAppChromeScreen(
     pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
     supportNavigation: SupportNavigation,
+    walletConnectV2Navigation: WalletConnectV2Navigation,
     openActivity: () -> Unit,
     openActivityDetail: (String, WalletMode) -> Unit,
     openReferral: () -> Unit,
@@ -401,7 +405,6 @@ fun MultiAppChromeScreen(
 
     fun revealBalance() {
         if (toolbarState.isBalanceRevealInProgress.not()) {
-
             toolbarState.isBalanceRevealInProgress = true
             isRevealingTargetBalance = true
 
@@ -418,7 +421,6 @@ fun MultiAppChromeScreen(
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-
                 if (toolbarState.isPullToRefreshSwipeInProgress) {
                     toolbarState.isInteractingWithPullToRefresh = true
                     // let pull to refresh consume the scroll
@@ -623,7 +625,6 @@ fun MultiAppChromeScreen(
                 .fillMaxSize()
                 .nestedScroll(nestedScrollConnection)
         ) {
-
             // /// header
             Column(
                 modifier = Modifier
@@ -793,6 +794,7 @@ fun MultiAppChromeScreen(
                     navController = graphNavController,
                     qrScanNavigation = qrScanNavigation,
                     supportNavigation = supportNavigation,
+                    walletConnectV2Navigation = walletConnectV2Navigation,
                     startPhraseRecovery = startPhraseRecovery,
                     openExternalUrl = openExternalUrl,
                     openNftHelp = openNftHelp,
@@ -800,7 +802,7 @@ fun MultiAppChromeScreen(
                     nftNavigation = nftNavigation,
                     earnNavigation = earnNavigation,
                     processAnnouncementUrl = processAnnouncementUrl,
-                    openSwap = openSwap,
+                    openSwap = openSwap
                 )
             }
 

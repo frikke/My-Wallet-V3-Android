@@ -72,7 +72,6 @@ import piuk.blockchain.android.ui.brokerage.brokeragePresentationModule
 import piuk.blockchain.android.ui.coinview.domain.coinviewDomainModule
 import piuk.blockchain.android.ui.coinview.presentation.coinviewPresentationModule
 import piuk.blockchain.android.ui.customersupport.customerSupportModule
-import piuk.blockchain.android.ui.dashboard.announcements.dashboardAnnouncementsModule
 import piuk.blockchain.android.ui.dashboard.dashboardModule
 import piuk.blockchain.android.ui.debug.remoteFeatureFlagsModule
 import piuk.blockchain.android.ui.home.mainModule
@@ -135,7 +134,6 @@ object KoinStarter {
                     coreModule,
                     coreAndroidModule,
                     pricesModule,
-                    dashboardAnnouncementsModule,
                     environmentModule,
                     coinviewPresentationModule, coinviewDomainModule,
                     brokeragePresentationModule,
@@ -185,7 +183,7 @@ object KoinStarter {
                     earnDataModule, earnPresentationModule,
                     pricesDataModule,
                     proveModule,
-                    transactionsPresentationModule, transactionsDataModule,
+                    transactionsPresentationModule, transactionsDataModule
                 )
             )
         }
@@ -193,7 +191,7 @@ object KoinStarter {
 }
 
 private class TimberLogger : Logger() {
-    override fun log(level: Level, msg: MESSAGE) {
+    override fun display(level: Level, msg: MESSAGE) {
         when (level) {
             Level.DEBUG -> Timber.d(msg)
             Level.INFO -> Timber.i(msg)
@@ -205,5 +203,5 @@ private class TimberLogger : Logger() {
 }
 
 private class NullLogger : Logger() {
-    override fun log(level: Level, msg: MESSAGE) {}
+    override fun display(level: Level, msg: MESSAGE) {}
 }

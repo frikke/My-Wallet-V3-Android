@@ -26,8 +26,8 @@ internal class DynamicSelfCustodyAsset(
 ) : CryptoAssetBase() {
 
     /*
-    * The logic is that we support non custodial accounts for STX + any other currency that user has a balance
-    * */
+     * The logic is that we support non custodial accounts for STX + any other currency that user has a balance
+     * */
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
         selfCustodyService.getCoinTypeFor(currency).zipWith(
             historicActiveBalancesRepository.currencyWasFunded(currency).toMaybe()
@@ -35,9 +35,10 @@ internal class DynamicSelfCustodyAsset(
             coinType to isFunded
         }.map { (coinType, isFunded) ->
             if (currency.networkTicker.equals(
-                    "STX", true
+                    "STX",
+                    true
                 ) || isFunded
-            )
+            ) {
                 listOf(
                     DynamicNonCustodialAccount(
                         payloadManager,
@@ -49,7 +50,10 @@ internal class DynamicSelfCustodyAsset(
                         labels.getDefaultNonCustodialWalletLabel(),
                         walletPreferences
                     )
-                ) else emptyList()
+                )
+            } else {
+                emptyList()
+            }
         }.onErrorReturn {
             emptyList()
         }.switchIfEmpty(Single.just(emptyList()))

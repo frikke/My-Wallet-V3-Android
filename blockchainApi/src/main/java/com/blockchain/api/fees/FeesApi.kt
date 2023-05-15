@@ -12,6 +12,6 @@ internal interface FeesApi {
         @Query("currency") currency: String,
         @Query("fiatCurrency") fiatCurrency: String,
         @Query("amount") amount: String,
-        @Query("max") max: Boolean,
+        @Query("max") max: Boolean
     ): Single<WithdrawFeesAndMinLimitResponse>
 }

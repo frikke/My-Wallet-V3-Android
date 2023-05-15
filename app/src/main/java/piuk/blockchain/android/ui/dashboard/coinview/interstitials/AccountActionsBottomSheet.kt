@@ -129,22 +129,34 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                             endTag = when (selectedAccount) {
                                 is EarnRewardsAccount.Interest -> {
                                     TagViewState(
-                                        getString(R.string.actions_sheet_percentage_rate, interestRate.toString()),
+                                        getString(
+                                            com.blockchain.stringResources.R.string.actions_sheet_percentage_rate,
+                                            interestRate.toString()
+                                        ),
                                         TagType.Success()
                                     )
                                 }
+
                                 is EarnRewardsAccount.Staking -> {
                                     TagViewState(
-                                        getString(R.string.actions_sheet_percentage_rate, stakingRate.toString()),
+                                        getString(
+                                            com.blockchain.stringResources.R.string.actions_sheet_percentage_rate,
+                                            stakingRate.toString()
+                                        ),
                                         TagType.Success()
                                     )
                                 }
+
                                 is EarnRewardsAccount.Active -> {
                                     TagViewState(
-                                        getString(R.string.actions_sheet_percentage_rate, activeRewardsRate.toString()),
+                                        getString(
+                                            com.blockchain.stringResources.R.string.actions_sheet_percentage_rate,
+                                            activeRewardsRate.toString()
+                                        ),
                                         TagType.Success()
                                     )
                                 }
+
                                 else -> null
                             },
                             endImageResource = ImageResource.None,
@@ -174,22 +186,27 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 id = R.drawable.ic_non_custodial_explainer,
                 colorFilter = ColorFilter.tint(color)
             )
+
             is TradingAccount -> ImageResource.Local(
                 id = R.drawable.ic_custodial_explainer,
                 colorFilter = ColorFilter.tint(color)
             )
+
             is EarnRewardsAccount.Interest -> ImageResource.Local(
                 id = R.drawable.ic_rewards_explainer,
                 colorFilter = ColorFilter.tint(color)
             )
+
             is EarnRewardsAccount.Staking -> ImageResource.Local(
                 id = R.drawable.ic_staking_explainer,
                 colorFilter = ColorFilter.tint(color)
             )
+
             is EarnRewardsAccount.Active -> ImageResource.Local(
                 id = R.drawable.ic_active_rewards_explainer,
                 colorFilter = ColorFilter.tint(color)
             )
+
             else -> ImageResource.None
         }
 
@@ -220,24 +237,28 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 onClick = when (stateActionData.state) {
                     ActionState.Unavailable,
                     ActionState.LockedDueToAvailability -> noOp
+
                     ActionState.LockedForBalance -> {
                         {
                             host.showBalanceUpsellSheet(item)
                             dismiss()
                         }
                     }
+
                     ActionState.LockedForTier -> {
                         {
                             host.showUpgradeKycSheet()
                             dismiss()
                         }
                     }
+
                     is ActionState.LockedDueToSanctions -> {
                         {
                             host.showSanctionsSheet(stateActionData.state.reason)
                             dismiss()
                         }
                     }
+
                     ActionState.Available -> item.actionCta
                 }
             )
@@ -264,6 +285,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 hasWarning = false,
                 imageResource = Icons.ChevronRight.withTint(Grey400)
             )
+
             else -> ActionData(
                 state = state,
                 hasWarning = false,
@@ -279,22 +301,23 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         return when (stateAwareAction.action) {
             AssetAction.ViewActivity ->
                 AssetActionItem(
-                    title = getString(R.string.activities_title),
-                    icon = R.drawable.ic_tx_activity_clock,
-                    description = getString(R.string.fiat_funds_detail_activity_details),
+                    title = getString(com.blockchain.stringResources.R.string.activities_title),
+                    icon = com.blockchain.common.R.drawable.ic_tx_activity_clock,
+                    description = getString(com.blockchain.stringResources.R.string.fiat_funds_detail_activity_details),
                     asset = asset,
                     action = stateAwareAction
                 ) {
                     logActionEvent(AssetDetailsAnalytics.ACTIVITY_CLICKED, asset)
                     processAction(AssetAction.ViewActivity)
                 }
+
             AssetAction.Send ->
                 AssetActionItem(
                     account = account,
-                    title = getString(R.string.common_send),
+                    title = getString(com.blockchain.stringResources.R.string.common_send),
                     icon = Icons.Send.id,
                     description = getString(
-                        R.string.dashboard_asset_actions_send_dsc,
+                        com.blockchain.stringResources.R.string.dashboard_asset_actions_send_dsc,
                         asset.displayTicker
                     ),
                     asset = asset,
@@ -310,12 +333,13 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                     )
                     processAction(AssetAction.Send)
                 }
+
             AssetAction.Receive ->
                 AssetActionItem(
-                    title = getString(R.string.common_receive),
+                    title = getString(com.blockchain.stringResources.R.string.common_receive),
                     icon = Icons.Receive.id,
                     description = getString(
-                        R.string.dashboard_asset_actions_receive_dsc,
+                        com.blockchain.stringResources.R.string.dashboard_asset_actions_receive_dsc,
                         asset.displayTicker
                     ),
                     asset = asset,
@@ -330,23 +354,30 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                     )
                     processAction(AssetAction.Receive)
                 }
+
             AssetAction.Swap -> AssetActionItem(
                 account = account,
-                title = getString(R.string.common_swap),
+                title = getString(com.blockchain.stringResources.R.string.common_swap),
                 icon = Icons.Swap.id,
                 description = getString(
-                    R.string.dashboard_asset_actions_swap_dsc, asset.displayTicker
+                    com.blockchain.stringResources.R.string.dashboard_asset_actions_swap_dsc,
+                    asset.displayTicker
                 ),
-                asset = asset, action = stateAwareAction
+                asset = asset,
+                action = stateAwareAction
             ) {
                 logActionEvent(AssetDetailsAnalytics.SWAP_CLICKED, asset)
                 processAction(AssetAction.Swap)
             }
+
             AssetAction.ViewStatement -> getViewStatementActionItemForAccount(asset, stateAwareAction, selectedAccount)
             AssetAction.InterestDeposit -> AssetActionItem(
-                title = getString(R.string.dashboard_asset_actions_add_title),
+                title = getString(com.blockchain.stringResources.R.string.dashboard_asset_actions_add_title),
                 icon = Icons.Receive.id,
-                description = getString(R.string.dashboard_asset_actions_add_dsc, asset.displayTicker),
+                description = getString(
+                    com.blockchain.stringResources.R.string.dashboard_asset_actions_add_dsc,
+                    asset.displayTicker
+                ),
                 asset = asset,
                 action = stateAwareAction
             ) {
@@ -358,10 +389,14 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 )
                 processAction(AssetAction.InterestDeposit)
             }
+
             AssetAction.InterestWithdraw -> AssetActionItem(
-                title = getString(R.string.common_cash_out),
+                title = getString(com.blockchain.stringResources.R.string.common_cash_out),
                 icon = Icons.Send.id,
-                description = getString(R.string.dashboard_asset_actions_withdraw_dsc_1, asset.displayTicker),
+                description = getString(
+                    com.blockchain.stringResources.R.string.dashboard_asset_actions_withdraw_dsc_1,
+                    asset.displayTicker
+                ),
                 asset = asset,
                 action = stateAwareAction
             ) {
@@ -373,29 +408,38 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 )
                 processAction(AssetAction.InterestWithdraw)
             }
+
             AssetAction.Sell -> AssetActionItem(
-                title = getString(R.string.common_sell),
+                title = getString(com.blockchain.stringResources.R.string.common_sell),
                 icon = Icons.Minus.id,
-                description = getString(R.string.convert_your_crypto_to_cash),
+                description = getString(com.blockchain.stringResources.R.string.convert_your_crypto_to_cash),
                 asset = asset,
                 action = stateAwareAction
             ) {
                 logActionEvent(AssetDetailsAnalytics.SELL_CLICKED, asset)
                 processAction(AssetAction.Sell)
             }
+
             AssetAction.Buy -> AssetActionItem(
-                title = getString(R.string.common_buy),
+                title = getString(com.blockchain.stringResources.R.string.common_buy),
                 icon = Icons.Plus.id,
-                description = getString(R.string.dashboard_asset_actions_buy_dsc, asset.displayTicker),
+                description = getString(
+                    com.blockchain.stringResources.R.string.dashboard_asset_actions_buy_dsc,
+                    asset.displayTicker
+                ),
                 asset = asset,
                 action = stateAwareAction
             ) {
                 processAction(AssetAction.Buy)
             }
+
             AssetAction.StakingDeposit -> AssetActionItem(
-                title = getString(R.string.dashboard_asset_actions_add_title),
+                title = getString(com.blockchain.stringResources.R.string.dashboard_asset_actions_add_title),
                 icon = Icons.Receive.id,
-                description = getString(R.string.dashboard_asset_actions_add_staking_dsc, asset.displayTicker),
+                description = getString(
+                    com.blockchain.stringResources.R.string.dashboard_asset_actions_add_staking_dsc,
+                    asset.displayTicker
+                ),
                 asset = asset,
                 action = stateAwareAction
             ) {
@@ -407,10 +451,14 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 )
                 processAction(AssetAction.StakingDeposit)
             }
+
             AssetAction.StakingWithdraw -> AssetActionItem(
-                title = getString(R.string.common_cash_out),
+                title = getString(com.blockchain.stringResources.R.string.common_cash_out),
                 icon = Icons.Send.id,
-                description = getString(R.string.dashboard_asset_actions_withdraw_dsc_1, asset.displayTicker),
+                description = getString(
+                    com.blockchain.stringResources.R.string.dashboard_asset_actions_withdraw_dsc_1,
+                    asset.displayTicker
+                ),
                 asset = asset,
                 action = stateAwareAction
             ) {
@@ -422,10 +470,14 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 )
                 processAction(AssetAction.StakingWithdraw)
             }
+
             AssetAction.ActiveRewardsDeposit -> AssetActionItem(
-                title = getString(R.string.dashboard_asset_actions_add_title),
+                title = getString(com.blockchain.stringResources.R.string.dashboard_asset_actions_add_title),
                 icon = Icons.Receive.id,
-                description = getString(R.string.dashboard_asset_actions_add_active_dsc, asset.displayTicker),
+                description = getString(
+                    com.blockchain.stringResources.R.string.dashboard_asset_actions_add_active_dsc,
+                    asset.displayTicker
+                ),
                 asset = asset,
                 action = stateAwareAction
             ) {
@@ -437,10 +489,14 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 )
                 processAction(AssetAction.ActiveRewardsDeposit)
             }
+
             AssetAction.ActiveRewardsWithdraw -> AssetActionItem(
-                title = getString(R.string.common_cash_out),
+                title = getString(com.blockchain.stringResources.R.string.common_cash_out),
                 icon = Icons.Send.id,
-                description = getString(R.string.dashboard_asset_actions_withdraw_dsc_1, asset.displayTicker),
+                description = getString(
+                    com.blockchain.stringResources.R.string.dashboard_asset_actions_withdraw_dsc_1,
+                    asset.displayTicker
+                ),
                 asset = asset,
                 action = stateAwareAction
             ) {
@@ -452,6 +508,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 )
                 processAction(AssetAction.ActiveRewardsWithdraw)
             }
+
             AssetAction.FiatWithdraw -> throw IllegalStateException("Cannot Withdraw a non-fiat currency")
             AssetAction.FiatDeposit -> throw IllegalStateException("Cannot Deposit a non-fiat currency to Fiat")
             AssetAction.Sign -> throw IllegalStateException("Sign action is not supported")
@@ -465,32 +522,41 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
     ): AssetActionItem {
         val title = getString(
             when (selectedAccount) {
-                is EarnRewardsAccount.Interest -> R.string.dashboard_asset_actions_summary_title_1
-                is EarnRewardsAccount.Staking -> R.string.dashboard_asset_actions_summary_staking_title
-                is EarnRewardsAccount.Active -> R.string.dashboard_asset_actions_summary_active_rewards_title
-                else -> R.string.empty
+                is EarnRewardsAccount.Interest ->
+                    com.blockchain.stringResources.R.string.dashboard_asset_actions_summary_title_1
+                is EarnRewardsAccount.Staking ->
+                    com.blockchain.stringResources.R.string.dashboard_asset_actions_summary_staking_title
+                is EarnRewardsAccount.Active ->
+                    com.blockchain.stringResources.R.string.dashboard_asset_actions_summary_active_rewards_title
+                else -> com.blockchain.stringResources.R.string.empty
             }
         )
         val description =
             when (selectedAccount) {
                 is EarnRewardsAccount.Interest -> getString(
-                    R.string.dashboard_asset_actions_summary_dsc_1, asset.displayTicker
+                    com.blockchain.stringResources.R.string.dashboard_asset_actions_summary_dsc_1,
+                    asset.displayTicker
                 )
+
                 is EarnRewardsAccount.Staking -> getString(
-                    R.string.dashboard_asset_actions_summary_staking_dsc, asset.displayTicker
+                    com.blockchain.stringResources.R.string.dashboard_asset_actions_summary_staking_dsc,
+                    asset.displayTicker
                 )
+
                 is EarnRewardsAccount.Active -> getString(
-                    R.string.dashboard_asset_actions_summary_active_rewards_dsc, asset.displayTicker
+                    com.blockchain.stringResources.R.string.dashboard_asset_actions_summary_active_rewards_dsc,
+                    asset.displayTicker
                 )
-                else -> getString(R.string.empty)
+
+                else -> getString(com.blockchain.stringResources.R.string.empty)
             }
 
         val icon =
             when (selectedAccount) {
-                is EarnRewardsAccount.Interest -> R.drawable.ic_tx_interest
-                is EarnRewardsAccount.Staking -> R.drawable.ic_tx_interest
-                is EarnRewardsAccount.Active -> R.drawable.ic_tx_interest
-                else -> R.drawable.ic_tx_sent
+                is EarnRewardsAccount.Interest -> com.blockchain.common.R.drawable.ic_tx_interest
+                is EarnRewardsAccount.Staking -> com.blockchain.common.R.drawable.ic_tx_interest
+                is EarnRewardsAccount.Active -> com.blockchain.common.R.drawable.ic_tx_interest
+                else -> com.blockchain.common.R.drawable.ic_tx_sent
             }
 
         return AssetActionItem(

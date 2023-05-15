@@ -10,7 +10,6 @@ internal fun Transaction.toTransactionSummary(
     startingBlockHeight: Int,
     latestBlock: Int
 ): TransactionSummary? {
-
     /*
      * startingBlockHeight is only ever returned as a non-zero value for BCH - due to a fork
      * if this value is 0 (for BTC), then we want to let the function complete, so that we can see unconfirmed

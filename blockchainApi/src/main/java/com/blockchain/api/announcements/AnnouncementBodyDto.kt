@@ -9,7 +9,7 @@ class AnnouncementBodyDto private constructor(
     @SerialName("messageId") val messageId: String,
     @SerialName("deleteAction") val deleteAction: String?,
     @SerialName("clickedUrl") val clickedUrl: String?,
-    @SerialName("deviceInfo") val deviceInfo: DeviceInfo,
+    @SerialName("deviceInfo") val deviceInfo: DeviceInfo
 ) {
     companion object {
         fun consume(

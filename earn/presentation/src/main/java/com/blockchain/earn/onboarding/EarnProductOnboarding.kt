@@ -34,7 +34,6 @@ fun EarnProductOnboarding(
     onboardingPages: List<EarnOnboardingProductPage>,
     onFinishOnboarding: () -> Unit
 ) {
-
     val configuration = LocalConfiguration.current
     configuration.screenHeightDp
 
@@ -45,7 +44,6 @@ fun EarnProductOnboarding(
             .padding(AppTheme.dimensions.smallSpacing),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         val pagerState = rememberPagerState()
 
         HorizontalPager(
@@ -57,7 +55,6 @@ fun EarnProductOnboarding(
             verticalAlignment = Alignment.Top
         ) { pageIndex ->
             Column(modifier = Modifier.fillMaxWidth()) {
-
                 val onboardingPage = onboardingPages[pageIndex]
 
                 Image(imageResource = onboardingPage.image, modifier = Modifier.fillMaxWidth())
@@ -105,9 +102,9 @@ fun EarnProductOnboarding(
             SmallVerticalSpacer()
 
             PrimaryButton(
-                text = stringResource(R.string.earn_onboarding_cta),
+                text = stringResource(com.blockchain.stringResources.R.string.earn_onboarding_cta),
                 onClick = onFinishOnboarding,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
@@ -136,19 +133,21 @@ enum class EarnOnboardingProductPage {
     val title: String
         @Composable
         get() = when (this) {
-            Intro -> stringResource(R.string.earn_onboarding_intro_title)
-            Interest -> stringResource(id = R.string.earn_onboarding_passive_title)
-            Staking -> stringResource(id = R.string.earn_onboarding_staking_title)
-            ActiveRewards -> stringResource(id = R.string.earn_onboarding_active_title)
+            Intro -> stringResource(com.blockchain.stringResources.R.string.earn_onboarding_intro_title)
+            Interest -> stringResource(id = com.blockchain.stringResources.R.string.earn_onboarding_passive_title)
+            Staking -> stringResource(id = com.blockchain.stringResources.R.string.earn_onboarding_staking_title)
+            ActiveRewards -> stringResource(id = com.blockchain.stringResources.R.string.earn_onboarding_active_title)
         }
 
     val subtitle: String
         @Composable
         get() = when (this) {
-            Intro -> stringResource(R.string.earn_onboarding_intro_subtitle)
-            Interest -> stringResource(id = R.string.earn_onboarding_passive_subtitle)
-            Staking -> stringResource(id = R.string.earn_onboarding_staking_subtitle)
-            ActiveRewards -> stringResource(id = R.string.earn_onboarding_active_subtitle)
+            Intro -> stringResource(com.blockchain.stringResources.R.string.earn_onboarding_intro_subtitle)
+            Interest -> stringResource(id = com.blockchain.stringResources.R.string.earn_onboarding_passive_subtitle)
+            Staking -> stringResource(id = com.blockchain.stringResources.R.string.earn_onboarding_staking_subtitle)
+            ActiveRewards -> stringResource(
+                id = com.blockchain.stringResources.R.string.earn_onboarding_active_subtitle
+            )
         }
 
     val image: ImageResource

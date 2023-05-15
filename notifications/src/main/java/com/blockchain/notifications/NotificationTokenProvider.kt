@@ -16,8 +16,9 @@ internal class FirebaseNotificationTokenProvider : NotificationTokenProvider {
                 subscriber.onSuccess(newToken)
             }
             FirebaseMessaging.getInstance().token.addOnFailureListener {
-                if (!subscriber.isDisposed)
+                if (!subscriber.isDisposed) {
                     subscriber.onError(it)
+                }
             }
         }
     }
@@ -28,8 +29,9 @@ internal class FirebaseNotificationTokenProvider : NotificationTokenProvider {
                 emitter.onComplete()
             }
             FirebaseMessaging.getInstance().deleteToken().addOnFailureListener {
-                if (!emitter.isDisposed)
+                if (!emitter.isDisposed) {
                     emitter.onError(it)
+                }
             }
         }
 }

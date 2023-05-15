@@ -47,8 +47,7 @@ fun ReferralSuccessCard(
             .background(color = Blue600, shape = AppTheme.shapes.large),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
         Image(
             imageResource = ImageResource.LocalWithBackground(
@@ -57,46 +56,48 @@ fun ReferralSuccessCard(
                 backgroundColor = White,
                 alpha = 1F,
                 size = dimensionResource(com.blockchain.componentlib.R.dimen.huge_spacing),
-                iconSize = dimensionResource(R.dimen.standard_spacing)
-            ),
+                iconSize = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
+            )
         )
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .padding(dimensionResource(R.dimen.small_spacing))
+                .padding(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing))
 
         ) {
             Text(
                 style = AppTheme.typography.caption1,
                 color = Grey100,
-                text = cardTitle,
+                text = cardTitle
             )
 
             Text(
                 style = AppTheme.typography.body2,
                 color = Color.White,
-                text = text,
+                text = text
             )
         }
 
         Box(
             modifier = Modifier
                 .align(Alignment.Top)
-                .padding(dimensionResource(R.dimen.very_small_spacing))
+                .padding(dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing))
                 .clickable {
                     onClose()
                 }
                 .size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
-                .background(color = colorResource(R.color.faded_white), shape = CircleShape)
+                .background(color = colorResource(com.blockchain.common.R.color.faded_white), shape = CircleShape)
         ) {
             Image(
                 modifier = Modifier
                     .align(Alignment.Center),
                 imageResource = ImageResource.Local(
-                    R.drawable.ic_close_referrals, null, ColorFilter.tint(Blue600)
-                ),
+                    R.drawable.ic_close_referrals,
+                    null,
+                    ColorFilter.tint(Blue600)
+                )
             )
         }
     }

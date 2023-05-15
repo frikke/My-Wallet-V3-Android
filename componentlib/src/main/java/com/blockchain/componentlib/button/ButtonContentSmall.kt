@@ -38,47 +38,55 @@ fun ButtonContentSmall(
             ButtonLoadingIndicator(
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .size(dimensionResource(R.dimen.medium_spacing)),
-                loadingIconResId = loadingIconResId,
+                    .size(dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)),
+                loadingIconResId = loadingIconResId
             )
         } else {
             Row(
                 Modifier.alpha(contentAlpha),
                 horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 when (icon) {
                     is ImageResource.Local -> {
                         Image(
                             imageResource = icon.withTint(textColor),
-                            modifier = Modifier.size(dimensionResource(R.dimen.size_standard)),
+                            modifier = Modifier.size(
+                                dimensionResource(com.blockchain.componentlib.R.dimen.size_standard)
+                            )
                         )
                         Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
                     }
                     is ImageResource.LocalWithResolvedDrawable -> {
                         Image(
                             imageResource = icon,
-                            modifier = Modifier.size(dimensionResource(R.dimen.size_standard)),
+                            modifier = Modifier.size(
+                                dimensionResource(com.blockchain.componentlib.R.dimen.size_standard)
+                            )
                         )
                         Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
                     }
                     is ImageResource.LocalWithBackground -> {
                         Image(
                             imageResource = icon,
-                            modifier = Modifier.size(dimensionResource(R.dimen.medium_spacing)),
+                            modifier = Modifier.size(
+                                dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)
+                            )
                         )
                         Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
                     }
                     is ImageResource.Remote -> {
                         Image(
                             imageResource = icon,
-                            modifier = Modifier.size(dimensionResource(R.dimen.medium_spacing)),
+                            modifier = Modifier.size(
+                                dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)
+                            )
                         )
                         Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
                     }
                     is ImageResource.LocalWithResolvedBitmap,
                     is ImageResource.LocalWithBackgroundAndExternalResources,
-                    ImageResource.None -> { /* no-op */
+                    ImageResource.None -> { // no-op
                     }
                 }
 

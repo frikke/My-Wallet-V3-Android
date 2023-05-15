@@ -24,7 +24,7 @@ internal typealias SupportedTickerList = List<String>
 
 internal class AssetPriceStore(
     private val cache: AssetPriceStoreCache,
-    private val supportedTickersStore: SupportedTickersStore,
+    private val supportedTickersStore: SupportedTickersStore
 ) {
 
     private val quoteTickerToCurrentPrices = ConcurrentHashMap<String, List<AssetPriceRecord>>()
@@ -37,7 +37,10 @@ internal class AssetPriceStore(
             .doOnSuccess { tickerGroup ->
                 fiatQuoteTickers = tickerGroup.fiatQuoteTickers
             }
-            .map { @Suppress("RedundantUnitExpression") Unit }
+            .map {
+                @Suppress("RedundantUnitExpression")
+                Unit
+            }
 
     internal fun getCurrentPriceForAsset(
         base: Currency,
@@ -104,8 +107,9 @@ internal class AssetPriceStore(
                     val assetPrice = response.data.find {
                         it.base == base.networkTicker && it.quote == quote.networkTicker
                     }
-                    if (assetPrice != null) DataResource.Data(assetPrice)
-                    else DataResource.Error(AssetPriceNotFoundException(base, quote))
+                    if (assetPrice != null) {
+                        DataResource.Data(assetPrice)
+                    } else DataResource.Error(AssetPriceNotFoundException(base, quote))
                 }
                 is DataResource.Error -> response
                 is DataResource.Loading -> response

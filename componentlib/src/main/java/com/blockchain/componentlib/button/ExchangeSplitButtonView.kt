@@ -22,7 +22,7 @@ class ExchangeSplitButtonView @JvmOverloads constructor(
                     exchangeSellButtonText = secondaryButtonText,
                     exchangeSellButtonOnClick = onSecondaryButtonClick,
                     exchangeBuyButtonState = primaryButtonState,
-                    exchangeSellButtonState = secondaryButtonState,
+                    exchangeSellButtonState = secondaryButtonState
                 )
             }
         }

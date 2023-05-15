@@ -36,7 +36,7 @@ fun EmailVerificationScreen(
     viewState: StateFlow<EmailVerificationViewState>,
     onIntent: (EmailVerificationIntent) -> Unit,
     openInbox: () -> Unit,
-    openResendOrChangeSheet: () -> Unit,
+    openResendOrChangeSheet: () -> Unit
 ) {
     val state by viewState.collectAsStateLifecycleAware()
 
@@ -49,12 +49,15 @@ fun EmailVerificationScreen(
             if (error != null) {
                 scaffoldState.snackbarHostState.showSnackbar(
                     message = error.errorMessage(context),
-                    duration = SnackbarDuration.Long,
+                    duration = SnackbarDuration.Long
                 )
             } else if (showResendEmailConfirmation) {
                 scaffoldState.snackbarHostState.showSnackbar(
-                    message = context.getString(R.string.email_verification_resend_snackbar, state.email),
-                    duration = SnackbarDuration.Short,
+                    message = context.getString(
+                        com.blockchain.stringResources.R.string.email_verification_resend_snackbar,
+                        state.email
+                    ),
+                    duration = SnackbarDuration.Short
                 )
                 onIntent(EmailVerificationIntent.ShowResendEmailConfirmationHandled)
             }
@@ -66,7 +69,7 @@ fun EmailVerificationScreen(
                 .padding(padding)
                 .padding(all = AppTheme.dimensions.standardSpacing)
                 .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val assets = when {
                 state.isVerified -> Assets.VerifiedEmail()
@@ -77,7 +80,7 @@ fun EmailVerificationScreen(
             UserIcon(
                 modifier = Modifier.padding(top = AppTheme.dimensions.xHugeSpacing),
                 iconRes = R.drawable.ic_verify_email,
-                statusIconRes = assets.statusIcon(),
+                statusIconRes = assets.statusIcon()
             )
 
             SimpleText(
@@ -108,7 +111,7 @@ fun EmailVerificationScreen(
                         .fillMaxWidth()
                         .padding(bottom = AppTheme.dimensions.smallSpacing),
                     text = text,
-                    onClick = openInbox,
+                    onClick = openInbox
                 )
             }
             assets.secondaryCta()?.let { text ->
@@ -118,7 +121,7 @@ fun EmailVerificationScreen(
                     onClick = {
                         onIntent(EmailVerificationIntent.StopPollingForVerification)
                         openResendOrChangeSheet()
-                    },
+                    }
                 )
             }
         }
@@ -130,32 +133,32 @@ private sealed class Assets(
     val title: @Composable () -> String,
     val subtitle: @Composable () -> String,
     val primaryCta: @Composable () -> String?,
-    val secondaryCta: @Composable () -> String?,
+    val secondaryCta: @Composable () -> String?
 ) {
     class UnverifiedEmail(
-        private val email: String,
+        private val email: String
     ) : Assets(
         statusIcon = { null },
-        title = { stringResource(R.string.email_verify) },
-        subtitle = { stringResource(R.string.email_verification_title, email) },
-        primaryCta = { stringResource(R.string.check_my_inbox) },
-        secondaryCta = { stringResource(R.string.did_not_get_email) },
+        title = { stringResource(com.blockchain.stringResources.R.string.email_verify) },
+        subtitle = { stringResource(com.blockchain.stringResources.R.string.email_verification_title, email) },
+        primaryCta = { stringResource(com.blockchain.stringResources.R.string.check_my_inbox) },
+        secondaryCta = { stringResource(com.blockchain.stringResources.R.string.did_not_get_email) }
     )
 
     class VerifiedEmail : Assets(
         statusIcon = { R.drawable.ic_check_circle },
-        title = { stringResource(R.string.email_verified) },
-        subtitle = { stringResource(R.string.success_email_veriff) },
+        title = { stringResource(com.blockchain.stringResources.R.string.email_verified) },
+        subtitle = { stringResource(com.blockchain.stringResources.R.string.success_email_veriff) },
         primaryCta = { null },
         secondaryCta = { null }
     )
 
     class Error : Assets(
         statusIcon = { R.drawable.ic_alert_white_bkgd },
-        title = { stringResource(R.string.error_email_veriff_title) },
-        subtitle = { stringResource(R.string.error_email_veriff) },
-        primaryCta = { stringResource(R.string.check_my_inbox) },
-        secondaryCta = { stringResource(R.string.did_not_get_email) },
+        title = { stringResource(com.blockchain.stringResources.R.string.error_email_veriff_title) },
+        subtitle = { stringResource(com.blockchain.stringResources.R.string.error_email_veriff) },
+        primaryCta = { stringResource(com.blockchain.stringResources.R.string.check_my_inbox) },
+        secondaryCta = { stringResource(com.blockchain.stringResources.R.string.did_not_get_email) }
     )
 }
 
@@ -166,13 +169,13 @@ private fun PreviewUnverified() {
         email = "somerandomemail@email.com",
         isVerified = false,
         showResendEmailConfirmation = true,
-        error = null,
+        error = null
     )
     EmailVerificationScreen(
         viewState = MutableStateFlow(state),
         onIntent = {},
         openInbox = {},
-        openResendOrChangeSheet = {},
+        openResendOrChangeSheet = {}
     )
 }
 
@@ -183,13 +186,13 @@ private fun PreviewVerified() {
         email = "somerandomemail@email.com",
         isVerified = true,
         showResendEmailConfirmation = false,
-        error = null,
+        error = null
     )
     EmailVerificationScreen(
         viewState = MutableStateFlow(state),
         onIntent = {},
         openInbox = {},
-        openResendOrChangeSheet = {},
+        openResendOrChangeSheet = {}
     )
 }
 
@@ -200,17 +203,21 @@ private fun PreviewError() {
         email = "somerandomemail@email.com",
         isVerified = false,
         showResendEmailConfirmation = false,
-        error = EmailVerificationError.TooManyResendAttempts,
+        error = EmailVerificationError.TooManyResendAttempts
     )
     EmailVerificationScreen(
         viewState = MutableStateFlow(state),
         onIntent = {},
         openInbox = {},
-        openResendOrChangeSheet = {},
+        openResendOrChangeSheet = {}
     )
 }
 
 private fun EmailVerificationError.errorMessage(context: Context): String = when (this) {
-    is EmailVerificationError.Generic -> this.message ?: context.getString(R.string.error_email_veriff)
-    EmailVerificationError.TooManyResendAttempts -> context.getString(R.string.error_email_veriff_too_many_attempts)
+    is EmailVerificationError.Generic -> this.message ?: context.getString(
+        com.blockchain.stringResources.R.string.error_email_veriff
+    )
+    EmailVerificationError.TooManyResendAttempts -> context.getString(
+        com.blockchain.stringResources.R.string.error_email_veriff_too_many_attempts
+    )
 }

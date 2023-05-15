@@ -14,61 +14,61 @@ enum class AppMaintenanceViewState(
 ) : ViewState {
     NO_STATUS(
         image = null,
-        title = R.string.empty,
-        description = R.string.empty,
+        title = com.blockchain.stringResources.R.string.empty,
+        description = com.blockchain.stringResources.R.string.empty,
         button1 = null,
         button2 = null
     ),
     OS_NOT_SUPPORTED(
         image = R.drawable.ic_maintenance,
-        title = R.string.app_maintenance_os_not_supported_title,
-        description = R.string.app_maintenance_os_not_supported_description,
+        title = com.blockchain.stringResources.R.string.app_maintenance_os_not_supported_title,
+        description = com.blockchain.stringResources.R.string.app_maintenance_os_not_supported_description,
         button1 = AppMaintenanceButtonSettings(
-            buttonText = R.string.app_maintenance_cta_redirect_website,
+            buttonText = com.blockchain.stringResources.R.string.app_maintenance_cta_redirect_website,
             intent = AppMaintenanceIntents.OSNotSupported
         ),
         button2 = null
     ),
     SITE_WIDE_MAINTENANCE(
         image = R.drawable.ic_maintenance,
-        title = R.string.app_maintenance_down_title,
-        description = R.string.app_maintenance_site_wide_description,
+        title = com.blockchain.stringResources.R.string.app_maintenance_down_title,
+        description = com.blockchain.stringResources.R.string.app_maintenance_site_wide_description,
         button1 = AppMaintenanceButtonSettings(
-            buttonText = R.string.app_maintenance_cta_view_status,
+            buttonText = com.blockchain.stringResources.R.string.app_maintenance_cta_view_status,
             intent = AppMaintenanceIntents.ViewStatus
         ),
         button2 = null
     ),
     REDIRECT_TO_WEBSITE(
         image = R.drawable.ic_maintenance,
-        title = R.string.app_maintenance_down_title,
-        description = R.string.app_maintenance_redirect_website_description,
+        title = com.blockchain.stringResources.R.string.app_maintenance_down_title,
+        description = com.blockchain.stringResources.R.string.app_maintenance_redirect_website_description,
         button1 = null,
         button2 = AppMaintenanceButtonSettings(
-            buttonText = R.string.app_maintenance_cta_redirect_website,
+            buttonText = com.blockchain.stringResources.R.string.app_maintenance_cta_redirect_website,
             intent = AppMaintenanceIntents.RedirectToWebsite
         )
     ),
     MANDATORY_UPDATE(
         image = R.drawable.ic_outdated_app,
-        title = R.string.app_maintenance_update_title,
-        description = R.string.app_maintenance_update_description,
+        title = com.blockchain.stringResources.R.string.app_maintenance_update_title,
+        description = com.blockchain.stringResources.R.string.app_maintenance_update_description,
         button1 = null,
         button2 = AppMaintenanceButtonSettings(
-            buttonText = R.string.app_maintenance_cta_update_now,
+            buttonText = com.blockchain.stringResources.R.string.app_maintenance_cta_update_now,
             intent = AppMaintenanceIntents.UpdateApp
         )
     ),
     OPTIONAL_UPDATE(
         image = R.drawable.ic_outdated_app,
-        title = R.string.app_maintenance_update_title,
-        description = R.string.app_maintenance_update_description,
+        title = com.blockchain.stringResources.R.string.app_maintenance_update_title,
+        description = com.blockchain.stringResources.R.string.app_maintenance_update_description,
         button1 = AppMaintenanceButtonSettings(
-            buttonText = R.string.app_maintenance_cta_update_later,
+            buttonText = com.blockchain.stringResources.R.string.app_maintenance_cta_update_later,
             intent = AppMaintenanceIntents.SkipUpdate
         ),
         button2 = AppMaintenanceButtonSettings(
-            buttonText = R.string.app_maintenance_cta_update_now,
+            buttonText = com.blockchain.stringResources.R.string.app_maintenance_cta_update_now,
             intent = AppMaintenanceIntents.UpdateApp
         )
     );

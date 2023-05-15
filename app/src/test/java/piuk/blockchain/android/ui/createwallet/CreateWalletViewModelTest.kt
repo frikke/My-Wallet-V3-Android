@@ -80,7 +80,7 @@ class CreateWalletViewModelTest {
             eligibilityService = eligibilityService,
             referralService = referralService,
             payloadDataManager = payloadDataManager,
-            nabuUserDataManager = nabuUserDataManager,
+            nabuUserDataManager = nabuUserDataManager
         )
     }
 
@@ -417,7 +417,7 @@ class CreateWalletViewModelTest {
         private val COUNTRIES = listOf(
             COUNTRY_US,
             COUNTRY_UK,
-            COUNTRY_PT,
+            COUNTRY_PT
         )
         private val USER_LOCATION: CountryIso = COUNTRY_UK.countryCode
 
@@ -425,7 +425,7 @@ class CreateWalletViewModelTest {
         private val STATE_MH = Region.State("US", "Michigan", true, "MH")
         private val STATES = listOf(
             STATE_AK,
-            STATE_MH,
+            STATE_MH
         )
 
         private fun Region.Country.localise(): Region.Country = let {

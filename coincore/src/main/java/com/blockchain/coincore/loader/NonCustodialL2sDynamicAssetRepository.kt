@@ -48,5 +48,7 @@ class NonCustodialL2sDynamicAssetRepository(
                 isMemoSupported = isMemoSupported,
                 explorerUrl = explorerUrl
             )
-        } else null
+        } else {
+            null
+        }
 }

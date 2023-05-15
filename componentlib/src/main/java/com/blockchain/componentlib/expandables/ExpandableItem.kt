@@ -33,7 +33,6 @@ fun ExpandableItem(
     textButtonToCollapse: String,
     background: Color = AppTheme.colors.background
 ) {
-
     var isExpanded by rememberSaveable { mutableStateOf(false) }
     var isExpandable by rememberSaveable { mutableStateOf(false) }
 
@@ -86,6 +85,6 @@ fun PreviewExpandableItem() {
         text = "Kyoto Angels is a Collection of 10000 Kawaii Dolls Manufactured by Collection of 10000 Kawaii Dolls",
         numLinesVisible = 2,
         textButtonToExpand = "See More",
-        textButtonToCollapse = "See Less",
+        textButtonToCollapse = "See Less"
     )
 }

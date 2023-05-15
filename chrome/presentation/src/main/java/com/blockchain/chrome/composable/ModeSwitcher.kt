@@ -48,7 +48,6 @@ fun ModeSwitcher(
     onModeClicked: (WalletMode) -> Unit,
     onModeLongClicked: (WalletMode) -> Unit
 ) {
-
     val coroutineScopeAnimation = rememberCoroutineScope()
 
     var currentMode: WalletMode? by remember { mutableStateOf(null) }
@@ -62,7 +61,6 @@ fun ModeSwitcher(
     Row(modifier = modifier.fillMaxWidth()) {
         val animatableIndicatorWidthPx = remember { Animatable(fullIndicatorWidthPx) }
         LaunchedEffect(selectedMode) {
-
             animatableIndicatorWidthPx.snapTo(fullIndicatorWidthPx - animatableIndicatorWidthPx.value)
             previousMode = currentMode
             currentMode = selectedMode

@@ -41,7 +41,8 @@ class HorizonOperationMappingTest {
                 on { createdAt }.thenReturn("TIME")
                 on { amount }.thenReturn(50.lumens().toStringWithoutSymbol())
             },
-            myAccount, givenHorizonProxy(100)
+            myAccount,
+            givenHorizonProxy(100)
         )
             .apply {
                 hash `should be equal to` "ABCD"
@@ -65,7 +66,8 @@ class HorizonOperationMappingTest {
                 on { createdAt }.thenReturn("TIME")
                 on { amount }.thenReturn(50.lumens().toStringWithoutSymbol())
             },
-            myAccount, givenHorizonProxy(100)
+            myAccount,
+            givenHorizonProxy(100)
         )
             .apply {
                 hash `should be equal to` "ABCD"
@@ -89,7 +91,8 @@ class HorizonOperationMappingTest {
                 on { createdAt }.thenReturn("TIME")
                 on { startingBalance }.thenReturn(100.lumens().toStringWithoutSymbol())
             },
-            myAccount, givenHorizonProxy(100)
+            myAccount,
+            givenHorizonProxy(100)
         )
             .apply {
                 hash `should be equal to` "ABCD"
@@ -113,7 +116,8 @@ class HorizonOperationMappingTest {
                 on { createdAt }.thenReturn("TIME")
                 on { startingBalance }.thenReturn(100.lumens().toStringWithoutSymbol())
             },
-            myAccount, givenHorizonProxy(100)
+            myAccount,
+            givenHorizonProxy(100)
         )
             .apply {
                 hash `should be equal to` "ABCD"

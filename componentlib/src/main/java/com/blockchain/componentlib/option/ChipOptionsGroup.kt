@@ -19,7 +19,7 @@ import com.blockchain.componentlib.theme.AppTheme
 @Composable
 fun ChipOptionsGroup(
     modifier: Modifier = Modifier,
-    options: List<ChipOption>,
+    options: List<ChipOption>
 ) {
     if (options.isEmpty()) return
     var selectedOption by remember {

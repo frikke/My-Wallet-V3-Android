@@ -10,6 +10,11 @@ android {
         }
     }
 
+    buildFeatures {
+        buildConfig true
+    }
+
+    namespace 'com.blockchain.notifications'
     lint {
         baseline file("lint-baseline.xml")
         warningsAsErrors true

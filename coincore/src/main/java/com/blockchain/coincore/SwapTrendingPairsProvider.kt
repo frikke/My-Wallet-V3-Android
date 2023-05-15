@@ -39,10 +39,11 @@ internal class SwapTrendingPairsProvider(
                                 WalletMode.NON_CUSTODIAL -> account is NonCustodialAccount
                             }
                         }.filter { account ->
-                            if (account is NonCustodialAccount)
+                            if (account is NonCustodialAccount) {
                                 account.isDefault
-                            else
+                            } else {
                                 true
+                            }
                         }
                 }
         }.map { activeAccounts ->
@@ -79,7 +80,6 @@ internal class SwapTrendingPairsProvider(
                     sourceAccount = source,
                     destinationAccount = target,
                     enabled = source.balanceRx().firstOrError().map {
-
                         it.total.isPositive
                     }
                 )

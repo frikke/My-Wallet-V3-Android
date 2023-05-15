@@ -74,7 +74,7 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
                             currency = CryptoCurrency.ETHER,
                             balance = Money.fromMinor(CryptoCurrency.ETHER, 11111.toBigInteger()),
                             unconfirmedBalance = Money.fromMinor(CryptoCurrency.ETHER, 11111.toBigInteger()),
-                            exchangeRate = ExchangeRate.identityExchangeRate(CryptoCurrency.ETHER),
+                            exchangeRate = ExchangeRate.identityExchangeRate(CryptoCurrency.ETHER)
                         )
                     )
                 )
@@ -613,7 +613,7 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
             coinNetwork = coinNetwork,
             l2identifier = CONTRACT_ADDRESS,
             requiredConfirmations = 5,
-            colour = "#123456",
+            colour = "#123456"
         )
 
         fun Number.dummies() = CryptoValue.fromMajor(DUMMY_ERC20, numberToBigDecimal())

@@ -29,8 +29,11 @@ internal object AppMaintenanceConfigMapper {
             redirectToWebsite = maintenanceConfig.redirectToWebsite,
             statusUrl = maintenanceConfig.statusUrl,
             storeUrl = with(maintenanceConfig) {
-                if (appUpdateInfo == null && storeUrl.isBlank()) inAppUpdateFallbackUrl
-                else storeUrl
+                if (appUpdateInfo == null && storeUrl.isBlank()) {
+                    inAppUpdateFallbackUrl
+                } else {
+                    storeUrl
+                }
             },
             websiteUrl = maintenanceConfig.websiteUrl
         )

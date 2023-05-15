@@ -53,9 +53,9 @@ class TransferSendFragment : AccountSelectorFragment(), SendNetworkWarningSheet.
 
     private fun renderList() {
         setEmptyStateDetails(
-            R.string.transfer_wallets_empty_title,
-            R.string.transfer_wallets_empty_details,
-            R.string.transfer_wallet_buy_crypto
+            com.blockchain.stringResources.R.string.transfer_wallets_empty_title,
+            com.blockchain.stringResources.R.string.transfer_wallets_empty_details,
+            com.blockchain.stringResources.R.string.transfer_wallet_buy_crypto
         ) {
             analytics.logEvent(TransferAnalyticsEvent.NoBalanceCtaClicked)
             analytics.logEvent(

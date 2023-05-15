@@ -7,7 +7,7 @@ data class NabuAnalyticsEvent(
     val name: String,
     val type: String,
     val originalTimestamp: String,
-    val properties: Map<String, JsonElement>,
+    val properties: Map<String, JsonElement>
 )
 
 @Serializable

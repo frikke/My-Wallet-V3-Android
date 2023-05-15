@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.map
 
 class AddressVerificationRepository(
     private val api: AddressVerificationApiService,
-    private val userService: UserService,
+    private val userService: UserService
 ) : AddressVerificationService {
 
     override suspend fun getAutocompleteAddressesWithUserCountry(

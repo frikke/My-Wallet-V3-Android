@@ -107,14 +107,14 @@ val coincoreModule = module {
                 currencyPrefs = get(),
                 remoteLogger = get(),
                 bankService = get(),
-                walletModeService = get(),
+                walletModeService = get()
             )
         }
         scoped {
             NetworkAccountsRepository(
                 coincore = get(),
                 coinsNetworksRepository = get(),
-                assetCatalogue = get(),
+                assetCatalogue = get()
             )
         }.bind(NetworkAccountsService::class)
 
@@ -149,7 +149,7 @@ val coincoreModule = module {
                 custodialWalletManager = get(),
                 stakingService = get(),
                 currencyPrefs = get(),
-                activeRewardsService = get(),
+                activeRewardsService = get()
             )
         }.bind(AssetLoader::class)
 
@@ -167,7 +167,7 @@ val coincoreModule = module {
             EthHotWalletAddressResolver(
                 hotWalletService = get(),
                 nabuService = get(),
-                dynamicEthHotWalletAddressFF = get(dynamicEthHotWalletAddressFeatureFlag),
+                dynamicEthHotWalletAddressFF = get(dynamicEthHotWalletAddressFeatureFlag)
             )
         }
 
@@ -209,7 +209,7 @@ val coincoreModule = module {
         scoped {
             BackendNotificationUpdater(
                 coinAddressesStore = get(),
-                json = get(),
+                json = get()
             )
         }
 
@@ -223,7 +223,7 @@ val coincoreModule = module {
         scoped {
             ActiveBalancesStore(
                 currencyPrefs = get(),
-                selfCustodyService = get(),
+                selfCustodyService = get()
             )
         }
 
@@ -241,7 +241,7 @@ val coincoreModule = module {
         scoped {
             Erc20DataManagerImpl(
                 ethDataManager = get(),
-                historyCallCache = get(),
+                historyCallCache = get()
             )
         }.bind(Erc20DataManager::class)
 
@@ -251,7 +251,7 @@ val coincoreModule = module {
                 custodialWalletManager = get(),
                 brokerageDataManager = get(),
                 tradeDataService = get(),
-                sellSwapBrokerageQuoteFF = get(sellSwapBrokerageQuoteFeatureFlag),
+                sellSwapBrokerageQuoteFF = get(sellSwapBrokerageQuoteFeatureFlag)
             )
         }
 
@@ -290,7 +290,7 @@ val coincoreModule = module {
             ethErc20sStore = get(),
             l1CoinsStore = get(),
             l2sDynamicAssetRepository = get(),
-            custodialAssetsStore = get(),
+            custodialAssetsStore = get()
         )
     }.bind(DynamicAssetsService::class)
 

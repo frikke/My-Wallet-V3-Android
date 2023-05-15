@@ -104,13 +104,17 @@ class QuickActionsRepository(
                     action = AssetAction.Sell,
                     state = if (features[Feature.Sell].toAvailability() == ActionState.Available &&
                         balanceIsPositive
-                    ) ActionState.Available else ActionState.Unavailable
+                    ) {
+                        ActionState.Available
+                    } else ActionState.Unavailable
                 ),
                 StateAwareAction(
                     action = AssetAction.Swap,
                     state = if (features[Feature.Swap].toAvailability() == ActionState.Available &&
                         balanceIsPositive
-                    ) ActionState.Available else ActionState.Unavailable
+                    ) {
+                        ActionState.Available
+                    } else ActionState.Unavailable
                 ),
                 StateAwareAction(
                     action = AssetAction.Receive,
@@ -128,7 +132,9 @@ class QuickActionsRepository(
                     action = AssetAction.FiatWithdraw,
                     state = if (features[Feature.WithdrawFiat].toAvailability() == ActionState.Available &&
                         fiatBalanceIsPositive
-                    ) ActionState.Available else ActionState.Unavailable
+                    ) {
+                        ActionState.Available
+                    } else ActionState.Unavailable
                 )
             ).sorted(balanceIsPositive)
         }.onEach {
@@ -223,7 +229,8 @@ class QuickActionsRepository(
     private fun List<StateAwareAction>.sorted(balanceIsPositive: Boolean): List<StateAwareAction> {
         return if (balanceIsPositive) {
             this
-        } else
+        } else {
             sortedByDescending { it.action.canAddFunds() && it.state == ActionState.Available }
+        }
     }
 }

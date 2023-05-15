@@ -36,12 +36,14 @@ class PricesViewModel(
     private val walletModeService: WalletModeService,
     private val currencyPrefs: CurrencyPrefs,
     private val userFeaturePermissionService: UserFeaturePermissionService,
-    private val pricesService: PricesService,
-) : MviViewModel<PricesIntents,
+    private val pricesService: PricesService
+) : MviViewModel<
+    PricesIntents,
     PricesViewState,
     PricesModelState,
     NavigationEvent,
-    ModelConfigArgs.NoArgs>(
+    ModelConfigArgs.NoArgs
+    >(
     PricesModelState()
 ) {
 
@@ -107,8 +109,9 @@ class PricesViewModel(
                 }
                 .map {
                     it.groupBy {
-                        if (it.data.ticker in state.mostPopularTickers) PricesOutputGroup.MostPopular
-                        else PricesOutputGroup.Others
+                        if (it.data.ticker in state.mostPopularTickers) {
+                            PricesOutputGroup.MostPopular
+                        } else PricesOutputGroup.Others
                     }
                 },
             topMovers = if (isTopMoversSupported(walletMode = state.walletMode, filter = state.filterBy)) {

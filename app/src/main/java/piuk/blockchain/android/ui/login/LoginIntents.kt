@@ -50,7 +50,7 @@ sealed class LoginIntents : MviIntent<LoginState> {
             oldState.copy(
                 email = selectedEmail,
                 currentStep = LoginStep.SEND_EMAIL,
-                captcha = captcha,
+                captcha = captcha
             )
     }
 
@@ -250,7 +250,7 @@ sealed class LoginIntents : MviIntent<LoginState> {
         override fun reduce(oldState: LoginState): LoginState =
             oldState.copy(
                 currentStep = LoginStep.NAVIGATE_TO_WALLET_CONNECT,
-                walletConnectUrl = payload,
+                walletConnectUrl = payload
             )
     }
 }

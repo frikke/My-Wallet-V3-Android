@@ -5,7 +5,7 @@ import com.blockchain.analytics.events.AnalyticsNames
 
 sealed class BackupAnalyticsEvents(
     override val event: String,
-    override val params: Map<String, String> = emptyMap(),
+    override val params: Map<String, String> = emptyMap()
 ) : AnalyticsEvent {
 
     object BackupSkipClicked : BackupAnalyticsEvents(

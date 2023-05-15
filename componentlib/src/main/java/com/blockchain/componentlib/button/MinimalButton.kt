@@ -23,7 +23,7 @@ fun MinimalButton(
     icon: ImageResource = ImageResource.None,
     minHeight: Dp = 48.dp,
     isTransparent: Boolean = true,
-    backgroundColour: Color = AppTheme.colors.background,
+    backgroundColour: Color = AppTheme.colors.background
 ) {
     OutlinedButton(
         text = text,
@@ -43,7 +43,7 @@ fun MinimalButton(
                 textColor: Color,
                 textAlpha: Float,
                 loadingIconResId: Int,
-                icon: ImageResource,
+                icon: ImageResource
             ->
             ButtonContent(
                 state = state,
@@ -51,7 +51,7 @@ fun MinimalButton(
                 textColor = textColor,
                 contentAlpha = textAlpha,
                 loadingIconResId = loadingIconResId,
-                icon = icon,
+                icon = icon
             )
         }
     )
@@ -64,7 +64,7 @@ private fun MinimalButton_Basic() {
         AppSurface {
             MinimalButton(
                 onClick = { },
-                text = "Button",
+                text = "Button"
             )
         }
     }
@@ -78,7 +78,7 @@ private fun MinimalButton_Loading() {
             MinimalButton(
                 onClick = { },
                 text = "Button",
-                state = ButtonState.Loading,
+                state = ButtonState.Loading
             )
         }
     }
@@ -92,7 +92,7 @@ private fun MinimalButton_Disabled() {
             MinimalButton(
                 onClick = { },
                 text = "Button",
-                state = ButtonState.Disabled,
+                state = ButtonState.Disabled
             )
         }
     }
@@ -119,7 +119,7 @@ private fun MinimalButton_DarkLoading() {
             MinimalButton(
                 onClick = { },
                 text = "Button",
-                state = ButtonState.Loading,
+                state = ButtonState.Loading
             )
         }
     }
@@ -133,7 +133,7 @@ private fun MinimalButton_DarkDisabled() {
             MinimalButton(
                 onClick = { },
                 text = "Button",
-                state = ButtonState.Disabled,
+                state = ButtonState.Disabled
             )
         }
     }

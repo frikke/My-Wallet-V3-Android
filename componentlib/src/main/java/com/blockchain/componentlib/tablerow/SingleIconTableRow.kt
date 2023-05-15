@@ -56,9 +56,9 @@ fun SingleIconTableRow(
             Image(
                 imageResource = endImageResource,
                 modifier = Modifier.requiredSizeIn(
-                    maxWidth = dimensionResource(R.dimen.standard_spacing),
-                    maxHeight = dimensionResource(R.dimen.standard_spacing),
-                ),
+                    maxWidth = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                    maxHeight = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
+                )
             )
         },
         onContentClicked = onClick,

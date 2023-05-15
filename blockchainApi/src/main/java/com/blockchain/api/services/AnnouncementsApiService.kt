@@ -3,6 +3,7 @@ package com.blockchain.api.services
 import com.blockchain.api.announcements.AnnouncementBodyDto
 import com.blockchain.api.announcements.AnnouncementsApi
 import com.blockchain.api.announcements.AnnouncementsDto
+import com.blockchain.outcome.getOrDefault
 import io.reactivex.rxjava3.core.Single
 
 class AnnouncementsApiService internal constructor(
@@ -14,7 +15,7 @@ class AnnouncementsApiService internal constructor(
         count: Int,
         platform: String,
         sdkVersion: String,
-        packageName: String,
+        packageName: String
     ): Single<AnnouncementsDto> = api.getAnnouncements(
         apiKey = apiKey,
         email = email,
@@ -26,25 +27,25 @@ class AnnouncementsApiService internal constructor(
 
     suspend fun consumeAnnouncement(
         apiKey: String,
-        body: AnnouncementBodyDto,
+        body: AnnouncementBodyDto
     ) = api.consumeAnnouncement(
         apiKey = apiKey,
         body = body
-    )
+    ).getOrDefault(Unit)
 
     suspend fun trackSeen(
         apiKey: String,
-        body: AnnouncementBodyDto,
+        body: AnnouncementBodyDto
     ) = api.trackSeen(
         apiKey = apiKey,
         body = body
-    )
+    ).getOrDefault(Unit)
 
     suspend fun trackClicked(
         apiKey: String,
-        body: AnnouncementBodyDto,
+        body: AnnouncementBodyDto
     ) = api.trackClicked(
         apiKey = apiKey,
         body = body
-    )
+    ).getOrDefault(Unit)
 }

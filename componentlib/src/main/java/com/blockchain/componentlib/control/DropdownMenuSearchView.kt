@@ -38,7 +38,7 @@ class DropdownMenuSearchView @JvmOverloads constructor(
                 DropdownMenuSearch(
                     value = value,
                     onValueChange = onValueChange,
-                    initialSuggestions = suggestions,
+                    initialSuggestions = suggestions
                 )
             }
         }

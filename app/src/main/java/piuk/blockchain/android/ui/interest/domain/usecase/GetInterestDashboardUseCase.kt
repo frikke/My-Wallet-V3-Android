@@ -59,7 +59,10 @@ class GetInterestDashboardUseCase(
             when {
                 // if any of the data is an error - interestDetail is null
                 listOf(
-                    balance, interestRate, eligibility, exchangeRate
+                    balance,
+                    interestRate,
+                    eligibility,
+                    exchangeRate
                 ).any { it is DataResource.Error } -> {
                     InterestAsset(
                         assetInfo = asset,
@@ -114,6 +117,6 @@ class GetInterestDashboardUseCase(
         AssetInfoPriority(name = "BTC", priority = 1),
         AssetInfoPriority(name = "ETH", priority = 2),
         AssetInfoPriority(name = "USDC", priority = 3),
-        AssetInfoPriority(name = "USDT", priority = 4),
+        AssetInfoPriority(name = "USDT", priority = 4)
     )
 }

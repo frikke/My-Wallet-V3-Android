@@ -47,7 +47,6 @@ class BlockchainAccountCredentialsMetadataTest : KoinTest {
 
     @Test
     fun `corrupted with only userId and token should be mapped to normal one`() {
-
         val data = "{\n" +
             "            \"userId\": \"23123\",\n" +
             "            \"lifetimeToken\": \"23131lifetimeToken232222\"\n" +
@@ -68,7 +67,6 @@ class BlockchainAccountCredentialsMetadataTest : KoinTest {
 
     @Test
     fun `corrupted with only userId and token should be mapped to normal one regardless the order`() {
-
         val data = " {\n" +
             "        \"lifetimeToken\": \"23131lifetimeToken232222\",\n" +
             "        \"userId\": \"23123\"\n" +
@@ -90,7 +88,6 @@ class BlockchainAccountCredentialsMetadataTest : KoinTest {
 
     @Test
     fun `NOT corrupted with only userId and token should be mapped to normal one`() {
-
         val data = "{\n" +
             "            \"nabu_user_id\": \"23123\",\n" +
             "            \"nabu_lifetime_token\": \"23131lifetimeToken232222\"\n" +
@@ -110,7 +107,6 @@ class BlockchainAccountCredentialsMetadataTest : KoinTest {
 
     @Test
     fun `NOT corrupted should remain not corrupted after desirialisation`() {
-
         val data = "{\n" +
             "       \"nabu_user_id\": \"23131lifetimeToken232222\",\n" +
             "      \"nabu_lifetime_token\": \"23123\",\n" +
@@ -133,7 +129,6 @@ class BlockchainAccountCredentialsMetadataTest : KoinTest {
 
     @Test
     fun `Encoding should work as expected`() {
-
         val data = BlockchainAccountCredentialsMetadata(
             userId = "userId",
             lifetimeToken = "lifetimeToken",
@@ -150,7 +145,6 @@ class BlockchainAccountCredentialsMetadataTest : KoinTest {
 
     @Test
     fun `Encoding should encode only the values present`() {
-
         val data = BlockchainAccountCredentialsMetadata(
             userId = "userIewqed",
             lifetimeToken = "lifetimeTokenasdas",

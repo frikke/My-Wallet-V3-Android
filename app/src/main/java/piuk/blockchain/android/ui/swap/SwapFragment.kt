@@ -93,7 +93,7 @@ class SwapFragment :
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?,
+        savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSwapBinding.inflate(inflater, container, false)
         return binding.root
@@ -253,7 +253,7 @@ class SwapFragment :
                             ClientErrorAnalytics.ClientLogError(
                                 nabuApiException = nabuException,
                                 errorDescription = exception.message,
-                                title = getString(R.string.transfer_wallets_load_error),
+                                title = getString(com.blockchain.stringResources.R.string.transfer_wallets_load_error),
                                 source = if (exception is HttpException) {
                                     ClientErrorAnalytics.Companion.Source.NABU
                                 } else {
@@ -267,7 +267,9 @@ class SwapFragment :
                             )
                         )
                         BlockchainSnackbar.make(
-                            binding.root, getString(R.string.transfer_wallets_load_error), type = SnackbarType.Error
+                            binding.root,
+                            getString(com.blockchain.stringResources.R.string.transfer_wallets_load_error),
+                            type = SnackbarType.Error
                         ).show()
                     }
                 )
@@ -280,14 +282,14 @@ class SwapFragment :
     private fun showBlockedDueToNotEligible(reason: BlockedReason.NotEligible) {
         binding.swapViewFlipper.gone()
         binding.swapError.apply {
-            title = R.string.account_restricted
+            title = com.blockchain.stringResources.R.string.account_restricted
             descriptionText = if (reason.message != null) {
                 reason.message
             } else {
-                getString(R.string.feature_not_available)
+                getString(com.blockchain.stringResources.R.string.feature_not_available)
             }
             icon = Icons.Filled.User.id
-            ctaText = R.string.contact_support
+            ctaText = com.blockchain.stringResources.R.string.contact_support
             ctaAction = { startActivity(SupportCentreActivity.newIntent(requireContext())) }
             visible()
         }
@@ -304,10 +306,10 @@ class SwapFragment :
 
         binding.swapViewFlipper.gone()
         binding.swapError.apply {
-            title = R.string.account_restricted
+            title = com.blockchain.stringResources.R.string.account_restricted
             descriptionText = reason.message
             icon = Icons.Filled.User.id
-            ctaText = R.string.common_learn_more
+            ctaText = com.blockchain.stringResources.R.string.common_learn_more
             ctaAction = action
             visible()
         }
@@ -319,20 +321,20 @@ class SwapFragment :
             analytics.logEvent(SwapAnalyticsEvents.SwapSilverLimitSheet)
             val fragment = KycBenefitsBottomSheet.newInstance(
                 KycBenefitsBottomSheet.BenefitsDetails(
-                    title = getString(R.string.swap_kyc_upsell_title),
-                    description = getString(R.string.swap_kyc_upsell_desc),
+                    title = getString(com.blockchain.stringResources.R.string.swap_kyc_upsell_title),
+                    description = getString(com.blockchain.stringResources.R.string.swap_kyc_upsell_desc),
                     listOfBenefits = listOf(
                         VerifyIdentityNumericBenefitItem(
-                            getString(R.string.swap_kyc_upsell_1_title),
-                            getString(R.string.swap_kyc_upsell_1_desc)
+                            getString(com.blockchain.stringResources.R.string.swap_kyc_upsell_1_title),
+                            getString(com.blockchain.stringResources.R.string.swap_kyc_upsell_1_desc)
                         ),
                         VerifyIdentityNumericBenefitItem(
-                            getString(R.string.swap_kyc_upsell_2_title),
-                            getString(R.string.swap_kyc_upsell_2_desc)
+                            getString(com.blockchain.stringResources.R.string.swap_kyc_upsell_2_title),
+                            getString(com.blockchain.stringResources.R.string.swap_kyc_upsell_2_desc)
                         ),
                         VerifyIdentityNumericBenefitItem(
-                            getString(R.string.swap_kyc_upsell_3_title),
-                            getString(R.string.swap_kyc_upsell_3_desc)
+                            getString(com.blockchain.stringResources.R.string.swap_kyc_upsell_3_title),
+                            getString(com.blockchain.stringResources.R.string.swap_kyc_upsell_3_desc)
                         )
                     )
                 )
@@ -371,22 +373,22 @@ class SwapFragment :
         binding.swapKycBenefits.initWithBenefits(
             listOf(
                 VerifyIdentityNumericBenefitItem(
-                    getString(R.string.swap_kyc_1_title),
-                    getString(R.string.swap_kyc_1_label)
+                    getString(com.blockchain.stringResources.R.string.swap_kyc_1_title),
+                    getString(com.blockchain.stringResources.R.string.swap_kyc_1_label)
                 ),
                 VerifyIdentityNumericBenefitItem(
-                    getString(R.string.swap_kyc_2_title),
-                    getString(R.string.swap_kyc_2_label)
+                    getString(com.blockchain.stringResources.R.string.swap_kyc_2_title),
+                    getString(com.blockchain.stringResources.R.string.swap_kyc_2_label)
                 ),
                 VerifyIdentityNumericBenefitItem(
-                    getString(R.string.swap_kyc_3_title),
-                    getString(R.string.swap_kyc_3_label)
+                    getString(com.blockchain.stringResources.R.string.swap_kyc_3_title),
+                    getString(com.blockchain.stringResources.R.string.swap_kyc_3_label)
                 )
             ),
-            getString(R.string.swap_kyc_title),
-            getString(R.string.swap_kyc_desc),
+            getString(com.blockchain.stringResources.R.string.swap_kyc_title),
+            getString(com.blockchain.stringResources.R.string.swap_kyc_desc),
             R.drawable.ic_swap_blue_circle,
-            ButtonOptions(visible = true, text = getString(R.string.swap_kyc_cta)) {
+            ButtonOptions(visible = true, text = getString(com.blockchain.stringResources.R.string.swap_kyc_cta)) {
                 analytics.logEvent(SwapAnalyticsEvents.VerifyNowClicked)
                 startKycForResult.launch(KycNavHostActivity.newIntent(requireActivity(), CampaignType.Swap))
             },
@@ -399,10 +401,10 @@ class SwapFragment :
         Icons.Filled.User
         binding.swapViewFlipper.gone()
         binding.swapError.apply {
-            title = R.string.common_empty_title
-            description = R.string.common_empty_details
+            title = com.blockchain.stringResources.R.string.common_empty_title
+            description = com.blockchain.stringResources.R.string.common_empty_details
             icon = Icons.Filled.Network.id
-            ctaText = R.string.common_empty_cta
+            ctaText = com.blockchain.stringResources.R.string.common_empty_cta
             ctaAction = { loadSwapOrKyc(true) }
             visible()
         }
@@ -470,7 +472,7 @@ class SwapFragment :
         val limits: TransferLimits,
         val orders: List<CustodialOrder>,
         val hasAtLeastOneAccountToSwapFrom: Boolean,
-        val eligibility: FeatureAccess,
+        val eligibility: FeatureAccess
     )
 
     override fun onDestroyView() {

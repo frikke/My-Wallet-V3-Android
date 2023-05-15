@@ -8,7 +8,7 @@ import java.io.Serializable
 
 sealed class ClientErrorAnalytics(
     override val event: String,
-    override val params: Map<String, Serializable> = emptyMap(),
+    override val params: Map<String, Serializable> = emptyMap()
 ) : AnalyticsEvent {
 
     class ClientLogError(

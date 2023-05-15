@@ -12,7 +12,7 @@ import io.reactivex.rxjava3.core.Single
 
 class MetadataRepositoryNabuTokenAdapter(
     private val accountCredentialsMetadata: AccountCredentialsMetadata,
-    private val createNabuToken: CreateNabuToken,
+    private val createNabuToken: CreateNabuToken
 ) : NabuToken {
 
     private fun createUserAndMetaData(): Single<NabuOfflineToken> = Single.defer {
@@ -36,8 +36,9 @@ class MetadataRepositoryNabuTokenAdapter(
         .switchIfEmpty(createUserAndMetaData())
 
     override fun fetchNabuToken(): Single<NabuOfflineToken> = defer.map {
-        if (!it.isValid())
+        if (!it.isValid()) {
             throw MetadataNotFoundException("Nabu Token is empty")
+        }
         it
     }
 }

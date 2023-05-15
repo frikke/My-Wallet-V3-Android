@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.Flow
 
 class EligibilityRepository(
     private val productsEligibilityStore: ProductsEligibilityStore,
-    private val eligibilityApiService: EligibilityApiService,
+    private val eligibilityApiService: EligibilityApiService
 ) : EligibilityService {
 
     override suspend fun getCountriesList(
@@ -43,7 +43,7 @@ class EligibilityRepository(
 
     override suspend fun getProductEligibilityLegacy(
         product: EligibleProduct,
-        freshnessStrategy: FreshnessStrategy,
+        freshnessStrategy: FreshnessStrategy
     ): Outcome<Exception, ProductEligibility> =
         getProductEligibility(product, freshnessStrategy).firstOutcome()
 
@@ -51,7 +51,6 @@ class EligibilityRepository(
         product: EligibleProduct,
         freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<ProductEligibility>> {
-
         return productsEligibilityStore.stream(freshnessStrategy)
             .mapData { eligibility ->
                 eligibility.products[product] ?: ProductEligibility.asEligible(product)
@@ -64,8 +63,7 @@ class EligibilityRepository(
             }
     }
 
-    override suspend fun getMajorProductsNotEligibleReasons():
-        Outcome<Exception, List<ProductNotEligibleReason>> =
+    override suspend fun getMajorProductsNotEligibleReasons(): Outcome<Exception, List<ProductNotEligibleReason>> =
         productsEligibilityStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             .firstOutcome()
             .map { data -> data.majorProductsNotEligibleReasons }

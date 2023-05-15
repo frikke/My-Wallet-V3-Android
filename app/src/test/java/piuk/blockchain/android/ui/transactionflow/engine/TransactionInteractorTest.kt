@@ -116,7 +116,8 @@ class TransactionInteractorTest {
             result,
             DepositOptionsState.ShowBottomSheet(
                 LinkablePaymentMethods(
-                    USD, listOf(PaymentMethodType.BANK_TRANSFER, PaymentMethodType.BANK_ACCOUNT)
+                    USD,
+                    listOf(PaymentMethodType.BANK_TRANSFER, PaymentMethodType.BANK_ACCOUNT)
                 )
             )
         )
@@ -164,7 +165,7 @@ class TransactionInteractorTest {
         arrangeEligiblePaymentMethodTypes(
             USD,
             listOf(
-                EligiblePaymentMethodType(PaymentMethodType.PAYMENT_CARD, USD),
+                EligiblePaymentMethodType(PaymentMethodType.PAYMENT_CARD, USD)
             )
         )
 
@@ -196,7 +197,7 @@ class TransactionInteractorTest {
         arrangeEligiblePaymentMethodTypes(
             USD,
             listOf(
-                EligiblePaymentMethodType(PaymentMethodType.BANK_TRANSFER, EUR),
+                EligiblePaymentMethodType(PaymentMethodType.BANK_TRANSFER, EUR)
             )
         )
 

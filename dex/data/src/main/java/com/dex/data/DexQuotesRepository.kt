@@ -63,11 +63,11 @@ class DexQuotesRepository(
                 toCurrency = ToCurrency(
                     chainId = dexQuoteParams.destinationAccount.currency.chainId,
                     symbol = dexQuoteParams.destinationAccount.currency.networkTicker,
-                    address = dexQuoteParams.destinationAccount.currency.contractAddress,
+                    address = dexQuoteParams.destinationAccount.currency.contractAddress
                 ),
                 slippage = dexQuoteParams.slippage,
                 address = it.address,
-                skipValidation = true
+                skipValidation = dexQuoteParams.sourceHasBeenAllowed.not()
             ).map { resp ->
                 DexQuote.ExchangeQuote(
                     amount = dexQuoteParams.amount,
@@ -99,7 +99,7 @@ class DexQuotesRepository(
                     quoteTtl = resp.quoteTtl,
                     gasLimit = resp.transaction.gasLimit,
                     value = resp.transaction.value,
-                    destinationContractAddress = resp.transaction.to,
+                    destinationContractAddress = resp.transaction.to
                 )
             }
         }.mapError {
@@ -120,9 +120,9 @@ class DexQuotesRepository(
         gasLimit: BigInteger,
         gasPriceWei: BigInteger
     ): Money {
-
         val gasPriceInGwei = Convert.fromWei(
-            gasPriceWei.toBigDecimal(), Convert.Unit.GWEI
+            gasPriceWei.toBigDecimal(),
+            Convert.Unit.GWEI
         )
 
         val feeInWei = Convert.toWei(

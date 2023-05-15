@@ -23,7 +23,7 @@ private val PendingTx.arLimits: ActiveRewardsLimits
     get() = (this.engineState[AR_LIMITS] as ActiveRewardsLimits)
 
 abstract class ActiveRewardsBaseEngine(
-    private val activeRewardsService: ActiveRewardsService,
+    private val activeRewardsService: ActiveRewardsService
 ) : TxEngine(), KoinComponent {
 
     protected val sourceAssetInfo: AssetInfo
@@ -40,9 +40,8 @@ abstract class ActiveRewardsBaseEngine(
     protected fun modifyEngineConfirmations(
         pendingTx: PendingTx,
         termsChecked: Boolean = getTermsOptionValue(pendingTx),
-        agreementChecked: Boolean = getAgreementOptionValue(pendingTx),
+        agreementChecked: Boolean = getAgreementOptionValue(pendingTx)
     ): Single<PendingTx> {
-
         val confirmationsSingle = Single.just(
             pendingTx.removeOption(TxConfirmation.DESCRIPTION)
                 .addOrReplaceOption(

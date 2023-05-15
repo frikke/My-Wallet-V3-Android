@@ -27,11 +27,13 @@ import kotlinx.coroutines.rx3.awaitSingle
 class NftCollectionViewModel(
     private val coincore: Coincore,
     private val nftService: NftService
-) : MviViewModel<NftCollectionIntent,
+) : MviViewModel<
+    NftCollectionIntent,
     NftCollectionViewState,
     NftCollectionModelState,
     NftCollectionNavigationEvent,
-    ModelConfigArgs.NoArgs>(
+    ModelConfigArgs.NoArgs
+    >(
     initialState = NftCollectionModelState()
 ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
@@ -186,8 +188,9 @@ class NftCollectionViewModel(
                                 collection = allCollection.map { it.toSet().toList() },
                                 displayType = allCollection.map { it.size == 1 }
                                     .dataOrElse(false).let { isOneItem ->
-                                        if (isOneItem) DisplayType.List
-                                        else it.displayType
+                                        if (isOneItem) {
+                                            DisplayType.List
+                                        } else it.displayType
                                     }
                             )
                         }

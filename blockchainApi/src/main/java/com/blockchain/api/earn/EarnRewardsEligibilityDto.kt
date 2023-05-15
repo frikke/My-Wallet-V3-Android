@@ -38,6 +38,7 @@ data class EarnRewardsEligibilityDto(
 
 @Serializable(with = EarnRewardsEligibilityResponseDtoSerializer::class)
 sealed class EarnRewardsEligibilityResponseDto
+
 @Serializable(with = AssetsWithEligibilityDeserializer::class)
 class AssetsWithEligibility(
     val assets: Map<String, EarnRewardsEligibilityDto>

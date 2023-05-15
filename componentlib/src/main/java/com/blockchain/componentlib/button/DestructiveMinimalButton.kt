@@ -43,7 +43,7 @@ fun DestructiveMinimalButton(
                 textColor: Color,
                 textAlpha: Float,
                 loadingIconResId: Int,
-                icon: ImageResource,
+                icon: ImageResource
             ->
             ButtonContent(
                 state = state,
@@ -51,7 +51,7 @@ fun DestructiveMinimalButton(
                 textColor = textColor,
                 contentAlpha = textAlpha,
                 loadingIconResId = loadingIconResId,
-                icon = icon,
+                icon = icon
             )
         }
     )
@@ -64,7 +64,7 @@ private fun DestructiveMinimalButton_Basic() {
         AppSurface {
             DestructiveMinimalButton(
                 onClick = { },
-                text = "Button",
+                text = "Button"
             )
         }
     }
@@ -78,7 +78,7 @@ private fun DestructiveMinimalButton_Loading() {
             DestructiveMinimalButton(
                 onClick = { },
                 text = "Button",
-                state = ButtonState.Loading,
+                state = ButtonState.Loading
             )
         }
     }
@@ -92,7 +92,7 @@ private fun DestructiveMinimalButton_Disabled() {
             DestructiveMinimalButton(
                 onClick = { },
                 text = "Button",
-                state = ButtonState.Disabled,
+                state = ButtonState.Disabled
             )
         }
     }
@@ -119,7 +119,7 @@ private fun DestructiveMinimalButton_DarkLoading() {
             DestructiveMinimalButton(
                 onClick = { },
                 text = "Button",
-                state = ButtonState.Loading,
+                state = ButtonState.Loading
             )
         }
     }
@@ -133,7 +133,7 @@ private fun DestructiveMinimalButton_DarkDisabled() {
             DestructiveMinimalButton(
                 onClick = { },
                 text = "Button",
-                state = ButtonState.Disabled,
+                state = ButtonState.Disabled
             )
         }
     }

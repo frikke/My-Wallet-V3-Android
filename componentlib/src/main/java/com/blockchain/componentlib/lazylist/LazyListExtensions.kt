@@ -23,7 +23,7 @@ fun <T> LazyListScope.roundedCornersItems(
     key: ((item: T) -> Any)? = null,
     dividerColor: Color? = BackgroundMuted,
     animateItemPlacement: Boolean = false,
-    content: @Composable (T) -> Unit,
+    content: @Composable (T) -> Unit
 ) {
     paddedRoundedCornersItems(
         items = items,
@@ -42,19 +42,22 @@ fun <T> LazyListScope.paddedRoundedCornersItems(
     dividerColor: Color? = BackgroundMuted,
     paddingValues: PaddingValues,
     animateItemPlacement: Boolean = false,
-    content: @Composable (T) -> Unit,
+    content: @Composable (T) -> Unit
 ) {
     items(
         items = items,
-        key = key,
+        key = key
     ) {
         Box(
             modifier = Modifier
                 .padding(paddingValues)
                 .then(
-                    if (animateItemPlacement) Modifier.animateItemPlacement()
-                    else Modifier
-                ),
+                    if (animateItemPlacement) {
+                        Modifier.animateItemPlacement()
+                    } else {
+                        Modifier
+                    }
+                )
         ) {
             when {
                 items.size == 1 -> Card(
@@ -104,17 +107,20 @@ fun LazyListScope.paddedItem(
     key: Any? = null,
     paddingValues: PaddingValues,
     animateItemPlacement: Boolean = false,
-    content: @Composable () -> Unit,
+    content: @Composable () -> Unit
 ) {
     item(
-        key = key,
+        key = key
     ) {
         Column(
             modifier = Modifier
                 .padding(paddingValues)
                 .then(
-                    if (animateItemPlacement) Modifier.animateItemPlacement()
-                    else Modifier
+                    if (animateItemPlacement) {
+                        Modifier.animateItemPlacement()
+                    } else {
+                        Modifier
+                    }
                 )
         ) {
             content()

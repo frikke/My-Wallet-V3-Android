@@ -112,12 +112,12 @@ fun AssetAccountsError() {
             .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
     ) {
         CardAlert(
-            title = stringResource(R.string.coinview_account_load_error_title),
-            subtitle = stringResource(R.string.coinview_account_load_error_subtitle),
+            title = stringResource(com.blockchain.stringResources.R.string.coinview_account_load_error_title),
+            subtitle = stringResource(com.blockchain.stringResources.R.string.coinview_account_load_error_subtitle),
             alertType = AlertType.Warning,
             backgroundColor = AppTheme.colors.background,
             isBordered = false,
-            isDismissable = false,
+            isDismissable = false
         )
     }
 }
@@ -137,14 +137,13 @@ fun AssetAccountsData(
                 .fillMaxWidth()
                 .padding(AppTheme.dimensions.smallSpacing)
         ) {
-
             // balance
             Row(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     modifier = Modifier.weight(1F),
-                    text = stringResource(R.string.common_balance),
+                    text = stringResource(com.blockchain.stringResources.R.string.common_balance),
                     style = AppTheme.typography.body2,
                     color = AppTheme.colors.muted
                 )
@@ -152,7 +151,7 @@ fun AssetAccountsData(
                 Text(
                     text = it.totalBalance,
                     style = AppTheme.typography.body2,
-                    color = AppTheme.colors.title,
+                    color = AppTheme.colors.title
                 )
             }
 
@@ -176,6 +175,7 @@ fun AssetAccountsData(
                                     is LogoSource.Remote -> {
                                         ImageResource.Remote(url = account.logo.value, shape = CircleShape)
                                     }
+
                                     is LogoSource.Resource -> {
                                         ImageResource.Local(
                                             id = account.logo.value,
@@ -207,6 +207,7 @@ fun AssetAccountsData(
                                 }
                             )
                         }
+
                         is CoinviewAccountsState.CoinviewAccountState.Unavailable -> {
                             DefaultTableRow(
                                 primaryText = account.title,
@@ -215,6 +216,7 @@ fun AssetAccountsData(
                                     is LogoSource.Remote -> {
                                         ImageResource.Remote(url = account.logo.value, shape = CircleShape)
                                     }
+
                                     is LogoSource.Resource -> {
                                         ImageResource.Local(
                                             id = account.logo.value,
@@ -224,7 +226,8 @@ fun AssetAccountsData(
                                     }
                                 },
                                 endImageResource = ImageResource.Local(
-                                    R.drawable.ic_lock, colorFilter = ColorFilter.tint(Grey400)
+                                    R.drawable.ic_lock,
+                                    colorFilter = ColorFilter.tint(Grey400)
                                 ),
                                 backgroundColor = Color.Transparent,
                                 onClick = { onLockedAccountClick() }
@@ -244,7 +247,11 @@ fun AssetAccountsData(
 
                 SmallInfoWithIcon(
                     iconUrl = l1Network.logo,
-                    text = stringResource(R.string.coinview_asset_l1, it.assetName, l1Network.name),
+                    text = stringResource(
+                        com.blockchain.stringResources.R.string.coinview_asset_l1,
+                        it.assetName,
+                        l1Network.name
+                    )
                 )
             }
         }

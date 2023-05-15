@@ -22,7 +22,7 @@ class WithdrawFeesService internal constructor(
 @Serializable
 data class WithdrawFeesAndMinLimitResponse(
     val minAmount: ExchangedAmountResponse,
-    val totalFees: ExchangedAmountResponse,
+    val totalFees: ExchangedAmountResponse
 )
 
 @Serializable
@@ -33,7 +33,7 @@ data class ExchangedAmountResponse(
 @Serializable
 data class AmountResponse(
     val currency: String,
-    val value: String,
+    val value: String
 )
 
 @Serializable
@@ -43,5 +43,5 @@ data class WithdrawFeesAndMinRequest(
     val fiatCurrency: String,
     val amount: String,
     val max: Boolean,
-    val paymentMethod: String,
+    val paymentMethod: String
 )

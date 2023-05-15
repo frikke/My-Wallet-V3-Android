@@ -100,7 +100,8 @@ private class TrendingPairsAdapter(
     private val compositeDisposable = CompositeDisposable()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
         TrendingPairViewHolder(
-            ItemTrendingPairRowBinding.inflate(LayoutInflater.from(parent.context), parent, false), itemClicked,
+            ItemTrendingPairRowBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+            itemClicked,
             compositeDisposable
         )
 
@@ -149,11 +150,11 @@ private class TrendingPairsAdapter(
                 when (type) {
                     TrendingPairsView.TrendingType.SWAP -> {
                         trendingTitle.text = context.getString(
-                            R.string.trending_swap,
+                            com.blockchain.stringResources.R.string.trending_swap,
                             item.sourceAccount.currency.name
                         )
                         trendingSubtitle.text = context.getString(
-                            R.string.common_receive_to,
+                            com.blockchain.stringResources.R.string.common_receive_to,
                             item.destinationAccount.currency.name
                         )
                         trendingIconType.setImageDrawable(context.getResolvedDrawable(R.drawable.ic_swap_light_blue))

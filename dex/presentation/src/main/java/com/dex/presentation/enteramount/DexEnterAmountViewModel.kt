@@ -110,7 +110,8 @@ class DexEnterAmountViewModel(
             } ?: Money.zero(currencyPrefs.selectedFiatCurrency),
             outputAmount = transaction?.quote?.outputAmount?.expectedOutput,
             outputExchangeAmount = safeLet(
-                transaction?.quote?.outputAmount?.expectedOutput, state.outputToFiatExchangeRate
+                transaction?.quote?.outputAmount?.expectedOutput,
+                state.outputToFiatExchangeRate
             ) { amount, rate ->
                 fiatAmount(amount, rate)
             } ?: Money.zero(currencyPrefs.selectedFiatCurrency),
@@ -122,7 +123,7 @@ class DexEnterAmountViewModel(
                 state.feeToFiatExchangeRate
             ),
             previewActionButtonState = actionButtonState(state),
-            allowanceCanBeRevoked = state.canRevokeAllowance,
+            allowanceCanBeRevoked = state.canRevokeAllowance
         )
     }
 
@@ -234,7 +235,7 @@ class DexEnterAmountViewModel(
             } else {
                 updateState { state ->
                     state.copy(
-                        operationInProgress = DexOperation.NONE,
+                        operationInProgress = DexOperation.NONE
                     )
                 }
             }
@@ -285,7 +286,7 @@ class DexEnterAmountViewModel(
             } else {
                 updateState {
                     it.copy(
-                        operationInProgress = DexOperation.NONE,
+                        operationInProgress = DexOperation.NONE
                     )
                 }
             }
@@ -301,7 +302,7 @@ class DexEnterAmountViewModel(
         if (allowanceState == AllowanceTransactionState.COMPLETED) {
             updateState {
                 it.copy(
-                    operationInProgress = DexOperation.NONE,
+                    operationInProgress = DexOperation.NONE
                 )
             }
             navigate(AmountNavigationEvent.AllowanceTxCompleted(currency.displayTicker))
@@ -309,7 +310,7 @@ class DexEnterAmountViewModel(
         } else {
             updateState {
                 it.copy(
-                    operationInProgress = DexOperation.NONE,
+                    operationInProgress = DexOperation.NONE
                 )
             }
             navigate(
@@ -375,7 +376,7 @@ class DexEnterAmountViewModel(
             }.collectLatest {
                 updateState { state ->
                     state.copy(
-                        transaction = it,
+                        transaction = it
                     )
                 }
             }
@@ -527,7 +528,7 @@ sealed class InputAmountViewState : ViewState {
         val allowanceCanBeRevoked: Boolean,
         val uiFee: UiFee?,
         val previewActionButtonState: ActionButtonState,
-        private val errors: List<DexUiError> = emptyList(),
+        private val errors: List<DexUiError> = emptyList()
     ) : InputAmountViewState() {
         fun canChangeInputCurrency() = operationInProgress != DexOperation.PUSHING_ALLOWANCE_TX
 
@@ -575,7 +576,7 @@ data class AmountModelState(
     val inputToFiatExchangeRate: ExchangeRate?,
     val outputToFiatExchangeRate: ExchangeRate?,
     val feeToFiatExchangeRate: ExchangeRate?,
-    val canRevokeAllowance: Boolean = false,
+    val canRevokeAllowance: Boolean = false
 ) : ModelState
 
 sealed class AmountNavigationEvent : NavigationEvent {

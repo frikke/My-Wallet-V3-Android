@@ -37,7 +37,7 @@ fun DateCalendar(
                     maxDate = it.time
                 }
 
-                /* Sets up the chevron colors */
+                // Sets up the chevron colors
                 val prevButton =
                     findViewById<ImageButton?>(
                         Resources.getSystem().getIdentifier("prev", "id", "android")

@@ -43,6 +43,7 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest(), KoinTest {
         )
     }
     val json: Json by inject()
+
     @Before fun setup() {
         MockitoAnnotations.openMocks(this)
         doNothing().`when`(balanceManagerBtc).updateAllBalances(any(), any())
@@ -61,7 +62,7 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest(), KoinTest {
             object : AppVersion {
                 override val appVersion: String
                     get() = "8.18"
-            },
+            }
         )
     }
 
@@ -85,7 +86,10 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest(), KoinTest {
         assert(payloadManager.payload!!.dpasswordhash!!.isEmpty())
         assert(
             payloadManager.payload!!.options == Options(
-                pbkdf2Iterations = 5000, feePerKb = 10000, _isHtml5Notifications = false, _logoutTime = 600000
+                pbkdf2Iterations = 5000,
+                feePerKb = 10000,
+                _isHtml5Notifications = false,
+                _logoutTime = 600000
             )
         )
         assert(payloadManager.payload?.importedAddressList!!.isEmpty())
@@ -95,10 +99,13 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest(), KoinTest {
         assert(
             payloadManager.payload?.walletBody?.accounts == listOf(
                 AccountV4(
-                    label = "Private Key Wallet", _defaultType = "bech32", _isArchived = false,
+                    label = "Private Key Wallet",
+                    _defaultType = "bech32",
+                    _isArchived = false,
                     derivations = listOf(
                         Derivation(
-                            type = "legacy", purpose = 44,
+                            type = "legacy",
+                            purpose = 44,
                             xpriv = "xprv9yWWrg4pye8RGB4vyjMdsqbrMihwo1Tpu7Kn5sZywYTG2rVBzyJBwoTodBn8SvWWLxt9nR5hL5fmJS5vQ5aBpqksjaDQ4vP8PkwWn6hb113",
                             xpub = "xpub6CVsGBbip1giUf9Q5kteEyYaukYSCUBgGLFNtFybVszEuepLYWcSVbnHUTh5ASY6q2HGf5tJjhmXm7YjssMnKru7TUv1FDU23W5ubBQoMvv",
                             cache = AddressCache(
@@ -108,7 +115,8 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest(), KoinTest {
                             _addressLabels = emptyList()
                         ),
                         Derivation(
-                            type = "bech32", purpose = 84,
+                            type = "bech32",
+                            purpose = 84,
                             xpriv = "xprv9yDDzgiPtLsELMgwKxQP6URNujTTB3Lyn1MwgGQ2kHDxF6PyXJMazgAcyQsxzgACF7bJd8iwY6jPgDiFvAXdDVEfjjP4a2XpkywY3xp6F3B",
                             xpub = "xpub6CCaQCFHiiRXYqmQRywPTcN7TmHwaW4q9EHYUeoeJckw7tj84qfqYUV6pedgtJi1p7QNLnnn5Gki2R5wR6pYSHWptaPJgD3219iZRd5H5TU",
                             cache = AddressCache(
@@ -120,7 +128,9 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest(), KoinTest {
                     )
                 ),
                 AccountV4(
-                    label = "test", _defaultType = "bech32", _isArchived = false,
+                    label = "test",
+                    _defaultType = "bech32",
+                    _isArchived = false,
                     derivations = listOf(
                         Derivation(
                             type =
@@ -135,7 +145,8 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest(), KoinTest {
                             _addressLabels = listOf()
                         ),
                         Derivation(
-                            type = "bech32", purpose = 84,
+                            type = "bech32",
+                            purpose = 84,
                             xpriv = "xprv9yDDzgiPtLsEN9B4dsgujWhNKGSdJZz3wrbyNNDYZv64PFpFubG89rq92yztrhyCKUjmeRA6PM5Z2meaZiDN73WSv9rY6QTd3C29M5rcyLG",
                             xpub = "xpub6CCaQCFHiiRXadFXjuDv6ee6sJH7i2huK5XaAkdA8Fd3G49QT8aNhf9ctEmmvNVVPL3jkuwCb47cc9EYv5jMGbkQdFg3E4EE6sdwgTc7c2H",
                             cache = AddressCache(
@@ -147,10 +158,13 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest(), KoinTest {
                     )
                 ),
                 AccountV4(
-                    label = "Tavo Tevas", _defaultType = "bech32", _isArchived = false,
+                    label = "Tavo Tevas",
+                    _defaultType = "bech32",
+                    _isArchived = false,
                     derivations = listOf(
                         Derivation(
-                            type = "legacy", purpose = 44,
+                            type = "legacy",
+                            purpose = 44,
                             xpriv = "xprv9yWWrg4pye8RNb8GWsQijCwC4rbk7i68iQE9qhR2b3Bd8yzy7Q7C23KyBHzXtQfMmoUe11xU1Vg9auNXeLEPNhfMoFAKwCN8eFj46YwJLtw",
                             xpub = "xpub6CVsGBbip1gib5Cjctwj6LsvctSEXAoz5d9ke5pe9Nic1nL7ewRSZqeT2Zy2g2o6Lh5LVeXkNH79TNNEiUGaREqE3BWSJfMYWA65uCrSrqh",
                             cache = AddressCache(
@@ -160,7 +174,8 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest(), KoinTest {
                             _addressLabels = emptyList()
                         ),
                         Derivation(
-                            type = "bech32", purpose = 84,
+                            type = "bech32",
+                            purpose = 84,
                             xpriv = "xprv9yDDzgiPtLsEQeMAenjKJLUfUBmnwkRDdpU7vV1Y3in16WoZHHi8Xck2U2jCHGGfZ2dFnhpieJNHDvZjHexnVmvi1zhoZ2vAvbPaneHgZQQ",
                             xpub = "xpub6CCaQCFHiiRXd8RdkpGKfURQ2DcHMD9513PiisR9c4JyyK8hpq2P5R4WKJV3FwFR864Rt7kxbrqX9BEKKFWfoN9LArXixCFFfUrv6dArZZK",
                             cache = AddressCache(

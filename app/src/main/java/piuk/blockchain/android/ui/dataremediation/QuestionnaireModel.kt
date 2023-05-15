@@ -24,18 +24,18 @@ data class QuestionnaireModelState(
 sealed class Navigation : NavigationEvent {
     data class OpenDropdownPickerForSingleSelection(
         val original: FlatNode.Dropdown,
-        val node: TreeNode.SingleSelection,
+        val node: TreeNode.SingleSelection
     ) : Navigation()
     data class OpenDropdownPickerForMultipleSelection(
         val original: FlatNode.Dropdown,
-        val node: TreeNode.MultipleSelection,
+        val node: TreeNode.MultipleSelection
     ) : Navigation()
     object FinishSuccessfully : Navigation()
 }
 
 @Parcelize
 data class Args(
-    val questionnaire: Questionnaire,
+    val questionnaire: Questionnaire
 ) : ModelConfigArgs.ParcelableArgs
 
 class QuestionnaireModel(

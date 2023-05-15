@@ -34,7 +34,7 @@ class EarnFieldExplainerBottomSheet(private val earnField: EarnFieldExplainer) :
                     shouldShowHeaderDivider = false,
                     button = BottomSheetButton(
                         type = ButtonType.PRIMARY,
-                        text = stringResource(R.string.common_got_it),
+                        text = stringResource(com.blockchain.stringResources.R.string.common_got_it),
                         onClick = { dismiss() }
                     ),
                     headerImageResource = null

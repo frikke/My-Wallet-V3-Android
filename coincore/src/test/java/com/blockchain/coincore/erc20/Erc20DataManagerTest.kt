@@ -63,7 +63,7 @@ class Erc20DataManagerTest {
 
     private val subject = Erc20DataManagerImpl(
         ethDataManager = ethDataManager,
-        historyCallCache = historyCallCache,
+        historyCallCache = historyCallCache
     )
 
     @Test
@@ -325,7 +325,7 @@ class Erc20DataManagerTest {
             type = NetworkType.EVM,
             nodeUrls = listOf("nodeurl1", "nodeurl2"),
             feeCurrencies = listOf("ETH"),
-            isMemoSupported = false,
+            isMemoSupported = false
         )
         private val ERC20_TOKEN: AssetInfo = object : CryptoCurrency(
             displayTicker = "DUMMY",
@@ -336,7 +336,7 @@ class Erc20DataManagerTest {
             precisionDp = 8,
             l2identifier = CONTRACT_ADDRESS,
             requiredConfirmations = 5,
-            colour = "#123456",
+            colour = "#123456"
         ) {}
 
         private val UNKNOWN_ERC20_TOKEN: AssetInfo = object : CryptoCurrency(
@@ -348,7 +348,7 @@ class Erc20DataManagerTest {
             precisionDp = 8,
             l2identifier = CONTRACT_ADDRESS,
             requiredConfirmations = 5,
-            colour = "#123456",
+            colour = "#123456"
         ) {}
     }
 }

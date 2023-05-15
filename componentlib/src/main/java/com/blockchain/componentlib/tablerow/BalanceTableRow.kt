@@ -60,21 +60,21 @@ fun BalanceTableRow(
                 imageResource = startImageResource,
                 modifier = Modifier
                     .align(CenterVertically)
-                    .size(dimensionResource(R.dimen.standard_spacing)),
+                    .size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)),
                 defaultShape = RoundedCornerShape(2.dp)
             )
         },
         content = {
             val startPadding = if (startImageResource != ImageResource.None) {
-                dimensionResource(R.dimen.small_spacing)
+                dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)
             } else {
-                dimensionResource(R.dimen.zero_spacing)
+                dimensionResource(com.blockchain.componentlib.R.dimen.zero_spacing)
             }
 
             val endPadding = if (endImageResource != ImageResource.None) {
-                dimensionResource(R.dimen.small_spacing)
+                dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)
             } else {
-                dimensionResource(R.dimen.zero_spacing)
+                dimensionResource(com.blockchain.componentlib.R.dimen.zero_spacing)
             }
 
             Column(
@@ -82,9 +82,8 @@ fun BalanceTableRow(
                     .padding(start = startPadding, end = endPadding)
                     .fillMaxWidth()
                     .wrapContentHeight(),
-                verticalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.Center
             ) {
-
                 if (bodyStart != null || (tags.isNotEmpty() && isInlineTags)) {
                     TitleAndBodyTableRow(
                         titleStart,
@@ -96,7 +95,7 @@ fun BalanceTableRow(
                         tags,
                         bodyEnd
                     )
-                } else
+                } else {
                     SingleTitleTableRow(
                         titleStart,
                         titleEnd,
@@ -104,6 +103,7 @@ fun BalanceTableRow(
                         postStartTitleImageResourceOnClick,
                         bodyEnd
                     )
+                }
             }
         },
         contentEnd = {
@@ -111,8 +111,8 @@ fun BalanceTableRow(
                 Image(
                     imageResource = endImageResource,
                     modifier = Modifier.requiredSizeIn(
-                        maxWidth = dimensionResource(R.dimen.standard_spacing),
-                        maxHeight = dimensionResource(R.dimen.standard_spacing),
+                        maxWidth = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                        maxHeight = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
                     )
                 )
             }
@@ -313,7 +313,7 @@ fun BalanceTableRow_Local_ImageStart() {
                 bodyStart = buildAnnotatedString { append("Some body here") },
                 onClick = {},
                 startImageResource = ImageResource.Local(
-                    id = R.drawable.ic_blockchain,
+                    id = R.drawable.ic_blockchain
                 ),
                 tags = emptyList()
             )
@@ -330,11 +330,11 @@ fun BalanceTableRow_Local_ImageEnd() {
                 titleStart = buildAnnotatedString { append("Some title here") },
                 bodyStart = buildAnnotatedString { append("Some body here") },
                 postStartTitleImageResource = ImageResource.Local(
-                    id = R.drawable.ic_blockchain,
+                    id = R.drawable.ic_blockchain
                 ),
                 onClick = {},
                 endImageResource = ImageResource.Local(
-                    id = R.drawable.ic_blockchain,
+                    id = R.drawable.ic_blockchain
                 ),
                 tags = emptyList()
             )
@@ -372,7 +372,7 @@ fun BalanceTableRow_TitleStart_No_Body_Start() {
                 onClick = {},
                 tags = emptyList(),
                 startImageResource = ImageResource.Local(
-                    id = R.drawable.ic_blockchain,
+                    id = R.drawable.ic_blockchain
                 )
             )
         }
@@ -392,8 +392,8 @@ fun BalanceTableRow_TitleStart_Tags() {
                 onClick = {},
                 tags = listOf(TagViewState("One", TagType.Default()), TagViewState("Two", TagType.Success())),
                 startImageResource = ImageResource.Local(
-                    id = R.drawable.ic_blockchain,
-                ),
+                    id = R.drawable.ic_blockchain
+                )
             )
         }
     }
@@ -413,8 +413,8 @@ fun BalanceTableRow_TitleStart_Tags_Inline() {
                 tags = listOf(TagViewState("One", TagType.Default()), TagViewState("Two", TagType.Success())),
                 isInlineTags = true,
                 startImageResource = ImageResource.Local(
-                    id = R.drawable.ic_blockchain,
-                ),
+                    id = R.drawable.ic_blockchain
+                )
             )
         }
     }
@@ -432,7 +432,7 @@ fun BalanceTableRow_TitleStart_Tags_NoBodyStart() {
                 onClick = {},
                 tags = listOf(TagViewState("One", TagType.Default()), TagViewState("Two", TagType.Success())),
                 startImageResource = ImageResource.Local(
-                    id = R.drawable.ic_blockchain,
+                    id = R.drawable.ic_blockchain
                 )
             )
         }
@@ -451,10 +451,10 @@ fun BalanceTableRow_PostTitleImageResource() {
                 onClick = {},
                 tags = listOf(TagViewState("One", TagType.Default()), TagViewState("Two", TagType.Success())),
                 startImageResource = ImageResource.Local(
-                    id = R.drawable.ic_blockchain,
+                    id = R.drawable.ic_blockchain
                 ),
                 postStartTitleImageResource = ImageResource.Local(
-                    id = R.drawable.ic_blockchain,
+                    id = R.drawable.ic_blockchain
                 )
             )
         }

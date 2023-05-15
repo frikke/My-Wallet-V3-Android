@@ -28,7 +28,7 @@ class RemoteConfigRepository(
     private val firebaseRemoteConfig: FirebaseRemoteConfig,
     private val remoteConfigPrefs: RemoteConfigPrefs,
     private val experimentsStore: ExperimentsStore,
-    private val json: Json,
+    private val json: Json
 ) : RemoteConfigService {
 
     override fun getIfFeatureEnabled(key: String): Single<Boolean> =
@@ -94,7 +94,6 @@ class RemoteConfigRepository(
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     suspend fun getMapToReturn(inputJson: Map<String, Any>): Map<*, *> {
-
         val experimentStoreValues = getValueFromCacheFlow()
 
         return inputJson.deepMapJson {
@@ -131,8 +130,9 @@ class RemoteConfigRepository(
     fun <T> Iterable<T>.firstAndOnly(): T? {
         val iterator = iterator()
         val first = iterator.next()
-        if (iterator.hasNext())
+        if (iterator.hasNext()) {
             throw NoSuchElementException("Collection has more than one element.")
+        }
         return first
     }
 
@@ -207,12 +207,14 @@ class RemoteConfigRepository(
                     if (isRemoteConfigStale) {
                         remoteConfigPrefs.updateRemoteConfigStaleStatus(false)
                     }
-                    if (!emitter.isDisposed)
+                    if (!emitter.isDisposed) {
                         emitter.onComplete()
+                    }
                 }
             }.addOnFailureListener {
-                if (!emitter.isDisposed)
+                if (!emitter.isDisposed) {
                     emitter.onError(it)
+                }
             }
     }.cache()
 

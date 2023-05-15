@@ -54,8 +54,9 @@ class WalletConnectMetadataRepository(
 
     override fun store(session: WalletConnectSession): Completable =
         loadSessions().flatMapCompletable { sessions ->
-            if (sessions.contains(session)) Completable.complete()
-            else {
+            if (sessions.contains(session)) {
+                Completable.complete()
+            } else {
                 val newSessions = sessions + session
                 updateRemoteSessions(newSessions)
             }

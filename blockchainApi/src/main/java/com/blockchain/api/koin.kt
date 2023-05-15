@@ -484,7 +484,7 @@ val blockchainApiModule = module {
     factory {
         val api = get<Retrofit>(nabuApi).create(ReferralApi::class.java)
         ReferralApiService(
-            api = api,
+            api = api
         )
     }
 

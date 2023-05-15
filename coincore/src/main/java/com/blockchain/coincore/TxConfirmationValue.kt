@@ -18,7 +18,7 @@ sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
     data class ExchangePriceConfirmation(
         val money: Money,
         val asset: Currency,
-        val isNewQuote: Boolean = false,
+        val isNewQuote: Boolean = false
     ) :
         TxConfirmationValue(TxConfirmation.EXPANDABLE_SIMPLE_READ_ONLY)
 
@@ -34,7 +34,7 @@ sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
 
     data class DAppInfo(
         val name: String,
-        val url: String,
+        val url: String
     ) : TxConfirmationValue(TxConfirmation.COMPLEX_READ_ONLY)
 
     data class Chain(val assetInfo: AssetInfo) :
@@ -131,7 +131,7 @@ sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
     ) : TxConfirmationValue(TxConfirmation.SIMPLE_READ_ONLY)
 
     data class AvailableToWithdraw(
-        val value: String,
+        val value: String
     ) : TxConfirmationValue(TxConfirmation.SIMPLE_TOOLTIP)
 
     data class AchTermsAndConditions(

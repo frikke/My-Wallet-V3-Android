@@ -85,7 +85,9 @@ class Erc20OnChainTxEngine(
                 txConfirmations = listOfNotNull(
                     TxConfirmationValue.From(sourceAccount, sourceAsset),
                     TxConfirmationValue.To(
-                        txTarget, AssetAction.Send, sourceAccount
+                        txTarget,
+                        AssetAction.Send,
+                        sourceAccount
                     ),
                     TxConfirmationValue.CompoundNetworkFee(
                         sendingFeeInfo = if (!pendingTx.feeAmount.isZero) {
@@ -95,7 +97,9 @@ class Erc20OnChainTxEngine(
                                 sourceAsset,
                                 (sourceAccount as? Erc20NonCustodialAccount)?.l1Network
                             )
-                        } else null,
+                        } else {
+                            null
+                        },
                         feeLevel = pendingTx.feeSelection.selectedLevel
                     ),
                     buildConfirmationTotal(pendingTx),
@@ -148,7 +152,7 @@ class Erc20OnChainTxEngine(
         require(amount.currency == sourceAsset)
         return Single.zip(
             sourceAccount.balanceRx().firstOrError(),
-            absoluteFees(),
+            absoluteFees()
         ) { balance, feesForLevels ->
             val fee = feesForLevels[pendingTx.feeSelection.selectedLevel] ?: CryptoValue.zero(l1Asset)
 
@@ -227,7 +231,7 @@ class Erc20OnChainTxEngine(
     private fun validateSufficientGas(pendingTx: PendingTx): Completable =
         Single.zip(
             l1AssetBalance,
-            absoluteFees(),
+            absoluteFees()
         ) { balance, feeLevels ->
             val fee = feeLevels[pendingTx.feeSelection.selectedLevel] ?: CryptoValue.zero(l1Asset)
 

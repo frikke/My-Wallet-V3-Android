@@ -34,13 +34,13 @@ data class Args(val emailMustBeValidated: Boolean) : ModelConfigArgs.ParcelableA
 
 class EmailVerificationModel(
     private val emailUpdater: EmailSyncUpdater,
-    private val getUserStore: GetUserStore,
+    private val getUserStore: GetUserStore
 ) : MviViewModel<
     EmailVerificationIntent,
     EmailVerificationViewState,
     EmailVerificationModelState,
     Navigation,
-    Args,
+    Args
     >(EmailVerificationModelState()) {
 
     private var jobPolling: Job? = null
@@ -68,7 +68,7 @@ class EmailVerificationModel(
             email = state.email,
             isVerified = state.isVerified,
             showResendEmailConfirmation = state.showResendEmailConfirmation,
-            error = state.error,
+            error = state.error
         )
 
     override suspend fun handleIntent(

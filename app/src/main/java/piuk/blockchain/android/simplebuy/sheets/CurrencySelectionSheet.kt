@@ -55,14 +55,20 @@ class CurrencySelectionSheet :
         with(binding) {
             introHeaderDescription.text = when {
                 selectionType == CurrencySelectionType.DISPLAY_CURRENCY ->
-                    getString(R.string.display_currency_selection_header)
-                currencies.contains(selectedCurrency) -> getString(R.string.trading_currency_selection_header)
-                else -> getString(R.string.currency_not_available, selectedCurrency.name)
+                    getString(com.blockchain.stringResources.R.string.display_currency_selection_header)
+                currencies.contains(selectedCurrency) -> getString(
+                    com.blockchain.stringResources.R.string.trading_currency_selection_header
+                )
+                else -> getString(com.blockchain.stringResources.R.string.currency_not_available, selectedCurrency.name)
             }
 
             introHeaderTitle.text = when (selectionType) {
-                CurrencySelectionType.TRADING_CURRENCY -> getString(R.string.select_a_trading_currency)
-                CurrencySelectionType.DISPLAY_CURRENCY -> getString(R.string.select_a_display_currency)
+                CurrencySelectionType.TRADING_CURRENCY -> getString(
+                    com.blockchain.stringResources.R.string.select_a_trading_currency
+                )
+                CurrencySelectionType.DISPLAY_CURRENCY -> getString(
+                    com.blockchain.stringResources.R.string.select_a_display_currency
+                )
             }
 
             recycler.layoutManager = LinearLayoutManager(activity)

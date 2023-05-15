@@ -75,19 +75,19 @@ sealed class Navigation : NavigationEvent {
 @Parcelize
 data class Args(
     val countryIso: CountryIso,
-    val stateIso: StateIso?,
+    val stateIso: StateIso?
 ) : ModelConfigArgs.ParcelableArgs
 
 class ProvePrefillModel(
     private val proveService: ProveService,
     private val userService: UserService,
-    private val kycTiersStore: KycTiersStore,
+    private val kycTiersStore: KycTiersStore
 ) : MviViewModel<
     ProvePrefillIntent,
     ProvePrefillViewState,
     ProvePrefillModelState,
     Navigation,
-    Args,
+    Args
     >(ProvePrefillModelState()) {
 
     private lateinit var countryIso: CountryIso
@@ -138,7 +138,7 @@ class ProvePrefillModel(
             isAddressDropdownOpen = state.isAddressDropdownOpen,
             prefillDob = state.prefillDob,
             prefillMobileNumber = state.prefillMobileNumber,
-            prefillContinueButtonState = prefillContinueButtonState,
+            prefillContinueButtonState = prefillContinueButtonState
         )
     }
 
@@ -189,7 +189,7 @@ class ProvePrefillModel(
                             updateState {
                                 it.copy(
                                     currentScreen = Screen.MOBILE_AUTH_DOB_ENTRY,
-                                    mobileNumberInput = result.mobileNumber,
+                                    mobileNumberInput = result.mobileNumber
                                 )
                             }
                         }
@@ -221,7 +221,7 @@ class ProvePrefillModel(
                         updateState {
                             it.copy(
                                 currentScreen = Screen.WAITING_INSTANT_LINK_VALIDATION,
-                                isStartingInstantLinkAuthLoading = false,
+                                isStartingInstantLinkAuthLoading = false
                             )
                         }
                         startPollingForPossessionVerified(dob)
@@ -231,7 +231,7 @@ class ProvePrefillModel(
                         updateState {
                             it.copy(
                                 error = error.toProveError(),
-                                isStartingInstantLinkAuthLoading = false,
+                                isStartingInstantLinkAuthLoading = false
                             )
                         }
                     }
@@ -278,7 +278,7 @@ class ProvePrefillModel(
                     it.copy(
                         currentScreen = Screen.VIEW_PREFILL_DATA,
                         prefillSelectedAddress = intent.addressDetails,
-                        manualEntryAddress = intent.addressDetails,
+                        manualEntryAddress = intent.addressDetails
                     )
                 }
             }
@@ -293,7 +293,7 @@ class ProvePrefillModel(
                     lastName = lastName,
                     address = address.toProveAddress(),
                     dob = modelState.prefillDob!!.toISO8601DateString(),
-                    mobileNumber = modelState.prefillMobileNumber,
+                    mobileNumber = modelState.prefillMobileNumber
                 )
 
                 updateState { it.copy(currentScreen = Screen.WAITING_PREFILL_DATA_SUBMISSION) }
@@ -311,7 +311,7 @@ class ProvePrefillModel(
                             updateState {
                                 it.copy(
                                     currentScreen = Screen.VIEW_PREFILL_DATA,
-                                    error = error.toProveError(),
+                                    error = error.toProveError()
                                 )
                             }
                         }
@@ -332,7 +332,7 @@ class ProvePrefillModel(
                         PossessionState.Unverified -> updateState {
                             it.copy(
                                 currentScreen = Screen.INSTANT_LINK_PHONE_AND_DOB_ENTRY,
-                                error = ProveError.PossessionVerificationTimeout,
+                                error = ProveError.PossessionVerificationTimeout
                             )
                         }
                         is PossessionState.Verified -> fetchAndShowPrefillData(dob)
@@ -345,7 +345,7 @@ class ProvePrefillModel(
                     updateState {
                         it.copy(
                             currentScreen = Screen.INSTANT_LINK_PHONE_AND_DOB_ENTRY,
-                            error = error.toProveError(),
+                            error = error.toProveError()
                         )
                     }
                 }
@@ -385,7 +385,7 @@ class ProvePrefillModel(
                             prefillAddresses = data.addresses.orEmpty().map { it.toAddressDetails(countryIso) },
                             prefillSelectedAddress = selectedAddress?.toAddressDetails(countryIso),
                             prefillDob = data.dob?.fromISO8601DataString() ?: it.dateOfBirthInput,
-                            prefillMobileNumber = data.phoneNumber ?: it.mobileNumberInput,
+                            prefillMobileNumber = data.phoneNumber ?: it.mobileNumberInput
                         )
                     }
                 }
@@ -395,7 +395,7 @@ class ProvePrefillModel(
                         it.copy(
                             currentScreen = Screen.VIEW_PREFILL_DATA,
                             prefillMobileNumber = it.mobileNumberInput,
-                            prefillDob = it.dateOfBirthInput,
+                            prefillDob = it.dateOfBirthInput
                         )
                     }
                 }
@@ -422,7 +422,7 @@ private fun Address.toAddressDetails(countryIso: CountryIso): AddressDetails = A
     city = city,
     postCode = postCode,
     countryIso = countryIso,
-    stateIso = state,
+    stateIso = state
 )
 
 private fun AddressDetails.toProveAddress(): Address = Address(
@@ -431,5 +431,5 @@ private fun AddressDetails.toProveAddress(): Address = Address(
     city = city,
     state = stateIso.orEmpty(),
     postCode = postCode,
-    country = countryIso,
+    country = countryIso
 )

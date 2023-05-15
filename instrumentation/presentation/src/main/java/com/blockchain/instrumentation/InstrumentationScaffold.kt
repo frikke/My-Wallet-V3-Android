@@ -98,7 +98,7 @@ private fun BoxScope.Panel(
     items: List<InstrumentationQueue.Item>,
     panelClicked: () -> Unit,
     skipClicked: (UUID) -> Unit,
-    responseClicked: (UUID, InstrumentedResponse) -> Unit,
+    responseClicked: (UUID, InstrumentedResponse) -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val panelWidth = configuration.screenWidthDp.dp / 2
@@ -125,14 +125,14 @@ private fun BoxScope.Panel(
             onClick = panelClicked,
             backgroundColor = fabColor
         ) {
-            val icon = if (isPanelOpen) R.drawable.ic_close else R.drawable.ic_menu_open
+            val icon = if (isPanelOpen) com.blockchain.componentlib.R.drawable.ic_close else R.drawable.ic_menu_open
             Icon(painterResource(id = icon), contentDescription = null, tint = Color.Black)
         }
 
         if (isPanelOpen) {
             Card(
                 modifier = Modifier.size(width = panelWidth, height = panelHeight.dp),
-                elevation = 3.dp,
+                elevation = 3.dp
             ) {
                 Column {
                     SimpleText(
@@ -142,7 +142,7 @@ private fun BoxScope.Panel(
                         text = "Pending requests:",
                         style = ComposeTypographies.Subheading,
                         color = ComposeColors.Title,
-                        gravity = ComposeGravities.Centre,
+                        gravity = ComposeGravities.Centre
                     )
 
                     LazyColumn {
@@ -151,7 +151,7 @@ private fun BoxScope.Panel(
                                 item = item,
                                 index = index,
                                 skipClicked = { skipClicked(item.requestId) },
-                                responseClicked = { responseClicked(item.requestId, it) },
+                                responseClicked = { responseClicked(item.requestId, it) }
                             )
                         }
                     }
@@ -166,7 +166,7 @@ private fun Request(
     item: InstrumentationQueue.Item,
     index: Int,
     skipClicked: () -> Unit,
-    responseClicked: (InstrumentedResponse) -> Unit,
+    responseClicked: (InstrumentedResponse) -> Unit
 ) {
     val background = if (index % 2 == 0) Grey000 else White
     Column(
@@ -175,19 +175,19 @@ private fun Request(
             .fillMaxWidth()
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             SimpleText(
                 text = item.url,
                 style = ComposeTypographies.ParagraphMono,
                 color = ComposeColors.Title,
-                gravity = ComposeGravities.Start,
+                gravity = ComposeGravities.Start
             )
         }
 
         LazyVerticalGrid(
             modifier = Modifier.heightIn(0.dp, 1000.dp), // workaround because we can't nest lazycolumns
-            columns = GridCells.Fixed(2),
+            columns = GridCells.Fixed(2)
         ) {
             if (item.canPassThrough) {
                 item {
@@ -216,7 +216,7 @@ private fun Response(
             .background(backgroundColor, RoundedCornerShape(8.dp))
             .padding(all = AppTheme.dimensions.smallestSpacing)
             .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.Center
     ) {
         Text(modifier = Modifier.fillMaxWidth(), text = label, textAlign = TextAlign.Center, color = White)
     }
@@ -235,7 +235,7 @@ fun PreviewScaffold() {
                 text = "Lorem ispum Lorem ispum Lorem ispum Lorem ispum Lorem ispum",
                 style = ComposeTypographies.Caption1,
                 color = ComposeColors.Title,
-                gravity = ComposeGravities.Start,
+                gravity = ComposeGravities.Start
             )
         }
     }
@@ -253,7 +253,7 @@ private fun PreviewPanel() {
                 InstrumentedResponse.Json("SUCCESS", 200, "{}"),
                 InstrumentedResponse.Json("SUCCESS_EMPTY", 200, "{}"),
                 InstrumentedResponse.Json("SUCCESS_DATA", 200, "{}"),
-                InstrumentedResponse.Json("FAILURE", 200, "{}"),
+                InstrumentedResponse.Json("FAILURE", 200, "{}")
             )
         ),
         InstrumentationQueue.Item(
@@ -264,7 +264,7 @@ private fun PreviewPanel() {
                 InstrumentedResponse.Json("SUCCESS", 200, "{}"),
                 InstrumentedResponse.Json("SUCCESS_EMPTY", 200, "{}"),
                 InstrumentedResponse.Json("SUCCESS_DATA", 200, "{}"),
-                InstrumentedResponse.Json("FAILURE", 200, "{}"),
+                InstrumentedResponse.Json("FAILURE", 200, "{}")
             )
         )
     )
@@ -291,11 +291,11 @@ private fun PreviewRequest() {
                 InstrumentedResponse.Json("SUCCESS", 200, "{}"),
                 InstrumentedResponse.Json("SUCCESS_EMPTY", 200, "{}"),
                 InstrumentedResponse.Json("SUCCESS_DATA", 200, "{}"),
-                InstrumentedResponse.Json("FAILURE", 200, "{}"),
+                InstrumentedResponse.Json("FAILURE", 200, "{}")
             )
         ),
         index = 0,
         skipClicked = {},
-        responseClicked = {},
+        responseClicked = {}
     )
 }

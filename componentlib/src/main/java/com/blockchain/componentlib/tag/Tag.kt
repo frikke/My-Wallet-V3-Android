@@ -45,15 +45,14 @@ fun Tag(
     ),
     onClick: (() -> Unit)?
 ) {
-
     val paddingHorizontal = when (size) {
         TagSize.Primary -> 8.dp
-        TagSize.Large -> dimensionResource(R.dimen.very_small_spacing)
+        TagSize.Large -> dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)
     }
 
     val paddingVertical = when (size) {
-        TagSize.Primary -> dimensionResource(R.dimen.smallest_spacing)
-        TagSize.Large -> dimensionResource(R.dimen.minuscule_spacing)
+        TagSize.Primary -> dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
+        TagSize.Large -> dimensionResource(com.blockchain.componentlib.R.dimen.minuscule_spacing)
     }
 
     val textStyle = when (size) {
@@ -67,9 +66,13 @@ fun Tag(
                 .border(
                     width = if (borders) 1.dp else 0.dp,
                     color = Grey000,
-                    shape = RoundedCornerShape(size = dimensionResource(R.dimen.smallest_spacing)),
+                    shape = RoundedCornerShape(
+                        size = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
+                    )
                 )
-                .clip(RoundedCornerShape(size = dimensionResource(R.dimen.smallest_spacing)))
+                .clip(
+                    RoundedCornerShape(size = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing))
+                )
                 .background(defaultBackgroundColor)
                 .padding(horizontal = paddingHorizontal, vertical = paddingVertical)
                 .clickable(onClick = action),
@@ -77,7 +80,11 @@ fun Tag(
         ) {
             if (startImageResource != ImageResource.None) {
                 Image(imageResource = startImageResource)
-                Spacer(modifier = Modifier.width(width = dimensionResource(R.dimen.minuscule_spacing)))
+                Spacer(
+                    modifier = Modifier.width(
+                        width = dimensionResource(com.blockchain.componentlib.R.dimen.minuscule_spacing)
+                    )
+                )
             }
 
             Text(
@@ -87,7 +94,11 @@ fun Tag(
             )
 
             if (endImageResource != ImageResource.None) {
-                Spacer(modifier = Modifier.width(width = dimensionResource(R.dimen.tiny_spacing)))
+                Spacer(
+                    modifier = Modifier.width(
+                        width = dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)
+                    )
+                )
                 Image(imageResource = endImageResource)
             }
         }
@@ -100,9 +111,13 @@ fun Tag(
                 .border(
                     width = if (borders) 1.dp else 0.dp,
                     color = Grey000,
-                    shape = RoundedCornerShape(size = dimensionResource(R.dimen.smallest_spacing)),
+                    shape = RoundedCornerShape(
+                        size = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
+                    )
                 )
-                .clip(RoundedCornerShape(size = dimensionResource(R.dimen.smallest_spacing)))
+                .clip(
+                    RoundedCornerShape(size = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing))
+                )
                 .background(defaultBackgroundColor)
                 .padding(horizontal = paddingHorizontal, vertical = paddingVertical)
         )
@@ -120,7 +135,7 @@ fun ClickableTag() {
                 defaultBackgroundColor = Dark600,
                 defaultTextColor = Blue400,
                 borders = true,
-                onClick = { },
+                onClick = { }
             )
         }
     }
@@ -137,7 +152,7 @@ fun NonClickableTag() {
                 defaultBackgroundColor = Dark600,
                 defaultTextColor = Blue400,
                 borders = true,
-                onClick = null,
+                onClick = null
             )
         }
     }

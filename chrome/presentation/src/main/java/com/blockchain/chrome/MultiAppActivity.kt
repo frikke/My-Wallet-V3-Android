@@ -67,6 +67,8 @@ import com.blockchain.presentation.navigation.DefiBackupNavigation
 import com.blockchain.presentation.sheets.NoBalanceActionBottomSheet
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.walletconnect.domain.WalletConnectSession
+import com.blockchain.walletconnect.domain.WalletConnectV2Service
+import com.blockchain.walletconnect.ui.navigation.WalletConnectV2Navigation
 import com.blockchain.walletconnect.ui.networks.NetworkInfo
 import com.blockchain.walletconnect.ui.networks.SelectNetworkBottomSheet
 import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet
@@ -111,6 +113,9 @@ class MultiAppActivity :
     private val deeplinkNavigationHandler: DeeplinkNavigationHandler by viewModel()
     private val walletModeService: WalletModeService by scopedInject()
     private val secureChannelService: SecureChannelService by scopedInject()
+
+    private val walletConnectV2Service: WalletConnectV2Service by scopedInject()
+
     private val fiatActionsNavigator: FiatActionsNavigator = payloadScope.get {
         parametersOf(lifecycleScope)
     }
@@ -168,6 +173,12 @@ class MultiAppActivity :
         )
     }
 
+    private val walletConnectV2Navigation: WalletConnectV2Navigation = payloadScope.get {
+        parametersOf(
+            this
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // allow to draw on status and navigation bars
@@ -221,6 +232,7 @@ class MultiAppActivity :
                 supportNavigation = supportNavigation,
                 nftNavigation = nftNavigation,
                 earnNavigation = earnNavigation,
+                walletConnectV2Navigation = walletConnectV2Navigation,
                 openExternalUrl = ::openExternalUrl,
                 processAnnouncementUrl = ::processAnnouncementUrl
             )
@@ -237,6 +249,10 @@ class MultiAppActivity :
 
             lifecycleScope.launch {
                 deeplinkNavigationHandler.checkDeeplinkDestination(intent)
+            }
+
+            lifecycleScope.launch {
+                walletConnectV2Navigation.launchWalletConnectV2()
             }
         }
     }
@@ -297,7 +313,8 @@ class MultiAppActivity :
 
             is DeeplinkNavigationStep.OpenBankingApprovalDepositComplete ->
                 walletLinkAndOpenBankingNavigation.depositComplete(
-                    step.amount, step.estimationTime
+                    step.amount,
+                    step.estimationTime
                 )
             is DeeplinkNavigationStep.OpenBankingApprovalDepositInProgress ->
                 walletLinkAndOpenBankingNavigation.depositInProgress(
@@ -359,7 +376,8 @@ class MultiAppActivity :
             is Destination.AssetBuyDestination -> {
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
                     assetActionsNavigation.buyCrypto(
-                        currency = assetInfo, amount = destination.amount,
+                        currency = assetInfo,
+                        amount = destination.amount,
                         preselectedFiatTicker = destination.fiatTicker
                     )
                 } ?: run {
@@ -457,10 +475,11 @@ class MultiAppActivity :
             view = window.decorView.rootView,
             message = when (error) {
                 is InterestError.UnknownAsset -> getString(
-                    R.string.earn_summary_sheet_error_unknown_asset, error.assetTicker
+                    com.blockchain.stringResources.R.string.earn_summary_sheet_error_unknown_asset,
+                    error.assetTicker
                 )
-                InterestError.Other -> getString(R.string.earn_summary_sheet_error_other)
-                InterestError.None -> getString(R.string.empty)
+                InterestError.Other -> getString(com.blockchain.stringResources.R.string.earn_summary_sheet_error_other)
+                InterestError.None -> getString(com.blockchain.stringResources.R.string.empty)
             },
             duration = Snackbar.LENGTH_SHORT,
             type = SnackbarType.Error
@@ -490,10 +509,11 @@ class MultiAppActivity :
             view = window.decorView.rootView,
             message = when (error) {
                 is StakingError.UnknownAsset -> getString(
-                    R.string.earn_summary_sheet_error_unknown_asset, error.assetTicker
+                    com.blockchain.stringResources.R.string.earn_summary_sheet_error_unknown_asset,
+                    error.assetTicker
                 )
-                StakingError.Other -> getString(R.string.earn_summary_sheet_error_other)
-                StakingError.None -> getString(R.string.empty)
+                StakingError.Other -> getString(com.blockchain.stringResources.R.string.earn_summary_sheet_error_other)
+                StakingError.None -> getString(com.blockchain.stringResources.R.string.empty)
             },
             duration = Snackbar.LENGTH_SHORT,
             type = SnackbarType.Error
@@ -523,10 +543,13 @@ class MultiAppActivity :
             view = window.decorView.rootView,
             message = when (error) {
                 is ActiveRewardsError.UnknownAsset -> getString(
-                    R.string.earn_summary_sheet_error_unknown_asset, error.assetTicker
+                    com.blockchain.stringResources.R.string.earn_summary_sheet_error_unknown_asset,
+                    error.assetTicker
                 )
-                ActiveRewardsError.Other -> getString(R.string.earn_summary_sheet_error_other)
-                ActiveRewardsError.None -> getString(R.string.empty)
+                ActiveRewardsError.Other -> getString(
+                    com.blockchain.stringResources.R.string.earn_summary_sheet_error_other
+                )
+                ActiveRewardsError.None -> getString(com.blockchain.stringResources.R.string.empty)
             },
             duration = Snackbar.LENGTH_SHORT,
             type = SnackbarType.Error
@@ -686,6 +709,14 @@ class MultiAppActivity :
 
     override fun onSessionRejected(session: WalletConnectSession) {
         qrScanNavigation.updateWalletConnectSession(WCSessionIntent.RejectWCSession(session))
+    }
+
+    override fun onApproveV2Session() {
+        walletConnectV2Service.approveLastSession()
+    }
+
+    override fun onRejectV2Session() {
+        walletConnectV2Service.clearSessionProposals()
     }
 
     override fun startKycClicked() {

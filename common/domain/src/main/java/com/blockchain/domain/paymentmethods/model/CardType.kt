@@ -12,5 +12,5 @@ enum class CardType {
     HIPER,
     HIPERCARD,
     UNKNOWN,
-    EMPTY,
+    EMPTY
 }

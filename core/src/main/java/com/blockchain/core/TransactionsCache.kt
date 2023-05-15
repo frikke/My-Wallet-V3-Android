@@ -13,7 +13,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TransactionsRequest(
     val product: String,
-    val type: String?,
+    val type: String?
 )
 
 class TransactionsStore(private val nabuService: NabuService) :

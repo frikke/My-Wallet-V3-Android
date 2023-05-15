@@ -12,6 +12,11 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -31,12 +36,16 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.BackgroundMuted
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Grey700
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.home.presentation.R
+import com.blockchain.koin.newSwapFlowFeatureFlag
+import org.koin.androidx.compose.get
 
 @Composable
 fun SwapDexOptionScreen(
+    newSwapFlowFF: FeatureFlag = get(newSwapFlowFeatureFlag),
     onBackPressed: () -> Unit,
-    openSwap: () -> Unit,
+    openSwap: (newFlow: Boolean) -> Unit,
     openDex: () -> Unit
 ) {
     Column(
@@ -45,10 +54,10 @@ fun SwapDexOptionScreen(
             .background(color = BackgroundMuted),
     ) {
         NavigationBar(
-            title = stringResource(id = R.string.select_an_option),
+            title = stringResource(id = com.blockchain.stringResources.R.string.select_an_option),
             navigationBarButtons = listOf(
                 NavigationBarButton.IconResource(
-                    ImageResource.Local(R.drawable.ic_close_circle_white),
+                    ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_close_circle),
                     onIconClick = { onBackPressed() }
                 )
             )
@@ -59,29 +68,43 @@ fun SwapDexOptionScreen(
                 top = AppTheme.dimensions.standardSpacing,
                 bottom = AppTheme.dimensions.tinySpacing
             ),
-            text = stringResource(id = R.string.choose_how_to_swap),
+            text = stringResource(id = com.blockchain.stringResources.R.string.choose_how_to_swap),
             style = AppTheme.typography.body2,
             color = Grey700
         )
         val items = listOf(
             SwapOption(
-                title = stringResource(id = R.string.bcdc_swap),
-                subtitle = stringResource(id = R.string.cross_chain_limited_tokens),
+                title = stringResource(id = com.blockchain.stringResources.R.string.bcdc_swap),
+                subtitle = stringResource(id = com.blockchain.stringResources.R.string.cross_chain_limited_tokens),
                 type = SwapType.BCDC_SWAP,
             ),
             SwapOption(
-                title = stringResource(id = R.string.dex_swap),
-                subtitle = stringResource(id = R.string.single_chain_eth_tokens),
+                title = stringResource(id = com.blockchain.stringResources.R.string.dex_swap),
+                subtitle = stringResource(id = com.blockchain.stringResources.R.string.single_chain_eth_tokens),
                 type = SwapType.DEX,
 
             )
         )
 
+        // TODO(aromano): TEMP FF | null = do not navigate, true = navigate to new flow, false = navigate to old flow
+        var navigateToSwapFlow by remember { mutableStateOf(false) }
+        LaunchedEffect(navigateToSwapFlow) {
+            if (navigateToSwapFlow) {
+                openSwap(newSwapFlowFF.coEnabled())
+                navigateToSwapFlow = false
+            }
+        }
+
         LazyColumn(Modifier.padding(horizontal = AppTheme.dimensions.smallSpacing)) {
             roundedCornersItems(
                 items = items,
             ) {
-                SwapOptionCell(item = it, openDex = openDex, openSwap = openSwap, close = onBackPressed)
+                SwapOptionCell(
+                    item = it,
+                    openDex = openDex,
+                    openSwap = { navigateToSwapFlow = true },
+                    close = onBackPressed
+                )
             }
         }
     }
@@ -121,7 +144,7 @@ private fun SwapOptionCell(
         contentEnd = {
             Image(
                 imageResource = ImageResource.Local(
-                    id = R.drawable.ic_chevron_end,
+                    id = com.blockchain.componentlib.R.drawable.ic_chevron_end,
                     colorFilter = ColorFilter.tint(Grey400)
                 ),
                 modifier = Modifier.requiredSizeIn(
@@ -138,8 +161,8 @@ private fun SwapOptionCell(
                 },
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .padding(end = dimensionResource(R.dimen.medium_spacing))
-                    .size(dimensionResource(R.dimen.standard_spacing)),
+                    .padding(end = dimensionResource(com.blockchain.common.R.dimen.medium_spacing))
+                    .size(dimensionResource(com.blockchain.common.R.dimen.standard_spacing)),
             )
         },
         contentBottom = {
@@ -199,7 +222,9 @@ private fun SwapDexOptionPreview() {
     AppTheme {
         AppSurface {
             SwapDexOptionScreen(
-                onBackPressed = { }, {}, {}
+                onBackPressed = {},
+                openSwap = {},
+                openDex = {}
             )
         }
     }

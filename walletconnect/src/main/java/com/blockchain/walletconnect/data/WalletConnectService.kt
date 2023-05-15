@@ -84,7 +84,8 @@ class WalletConnectService(
                     session.connect()
                     connectedSessions.add(session)
                 }
-            }, onError = {
+            },
+            onError = {
                 Timber.e(it)
             }
         )

@@ -54,7 +54,7 @@ class KycQuestionnaireWrapperFragment : Fragment(), QuestionnaireSheetHost {
         val hostNavBarButtons = if (!questionnaire.isMandatory) {
             listOf(
                 NavigationBarButton.Text(
-                    text = getString(R.string.common_skip),
+                    text = getString(com.blockchain.stringResources.R.string.common_skip),
                     color = Blue600,
                     onTextClick = ::questionnaireSkipped
                 )
@@ -62,7 +62,10 @@ class KycQuestionnaireWrapperFragment : Fragment(), QuestionnaireSheetHost {
         } else {
             emptyList()
         }
-        progressListener.setupHostToolbar(R.string.kyc_additional_info_toolbar, hostNavBarButtons)
+        progressListener.setupHostToolbar(
+            com.blockchain.stringResources.R.string.kyc_additional_info_toolbar,
+            hostNavBarButtons
+        )
         if (childFragmentManager.findFragmentById(R.id.fragment_container) == null) {
             childFragmentManager.beginTransaction()
                 .add(

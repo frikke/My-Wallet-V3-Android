@@ -51,7 +51,7 @@ class SimpleBuyPrefsSerializerTest {
 
     private val simpleBuyPrefsSerializer: SimpleBuyPrefsSerializer = SimpleBuyPrefsSerializerImpl(
         prefs = prefs,
-        json = json,
+        json = json
     )
 
     private val simpleBuyStateObject = SimpleBuyState(

@@ -7,7 +7,7 @@ import piuk.blockchain.android.ui.linkbank.domain.openbanking.service.SafeConnec
 
 val bankAuthDataModule = module {
     scope(payloadScopeQualifier) {
-        scoped <SafeConnectService> {
+        scoped<SafeConnectService> {
             SafeConnectRepository(
                 remoteConfigService = get()
             )

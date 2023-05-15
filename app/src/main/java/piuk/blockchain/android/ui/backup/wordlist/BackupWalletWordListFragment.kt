@@ -58,12 +58,12 @@ class BackupWalletWordListFragment :
     }
     private val word: String by unsafeLazy {
         getString(
-            R.string.backup_word
+            com.blockchain.stringResources.R.string.backup_word
         )
     }
     private val of: String by unsafeLazy {
         getString(
-            R.string.backup_of
+            com.blockchain.stringResources.R.string.backup_of
         )
     }
 
@@ -101,7 +101,7 @@ class BackupWalletWordListFragment :
                 remoteLogger.logEvent("Mnemonic word for position $currentWordIndex was null")
                 BlockchainSnackbar.make(
                     binding.root,
-                    getString(R.string.common_error),
+                    getString(com.blockchain.stringResources.R.string.common_error),
                     type = SnackbarType.Error
                 ).show()
             }
@@ -155,7 +155,7 @@ class BackupWalletWordListFragment :
                 launchVerifyFragment()
             } else {
                 if (currentWordIndex == presenter.getMnemonicSize() - 1) {
-                    buttonNext.text = getString(R.string.backup_done)
+                    buttonNext.text = getString(com.blockchain.stringResources.R.string.backup_done)
                 }
             }
         }
@@ -163,7 +163,7 @@ class BackupWalletWordListFragment :
 
     private fun onPreviousClicked() {
         with(binding) {
-            buttonNext.text = getString(R.string.backup_next_word)
+            buttonNext.text = getString(com.blockchain.stringResources.R.string.backup_next_word)
             if (currentWordIndex == 1) {
                 buttonPrevious.invisible()
             }

@@ -23,7 +23,7 @@ class TradingToTradingSwapTxEngine(
     limitsDataManager: LimitsDataManager,
     swapTransactionsStore: SwapTransactionsStore,
     quotesEngine: TransferQuotesEngine,
-    private val userIdentity: UserIdentity,
+    private val userIdentity: UserIdentity
 ) : SwapTxEngineBase(quotesEngine, userIdentity, walletManager, limitsDataManager, swapTransactionsStore) {
 
     override val flushableDataSources: List<FlushableDataSource>
@@ -96,7 +96,7 @@ class TradingToTradingSwapTxEngine(
     override fun doUpdateFeeLevel(
         pendingTx: PendingTx,
         level: FeeLevel,
-        customFeeAmount: Long,
+        customFeeAmount: Long
     ): Single<PendingTx> {
         require(pendingTx.feeSelection.availableLevels.contains(level))
         // This engine only supports FeeLevel.None, so

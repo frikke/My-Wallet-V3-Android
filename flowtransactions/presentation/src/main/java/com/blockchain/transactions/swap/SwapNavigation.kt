@@ -1,5 +1,6 @@
 package com.blockchain.transactions.swap
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.DisposableEffect
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -21,7 +22,9 @@ import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
 import com.blockchain.transactions.swap.confirmation.composable.ConfirmationScreen
 import com.blockchain.transactions.swap.enteramount.EnterAmountIntent
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
+import com.blockchain.transactions.swap.enteramount.SwapEnterAmountInputError
 import com.blockchain.transactions.swap.enteramount.composable.EnterAmount
+import com.blockchain.transactions.swap.enteramount.composable.InputErrorScreen
 import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateArgs
 import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateScreen
 import com.blockchain.transactions.swap.sourceaccounts.composable.SourceAccounts
@@ -34,6 +37,7 @@ import org.koin.androidx.compose.getViewModel
 
 object SwapGraph : NavGraph() {
     object EnterAmount : Destination()
+    object InputError : DestinationWithArgs<SwapEnterAmountInputError>()
     object SourceAccounts : Destination()
     object TargetAsset : DestinationWithArgs<String>()
     object TargetAccount : DestinationWithArgs<TargetAccountsArgs>()
@@ -45,7 +49,6 @@ object SwapGraph : NavGraph() {
 fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
     // TODO(aromano): navigation TEMP
     composable(SwapGraph::class.java.name) {
-
         val confirmationArgs = get<SwapConfirmationArgs>(scope = payloadScope)
         DisposableEffect(Unit) {
             onDispose {
@@ -57,16 +60,24 @@ fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
 
         TypedNavHost(
             graph = SwapGraph,
-            startDestination = SwapGraph.EnterAmount,
+            startDestination = SwapGraph.EnterAmount
         ) {
             typedComposable(SwapGraph.EnterAmount) {
                 ChromeSingleScreen {
                     EnterAmount(
                         viewModel = viewModel,
                         navContextProvider = { this },
-                        onBackPressed = ::navigateUp
+                        onBackPressed = { mainNavController.navigateUp() }
                     )
                 }
+            }
+
+            typedBottomSheet(SwapGraph.InputError) { args ->
+                BackHandler(onBack = ::navigateUp)
+                InputErrorScreen(
+                    inputError = args,
+                    closeClicked = ::navigateUp,
+                )
             }
 
             typedBottomSheet(SwapGraph.SourceAccounts) {
@@ -119,7 +130,7 @@ fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
                                 popUpTo(SwapGraph)
                             }
                         },
-                        backClicked = { navigateUp() },
+                        backClicked = { navigateUp() }
                     )
                 }
             }
@@ -128,7 +139,7 @@ fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
                 ChromeSingleScreen {
                     NewOrderStateScreen(
                         args = args,
-                        exitSwap = { mainNavController.navigateUp() },
+                        exitSwap = { mainNavController.navigateUp() }
                     )
                 }
             }

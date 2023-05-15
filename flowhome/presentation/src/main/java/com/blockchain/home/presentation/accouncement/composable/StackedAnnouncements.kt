@@ -97,7 +97,7 @@ fun StackedAnnouncements(
                                     scaleY = scale
                                     scaleX = scale
                                 },
-                            text = stringResource(R.string.announcements_all_done),
+                            text = stringResource(com.blockchain.stringResources.R.string.announcements_all_done),
                             style = AppTheme.typography.title3,
                             color = AppTheme.colors.title
                         )

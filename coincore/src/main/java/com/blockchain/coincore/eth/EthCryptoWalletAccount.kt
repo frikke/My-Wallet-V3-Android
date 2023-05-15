@@ -29,7 +29,7 @@ class EthCryptoWalletAccount internal constructor(
     private val walletPreferences: WalletStatusPrefs,
     override val exchangeRates: ExchangeRatesDataManager,
     private val assetCatalogue: AssetCatalogue,
-    override val addressResolver: AddressResolver,
+    override val addressResolver: AddressResolver
 ) : CryptoNonCustodialAccount(
     CryptoCurrency.ETHER
 ) {

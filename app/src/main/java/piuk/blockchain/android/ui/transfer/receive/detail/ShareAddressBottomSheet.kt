@@ -48,13 +48,18 @@ internal class ShareAddressBottomSheet :
 
         with(binding) {
             toolbar.navigationToolbar.title =
-                getString(R.string.receive_share_title, newState.account.currency.displayTicker)
+                getString(
+                    com.blockchain.stringResources.R.string.receive_share_title,
+                    newState.account.currency.displayTicker
+                )
             toolbar.navigationToolbar.onBackButtonClick = { dismiss() }
 
             val dataIntent = newState.qrUri?.let {
                 qrBitmap?.let {
                     receiveIntentHelper.getIntentDataList(
-                        uri = newState.qrUri, bitmap = it, asset = newState.account.currency
+                        uri = newState.qrUri,
+                        bitmap = it,
+                        asset = newState.account.currency
                     )
                 }
             } ?: emptyList()
@@ -120,7 +125,7 @@ private class ShareListAdapter(private val paymentCodeData: List<SendPaymentCode
                 } catch (e: SecurityException) {
                     BlockchainSnackbar.make(
                         itemView,
-                        itemView.context.getString(R.string.share_failed, data.title),
+                        itemView.context.getString(com.blockchain.stringResources.R.string.share_failed, data.title),
                         type = SnackbarType.Error
                     ).show()
                 }

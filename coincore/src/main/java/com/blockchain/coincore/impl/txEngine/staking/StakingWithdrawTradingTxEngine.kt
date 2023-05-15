@@ -32,7 +32,7 @@ class StakingWithdrawTradingTxEngine(
     private val stakingService: StakingService,
     private val stakingBalanceStore: FlushableDataSource,
     private val tradingStore: TradingStore,
-    private val walletManager: CustodialWalletManager,
+    private val walletManager: CustodialWalletManager
 ) : StakingBaseEngine(stakingService) {
     override val flushableDataSources: List<FlushableDataSource>
         get() = listOf(stakingBalanceStore, tradingStore, paymentTransactionHistoryStore)
@@ -110,7 +110,9 @@ class StakingWithdrawTradingTxEngine(
                 txConfirmations = listOfNotNull(
                     TxConfirmationValue.From(sourceAccount, sourceAsset),
                     TxConfirmationValue.To(
-                        txTarget, AssetAction.StakingWithdraw, sourceAccount
+                        txTarget,
+                        AssetAction.StakingWithdraw,
+                        sourceAccount
                     ),
                     TxConfirmationValue.Total(
                         totalWithFee = (pendingTx.amount as CryptoValue).plus(

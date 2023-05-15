@@ -127,7 +127,8 @@ class BitpayTxEngine(
         if (pendingTx.bitpayTimer == null) {
             pendingTx.copy(
                 engineState = pendingTx.engineState.copyAndPut(
-                    BITPAY_TIMER_SUB, startCountdownTimer(timeRemainingSecs())
+                    BITPAY_TIMER_SUB,
+                    startCountdownTimer(timeRemainingSecs())
                 )
             )
         } else {

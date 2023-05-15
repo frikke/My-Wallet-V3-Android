@@ -115,7 +115,7 @@ class EnterAmountFragment :
 
         binding.amountSheetCtaButton.apply {
             buttonState = ButtonState.Disabled
-            text = getString(R.string.common_preview)
+            text = getString(com.blockchain.stringResources.R.string.common_preview)
         }
 
         compositeDisposable += binding.amountSheetInput.amount
@@ -282,10 +282,14 @@ class EnterAmountFragment :
                 val transactionsLimit = pTx.transactionsLimit
                 if (transactionsLimit is TransactionsLimit.Limited) {
                     amountSheetInput.showInfo(
-                        getString(R.string.tx_enter_amount_orders_limit_info, transactionsLimit.maxTransactionsLeft)
+                        getString(
+                            com.blockchain.stringResources.R.string.tx_enter_amount_orders_limit_info,
+                            transactionsLimit.maxTransactionsLeft
+                        )
                     ) {
                         val info = bottomSheetInfoCustomiser.info(
-                            InfoBottomSheetType.TRANSACTIONS_LIMIT, newState,
+                            InfoBottomSheetType.TRANSACTIONS_LIMIT,
+                            newState,
                             binding.amountSheetInput.configuration.inputCurrency.type
                         )
                         if (info != null) {
@@ -371,7 +375,9 @@ class EnterAmountFragment :
 
             val bottomSheetInfo = infoType?.let { type ->
                 bottomSheetInfoCustomiser.info(
-                    type, state, binding.amountSheetInput.configuration.inputCurrency.type
+                    type,
+                    state,
+                    binding.amountSheetInput.configuration.inputCurrency.type
                 )
             }
             bottomSheetInfo?.let { info ->
@@ -453,7 +459,8 @@ class EnterAmountFragment :
     ) {
         if (fundsLocks.locks.isNotEmpty() && state.action.requiresDisplayLocks()) {
             val available = state.convertBalanceToFiat(
-                state.availableBalance, state.fiatRate
+                state.availableBalance,
+                state.fiatRate
             )
             onHoldCell.apply {
                 totalAmountLocked.text = fundsLocks.onHoldTotalAmount.toStringWithSymbol()
@@ -468,8 +475,9 @@ class EnterAmountFragment :
         this == AssetAction.FiatWithdraw || this == AssetAction.Send
 
     private fun onExtraAccountInfoClicked(action: AssetAction, locks: FundsLocks, availableBalance: Money) {
-        val origin = if (action == AssetAction.Send) LocksInfoBottomSheet.OriginScreenLocks.ENTER_AMOUNT_SEND_SCREEN
-        else LocksInfoBottomSheet.OriginScreenLocks.ENTER_AMOUNT_WITHDRAW_SCREEN
+        val origin = if (action == AssetAction.Send) {
+            LocksInfoBottomSheet.OriginScreenLocks.ENTER_AMOUNT_SEND_SCREEN
+        } else LocksInfoBottomSheet.OriginScreenLocks.ENTER_AMOUNT_WITHDRAW_SCREEN
 
         showBottomSheet(
             LocksInfoBottomSheet.newInstance(
@@ -483,7 +491,7 @@ class EnterAmountFragment :
     private fun configureCtaButton() {
         val layoutParams: ViewGroup.MarginLayoutParams =
             binding.amountSheetCtaButton.layoutParams as ViewGroup.MarginLayoutParams
-        layoutParams.bottomMargin = resources.getDimension(R.dimen.standard_spacing).toInt()
+        layoutParams.bottomMargin = resources.getDimension(com.blockchain.componentlib.R.dimen.standard_spacing).toInt()
         binding.amountSheetCtaButton.layoutParams = layoutParams
     }
 

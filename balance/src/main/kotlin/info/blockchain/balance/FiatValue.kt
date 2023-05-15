@@ -187,10 +187,14 @@ class FiatValue private constructor(
             }
             return FiatValue(
                 fiatCurrency,
-                if (round) major.setScale(
-                    precision,
-                    RoundingMode.DOWN
-                ) else major
+                if (round) {
+                    major.setScale(
+                        precision,
+                        RoundingMode.DOWN
+                    )
+                } else {
+                    major
+                }
             )
         }
 

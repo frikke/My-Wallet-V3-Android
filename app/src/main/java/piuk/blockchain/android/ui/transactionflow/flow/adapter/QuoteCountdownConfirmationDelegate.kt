@@ -42,7 +42,10 @@ private class QuoteCountdownViewHolder(
             val formattedTime = DateUtils.formatElapsedTime(item.pricedQuote.remainingSeconds.toLong())
             confirmationCountdownProgress.apply {
                 progress = item.pricedQuote.remainingPercentage
-                text = context.getString(R.string.tx_confirmation_countdown, formattedTime)
+                text = context.getString(
+                    com.blockchain.stringResources.R.string.tx_confirmation_countdown,
+                    formattedTime
+                )
             }
         }
     }

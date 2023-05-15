@@ -18,7 +18,7 @@ android {
     buildFeatures {
         compose true
     }
-
+    namespace 'com.blockchain.home.presentation'
     composeOptions {
         kotlinCompilerExtensionVersion Versions.composeCompiler
     }
@@ -35,6 +35,7 @@ dependencies {
     implementation project(':balance')
     implementation project(':core')
     implementation project(':componentlib')
+    implementation project(':componentlib-icons')
     implementation project(':chrome:common')
     implementation project(':wallet')
     implementation project(':store:core')
@@ -44,6 +45,7 @@ dependencies {
     implementation project(':walletconnect')
     implementation project(':defiwalletbackup:domain')
     implementation project(':earn:presentation')
+    implementation project(':string-resources')
     implementation project(':flowprices:presentation')
     implementation Libraries.composelifecycle
     // android
@@ -75,6 +77,10 @@ dependencies {
     // rx
     implementation Libraries.rxKotlin
     implementation Libraries.rxjava3Coroutines
+
+    // WalletConnect
+    implementation Libraries.walletConnectV2Web3Wallet
+    implementation Libraries.walletConnectV2AndroidCore
 
     // test
     testImplementation project(':testutils')

@@ -480,7 +480,8 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(false))
 
         subject.doExecute(
-            pendingTx, ""
+            pendingTx,
+            ""
         ).test()
             .assertComplete()
             .assertNoErrors()
@@ -538,7 +539,8 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(false))
 
         subject.doExecute(
-            pendingTx, ""
+            pendingTx,
+            ""
         ).test()
             .assertError {
                 it == exception
@@ -597,7 +599,8 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         whenever(bankService.getLinkedBankLegacy(bankAccountAddress.address)).thenReturn(Single.just(linkedBank))
 
         subject.doExecute(
-            pendingTx, ""
+            pendingTx,
+            ""
         ).test()
             .assertComplete()
             .assertNoErrors()
@@ -660,7 +663,8 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         whenever(bankService.getLinkedBankLegacy(bankAccountAddress.address)).thenReturn(Single.just(linkedBank))
 
         subject.doExecute(
-            pendingTx, ""
+            pendingTx,
+            ""
         ).test()
             .assertComplete()
             .assertNoErrors()

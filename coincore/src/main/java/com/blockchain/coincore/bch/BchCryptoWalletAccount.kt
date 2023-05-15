@@ -28,7 +28,8 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import org.bitcoinj.core.LegacyAddress
 
-/*internal*/ class BchCryptoWalletAccount private constructor(
+/*internal*/
+class BchCryptoWalletAccount private constructor(
     private val payloadDataManager: PayloadDataManager,
     private val bchManager: BchDataManager,
     // Used to lookup the account in payloadDataManager to fetch receive address
@@ -40,7 +41,7 @@ import org.bitcoinj.core.LegacyAddress
     private var internalAccount: GenericMetadataAccount,
     private val walletPreferences: WalletStatusPrefs,
     private val refreshTrigger: AccountRefreshTrigger,
-    override val addressResolver: AddressResolver,
+    override val addressResolver: AddressResolver
 ) : CryptoNonCustodialAccount(
     CryptoCurrency.BCH
 ) {
@@ -157,7 +158,7 @@ import org.bitcoinj.core.LegacyAddress
             bchBalanceCache: BchBalanceCache,
             walletPreferences: WalletStatusPrefs,
             refreshTrigger: AccountRefreshTrigger,
-            addressResolver: AddressResolver,
+            addressResolver: AddressResolver
         ) = BchCryptoWalletAccount(
             bchManager = bchManager,
             payloadDataManager = payloadManager,

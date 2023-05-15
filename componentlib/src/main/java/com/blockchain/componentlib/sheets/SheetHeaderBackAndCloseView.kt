@@ -33,7 +33,7 @@ class SheetHeaderBackAndCloseView @JvmOverloads constructor(
                     onClosePress = onClosePress,
                     byline = byline,
                     backPressContentDescription = backPressContentDescription,
-                    closePressContentDescription = closePressContentDescription,
+                    closePressContentDescription = closePressContentDescription
                 )
             }
         }

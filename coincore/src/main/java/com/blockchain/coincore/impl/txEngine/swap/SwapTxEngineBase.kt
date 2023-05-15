@@ -44,7 +44,7 @@ abstract class SwapTxEngineBase(
     userIdentity: UserIdentity,
     private val walletManager: CustodialWalletManager,
     limitsDataManager: LimitsDataManager,
-    private val swapTransactionsStore: SwapTransactionsStore,
+    private val swapTransactionsStore: SwapTransactionsStore
 ) : QuotedEngine(quotesEngine, userIdentity, walletManager, limitsDataManager, Product.TRADE) {
 
     private lateinit var minApiLimit: Money
@@ -61,7 +61,7 @@ abstract class SwapTxEngineBase(
     override fun onLimitsForTierFetched(
         limits: TxLimits,
         pendingTx: PendingTx,
-        quotePrice: QuotePrice,
+        quotePrice: QuotePrice
     ): PendingTx {
         minApiLimit = limits.min.amount
 
@@ -111,20 +111,22 @@ abstract class SwapTxEngineBase(
                 TxConfirmationValue.CompoundNetworkFee(
                     if (pendingTx.feeAmount.isZero) {
                         null
-                    } else
+                    } else {
                         FeeInfo(
                             pendingTx.feeAmount,
                             pendingTx.feeAmount.toUserFiat(exchangeRates),
                             sourceAsset
-                        ),
+                        )
+                    },
                     if (pricedQuote.transferQuote.networkFee.isZero) {
                         null
-                    } else
+                    } else {
                         FeeInfo(
                             pricedQuote.transferQuote.networkFee,
                             pricedQuote.transferQuote.networkFee.toUserFiat(exchangeRates),
                             target.currency
                         )
+                    }
                 ),
                 TxConfirmationValue.QuoteCountDown(
                     pricedQuote = pricedQuote
@@ -169,20 +171,22 @@ abstract class SwapTxEngineBase(
             TxConfirmationValue.CompoundNetworkFee(
                 if (pendingTx.feeAmount.isZero) {
                     null
-                } else
+                } else {
                     FeeInfo(
                         pendingTx.feeAmount,
                         pendingTx.feeAmount.toUserFiat(exchangeRates),
                         sourceAsset
-                    ),
+                    )
+                },
                 if (pricedQuote.transferQuote.networkFee.isZero) {
                     null
-                } else
+                } else {
                     FeeInfo(
                         pricedQuote.transferQuote.networkFee,
                         pricedQuote.transferQuote.networkFee.toUserFiat(exchangeRates),
                         target.currency
                     )
+                }
             )
         ).addOrReplaceOption(
             TxConfirmationValue.QuoteCountDown(
@@ -197,7 +201,8 @@ abstract class SwapTxEngineBase(
         val ptx = if (isNewQuote) {
             pendingTx.copy(
                 engineState = pendingTx.engineState.copyAndPut(
-                    LATEST_QUOTE_ID, quote.transferQuote.id
+                    LATEST_QUOTE_ID,
+                    quote.transferQuote.id
                 )
             )
         } else {

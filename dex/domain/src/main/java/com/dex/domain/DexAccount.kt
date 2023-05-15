@@ -8,7 +8,7 @@ data class DexAccount(
     val account: SingleAccount,
     val currency: DexCurrency,
     val balance: Money,
-    val fiatBalance: Money,
+    val fiatBalance: Money
 )
 
 sealed class DexQuote {
@@ -32,7 +32,8 @@ data class DexQuoteParams(
     val sourceAccount: DexAccount,
     val destinationAccount: DexAccount,
     val amount: Money,
-    val slippage: Double
+    val slippage: Double,
+    val sourceHasBeenAllowed: Boolean
 )
 
 data class DexCurrency(

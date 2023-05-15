@@ -39,7 +39,7 @@ fun <T : Any> Single<T>.asFlow() = flatMapToFlow(
 
 // Single -> Flow while wrapping the result in DataResource
 fun <T : Any> Single<T>.toFlowDataResource() = flatMapToFlow<T, DataResource<T>>(
-    mapper = { DataResource.Data(it) },
+    mapper = { DataResource.Data(it) }
 )
     .catch {
         emit(DataResource.Error(Exception(it)))

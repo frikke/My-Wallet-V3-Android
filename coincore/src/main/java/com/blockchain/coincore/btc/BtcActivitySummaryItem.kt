@@ -12,7 +12,8 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 
-/*internal*/ class BtcActivitySummaryItem internal constructor(
+/*internal*/
+class BtcActivitySummaryItem internal constructor(
     private val transactionSummary: TransactionSummary,
     private val payloadDataManager: PayloadDataManager,
     override val exchangeRates: ExchangeRatesDataManager,

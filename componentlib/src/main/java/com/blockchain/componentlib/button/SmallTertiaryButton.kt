@@ -21,21 +21,21 @@ fun SmallTertiaryButton(
     text: String,
     onClick: () -> Unit,
     state: ButtonState = ButtonState.Enabled,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val contentPadding = PaddingValues(
         start = if (state == ButtonState.Loading) {
-            dimensionResource(R.dimen.medium_spacing)
+            dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)
         } else {
-            dimensionResource(R.dimen.very_small_spacing)
+            dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)
         },
         top = ButtonDefaults.ContentPadding.calculateTopPadding(),
         end = if (state == ButtonState.Loading) {
-            dimensionResource(R.dimen.medium_spacing)
+            dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)
         } else {
-            dimensionResource(R.dimen.very_small_spacing)
+            dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)
         },
-        bottom = ButtonDefaults.ContentPadding.calculateBottomPadding(),
+        bottom = ButtonDefaults.ContentPadding.calculateBottomPadding()
     )
 
     Button(
@@ -51,7 +51,9 @@ fun SmallTertiaryButton(
         disabledBackgroundLightColor = Color.White,
         disabledBackgroundDarkColor = Color.White,
         pressedBackgroundColor = Blue000,
-        modifier = modifier.requiredHeightIn(min = dimensionResource(R.dimen.large_spacing)),
+        modifier = modifier.requiredHeightIn(
+            min = dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)
+        ),
         contentPadding = contentPadding,
         buttonContent = { state: ButtonState, text: String, textColor: Color, textAlpha: Float, _: ImageResource ->
             ButtonContentSmall(
@@ -61,7 +63,7 @@ fun SmallTertiaryButton(
                 contentAlpha = textAlpha,
                 loadingIconResId = R.drawable.ic_loading_minimal_light
             )
-        },
+        }
     )
 }
 

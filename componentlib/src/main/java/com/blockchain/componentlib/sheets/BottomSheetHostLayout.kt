@@ -19,7 +19,7 @@ fun BottomSheetHostLayout(
     sheetContent: @Composable ColumnScope.() -> Unit,
     onBackAction: () -> Unit,
     modalBottomSheetState: ModalBottomSheetState,
-    content: @Composable () -> Unit,
+    content: @Composable () -> Unit
 ) {
     BackHandler(modalBottomSheetState.isVisible) {
         onBackAction()
@@ -29,8 +29,8 @@ fun BottomSheetHostLayout(
         modifier = Modifier.fillMaxSize(),
         sheetState = modalBottomSheetState,
         sheetShape = RoundedCornerShape(
-            topEnd = dimensionResource(R.dimen.small_spacing),
-            topStart = dimensionResource(R.dimen.small_spacing)
+            topEnd = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing),
+            topStart = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)
         ),
         sheetContent = sheetContent,
         scrimColor = AppTheme.colors.overlay

@@ -287,7 +287,9 @@ class BtcOnChainTxEngine(
                             pendingTx.feeAmount.toUserFiat(exchangeRates),
                             sourceAsset
                         )
-                    } else null,
+                    } else {
+                        null
+                    },
                     feeLevel = pendingTx.feeSelection.selectedLevel
                 ),
                 TxConfirmationValue.Total(
@@ -302,7 +304,9 @@ class BtcOnChainTxEngine(
                     TxConfirmationValue.TxBooleanConfirmation<Unit>(
                         TxConfirmation.LARGE_TRANSACTION_WARNING
                     )
-                } else null
+                } else {
+                    null
+                }
             )
         )
     }

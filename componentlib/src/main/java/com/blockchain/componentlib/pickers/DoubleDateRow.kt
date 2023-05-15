@@ -38,17 +38,17 @@ fun DoubleDateRow(
     }
 
     val topRowShape = RoundedCornerShape(
-        topStart = dimensionResource(R.dimen.smallest_spacing),
-        topEnd = dimensionResource(R.dimen.smallest_spacing),
-        bottomEnd = dimensionResource(R.dimen.zero_spacing),
-        bottomStart = dimensionResource(R.dimen.zero_spacing)
+        topStart = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing),
+        topEnd = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing),
+        bottomEnd = dimensionResource(com.blockchain.componentlib.R.dimen.zero_spacing),
+        bottomStart = dimensionResource(com.blockchain.componentlib.R.dimen.zero_spacing)
 
     )
     val bottomRowShape = RoundedCornerShape(
-        topStart = dimensionResource(R.dimen.zero_spacing),
-        topEnd = dimensionResource(R.dimen.zero_spacing),
-        bottomEnd = dimensionResource(R.dimen.smallest_spacing),
-        bottomStart = dimensionResource(R.dimen.smallest_spacing)
+        topStart = dimensionResource(com.blockchain.componentlib.R.dimen.zero_spacing),
+        topEnd = dimensionResource(com.blockchain.componentlib.R.dimen.zero_spacing),
+        bottomEnd = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing),
+        bottomStart = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
     )
 
     Column {
@@ -61,8 +61,8 @@ fun DoubleDateRow(
                     shape = topRowShape
                 )
                 .padding(
-                    horizontal = dimensionResource(R.dimen.medium_spacing),
-                    vertical = dimensionResource(R.dimen.very_small_spacing)
+                    horizontal = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
+                    vertical = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)
                 )
         ) {
             Text(
@@ -102,8 +102,8 @@ fun DoubleDateRow(
                     shape = bottomRowShape
                 )
                 .padding(
-                    horizontal = dimensionResource(R.dimen.medium_spacing),
-                    vertical = dimensionResource(R.dimen.very_small_spacing)
+                    horizontal = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
+                    vertical = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)
                 )
         ) {
             Text(

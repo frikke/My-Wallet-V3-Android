@@ -93,7 +93,8 @@ class CoinviewViewModel(
     CoinviewViewState,
     CoinviewModelState,
     CoinviewNavigationEvent,
-    CoinviewArgs>(CoinviewModelState()) {
+    CoinviewArgs
+    >(CoinviewModelState()) {
 
     companion object {
         const val SNACKBAR_MESSAGE_DURATION: Long = 3000L
@@ -157,7 +158,7 @@ class CoinviewViewModel(
                         asset.currency.takeIf { it.isLayer2Token }?.coinNetwork?.let {
                             CoinViewNetwork(
                                 logo = assetCatalogue.fromNetworkTicker(it.nativeAssetTicker)?.logo.orEmpty(),
-                                name = it.shortName,
+                                name = it.shortName
                             )
                         }
                     } else {
@@ -209,14 +210,19 @@ class CoinviewViewModel(
                         priceChange = (interactiveAssetPrice ?: priceDetail)
                             .changeDifference.toStringWithSymbol(),
                         percentChange = (interactiveAssetPrice ?: priceDetail).percentChange,
-                        intervalName = if (interactiveAssetPrice != null) R.string.empty else
+                        intervalName = if (interactiveAssetPrice != null) {
+                            com.blockchain.stringResources.R.string.empty
+                        } else {
                             when ((priceDetail).timeSpan) {
-                                HistoricalTimeSpan.DAY -> R.string.coinview_price_day
-                                HistoricalTimeSpan.WEEK -> R.string.coinview_price_week
-                                HistoricalTimeSpan.MONTH -> R.string.coinview_price_month
-                                HistoricalTimeSpan.YEAR -> R.string.coinview_price_year
-                                HistoricalTimeSpan.ALL_TIME -> R.string.coinview_price_all
-                            },
+                                HistoricalTimeSpan.DAY -> com.blockchain.stringResources.R.string.coinview_price_day
+                                HistoricalTimeSpan.WEEK -> com.blockchain.stringResources.R.string.coinview_price_week
+                                HistoricalTimeSpan.MONTH ->
+                                    com.blockchain.stringResources.R.string.coinview_price_month
+                                HistoricalTimeSpan.YEAR -> com.blockchain.stringResources.R.string.coinview_price_year
+                                HistoricalTimeSpan.ALL_TIME ->
+                                    com.blockchain.stringResources.R.string.coinview_price_all
+                            }
+                        },
                         chartData = when {
                             isChartDataLoading &&
                                 requestedTimeSpan != null &&
@@ -224,6 +230,7 @@ class CoinviewViewModel(
                                 // show chart loading when data is loading and a new timespan is selected
                                 CoinviewPriceState.Data.CoinviewChartState.Loading
                             }
+
                             else -> CoinviewPriceState.Data.CoinviewChartState.Data(
                                 historicRates.map { point ->
                                     ChartEntry(
@@ -283,26 +290,35 @@ class CoinviewViewModel(
                                             when (cvAccount) {
                                                 is CoinviewAccount.Custodial.Trading ->
                                                     makeAvailableTradingAccount(cvAccount, asset)
+
                                                 is CoinviewAccount.Custodial.Interest ->
                                                     makeAvailableInterestAccount(cvAccount, asset)
+
                                                 is CoinviewAccount.Custodial.Staking ->
                                                     makeAvailableStakingAccount(cvAccount, asset)
+
                                                 is CoinviewAccount.Custodial.ActiveRewards ->
                                                     makeAvailableActiveRewardsAccount(cvAccount, asset)
+
                                                 is CoinviewAccount.PrivateKey ->
                                                     makeAvailablePrivateKeyAccount(cvAccount, account, asset)
                                             }
                                         }
+
                                         false -> {
                                             when (cvAccount) {
                                                 is CoinviewAccount.Custodial.Trading ->
                                                     makeUnavailableTradingAccount(cvAccount, asset)
+
                                                 is CoinviewAccount.Custodial.Interest ->
                                                     makeUnavailableInterestAccount(cvAccount)
+
                                                 is CoinviewAccount.Custodial.Staking ->
                                                     makeUnavailableStakingAccount(cvAccount)
+
                                                 is CoinviewAccount.Custodial.ActiveRewards ->
                                                     makeUnavailableActiveRewardsAccount(cvAccount)
+
                                                 is CoinviewAccount.PrivateKey ->
                                                     makeUnavailablePrivateKeyAccount(cvAccount, account)
                                             }
@@ -325,7 +341,7 @@ class CoinviewViewModel(
     ) = Unavailable(
         cvAccount = cvAccount,
         title = account.currency.name,
-        subtitle = TextValue.IntResValue(R.string.coinview_nc_desc),
+        subtitle = TextValue.IntResValue(com.blockchain.stringResources.R.string.coinview_nc_desc),
         logo = LogoSource.Remote(account.currency.logo)
     )
 
@@ -334,7 +350,7 @@ class CoinviewViewModel(
             cvAccount = cvAccount,
             title = labels.getDefaultStakingWalletLabel(),
             subtitle = TextValue.IntResValue(
-                R.string.coinview_interest_no_balance,
+                com.blockchain.stringResources.R.string.coinview_interest_no_balance,
                 listOf(DecimalFormat("0.#").format(cvAccount.stakingRate))
             ),
             logo = LogoSource.Resource(R.drawable.ic_staking_account_indicator)
@@ -345,7 +361,7 @@ class CoinviewViewModel(
             cvAccount = cvAccount,
             title = labels.getDefaultActiveRewardsWalletLabel(),
             subtitle = TextValue.IntResValue(
-                R.string.coinview_interest_no_balance,
+                com.blockchain.stringResources.R.string.coinview_interest_no_balance,
                 listOf(DecimalFormat("0.#").format(cvAccount.activeRewardsRate))
             ),
             logo = LogoSource.Resource(R.drawable.ic_active_rewards_account_indicator)
@@ -356,7 +372,7 @@ class CoinviewViewModel(
             cvAccount = cvAccount,
             title = labels.getDefaultInterestWalletLabel(),
             subtitle = TextValue.IntResValue(
-                R.string.coinview_interest_no_balance,
+                com.blockchain.stringResources.R.string.coinview_interest_no_balance,
                 listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
             ),
             logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator)
@@ -369,7 +385,7 @@ class CoinviewViewModel(
         cvAccount = cvAccount,
         title = asset.currency.name,
         subtitle = TextValue.IntResValue(
-            R.string.coinview_c_unavailable_desc,
+            com.blockchain.stringResources.R.string.coinview_c_unavailable_desc,
             listOf(asset.currency.name)
         ),
         logo = LogoSource.Resource(R.drawable.ic_custodial_account_indicator)
@@ -396,7 +412,7 @@ class CoinviewViewModel(
         cvAccount = cvAccount,
         title = labels.getDefaultStakingWalletLabel(),
         subtitle = TextValue.IntResValue(
-            R.string.coinview_interest_with_balance,
+            com.blockchain.stringResources.R.string.coinview_interest_with_balance,
             listOf(DecimalFormat("0.#").format(cvAccount.stakingRate))
         ),
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
@@ -412,7 +428,7 @@ class CoinviewViewModel(
         cvAccount = cvAccount,
         title = labels.getDefaultActiveRewardsWalletLabel(),
         subtitle = TextValue.IntResValue(
-            R.string.coinview_interest_with_balance,
+            com.blockchain.stringResources.R.string.coinview_interest_with_balance,
             listOf(DecimalFormat("0.#").format(cvAccount.activeRewardsRate))
         ),
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
@@ -428,7 +444,7 @@ class CoinviewViewModel(
         cvAccount = cvAccount,
         title = labels.getDefaultInterestWalletLabel(),
         subtitle = TextValue.IntResValue(
-            R.string.coinview_interest_with_balance,
+            com.blockchain.stringResources.R.string.coinview_interest_with_balance,
             listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
         ),
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
@@ -475,7 +491,7 @@ class CoinviewViewModel(
                                 CoinviewRecurringBuyState(
                                     id = recurringBuy.id,
                                     description = TextValue.IntResValue(
-                                        R.string.dashboard_recurring_buy_item_title_1,
+                                        com.blockchain.stringResources.R.string.dashboard_recurring_buy_item_title_1,
                                         listOf(
                                             recurringBuy.amount.toStringWithSymbol(),
                                             recurringBuy.recurringBuyFrequency.toHumanReadableRecurringBuy()
@@ -486,12 +502,13 @@ class CoinviewViewModel(
                                         RecurringBuyState.ACTIVE
                                     ) {
                                         TextValue.IntResValue(
-                                            R.string.dashboard_recurring_buy_item_label,
+                                            com.blockchain.stringResources.R.string.dashboard_recurring_buy_item_label,
                                             listOf(recurringBuy.nextPaymentDate.toFormattedDateWithoutYear())
                                         )
                                     } else {
                                         TextValue.IntResValue(
-                                            R.string.dashboard_recurring_buy_item_label_error
+                                            com.blockchain.stringResources
+                                                .R.string.dashboard_recurring_buy_item_label_error
                                         )
                                     },
 
@@ -554,7 +571,7 @@ class CoinviewViewModel(
                     CoinviewAssetInfoState.Data(
                         assetName = asset.currency.name,
                         description = if (description.isEmpty().not()) description else null,
-                        website = if (website.isEmpty().not()) website else null,
+                        website = if (website.isEmpty().not()) website else null
                     )
                 }
             }
@@ -564,9 +581,10 @@ class CoinviewViewModel(
     private fun reducePillAlert(state: CoinviewModelState): CoinviewPillAlertState = state.run {
         when (state.alert) {
             CoinviewPillAlert.WatchlistAdded -> CoinviewPillAlertState.Alert(
-                message = R.string.coinview_added_watchlist,
+                message = com.blockchain.stringResources.R.string.coinview_added_watchlist,
                 icon = Icons.Filled.Star.withTint(Color(0XFFFFCD53))
             )
+
             CoinviewPillAlert.None -> CoinviewPillAlertState.None
         }.also {
             // reset to None
@@ -635,7 +653,7 @@ class CoinviewViewModel(
                 require(modelState.asset != null) { "asset not initialized" }
 
                 loadWatchlistData(
-                    asset = modelState.asset,
+                    asset = modelState.asset
                 )
             }
 
@@ -643,7 +661,7 @@ class CoinviewViewModel(
                 check(modelState.asset != null) { "LoadAccountsData asset not initialized" }
 
                 loadAccountsData(
-                    asset = modelState.asset,
+                    asset = modelState.asset
                 )
             }
 
@@ -667,7 +685,7 @@ class CoinviewViewModel(
                 check(modelState.asset != null) { "LoadAssetInfo asset not initialized" }
 
                 loadAssetInformation(
-                    asset = modelState.asset,
+                    asset = modelState.asset
                 )
             }
 
@@ -693,7 +711,7 @@ class CoinviewViewModel(
 
                 loadPriceData(
                     asset = modelState.asset,
-                    requestedTimeSpan = intent.timeSpan,
+                    requestedTimeSpan = intent.timeSpan
                 )
             }
 
@@ -728,12 +746,15 @@ class CoinviewViewModel(
                     cvAccount.isInterestAccount() -> navigate(
                         CoinviewNavigationEvent.NavigateToInterestStatement(cvAccount)
                     )
+
                     cvAccount.isStakingAccount() -> navigate(
                         CoinviewNavigationEvent.NavigateToStakingStatement(cvAccount)
                     )
+
                     cvAccount.isActiveRewardsAccount() -> navigate(
                         CoinviewNavigationEvent.NavigateToActiveRewardsStatement(cvAccount)
                     )
+
                     else -> navigate(
                         CoinviewNavigationEvent.ShowAccountActions(
                             cvAccount = cvAccount,
@@ -742,7 +763,7 @@ class CoinviewViewModel(
                             activeRewardsRate = cvAccount.activeRewardsRate(),
                             actions = intent.actions,
                             cryptoBalance = balance.data,
-                            fiatBalance = fiatBalance.data,
+                            fiatBalance = fiatBalance.data
                         )
                     )
                 }
@@ -768,7 +789,7 @@ class CoinviewViewModel(
                 val cvAccount = modelState.accounts!!.accounts.first { it.account == intent.account }
 
                 custodialWalletManager.isCurrencyAvailableForTrading(
-                    modelState.asset.currency,
+                    modelState.asset.currency
                 )
                     .filterNotLoading()
                     .doOnData { availableToBuy ->
@@ -962,7 +983,7 @@ class CoinviewViewModel(
                         updateState {
                             it.copy(
                                 isChartDataLoading = false,
-                                assetPriceHistory = dataResource,
+                                assetPriceHistory = dataResource
                             )
                         }
                     }
@@ -996,7 +1017,7 @@ class CoinviewViewModel(
      */
     private fun updatePriceForChartSelection(
         entry: Entry,
-        assetPriceHistory: CoinviewAssetPriceHistory,
+        assetPriceHistory: CoinviewAssetPriceHistory
     ) {
         val historicRates = assetPriceHistory.historicRates
         historicRates.firstOrNull { it.timestamp.toFloat() == entry.x }?.let { selectedHistoricalRate ->
@@ -1011,7 +1032,8 @@ class CoinviewViewModel(
                 it.copy(
                     interactiveAssetPrice = CoinviewAssetPrice(
                         price = Money.fromMajor(
-                            fiatCurrency, selectedHistoricalRate.rate.toBigDecimal()
+                            fiatCurrency,
+                            selectedHistoricalRate.rate.toBigDecimal()
                         ),
                         timeSpan = assetPriceHistory.priceDetail.timeSpan,
                         changeDifference = changeDifference,
@@ -1060,6 +1082,7 @@ class CoinviewViewModel(
                             it.copy(error = CoinviewError.WatchlistToggleError)
                         }
                     }
+
                     is DataResource.Data -> {
                         loadWatchlistData(
                             asset = asset
@@ -1075,6 +1098,7 @@ class CoinviewViewModel(
                             )
                         }
                     }
+
                     DataResource.Loading -> {
                         // n/a
                     }
@@ -1168,17 +1192,19 @@ class CoinviewViewModel(
                             )
                             markAsSeen()
                         } else {
-
                             when {
                                 account.isInterestAccount() -> navigate(
                                     CoinviewNavigationEvent.NavigateToInterestStatement(account)
                                 )
+
                                 account.isStakingAccount() -> navigate(
                                     CoinviewNavigationEvent.NavigateToStakingStatement(account)
                                 )
+
                                 account.isActiveRewardsAccount() -> navigate(
                                     CoinviewNavigationEvent.NavigateToActiveRewardsStatement(account)
                                 )
+
                                 else -> navigate(
                                     CoinviewNavigationEvent.ShowAccountActions(
                                         cvAccount = account,
@@ -1208,6 +1234,7 @@ class CoinviewViewModel(
             is CoinviewAccount.Custodial.Interest -> {
                 interestRate
             }
+
             else -> {
                 noInterestRate
             }
@@ -1220,6 +1247,7 @@ class CoinviewViewModel(
             is CoinviewAccount.Custodial.Staking -> {
                 stakingRate
             }
+
             else -> {
                 noStakingRate
             }
@@ -1232,6 +1260,7 @@ class CoinviewViewModel(
             is CoinviewAccount.Custodial.ActiveRewards -> {
                 activeRewardsRate
             }
+
             else -> {
                 noActiveRewardsRate
             }
@@ -1292,16 +1321,19 @@ class CoinviewViewModel(
                             cvAccount = account
                         )
                     }
+
                     account.isStakingAccount() -> {
                         CoinviewNavigationEvent.NavigateToStakingStatement(
                             cvAccount = account
                         )
                     }
+
                     account.isActiveRewardsAccount() -> {
                         CoinviewNavigationEvent.NavigateToActiveRewardsStatement(
                             cvAccount = account
                         )
                     }
+
                     else -> throw IllegalStateException("ViewStatement is not supported for account $account")
                 }
             )

@@ -37,7 +37,7 @@ class UpdatePhoneFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        this.updateTitleToolbar(getString(R.string.profile_toolbar_mobile))
+        this.updateTitleToolbar(getString(com.blockchain.stringResources.R.string.profile_toolbar_mobile))
         binding.updatePhone.buttonState = ButtonState.Disabled
     }
 
@@ -84,9 +84,11 @@ class UpdatePhoneFragment :
             view = binding.root,
             message = getString(
                 when (error) {
-                    PhoneError.PhoneNumberNotValidError -> R.string.profile_update_error_phone_invalid
-                    PhoneError.ResendSmsError -> R.string.profile_update_error_resend_sms
-                    else -> R.string.profile_update_error_phone
+                    PhoneError.PhoneNumberNotValidError ->
+                        com.blockchain.stringResources.R.string.profile_update_error_phone_invalid
+
+                    PhoneError.ResendSmsError -> com.blockchain.stringResources.R.string.profile_update_error_resend_sms
+                    else -> com.blockchain.stringResources.R.string.profile_update_error_phone
                 }
             ),
             type = SnackbarType.Error
@@ -105,7 +107,7 @@ class UpdatePhoneFragment :
     private fun updateUI(mobileVerified: Boolean, mobileNoPrefix: String, authType: Int, mobileWithPrefix: String) {
         with(binding) {
             phone.apply {
-                labelText = context.getString(R.string.profile_label_mobile)
+                labelText = context.getString(com.blockchain.stringResources.R.string.profile_label_mobile)
                 value = mobileNoPrefix
                 inputType = KeyboardType.Number
                 singleLine = true
@@ -127,14 +129,14 @@ class UpdatePhoneFragment :
 
             verifyPhoneBtn.visibleIf { !mobileVerified }
             verifyPhoneBtn.apply {
-                text = getString(R.string.profile_verify_phone)
+                text = getString(com.blockchain.stringResources.R.string.profile_verify_phone)
                 onClick = {
                     if (isValidMobileNumber(authType)) onVerifyPhoneClicked()
                 }
             }
 
             updatePhone.apply {
-                text = getString(R.string.profile_update)
+                text = getString(com.blockchain.stringResources.R.string.profile_update)
                 onClick = {
                     if (isValidMobileNumber(authType)) onUpdatePhoneClicked()
                 }
@@ -156,8 +158,8 @@ class UpdatePhoneFragment :
         val newPhoneNumber = binding.dialCodeValue.text.toString() + binding.phone.value
         return if (!formatChecker.isValidMobileNumber(newPhoneNumber)) {
             binding.phone.apply {
-                state = TextInputState.Error(getString(R.string.invalid_mobile))
-                trailingIconResource = ImageResource.Local(R.drawable.ic_alert, null)
+                state = TextInputState.Error(getString(com.blockchain.stringResources.R.string.invalid_mobile))
+                trailingIconResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_alert, null)
             }
             false
         } else {
@@ -172,8 +174,9 @@ class UpdatePhoneFragment :
     private fun showWarningToDisable2fa(authType: Int): Boolean {
         return if (authType != Settings.AUTH_TYPE_OFF) {
             binding.phone.apply {
-                state = TextInputState.Error(getString(R.string.profile_disable_2fa_first))
-                trailingIconResource = ImageResource.Local(R.drawable.ic_alert, null)
+                state =
+                    TextInputState.Error(getString(com.blockchain.stringResources.R.string.profile_disable_2fa_first))
+                trailingIconResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_alert, null)
             }
             false
         } else {

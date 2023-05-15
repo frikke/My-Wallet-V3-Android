@@ -23,7 +23,7 @@ class SSLVerifyActivity : BaseMvpActivity<SSLVerifyView, SSLVerifyPresenter>(), 
         intent.getBooleanExtra(EXTRA_ALLOW_RETRY, false)
     }
     private val warningMessage: Int by unsafeLazy {
-        intent.getIntExtra(EXTRA_WARNING, R.string.unexpected_error)
+        intent.getIntExtra(EXTRA_WARNING, com.blockchain.stringResources.R.string.unexpected_error)
     }
 
     private val binding: ActivityLoaderBinding by lazy {
@@ -47,19 +47,18 @@ class SSLVerifyActivity : BaseMvpActivity<SSLVerifyView, SSLVerifyPresenter>(), 
     override fun getView() = this
 
     override fun showWarningPrompt() {
-
-        val builder = AlertDialog.Builder(this, R.style.AlertDialogStyle)
+        val builder = AlertDialog.Builder(this, com.blockchain.componentlib.R.style.AlertDialogStyle)
             .setMessage(warningMessage)
             .setCancelable(false)
 
         if (allowRetry) {
             builder.setPositiveButton(
-                R.string.retry
+                com.blockchain.stringResources.R.string.retry
             ) { _, _ -> presenter?.validateSSL() }
         }
 
         builder.setNegativeButton(
-            R.string.exit
+            com.blockchain.stringResources.R.string.exit
         ) { _, _ -> finish() }
 
         val dialog = builder.create()
@@ -73,16 +72,15 @@ class SSLVerifyActivity : BaseMvpActivity<SSLVerifyView, SSLVerifyPresenter>(), 
 
         @JvmStatic
         fun start(context: Context, connectionEvent: ConnectionEvent) {
-
             val intent = Intent(context, SSLVerifyActivity::class.java)
 
             if (connectionEvent == ConnectionEvent.PINNING_FAIL) {
                 // Not safe to continue
                 intent.putExtra(EXTRA_ALLOW_RETRY, false)
-                intent.putExtra(EXTRA_WARNING, R.string.ssl_pinning_invalid)
+                intent.putExtra(EXTRA_WARNING, com.blockchain.stringResources.R.string.ssl_pinning_invalid)
             } else {
                 intent.putExtra(EXTRA_ALLOW_RETRY, true)
-                intent.putExtra(EXTRA_WARNING, R.string.ssl_no_connection)
+                intent.putExtra(EXTRA_WARNING, com.blockchain.stringResources.R.string.ssl_no_connection)
             }
 
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)

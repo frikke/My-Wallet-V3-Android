@@ -138,8 +138,9 @@ private class XlmMemoItemViewHolder(
     private fun AppCompatSpinner.setupSpinner() {
         val spinnerArrayAdapter: ArrayAdapter<String> =
             ArrayAdapter(
-                context, android.R.layout.simple_spinner_dropdown_item,
-                resources.getStringArray(R.array.xlm_memo_types_manual)
+                context,
+                android.R.layout.simple_spinner_dropdown_item,
+                resources.getStringArray(com.blockchain.stringResources.R.array.xlm_memo_types_manual)
             )
         adapter = spinnerArrayAdapter
     }
@@ -178,24 +179,24 @@ private class XlmMemoItemViewHolder(
         binding.confirmDetailsMemoInput.apply {
             if (selection == TEXT_INDEX) {
                 hint =
-                    context.getString(R.string.send_confirm_memo_text_hint)
+                    context.getString(com.blockchain.stringResources.R.string.send_confirm_memo_text_hint)
                 inputType = InputType.TYPE_CLASS_TEXT
             } else {
                 hint =
-                    context.getString(R.string.send_confirm_memo_id_hint)
+                    context.getString(com.blockchain.stringResources.R.string.send_confirm_memo_id_hint)
                 inputType = InputType.TYPE_CLASS_NUMBER
             }
         }
     }
 
     private fun ItemSendConfirmXlmMemoBinding.showExchangeInfo() {
-        val boldIntro = context.getString(R.string.send_to_exchange_xlm_title)
-        val blurb = context.getString(R.string.send_to_exchange_xlm_blurb)
+        val boldIntro = context.getString(com.blockchain.stringResources.R.string.send_to_exchange_xlm_title)
+        val blurb = context.getString(com.blockchain.stringResources.R.string.send_to_exchange_xlm_blurb)
 
         val map = mapOf("send_memo_link" to Uri.parse(URL_XLM_MIN_BALANCE))
         val link = StringUtils.getStringWithMappedAnnotations(
             context,
-            R.string.send_to_exchange_xlm_link,
+            com.blockchain.stringResources.R.string.send_to_exchange_xlm_link,
             map
         )
 
@@ -205,7 +206,9 @@ private class XlmMemoItemViewHolder(
             .append(link)
 
         sb.setSpan(
-            StyleSpan(Typeface.BOLD), 0, boldIntro.length,
+            StyleSpan(Typeface.BOLD),
+            0,
+            boldIntro.length,
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 

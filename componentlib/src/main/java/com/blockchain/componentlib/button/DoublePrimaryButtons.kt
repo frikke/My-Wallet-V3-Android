@@ -50,9 +50,8 @@ fun DoublePrimaryButtons(
     endButtonState: ButtonState = ButtonState.Enabled,
     startButtonIcon: ImageResource = ImageResource.None,
     endButtonIcon: ImageResource = ImageResource.None,
-    isDarkTheme: Boolean = isSystemInDarkTheme(),
+    isDarkTheme: Boolean = isSystemInDarkTheme()
 ) {
-
     val startButtonInteractionSource = remember { MutableInteractionSource() }
     var startButtonBackgroundColor by remember {
         mutableStateOf(
@@ -87,7 +86,6 @@ fun DoublePrimaryButtons(
     }
 
     LaunchedEffect(startButtonInteractionSource, startButtonState, isDarkTheme) {
-
         fun cancel() {
             startButtonBackgroundColor = when (startButtonState) {
                 ButtonState.Disabled -> if (isDarkTheme) Grey900 else Blue400
@@ -109,12 +107,11 @@ fun DoublePrimaryButtons(
             },
             onCancel = {
                 cancel()
-            },
+            }
         )
     }
 
     LaunchedEffect(endButtonInteractionSource, endButtonState, isDarkTheme) {
-
         fun cancel() {
             endButtonBackgroundColor = when (startButtonState) {
                 ButtonState.Disabled -> if (isDarkTheme) Grey900 else Blue400
@@ -136,7 +133,7 @@ fun DoublePrimaryButtons(
             },
             onCancel = {
                 cancel()
-            },
+            }
         )
     }
 
@@ -163,7 +160,7 @@ fun DoublePrimaryButtons(
                     backgroundColor = animateColorAsState(targetValue = startButtonBackgroundColor).value,
                     contentColor = Color.Unspecified,
                     disabledBackgroundColor = animateColorAsState(targetValue = startButtonBackgroundColor).value,
-                    disabledContentColor = Color.Unspecified,
+                    disabledContentColor = Color.Unspecified
                 ),
                 elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
                 content = {
@@ -172,7 +169,7 @@ fun DoublePrimaryButtons(
                         text = startButtonText,
                         textColor = Color.White,
                         contentAlpha = startTextAlpha,
-                        icon = startButtonIcon,
+                        icon = startButtonIcon
                     )
                 }
             )
@@ -202,7 +199,7 @@ fun DoublePrimaryButtons(
                     backgroundColor = animateColorAsState(targetValue = endButtonBackgroundColor).value,
                     contentColor = Color.Unspecified,
                     disabledBackgroundColor = animateColorAsState(targetValue = endButtonBackgroundColor).value,
-                    disabledContentColor = Color.Unspecified,
+                    disabledContentColor = Color.Unspecified
                 ),
                 content = {
                     ButtonContent(
@@ -210,7 +207,7 @@ fun DoublePrimaryButtons(
                         text = endButtonText,
                         textColor = Color.White,
                         contentAlpha = endTextAlpha,
-                        icon = endButtonIcon,
+                        icon = endButtonIcon
                     )
                 }
             )
@@ -227,7 +224,7 @@ private fun DoublePrimary_Buttons() {
                 startButtonText = "Primary",
                 onStartButtonClick = { },
                 endButtonText = "Secondary",
-                onEndButtonClick = { },
+                onEndButtonClick = { }
             )
         }
     }

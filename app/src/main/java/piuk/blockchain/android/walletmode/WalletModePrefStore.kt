@@ -5,7 +5,7 @@ import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeStore
 
 class WalletModePrefStore(
-    private val walletModePrefs: WalletModePrefs,
+    private val walletModePrefs: WalletModePrefs
 ) : WalletModeStore {
     override fun updateWalletMode(walletMode: WalletMode) {
         walletModePrefs.currentWalletMode = walletMode.name

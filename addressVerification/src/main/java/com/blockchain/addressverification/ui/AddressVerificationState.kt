@@ -34,7 +34,7 @@ data class AddressVerificationModelState(
     val showPostcodeError: Boolean = false,
     val postCodeInput: String = "",
 
-    val countryInput: String = "",
+    val countryInput: String = ""
 ) : ModelState
 
 data class AddressVerificationState(
@@ -66,10 +66,10 @@ data class AddressVerificationState(
 
     val countryInput: String,
 
-    val saveButtonState: ButtonState,
+    val saveButtonState: ButtonState
 ) : ViewState
 
 enum class AddressVerificationStep {
     SEARCH,
-    DETAILS,
+    DETAILS
 }

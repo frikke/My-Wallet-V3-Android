@@ -25,7 +25,7 @@ class ErrorToastAlertView @JvmOverloads constructor(
         AppTheme(setSystemColors = false) {
             AppSurface {
                 ErrorToastAlert(
-                    text = text,
+                    text = text
                 )
             }
         }

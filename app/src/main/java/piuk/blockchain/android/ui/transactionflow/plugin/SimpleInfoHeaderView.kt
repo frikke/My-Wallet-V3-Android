@@ -53,7 +53,7 @@ class SimpleInfoHeaderView @JvmOverloads constructor(
                 var newFiatAmount = ""
                 if (shouldShowExchange) {
                     state.confirmationRate?.let {
-                        newFiatAmount = it.convert(amount, false).toStringWithSymbol()
+                        newFiatAmount = it.convert(amount).toStringWithSymbol()
                         headerSubtitle.text = newFiatAmount
                     }
                 } else {
@@ -62,12 +62,12 @@ class SimpleInfoHeaderView @JvmOverloads constructor(
                 if (previousFiatAmount.isNotEmpty() && previousFiatAmount != newFiatAmount) {
                     headerTitle.animateChange {
                         headerTitle.setTextColor(
-                            ContextCompat.getColor(headerTitle.context, R.color.grey_800)
+                            ContextCompat.getColor(headerTitle.context, com.blockchain.common.R.color.grey_800)
                         )
                     }
                     headerSubtitle.animateChange {
                         headerSubtitle.setTextColor(
-                            ContextCompat.getColor(headerSubtitle.context, R.color.grey_600)
+                            ContextCompat.getColor(headerSubtitle.context, com.blockchain.common.R.color.grey_600)
                         )
                     }
                 }
@@ -80,7 +80,7 @@ class SimpleInfoHeaderView @JvmOverloads constructor(
         pivotX = this.measuredWidth * 0.5f
         pivotY = this.measuredHeight * 0.5f
 
-        setTextColor(ContextCompat.getColor(context, R.color.blue_600))
+        setTextColor(ContextCompat.getColor(context, com.blockchain.common.R.color.blue_600))
 
         animate()
             .scaleX(1.1f)

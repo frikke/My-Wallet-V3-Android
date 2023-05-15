@@ -40,17 +40,20 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.theme.clickableWithIndication
 import com.blockchain.componentlib.utils.previewAnalytics
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.dashboard.composable.DashboardState
 import com.blockchain.home.presentation.dashboard.eventName
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.koin.newSwapFlowFeatureFlag
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 
 val maxQuickActionsOnScreen: Int
-    @Stable @Composable get() {
+    @Stable @Composable
+    get() {
         val screenWidth = LocalConfiguration.current.screenWidthDp.dp
         val horizontalSpacing = AppTheme.dimensions.smallSpacing
         val quickActionWidth = AppTheme.dimensions.xHugeSpacing
@@ -63,6 +66,7 @@ val maxQuickActionsOnScreen: Int
 
 @Composable
 fun QuickActions(
+    newSwapFlowFF: FeatureFlag = get(newSwapFlowFeatureFlag),
     analytics: Analytics = get(),
     quickActionItems: List<QuickActionItem>,
     assetActionsNavigation: AssetActionsNavigation,
@@ -84,7 +88,11 @@ fun QuickActions(
                             QuickActionsNavEvent.Sell -> assetActionsNavigation.navigate(AssetAction.Sell)
                             QuickActionsNavEvent.Receive -> assetActionsNavigation.navigate(AssetAction.Receive)
                             QuickActionsNavEvent.Buy -> assetActionsNavigation.navigate(AssetAction.Buy)
-                            QuickActionsNavEvent.Swap -> assetActionsNavigation.navigate(AssetAction.Swap)
+                            QuickActionsNavEvent.Swap -> if (newSwapFlowFF.coEnabled()) {
+                                openSwap()
+                            } else {
+                                assetActionsNavigation.navigate(AssetAction.Swap)
+                            }
                             QuickActionsNavEvent.DexOrSwapOption -> openDexSwapOptions()
                             QuickActionsNavEvent.FiatDeposit -> quickActionsViewModel.onIntent(
                                 QuickActionsIntent.FiatAction(AssetAction.FiatDeposit)
@@ -132,7 +140,6 @@ private fun QuickActionsScreen(
                     .then(
                         if (quickAction.enabled) {
                             Modifier.clickableWithIndication {
-
                                 onActionClicked(quickAction)
                                 (quickAction.action as? QuickAction.TxAction)?.assetAction?.let { assetAction ->
                                     assetAction.eventName()?.let {
@@ -195,7 +202,7 @@ private val QuickActionItem.icon: ImageResource
     }.withBackground(
         backgroundColor = White,
         iconSize = AppTheme.dimensions.standardSpacing,
-        backgroundSize = AppTheme.dimensions.xHugeSpacing,
+        backgroundSize = AppTheme.dimensions.xHugeSpacing
     )
 
 @Preview(showBackground = true, backgroundColor = 0XFFF1F2F7)
@@ -205,22 +212,22 @@ fun PreviewQuickActionsScreen() {
         analytics = previewAnalytics,
         quickActionItems = listOf(
             QuickActionItem(
-                title = R.string.common_send,
+                title = com.blockchain.stringResources.R.string.common_send,
                 action = QuickAction.TxAction(AssetAction.Send),
                 enabled = true
             ),
             QuickActionItem(
-                title = R.string.common_send,
+                title = com.blockchain.stringResources.R.string.common_send,
                 action = QuickAction.TxAction(AssetAction.Send),
                 enabled = true
             ),
             QuickActionItem(
-                title = R.string.common_send,
+                title = com.blockchain.stringResources.R.string.common_send,
                 action = QuickAction.TxAction(AssetAction.Send),
                 enabled = true
             ),
             QuickActionItem(
-                title = R.string.common_more,
+                title = com.blockchain.stringResources.R.string.common_more,
                 action = QuickAction.More,
                 enabled = true
             )

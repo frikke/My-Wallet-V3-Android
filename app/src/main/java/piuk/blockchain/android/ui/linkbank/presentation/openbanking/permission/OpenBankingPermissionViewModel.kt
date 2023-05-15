@@ -8,11 +8,13 @@ import piuk.blockchain.android.ui.linkbank.domain.openbanking.usecase.GetSafeCon
 
 class OpenBankingPermissionViewModel(
     private val getSafeConnectTosLinkUseCase: GetSafeConnectTosLinkUseCase
-) : MviViewModel<OpenBankingPermissionIntents,
+) : MviViewModel<
+    OpenBankingPermissionIntents,
     OpenBankingPermissionViewState,
     OpenBankingPermissionModelState,
     OpenBankingPermissionNavEvent,
-    OpenBankingPermissionArgs>(
+    OpenBankingPermissionArgs
+    >(
     initialState = OpenBankingPermissionModelState()
 ) {
     override fun viewCreated(args: OpenBankingPermissionArgs) {

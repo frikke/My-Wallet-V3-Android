@@ -11,7 +11,7 @@ import com.blockchain.storedatasource.FlushableDataSource
 import kotlinx.serialization.builtins.ListSerializer
 
 class StakingWithdrawalsStore(
-    private val stakingApiService: StakingApiService,
+    private val stakingApiService: StakingApiService
 ) : Store<List<EarnWithdrawalDto>> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,

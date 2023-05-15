@@ -115,7 +115,7 @@ class PayloadDataManagerIntegrationTest : KoinTest {
             mock(),
             mock(),
             payloadManager,
-            mock(),
+            mock()
         )
     }
 
@@ -136,10 +136,12 @@ class PayloadDataManagerIntegrationTest : KoinTest {
         subject.payloadChecksum `should be equal to` "1db6acfcce7fdcb2780dd5a7b6f8c7e32ff50702a8c851317a3903d86b6dea9b"
         subject.defaultAccount `should be equal to` AccountV4(
             label = "Private Key Wallet",
-            _defaultType = "bech32", _isArchived = null,
+            _defaultType = "bech32",
+            _isArchived = null,
             derivations = listOf(
                 Derivation(
-                    type = "legacy", purpose = 44,
+                    type = "legacy",
+                    purpose = 44,
                     xpriv = "xprv9y8noc7G5TnerpABXnnX5rUvKaEG1bUsAGnK8tHGZM33tF4x2CpZe69FH8aXoAEBRf5yDELSxhz6C76XB49BNrfoujBE91dtfk3rxhgJa7j",
                     xpub = "xpub6C89D7e9uqLx5JEedpKXSzResc4kR4CiXVhuwGgt7ga2m3Q6Zk8pBtTj8PHhTwezeptj6TpwL8i72FgMHrwoSmynfnEaoeGxHZq5DyFK6Lo",
                     cache = AddressCache(
@@ -149,7 +151,8 @@ class PayloadDataManagerIntegrationTest : KoinTest {
                     _addressLabels = null
                 ),
                 Derivation(
-                    type = "bech32", purpose = 84,
+                    type = "bech32",
+                    purpose = 84,
                     xpriv = "xprv9yCt31fSgZ2LUZ36xEwqryrjqGn19naBDe8wXh3Cg93sjPsT8zMcRbb42imnGL86FhjNkDD3ACmf6a2wFSqtJQqf5Ncjfj9k7oNGcUXrxH3",
                     xpub = "xpub6CCESXCLWvadh37a4GUrE7oUPJcVZFJ2as4YL5SpEUarcCCbgXfryPuXszwJRd3Mo7hsZgeMAtVKybeJwFmVkdTzdLv9cAintb8ymK38j1U",
                     cache = AddressCache(

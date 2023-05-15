@@ -59,7 +59,7 @@ fun CustomStackedIcon(
                         .size(size)
                         .background(iconBackground),
                     imageResource = icon.icon,
-                    onErrorDrawable = R.drawable.coins_on
+                    onErrorDrawable = com.blockchain.componentlib.icons.R.drawable.coins_on
                 )
             }
         }

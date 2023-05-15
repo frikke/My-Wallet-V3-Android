@@ -56,13 +56,13 @@ data class WireTransferAccountDetailsResponse(
 @Serializable
 data class WireTransferDetailsResponse(
     val sections: List<WireTransferDetailsSectionResponse>,
-    val footers: List<WireTransferDetailsFooterResponse>,
+    val footers: List<WireTransferDetailsFooterResponse>
 )
 
 @Serializable
 data class WireTransferDetailsSectionResponse(
     val name: String,
-    val entries: List<WireTransferDetailsSectionEntryResponse>,
+    val entries: List<WireTransferDetailsSectionEntryResponse>
 )
 
 @Serializable
@@ -70,7 +70,7 @@ data class WireTransferDetailsSectionEntryResponse(
     val title: String,
     val message: String,
     val isImportant: Boolean?,
-    val help: String?,
+    val help: String?
 )
 
 @Serializable
@@ -79,13 +79,13 @@ data class WireTransferDetailsFooterResponse(
     val message: String,
     val icon: String?,
     val isImportant: Boolean?,
-    val actions: List<WireTransferDetailsAction>?,
+    val actions: List<WireTransferDetailsAction>?
 )
 
 @Serializable
 data class WireTransferDetailsAction(
     val title: String,
-    val url: String?,
+    val url: String?
 )
 
 @Serializable
@@ -394,7 +394,7 @@ data class TransactionAttributesResponse(
 @Serializable
 data class TransactionBeneficiaryResponse(
     val accountRef: String? = null,
-    val user: String? = null,
+    val user: String? = null
 )
 
 @Serializable

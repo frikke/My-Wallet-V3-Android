@@ -11,7 +11,7 @@ import com.blockchain.betternavigation.navigateTo
 @Composable
 internal fun BetterNavigationExampleScreen() {
     TypedNavHost(
-        startDestination = DashboardGraph,
+        startDestination = DashboardGraph
     ) {
         dashboardGraph(
             navigateToSwap = {

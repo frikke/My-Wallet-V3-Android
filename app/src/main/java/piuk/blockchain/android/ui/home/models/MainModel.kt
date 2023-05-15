@@ -55,7 +55,7 @@ class MainModel(
     initialState,
     mainScheduler,
     environmentConfig,
-    remoteLogger,
+    remoteLogger
 ) {
 
     private val compositeDisposable = CompositeDisposable()
@@ -169,6 +169,7 @@ class MainModel(
                             }
                             is ScanResult.WalletConnectRequest -> walletConnectServiceAPI.attemptToConnect(it.data)
                                 .emptySubscribe()
+                            is ScanResult.WalletConnectV2Request,
                             is ScanResult.ImportedWallet -> {
                                 // TODO: as part of Auth
                             }
@@ -233,7 +234,8 @@ class MainModel(
                             process(
                                 MainIntent.UpdateViewToLaunch(
                                     ViewToLaunch.LaunchTxFlowWithAccountForAction(
-                                        LaunchFlowForAccount.NoAccount, intent.action
+                                        LaunchFlowForAccount.NoAccount,
+                                        intent.action
                                     )
                                 )
                             )
@@ -525,7 +527,8 @@ class MainModel(
                 process(
                     MainIntent.UpdateViewToLaunch(
                         ViewToLaunch.LaunchOpenBankingApprovalDepositComplete(
-                            it.amount, interactor.getEstimatedDepositCompletionTime()
+                            it.amount,
+                            interactor.getEstimatedDepositCompletionTime()
                         )
                     )
                 )
@@ -559,7 +562,8 @@ class MainModel(
                         interactor.getSimpleBuySyncLocalState()?.let {
                             handleOrderState(it)
                         } ?: process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingBuyApprovalError))
-                    }, onError = {
+                    },
+                    onError = {
                         Timber.e("Error doing SB sync for bank linking $it")
                         interactor.resetLocalBankAuthState()
                         process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingBuyApprovalError))

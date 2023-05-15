@@ -35,14 +35,16 @@ internal fun LazyListScope.homeRecurringBuys(
     paddedItem(
         paddingValues = PaddingValues(horizontal = 16.dp)
     ) {
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)))
         TableRowHeader(
-            title = stringResource(R.string.recurring_buy_toolbar),
-            actionTitle = stringResource(R.string.manage).takeIf { recurringBuys.isNotEmpty() },
+            title = stringResource(com.blockchain.stringResources.R.string.recurring_buy_toolbar),
+            actionTitle = stringResource(
+                com.blockchain.stringResources.R.string.manage
+            ).takeIf { recurringBuys.isNotEmpty() },
             actionOnClick = {
                 manageOnclick()
                 analytics.logEvent(RecurringBuysAnalyticsEvents.ManageClicked)
-            }.takeIf { recurringBuys.isNotEmpty() },
+            }.takeIf { recurringBuys.isNotEmpty() }
         )
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
     }
@@ -55,10 +57,12 @@ internal fun LazyListScope.homeRecurringBuys(
                 shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
             ) {
                 ButtonTableRow(
-                    title = stringResource(R.string.recurring_buy_automate_title),
-                    subtitle = stringResource(R.string.recurring_buy_automate_description),
+                    title = stringResource(com.blockchain.stringResources.R.string.recurring_buy_automate_title),
+                    subtitle = stringResource(
+                        com.blockchain.stringResources.R.string.recurring_buy_automate_description
+                    ),
                     imageResource = Icons.Filled.Sync.withTint(AppTheme.colors.primary),
-                    actionText = stringResource(R.string.common_go),
+                    actionText = stringResource(com.blockchain.stringResources.R.string.common_go),
                     onClick = {
                         upsellOnClick()
                         analytics.logEvent(RecurringBuysAnalyticsEvents.HomeCtaClicked)

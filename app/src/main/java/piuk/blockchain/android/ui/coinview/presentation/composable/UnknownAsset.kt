@@ -41,7 +41,7 @@ fun UnknownAsset(
         Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
         Text(
-            text = stringResource(R.string.coinview_no_asset_title),
+            text = stringResource(com.blockchain.stringResources.R.string.coinview_no_asset_title),
             style = AppTheme.typography.title3,
             color = AppTheme.colors.title,
             textAlign = TextAlign.Center
@@ -55,21 +55,21 @@ fun UnknownAsset(
                     color = Grey700
                 )
             ) {
-                append(stringResource(id = R.string.coinview_no_asset_blurb_1))
+                append(stringResource(id = com.blockchain.stringResources.R.string.coinview_no_asset_blurb_1))
             }
 
             append(" ")
 
             pushStringAnnotation(
                 tag = "support",
-                annotation = stringResource(id = R.string.coinview_no_asset_blurb_2)
+                annotation = stringResource(id = com.blockchain.stringResources.R.string.coinview_no_asset_blurb_2)
             )
             withStyle(
                 style = SpanStyle(
                     color = AppTheme.colors.primary
                 )
             ) {
-                append(stringResource(id = R.string.coinview_no_asset_blurb_2))
+                append(stringResource(id = com.blockchain.stringResources.R.string.coinview_no_asset_blurb_2))
             }
             pop()
         }
@@ -85,7 +85,7 @@ fun UnknownAsset(
                 ).firstOrNull()?.let {
                     onContactSupportClick()
                 }
-            },
+            }
         )
 
         Spacer(modifier = Modifier.weight(1.2F))

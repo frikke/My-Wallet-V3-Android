@@ -31,7 +31,7 @@ class MultichainInfoBottomSheet : ComposeModalBottomDialog() {
         BottomSheetTwoButtons(
             onCloseClick = { dismiss() },
             title = getString(
-                R.string.receive_network_alert_title,
+                com.blockchain.stringResources.R.string.receive_network_alert_title,
                 account?.currency?.displayTicker,
                 networkName
             ),
@@ -40,7 +40,7 @@ class MultichainInfoBottomSheet : ComposeModalBottomDialog() {
             subtitleAlign = TextAlign.Left,
             showTitleInHeader = true,
             subtitle = getString(
-                R.string.receive_network_alert_subtitle,
+                com.blockchain.stringResources.R.string.receive_network_alert_subtitle,
                 account?.currency?.displayTicker,
                 networkName
             ),
@@ -49,13 +49,14 @@ class MultichainInfoBottomSheet : ComposeModalBottomDialog() {
                 onClick = {
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(MULTICHAIN_LEARN_MORE)))
                 },
-                text = getString(R.string.common_learn_more)
+                text = getString(com.blockchain.stringResources.R.string.common_learn_more)
             ),
             button2 = BottomSheetButton(
                 type = ButtonType.PRIMARY,
                 onClick = {
                     dismiss()
-                }, text = getString(R.string.common_ok)
+                },
+                text = getString(com.blockchain.stringResources.R.string.common_ok)
             )
         )
     }

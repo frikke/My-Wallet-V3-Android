@@ -36,7 +36,8 @@ class ActiveRewardsSummaryViewModel(
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val currencyPrefs: CurrencyPrefs,
     private val activeRewardsWithdrawalsFF: FeatureFlag
-) : MviViewModel<ActiveRewardsSummaryIntent,
+) : MviViewModel<
+    ActiveRewardsSummaryIntent,
     ActiveRewardsSummaryViewState,
     ActiveRewardsSummaryModelState,
     ActiveRewardsSummaryNavigationEvent,
@@ -72,7 +73,7 @@ class ActiveRewardsSummaryViewModel(
             canDeposit = canDeposit,
             canWithdraw = canWithdraw,
             assetFiatPrice = assetFiatPrice,
-            hasOngoingWithdrawals = hasOngoingWithdrawals,
+            hasOngoingWithdrawals = hasOngoingWithdrawals
         )
     }
 
@@ -90,7 +91,7 @@ class ActiveRewardsSummaryViewModel(
     private suspend fun loadActiveRewardsDetails(currency: Currency) {
         updateState {
             it.copy(
-                isLoading = true,
+                isLoading = true
             )
         }
 
@@ -155,7 +156,7 @@ class ActiveRewardsSummaryViewModel(
                                 withdrawalsEnabled &&
                                 hasOngoingWithdrawals.not(),
                             hasOngoingWithdrawals = hasOngoingWithdrawals,
-                            canDeposit = eligibility is EarnRewardsEligibility.Eligible,
+                            canDeposit = eligibility is EarnRewardsEligibility.Eligible
                         )
                     }
                 }
@@ -170,7 +171,7 @@ class ActiveRewardsSummaryViewModel(
 
 @Parcelize
 data class ActiveRewardsSummaryArgs(
-    val cryptoTicker: String,
+    val cryptoTicker: String
 ) : ModelConfigArgs.ParcelableArgs
 
 private data class ActiveRewardsSummaryData(

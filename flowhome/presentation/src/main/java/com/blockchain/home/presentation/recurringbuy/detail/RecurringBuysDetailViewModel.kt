@@ -40,7 +40,8 @@ class RecurringBuysDetailViewModel(
     RecurringBuyDetailViewState,
     RecurringBuysDetailModelState,
     RecurringBuysDetailNavEvent,
-    ModelConfigArgs.NoArgs>(initialState = RecurringBuysDetailModelState()) {
+    ModelConfigArgs.NoArgs
+    >(initialState = RecurringBuysDetailModelState()) {
     private var recurringBuyJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
@@ -73,16 +74,17 @@ class RecurringBuysDetailViewModel(
                     frequency = TextValue.Combined(
                         listOf(
                             TextValue.IntResValue(
-                                recurringBuy.recurringBuyFrequency.toHumanReadableRecurringBuy(),
+                                recurringBuy.recurringBuyFrequency.toHumanReadableRecurringBuy()
                             ),
                             recurringBuy.recurringBuyFrequency.toHumanReadableRecurringDate(
                                 ZonedDateTime.ofInstant(
-                                    recurringBuy.nextPaymentDate.toInstant(), ZoneId.systemDefault()
+                                    recurringBuy.nextPaymentDate.toInstant(),
+                                    ZoneId.systemDefault()
                                 )
                             )
                         )
                     ),
-                    nextBuy = recurringBuy.nextPaymentDate.toFormattedDateWithoutYear(),
+                    nextBuy = recurringBuy.nextPaymentDate.toFormattedDateWithoutYear()
                 )
             },
             cancelationInProgress = cancelationInProgress
@@ -120,7 +122,8 @@ class RecurringBuysDetailViewModel(
         recurringBuyJob?.cancel()
         recurringBuyJob = viewModelScope.launch {
             recurringBuyService.recurringBuy(
-                id = recurringBuyId, includeInactive = includeInactive,
+                id = recurringBuyId,
+                includeInactive = includeInactive,
                 FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
             )
                 .flatMapData { recurringBuy ->

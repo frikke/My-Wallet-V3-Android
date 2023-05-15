@@ -32,9 +32,9 @@ data class PriceItemViewState(
 )
 
 @StringRes fun PricesFilter.nameRes() = when (this) {
-    PricesFilter.All -> R.string.prices_filter_all
-    PricesFilter.Favorites -> R.string.prices_filter_favorites
-    PricesFilter.Tradable -> R.string.prices_filter_tradable
+    PricesFilter.All -> com.blockchain.stringResources.R.string.prices_filter_all
+    PricesFilter.Favorites -> com.blockchain.stringResources.R.string.prices_filter_favorites
+    PricesFilter.Tradable -> com.blockchain.stringResources.R.string.prices_filter_tradable
 }
 
 enum class PricesOutputGroup {

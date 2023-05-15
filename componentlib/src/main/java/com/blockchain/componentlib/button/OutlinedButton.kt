@@ -48,7 +48,7 @@ fun OutlinedButton(
         textColor: Color,
         textAlpha: Float,
         loadingIconResId: Int,
-        icon: ImageResource,
+        icon: ImageResource
     ) -> Unit,
     pressedButtonLightColor: Color = Blue000,
     pressedButtonDarkColor: Color = Dark800,
@@ -95,7 +95,6 @@ fun OutlinedButton(
 
     val interactionSource = remember { MutableInteractionSource() }
     LaunchedEffect(interactionSource, state, isDarkTheme) {
-
         backgroundColor = Color.Unspecified
         borderColor = when (state) {
             ButtonState.Disabled -> {
@@ -131,7 +130,7 @@ fun OutlinedButton(
             },
             onCancel = {
                 cancelState()
-            },
+            }
         )
     }
 
@@ -147,7 +146,7 @@ fun OutlinedButton(
             colors = ButtonDefaults.outlinedButtonColors(
                 backgroundColor = backgroundColor,
                 contentColor = Color.Unspecified,
-                disabledContentColor = Color.Unspecified,
+                disabledContentColor = Color.Unspecified
             ),
             border = BorderStroke(
                 width = 1.dp,
@@ -166,7 +165,7 @@ fun OutlinedButton(
                     } else {
                         R.drawable.ic_loading_minimal_light
                     },
-                    icon = icon,
+                    icon = icon
                 )
             }
         )
@@ -187,7 +186,7 @@ private fun OutlineButtonPreview() {
                         textColor: Color,
                         textAlpha: Float,
                         loadingIconResId: Int,
-                        icon: ImageResource,
+                        icon: ImageResource
                     ->
                     ButtonContentSmall(
                         state = state,
@@ -196,7 +195,7 @@ private fun OutlineButtonPreview() {
                         contentAlpha = textAlpha,
                         loadingIconResId = loadingIconResId
                     )
-                },
+                }
             )
         }
     }

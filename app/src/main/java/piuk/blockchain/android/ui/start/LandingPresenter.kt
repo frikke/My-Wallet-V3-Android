@@ -140,14 +140,15 @@ class LandingPresenter(
         compositeDisposable += apiStatus.isHealthy()
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(onSuccess = { isHealthy ->
-                if (isHealthy.not())
+                if (isHealthy.not()) {
                     view?.showApiOutageMessage()
+                }
             }, onError = {
                     Timber.e(it)
                 })
     }
 
-    override fun onViewDetached() { /* no-op */
+    override fun onViewDetached() { // no-op
     }
 
     internal fun checkForRooted() {

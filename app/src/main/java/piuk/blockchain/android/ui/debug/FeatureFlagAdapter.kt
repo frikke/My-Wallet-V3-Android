@@ -59,7 +59,7 @@ class FeatureFlagViewHolder(
                 objects = FeatureFlagState.values().map { it.toString() },
                 icons = FeatureFlagState.values().map { it.getIcon() }
             )
-            adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item)
+            adapter.setDropDownViewResource(com.veriff.R.layout.support_simple_spinner_dropdown_item)
             root.setOnClickListener { spinner.performClick() }
             spinner.adapter = adapter
             spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {

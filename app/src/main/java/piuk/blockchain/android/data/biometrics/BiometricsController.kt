@@ -86,15 +86,15 @@ class BiometricsControllerImpl(
         with(applicationContext) {
             if (biometricsType == BiometricsType.TYPE_REGISTER) {
                 PromptInfo(
-                    getString(R.string.fingerprint_login_title),
-                    getString(R.string.fingerprint_register_description),
-                    getString(R.string.common_cancel)
+                    getString(com.blockchain.stringResources.R.string.fingerprint_login_title),
+                    getString(com.blockchain.stringResources.R.string.fingerprint_register_description),
+                    getString(com.blockchain.stringResources.R.string.common_cancel)
                 )
             } else {
                 PromptInfo(
-                    getString(R.string.fingerprint_login_title),
-                    getString(R.string.fingerprint_login_description),
-                    getString(R.string.fingerprint_use_pin)
+                    getString(com.blockchain.stringResources.R.string.fingerprint_login_title),
+                    getString(com.blockchain.stringResources.R.string.fingerprint_login_description),
+                    getString(com.blockchain.stringResources.R.string.fingerprint_use_pin)
                 )
             }
         }

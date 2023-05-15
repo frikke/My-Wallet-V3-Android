@@ -13,7 +13,8 @@ abstract class MVIActivity<TViewState : ViewState> : BlockchainActivity() {
     abstract fun onStateUpdated(state: TViewState)
 }
 
-fun <TIntent : Intent<TModelState>,
+fun <
+    TIntent : Intent<TModelState>,
     TViewState : ViewState,
     TModelState : ModelState,
     NavEnt : NavigationEvent,

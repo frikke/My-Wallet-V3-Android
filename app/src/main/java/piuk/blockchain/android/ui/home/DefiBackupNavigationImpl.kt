@@ -7,7 +7,7 @@ import com.blockchain.presentation.backup.BackupPhraseActivity
 import com.blockchain.presentation.navigation.DefiBackupNavigation
 
 class DefiBackupNavigationImpl(
-    private val activity: BlockchainActivity?,
+    private val activity: BlockchainActivity?
 ) : DefiBackupNavigation {
     override fun startPhraseRecovery(
         launcher: ActivityResultLauncher<Intent>

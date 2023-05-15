@@ -16,7 +16,6 @@ import com.blockchain.wallet.DefaultLabels
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.tasks.Task
-import info.blockchain.wallet.api.data.UpdateType
 import io.intercom.android.sdk.Intercom
 import io.intercom.android.sdk.IntercomError
 import io.intercom.android.sdk.IntercomStatusCallback
@@ -97,12 +96,8 @@ class PinInteractor internal constructor(
         mobileNoticeRemoteConfig.mobileNoticeDialog()
 
     fun createPin(tempPassword: String, pin: String): Completable =
-        authDataManager.createPin(tempPassword, pin,)
+        authDataManager.createPin(tempPassword, pin)
             .then { verifyCloudBackup() }
-
-    fun checkForceUpgradeStatus(versionName: String): Observable<UpdateType> {
-        return walletOptionsDataManager.checkForceUpgrade(versionName)
-    }
 
     fun validatePIN(
         pin: String,

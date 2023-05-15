@@ -67,7 +67,7 @@ abstract class QuotedEngine(
     protected fun updateLimits(
         fiat: Currency,
         pendingTx: PendingTx,
-        quotePrice: QuotePrice,
+        quotePrice: QuotePrice
     ): Single<PendingTx> =
         limitsDataManager.getLimits(
             outputCurrency = sourceAsset,
@@ -103,7 +103,7 @@ abstract class QuotedEngine(
     protected abstract fun onLimitsForTierFetched(
         limits: TxLimits,
         pendingTx: PendingTx,
-        quotePrice: QuotePrice,
+        quotePrice: QuotePrice
     ): PendingTx
 
     protected fun Single<PendingTx>.clearConfirmations(): Single<PendingTx> =
@@ -145,18 +145,22 @@ abstract class QuotedEngine(
             if (pendingTx.quoteSub == null) {
                 pendingTx.copy(
                     engineState = pendingTx.engineState.copyAndPut(
-                        QUOTE_SUB, startQuotesFetching()
+                        QUOTE_SUB,
+                        startQuotesFetching()
                     ).copyAndPut(
-                        QUOTE_SUB_AMOUNT, pendingTx.amount
+                        QUOTE_SUB_AMOUNT,
+                        pendingTx.amount
                     )
                 )
             } else if (pendingTx.quoteSubAmount != pendingTx.amount) {
                 pendingTx.quoteSub?.dispose()
                 pendingTx.copy(
                     engineState = pendingTx.engineState.copyAndPut(
-                        QUOTE_SUB, startQuotesFetching()
+                        QUOTE_SUB,
+                        startQuotesFetching()
                     ).copyAndPut(
-                        QUOTE_SUB_AMOUNT, pendingTx.amount
+                        QUOTE_SUB_AMOUNT,
+                        pendingTx.amount
                     )
                 )
             } else {

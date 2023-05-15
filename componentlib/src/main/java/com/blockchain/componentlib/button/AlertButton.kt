@@ -30,7 +30,7 @@ fun AlertButton(
     text: String,
     onClick: () -> Unit,
     state: ButtonState,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Button(
         text = text,
@@ -49,7 +49,7 @@ fun AlertButton(
                 if (state == ButtonState.Loading) {
                     ButtonLoadingIndicator(
                         modifier = Modifier.align(Alignment.Center),
-                        loadingIconResId = R.drawable.ic_loading,
+                        loadingIconResId = R.drawable.ic_loading
                     )
                 }
 
@@ -57,11 +57,11 @@ fun AlertButton(
                 Row(
                     Modifier.alpha(alpha),
                     horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Image(
                         painter = painterResource(R.drawable.ic_alert),
-                        contentDescription = null,
+                        contentDescription = null
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
@@ -73,7 +73,7 @@ fun AlertButton(
                     )
                 }
             }
-        },
+        }
     )
 }
 

@@ -74,7 +74,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
         quotesEngine = quotesEngine,
         limitsDataManager = limitsDataManager,
         userIdentity = userIdentity,
-        swapTransactionsStore = swapTransactionsStore,
+        swapTransactionsStore = swapTransactionsStore
     )
 
     @Before
@@ -593,7 +593,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
     }
 
     private fun verifyFeeLevels(
-        feeSelection: FeeSelection,
+        feeSelection: FeeSelection
     ) = feeSelection.selectedLevel == FeeLevel.None &&
         feeSelection.availableLevels == setOf(FeeLevel.None) &&
         feeSelection.availableLevels.contains(feeSelection.selectedLevel) &&

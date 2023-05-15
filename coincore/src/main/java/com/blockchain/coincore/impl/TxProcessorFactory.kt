@@ -18,6 +18,7 @@ import com.blockchain.coincore.TransferError
 import com.blockchain.coincore.eth.EthOnChainTxEngine
 import com.blockchain.coincore.eth.EthereumSendTransactionTarget
 import com.blockchain.coincore.eth.EthereumSignMessageTarget
+import com.blockchain.coincore.eth.WalletConnectV2SignMessageTarget
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.TradingToOnChainTxEngine
@@ -88,7 +89,7 @@ class TxProcessorFactory(
     fun createProcessor(
         source: BlockchainAccount,
         target: TransactionTarget,
-        action: AssetAction,
+        action: AssetAction
     ): Single<TransactionProcessor> =
         when (source) {
             is CryptoNonCustodialAccount -> createOnChainProcessor(source, target, action)
@@ -104,7 +105,7 @@ class TxProcessorFactory(
     private fun createInterestWithdrawalProcessor(
         source: CustodialInterestAccount,
         target: TransactionTarget,
-        action: AssetAction,
+        action: AssetAction
     ): Single<TransactionProcessor> =
         when (target) {
             is CustodialTradingAccount -> {
@@ -141,7 +142,7 @@ class TxProcessorFactory(
 
     private fun createActiveRewardsWithdrawalProcessor(
         source: CustodialActiveRewardsAccount,
-        target: TransactionTarget,
+        target: TransactionTarget
     ): Single<TransactionProcessor> =
         when (target) {
             is CustodialTradingAccount -> {
@@ -164,7 +165,7 @@ class TxProcessorFactory(
 
     private fun createStakingWithdrawalProcessor(
         source: CustodialStakingAccount,
-        target: TransactionTarget,
+        target: TransactionTarget
     ): Single<TransactionProcessor> =
         when (target) {
             is CustodialTradingAccount -> {
@@ -188,7 +189,7 @@ class TxProcessorFactory(
     private fun createFiatDepositProcessor(
         source: BlockchainAccount,
         target: TransactionTarget,
-        action: AssetAction,
+        action: AssetAction
     ): Single<TransactionProcessor> =
         when (target) {
             is FiatAccount -> {
@@ -217,7 +218,7 @@ class TxProcessorFactory(
     private fun createFiatWithdrawalProcessor(
         source: BlockchainAccount,
         target: TransactionTarget,
-        action: AssetAction,
+        action: AssetAction
     ): Single<TransactionProcessor> =
         when (target) {
             is LinkedBankAccount -> {
@@ -242,7 +243,7 @@ class TxProcessorFactory(
     private fun createOnChainProcessor(
         source: CryptoNonCustodialAccount,
         target: TransactionTarget,
-        action: AssetAction,
+        action: AssetAction
     ): Single<TransactionProcessor> {
         val engine = source.createTxEngine(target, action) as OnChainTxEngineBase
 
@@ -260,6 +261,7 @@ class TxProcessorFactory(
                     )
                 )
             )
+            is WalletConnectV2SignMessageTarget,
             is EthereumSignMessageTarget -> Single.just(
                 TransactionProcessor(
                     exchangeRates = exchangeRates,
@@ -278,7 +280,7 @@ class TxProcessorFactory(
                     txTarget = target,
                     engine = WalletConnectTransactionEngine(
                         feeManager = fees,
-                        ethDataManager = ethDataManager,
+                        ethDataManager = ethDataManager
                     )
                 )
             )
@@ -382,7 +384,7 @@ class TxProcessorFactory(
 
     private fun createTradingProcessor(
         source: CustodialTradingAccount,
-        target: TransactionTarget,
+        target: TransactionTarget
     ) = when (target) {
         is CryptoAddress ->
             Single.just(

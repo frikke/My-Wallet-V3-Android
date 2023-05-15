@@ -15,7 +15,7 @@ interface DexApi {
     suspend fun tokens(
         @Query("chainId") chainId: Int,
         @Query("queryBy") queryBy: String,
-        @Query("limit") limit: Int = Int.MAX_VALUE,
+        @Query("limit") limit: Int = Int.MAX_VALUE
     ): Outcome<Exception, List<DexTokenResponse>>
 
     @GET("dex/eligible")

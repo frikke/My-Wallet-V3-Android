@@ -61,7 +61,7 @@ fun ShimmerLoadingTableRow(
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             if (showIconLoader) {
                 ShimmerIcon(brush = brush)
@@ -78,13 +78,13 @@ fun ShimmerIcon(
     Box(
         modifier = Modifier
             .padding(
-                start = AppTheme.dimensions.smallSpacing,
+                start = AppTheme.dimensions.smallSpacing
             )
             .background(
                 brush = brush,
                 shape = CircleShape
             )
-            .size(dimensionResource(R.dimen.standard_spacing))
+            .size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
     )
 }
 
@@ -120,9 +120,9 @@ fun ShimmerLargeBlock(
         Spacer(
             modifier = Modifier
                 .weight(3f)
-                .height(dimensionResource(R.dimen.standard_spacing))
+                .height(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
                 .padding(
-                    vertical = dimensionResource(R.dimen.smallest_spacing),
+                    vertical = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
                 )
                 .background(brush = brush)
         )
@@ -135,8 +135,8 @@ fun ShimmerLargeBlock(
         Spacer(
             modifier = Modifier
                 .weight(2f)
-                .height(dimensionResource(R.dimen.standard_spacing))
-                .padding(vertical = dimensionResource(R.dimen.smallest_spacing))
+                .height(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
+                .padding(vertical = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing))
                 .then(if (showEndBlock) Modifier.background(brush = brush) else Modifier)
         )
     }
@@ -153,9 +153,9 @@ fun ShimmerSmallBlock(
         Spacer(
             modifier = Modifier
                 .weight(2f)
-                .height(dimensionResource(R.dimen.medium_spacing))
+                .height(dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing))
                 .padding(
-                    vertical = dimensionResource(R.dimen.smallest_spacing),
+                    vertical = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
                 )
                 .background(brush = brush)
         )
@@ -168,8 +168,8 @@ fun ShimmerSmallBlock(
         Spacer(
             modifier = Modifier
                 .weight(1f)
-                .height(dimensionResource(R.dimen.medium_spacing))
-                .padding(vertical = dimensionResource(R.dimen.smallest_spacing))
+                .height(dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing))
+                .padding(vertical = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing))
                 .then(if (showEndBlock) Modifier.background(brush = brush) else Modifier)
         )
     }

@@ -36,7 +36,7 @@ import kotlin.math.absoluteValue
 fun EarnProductComparator(
     products: List<EarnProductUiElement>,
     onLearnMore: () -> Unit,
-    onClose: () -> Unit = {},
+    onClose: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -44,9 +44,8 @@ fun EarnProductComparator(
             .background(AppTheme.colors.backgroundMuted, shape = AppTheme.shapes.medium),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         SheetHeader(
-            title = stringResource(R.string.earn_product_comparator_title),
+            title = stringResource(com.blockchain.stringResources.R.string.earn_product_comparator_title),
             onClosePress = onClose,
             shouldShowDivider = false
         )
@@ -60,7 +59,7 @@ fun EarnProductComparator(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = AppTheme.dimensions.verySmallSpacing),
-            verticalAlignment = Alignment.Top,
+            verticalAlignment = Alignment.Top
         ) { pageIndex ->
             EarnProductComparatorPage(
                 product = products[pageIndex],
@@ -107,7 +106,7 @@ fun EarnProductComparator(
             SmallVerticalSpacer()
 
             MinimalButton(
-                text = stringResource(R.string.common_learn_more),
+                text = stringResource(com.blockchain.stringResources.R.string.common_learn_more),
                 onClick = onLearnMore,
                 modifier = Modifier.fillMaxWidth(),
                 isTransparent = false
@@ -138,13 +137,13 @@ fun EarnProductComparatorPage(product: EarnProductUiElement, modifier: Modifier 
         elevation = 0.dp,
         border = BorderStroke(1.dp, Grey300),
         shape = AppTheme.shapes.large,
-        modifier = modifier,
+        modifier = modifier
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Card(
                 elevation = 0.dp,
                 border = BorderStroke(1.dp, Grey300),
-                shape = AppTheme.shapes.large,
+                shape = AppTheme.shapes.large
             ) {
                 SingleIconTableRow(
                     primaryText = stringResource(id = product.header.primaryTextId),

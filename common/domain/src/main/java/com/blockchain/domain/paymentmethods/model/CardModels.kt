@@ -44,12 +44,12 @@ sealed class CardRejectionState : java.io.Serializable {
 
     @Serializable
     data class MaybeRejected(
-        val error: ServerSideUxErrorInfo,
+        val error: ServerSideUxErrorInfo
     ) : CardRejectionState(), java.io.Serializable
 
     @Serializable
     data class AlwaysRejected(
-        val error: ServerSideUxErrorInfo?,
+        val error: ServerSideUxErrorInfo?
     ) : CardRejectionState(), java.io.Serializable
 }
 

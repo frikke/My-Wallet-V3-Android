@@ -23,11 +23,13 @@ import kotlinx.coroutines.flow.collectLatest
 class SourceAccountsViewModel(
     private val swapService: SwapService,
     private val assetCatalogue: AssetCatalogue
-) : MviViewModel<SourceAccountsIntent,
+) : MviViewModel<
+    SourceAccountsIntent,
     SourceAccountsViewState,
     SourceAccountsModelState,
     SourceAccountsNavigationEvent,
-    ModelConfigArgs.NoArgs>(
+    ModelConfigArgs.NoArgs
+    >(
     SourceAccountsModelState()
 ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}

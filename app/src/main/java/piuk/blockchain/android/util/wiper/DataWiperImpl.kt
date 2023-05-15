@@ -4,7 +4,6 @@ import com.blockchain.api.interceptors.SessionInfo
 import com.blockchain.api.services.ActivityWebSocketService
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.ethereum.EthDataManager
-import com.blockchain.core.walletoptions.WalletOptionsState
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.preferences.WalletStatusPrefs
@@ -15,7 +14,6 @@ import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 class DataWiperImpl constructor(
     private val ethDataManager: EthDataManager,
     private val bchDataManager: BchDataManager,
-    private val walletOptionsState: WalletOptionsState,
     private val nabuDataManager: NabuDataManager,
     private val activityWebSocketService: ActivityWebSocketService,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
@@ -36,7 +34,6 @@ class DataWiperImpl constructor(
         assetActivityRepository.clear()
         nabuDataManager.clearAccessToken()
         walletConnectServiceAPI.clear()
-        walletOptionsState.wipe()
         payloadScopeWiper.wipe()
         sessionInfo.clearUserId()
         walletPrefs.isAppUnlocked = false

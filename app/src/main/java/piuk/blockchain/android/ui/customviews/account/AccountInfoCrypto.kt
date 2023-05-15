@@ -63,7 +63,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
     fun updateItem(
         item: AccountListViewItem,
         onAccountClicked: (SingleAccount) -> Unit = {},
-        cellDecorator: CellDecorator = DefaultCellDecorator(),
+        cellDecorator: CellDecorator = DefaultCellDecorator()
     ) {
         compositeDisposable.clear()
         updateView(item, onAccountClicked, cellDecorator)
@@ -72,7 +72,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
     private fun updateView(
         item: AccountListViewItem,
         onAccountClicked: (SingleAccount) -> Unit,
-        cellDecorator: CellDecorator,
+        cellDecorator: CellDecorator
     ) {
         updateAccountDetails(item, onAccountClicked, cellDecorator)
 
@@ -93,7 +93,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
     }
 
     private fun setInterestAccountDetails(
-        account: SingleAccount,
+        account: SingleAccount
     ) {
         with(binding.tableRow) {
             compositeDisposable += (coincore[account.currency] as CryptoAsset)
@@ -101,11 +101,14 @@ class AccountInfoCrypto @JvmOverloads constructor(
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
                     onSuccess = {
-                        subtitle = resources.getString(R.string.dashboard_asset_balance_rewards, it)
+                        subtitle = resources.getString(
+                            com.blockchain.stringResources.R.string.dashboard_asset_balance_rewards,
+                            it
+                        )
                     },
                     onError = {
                         subtitle = resources.getString(
-                            R.string.dashboard_asset_actions_rewards_dsc_failed
+                            com.blockchain.stringResources.R.string.dashboard_asset_actions_rewards_dsc_failed
                         )
                         Timber.e("AssetActions error loading Interest rate: $it")
                     }
@@ -116,7 +119,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
     private fun updateAccountDetails(
         item: AccountListViewItem,
         onAccountClicked: (SingleAccount) -> Unit,
-        cellDecorator: CellDecorator,
+        cellDecorator: CellDecorator
     ) {
         with(binding.tableRow) {
             val account = item.account
@@ -135,7 +138,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
                         valueCrypto = accountBalance.toStringWithSymbol()
                         valueFiat = accountBalance.toUserFiat(exchangeRates).toStringWithSymbol()
                         contentDescription = "${item.title} ${item.subTitle}: " +
-                            "${context.getString(R.string.accessibility_balance)} " +
+                            "${context.getString(com.blockchain.stringResources.R.string.accessibility_balance)} " +
                             "$valueFiat $valueCrypto"
                     },
                     onError = {
@@ -213,9 +216,10 @@ class AccountListViewItem(
     val type: AccountsListViewItemType
         get() = if (account is CryptoAccount) AccountsListViewItemType.Crypto else AccountsListViewItemType.Blockchain
 
-    private val accountLabel = if (account is CustodialTradingAccount)
+    private val accountLabel = if (account is CustodialTradingAccount) {
         account.label.replaceAfter("Blockchain.com", "")
-            .replaceBefore("Blockchain.com", "") else account.label
+            .replaceBefore("Blockchain.com", "")
+    } else account.label
 
     val title: String
         get() = if (emphasiseNameOverCurrency) accountLabel else account.currency.name

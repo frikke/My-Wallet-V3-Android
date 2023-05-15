@@ -120,7 +120,7 @@ class DynamicNonCustodialAccount(
             PublicKey(
                 address = xpubAddress,
                 descriptor = DEFAULT_ADDRESS_DESCRIPTOR,
-                style = PubKeyStyle.SINGLE,
+                style = PubKeyStyle.SINGLE
             )
         )
 }

@@ -49,7 +49,7 @@ class IntroHeaderView @JvmOverloads constructor(
         @StringRes title: Int,
         @StringRes label: Int,
         @DrawableRes icon: Int,
-        @ColorRes background: Int = R.color.white,
+        @ColorRes background: Int = com.blockchain.common.R.color.white,
         showSeparator: Boolean = true
     ) {
         with(binding) {

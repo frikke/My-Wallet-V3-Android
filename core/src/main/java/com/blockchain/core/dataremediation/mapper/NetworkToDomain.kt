@@ -29,14 +29,21 @@ private fun QuestionnaireNodeResponse.toDomain(): QuestionnaireNode? {
             // There's currently no support for children of Selection inside MultipleSelection dropdowns
             val sanitizedChildren = if (isDropdown == true) {
                 children.map { child ->
-                    if (child is QuestionnaireNode.Selection) child.copy(children = emptyList())
-                    else child
+                    if (child is QuestionnaireNode.Selection) {
+                        child.copy(children = emptyList())
+                    } else {
+                        child
+                    }
                 }
             } else {
                 children
             }
             QuestionnaireNode.MultipleSelection(
-                id, text, sanitizedChildren, instructions.orEmpty(), isDropdown ?: false
+                id,
+                text,
+                sanitizedChildren,
+                instructions.orEmpty(),
+                isDropdown ?: false
             )
         }
         NodeType.OPEN_ENDED ->

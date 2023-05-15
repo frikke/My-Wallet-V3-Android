@@ -5,12 +5,12 @@ import com.blockchain.analytics.events.AnalyticsNames
 
 sealed class BuyAnalyticsEvents(
     override val event: String,
-    override val params: Map<String, String> = emptyMap(),
+    override val params: Map<String, String> = emptyMap()
 ) : AnalyticsEvent {
     data class TopMoverAssetClicked(
         val ticker: String,
         val percentageMove: Double,
-        val position: Int,
+        val position: Int
     ) : BuyAnalyticsEvents(
         event = AnalyticsNames.TOP_MOVER_BUY_CLICKED.eventName,
         params = mapOf(

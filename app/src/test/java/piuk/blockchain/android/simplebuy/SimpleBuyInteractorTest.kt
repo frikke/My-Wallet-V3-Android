@@ -1,8 +1,6 @@
 package piuk.blockchain.android.simplebuy
 
-import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.Coincore
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.kyc.domain.KycService
@@ -10,7 +8,6 @@ import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payments.PaymentsRepository
-import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.coreandroid.remoteconfig.RemoteConfigRepository
 import com.blockchain.domain.eligibility.EligibilityService
@@ -22,7 +19,6 @@ import com.blockchain.domain.paymentmethods.model.BankPartnerCallbackProvider
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.trade.TradeDataService
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CardAttributes
 import com.blockchain.nabu.datamanagers.CardPaymentState
@@ -61,12 +57,8 @@ class SimpleBuyInteractorTest {
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val limitsDataManager: LimitsDataManager = mock()
     private val withdrawLocksRepository: WithdrawLocksRepository = mock()
-    private val analytics: Analytics = mock()
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider = mock()
     private val simpleBuyService: SimpleBuyService = mock()
-    private val exchangeRatesDataManager: ExchangeRatesDataManager = mock()
-    private val coincore: Coincore = mock()
-    private val userIdentity: UserIdentity = mock()
     private val bankLinkingPrefs: BankLinkingPrefs = mock()
     private val cardProcessors: Map<CardAcquirer, CardProcessor> = mock()
     private val cancelOrderUseCase: CancelOrderUseCase = mock()
@@ -75,7 +67,6 @@ class SimpleBuyInteractorTest {
     private val cardService: CardService = mock()
     private val paymentMethodService: PaymentMethodService = mock()
     private val paymentsRepository: PaymentsRepository = mock()
-    private val rbFrequencySuggestion: FeatureFlag = mock()
     private val rbExperimentFF: FeatureFlag = mock()
     private val remoteConfigRepository: RemoteConfigRepository = mock()
     private val tradeDataService: TradeDataService = mock()
@@ -110,12 +101,8 @@ class SimpleBuyInteractorTest {
             kycService = kycService,
             custodialWalletManager = custodialWalletManager,
             limitsDataManager = limitsDataManager,
-            coincore = coincore,
-            userIdentity = userIdentity,
             simpleBuyService = simpleBuyService,
             bankLinkingPrefs = bankLinkingPrefs,
-            analytics = analytics,
-            exchangeRatesDataManager = exchangeRatesDataManager,
             bankPartnerCallbackProvider = bankPartnerCallbackProvider,
             cardProcessors = cardProcessors,
             cancelOrderUseCase = cancelOrderUseCase,
@@ -130,7 +117,6 @@ class SimpleBuyInteractorTest {
             cardPaymentAsyncFF = cardPaymentAsyncFF,
             buyQuoteRefreshFF = buyQuoteRefreshFF,
             plaidFF = plaidFF,
-            rbFrequencySuggestionFF = rbFrequencySuggestion,
             rbExperimentFF = rbExperimentFF,
             remoteConfigRepository = remoteConfigRepository,
             tradeDataService = tradeDataService,
@@ -166,7 +152,11 @@ class SimpleBuyInteractorTest {
         val defaultAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(50))
 
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+            limits,
+            assetCode,
+            fiatCurrency,
+            false,
+            FiatValue.zero(FiatCurrency.Dollars)
         ).test()
         test.assertValue {
             it.first == defaultAmount &&
@@ -193,7 +183,11 @@ class SimpleBuyInteractorTest {
         val prefilledAmount = if (defaultAmount < minAmount) minAmount else defaultAmount
 
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+            limits,
+            assetCode,
+            fiatCurrency,
+            false,
+            FiatValue.zero(FiatCurrency.Dollars)
         ).test()
         test.assertValue {
             it.first == prefilledAmount &&
@@ -219,7 +213,11 @@ class SimpleBuyInteractorTest {
         val prefilledAmount = if (defaultAmount > maxAmount) maxAmount else defaultAmount
 
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+            limits,
+            assetCode,
+            fiatCurrency,
+            false,
+            FiatValue.zero(FiatCurrency.Dollars)
         ).test()
         test.assertValue {
             it.first == prefilledAmount &&
@@ -240,7 +238,11 @@ class SimpleBuyInteractorTest {
         val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
 
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+            limits,
+            assetCode,
+            fiatCurrency,
+            false,
+            FiatValue.zero(FiatCurrency.Dollars)
         ).test()
         test.assertValue {
             it.first == FiatValue.fromMajor(fiatCurrency, BigDecimal(100)) &&
@@ -264,7 +266,11 @@ class SimpleBuyInteractorTest {
         val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
 
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+            limits,
+            assetCode,
+            fiatCurrency,
+            false,
+            FiatValue.zero(FiatCurrency.Dollars)
         ).test()
         test.assertValue {
             it.first == maxAmount &&
@@ -286,7 +292,11 @@ class SimpleBuyInteractorTest {
         val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
 
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+            limits,
+            assetCode,
+            fiatCurrency,
+            false,
+            FiatValue.zero(FiatCurrency.Dollars)
         ).test()
         test.assertValue {
             it.first == minAmount &&
@@ -309,7 +319,11 @@ class SimpleBuyInteractorTest {
         val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
 
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+            limits,
+            assetCode,
+            fiatCurrency,
+            false,
+            FiatValue.zero(FiatCurrency.Dollars)
         ).test()
         test.assertValue {
             it.first == limits.minAmount &&
@@ -334,7 +348,11 @@ class SimpleBuyInteractorTest {
 
         val prepopulatedAmount = Money.fromMajor(FiatCurrency.Dollars, BigDecimal(50))
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, true, prepopulatedAmount
+            limits,
+            assetCode,
+            fiatCurrency,
+            true,
+            prepopulatedAmount
         ).test()
 
         test.assertValue {

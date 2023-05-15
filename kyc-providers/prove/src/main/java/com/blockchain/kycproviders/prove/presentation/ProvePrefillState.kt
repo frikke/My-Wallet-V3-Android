@@ -21,7 +21,7 @@ enum class Screen {
     VIEW_PREFILL_DATA,
     MANUAL_ADDRESS_ENTRY,
 
-    WAITING_PREFILL_DATA_SUBMISSION,
+    WAITING_PREFILL_DATA_SUBMISSION
 }
 
 sealed class ProveError {
@@ -51,7 +51,7 @@ data class ProvePrefillModelState(
     val manualEntryAddress: AddressDetails? = null,
     val isAddressDropdownOpen: Boolean = false,
     val prefillDob: Calendar? = null,
-    val prefillMobileNumber: String = "",
+    val prefillMobileNumber: String = ""
 ) : ModelState
 
 data class ProvePrefillViewState(
@@ -76,5 +76,5 @@ data class ProvePrefillViewState(
     val isAddressDropdownOpen: Boolean,
     val prefillDob: Calendar?,
     val prefillMobileNumber: String,
-    val prefillContinueButtonState: ButtonState,
+    val prefillContinueButtonState: ButtonState
 ) : ViewState

@@ -18,7 +18,7 @@ android {
     buildFeatures {
         compose true
     }
-
+    namespace 'com.blockchain.prices'
     composeOptions {
         kotlinCompilerExtensionVersion Versions.composeCompiler
     }
@@ -32,6 +32,7 @@ dependencies {
     implementation project(':common:interface')
     implementation project(':common:presentation')
     implementation project(':core')
+    implementation project(':string-resources')
     implementation project(':coincore')
     implementation project(':store:core')
     implementation project(':flowprices:domain')

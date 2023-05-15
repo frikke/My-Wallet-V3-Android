@@ -40,13 +40,13 @@ fun NavigationBarPreview_TitleBack() {
                 navigationBarButtons = listOf(
                     NavigationBarButton.Icon(
                         drawable = R.drawable.ic_close_circle,
-                        contentDescription = R.string.accessibility_back
+                        contentDescription = com.blockchain.stringResources.R.string.accessibility_back
                     ) {
                         Toast.makeText(context, "First Icon Clicked", Toast.LENGTH_SHORT).show()
                     },
                     NavigationBarButton.Icon(
                         drawable = R.drawable.ic_bottom_nav_activity,
-                        contentDescription = R.string.accessibility_back
+                        contentDescription = com.blockchain.stringResources.R.string.accessibility_back
                     ) {
                         Toast.makeText(context, "Second Icon Clicked", Toast.LENGTH_SHORT).show()
                     }

@@ -30,7 +30,7 @@ abstract class StakingBaseEngine(
     protected fun modifyEngineConfirmations(
         pendingTx: PendingTx,
         termsChecked: Boolean = getTermsOptionValue(pendingTx),
-        agreementChecked: Boolean = getTermsOptionValue(pendingTx),
+        agreementChecked: Boolean = getTermsOptionValue(pendingTx)
     ): PendingTx =
         pendingTx.removeOption(TxConfirmation.DESCRIPTION)
             .addOrReplaceOption(
@@ -43,7 +43,8 @@ abstract class StakingBaseEngine(
                 TxConfirmationValue.TxBooleanConfirmation(
                     confirmation = TxConfirmation.AGREEMENT_STAKING_TRANSFER,
                     data = TransferData.Staking(
-                        pendingTx.amount, pendingTx.stakingLimits
+                        pendingTx.amount,
+                        pendingTx.stakingLimits
                     ),
                     value = agreementChecked
                 )

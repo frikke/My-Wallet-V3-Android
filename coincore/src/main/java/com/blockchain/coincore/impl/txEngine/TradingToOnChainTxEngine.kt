@@ -204,7 +204,7 @@ class TradingToOnChainTxEngine(
                     ),
                     TxConfirmationValue.ProcessingFee(
                         feeAmount = pendingTx.feeAmount,
-                        exchangeFee = exchangeRate.convert(pendingTx.feeAmount),
+                        exchangeFee = exchangeRate.convert(pendingTx.feeAmount)
                     ),
                     TxConfirmationValue.Total(
                         totalWithFee = pendingTx.amount.plus(
@@ -218,14 +218,18 @@ class TradingToOnChainTxEngine(
                     ),
                     if (isNoteSupported) {
                         TxConfirmationValue.Description()
-                    } else null,
+                    } else {
+                        null
+                    },
                     if (sourceAssetInfo.coinNetwork?.isMemoSupported == true) {
                         val memo = (txTarget as? CryptoAddress)?.memo
                         TxConfirmationValue.Memo(
                             text = memo,
                             id = null
                         )
-                    } else null
+                    } else {
+                        null
+                    }
                 )
             )
         }

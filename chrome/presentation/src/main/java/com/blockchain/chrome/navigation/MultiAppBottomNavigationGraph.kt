@@ -29,6 +29,7 @@ import com.blockchain.nfts.collection.screen.NftCollection
 import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.prices.prices.composable.Prices
+import com.blockchain.walletconnect.ui.navigation.WalletConnectV2Navigation
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.dex.presentation.enteramount.DexEnterAmountScreen
@@ -65,10 +66,10 @@ fun MultiAppBottomNavigationHost(
     openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
+    walletConnectV2Navigation: WalletConnectV2Navigation,
     processAnnouncementUrl: (String) -> Unit,
     openSwap: () -> Unit
 ) {
-
     val walletMode by get<WalletModeService>(scope = payloadScope)
         .walletMode.collectAsStateLifecycleAware(initial = null)
 
@@ -92,7 +93,11 @@ fun MultiAppBottomNavigationHost(
     }
 
     val openSettings = remember { { settingsNavigation.settings() } }
-    val launchQrScanner = remember { { qrScanNavigation.launchQrScan() } }
+    val launchQrScanner = remember {
+        {
+            qrScanNavigation.launchQrScan()
+        }
+    }
 
     NavHost(navControllerProvider(), startDestination = ChromeBottomNavigationItem.Home.route) {
         composable(ChromeBottomNavigationItem.Home.route) {
@@ -185,7 +190,7 @@ fun MultiAppBottomNavigationHost(
                             selectedNavigationItem == ChromeBottomNavigationItem.Prices,
                         pricesNavigation = pricesNavigation,
                         openSettings = openSettings,
-                        launchQrScanner = launchQrScanner,
+                        launchQrScanner = launchQrScanner
                     )
                 }
             )
@@ -240,7 +245,7 @@ fun MultiAppBottomNavigationHost(
                     EarnDashboardScreen(
                         earnNavigation = earnNavigation,
                         openSettings = openSettings,
-                        launchQrScanner = launchQrScanner,
+                        launchQrScanner = launchQrScanner
                     )
                 }
             )

@@ -19,7 +19,7 @@ class PasswordRequiredPresenter(
     override val authPrefs: AuthPrefs,
     override val authDataManager: AuthDataManager,
     override val payloadDataManager: PayloadDataManager,
-    override val remoteLogger: RemoteLogger,
+    override val remoteLogger: RemoteLogger
 ) : PasswordAuthPresenter<PasswordRequiredView>() {
 
     fun onContinueClicked(password: String) {
@@ -28,7 +28,7 @@ class PasswordRequiredPresenter(
             verifyPassword(password, guid)
         } else {
             view?.apply {
-                showSnackbar(R.string.invalid_password, SnackbarType.Error)
+                showSnackbar(com.blockchain.stringResources.R.string.invalid_password, SnackbarType.Error)
                 restartPage()
             }
         }
@@ -57,6 +57,6 @@ class PasswordRequiredPresenter(
 
     override fun onAuthFailed() {
         super.onAuthFailed()
-        showErrorSnackbarAndRestartApp(R.string.auth_failed)
+        showErrorSnackbarAndRestartApp(com.blockchain.stringResources.R.string.auth_failed)
     }
 }

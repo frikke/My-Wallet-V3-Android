@@ -20,7 +20,7 @@ fun NavGraphBuilder.navGraph(
     navigation(
         startDestination.route,
         graph.route,
-        builder,
+        builder
     )
 }
 

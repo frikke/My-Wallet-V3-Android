@@ -7,5 +7,5 @@ import kotlinx.collections.immutable.ImmutableList
 
 data class UpsellAnotherAssetViewState(
     val assetsToUpSell: DataResource<ImmutableList<PriceItemViewState>>,
-    val isLoading: Boolean = true,
+    val isLoading: Boolean = true
 ) : ViewState

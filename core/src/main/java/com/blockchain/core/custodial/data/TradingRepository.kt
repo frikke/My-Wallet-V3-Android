@@ -69,5 +69,5 @@ private fun zeroBalance(currency: Currency): TradingAccountBalance =
         total = Money.zero(currency),
         withdrawable = Money.zero(currency),
         pending = Money.zero(currency),
-        dashboardDisplay = Money.zero(currency),
+        dashboardDisplay = Money.zero(currency)
     )

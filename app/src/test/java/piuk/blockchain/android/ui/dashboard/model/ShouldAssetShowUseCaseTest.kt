@@ -65,7 +65,8 @@ class ShouldAssetShowUseCaseTest {
             every { localSettingsPrefs.hideSmallBalancesEnabled }.returns(true)
             every {
                 watchlistService.isAssetInWatchlist(
-                    currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                    currency,
+                    FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 )
             }.returns(
                 flowOf(
@@ -82,7 +83,8 @@ class ShouldAssetShowUseCaseTest {
             verify { localSettingsPrefs.hideSmallBalancesEnabled }
             verify {
                 watchlistService.isAssetInWatchlist(
-                    currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                    currency,
+                    FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 )
             }
             verify { accountBalance.totalFiat }
@@ -103,7 +105,8 @@ class ShouldAssetShowUseCaseTest {
             every { localSettingsPrefs.hideSmallBalancesEnabled }.returns(true)
             every {
                 watchlistService.isAssetInWatchlist(
-                    currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                    currency,
+                    FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 )
             }.returns(
                 flowOf(
@@ -119,7 +122,8 @@ class ShouldAssetShowUseCaseTest {
 
             verify {
                 watchlistService.isAssetInWatchlist(
-                    currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                    currency,
+                    FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 )
             }
             verify { accountBalance.totalFiat }
@@ -137,7 +141,8 @@ class ShouldAssetShowUseCaseTest {
             every { localSettingsPrefs.hideSmallBalancesEnabled }.returns(true)
             every {
                 watchlistService.isAssetInWatchlist(
-                    currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                    currency,
+                    FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 )
             }.returns(
                 flowOf(
@@ -153,7 +158,8 @@ class ShouldAssetShowUseCaseTest {
 
             verify {
                 watchlistService.isAssetInWatchlist(
-                    currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                    currency,
+                    FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 )
             }
             verify { accountBalance.totalFiat }

@@ -41,11 +41,17 @@ class KycInvalidCountryFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        progressListener.setupHostToolbar(R.string.kyc_country_selection_title_1)
+        progressListener.setupHostToolbar(com.blockchain.stringResources.R.string.kyc_country_selection_title_1)
 
         with(binding) {
-            textViewKycInvalidCountryHeader.text = getString(R.string.kyc_invalid_country_header, displayModel.name)
-            textViewKycInvalidCountryMessage.text = getString(R.string.kyc_invalid_country_message, displayModel.name)
+            textViewKycInvalidCountryHeader.text = getString(
+                com.blockchain.stringResources.R.string.kyc_invalid_country_header,
+                displayModel.name
+            )
+            textViewKycInvalidCountryMessage.text = getString(
+                com.blockchain.stringResources.R.string.kyc_invalid_country_message,
+                displayModel.name
+            )
             textViewKycNoThanks.setOnClickListener { presenter.onNoThanks() }
             buttonKycInvalidCountryMessageMe.setOnClickListener { presenter.onNotifyMe() }
         }
@@ -64,7 +70,7 @@ class KycInvalidCountryFragment :
     override fun showProgressDialog() {
         progressDialog = MaterialProgressDialog(requireContext()).apply {
             setOnCancelListener { presenter.onProgressCancelled() }
-            setMessage(R.string.kyc_country_selection_please_wait)
+            setMessage(com.blockchain.stringResources.R.string.kyc_country_selection_please_wait)
             show()
         }
     }

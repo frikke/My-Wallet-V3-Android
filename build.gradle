@@ -21,10 +21,11 @@ buildscript {
         classpath Libraries.navigationControllerSafeArgsPlugin
         classpath Libraries.firebaseCrashlyticsPlugin
         classpath Libraries.sqlDelightPlugin
-        classpath Libraries.embraceIOSwazzler
+      //  classpath Libraries.embraceIOSwazzler
         classpath Libraries.kotlin
         classpath Libraries.detekt
         classpath Libraries.kotlinGradlePlugin
+        classpath 'com.android.tools.build:gradle:8.0.1'
     }
 }
 
@@ -44,6 +45,14 @@ allprojects {
         resolutionStrategy {
             force("org.objenesis:objenesis:3.2")
         }
+
+        resolutionStrategy.eachDependency {
+            DependencyResolveDetails dependency ->
+                if (dependency.requested.group == 'org.bouncycastle') {
+                    dependency.useTarget 'org.bouncycastle:bcprov-jdk15to18:1.73'
+                }
+        }
+
     }
 }
 

@@ -10,7 +10,7 @@ data class InterestAccountBalance(
     val pendingDeposit: Money,
     val totalInterest: Money,
     val lockedBalance: Money,
-    val hasTransactions: Boolean = false,
+    val hasTransactions: Boolean = false
 ) {
     val actionableBalance: CryptoValue
         get() = (totalBalance - lockedBalance) as CryptoValue

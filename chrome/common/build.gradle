@@ -1,6 +1,7 @@
 apply from: rootProject.file('gradle/local/common-feature-android-presentation.gradle')
 
 android {
+    namespace 'com.blockchain.chrome.common'
 }
 
 dependencies {

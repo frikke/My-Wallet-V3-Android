@@ -67,7 +67,7 @@ class AddressesActivity :
         setupBackPress()
 
         updateToolbar(
-            toolbarTitle = getString(R.string.drawer_addresses),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.drawer_addresses),
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         onBackPressCloseHeaderCallback.isEnabled = binding.currencyHeader.isOpen()
@@ -148,16 +148,16 @@ class AddressesActivity :
                 onSuccess = { password ->
                     promptForAccountLabel(
                         ctx = this@AddressesActivity,
-                        title = R.string.create_a_new_wallet,
-                        msg = R.string.create_a_new_wallet_helper_text,
+                        title = com.blockchain.stringResources.R.string.create_a_new_wallet,
+                        msg = com.blockchain.stringResources.R.string.create_a_new_wallet_helper_text,
                         okAction = { presenter.createNewAccount(it, password) }
                     )
                 },
                 onComplete = {
                     promptForAccountLabel(
                         ctx = this@AddressesActivity,
-                        title = R.string.create_a_new_wallet,
-                        msg = R.string.create_a_new_wallet_helper_text,
+                        title = com.blockchain.stringResources.R.string.create_a_new_wallet,
+                        msg = com.blockchain.stringResources.R.string.create_a_new_wallet_helper_text,
                         okAction = { presenter.createNewAccount(it) }
                     )
                 },
@@ -199,7 +199,7 @@ class AddressesActivity :
                 data.getRawScanData() != null -> {
                 data.getRawScanData()?.let {
                     handleImportScan(it)
-                } ?: showError(R.string.privkey_error)
+                } ?: showError(com.blockchain.stringResources.R.string.privkey_error)
             }
             requestCode == TX_FLOW_REQUEST -> presenter.refresh(binding.currencyHeader.getSelectedCurrency())
             else -> {
@@ -230,12 +230,12 @@ class AddressesActivity :
     override fun showRenameImportedAddressDialog(account: CryptoNonCustodialAccount) =
         promptForAccountLabel(
             ctx = this,
-            title = R.string.app_name,
-            msg = R.string.label_address,
+            title = com.blockchain.stringResources.R.string.app_name,
+            msg = com.blockchain.stringResources.R.string.label_address,
             initialText = account.label,
             okAction = { presenter.updateImportedAddressLabel(it, account) },
-            okBtnText = R.string.save_name,
-            cancelText = R.string.polite_no
+            okBtnText = com.blockchain.stringResources.R.string.save_name,
+            cancelText = com.blockchain.stringResources.R.string.polite_no
         )
 
     override fun showError(@StringRes message: Int) =

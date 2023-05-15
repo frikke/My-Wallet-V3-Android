@@ -34,7 +34,7 @@ class AccountCredentialsMetadata(
 
     private fun loadCached(): Maybe<CredentialMetadata> =
         metadataRepository.load<BlockchainAccountCredentialsMetadata>(
-            MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS,
+            MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
         ).reSyncIfNeeded()
             .switchIfEmpty(
                 // Not found - haven't been created yet.
@@ -44,7 +44,7 @@ class AccountCredentialsMetadata(
                     Maybe.just(blockchainMetadata)
                 } else {
                     metadataRepository.load<NabuLegacyCredentialsMetadata>(
-                        MetadataEntry.NABU_LEGACY_CREDENTIALS,
+                        MetadataEntry.NABU_LEGACY_CREDENTIALS
                     ).reSyncLegacyIfNeeded().filter { it.isValid() }.flatMap { legacyMetadata ->
                         migrate(legacyMetadata, blockchainMetadata).thenMaybe {
                             Maybe.just(legacyMetadata)
@@ -53,22 +53,20 @@ class AccountCredentialsMetadata(
                 }
             }.cache()
 
-    private fun Maybe<BlockchainAccountCredentialsMetadata>.reSyncIfNeeded():
-        Maybe<BlockchainAccountCredentialsMetadata> {
-        return flatMap {
+    private fun Maybe<BlockchainAccountCredentialsMetadata>.reSyncIfNeeded() =
+        flatMap {
             if (it.isCorrupted) {
                 remoteLogger.logEvent("Syncing corrupted metadata entry 14")
-                metadataRepository.save<BlockchainAccountCredentialsMetadata>(
+                metadataRepository.save(
                     it,
                     MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
                 ).onErrorComplete().thenMaybe { Maybe.just(it) }
             } else
                 Maybe.just(it)
         }
-    }
 
-    private fun Maybe<NabuLegacyCredentialsMetadata>.reSyncLegacyIfNeeded(): Maybe<NabuLegacyCredentialsMetadata> {
-        return flatMap {
+    private fun Maybe<NabuLegacyCredentialsMetadata>.reSyncLegacyIfNeeded() =
+        flatMap {
             if (it.isCorrupted) {
                 remoteLogger.logEvent("Syncing corrupted metadata entry 10")
                 metadataRepository.save<NabuLegacyCredentialsMetadata>(
@@ -78,7 +76,6 @@ class AccountCredentialsMetadata(
             } else
                 Maybe.just(it)
         }
-    }
 
     fun save(tokenResponse: NabuOfflineToken): Completable {
         return saveMetadata(tokenResponse)

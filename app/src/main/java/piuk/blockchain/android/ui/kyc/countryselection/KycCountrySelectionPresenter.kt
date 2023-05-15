@@ -47,7 +47,9 @@ internal class KycCountrySelectionPresenter(
                 .doOnSubscribe { view.renderUiState(CountrySelectionState.Loading) }
                 .doOnError {
                     view.renderUiState(
-                        CountrySelectionState.Error(R.string.kyc_country_selection_connection_error)
+                        CountrySelectionState.Error(
+                            com.blockchain.stringResources.R.string.kyc_country_selection_connection_error
+                        )
                     )
                 }
                 .doOnSuccess { view.renderUiState(CountrySelectionState.Data(it.toDisplayList())) }

@@ -10,7 +10,7 @@ import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelig
 import kotlinx.serialization.builtins.ListSerializer
 
 class LinkedCardsStore(
-    private val paymentMethodsService: PaymentMethodsService,
+    private val paymentMethodsService: PaymentMethodsService
 ) : Store<List<CardResponse>> by PersistedJsonSqlDelightStoreBuilder().build(
     storeId = STORE_ID,
     fetcher = Fetcher.ofSingle {

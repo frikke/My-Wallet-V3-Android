@@ -81,15 +81,15 @@ fun DeFiOnboardingScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.background),
+            .background(AppTheme.colors.background)
     ) {
         NavigationBar(
-            title = stringResource(R.string.defi_wallet_name),
+            title = stringResource(com.blockchain.stringResources.R.string.defi_wallet_name),
             endNavigationBarButtons = listOfNotNull(
                 NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_close_circle,
+                    drawable = com.blockchain.componentlib.R.drawable.ic_close_circle,
                     color = null,
-                    contentDescription = R.string.accessibility_close,
+                    contentDescription = com.blockchain.stringResources.R.string.accessibility_close,
                     onIconClick = closeOnClick
                 ).takeIf { showCloseIcon }
             ),
@@ -104,7 +104,6 @@ fun DeFiOnboardingScreen(
                     .padding(AppTheme.dimensions.smallSpacing),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
                 Spacer(modifier = Modifier.weight(1F))
 
                 Image(imageResource = ImageResource.Local(R.drawable.defi_onboarding))
@@ -114,8 +113,8 @@ fun DeFiOnboardingScreen(
                 SimpleText(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(
-                        R.string.defi_onboarding_intro_title,
-                        stringResource(R.string.defi_wallet_name)
+                        com.blockchain.stringResources.R.string.defi_onboarding_intro_title,
+                        stringResource(com.blockchain.stringResources.R.string.defi_wallet_name)
                     ),
                     style = ComposeTypographies.Title3,
                     color = ComposeColors.Title,
@@ -126,7 +125,7 @@ fun DeFiOnboardingScreen(
 
                 SimpleText(
                     modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(R.string.defi_onboarding_intro_description),
+                    text = stringResource(com.blockchain.stringResources.R.string.defi_onboarding_intro_description),
                     style = ComposeTypographies.Paragraph1,
                     color = ComposeColors.Title,
                     gravity = ComposeGravities.Centre
@@ -137,17 +136,17 @@ fun DeFiOnboardingScreen(
                 DeFiOnboardingProperties(
                     properties = listOf(
                         DeFiProperty(
-                            title = R.string.defi_onboarding_intro_property1_title,
-                            subtitle = R.string.defi_onboarding_intro_property1_subtitle
+                            title = com.blockchain.stringResources.R.string.defi_onboarding_intro_property1_title,
+                            subtitle = com.blockchain.stringResources.R.string.defi_onboarding_intro_property1_subtitle
                         ),
                         DeFiProperty(
-                            title = R.string.defi_onboarding_intro_property2_title,
-                            subtitle = R.string.defi_onboarding_intro_property2_subtitle
+                            title = com.blockchain.stringResources.R.string.defi_onboarding_intro_property2_title,
+                            subtitle = com.blockchain.stringResources.R.string.defi_onboarding_intro_property2_subtitle
                         ),
                         DeFiProperty(
-                            title = R.string.defi_onboarding_intro_property3_title,
-                            subtitle = R.string.defi_onboarding_intro_property3_subtitle
-                        ),
+                            title = com.blockchain.stringResources.R.string.defi_onboarding_intro_property3_title,
+                            subtitle = com.blockchain.stringResources.R.string.defi_onboarding_intro_property3_subtitle
+                        )
                     )
                 )
 
@@ -155,7 +154,7 @@ fun DeFiOnboardingScreen(
 
                 PrimaryButton(
                     modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(id = R.string.defi_onboarding_intro_cta),
+                    text = stringResource(id = com.blockchain.stringResources.R.string.defi_onboarding_intro_cta),
                     state = ButtonState.Enabled,
                     onClick = enableDeFiOnClick
                 )
@@ -180,17 +179,16 @@ fun DeFiOnboardingPropertyItem(
             .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
             .padding(
                 horizontal = AppTheme.dimensions.smallSpacing,
-                vertical = dimensionResource(R.dimen.very_small_spacing)
+                vertical = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         Text(
             modifier = Modifier
                 .circleAround(color = Blue000),
             style = AppTheme.typography.body2,
             color = Blue600,
-            text = number.toString(),
+            text = number.toString()
         )
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
@@ -224,7 +222,7 @@ fun DeFiOnboardingProperties(properties: List<DeFiProperty>) {
             DeFiOnboardingPropertyItem(
                 number = index.inc(),
                 title = stringResource(property.title),
-                subtitle = stringResource(property.subtitle),
+                subtitle = stringResource(property.subtitle)
             )
 
             if (index != properties.lastIndex) {
@@ -246,7 +244,8 @@ fun PreviewDeFiOnboardingScreen() {
     AppTheme {
         DeFiOnboardingScreen(
             showCloseIcon = true,
-            closeOnClick = {}, enableDeFiOnClick = {}
+            closeOnClick = {},
+            enableDeFiOnClick = {}
         )
     }
 }
@@ -267,17 +266,17 @@ fun PreviewDeFiOnboardingProperties() {
     DeFiOnboardingProperties(
         properties = listOf(
             DeFiProperty(
-                title = R.string.defi_onboarding_intro_property1_title,
-                subtitle = R.string.defi_onboarding_intro_property1_subtitle
+                title = com.blockchain.stringResources.R.string.defi_onboarding_intro_property1_title,
+                subtitle = com.blockchain.stringResources.R.string.defi_onboarding_intro_property1_subtitle
             ),
             DeFiProperty(
-                title = R.string.defi_onboarding_intro_property2_title,
-                subtitle = R.string.defi_onboarding_intro_property2_subtitle
+                title = com.blockchain.stringResources.R.string.defi_onboarding_intro_property2_title,
+                subtitle = com.blockchain.stringResources.R.string.defi_onboarding_intro_property2_subtitle
             ),
             DeFiProperty(
-                title = R.string.defi_onboarding_intro_property3_title,
-                subtitle = R.string.defi_onboarding_intro_property3_subtitle
-            ),
+                title = com.blockchain.stringResources.R.string.defi_onboarding_intro_property3_title,
+                subtitle = com.blockchain.stringResources.R.string.defi_onboarding_intro_property3_subtitle
+            )
         )
     )
 }

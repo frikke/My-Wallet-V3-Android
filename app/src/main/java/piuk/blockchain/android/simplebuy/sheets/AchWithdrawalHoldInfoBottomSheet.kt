@@ -53,24 +53,23 @@ fun AchWithdrawalHoldInfoSheet(
             .background(
                 color = AppTheme.colors.light,
                 shape = RoundedCornerShape(
-                    dimensionResource(id = R.dimen.tiny_spacing)
+                    dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing)
                 )
             ),
         horizontalAlignment = Alignment.Start
     ) {
-
         SheetHeader(
-            title = stringResource(id = R.string.withdrawal_holds),
+            title = stringResource(id = com.blockchain.stringResources.R.string.withdrawal_holds),
             onClosePress = onCloseClick,
             shouldShowDivider = false
         )
 
-        Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
+        Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
         SimpleText(
             modifier = Modifier
                 .padding(horizontal = AppTheme.dimensions.standardSpacing),
-            text = stringResource(R.string.deposit_terms_withdrawal_hold_info),
+            text = stringResource(com.blockchain.stringResources.R.string.deposit_terms_withdrawal_hold_info),
             style = ComposeTypographies.Body1,
             color = ComposeColors.Body,
             gravity = ComposeGravities.Start
@@ -83,7 +82,7 @@ fun AchWithdrawalHoldInfoSheet(
                     vertical = AppTheme.dimensions.standardSpacing
                 ),
             onClick = onLearnMoreClick,
-            text = stringResource(id = R.string.common_learn_more)
+            text = stringResource(id = com.blockchain.stringResources.R.string.common_learn_more)
         )
     }
 }

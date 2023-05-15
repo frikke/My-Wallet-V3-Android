@@ -171,8 +171,9 @@ fun Money?.percentageDelta(previous: Money?): Double =
     }
 
 fun Iterable<Money>.total(): Money {
-    if (!iterator().hasNext())
+    if (!iterator().hasNext()) {
         throw IndexOutOfBoundsException("Can't sum an empty list")
+    }
     return reduce { a, v -> a + v }
 }
 

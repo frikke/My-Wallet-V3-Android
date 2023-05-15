@@ -124,7 +124,11 @@ fun CustodialEmptyStateCardsScreen(
                 onboardingLaunch = onStepsClick
             )
 
-            Spacer(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.standard_spacing)))
+            Spacer(
+                modifier = Modifier.padding(
+                    vertical = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing)
+                )
+            )
         }
 
         Card(
@@ -138,7 +142,11 @@ fun CustodialEmptyStateCardsScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.standard_spacing)))
+                Spacer(
+                    modifier = Modifier.size(
+                        dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing)
+                    )
+                )
                 CustomStackedIcon(
                     icon = StackedIcon.SmallTag(
                         main = ImageResource.Remote(trendCurrency.logo),
@@ -149,10 +157,12 @@ fun CustodialEmptyStateCardsScreen(
 
                 Text(
                     modifier = Modifier.padding(
-                        vertical = AppTheme.dimensions.smallSpacing,
+                        vertical = AppTheme.dimensions.smallSpacing
                     ),
                     textAlign = TextAlign.Center,
-                    text = stringResource(id = R.string.to_get_started_buy_your_first_btc),
+                    text = stringResource(
+                        id = com.blockchain.stringResources.R.string.to_get_started_buy_your_first_btc
+                    ),
                     style = AppTheme.typography.title2,
                     color = Grey900
                 )
@@ -186,7 +196,7 @@ fun CustodialEmptyStateCardsScreen(
                     Button(
                         content = {
                             Text(
-                                text = stringResource(id = R.string.common_other),
+                                text = stringResource(id = com.blockchain.stringResources.R.string.common_other),
                                 color = Color.White,
                                 style = AppTheme.typography.paragraphMono
                             )
@@ -207,7 +217,7 @@ fun CustodialEmptyStateCardsScreen(
                             horizontal = AppTheme.dimensions.smallSpacing
                         )
                         .fillMaxWidth(),
-                    text = stringResource(id = R.string.buy_different_crypto),
+                    text = stringResource(id = com.blockchain.stringResources.R.string.buy_different_crypto),
                     onClick = onCryptoClick
                 )
             }
@@ -222,7 +232,6 @@ fun BuyProgressCard(totalSteps: Int, completedSteps: Int, onboardingLaunch: () -
         shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
         elevation = 3.dp
     ) {
-
         TableRow(
             content = {
                 Box {
@@ -276,17 +285,18 @@ fun BuyProgressCard(totalSteps: Int, completedSteps: Int, onboardingLaunch: () -
                     )
                 ) {
                     Text(
-                        text = stringResource(id = R.string.complete_your_profile),
+                        text = stringResource(id = com.blockchain.stringResources.R.string.complete_your_profile),
                         style = AppTheme.typography.caption1,
                         color = Grey400
                     )
                     Text(
-                        text = stringResource(id = R.string.buy_crypto_today),
+                        text = stringResource(id = com.blockchain.stringResources.R.string.buy_crypto_today),
                         style = AppTheme.typography.body2,
                         color = Grey900
                     )
                 }
-            }, onContentClicked = onboardingLaunch
+            },
+            onContentClicked = onboardingLaunch
         )
     }
 }

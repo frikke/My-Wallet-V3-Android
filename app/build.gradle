@@ -9,7 +9,6 @@ apply plugin: 'kotlinx-serialization'
 apply plugin: 'com.squareup.sqldelight'
 apply from: rootProject.file('quality/ktlint.gradle')
 apply from: rootProject.file('quality/detekt.gradle')
-apply from: rootProject.file('gradle/local/embrace.gradle')
 
 
 def getGitCommitHash = { ->
@@ -48,6 +47,10 @@ android {
     }
     compileSdkVersion Versions.compileSdk
     buildToolsVersion Versions.buildTools
+
+    buildFeatures {
+        buildConfig true
+    }
 
     defaultConfig {
         applicationId "piuk.blockchain.android"
@@ -351,6 +354,7 @@ android {
             maxHeapSize = "1g"
         }
     }
+    namespace 'piuk.blockchain.android'
 }
 
 kapt {
@@ -436,6 +440,7 @@ dependencies {
     implementation project(':earn:presentation')
 
     implementation project(':fiatActions')
+    implementation project(':componentlib')
     implementation project(':dex:presentation')
     implementation project(':dex:data')
 
@@ -572,6 +577,9 @@ dependencies {
 
     // VGS
     implementation Libraries.vgs
+
+    implementation Libraries.walletConnectV2Web3Wallet
+    implementation Libraries.walletConnectV2AndroidCore
 
     // UI/Instrumentation Tests
     androidTestImplementation(Libraries.espresso) {

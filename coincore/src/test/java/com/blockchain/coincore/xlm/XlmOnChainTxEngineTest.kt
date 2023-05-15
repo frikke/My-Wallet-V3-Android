@@ -37,8 +37,8 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
 
     private val xlmDataManager: XlmDataManager = mock()
     private val walletOptionsDataManager: WalletOptionsDataManager = mock {
-        on { isXlmAddressExchange(TARGET_ADDRESS) }.thenReturn(false)
-        on { isXlmAddressExchange(TARGET_EXCHANGE_ADDRESS) }.thenReturn(true)
+        on { isXlmAddressExchange(TARGET_ADDRESS) }.thenReturn(Single.just(false))
+        on { isXlmAddressExchange(TARGET_EXCHANGE_ADDRESS) }.thenReturn(Single.just(true))
     }
     private val xlmFeesFetcher: XlmFeesFetcher = mock {
         on { operationFee(FeeType.Regular) }.thenReturn(Single.just(FEE_REGULAR))
@@ -473,7 +473,6 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
             .assertComplete()
             .assertNoErrors()
             .assertValue {
-                val v = 100
                 it.amount == inputAmount &&
                     it.totalBalance == totalBalance &&
                     it.availableBalance == expectedAvailable &&
@@ -494,7 +493,7 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
                         dashboardDisplay = totalBalance,
                         withdrawable = availableBalance,
                         pending = CryptoValue.zero(ASSET),
-                        exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency),
+                        exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency)
                     )
                 )
             )

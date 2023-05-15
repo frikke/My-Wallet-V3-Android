@@ -18,11 +18,13 @@ class NftDetailViewModel(
     val address: String,
     val pageKey: String?,
     private val nftService: NftService
-) : MviViewModel<NftDetailIntent,
+) : MviViewModel<
+    NftDetailIntent,
     NftDetailViewState,
     NftDetailModelState,
     NftDetailNavigationEvent,
-    ModelConfigArgs.NoArgs>(
+    ModelConfigArgs.NoArgs
+    >(
     initialState = NftDetailModelState()
 ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}

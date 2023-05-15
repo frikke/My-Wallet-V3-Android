@@ -129,8 +129,9 @@ class Coincore internal constructor(
     ): Observable<AccountGroup> {
         val activeAssets = activeAssets(walletMode, freshnessStrategy).asObservable()
         return activeAssets.flatMap { assets ->
-            if (assets.isEmpty()) Observable.just(allWalletsGroupForAccountsAndMode(emptyList(), walletMode))
-            else
+            if (assets.isEmpty()) {
+                Observable.just(allWalletsGroupForAccountsAndMode(emptyList(), walletMode))
+            } else
                 Single.just(assets).flattenAsObservable { it }.flatMapMaybe { asset ->
                     asset.accountGroup(walletMode.defaultFilter()).map { grp -> grp.accounts }
                 }.reduce { a, l -> a + l }.switchIfEmpty(Single.just(emptyList()))
@@ -152,10 +153,14 @@ class Coincore internal constructor(
     private fun allWalletsGroupForAccountsAndMode(accounts: SingleAccountList, walletMode: WalletMode) =
         when (walletMode) {
             WalletMode.NON_CUSTODIAL -> AllNonCustodialWalletsAccount(
-                accounts, defaultLabels, currencyPrefs.selectedFiatCurrency
+                accounts,
+                defaultLabels,
+                currencyPrefs.selectedFiatCurrency
             )
             WalletMode.CUSTODIAL -> AllCustodialWalletsAccount(
-                accounts, defaultLabels, currencyPrefs.selectedFiatCurrency
+                accounts,
+                defaultLabels,
+                currencyPrefs.selectedFiatCurrency
             )
         }
 
@@ -213,11 +218,11 @@ class Coincore internal constructor(
         tickers: Set<Currency> = emptySet(),
         action: AssetAction,
         filter: AssetFilter? = null,
-        sorter: AccountsSorter = { Single.just(it) },
+        sorter: AccountsSorter = { Single.just(it) }
     ): Single<SingleAccountList> {
-        val f = if (filter == null)
+        val f = if (filter == null) {
             walletModeService.walletModeSingle.map { it.defaultFilter() }
-        else Single.just(filter)
+        } else Single.just(filter)
 
         return f.flatMap { assetFilter ->
             availableWalletsForAction(
@@ -245,7 +250,7 @@ class Coincore internal constructor(
 
     fun getTransactionTargets(
         sourceAccount: CryptoAccount,
-        action: AssetAction,
+        action: AssetAction
     ): Single<SingleAccountList> {
         val sameCurrencyTransactionTargets = get(sourceAccount.currency).transactionTargets(sourceAccount)
         return when (action) {
@@ -285,8 +290,9 @@ class Coincore internal constructor(
         assetLoader.activeAssets(WalletMode.CUSTODIAL).asObservable().firstOrError()
             .flatMap {
                 val fiats = it.filterIsInstance<FiatAsset>()
-                if (fiats.isEmpty())
+                if (fiats.isEmpty()) {
                     return@flatMap Single.just(emptyList())
+                }
 
                 Maybe.concat(
                     it.filterIsInstance<FiatAsset>().map { asset ->
@@ -307,7 +313,7 @@ class Coincore internal constructor(
 
     fun findAccountByAddress(
         asset: AssetInfo,
-        address: String,
+        address: String
     ): Maybe<SingleAccount> =
         filterAccountsByAddress(
             this[asset].accountGroup(AssetFilter.All),
@@ -316,7 +322,7 @@ class Coincore internal constructor(
 
     private fun filterAccountsByAddress(
         accountGroup: Maybe<AccountGroup>,
-        address: String,
+        address: String
     ): Maybe<SingleAccount> =
         accountGroup.map {
             it.accounts
@@ -335,16 +341,16 @@ class Coincore internal constructor(
             }.filter { it !is NullCryptoAccount }
             .toList()
             .flatMapMaybe {
-                if (it.isEmpty())
+                if (it.isEmpty()) {
                     Maybe.empty()
-                else
+                } else
                     Maybe.just(it.first())
             }
 
     fun createTransactionProcessor(
         source: BlockchainAccount,
         target: TransactionTarget,
-        action: AssetAction,
+        action: AssetAction
     ): Single<TransactionProcessor> =
         txProcessorFactory.createProcessor(
             source,
@@ -377,7 +383,6 @@ class Coincore internal constructor(
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
     ): Flow<List<Asset>> {
         return flow {
-
             emitAll(assetLoader.activeAssets(freshnessStrategy))
         }
     }

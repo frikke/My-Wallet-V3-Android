@@ -12,14 +12,15 @@ import kotlinx.serialization.Serializable
 
 class CardDetailsStore(
     private val paymentMethodsService: PaymentMethodsService
-) : KeyedStore<CardDetailsStore.Key,
+) : KeyedStore<
+    CardDetailsStore.Key,
     CardResponse
     > by PersistedJsonSqlDelightStoreBuilder().buildKeyed(
     storeId = "CardDetailsStore",
     fetcher = Fetcher.Keyed.ofSingle(
         mapper = { key ->
             paymentMethodsService.getCardDetails(key.cardId)
-        },
+        }
     ),
     dataSerializer = CardResponse.serializer(),
     keySerializer = Key.serializer(),

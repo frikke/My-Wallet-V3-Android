@@ -30,7 +30,7 @@ sealed class RefreshStrategy {
     object RefreshIfStale : RefreshStrategy()
     data class RefreshIfOlderThan(
         val amount: Long,
-        val unit: TimeUnit,
+        val unit: TimeUnit
     ) : RefreshStrategy() {
         fun toMillis() = unit.toMillis(amount)
     }

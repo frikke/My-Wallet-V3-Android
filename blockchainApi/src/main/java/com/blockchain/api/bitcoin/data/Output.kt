@@ -1,4 +1,5 @@
 @file:UseSerializers(BigIntSerializer::class)
+
 package com.blockchain.api.bitcoin.data
 
 import com.blockchain.serializers.BigIntSerializer

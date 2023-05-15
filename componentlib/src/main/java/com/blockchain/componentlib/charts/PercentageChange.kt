@@ -29,7 +29,6 @@ fun PercentageChange(
     interval: String,
     isDarkMode: Boolean = isSystemInDarkTheme()
 ) {
-
     val positiveTextColor = if (!isDarkMode) {
         Green700
     } else {

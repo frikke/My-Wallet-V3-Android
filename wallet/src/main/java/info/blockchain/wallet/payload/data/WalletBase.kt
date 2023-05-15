@@ -101,7 +101,8 @@ class WalletBase constructor(private val walletBaseDto: WalletBaseDto) {
 
     fun withDecryptedPayload(password: String): WalletBase {
         return WalletBase(
-            walletBaseDto, decryptPayload(password)
+            walletBaseDto,
+            decryptPayload(password)
         )
     }
 

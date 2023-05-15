@@ -53,7 +53,7 @@ fun TypedNavHost(
     ) {
         ModalBottomSheetLayout(
             bottomSheetNavigator,
-            sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+            sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
         ) {
             NavHost(
                 navController = navController,
@@ -62,7 +62,7 @@ fun TypedNavHost(
                 route = graph?.route,
                 builder = {
                     builder()
-                },
+                }
             )
         }
     }

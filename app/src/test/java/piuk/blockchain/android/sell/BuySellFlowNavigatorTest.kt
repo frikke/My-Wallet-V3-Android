@@ -33,7 +33,9 @@ class BuySellFlowNavigatorTest {
     @Before
     fun setUp() {
         subject = BuySellFlowNavigator(
-            simpleBuySyncFactory, custodialWalletManager, userIdentity
+            simpleBuySyncFactory,
+            custodialWalletManager,
+            userIdentity
         )
 
         whenever(simpleBuySyncFactory.currentState()).thenReturn(

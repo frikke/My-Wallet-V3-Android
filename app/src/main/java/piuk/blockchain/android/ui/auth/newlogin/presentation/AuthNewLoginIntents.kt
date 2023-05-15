@@ -11,12 +11,12 @@ sealed class AuthNewLoginIntents : MviIntent<AuthNewLoginState> {
         val pubKeyHash: String,
         val message: SecureChannelBrowserMessage,
         val originIp: String,
-        private val items: List<AuthNewLoginDetailsType>,
+        private val items: List<AuthNewLoginDetailsType>
     ) : AuthNewLoginIntents() {
         override fun reduce(oldState: AuthNewLoginState): AuthNewLoginState {
             return oldState.copy(
                 ip = originIp,
-                items = items,
+                items = items
             )
         }
     }

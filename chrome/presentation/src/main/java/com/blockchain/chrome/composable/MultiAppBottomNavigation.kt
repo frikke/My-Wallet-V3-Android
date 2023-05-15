@@ -69,7 +69,7 @@ fun MultiAppBottomNavigation(
                         Text(
                             text = stringResource(item.name),
                             style = AppTheme.typography.micro2,
-                            color = AppTheme.colors.title,
+                            color = AppTheme.colors.title
                         )
                     }
                 }

@@ -95,11 +95,10 @@ class PricesRepository(
         return assets(AssetsLoadStrategy.Custom(tickers))
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun mostPopularAssets(): Flow<DataResource<List<AssetPriceInfo>>> =
-        combine(mostPopularTickers(), allAssets()) { mostPopularTickers, allAssetsData ->
-            allAssetsData.map { allAssets ->
-                allAssets.filter { it.assetInfo.networkTicker in mostPopularTickers }
-            }
+        mostPopularTickers().flatMapLatest { popularAssets ->
+            assets(popularAssets)
         }
 
     /**
@@ -160,8 +159,10 @@ class PricesRepository(
                             fetchAssetPrice(asset).map { asset to it }
                         }
                     ).toMap(
-                        /* keySelector = */ { (asset, _) -> asset },
-                        /* valueSelector = */ { (_, price) -> price }
+                        /* keySelector = */
+                        { (asset, _) -> asset },
+                        /* valueSelector = */
+                        { (_, price) -> price }
                     )
                 }
                 .map {

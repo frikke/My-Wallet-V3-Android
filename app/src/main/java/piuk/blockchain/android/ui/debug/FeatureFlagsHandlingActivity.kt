@@ -32,8 +32,6 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.ActivityLocalFeatureFlagsBinding
-import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementList
-import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.referral.presentation.ReferralInviteNowSheet
 import piuk.blockchain.android.util.AppUtil
 
@@ -93,7 +91,6 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
             resetAppRating.setOnClickListener { resetAppRating() }
             btnRndDeviceId.setOnClickListener { onRndDeviceId() }
             btnResetWallet.setOnClickListener { onResetWallet() }
-            btnResetAnnounce.setOnClickListener { onResetAnnounce() }
             btnResetPrefs.setOnClickListener { onResetPrefs() }
             btnComponentLib.setOnClickListener { onComponentLib() }
             deviceCurrency.text = "Select a new currency. Current one is ${currencyPrefs.selectedFiatCurrency}"
@@ -156,7 +153,7 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
         BlockchainSnackbar.make(
             binding.root,
             text,
-            duration = Snackbar.LENGTH_SHORT,
+            duration = Snackbar.LENGTH_SHORT
         ).show()
     }
 
@@ -196,24 +193,12 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
         showSnackbar("Wallet reset")
     }
 
-    private fun onResetAnnounce() {
-        val announcementList: AnnouncementList by scopedInject()
-        val dismissRecorder: DismissRecorder by scopedInject()
-
-        dismissRecorder.reinstateAllAnnouncements(announcementList)
-
-        showSnackbar("Announcement reset")
-    }
-
     private fun onResetPrefs() {
         sessionPrefs.clear()
-
         remoteLogger.logEvent("debug clear prefs. Pin reset")
         loginState.clearPin()
-
         showSnackbar("Prefs Reset")
     }
-
     private fun onComponentLib() {
         startActivity(Intent(this, ComponentLibDemoActivity::class.java))
     }

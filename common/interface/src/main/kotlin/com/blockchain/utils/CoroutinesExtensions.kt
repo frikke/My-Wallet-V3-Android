@@ -47,7 +47,7 @@ fun <E, R : Any> rxCompletableOutcome(
 }
 
 fun <E, R : Any> Flow<Outcome<E, R>>.toObservable(
-    context: CoroutineContext = EmptyCoroutineContext,
+    context: CoroutineContext = EmptyCoroutineContext
 ): Observable<R> = this.asObservable(context).map {
     it.getOrElse {
         throw (it as? Exception ?: Exception())

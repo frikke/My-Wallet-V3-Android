@@ -17,7 +17,7 @@ interface AssetActionsNavigation : ActivityResultNavigation {
         amount: String? = null,
         preselectedFiatTicker: String? = null,
         launchLinkCard: Boolean = false,
-        launchNewPaymentMethodSelection: Boolean = false,
+        launchNewPaymentMethodSelection: Boolean = false
     )
     fun buyCryptoWithRecurringBuy()
 

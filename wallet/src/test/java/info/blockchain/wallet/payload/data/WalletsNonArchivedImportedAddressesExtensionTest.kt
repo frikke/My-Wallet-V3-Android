@@ -38,7 +38,6 @@ class WalletsNonArchivedImportedAddressesExtensionTest {
 
     @Test
     fun `two spendable`() {
-
         Wallet.fromJson(json, version)
             .addImportedAddress(importedAddressWithPrivateKey("Address1", "PRIVATE_KEY1"))
             .addImportedAddress(importedAddressWithPrivateKey("Address2", "PRIVATE_KEY2"))

@@ -66,7 +66,8 @@ private class CompoundExpandableFeeConfirmationCheckoutDelegateItemViewHolder(
                 compoundItemLabel.text = this[ConfirmationPropertyKey.LABEL] as String
                 compoundItemTitle.text = this[ConfirmationPropertyKey.TITLE] as String
                 compoundItemNote.setText(
-                    this[ConfirmationPropertyKey.LINKED_NOTE] as SpannableStringBuilder, TextView.BufferType.SPANNABLE
+                    this[ConfirmationPropertyKey.LINKED_NOTE] as SpannableStringBuilder,
+                    TextView.BufferType.SPANNABLE
                 )
 
                 val hasSendingFee = this.containsKey(ConfirmationPropertyKey.FEE_ITEM_SENDING)
@@ -108,22 +109,25 @@ private class CompoundExpandableFeeConfirmationCheckoutDelegateItemViewHolder(
         if (item.asset.isLayer2Token) {
             val network = item.l1EvmNetwork?.networkTicker ?: CryptoCurrency.ETHER.displayTicker
             context.getString(
-                R.string.checkout_item_erc20_network_fee,
+                com.blockchain.stringResources.R.string.checkout_item_erc20_network_fee,
                 network,
                 item.asset.displayTicker
             )
         } else {
-            context.getString(R.string.checkout_item_network_fee, item.asset.displayTicker)
+            context.getString(
+                com.blockchain.stringResources.R.string.checkout_item_network_fee,
+                item.asset.displayTicker
+            )
         }
 
     private fun updateIcon() {
         with(binding) {
             if (isExpanded) {
                 compoundItemIcon.setImageResource(R.drawable.expand_animated)
-                compoundItemIcon.setColorFilter(context.getResolvedColor(R.color.blue_600))
+                compoundItemIcon.setColorFilter(context.getResolvedColor(com.blockchain.common.R.color.blue_600))
             } else {
                 compoundItemIcon.setImageResource(R.drawable.collapse_animated)
-                compoundItemIcon.setColorFilter(context.getResolvedColor(R.color.grey_600))
+                compoundItemIcon.setColorFilter(context.getResolvedColor(com.blockchain.common.R.color.grey_600))
             }
         }
     }

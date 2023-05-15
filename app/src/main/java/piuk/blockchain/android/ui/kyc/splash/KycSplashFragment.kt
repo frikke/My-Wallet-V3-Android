@@ -77,10 +77,10 @@ class KycSplashFragment : BaseFragment<KycSplashView, KycSplashPresenter>(), Kyc
         val title = when (progressListener.campaignType) {
             CampaignType.SimpleBuy,
             CampaignType.Resubmission,
-            CampaignType.FiatFunds -> R.string.buy_sell_splash_title
-            CampaignType.Swap -> R.string.kyc_splash_title
-            CampaignType.Interest -> R.string.earn_rewards
-            CampaignType.None -> R.string.identity_verification
+            CampaignType.FiatFunds -> com.blockchain.stringResources.R.string.buy_sell_splash_title
+            CampaignType.Swap -> com.blockchain.stringResources.R.string.kyc_splash_title
+            CampaignType.Interest -> com.blockchain.stringResources.R.string.earn_rewards
+            CampaignType.None -> com.blockchain.stringResources.R.string.identity_verification
         }
 
         progressListener.setupHostToolbar(title)
@@ -121,7 +121,7 @@ class KycSplashFragment : BaseFragment<KycSplashView, KycSplashPresenter>(), Kyc
     override fun displayLoading(isLoading: Boolean) {
         progressDialog = if (isLoading) {
             MaterialProgressDialog(requireContext()).apply {
-                setMessage(R.string.buy_sell_please_wait)
+                setMessage(com.blockchain.stringResources.R.string.buy_sell_please_wait)
                 show()
             }
         } else {

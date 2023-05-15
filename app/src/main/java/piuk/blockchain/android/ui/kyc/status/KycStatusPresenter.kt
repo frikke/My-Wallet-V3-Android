@@ -41,7 +41,7 @@ class KycStatusPresenter(
                         view.showNotificationsEnabledDialog()
                     },
                     onError = {
-                        view.showSnackbar(R.string.kyc_status_button_notifications_error)
+                        view.showSnackbar(com.blockchain.stringResources.R.string.kyc_status_button_notifications_error)
                         Timber.e(it)
                     }
                 )

@@ -60,7 +60,7 @@ enum class FeeLevel {
 
 data class FeeLevelRates(
     val regularFee: Long,
-    val priorityFee: Long,
+    val priorityFee: Long
 )
 
 data class FeeSelection(
@@ -70,7 +70,7 @@ data class FeeSelection(
     val customLevelRates: FeeLevelRates? = null,
     val feeState: FeeState? = null,
     val asset: AssetInfo? = null,
-    val feesForLevels: Map<FeeLevel, Money> = emptyMap(),
+    val feesForLevels: Map<FeeLevel, Money> = emptyMap()
 )
 
 data class PendingTx(
@@ -86,7 +86,7 @@ data class PendingTx(
     val limits: TxLimits? = null,
     val transactionsLimit: TransactionsLimit? = null,
     val validationState: ValidationState = ValidationState.UNINITIALISED,
-    val engineState: Map<String, Any> = emptyMap(),
+    val engineState: Map<String, Any> = emptyMap()
 ) {
     fun hasOption(confirmation: TxConfirmation): Boolean =
         txConfirmations.find { it.confirmation == confirmation } != null
@@ -159,7 +159,7 @@ sealed class FeeState {
     object FeeOverRecommended : FeeState()
     object ValidCustomFee : FeeState()
     data class FeeDetails(
-        val absoluteFee: Money,
+        val absoluteFee: Money
     ) : FeeState()
 }
 
@@ -201,7 +201,9 @@ abstract class TxEngine : KoinComponent {
                 exchange = exchangeAmount,
                 asset = asset
             )
-        } else null
+        } else {
+            null
+        }
     }
 
     fun start(
@@ -210,7 +212,7 @@ abstract class TxEngine : KoinComponent {
         exchangeRates: ExchangeRatesDataManager,
         refreshTrigger: RefreshTrigger = object : RefreshTrigger {
             override fun refreshConfirmations(revalidate: Boolean): Completable = Completable.complete()
-        },
+        }
     ) {
         this._sourceAccount = sourceAccount
         this._txTarget = txTarget
@@ -338,7 +340,7 @@ class TransactionProcessor(
     private val sourceAccount: BlockchainAccount,
     private val txTarget: TransactionTarget,
     private val exchangeRates: ExchangeRatesDataManager,
-    private val engine: TxEngine,
+    private val engine: TxEngine
 ) : TxEngine.RefreshTrigger {
 
     init {
@@ -379,7 +381,6 @@ class TransactionProcessor(
     // in the original list when the pendingTx is created. And if it is not supported, then trying to
     // update it will cause an error.
     fun setOption(newConfirmation: TxConfirmationValue): Completable {
-
         val pendingTx = getPendingTx()
         if (!pendingTx.hasOption(newConfirmation.confirmation)) {
             throw IllegalArgumentException("Unsupported TxOption: ${newConfirmation.confirmation}")
@@ -397,8 +398,9 @@ class TransactionProcessor(
     fun updateAmount(amount: Money): Completable {
         cancelUpdateAmount.onNext(Unit)
         val pendingTx = getPendingTx()
-        if (!canTransactFiat && amount is FiatValue)
+        if (!canTransactFiat && amount is FiatValue) {
             throw IllegalArgumentException("The processor does not support fiat values")
+        }
 
         return engine.doUpdateAmount(amount, pendingTx)
             .flatMap {
@@ -488,7 +490,7 @@ class TransactionProcessor(
             ValidationState.INVALID_DOMAIN -> Completable.error(TransactionError.InvalidDomainAddress)
             ValidationState.ADDRESS_IS_CONTRACT -> Completable.error(TransactionError.InvalidCryptoAddress)
             ValidationState.OPTION_INVALID,
-            ValidationState.MEMO_INVALID,
+            ValidationState.MEMO_INVALID
             -> Completable.error(
                 IllegalStateException("Transaction cannot be executed with an invalid memo")
             )
@@ -497,7 +499,7 @@ class TransactionProcessor(
                 Completable.error(TransactionError.OrderLimitReached)
             ValidationState.ABOVE_PAYMENT_METHOD_LIMIT,
             ValidationState.OVER_SILVER_TIER_LIMIT,
-            ValidationState.OVER_GOLD_TIER_LIMIT,
+            ValidationState.OVER_GOLD_TIER_LIMIT
             -> Completable.error(TransactionError.OrderAboveMax)
             ValidationState.INVOICE_EXPIRED -> Completable.error(TransactionError.InvalidOrExpiredQuote)
         }
@@ -555,10 +557,11 @@ fun Single<PendingTx>.updateTxValidity(pendingTx: PendingTx): Single<PendingTx> 
             Single.error(it)
         }
     }.map { pTx ->
-        if (pTx.txConfirmations.isNotEmpty())
+        if (pTx.txConfirmations.isNotEmpty()) {
             updateOptionsWithValidityWarning(pTx)
-        else
+        } else {
             pTx
+        }
     }
 
 private fun updateOptionsWithValidityWarning(pendingTx: PendingTx): PendingTx =
@@ -566,9 +569,11 @@ private fun updateOptionsWithValidityWarning(pendingTx: PendingTx): PendingTx =
         pendingTx.addOrReplaceOption(
             TxConfirmationValue.ErrorNotice(
                 status = pendingTx.validationState,
-                money = if (pendingTx.validationState == ValidationState.UNDER_MIN_LIMIT)
+                money = if (pendingTx.validationState == ValidationState.UNDER_MIN_LIMIT) {
                     pendingTx.limits?.minAmount
-                else null
+                } else {
+                    null
+                }
             )
         )
     } else {

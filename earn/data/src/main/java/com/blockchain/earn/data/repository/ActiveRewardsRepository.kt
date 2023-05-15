@@ -275,7 +275,7 @@ class ActiveRewardsRepository(
             pendingWithdrawal = Money.fromMinor(currency, unbondingWithdrawals.toBigInteger()),
             totalRewards = Money.fromMinor(currency, totalRewards.toBigInteger()),
             earningBalance = Money.fromMinor(currency, earningBalance.toBigInteger()),
-            bondingDeposits = Money.fromMinor(currency, bondingDeposits.toBigInteger()),
+            bondingDeposits = Money.fromMinor(currency, bondingDeposits.toBigInteger())
         )
 
     override fun markBalancesAsStale() {

@@ -7,7 +7,7 @@ data class DepositTermsRequestBody(
     private val amount: Amount,
     private val paymentMethodId: String,
     private val product: String = "WALLET",
-    private val purpose: String = "DEPOSIT",
+    private val purpose: String = "DEPOSIT"
 ) {
     @Serializable
     data class Amount(

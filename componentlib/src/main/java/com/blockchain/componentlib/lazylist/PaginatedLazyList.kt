@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 data class ScrollState(
     val isTop: Boolean,
     val isBottom: Boolean,
-    val shouldGetNextPage: Boolean,
+    val shouldGetNextPage: Boolean
 )
 
 // LazyList
@@ -123,7 +123,6 @@ fun PaginatedLazyColumn(
     onGetNextPage: () -> Unit,
     content: LazyListScope.() -> Unit
 ) {
-
     val lazyListState = rememberLazyListState()
     val scrollState = rememberScrollState(listState = lazyListState, offset = loadNextPageItemOffset)
 
@@ -189,7 +188,6 @@ fun PaginatedLazyVerticalGrid(
     onGetNextPage: () -> Unit,
     content: LazyGridScope.() -> Unit
 ) {
-
     val scrollState = rememberScrollState(gridState = lazyGridState, offset = loadNextPageItemOffset)
 
     if (scrollState.shouldGetNextPage) {

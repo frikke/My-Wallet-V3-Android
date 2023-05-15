@@ -44,7 +44,7 @@ class CustodialInterestAccount(
     override val exchangeRates: ExchangeRatesDataManager,
     private val identity: UserIdentity,
     private val kycService: KycService,
-    private val custodialWalletManager: CustodialWalletManager,
+    private val custodialWalletManager: CustodialWalletManager
 ) : CryptoAccountBase(), EarnRewardsAccount.Interest {
 
     override val baseActions: Single<Set<AssetAction>> = Single.just(emptySet()) // Not used by this class

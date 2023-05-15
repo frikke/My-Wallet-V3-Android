@@ -159,7 +159,7 @@ fun PreviewBalanceChangeSmallCard_SmallTag() {
         valueChange = DataResource.Data(ValueChange.Down(20.0)),
         icon = StackedIcon.SmallTag(
             main = ImageResource.Local(R.drawable.logo_bitcoin),
-            tag = ImageResource.Local(R.drawable.close_on)
+            tag = ImageResource.Local(com.blockchain.componentlib.icons.R.drawable.close_on)
         ),
         onClick = {}
     )

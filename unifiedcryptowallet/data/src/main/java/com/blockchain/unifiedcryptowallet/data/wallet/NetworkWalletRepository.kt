@@ -13,12 +13,10 @@ class NetworkWalletRepository(
 ) : NetworkWalletService {
 
     override fun networkWalletGroup(currency: String): Flow<DataResource<NetworkWalletGroup>> {
-
         TODO()
     }
 
     override fun networkWalletGroups(): Flow<DataResource<List<NetworkWalletGroup>>> {
-
         TODO()
     }
 }

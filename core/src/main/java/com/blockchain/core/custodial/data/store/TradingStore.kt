@@ -12,7 +12,7 @@ import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 
 class TradingStore(
-    private val balanceService: CustodialBalanceService,
+    private val balanceService: CustodialBalanceService
 ) : Store<Map<String, TradingBalanceResponseDto>> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,

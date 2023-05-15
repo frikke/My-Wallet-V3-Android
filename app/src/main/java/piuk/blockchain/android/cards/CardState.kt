@@ -64,8 +64,8 @@ sealed class CardRequestStatus {
 
 fun CardType.icon() =
     when (this) {
-        CardType.VISA -> R.drawable.stripe_ic_visa
-        CardType.MASTERCARD -> R.drawable.stripe_ic_mastercard
+        CardType.VISA -> com.stripe.android.R.drawable.stripe_ic_visa
+        CardType.MASTERCARD -> com.stripe.android.R.drawable.stripe_ic_mastercard
         else -> this.frontResource
     }
 

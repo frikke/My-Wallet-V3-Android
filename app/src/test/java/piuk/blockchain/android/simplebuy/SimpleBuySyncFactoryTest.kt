@@ -48,7 +48,6 @@ class SimpleBuySyncFactoryTest {
 
     @Test
     fun `There are no buys in progress anywhere`() {
-
         whenever(serializer.fetch()).thenReturn(null)
         whenever(remoteState.getAllOutstandingBuyOrders()).thenReturn(Single.just(emptyList()))
 
@@ -62,7 +61,6 @@ class SimpleBuySyncFactoryTest {
 
     @Test
     fun `there is a local buy, in a pre-confirmed state, and no other buys in progress`() {
-
         val localInput = SimpleBuyState(
             amount = FiatValue.fromMinor(EUR, 1000.toBigInteger()),
             fiatCurrency = EUR,
@@ -88,7 +86,6 @@ class SimpleBuySyncFactoryTest {
     @Test
     @Ignore("Temp not clearing state to facilitate happy path testing")
     fun `user is not eligible, clear any local state`() {
-
         subject.performSync()
             .test()
             .assertComplete()
@@ -104,7 +101,6 @@ class SimpleBuySyncFactoryTest {
 
     @Test
     fun `there is a remote buy, in an awaiting funds state, and no other buys in progress`() {
-
         val remoteInput = BuySellOrder(
             id = EXPECTED_ORDER_ID,
             pair = "EUR-BTC",
@@ -137,7 +133,6 @@ class SimpleBuySyncFactoryTest {
 
     @Test
     fun `there is a remote buy, in a pending state, and no other buys in progress`() {
-
         val remoteInput = BuySellOrder(
             id = EXPECTED_ORDER_ID,
             pair = "EUR-BTC",
@@ -315,7 +310,6 @@ class SimpleBuySyncFactoryTest {
 
     @Test
     fun `there are several remote buys, some in awaiting funds some in pending state, no local buy in progress`() {
-
         val remoteInput1 = BuySellOrder(
             id = ORDER_ID_2,
             pair = "EUR-BTC",

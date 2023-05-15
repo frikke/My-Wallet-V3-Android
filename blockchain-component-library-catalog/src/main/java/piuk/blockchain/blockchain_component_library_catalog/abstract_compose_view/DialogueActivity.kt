@@ -45,7 +45,7 @@ class DialogueActivity : AppCompatActivity() {
             title = "Test title"
             body = "Body 2: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt" +
                 " ut labore et dolore magna aliqua. Ut enim ad minim veniam, "
-            icon = R.drawable.ic_bottom_nav_prices
+            icon = com.blockchain.componentlib.R.drawable.ic_bottom_nav_prices
             firstButton = DialogueButton("First button") {
                 Toast.makeText(this@DialogueActivity, "Clicked", Toast.LENGTH_SHORT)
                     .show()

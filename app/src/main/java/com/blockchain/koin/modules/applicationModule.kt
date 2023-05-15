@@ -53,9 +53,9 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
-import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.sellOrder
 import com.blockchain.koin.vgsFeatureFlag
+import com.blockchain.koin.walletConnectV2FeatureFlag
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.logging.DigitalTrust
@@ -74,6 +74,7 @@ import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.BackupWallet
 import com.blockchain.wallet.DefaultLabels
+import com.blockchain.walletconnect.ui.navigation.WalletConnectV2Navigation
 import exchange.ExchangeLinking
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -157,6 +158,7 @@ import piuk.blockchain.android.ui.home.RecurringBuyNavigationImpl
 import piuk.blockchain.android.ui.home.SettingsNavigationImpl
 import piuk.blockchain.android.ui.home.SupportNavigationImpl
 import piuk.blockchain.android.ui.home.TransactionFlowNavigationImpl
+import piuk.blockchain.android.ui.home.WalletConnectV2NavigationImpl
 import piuk.blockchain.android.ui.home.WalletLinkAndOpenBankingNavImpl
 import piuk.blockchain.android.ui.interest.EarnNavigationImpl
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
@@ -205,7 +207,7 @@ val applicationModule = module {
             trust = get(),
             pinRepository = get(),
             remoteLogger = get(),
-            walletStatusPrefs = get(),
+            walletStatusPrefs = get()
         )
     }.bind(AppUtilAPI::class)
 
@@ -300,7 +302,8 @@ val applicationModule = module {
                 walletConnectServiceAPI = get(),
                 secureChannelService = get(),
                 assetService = get(),
-                assetCatalogue = get()
+                assetCatalogue = get(),
+                walletConnectV2Service = get(),
             )
         }.apply {
             bind(QrScanNavigation::class)
@@ -323,6 +326,16 @@ val applicationModule = module {
             bind(EarnNavigation::class)
         }
 
+        factory { (activity: BlockchainActivity) ->
+            WalletConnectV2NavigationImpl(
+                activity = activity,
+                walletConnectV2Service = get(),
+                walletConnectV2FeatureFlag = get(walletConnectV2FeatureFlag),
+            )
+        }.apply {
+            bind(WalletConnectV2Navigation::class)
+        }
+
         scoped {
             CredentialsWiper(
                 appUtil = get(),
@@ -330,7 +343,7 @@ val applicationModule = module {
                 bchDataManager = get(),
                 walletModeService = get(),
                 metadataService = get(),
-                walletOptionsState = get(),
+                walletOptionsStore = get(),
                 nabuDataManager = get(),
                 notificationTokenManager = get(),
                 activityWebSocketService = get(),
@@ -373,7 +386,7 @@ val applicationModule = module {
                 eligibilityService = get(),
                 referralService = get(),
                 payloadDataManager = get(),
-                nabuUserDataManager = get(),
+                nabuUserDataManager = get()
             )
         }
 
@@ -472,7 +485,8 @@ val applicationModule = module {
             QrScanResultProcessor(
                 bitPayDataManager = get(),
                 walletConnectUrlValidator = get(),
-                analytics = get()
+                walletConnectV2UrlValidator = get(),
+                analytics = get(),
             )
         }
 
@@ -491,12 +505,8 @@ val applicationModule = module {
                 tradeDataService = get(),
                 custodialWalletManager = get(),
                 limitsDataManager = get(),
-                coincore = get(),
-                userIdentity = get(),
                 simpleBuyService = get(),
                 bankLinkingPrefs = get(),
-                analytics = get(),
-                exchangeRatesDataManager = get(),
                 bankPartnerCallbackProvider = get(),
                 cardProcessors = getCardProcessors().associateBy { it.acquirer },
                 cancelOrderUseCase = get(),
@@ -512,7 +522,6 @@ val applicationModule = module {
                 cardPaymentAsyncFF = get(cardPaymentAsyncFeatureFlag),
                 buyQuoteRefreshFF = get(buyRefreshQuoteFeatureFlag),
                 plaidFF = get(plaidFeatureFlag),
-                rbFrequencySuggestionFF = get(rbFrequencyFeatureFlag),
                 rbExperimentFF = get(rbExperimentFeatureFlag),
                 feynmanEnterAmountFF = get(feynmanEnterAmountFeatureFlag),
                 feynmanCheckoutFF = get(feynmanCheckoutFeatureFlag),
@@ -520,7 +529,7 @@ val applicationModule = module {
                 remoteConfigRepository = get(),
                 quickFillRoundingService = get(),
                 recurringBuyService = get(),
-                dismissRecorder = get(),
+                dismissRecorder = get()
             )
         }
 
@@ -589,7 +598,7 @@ val applicationModule = module {
                 bankService = get(),
                 cardService = get(),
                 tradeDataService = get(),
-                userFeaturePermissionService = get(),
+                userFeaturePermissionService = get()
             )
         }.bind(OnBoardingStepsService::class)
 
@@ -632,7 +641,7 @@ val applicationModule = module {
         factory {
             SimpleBuyPrefsSerializerImpl(
                 prefs = get(),
-                json = get(kotlinJsonAssetTicker),
+                json = get(kotlinJsonAssetTicker)
             )
         }.bind(SimpleBuyPrefsSerializer::class)
 
@@ -741,7 +750,7 @@ val applicationModule = module {
                 walletCredentialsUpdater = get(),
                 payloadDataManager = get(),
                 xlmDataManager = get(),
-                ethDataManager = get(),
+                ethDataManager = get()
             )
         }
 
@@ -753,7 +762,8 @@ val applicationModule = module {
                 destinationArgs = get(),
                 notificationManager = get(),
                 analytics = get(),
-                homeActivityLauncher = get()
+                homeActivityLauncher = get(),
+                walletConnectV2Service = get(),
             )
         }
 
@@ -808,7 +818,7 @@ val applicationModule = module {
         viewModel {
             EmailVerificationModel(
                 emailUpdater = get(),
-                getUserStore = get(),
+                getUserStore = get()
             )
         }
 
@@ -833,7 +843,6 @@ val applicationModule = module {
             DataWiperImpl(
                 ethDataManager = get(),
                 bchDataManager = get(),
-                walletOptionsState = get(),
                 nabuDataManager = get(),
                 activityWebSocketService = get(),
                 walletConnectServiceAPI = get(),
@@ -848,7 +857,7 @@ val applicationModule = module {
         viewModel {
             SellViewModel(
                 sellRepository = get(),
-                walletModeService = get(),
+                walletModeService = get()
             )
         }
 
@@ -856,7 +865,7 @@ val applicationModule = module {
             UpSellAnotherAssetViewModel(
                 pricesService = get(),
                 currencyPrefs = get(),
-                dismissRecorder = get(),
+                dismissRecorder = get()
             )
         }
 

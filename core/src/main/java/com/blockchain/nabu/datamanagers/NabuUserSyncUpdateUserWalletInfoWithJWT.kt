@@ -10,7 +10,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 internal class NabuUserSyncUpdateUserWalletInfoWithJWT(
     private val nabuDataManager: NabuDataManager,
     private val nabuService: NabuService,
-    private val getUserStore: GetUserStore,
+    private val getUserStore: GetUserStore
 ) : NabuUserSync {
 
     override fun syncUser(): Completable =
@@ -24,7 +24,8 @@ internal class NabuUserSyncUpdateUserWalletInfoWithJWT(
 
                             Logger.d(
                                 "Syncing nabu user complete, email/phone verified: %s, %s",
-                                it.emailVerified, it.mobileVerified
+                                it.emailVerified,
+                                it.mobileVerified
                             )
                         }
                 }

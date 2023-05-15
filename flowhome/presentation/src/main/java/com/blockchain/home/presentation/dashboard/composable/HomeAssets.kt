@@ -56,7 +56,7 @@ fun FundLocksData(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = stringResource(R.string.funds_locked_warning_title),
+                text = stringResource(com.blockchain.stringResources.R.string.funds_locked_warning_title),
                 style = AppTheme.typography.paragraph2,
                 color = AppTheme.colors.muted
             )
@@ -88,10 +88,10 @@ internal fun LazyListScope.homeAssets(
         paddingValues = PaddingValues(horizontal = 16.dp)
     ) {
         val showSeeAll = data.filterIsInstance<HomeCryptoAsset>().isNotEmpty()
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)))
         TableRowHeader(
-            title = stringResource(R.string.ma_home_assets_title),
-            actionTitle = stringResource(R.string.see_all).takeIf { showSeeAll },
+            title = stringResource(com.blockchain.stringResources.R.string.ma_home_assets_title),
+            actionTitle = stringResource(com.blockchain.stringResources.R.string.see_all).takeIf { showSeeAll },
             actionOnClick = openCryptoAssets.takeIf { showSeeAll }
         )
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))

@@ -45,7 +45,7 @@ import org.koin.androidx.compose.get
 internal fun LazyListScope.homeEarnAssets(
     earnState: EarnViewState,
     earnViewModel: EarnViewModel,
-    openEarnDashboard: () -> Unit,
+    openEarnDashboard: () -> Unit
 ) {
     if (earnState == EarnViewState.None) {
         return
@@ -56,8 +56,10 @@ internal fun LazyListScope.homeEarnAssets(
         val analytics: Analytics = get()
         Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
         TableRowHeader(
-            title = stringResource(R.string.common_earn),
-            actionTitle = stringResource(R.string.manage).takeIf { earnState is EarnViewState.Assets },
+            title = stringResource(com.blockchain.stringResources.R.string.common_earn),
+            actionTitle = stringResource(com.blockchain.stringResources.R.string.manage).takeIf {
+                earnState is EarnViewState.Assets
+            },
             actionOnClick = {
                 openEarnDashboard()
                 analytics.logEvent(DashboardAnalyticsEvents.EarnManageClicked)
@@ -94,9 +96,15 @@ internal fun LazyListScope.homeEarnAssets(
                     tags = listOf(
                         TagViewState(
                             when (asset.type) {
-                                EarnType.INTEREST -> stringResource(id = R.string.earn_rewards_label_passive)
-                                EarnType.STAKING -> stringResource(id = R.string.earn_rewards_label_staking)
-                                EarnType.ACTIVE -> stringResource(id = R.string.earn_rewards_label_active)
+                                EarnType.INTEREST -> stringResource(
+                                    id = com.blockchain.stringResources.R.string.earn_rewards_label_passive
+                                )
+                                EarnType.STAKING -> stringResource(
+                                    id = com.blockchain.stringResources.R.string.earn_rewards_label_staking
+                                )
+                                EarnType.ACTIVE -> stringResource(
+                                    id = com.blockchain.stringResources.R.string.earn_rewards_label_active
+                                )
                             },
                             TagType.Default()
                         )
@@ -121,8 +129,9 @@ internal fun LazyListScope.homeEarnAssets(
 }
 
 private fun Double.withOnlyOneTrailingZeroIfWhole(): String {
-    return if (this.compareTo(this.toLong()) == 0)
-        String.format("%.1f", this) else String.format("%s", this)
+    return if (this.compareTo(this.toLong()) == 0) {
+        String.format("%.1f", this)
+    } else String.format("%s", this)
 }
 
 @Preview
@@ -141,11 +150,11 @@ fun NoAssetsInvested(
                 Box {
                     Canvas(
                         modifier = Modifier
-                            .size(dimensionResource(id = R.dimen.large_spacing))
+                            .size(dimensionResource(id = com.blockchain.componentlib.R.dimen.large_spacing))
                             .align(Center),
                         onDraw = {
                             drawCircle(
-                                color = Grey400,
+                                color = Grey400
                             )
                         }
                     )
@@ -153,20 +162,20 @@ fun NoAssetsInvested(
                         modifier = Modifier.align(Center),
                         text = "%",
                         style = AppTheme.typography.body2,
-                        color = Color.White,
+                        color = Color.White
                     )
                 }
             },
             content = {
                 Column(modifier = Modifier.padding(start = AppTheme.dimensions.smallSpacing)) {
                     Text(
-                        text = stringResource(id = R.string.earn_up_to),
+                        text = stringResource(id = com.blockchain.stringResources.R.string.earn_up_to),
                         style = AppTheme.typography.caption2,
                         color = Grey900
                     )
                     Spacer(modifier = Modifier.size(2.dp))
                     Text(
-                        text = stringResource(id = R.string.put_your_crypto_to_work),
+                        text = stringResource(id = com.blockchain.stringResources.R.string.put_your_crypto_to_work),
                         style = AppTheme.typography.paragraph1,
                         color = Grey900
                     )
@@ -180,7 +189,7 @@ fun NoAssetsInvested(
                     content = {
                         Text(
                             text = stringResource(
-                                id = R.string.common_earn
+                                id = com.blockchain.stringResources.R.string.common_earn
                             ).uppercase(),
                             color = Color.White,
                             style = AppTheme.typography.paragraphMono

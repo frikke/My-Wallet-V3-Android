@@ -22,11 +22,13 @@ class InterestDashboardViewModel(
     private val kycService: KycService,
     private val getInterestDashboardUseCase: GetInterestDashboardUseCase,
     private val getAccountGroupUseCase: GetAccountGroupUseCase
-) : MviViewModel<InterestDashboardIntents,
+) : MviViewModel<
+    InterestDashboardIntents,
     InterestDashboardViewState,
     InterestDashboardModelState,
     InterestDashboardNavigationEvent,
-    ModelConfigArgs.NoArgs>(InterestDashboardModelState()) {
+    ModelConfigArgs.NoArgs
+    >(InterestDashboardModelState()) {
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
@@ -62,7 +64,9 @@ class InterestDashboardViewModel(
                         it.assetInfo.displayTicker.contains(state.filter, ignoreCase = true) ||
                             it.assetInfo.name.contains(state.filter, ignoreCase = true)
                     }
-                } else this
+                } else {
+                    this
+                }
             }
         )
     }
@@ -100,7 +104,7 @@ class InterestDashboardViewModel(
                         is DataResource.Error -> updateState {
                             it.copy(
                                 isLoadingData = false,
-                                isError = true,
+                                isError = true
                             )
                         }
                     }
@@ -130,7 +134,7 @@ class InterestDashboardViewModel(
                 is DataResource.Error -> updateState {
                     it.copy(
                         isLoadingData = false,
-                        isError = true,
+                        isError = true
                     )
                 }
             }

@@ -42,13 +42,16 @@ fun RatingBar(
                         onRatingChanged(rating)
                     },
                 imageResource = ImageResource.Local(
-                    if (index <= rating) imageFilled
-                    else imageOutline
+                    if (index <= rating) {
+                        imageFilled
+                    } else {
+                        imageOutline
+                    }
                 )
             )
 
             if (index < range.last) {
-                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.tiny_spacing)))
+                Spacer(modifier = Modifier.width(dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)))
             }
         }
     }

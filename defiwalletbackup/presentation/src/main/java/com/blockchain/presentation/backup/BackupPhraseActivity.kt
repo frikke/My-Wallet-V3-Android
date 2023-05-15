@@ -85,7 +85,7 @@ class BackupPhraseActivity : BlockchainActivity(), KoinScopeComponent {
                             }
 
                             else -> {
-                                /* n/a */
+                                // n/a
                             }
                         }.exhaustive
                     }

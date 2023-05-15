@@ -15,7 +15,7 @@ fun LazyListScope.emptyCard(
     walletMode: WalletMode,
     assetsViewState: AssetsViewState,
     actiityViewState: ActivityViewState,
-    assetActionsNavigation: AssetActionsNavigation,
+    assetActionsNavigation: AssetActionsNavigation
 ) {
     val state = dashboardState(assetsViewState, actiityViewState)
 
@@ -41,7 +41,7 @@ enum class DashboardState {
 
 fun dashboardState(
     assetsViewState: AssetsViewState,
-    activityViewState: ActivityViewState?,
+    activityViewState: ActivityViewState?
 ): DashboardState {
     activityViewState ?: return DashboardState.UNKNOWN
     val hasAnyActivity =
@@ -50,6 +50,7 @@ fun dashboardState(
     val hasAnyAssets =
         (assetsViewState.assets as? DataResource.Data)?.data?.isNotEmpty() ?: return DashboardState.UNKNOWN
 
-    return if (hasAnyActivity || hasAnyAssets) DashboardState.NON_EMPTY
-    else DashboardState.EMPTY
+    return if (hasAnyActivity || hasAnyAssets) {
+        DashboardState.NON_EMPTY
+    } else DashboardState.EMPTY
 }

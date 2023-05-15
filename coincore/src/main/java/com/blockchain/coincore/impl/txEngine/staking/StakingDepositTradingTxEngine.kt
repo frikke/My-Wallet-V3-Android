@@ -31,7 +31,7 @@ class StakingDepositTradingEngine(
     private val stakingBalanceStore: FlushableDataSource,
     stakingService: StakingService,
     private val tradingStore: TradingStore,
-    private val walletManager: CustodialWalletManager,
+    private val walletManager: CustodialWalletManager
 ) : StakingBaseEngine(stakingService) {
 
     override val flushableDataSources: List<FlushableDataSource>

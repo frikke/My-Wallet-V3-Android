@@ -31,8 +31,7 @@ class CustodialEmptyCardViewModel(
     private val onBoardingStepsService: OnBoardingStepsService,
     private val userFeaturePermissionService: UserFeaturePermissionService,
     private val custodialEmptyCardService: CustodialEmptyCardService
-) : MviViewModel
-<
+) : MviViewModel<
     CustodialEmptyCardIntent,
     CustodialEmptyCardViewState,
     CustodialEmptyCardModelState,
@@ -87,7 +86,8 @@ class CustodialEmptyCardViewModel(
 
                 viewModelScope.launch {
                     userFeaturePermissionService.getAccessForFeature(
-                        Feature.Buy, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+                        Feature.Buy,
+                        FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
                     ).collect {
                         updateState { state ->
                             state.copy(

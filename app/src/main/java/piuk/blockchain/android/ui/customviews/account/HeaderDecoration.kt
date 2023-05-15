@@ -51,8 +51,11 @@ class HeaderDecoration(
                     if (mShadowSize > 0) {
                         c.translate(view.left - left - mShadowSize, 0f)
                         c.drawRect(
-                            parent.left.toFloat(), parent.top.toFloat(), mShadowSize,
-                            parent.bottom.toFloat(), mShadowPaint
+                            parent.left.toFloat(),
+                            parent.top.toFloat(),
+                            mShadowSize,
+                            parent.bottom.toFloat(),
+                            mShadowPaint
                         )
                     }
                 } else {
@@ -64,8 +67,11 @@ class HeaderDecoration(
                     if (mShadowSize > 0) {
                         c.translate(0f, view.top - top - mShadowSize)
                         c.drawRect(
-                            parent.left.toFloat(), parent.top.toFloat(), parent.right.toFloat(),
-                            mShadowSize, mShadowPaint
+                            parent.left.toFloat(),
+                            parent.top.toFloat(),
+                            parent.right.toFloat(),
+                            mShadowSize,
+                            mShadowPaint
                         )
                     }
                 }
@@ -215,18 +221,28 @@ class HeaderDecoration(
         if (mShadowSize > 0) {
             mShadowPaint.shader = if (mHorizontal) {
                 LinearGradient(
-                    mShadowSize, 0f, 0f, 0f,
+                    mShadowSize,
+                    0f,
+                    0f,
+                    0f,
                     intArrayOf(
-                        Color.argb(55, 0, 0, 0), Color.argb(55, 0, 0, 0), Color.argb(3, 0, 0, 0)
+                        Color.argb(55, 0, 0, 0),
+                        Color.argb(55, 0, 0, 0),
+                        Color.argb(3, 0, 0, 0)
                     ),
                     floatArrayOf(0f, .5f, 1f),
                     Shader.TileMode.CLAMP
                 )
             } else {
                 LinearGradient(
-                    0f, mShadowSize, 0f, 0f,
+                    0f,
+                    mShadowSize,
+                    0f,
+                    0f,
                     intArrayOf(
-                        Color.argb(55, 0, 0, 0), Color.argb(55, 0, 0, 0), Color.argb(3, 0, 0, 0)
+                        Color.argb(55, 0, 0, 0),
+                        Color.argb(55, 0, 0, 0),
+                        Color.argb(3, 0, 0, 0)
                     ),
                     floatArrayOf(0f, .5f, 1f),
                     Shader.TileMode.CLAMP

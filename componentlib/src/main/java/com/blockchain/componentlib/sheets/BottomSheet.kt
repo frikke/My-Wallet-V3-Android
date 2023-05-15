@@ -59,7 +59,7 @@ fun BottomSheetTwoButtons(
             button2.toBottomSheetButtonComposable(Modifier.wrapContentWidth()).invoke()
         },
         isDarkTheme = isDarkTheme,
-        shouldShowHeaderDivider = shouldShowHeaderDivider,
+        shouldShowHeaderDivider = shouldShowHeaderDivider
     )
 }
 
@@ -86,7 +86,7 @@ fun BottomSheetOneButton(
             button.toBottomSheetButtonComposable(Modifier.wrapContentWidth()).invoke()
         },
         isDarkTheme = isDarkTheme,
-        shouldShowHeaderDivider = shouldShowHeaderDivider,
+        shouldShowHeaderDivider = shouldShowHeaderDivider
     )
 }
 
@@ -110,7 +110,7 @@ fun BottomSheetNoButtons(
         subtitle = subtitle,
         buttonsContent = null,
         isDarkTheme = isDarkTheme,
-        shouldShowHeaderDivider = shouldShowHeaderDivider,
+        shouldShowHeaderDivider = shouldShowHeaderDivider
     )
 }
 
@@ -135,7 +135,10 @@ private fun BottomSheet(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(backgroundColor, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_spacing))),
+            .background(
+                backgroundColor,
+                RoundedCornerShape(dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing))
+            ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SheetHeader(
@@ -143,42 +146,43 @@ private fun BottomSheet(
             onClosePress = onCloseClick,
             shouldShowDivider = shouldShowHeaderDivider
         )
-        Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
+        Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
         if (headerImageResource != null) {
             Image(
                 imageResource = headerImageResource,
-                modifier = Modifier.size(dimensionResource(R.dimen.size_huge))
+                modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.size_huge))
             )
-            Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
+            Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
         }
 
         if (!showTitleInHeader) {
             Text(
                 text = title,
                 style = AppTheme.typography.title3,
-                color = AppTheme.colors.title,
+                color = AppTheme.colors.title
             )
         }
         if (subtitle.isNotEmpty()) {
-            Spacer(Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
+            Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)))
             Text(
                 text = subtitle,
                 style = AppTheme.typography.paragraph1,
                 textAlign = subtitleAlign,
                 color = AppTheme.colors.title,
                 modifier = Modifier.padding(
-                    start = dimensionResource(R.dimen.standard_spacing),
-                    end = dimensionResource(R.dimen.standard_spacing)
+                    start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                    end = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
                 )
             )
         }
 
         Spacer(
             Modifier.size(
-                if (buttonsContent == null)
-                    dimensionResource(R.dimen.small_spacing)
-                else
-                    dimensionResource(R.dimen.standard_spacing)
+                if (buttonsContent == null) {
+                    dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)
+                } else {
+                    dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
+                }
             )
         )
 
@@ -187,12 +191,12 @@ private fun BottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .padding(horizontal = dimensionResource(R.dimen.standard_spacing)),
+                    .padding(horizontal = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 content = buttonsContent
             )
-            Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
+            Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
         }
     }
 }
@@ -268,7 +272,8 @@ fun OnlyPrimaryTopButtonBottomSheet() {
                 subtitle = " NoButtonBottomSheetSubtitle",
                 button = BottomSheetButton(
                     type = ButtonType.PRIMARY,
-                    onClick = {}, text = "OK"
+                    onClick = {},
+                    text = "OK"
                 )
             )
         }
@@ -286,7 +291,8 @@ fun OnlyPrimaryTopButtonBottomSheetWithNoSubtitle() {
                 headerImageResource = ImageResource.Local(R.drawable.ic_blockchain),
                 button = BottomSheetButton(
                     type = ButtonType.PRIMARY,
-                    onClick = {}, text = "OK"
+                    onClick = {},
+                    text = "OK"
                 )
             )
         }
@@ -305,11 +311,13 @@ fun TopAndBottomButtonsSheet() {
                 subtitle = "NoButtonBottomSheetSubtitle",
                 button1 = BottomSheetButton(
                     type = ButtonType.PRIMARY,
-                    onClick = {}, text = "OK"
+                    onClick = {},
+                    text = "OK"
                 ),
                 button2 = BottomSheetButton(
                     type = ButtonType.DESTRUCTIVE_MINIMAL,
-                    onClick = {}, text = "Cancel"
+                    onClick = {},
+                    text = "Cancel"
                 )
             )
         }
@@ -328,11 +336,13 @@ fun PrimaryAndMinimalButtonSheet() {
                 subtitle = "NoButtonBottomSheetSubtitle",
                 button1 = BottomSheetButton(
                     type = ButtonType.MINIMAL,
-                    onClick = {}, text = "Learn More"
+                    onClick = {},
+                    text = "Learn More"
                 ),
                 button2 = BottomSheetButton(
                     type = ButtonType.PRIMARY,
-                    onClick = {}, text = "Ok"
+                    onClick = {},
+                    text = "Ok"
                 )
             )
         }
@@ -351,11 +361,13 @@ fun PrimaryAndSmallMinimalButtonSheet() {
                 subtitle = "NoButtonBottomSheetSubtitle",
                 button1 = BottomSheetButton(
                     type = ButtonType.SMALL_MINIMAL,
-                    onClick = {}, text = "Learn More"
+                    onClick = {},
+                    text = "Learn More"
                 ),
                 button2 = BottomSheetButton(
                     type = ButtonType.PRIMARY,
-                    onClick = {}, text = "Ok"
+                    onClick = {},
+                    text = "Ok"
                 )
             )
         }

@@ -46,10 +46,11 @@ sealed class LinkedPaymentMethod(
         val state: BankState,
         // optional since only ACH will support it initially, if null then we assume all capabilities are enabled
         val capabilities: LinkedBankCapabilities?,
-        override val currency: FiatCurrency,
+        override val currency: FiatCurrency
     ) : LinkedPaymentMethod(
-        if (isBankTransferAccount) PaymentMethodType.BANK_TRANSFER
-        else PaymentMethodType.BANK_ACCOUNT,
+        if (isBankTransferAccount) {
+            PaymentMethodType.BANK_TRANSFER
+        } else PaymentMethodType.BANK_ACCOUNT,
         currency
     ),
         Serializable {

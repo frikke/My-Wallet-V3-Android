@@ -41,7 +41,7 @@ class DexAccountsRepository(
     private val currencyPrefs: CurrencyPrefs,
     private val dexPrefs: DexPrefs,
     private val assetCatalogue: AssetCatalogue,
-    private val dexTokensDataStorage: DexTokensDataStorage,
+    private val dexTokensDataStorage: DexTokensDataStorage
 ) : DexAccountsService {
     override fun sourceAccounts(): Flow<List<DexAccount>> =
         dexSourceAccounts(chainId = dexPrefs.selectedChainId).catch {
@@ -116,7 +116,7 @@ class DexAccountsRepository(
                             chainId = chainId,
                             isVerified = token?.isVerified ?: false
                         ),
-                        fiatBalance = balance.totalFiat,
+                        fiatBalance = balance.totalFiat
                     )
                 }
             }
@@ -169,7 +169,7 @@ class DexAccountsRepository(
                                     ?: return@mapNotNull null,
                                 chainId = accountCurrency.coinNetwork?.chainId ?: return@mapNotNull null,
                                 isVerified = token?.isVerified ?: false
-                            ),
+                            )
                         )
                     }.plus(
                         activeAcc.map { (account, balance) ->
@@ -187,7 +187,7 @@ class DexAccountsRepository(
                                     isVerified = token?.isVerified ?: false
                                 ),
                                 balance = balance.total,
-                                fiatBalance = balance.totalFiat,
+                                fiatBalance = balance.totalFiat
                             )
                         }
                     )

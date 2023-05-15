@@ -35,7 +35,7 @@ sealed class Navigation : NavigationEvent {
 
 @Parcelize
 data class Args(
-    val countryIso: CountryIso,
+    val countryIso: CountryIso
 ) : ModelConfigArgs.ParcelableArgs
 
 class VeriffSplashModel(
@@ -84,7 +84,7 @@ class VeriffSplashModel(
                         updateState {
                             it.copy(
                                 error = VeriffSplashError.Generic,
-                                continueButtonState = ButtonState.Disabled,
+                                continueButtonState = ButtonState.Disabled
                             )
                         }
                     }
@@ -95,7 +95,7 @@ class VeriffSplashModel(
                     updateState {
                         it.copy(
                             supportedDocuments = supportedDocuments.toSortedSet(),
-                            continueButtonState = ButtonState.Enabled,
+                            continueButtonState = ButtonState.Enabled
                         )
                     }
                 }
@@ -107,7 +107,7 @@ class VeriffSplashModel(
         isLoading = state.isLoading,
         supportedDocuments = state.supportedDocuments,
         error = state.error,
-        continueButtonState = state.continueButtonState,
+        continueButtonState = state.continueButtonState
     )
 
     override suspend fun handleIntent(modelState: VeriffSplashModelState, intent: VeriffSplashIntent) {

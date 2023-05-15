@@ -36,13 +36,14 @@ class EarnAccessBlockedBottomSheet : ComposeModalBottomDialog() {
                 onClick = {
                     context.openUrl(LEARN_MORE_URL)
                 },
-                text = getString(R.string.common_learn_more)
+                text = getString(com.blockchain.stringResources.R.string.common_learn_more)
             ),
             button2 = BottomSheetButton(
                 type = ButtonType.PRIMARY,
                 onClick = {
                     dismiss()
-                }, text = getString(R.string.common_ok)
+                },
+                text = getString(com.blockchain.stringResources.R.string.common_ok)
             )
         )
     }

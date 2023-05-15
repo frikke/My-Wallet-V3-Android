@@ -51,19 +51,19 @@ fun InterestDashboardScreen(
                     } else {
                         Box(
                             modifier = Modifier.padding(
-                                start = dimensionResource(R.dimen.standard_spacing),
-                                end = dimensionResource(R.dimen.standard_spacing)
+                                start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                                end = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
                             )
                         ) {
                             Search(
-                                label = stringResource(R.string.search_coins_hint),
+                                label = stringResource(com.blockchain.stringResources.R.string.search_coins_hint),
                                 onValueChange = filterData
                             )
                         }
 
                         LazyColumn {
                             items(
-                                items = data,
+                                items = data
                             ) {
                                 InterestDashboardAssetItem(
                                     assetInfo = it.assetInfo,
@@ -74,7 +74,11 @@ fun InterestDashboardScreen(
                             }
 
                             item {
-                                Spacer(Modifier.size(dimensionResource(R.dimen.standard_spacing)))
+                                Spacer(
+                                    Modifier.size(
+                                        dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
+                                    )
+                                )
                             }
                         }
                     }
@@ -94,7 +98,10 @@ fun PreviewInterestDashboardScreenLoading() {
             isKycGold = false,
             data = listOf()
         ),
-        {}, {}, { _, _ -> }, {}
+        {},
+        {},
+        { _, _ -> },
+        {}
     )
 }
 
@@ -108,7 +115,10 @@ fun PreviewInterestDashboardScreenError() {
             isKycGold = false,
             data = listOf()
         ),
-        {}, {}, { _, _ -> }, {}
+        {},
+        {},
+        { _, _ -> },
+        {}
     )
 }
 
@@ -150,6 +160,9 @@ fun PreviewInterestDashboardScreenDataNoKyc() {
             isKycGold = true,
             data = list
         ),
-        {}, {}, { _, _ -> }, {}
+        {},
+        {},
+        { _, _ -> },
+        {}
     )
 }

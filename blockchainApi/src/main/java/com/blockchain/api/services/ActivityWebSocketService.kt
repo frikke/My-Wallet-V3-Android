@@ -77,11 +77,11 @@ class ActivityWebSocketService(
     private val authInfo: AuthInfo?
         get() = safeLet(
             credentials.hashedGuidOrNull,
-            credentials.hashedSharedKeyOrNull,
+            credentials.hashedSharedKeyOrNull
         ) { hashedGuid, hashedSharedKey ->
             AuthInfo(
                 guidHash = hashedGuid,
-                sharedKeyHash = hashedSharedKey,
+                sharedKeyHash = hashedSharedKey
             )
         }
 

@@ -26,7 +26,6 @@ fun Search(
     onValueChange: (String) -> Unit = {},
     clearInput: Boolean = false
 ) {
-
     val focusManager = LocalFocusManager.current
     var isFocused by remember { mutableStateOf(false) }
     var value by remember { mutableStateOf(prePopulatedText) }
@@ -51,7 +50,9 @@ fun Search(
             focusManager.clearFocus(true)
             value = ""
             ""
-        } else value,
+        } else {
+            value
+        },
         onValueChange = {
             onValueChange.invoke(it)
             value = it

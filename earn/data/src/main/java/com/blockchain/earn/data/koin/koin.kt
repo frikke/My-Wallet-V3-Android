@@ -116,19 +116,19 @@ val earnDataModule = module {
 
         scoped(interestBalanceStore) {
             InterestBalancesStore(
-                interestApiService = get(),
+                interestApiService = get()
             )
         }.bind(FlushableDataSource::class)
 
         scoped {
             InterestAvailableAssetsStore(
-                interestApiService = get(),
+                interestApiService = get()
             )
         }
 
         scoped {
             InterestEligibilityStore(
-                interestApiService = get(),
+                interestApiService = get()
             )
         }
 
@@ -141,13 +141,13 @@ val earnDataModule = module {
 
         scoped {
             InterestRateStore(
-                interestApiService = get(),
+                interestApiService = get()
             )
         }
 
         scoped {
             InterestRateForAllStore(
-                interestApiService = get(),
+                interestApiService = get()
             )
         }
 

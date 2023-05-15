@@ -24,17 +24,18 @@ import com.blockchain.koin.googleWalletFeatureFlag
 import com.blockchain.koin.improvedPaymentUxFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.iterableAnnouncementsFeatureFlag
+import com.blockchain.koin.newSwapFlowFeatureFlag
 import com.blockchain.koin.paymentUxAssetDisplayBalanceFeatureFlag
 import com.blockchain.koin.paymentUxTotalDisplayBalanceFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.proveFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
-import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.sellSwapBrokerageQuoteFeatureFlag
 import com.blockchain.koin.stakingWithdrawalsFeatureFlag
 import com.blockchain.koin.topMoversInBuy
 import com.blockchain.koin.upsellAnotherAssetFeatureFlag
 import com.blockchain.koin.vgsFeatureFlag
+import com.blockchain.koin.walletConnectV2FeatureFlag
 import com.blockchain.remoteconfig.featureFlag
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -96,6 +97,15 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
+    single(newSwapFlowFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_new_swap_flow",
+                "New Swap Flow"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
     single(proveFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfigService>().featureFlag(
@@ -130,15 +140,6 @@ val featureFlagsModule = module {
                     "ff_card_payment_async",
                     "Enable Async Card Payment"
                 )
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(rbFrequencyFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_rb_frequency_suggestion",
-                "Enable Recurring Buy suggestion"
             )
         )
     }.bind(FeatureFlag::class)
@@ -321,6 +322,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "blockchain_app_configuration_buy_intercom_bot",
                 "intercom bot in buy flow"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(walletConnectV2FeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_walletconnect_v2",
+                "Enable WalletConnect V2"
             )
         )
     }.bind(FeatureFlag::class)

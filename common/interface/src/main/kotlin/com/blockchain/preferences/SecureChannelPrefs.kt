@@ -22,7 +22,7 @@ data class BrowserIdentityMapping(
 // we should force the IP check and also show some more information about the action.
 @Serializable
 enum class Authorization {
-    LOGIN_WALLET;
+    LOGIN_WALLET
 }
 
 @Serializable

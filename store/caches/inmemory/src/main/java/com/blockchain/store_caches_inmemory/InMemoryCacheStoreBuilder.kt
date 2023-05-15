@@ -27,7 +27,7 @@ class InMemoryCacheStoreBuilder {
             storeId = storeId,
             fetcher = fetcher,
             mediator = mediator,
-            scope = scope,
+            scope = scope
         )
 
         override fun stream(request: FreshnessStrategy): Flow<DataResource<T>> = backingStore.stream(

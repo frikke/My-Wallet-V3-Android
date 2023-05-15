@@ -93,7 +93,7 @@ class DexTransactionProcessor(
     @OptIn(ExperimentalCoroutinesApi::class)
     private val quoteInput: Flow<Pair<DexQuoteParams?, Boolean>>
         get() = transaction.mapLatest {
-            it.quoteParams to it.canBeQuoted()
+            it.quoteParams() to it.canBeQuoted()
         }.filterNotNull()
             .distinctUntilChanged { (oldParams, _), (newParams, _) ->
                 oldParams == newParams
@@ -115,7 +115,7 @@ class DexTransactionProcessor(
             }
 
     private val hasActiveSubscribers: Flow<Boolean>
-        get() = activeSubscriptions.map { it > 0 }
+        get() = activeSubscriptions.map { it > 0 }.debounce(1000).distinctUntilChanged().filter { it }
 
     private var job: Job? = null
 
@@ -126,16 +126,14 @@ class DexTransactionProcessor(
             combine(
                 quoteInput,
                 updateQuote,
-                hasActiveSubscribers.debounce(1000).distinctUntilChanged().filter { it },
+                hasActiveSubscribers,
             ) { input, _, _ ->
                 input
             }
                 .mapLatest { (params, canBeQuoted) ->
                     if (params != null && canBeQuoted) {
                         _isFetchingQuote.emit(true)
-                        dexQuotesService.quote(
-                            params
-                        )
+                        dexQuotesService.quote(params)
                     } else {
                         Outcome.Success(
                             DexQuote.InvalidQuote
@@ -183,21 +181,29 @@ class DexTransactionProcessor(
     }
 
     suspend fun execute() {
-        val transaction = transaction.first()
-        val coinNetwork = transaction.sourceAccount.currency.coinNetwork
-        check(coinNetwork != null)
-        _dexTransaction.update {
-            it.copy(
-                txResult = dexTransactionService.buildTx(transaction).flatMap { builtTx ->
-                    dexTransactionService.pushTx(
-                        coinNetwork = coinNetwork,
-                        rawTx = builtTx.rawTx,
-                        signatures = builtTx.preImages.map { unsignedPreImage ->
-                            evmNetworkSigner.signPreImage(unsignedPreImage)
-                        }
-                    )
-                }
-            )
+        try {
+            val transaction = _dexTransaction.value
+            val coinNetwork = transaction.sourceAccount.currency.coinNetwork
+            check(coinNetwork != null)
+            _dexTransaction.update {
+                it.copy(
+                    txResult = dexTransactionService.buildTx(transaction).flatMap { builtTx ->
+                        dexTransactionService.pushTx(
+                            coinNetwork = coinNetwork,
+                            rawTx = builtTx.rawTx,
+                            signatures = builtTx.preImages.map { unsignedPreImage ->
+                                evmNetworkSigner.signPreImage(unsignedPreImage)
+                            }
+                        )
+                    }
+                )
+            }
+        } catch (e: Exception) {
+            _dexTransaction.update {
+                it.copy(
+                    txResult = Outcome.Failure(Exception(e))
+                )
+            }
         }
     }
 
@@ -337,6 +343,18 @@ class DexTransactionProcessor(
     }
 }
 
+private fun DexTransaction.quoteParams(): DexQuoteParams? {
+    return safeLet(sourceAccount, destinationAccount, amount) { s, d, a ->
+        return DexQuoteParams(
+            sourceAccount = s,
+            destinationAccount = d,
+            amount = a,
+            slippage = slippage,
+            sourceHasBeenAllowed = !txErrors.contains(DexTxError.TokenNotAllowed)
+        )
+    }
+}
+
 /**
  * We are able to fetch a quote when amount > 0 AND ( no error or error is quote related )
  */
@@ -353,16 +371,6 @@ data class DexTransaction internal constructor(
     val txErrors: List<DexTxError>,
     val quoteError: DexTxError.QuoteError?
 ) {
-    val quoteParams: DexQuoteParams?
-        get() = safeLet(_sourceAccount, destinationAccount, amount) { s, d, a ->
-            return DexQuoteParams(
-                sourceAccount = s,
-                destinationAccount = d,
-                amount = a,
-                slippage = slippage
-            )
-        }
-
     val sourceAccount: DexAccount
         get() = _sourceAccount ?: throw IllegalStateException("Source Account not initialised")
 

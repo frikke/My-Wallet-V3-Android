@@ -98,7 +98,7 @@ class DexAllowanceRepository(
                     fees = gasFeeCalculator.fee(
                         nativeAsset = nativeAsset,
                         gasPriceWei = gasPrice,
-                        gasLimit = gasLimit,
+                        gasLimit = gasLimit
                     ),
                     rawTx = Json.encodeToString(RawTxResponse.serializer(), buildTxResponse.rawTx),
                     preImages = buildTxResponse.preImages.map {
@@ -118,7 +118,7 @@ class DexAllowanceRepository(
     override suspend fun pushAllowanceTransaction(
         network: CoinNetwork,
         rawTx: String,
-        signatures: List<TransactionSignature>,
+        signatures: List<TransactionSignature>
     ): Outcome<Exception, String> =
         nonCustodialService.pushTransaction(
             currency = network.nativeAssetTicker,

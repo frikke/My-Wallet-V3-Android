@@ -14,7 +14,6 @@ fun InfoAltTag(
     size: TagSize = TagSize.Primary,
     onClick: (() -> Unit)? = null
 ) {
-
     val defaultBackgroundColor = if (!isSystemInDarkTheme()) {
         Blue200
     } else {

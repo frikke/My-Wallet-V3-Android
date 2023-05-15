@@ -49,7 +49,6 @@ fun CustomBackgroundCard(
     isDarkTheme: Boolean = isSystemInDarkTheme(),
     textColor: Color = Color.White
 ) {
-
     val backgroundColor = if (!isDarkTheme) {
         Grey900
     } else {
@@ -92,10 +91,10 @@ fun CustomBackgroundCard(
             modifier = Modifier
                 .background(Color.Transparent)
                 .padding(
-                    start = dimensionResource(R.dimen.medium_spacing),
-                    end = dimensionResource(R.dimen.medium_spacing),
-                    top = dimensionResource(R.dimen.very_small_spacing),
-                    bottom = dimensionResource(R.dimen.very_small_spacing)
+                    start = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
+                    end = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
+                    top = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing),
+                    bottom = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)
                 ),
             color = Color.Transparent
         ) {
@@ -108,10 +107,12 @@ fun CustomBackgroundCard(
                 when (iconResource) {
                     is ImageResource.Remote -> {
                         AsyncMediaItem(
-                            modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)),
+                            modifier = Modifier.size(
+                                dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)
+                            ),
                             url = iconResource.url,
                             contentDescription = "",
-                            contentScale = ContentScale.Inside,
+                            contentScale = ContentScale.Inside
                         )
                     }
                     is ImageResource.None -> {
@@ -119,7 +120,9 @@ fun CustomBackgroundCard(
                     }
                     else -> {
                         Image(
-                            modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)),
+                            modifier = Modifier.size(
+                                dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)
+                            ),
                             contentScale = ContentScale.Inside,
                             imageResource = iconResource
                         )
@@ -131,13 +134,12 @@ fun CustomBackgroundCard(
                         .weight(1f, true)
                         .padding(
                             start = if (iconResource !is ImageResource.None) {
-                                dimensionResource(R.dimen.medium_spacing)
+                                dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)
                             } else 0.dp,
-                            end = dimensionResource(R.dimen.tiny_spacing)
+                            end = dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)
                         )
                         .align(Alignment.Top)
                 ) {
-
                     Text(
                         text = title,
                         style = AppTheme.typography.caption1,

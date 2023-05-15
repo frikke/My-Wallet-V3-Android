@@ -11,6 +11,7 @@ import com.blockchain.outcome.Outcome
 import com.dex.domain.DexTransaction
 import com.dex.domain.DexTransactionProcessor
 import info.blockchain.balance.AssetInfo
+import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -22,7 +23,7 @@ class DexInProgressTxViewModel(private val txProcessor: DexTransactionProcessor)
     ModelConfigArgs.NoArgs
     >(
     initialState = InProgressModelState(
-        transaction = null,
+        transaction = null
     )
 ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
@@ -52,7 +53,7 @@ class DexInProgressTxViewModel(private val txProcessor: DexTransactionProcessor)
         when (intent) {
             InProgressIntent.LoadTransactionProgress -> {
                 viewModelScope.launch {
-                    val transaction = txProcessor.transaction.first()
+                    val transaction = txProcessor.transaction.dropWhile { it.txResult == null }.first()
                     updateState {
                         it.copy(transaction = transaction)
                     }

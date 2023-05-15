@@ -45,16 +45,19 @@ class BalanceFiatAndCryptoTableRowView @JvmOverloads constructor(
 
     @Composable
     private fun getRoundSize(rounded: Boolean) =
-        if (rounded) AppTheme.dimensions.borderRadiiMedium
-        else 0.dp
+        if (rounded) {
+            AppTheme.dimensions.borderRadiiMedium
+        } else 0.dp
 
     @Composable
     override fun Content() {
         Surface(
             modifier = Modifier.clickable(onClick = onClick),
             shape = RoundedCornerShape(
-                topStart = getRoundSize(roundedTop), topEnd = getRoundSize(roundedTop),
-                bottomStart = getRoundSize(roundedBottom), bottomEnd = getRoundSize(roundedBottom)
+                topStart = getRoundSize(roundedTop),
+                topEnd = getRoundSize(roundedTop),
+                bottomStart = getRoundSize(roundedBottom),
+                bottomEnd = getRoundSize(roundedBottom)
             ),
             border = BorderStroke(1.dp, Blue600).takeIf { withBorder }
         ) {
@@ -67,7 +70,7 @@ class BalanceFiatAndCryptoTableRowView @JvmOverloads constructor(
                     valueFiat = valueFiat,
                     icon = icon,
                     defaultIconSize = defaultIconSize,
-                    onClick = onClick,
+                    onClick = onClick
                 )
 
                 subView?.let { subView ->
@@ -79,7 +82,7 @@ class BalanceFiatAndCryptoTableRowView @JvmOverloads constructor(
                         ),
                         factory = {
                             subView
-                        },
+                        }
                     )
                 }
             }

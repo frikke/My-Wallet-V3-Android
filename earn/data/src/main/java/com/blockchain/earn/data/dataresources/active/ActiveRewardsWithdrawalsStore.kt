@@ -11,7 +11,7 @@ import com.blockchain.storedatasource.FlushableDataSource
 import kotlinx.serialization.builtins.ListSerializer
 
 class ActiveRewardsWithdrawalsStore(
-    private val activeRewardsApiService: ActiveRewardsApiService,
+    private val activeRewardsApiService: ActiveRewardsApiService
 ) : Store<List<EarnWithdrawalDto>> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,

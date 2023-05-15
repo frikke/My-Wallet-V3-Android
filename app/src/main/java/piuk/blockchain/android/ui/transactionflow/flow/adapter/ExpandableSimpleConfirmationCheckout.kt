@@ -70,18 +70,25 @@ private class ExpandableSimpleConfirmationCheckoutItemViewHolder(
                 expandableItemLabel.text = this[ConfirmationPropertyKey.LABEL] as String
                 expandableItemTitle.text = this[ConfirmationPropertyKey.TITLE] as String
                 expandableItemExpansion.setText(
-                    this[ConfirmationPropertyKey.LINKED_NOTE] as SpannableStringBuilder, TextView.BufferType.SPANNABLE
+                    this[ConfirmationPropertyKey.LINKED_NOTE] as SpannableStringBuilder,
+                    TextView.BufferType.SPANNABLE
                 )
                 if (item is TxConfirmationValue.ExchangePriceConfirmation) {
                     when {
                         item.isNewQuote -> {
                             expandableItemTitle.setTextColor(
-                                ContextCompat.getColor(expandableItemLabel.context, R.color.blue_600)
+                                ContextCompat.getColor(
+                                    expandableItemLabel.context,
+                                    com.blockchain.common.R.color.blue_600
+                                )
                             )
                         }
                         else -> {
                             expandableItemTitle.setTextColor(
-                                ContextCompat.getColor(expandableItemLabel.context, R.color.grey_800)
+                                ContextCompat.getColor(
+                                    expandableItemLabel.context,
+                                    com.blockchain.common.R.color.grey_800
+                                )
                             )
                         }
                     }
@@ -98,11 +105,11 @@ private class ExpandableSimpleConfirmationCheckoutItemViewHolder(
 
             if (isExpanded) {
                 expandableItemLabel.compoundDrawables[DRAWABLE_END]?.setTint(
-                    expandableItemLabel.context.getResolvedColor(R.color.blue_600)
+                    expandableItemLabel.context.getResolvedColor(com.blockchain.common.R.color.blue_600)
                 )
             } else {
                 expandableItemLabel.compoundDrawables[DRAWABLE_END]?.setTint(
-                    expandableItemLabel.context.getResolvedColor(R.color.grey_300)
+                    expandableItemLabel.context.getResolvedColor(com.blockchain.common.R.color.grey_300)
                 )
             }
         }

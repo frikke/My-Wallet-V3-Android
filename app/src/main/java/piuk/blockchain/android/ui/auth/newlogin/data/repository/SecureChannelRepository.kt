@@ -37,7 +37,7 @@ class SecureChannelRepository(
 ) : SecureChannelService {
 
     private val _secureLogin: MutableSharedFlow<SecureChannelLoginData> = MutableSharedFlow(
-        replay = 0,
+        replay = 0
     )
 
     override val secureLoginAttempted: Flow<SecureChannelLoginData>
@@ -95,7 +95,7 @@ class SecureChannelRepository(
                 message = message,
                 originIp = payload[ORIGIN_IP] ?: "",
                 originLocation = payload[ORIGIN_COUNTRY] ?: "",
-                originBrowser = payload[ORIGIN_BROWSER] ?: "",
+                originBrowser = payload[ORIGIN_BROWSER] ?: ""
             )
         )
     }

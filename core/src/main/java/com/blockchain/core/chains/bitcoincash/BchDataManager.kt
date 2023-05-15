@@ -146,7 +146,7 @@ class BchDataManager(
         return GenericMetadataWallet(
             _defaultAcccountIdx = 0,
             accounts = bchAccounts,
-            _hasSeen = true,
+            _hasSeen = true
         )
     }
 
@@ -232,7 +232,8 @@ class BchDataManager(
                     val newAccountLabel = "$label $accountNumber"
                     payloadDataManager.addAccountWithLabel(newAccountLabel).doOnSuccess { account ->
                         bchDataStore.bchMetadata = bchDataStore.bchMetadata!!.updateXpubForAccountIndex(
-                            it, account.xpubForDerivation(Derivation.LEGACY_TYPE)!!
+                            it,
+                            account.xpubForDerivation(Derivation.LEGACY_TYPE)!!
                         )
                     }
                 }
@@ -244,7 +245,6 @@ class BchDataManager(
      * Restore bitcoin cash wallet from mnemonic.
      */
     fun decryptWatchOnlyWallet(mnemonic: List<String>) {
-
         bchDataStore.bchWallet = BitcoinCashWallet.restore(
             bitcoinApi,
             BitcoinCashWallet.BITCOIN_COIN_PATH,

@@ -33,6 +33,7 @@ internal fun CustodialTradingActivitySummaryItem.iconDetail(): ImageResource {
     return when (type) {
         OrderType.BUY,
         OrderType.RECURRING_BUY -> Icons.Filled.Plus
+
         OrderType.SELL -> Icons.Filled.Minus
     }
 }
@@ -40,8 +41,9 @@ internal fun CustodialTradingActivitySummaryItem.iconDetail(): ImageResource {
 internal fun CustodialTradingActivitySummaryItem.title(): TextValue = TextValue.IntResValue(
     value = when (type) {
         OrderType.BUY,
-        OrderType.RECURRING_BUY -> R.string.tx_title_bought
-        OrderType.SELL -> R.string.tx_title_sold
+        OrderType.RECURRING_BUY -> com.blockchain.stringResources.R.string.tx_title_bought
+
+        OrderType.SELL -> com.blockchain.stringResources.R.string.tx_title_sold
     },
     args = listOf(account.currency.displayTicker)
 )
@@ -62,8 +64,10 @@ internal fun CustodialTradingActivitySummaryItem.detailItems(
                         value = TextValue.IntResValue(
                             when (type) {
                                 OrderType.BUY,
-                                OrderType.RECURRING_BUY -> R.string.activity_details_title_purchase
-                                OrderType.SELL -> R.string.activity_details_title_sale
+                                OrderType.RECURRING_BUY ->
+                                    com.blockchain.stringResources.R.string.activity_details_title_purchase
+
+                                OrderType.SELL -> com.blockchain.stringResources.R.string.activity_details_title_sale
                             }
                         ),
                         style = basicTitleStyle.muted()
@@ -81,7 +85,7 @@ internal fun CustodialTradingActivitySummaryItem.detailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.amount),
+                        value = TextValue.IntResValue(com.blockchain.stringResources.R.string.amount),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -99,11 +103,12 @@ internal fun CustodialTradingActivitySummaryItem.detailItems(
                     leading = listOf(
                         ActivityStackView.Text(
                             value = TextValue.IntResValue(
-                                value = R.string.quote_price,
+                                value = com.blockchain.stringResources.R.string.quote_price,
                                 args = listOf(
                                     when (type) {
                                         OrderType.BUY,
                                         OrderType.RECURRING_BUY -> account.currency.displayTicker
+
                                         OrderType.SELL -> fundedFiat.currencyCode
                                     }
                                 )
@@ -124,7 +129,7 @@ internal fun CustodialTradingActivitySummaryItem.detailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.activity_details_buy_fee),
+                        value = TextValue.IntResValue(com.blockchain.stringResources.R.string.activity_details_buy_fee),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -147,7 +152,7 @@ internal fun CustodialTradingActivitySummaryItem.detailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.common_status),
+                        value = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_status),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -173,7 +178,7 @@ internal fun CustodialTradingActivitySummaryItem.detailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.date),
+                        value = TextValue.IntResValue(com.blockchain.stringResources.R.string.date),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -190,7 +195,9 @@ internal fun CustodialTradingActivitySummaryItem.detailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.activity_details_buy_tx_id),
+                        value = TextValue.IntResValue(
+                            com.blockchain.stringResources.R.string.activity_details_buy_tx_id
+                        ),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -205,7 +212,7 @@ internal fun CustodialTradingActivitySummaryItem.detailItems(
             // copy txid
             ActivityComponent.Button(
                 id = toString(),
-                value = TextValue.IntResValue(R.string.activity_details_copy_tx_id),
+                value = TextValue.IntResValue(com.blockchain.stringResources.R.string.activity_details_copy_tx_id),
                 style = ActivityButtonStyle.Tertiary,
                 action = ActivityButtonAction(
                     type = ActivityButtonAction.ActivityButtonActionType.Copy,
@@ -218,7 +225,7 @@ internal fun CustodialTradingActivitySummaryItem.detailItems(
 
 private fun CustodialTradingActivitySummaryItem.statusValue(): TextValue = TextValue.IntResValue(
     when (state) {
-        OrderState.FINISHED -> R.string.activity_details_label_complete
+        OrderState.FINISHED -> com.blockchain.stringResources.R.string.activity_details_label_complete
         OrderState.UNINITIALISED,
         OrderState.INITIALISED,
         OrderState.AWAITING_FUNDS,
@@ -226,14 +233,17 @@ private fun CustodialTradingActivitySummaryItem.statusValue(): TextValue = TextV
         OrderState.PENDING_CONFIRMATION -> when (type) {
             OrderType.BUY,
             OrderType.RECURRING_BUY -> {
-                if (state == OrderState.AWAITING_FUNDS) R.string.activity_details_label_pending
-                else R.string.activity_details_label_pending_execution
+                if (state == OrderState.AWAITING_FUNDS) {
+                    com.blockchain.stringResources.R.string.activity_details_label_pending
+                } else com.blockchain.stringResources.R.string.activity_details_label_pending_execution
             }
-            OrderType.SELL -> R.string.activity_details_label_pending
+
+            OrderType.SELL -> com.blockchain.stringResources.R.string.activity_details_label_pending
         }
-        OrderState.CANCELED -> R.string.activity_details_label_cancelled
+
+        OrderState.CANCELED -> com.blockchain.stringResources.R.string.activity_details_label_cancelled
         OrderState.UNKNOWN,
-        OrderState.FAILED -> R.string.activity_details_label_failed
+        OrderState.FAILED -> com.blockchain.stringResources.R.string.activity_details_label_failed
     }
 )
 
@@ -244,38 +254,41 @@ private fun CustodialTradingActivitySummaryItem.statusStyle(): ActivityTagStyle 
     OrderState.AWAITING_FUNDS,
     OrderState.PENDING_EXECUTION,
     OrderState.PENDING_CONFIRMATION -> ActivityTagStyle.Info
+
     OrderState.CANCELED -> ActivityTagStyle.Warning
     OrderState.UNKNOWN,
     OrderState.FAILED -> ActivityTagStyle.Error
 }
 
 internal fun PaymentDetails.toExtra() = CustodialActivityDetailExtra(
-    title = TextValue.IntResValue(R.string.activity_details_buy_payment_method),
+    title = TextValue.IntResValue(com.blockchain.stringResources.R.string.activity_details_buy_payment_method),
     value = with(this) {
         when {
             !endDigits.isNullOrEmpty() && !label.isNullOrEmpty() -> {
                 accountType?.let {
                     TextValue.IntResValue(
-                        value = R.string.common_spaced_strings,
+                        value = com.blockchain.stringResources.R.string.common_spaced_strings,
                         args = listOf(
                             label,
                             TextValue.IntResValue(
-                                value = R.string.payment_method_type_account_info,
+                                value = com.blockchain.stringResources.R.string.payment_method_type_account_info,
                                 args = listOf(accountType, endDigits)
                             )
                         )
                     )
                 } ?: TextValue.IntResValue(
-                    value = R.string.common_hyphenated_strings,
+                    value = com.blockchain.stringResources.R.string.common_hyphenated_strings,
                     args = listOf(label, endDigits)
                 )
             }
+
             paymentMethodType == PaymentMethodType.PAYMENT_CARD &&
                 endDigits.isNullOrEmpty() && label.isNullOrEmpty() -> {
                 TextValue.IntResValue(
-                    value = R.string.credit_or_debit_card
+                    value = com.blockchain.stringResources.R.string.credit_or_debit_card
                 )
             }
+
             paymentMethodId == PaymentMethod.FUNDS_PAYMENT_ID -> {
                 TextValue.StringValue(
                     value = label?.let {
@@ -283,19 +296,22 @@ internal fun PaymentDetails.toExtra() = CustodialActivityDetailExtra(
                     } ?: ""
                 )
             }
+
             mobilePaymentType == MobilePaymentType.GOOGLE_PAY -> {
                 TextValue.IntResValue(
-                    value = R.string.google_pay
+                    value = com.blockchain.stringResources.R.string.google_pay
                 )
             }
+
             mobilePaymentType == MobilePaymentType.APPLE_PAY -> {
                 TextValue.IntResValue(
-                    value = R.string.apple_pay
+                    value = com.blockchain.stringResources.R.string.apple_pay
                 )
             }
+
             else -> {
                 TextValue.IntResValue(
-                    value = R.string.activity_details_payment_load_fail
+                    value = com.blockchain.stringResources.R.string.activity_details_payment_load_fail
                 )
             }
         }

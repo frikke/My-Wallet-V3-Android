@@ -49,7 +49,7 @@ class SelectNetworkViewModelTest {
         val ethNetworkInfoNoLogo = NetworkInfo(
             networkTicker = ethEvmNetwork.networkTicker,
             name = ethEvmNetwork.name,
-            chainId = ethEvmNetwork.chainId!!,
+            chainId = ethEvmNetwork.chainId!!
         )
 
         val ethNetworkInfo = NetworkInfo(
@@ -78,11 +78,10 @@ class SelectNetworkViewModelTest {
 
     @Test
     fun `select specified network`() = runTest {
-
         val ethNetworkInfoNoLogo = NetworkInfo(
             networkTicker = ethEvmNetwork.networkTicker,
             name = ethEvmNetwork.name,
-            chainId = ethEvmNetwork.chainId!!,
+            chainId = ethEvmNetwork.chainId!!
         )
         val ethNetworkInfo = NetworkInfo(
             networkTicker = ethEvmNetwork.networkTicker,
@@ -93,7 +92,7 @@ class SelectNetworkViewModelTest {
         val otherEvmNetworkInfoNoLogo = NetworkInfo(
             networkTicker = otherEvmNetwork.networkTicker,
             name = otherEvmNetwork.name,
-            chainId = otherEvmNetwork.chainId!!,
+            chainId = otherEvmNetwork.chainId!!
         )
         val otherEvmNetworkInfo = NetworkInfo(
             networkTicker = otherEvmNetwork.networkTicker,
@@ -147,7 +146,7 @@ class SelectNetworkViewModelTest {
             precisionDp = 1,
             requiredConfirmations = 1,
             colour = "",
-            logo = "logo",
+            logo = "logo"
         )
         private const val EVM_CHAIN_ID = 2
         private val otherEvmNetwork = CoinNetwork(

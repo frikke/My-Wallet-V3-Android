@@ -13,7 +13,7 @@ interface AddressVerificationApi {
         @Query("text") searchQuery: String,
         @Query("country_code") countryIso: String?,
         @Query("province_code") stateIso: String?,
-        @Query("id") containerId: String?,
+        @Query("id") containerId: String?
     ): Outcome<Exception, AutocompleteAddressResponse>
 
     @GET("address-capture/retrieve")

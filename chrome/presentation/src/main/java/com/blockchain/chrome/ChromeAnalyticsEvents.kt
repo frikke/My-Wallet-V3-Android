@@ -6,7 +6,7 @@ import com.blockchain.walletmode.WalletMode
 
 sealed class ChromeAnalyticsEvents(
     override val event: String,
-    override val params: Map<String, String> = emptyMap(),
+    override val params: Map<String, String> = emptyMap()
 ) : AnalyticsEvent {
 
     data class ModeClicked(

@@ -9,6 +9,6 @@ sealed interface FiatFundsDetailIntent : Intent<FiatFundsDetailModelState> {
 
     data class FiatAction(
         val account: FiatAccount,
-        val action: AssetAction,
+        val action: AssetAction
     ) : FiatFundsDetailIntent
 }

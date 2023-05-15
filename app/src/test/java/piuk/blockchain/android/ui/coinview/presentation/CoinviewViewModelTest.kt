@@ -238,7 +238,7 @@ class CoinviewViewModelTest {
                     price = balanceFormatted,
                     priceChange = balanceFormatted,
                     percentChange = percentChange,
-                    intervalName = R.string.coinview_price_day,
+                    intervalName = com.blockchain.stringResources.R.string.coinview_price_day,
                     chartData = CoinviewPriceState.Data.CoinviewChartState.Data(listOf(ChartEntry(1.0F, 1.1F))),
                     selectedTimeSpan = timeSpan
                 )
@@ -309,7 +309,8 @@ class CoinviewViewModelTest {
             coEvery { loadAssetAccountsUseCase(cryptoAsset) } returns dataResource
             coEvery {
                 loadAssetRecurringBuysUseCase(
-                    any(), any()
+                    any(),
+                    any()
                 )
             } returns MutableSharedFlow()
             val dataResourceQuickActionUnused = MutableSharedFlow<DataResource<CoinviewQuickActions>>()

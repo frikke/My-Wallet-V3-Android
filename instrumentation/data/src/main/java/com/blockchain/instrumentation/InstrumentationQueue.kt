@@ -14,7 +14,7 @@ object InstrumentationQueue {
         val canPassThrough: Boolean,
         val responses: List<InstrumentedResponse>,
         // NULL means uninitialized, Optional.ABSENT means the request shouldn't be instrumented and should sent to the backend
-        val pickedResponse: Optional<InstrumentedResponse>? = null,
+        val pickedResponse: Optional<InstrumentedResponse>? = null
     )
 
     private val _queue = MutableStateFlow<List<Item>>(emptyList())

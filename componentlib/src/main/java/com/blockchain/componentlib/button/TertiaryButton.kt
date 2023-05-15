@@ -48,9 +48,9 @@ fun TertiaryButton(
                 text = text,
                 textColor = textColor,
                 contentAlpha = textAlpha,
-                icon = icon,
+                icon = icon
             )
-        },
+        }
     )
 }
 

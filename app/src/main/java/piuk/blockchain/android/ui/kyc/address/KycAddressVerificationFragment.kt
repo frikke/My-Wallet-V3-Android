@@ -79,9 +79,9 @@ class KycAddressVerificationFragment :
                         countryIso = profileModel.countryCode,
                         stateIso = profileModel.stateCode,
                         prefilledAddress = null,
-                        allowManualOverride = true,
+                        allowManualOverride = true
                     ),
-                    host = addressVerificationHost,
+                    host = addressVerificationHost
                 )
             }
         }
@@ -91,7 +91,7 @@ class KycAddressVerificationFragment :
         logEvent(AnalyticsEvents.KycAddress)
         fraudService.trackFlow(FraudFlow.ONBOARDING)
 
-        progressListener.setupHostToolbar(R.string.kyc_address_title)
+        progressListener.setupHostToolbar(com.blockchain.stringResources.R.string.kyc_address_title)
     }
 
     override fun showErrorWhileSaving(error: AddressVerificationSavingError) {
@@ -108,7 +108,7 @@ class KycAddressVerificationFragment :
     override fun showProgressDialog() {
         progressDialog = MaterialProgressDialog(requireContext()).apply {
             setOnCancelListener { presenter.onProgressCancelled() }
-            setMessage(R.string.kyc_country_selection_please_wait)
+            setMessage(com.blockchain.stringResources.R.string.kyc_country_selection_please_wait)
             show()
         }
     }

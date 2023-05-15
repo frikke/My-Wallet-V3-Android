@@ -32,14 +32,15 @@ class SimpleBuyCancelOrderBottomSheet : SlidingModalBottomDialog<SimpleBuyCancel
         val asset = state?.selectedCryptoAsset
         if (asset != null) {
             with(binding) {
-
                 if (arguments.fromDashboard()) {
-                    cancelOrder.text = getString(R.string.cancel_order_do_cancel_dashboard)
-                    goBack.text = getString(R.string.cancel_order_go_back_dashboard)
+                    cancelOrder.text = getString(
+                        com.blockchain.stringResources.R.string.cancel_order_do_cancel_dashboard
+                    )
+                    goBack.text = getString(com.blockchain.stringResources.R.string.cancel_order_go_back_dashboard)
                 }
 
                 cancelOrderToken.text = getString(
-                    R.string.cancel_token_instruction,
+                    com.blockchain.stringResources.R.string.cancel_token_instruction,
                     asset.displayTicker
                 )
                 cancelOrder.setOnClickListenerDebounced {

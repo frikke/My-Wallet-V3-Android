@@ -86,12 +86,12 @@ internal interface Nabu {
 
     @PUT("users/current")
     suspend fun createBasicUser(
-        @Body basicUser: NabuBasicUser,
+        @Body basicUser: NabuBasicUser
     ): Outcome<Exception, Unit>
 
     @POST("validation/person-name")
     suspend fun isProfileNameValid(
-        @Body request: IsProfileNameValidRequest,
+        @Body request: IsProfileNameValidRequest
     ): Outcome<Exception, Unit>
 
     @GET("users/current")
@@ -105,22 +105,22 @@ internal interface Nabu {
 
     @PUT(NABU_UPDATE_WALLET_INFO)
     fun updateWalletInformation(
-        @Body jwt: NabuJwt,
+        @Body jwt: NabuJwt
     ): Single<NabuUser>
 
     @GET("$NABU_SUPPORTED_DOCUMENTS/{countryCode}")
     fun getSupportedDocuments(
-        @Path("countryCode") countryCode: String,
+        @Path("countryCode") countryCode: String
     ): Single<SupportedDocumentsResponse>
 
     @PUT(NABU_PUT_ADDRESS)
     fun addAddress(
-        @Body address: AddAddressRequest,
+        @Body address: AddAddressRequest
     ): Completable
 
     @POST(NABU_RECORD_COUNTRY)
     fun recordSelectedCountry(
-        @Body recordCountryRequest: RecordCountryRequest,
+        @Body recordCountryRequest: RecordCountryRequest
     ): Completable
 
     /**
@@ -133,7 +133,7 @@ internal interface Nabu {
 
     @POST(NABU_SUBMIT_VERIFICATION)
     fun submitVerification(
-        @Body applicantIdRequest: ApplicantIdRequest,
+        @Body applicantIdRequest: ApplicantIdRequest
     ): Completable
 
     @AuthenticationNotRequired
@@ -162,7 +162,7 @@ internal interface Nabu {
     @PUT(NABU_REGISTER_CAMPAIGN)
     fun registerCampaign(
         @Body campaignRequest: RegisterCampaignRequest,
-        @Header("X-CAMPAIGN") campaignHeader: String,
+        @Header("X-CAMPAIGN") campaignHeader: String
     ): Completable
 
     @PUT(NABU_FETCH_EXCHANGE_ADDRESS_FOR_WALLET)

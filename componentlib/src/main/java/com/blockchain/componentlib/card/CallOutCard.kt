@@ -36,7 +36,6 @@ fun CallOutCard(
     callToActionButton: CardButton? = null,
     isDarkTheme: Boolean = isSystemInDarkTheme()
 ) {
-
     val backgroundColor = if (!isDarkTheme) {
         Color.White
     } else {
@@ -51,22 +50,21 @@ fun CallOutCard(
     ) {
         Surface(
             modifier = Modifier
-                .padding(dimensionResource(R.dimen.medium_spacing))
+                .padding(dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing))
         ) {
             Row(modifier = Modifier.background(backgroundColor), verticalAlignment = CenterVertically) {
                 Image(
                     modifier = Modifier
-                        .size(dimensionResource(R.dimen.large_spacing)),
+                        .size(dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)),
                     imageResource = iconResource
                 )
 
                 Column(
                     modifier = Modifier
                         .weight(1f, true)
-                        .padding(start = dimensionResource(R.dimen.medium_spacing))
+                        .padding(start = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing))
                         .background(backgroundColor)
                 ) {
-
                     Text(
                         text = title,
                         style = AppTheme.typography.caption1,
@@ -84,7 +82,7 @@ fun CallOutCard(
 
                 SmallPrimaryButton(
                     modifier = Modifier
-                        .padding(start = dimensionResource(R.dimen.medium_spacing))
+                        .padding(start = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing))
                         .background(backgroundColor),
                     text = callToActionButton?.text ?: "",
                     onClick = callToActionButton?.onClick ?: {},
@@ -101,7 +99,8 @@ fun CallOutCardAlert_Basic() {
     AppTheme {
         AppSurface {
             CallOutCard(
-                title = "Title", subtitle = "Subtitle",
+                title = "Title",
+                subtitle = "Subtitle",
                 iconResource = ImageResource.Local(R.drawable.ic_blockchain, null),
                 CardButton("Go") {}
             )

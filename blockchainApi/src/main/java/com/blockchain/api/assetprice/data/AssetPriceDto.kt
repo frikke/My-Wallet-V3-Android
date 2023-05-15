@@ -35,7 +35,7 @@ internal data class AssetPriceDto(
     @SerialName("volume24h")
     val volume24h: Double? = null,
     @SerialName("marketCap")
-    val marketCap: Double? = null,
+    val marketCap: Double? = null
 )
 
 @Serializable

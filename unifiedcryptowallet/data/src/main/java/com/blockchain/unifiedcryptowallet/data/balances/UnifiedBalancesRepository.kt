@@ -24,6 +24,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -33,7 +34,7 @@ internal class UnifiedBalancesRepository(
     private val unifiedBalancesSubscribeStore: UnifiedBalancesSubscribeStore,
     private val unifiedBalancesStore: UnifiedBalancesStore,
     private val assetCatalogue: AssetCatalogue,
-    private val currencyPrefs: CurrencyPrefs,
+    private val currencyPrefs: CurrencyPrefs
 ) : UnifiedBalancesService {
     /**
      * Specify those to get the balance of a specific Wallet.
@@ -43,48 +44,46 @@ internal class UnifiedBalancesRepository(
         freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<List<NetworkBalance>>> {
         return flow {
-            try {
-                val pubKeys = networkAccountsService.allNetworkWallets().filterNot { it.isImported }.associateWith {
-                    it.publicKey()
-                }
-                when (val subscribeResult = subscribe(pubKeys)) {
-
-                    is Outcome.Failure -> {
-                        emit(subscribeResult.toDataResource())
-                    }
-                    is Outcome.Success -> {
-                        emitAll(
-                            unifiedBalancesStore.stream(freshnessStrategy)
-                                .mapData { response ->
-                                    response.balances.filter {
-                                        if (wallet == null) true
-                                        else it.currency == wallet.currency.networkTicker &&
-                                            it.account.index == wallet.index
-                                    }.mapNotNull {
-                                        if (it.price == null) return@mapNotNull null
-                                        val cc = assetCatalogue.fromNetworkTicker(it.currency)
-                                        NetworkBalance(
-                                            currency = cc ?: return@mapNotNull null,
-                                            balance = it.balance?.amount?.let { amount ->
-                                                Money.fromMinor(cc, amount)
-                                            } ?: return@mapNotNull null,
-                                            unconfirmedBalance = it.pending?.amount?.let { amount ->
-                                                Money.fromMinor(cc, amount)
-                                            } ?: return@mapNotNull null,
-                                            exchangeRate = ExchangeRate(
-                                                from = cc,
-                                                to = currencyPrefs.selectedFiatCurrency,
-                                                rate = it.price
-                                            )
-                                        )
-                                    }
-                                }
-                        )
-                    }
-                }
-            } catch (e: Exception) {
-                emit(DataResource.Error(e))
+            val pubKeys = networkAccountsService.allNetworkWallets().filterNot { it.isImported }.associateWith {
+                it.publicKey()
             }
+            when (val subscribeResult = subscribe(pubKeys)) {
+                is Outcome.Failure -> {
+                    emit(subscribeResult.toDataResource())
+                }
+                is Outcome.Success -> {
+                    emitAll(
+                        unifiedBalancesStore.stream(freshnessStrategy)
+                            .mapData { response ->
+                                response.balances.filter {
+                                    if (wallet == null) {
+                                        true
+                                    } else it.currency == wallet.currency.networkTicker &&
+                                        it.account.index == wallet.index
+                                }.mapNotNull {
+                                    if (it.price == null) return@mapNotNull null
+                                    val cc = assetCatalogue.fromNetworkTicker(it.currency)
+                                    NetworkBalance(
+                                        currency = cc ?: return@mapNotNull null,
+                                        balance = it.balance?.amount?.let { amount ->
+                                            Money.fromMinor(cc, amount)
+                                        } ?: return@mapNotNull null,
+                                        unconfirmedBalance = it.pending?.amount?.let { amount ->
+                                            Money.fromMinor(cc, amount)
+                                        } ?: return@mapNotNull null,
+                                        exchangeRate = ExchangeRate(
+                                            from = cc,
+                                            to = currencyPrefs.selectedFiatCurrency,
+                                            rate = it.price
+                                        )
+                                    )
+                                }
+                            }
+                    )
+                }
+            }
+        }.catch {
+            emit(DataResource.Error(it as Exception))
         }
     }
 

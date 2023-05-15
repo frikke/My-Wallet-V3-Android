@@ -115,7 +115,7 @@ data class AppTypography(
         fontFamily = interMedium,
         fontSize = 10.sp,
         lineHeight = 15.sp
-    ),
+    )
 )
 
 internal val LocalTypography = staticCompositionLocalOf { AppTypography() }

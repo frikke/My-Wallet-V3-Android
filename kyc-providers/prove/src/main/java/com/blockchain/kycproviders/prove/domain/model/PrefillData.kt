@@ -9,7 +9,7 @@ data class PrefillData(
     val lastName: String?,
     val addresses: List<Address>?,
     val dob: String?, // ISO 8601
-    val phoneNumber: String?,
+    val phoneNumber: String?
 )
 
 data class Address(
@@ -18,5 +18,5 @@ data class Address(
     val city: String,
     val state: StateIso?,
     val postCode: String,
-    val country: CountryIso?,
+    val country: CountryIso?
 )

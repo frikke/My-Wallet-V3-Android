@@ -41,7 +41,7 @@ internal class OnboardingActivity :
         setContentView(binding.root)
 
         progressDialog = MaterialProgressDialog(this).apply {
-            setMessage(R.string.please_wait)
+            setMessage(com.blockchain.stringResources.R.string.please_wait)
             setCancelable(false)
             show()
         }
@@ -93,7 +93,8 @@ internal class OnboardingActivity :
     override fun showFingerprintDialog(pincode: String) {
         if (!isFinishing) {
             biometricsController.authenticate(
-                this, BiometricsType.TYPE_REGISTER,
+                this,
+                BiometricsType.TYPE_REGISTER,
                 object : BiometricsCallback<WalletBiometricData> {
                     override fun onAuthSuccess(unencryptedBiometricData: WalletBiometricData) {
                         if (showEmail) {
@@ -133,11 +134,11 @@ internal class OnboardingActivity :
 
     override fun showEnrollFingerprintsDialog() {
         if (!isFinishing) {
-            AlertDialog.Builder(this, R.style.AlertDialogStyle)
-                .setTitle(R.string.app_name)
-                .setMessage(R.string.fingerprint_no_fingerprints_added)
+            AlertDialog.Builder(this, com.blockchain.componentlib.R.style.AlertDialogStyle)
+                .setTitle(com.blockchain.stringResources.R.string.app_name)
+                .setMessage(com.blockchain.stringResources.R.string.fingerprint_no_fingerprints_added)
                 .setCancelable(true)
-                .setPositiveButton(R.string.common_yes) { _, _ ->
+                .setPositiveButton(com.blockchain.stringResources.R.string.common_yes) { _, _ ->
                     startActivityForResult(
                         Intent(android.provider.Settings.ACTION_SECURITY_SETTINGS),
                         0
@@ -155,7 +156,9 @@ internal class OnboardingActivity :
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             addCategory(Intent.CATEGORY_APP_EMAIL)
         }
-        startActivity(Intent.createChooser(intent, getString(R.string.security_centre_email_check)))
+        startActivity(
+            Intent.createChooser(intent, getString(com.blockchain.stringResources.R.string.security_centre_email_check))
+        )
     }
 
     override fun createPresenter() = onboardingPresenter
@@ -179,7 +182,6 @@ internal class OnboardingActivity :
         }
 
         fun launchForEmail(ctx: Context) {
-
             Intent(ctx, OnboardingActivity::class.java).let {
                 it.showEmail = true
                 it.showFingerprints = false

@@ -41,18 +41,18 @@ fun DexIntroductionScreens(close: () -> Unit, dexIntroPrefs: DexPrefs = get()) {
         listOf(
             DexIntroItem(
                 icon = R.drawable.ic_dex_intro_0,
-                title = R.string.welcome_to_dex,
-                subtitle = R.string.welcome_to_dex_subtitle,
+                title = com.blockchain.stringResources.R.string.welcome_to_dex,
+                subtitle = com.blockchain.stringResources.R.string.welcome_to_dex_subtitle
             ),
             DexIntroItem(
                 icon = R.drawable.ic_dex_intro_1,
-                title = R.string.swap_1000_tokens,
-                subtitle = R.string.swap_1000_tokens_subtitle
+                title = com.blockchain.stringResources.R.string.swap_1000_tokens,
+                subtitle = com.blockchain.stringResources.R.string.swap_1000_tokens_subtitle
             ),
             DexIntroItem(
                 icon = R.drawable.ic_dex_intro_2,
-                title = R.string.keep_control_of_funds,
-                subtitle = R.string.keep_control_of_funds_subtitle
+                title = com.blockchain.stringResources.R.string.keep_control_of_funds,
+                subtitle = com.blockchain.stringResources.R.string.keep_control_of_funds_subtitle
             )
         )
     Box(modifier = Modifier.fillMaxSize()) {
@@ -71,7 +71,7 @@ fun DexIntroductionScreens(close: () -> Unit, dexIntroPrefs: DexPrefs = get()) {
                 }
                 .align(Alignment.TopEnd)
                 .padding(AppTheme.dimensions.standardSpacing),
-            imageResource = ImageResource.Local(R.drawable.ic_close_circle)
+            imageResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_close_circle)
         )
 
         Column(
@@ -92,7 +92,7 @@ fun DexIntroductionScreens(close: () -> Unit, dexIntroPrefs: DexPrefs = get()) {
                     .fillMaxWidth()
                     .padding(vertical = AppTheme.dimensions.smallSpacing),
                 onClick = { close() },
-                text = stringResource(id = R.string.start_trading)
+                text = stringResource(id = com.blockchain.stringResources.R.string.start_trading)
             )
         }
     }
@@ -137,7 +137,7 @@ private fun DexIntroductionScreen(item: DexIntroItem) {
                 text = stringResource(id = item.subtitle),
                 style = AppTheme.typography.paragraph1,
                 color = AppTheme.colors.title,
-                textAlign = TextAlign.Center,
+                textAlign = TextAlign.Center
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))

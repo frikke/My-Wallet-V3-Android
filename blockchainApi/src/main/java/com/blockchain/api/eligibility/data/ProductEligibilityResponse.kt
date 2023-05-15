@@ -16,7 +16,7 @@ class ProductEligibilityResponse(
     val depositInterest: DefaultEligibilityResponse?,
     val withdrawFiat: DefaultEligibilityResponse?,
     val depositStaking: DefaultEligibilityResponse?,
-    val kycVerification: DefaultEligibilityResponse?,
+    val kycVerification: DefaultEligibilityResponse?
 )
 
 @Serializable
@@ -39,7 +39,7 @@ enum class ReasonNotEligibleReasonResponse {
 
     // SANCTIONS:
     EU_5_SANCTION,
-    EU_8_SANCTION,
+    EU_8_SANCTION
 }
 
 @Serializable

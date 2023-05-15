@@ -53,12 +53,14 @@ class EarnDashboardViewModel(
     private val custodialWalletManager: CustodialWalletManager,
     private val walletStatusPrefs: WalletStatusPrefs,
     private val currencyPrefs: CurrencyPrefs,
-    private val activeRewardsFeatureFlag: FeatureFlag,
-) : MviViewModel<EarnDashboardIntent,
+    private val activeRewardsFeatureFlag: FeatureFlag
+) : MviViewModel<
+    EarnDashboardIntent,
     EarnDashboardViewState,
     EarnDashboardModelState,
     EarnDashboardNavigationEvent,
-    ModelConfigArgs.NoArgs>(
+    ModelConfigArgs.NoArgs
+    >(
     EarnDashboardModelState()
 ) {
 
@@ -75,12 +77,12 @@ class EarnDashboardViewModel(
                 discoverTabFilterBy = discoverTabFilterBy,
                 discoverTabQueryBy = discoverTabQueryBy,
                 hasSeenEarnIntro = hasSeenEarnIntro,
-                filterList = filterList,
+                filterList = filterList
             ),
             earningTabFilterBy = earningTabFilterBy,
             earningTabQueryBy = earningTabQueryBy,
             discoverTabFilterBy = discoverTabFilterBy,
-            discoverTabQueryBy = discoverTabQueryBy,
+            discoverTabQueryBy = discoverTabQueryBy
         )
     }
 
@@ -142,8 +144,9 @@ class EarnDashboardViewModel(
                         }
                     }
 
-                    if (earnProducts.isNotEmpty())
+                    if (earnProducts.isNotEmpty()) {
                         navigate(EarnDashboardNavigationEvent.OpenProductComparator(earnProducts = earnProducts))
+                    }
                 } ?: Timber.w("Unable to launch Earn Product Comparator. Earn data is null")
             }
 
@@ -186,7 +189,7 @@ class EarnDashboardViewModel(
                 discoverTabFilterBy,
                 discoverTabQueryBy,
                 filterList,
-                hasSeenEarnIntro,
+                hasSeenEarnIntro
             )
             isLoading -> DashboardState.Loading
             error != EarnDashboardError.None -> DashboardState.ShowError(error)
@@ -237,13 +240,14 @@ class EarnDashboardViewModel(
                         }
                     }
                 )
-            } else
+            } else {
                 buildDiscoverList(
                     data = this,
                     discoverTabFilterBy = discoverTabFilterBy,
                     discoverTabQueryBy = discoverTabQueryBy,
                     filterList = filterList
                 )
+            }
         } else {
             splitEarningAndDiscoverData(
                 data = this,
@@ -292,7 +296,8 @@ class EarnDashboardViewModel(
                                     EarnType.Staking -> AssetAction.StakingDeposit
                                     EarnType.Active -> AssetAction.ActiveRewardsDeposit
                                 },
-                                availableToBuy, tradingAccount
+                                availableToBuy,
+                                tradingAccount
                             )
                         )
                     }.firstOrNull()
@@ -311,7 +316,9 @@ class EarnDashboardViewModel(
             discoverList.add(
                 asset.createStakingAsset(
                     stakingBalancesWithFiat = StakingBalancesWithFiat(
-                        asset, StakingAccountBalance.zeroBalance(asset), Money.zero(asset)
+                        asset,
+                        StakingAccountBalance.zeroBalance(asset),
+                        Money.zero(asset)
                     ),
                     stakingRate = data.stakingRates[asset],
                     eligibility = eligibility
@@ -323,7 +330,9 @@ class EarnDashboardViewModel(
             discoverList.add(
                 asset.createPassiveAsset(
                     interestBalancesWithFiat = InterestBalancesWithFiat(
-                        asset, InterestAccountBalance.zeroBalance(asset), Money.zero(asset)
+                        asset,
+                        InterestAccountBalance.zeroBalance(asset),
+                        Money.zero(asset)
                     ),
                     passiveRate = data.interestRates[asset],
                     eligibility = eligibility
@@ -335,7 +344,9 @@ class EarnDashboardViewModel(
             discoverList.add(
                 asset.createActiveRewardsAsset(
                     activeRewardsBalancesWithFiat = ActiveRewardsBalancesWithFiat(
-                        asset, ActiveRewardsAccountBalance.zeroBalance(asset), Money.zero(asset)
+                        asset,
+                        ActiveRewardsAccountBalance.zeroBalance(asset),
+                        Money.zero(asset)
                     ),
                     activeRewardsRate = data.activeRewardsRates[asset],
                     eligibility = eligibility
@@ -369,7 +380,6 @@ class EarnDashboardViewModel(
             val totalBalance = balances.stakingCryptoBalances.totalBalance
 
             if (totalBalance.isPositive) {
-
                 val eligibility =
                     if (data.stakingEligibility.isNotEmpty()) {
                         data.stakingEligibility[asset] ?: EarnRewardsEligibility.Ineligible.OTHER
@@ -395,7 +405,9 @@ class EarnDashboardViewModel(
                     discoverList.add(
                         asset.createStakingAsset(
                             stakingBalancesWithFiat = StakingBalancesWithFiat(
-                                asset, StakingAccountBalance.zeroBalance(asset), Money.zero(asset)
+                                asset,
+                                StakingAccountBalance.zeroBalance(asset),
+                                Money.zero(asset)
                             ),
                             stakingRate = data.stakingRates[asset],
                             eligibility = eligibility
@@ -412,7 +424,6 @@ class EarnDashboardViewModel(
             val totalBalance = balances.interestCryptoBalances.totalBalance
 
             if (totalBalance.isPositive) {
-
                 val eligibility =
                     if (data.interestEligibility.isNotEmpty()) {
                         data.interestEligibility[asset] ?: EarnRewardsEligibility.Ineligible.OTHER
@@ -439,7 +450,9 @@ class EarnDashboardViewModel(
                         discoverList.add(
                             asset.createPassiveAsset(
                                 interestBalancesWithFiat = InterestBalancesWithFiat(
-                                    asset, InterestAccountBalance.zeroBalance(asset), Money.zero(asset)
+                                    asset,
+                                    InterestAccountBalance.zeroBalance(asset),
+                                    Money.zero(asset)
                                 ),
                                 passiveRate = rate,
                                 eligibility = eligibility
@@ -457,7 +470,6 @@ class EarnDashboardViewModel(
             val totalBalance = balances.activeRewardsCryptoBalances.totalBalance
 
             if (totalBalance.isPositive) {
-
                 val eligibility =
                     if (data.activeRewardsEligibility.isNotEmpty()) {
                         data.activeRewardsEligibility[asset] ?: EarnRewardsEligibility.Ineligible.OTHER
@@ -483,7 +495,9 @@ class EarnDashboardViewModel(
                     discoverList.add(
                         asset.createActiveRewardsAsset(
                             activeRewardsBalancesWithFiat = ActiveRewardsBalancesWithFiat(
-                                asset, ActiveRewardsAccountBalance.zeroBalance(asset), Money.zero(asset)
+                                asset,
+                                ActiveRewardsAccountBalance.zeroBalance(asset),
+                                Money.zero(asset)
                             ),
                             activeRewardsRate = data.activeRewardsRates[asset],
                             eligibility = eligibility
@@ -570,7 +584,6 @@ class EarnDashboardViewModel(
         this.sortedByDescending { it.balanceFiat }
 
     private suspend fun loadEarn() {
-
         val activeRewardsEnabled = activeRewardsFeatureFlag.coEnabled()
 
         updateState {

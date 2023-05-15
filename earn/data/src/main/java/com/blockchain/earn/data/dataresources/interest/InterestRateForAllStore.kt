@@ -10,7 +10,7 @@ import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelig
 import com.blockchain.storedatasource.FlushableDataSource
 
 class InterestRateForAllStore(
-    private val interestApiService: InterestApiService,
+    private val interestApiService: InterestApiService
 ) : Store<InterestRatesDto> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,

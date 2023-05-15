@@ -10,7 +10,7 @@ data class NftAssetsDto(
     @SerialName("previous")
     val previous: String? = null,
     @SerialName("assets")
-    val assets: ArrayList<NftAssetDto>,
+    val assets: ArrayList<NftAssetDto>
 )
 
 @Serializable

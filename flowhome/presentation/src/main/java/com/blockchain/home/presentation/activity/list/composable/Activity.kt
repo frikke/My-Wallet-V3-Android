@@ -188,8 +188,8 @@ fun ActivityScreen(
                 .background(color = Color(0XFFF1F2F7))
         ) {
             NavigationBar(
-                title = stringResource(R.string.ma_home_activity_title),
-                onBackButtonClick = onBackPressed,
+                title = stringResource(com.blockchain.stringResources.R.string.ma_home_activity_title),
+                onBackButtonClick = onBackPressed
             )
 
             Column(
@@ -240,7 +240,7 @@ fun ActivityData(
     ) {
         CancelableOutlinedSearch(
             onValueChange = onSearchTermEntered,
-            placeholder = stringResource(R.string.search)
+            placeholder = stringResource(com.blockchain.stringResources.R.string.search)
         )
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
@@ -258,7 +258,6 @@ fun ActivityGroups(
     activity: Map<TransactionGroup, List<ActivityComponent>>,
     onActivityClick: (ClickAction) -> Unit
 ) {
-
     LazyColumn {
         activity
             .forEach { (group, transactions) ->
@@ -279,10 +278,12 @@ private fun TransactionRow(group: TransactionGroup) {
             .background(AppTheme.colors.backgroundMuted)
             .padding(vertical = AppTheme.dimensions.tinySpacing)
             .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         val name = when (group) {
-            TransactionGroup.Group.Pending -> stringResource(id = R.string.common_pending)
+            TransactionGroup.Group.Pending -> stringResource(
+                id = com.blockchain.stringResources.R.string.common_pending
+            )
             is TransactionGroup.Group.Date -> group.date.format()
             TransactionGroup.Combined -> error("not allowed")
         }

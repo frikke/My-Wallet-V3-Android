@@ -17,7 +17,7 @@ import io.reactivex.rxjava3.core.Single
 class EthHotWalletAddressResolver(
     private val hotWalletService: HotWalletService,
     private val nabuService: NabuService,
-    private val dynamicEthHotWalletAddressFF: FeatureFlag,
+    private val dynamicEthHotWalletAddressFF: FeatureFlag
 ) : AddressResolver {
     override fun getReceiveAddress(
         currency: Currency,

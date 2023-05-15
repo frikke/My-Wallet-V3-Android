@@ -19,7 +19,7 @@ val loaderModule = module {
                 authPrefs = get(),
                 payloadDataManager = get(),
                 prerequisites = get(),
-                appUtil = get(),
+                appUtil = get()
             )
         }
 

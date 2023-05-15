@@ -31,8 +31,13 @@ class BiometricsInfoSheet : SlidingModalBottomDialog<BottomSheetBiometricsBindin
         with(binding) {
             sheetHeader.apply {
                 title = when (sheetMode) {
-                    BiometricSheetMode.DISABLE_CONFIRMATION -> getString(R.string.security_biometrics_disable_title)
-                    BiometricSheetMode.NO_BIOMETRICS_ADDED -> getString(R.string.security_biometrics_add_title)
+                    BiometricSheetMode.DISABLE_CONFIRMATION -> getString(
+                        com.blockchain.stringResources.R.string.security_biometrics_disable_title
+                    )
+
+                    BiometricSheetMode.NO_BIOMETRICS_ADDED -> getString(
+                        com.blockchain.stringResources.R.string.security_biometrics_add_title
+                    )
                 }
                 onClosePress = {
                     this@BiometricsInfoSheet.dismiss()
@@ -41,8 +46,13 @@ class BiometricsInfoSheet : SlidingModalBottomDialog<BottomSheetBiometricsBindin
 
             positiveCta.apply {
                 text = when (sheetMode) {
-                    BiometricSheetMode.DISABLE_CONFIRMATION -> getString(R.string.security_biometrics_cta_disable)
-                    BiometricSheetMode.NO_BIOMETRICS_ADDED -> getString(R.string.security_biometrics_cta_add)
+                    BiometricSheetMode.DISABLE_CONFIRMATION -> getString(
+                        com.blockchain.stringResources.R.string.security_biometrics_cta_disable
+                    )
+
+                    BiometricSheetMode.NO_BIOMETRICS_ADDED -> getString(
+                        com.blockchain.stringResources.R.string.security_biometrics_cta_add
+                    )
                 }
                 onClick = {
                     this@BiometricsInfoSheet.dismiss()
@@ -51,15 +61,20 @@ class BiometricsInfoSheet : SlidingModalBottomDialog<BottomSheetBiometricsBindin
             }
 
             negativeCta.apply {
-                text = getString(R.string.common_cancel)
+                text = getString(com.blockchain.stringResources.R.string.common_cancel)
                 onClick = {
                     this@BiometricsInfoSheet.dismiss()
                 }
             }
 
             biometricsBlurb.text = when (sheetMode) {
-                BiometricSheetMode.DISABLE_CONFIRMATION -> getString(R.string.biometric_disable_message)
-                BiometricSheetMode.NO_BIOMETRICS_ADDED -> getString(R.string.security_biometrics_add_blurb)
+                BiometricSheetMode.DISABLE_CONFIRMATION -> getString(
+                    com.blockchain.stringResources.R.string.biometric_disable_message
+                )
+
+                BiometricSheetMode.NO_BIOMETRICS_ADDED -> getString(
+                    com.blockchain.stringResources.R.string.security_biometrics_add_blurb
+                )
             }
         }
     }

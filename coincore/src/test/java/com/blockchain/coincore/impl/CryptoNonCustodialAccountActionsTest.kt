@@ -398,7 +398,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
     }
 
     private fun configureActionSubject(
-        isFunded: Boolean = true,
+        isFunded: Boolean = true
     ): CryptoNonCustodialAccount {
         return NonCustodialTestAccount(
             label = "Test Account",
@@ -419,7 +419,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
         userAccessForStakingDeposit: FeatureAccess = FeatureAccess.Granted(),
         eligibleForInterest: Boolean = true,
         supportedFiatFunds: List<FiatCurrency> = listOf(FiatCurrency.Dollars),
-        isAssetSupportedForSwap: Boolean = true,
+        isAssetSupportedForSwap: Boolean = true
     ) {
         whenever(custodialManager.selectedFiatcurrency).thenReturn(FiatCurrency.Dollars)
         whenever(custodialManager.getSupportedFundsFiats(eq(FiatCurrency.Dollars), any())).thenReturn(
@@ -454,7 +454,7 @@ private class NonCustodialTestAccount(
     override val exchangeRates: ExchangeRatesDataManager,
     override val addressResolver: AddressResolver,
     val isFunded: Boolean,
-    currency: AssetInfo,
+    currency: AssetInfo
 ) : CryptoNonCustodialAccount(currency) {
     override val index: Int
         get() = 1

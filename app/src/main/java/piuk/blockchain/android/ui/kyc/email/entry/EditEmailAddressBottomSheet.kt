@@ -66,7 +66,7 @@ class EditEmailAddressBottomSheet : SlidingModalBottomDialog<ChangeEmailBottomSh
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setStyle(DialogFragment.STYLE_NORMAL, R.style.FloatingBottomSheet)
+        setStyle(DialogFragment.STYLE_NORMAL, com.blockchain.common.R.style.FloatingBottomSheet)
     }
 
     private val imm: InputMethodManager by lazy {

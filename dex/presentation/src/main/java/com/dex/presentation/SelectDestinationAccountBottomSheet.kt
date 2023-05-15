@@ -25,7 +25,6 @@ fun SelectDestinationAccountBottomSheet(
     closeClicked: () -> Unit,
     viewModel: DexSelectDestinationAccountViewModel = getViewModel(scope = payloadScope)
 ) {
-
     val viewState: DestinationAccountSelectionViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
@@ -41,7 +40,7 @@ fun SelectDestinationAccountBottomSheet(
         SheetFloatingHeader(
             icon =
             StackedIcon.None,
-            title = stringResource(id = R.string.select_token),
+            title = stringResource(id = com.blockchain.stringResources.R.string.select_token),
             onCloseClick = closeClicked
         )
 

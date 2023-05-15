@@ -69,7 +69,7 @@ class ActiveRewardsWithdrawalWarningSheet : ComposeModalBottomDialog() {
             onClose = { host.onClose() },
             onLearnMoreClicked = { host.openExternalUrl(ACTIVE_REWARDS_LEARN_MORE_URL) },
             onWithdrawDisabledLearnMoreClicked = { host.openExternalUrl(WITHDRAWALS_DISABLED_LEARN_MORE_URL) },
-            onNext = host::onNextClicked,
+            onNext = host::onNextClicked
         )
     }
 
@@ -88,7 +88,6 @@ fun ActiveRewardsWithdrawalWarning(
     onNext: () -> Unit,
     withdrawalsEnabledFF: FeatureFlag = get(activeRewardsWithdrawalsFeatureFlag)
 ) {
-
     var withdrawalsEnabled by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         withdrawalsEnabled = withdrawalsEnabledFF.coEnabled()
@@ -132,24 +131,31 @@ fun ActiveRewardsWithdrawalWarning(
             StandardVerticalSpacer()
 
             SimpleText(
-                text = stringResource(id = R.string.earn_active_rewards_withdrawal_blocked_warning_title),
+                text = stringResource(
+                    id = com.blockchain.stringResources.R.string.earn_active_rewards_withdrawal_blocked_warning_title
+                ),
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
-                gravity = ComposeGravities.Centre,
+                gravity = ComposeGravities.Centre
             )
 
             SmallVerticalSpacer()
 
             SimpleText(
-                text = stringResource(id = R.string.earn_active_rewards_withdrawal_blocked_warning_subtitle),
+                text = stringResource(
+                    id = com.blockchain.stringResources.R.string.earn_active_rewards_withdrawal_blocked_warning_subtitle
+                ),
                 style = ComposeTypographies.Body1,
                 color = ComposeColors.Body,
-                gravity = ComposeGravities.Centre,
+                gravity = ComposeGravities.Centre
             )
 
             StandardVerticalSpacer()
 
-            SmallMinimalButton(text = stringResource(R.string.common_learn_more), onClick = onLearnMoreClicked)
+            SmallMinimalButton(
+                text = stringResource(com.blockchain.stringResources.R.string.common_learn_more),
+                onClick = onLearnMoreClicked
+            )
 
             StandardVerticalSpacer()
 
@@ -162,7 +168,7 @@ fun ActiveRewardsWithdrawalWarning(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = AppTheme.dimensions.standardSpacing),
-            text = stringResource(id = R.string.common_next),
+            text = stringResource(id = com.blockchain.stringResources.R.string.common_next),
             onClick = {
                 onNext()
                 dismiss()
@@ -181,7 +187,7 @@ fun PreviewActiveRewardsWithdrawalWarning() {
                 {},
                 {},
                 {},
-                {},
+                {}
             )
         }
     }

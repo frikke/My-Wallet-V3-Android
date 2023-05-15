@@ -110,7 +110,9 @@ class FiatWithdrawalTxEngine(
                     TxConfirmationValue.Amount(pendingTx.amount, false),
                     if (pendingTx.feeAmount.isPositive) {
                         TxConfirmationValue.TransactionFee(pendingTx.feeAmount)
-                    } else null,
+                    } else {
+                        null
+                    },
                     TxConfirmationValue.Amount(pendingTx.amount.plus(pendingTx.feeAmount), true)
                 )
             )

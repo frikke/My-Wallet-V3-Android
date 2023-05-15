@@ -35,7 +35,7 @@ class PersistedJsonSqlDelightStoreBuilder : KoinComponent {
             keySerializer = Unit.serializer(),
             dataSerializer = dataSerializer,
             mediator = mediator,
-            scope = scope,
+            scope = scope
         )
 
         override fun stream(request: FreshnessStrategy): Flow<DataResource<T>> = backingStore.stream(

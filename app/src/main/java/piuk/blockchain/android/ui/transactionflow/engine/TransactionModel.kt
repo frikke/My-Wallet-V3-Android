@@ -158,7 +158,7 @@ data class TransactionState(
     val ffImprovedPaymentUxEnabled: Boolean = false,
     val depositTerms: DepositTerms? = null,
     val showTradingAccounts: Boolean = false,
-    val earnWithdrawalUnbondingDays: Int = 2,
+    val earnWithdrawalUnbondingDays: Int = 2
 ) : MviState, TransactionFlowStateInfo {
 
     // workaround for using engine without cryptocurrency source
@@ -202,9 +202,9 @@ data class TransactionState(
             return pendingTx?.let { ptx ->
                 val available = availableToAmountCurrency(ptx.availableBalance, amount)
                 val maxAmount = (ptx.limits?.max as? TxLimit.Limited)?.amount ?: return available
-                return if (available <= maxAmount)
+                return if (available <= maxAmount) {
                     available
-                else maxAmount - (
+                } else maxAmount - (
                     ptx.feeAmount.takeIf {
                         it.currencyCode == maxAmount.currencyCode
                     } ?: Money.zero(maxAmount.currency)
@@ -278,13 +278,16 @@ class TransactionModel(
                 passwordRequired = previousState.passwordRequired
             )
             is TransactionIntent.InitialiseWithNoSourceOrTargetAccount -> processSourceAccountsListUpdate(
-                intent.action, NullAddress
+                intent.action,
+                NullAddress
             )
             is TransactionIntent.InitialiseWithTargetAndNoSource -> {
                 processSourceAccountsListUpdate(intent.action, intent.target)
             }
             is TransactionIntent.ReInitialiseWithTargetAndNoSource -> processSourceAccountsListUpdate(
-                intent.action, intent.target, true
+                intent.action,
+                intent.target,
+                true
             )
             is TransactionIntent.InitialiseTransaction -> initialiseTransaction(
                 intent.sourceAccount,
@@ -340,12 +343,14 @@ class TransactionModel(
                 null
             }
             is TransactionIntent.RefreshSourceAccounts -> processSourceAccountsListUpdate(
-                previousState.action, previousState.selectedTarget
+                previousState.action,
+                previousState.selectedTarget
             )
             is TransactionIntent.NavigateBackFromEnterAmount ->
                 processTransactionInvalidation(previousState.action)
             is TransactionIntent.SwitchAccountType -> interactor.getTargetAccounts(
-                previousState.sendingAccount, previousState.action
+                previousState.sendingAccount,
+                previousState.action
             ).map { accounts ->
                 accounts.filter {
                     if (intent.showTrading) {
@@ -368,7 +373,8 @@ class TransactionModel(
             is TransactionIntent.LoadSendToDomainBannerPref -> processLoadSendToDomainPrefs(intent.prefsKey)
             is TransactionIntent.DismissSendToDomainBanner -> processDismissSendToDomainPrefs(intent.prefsKey)
             is TransactionIntent.LoadDepositTerms -> processDepositTerms(
-                (previousState.sendingAccount as? LinkedBankAccount)?.accountId, previousState.amount
+                (previousState.sendingAccount as? LinkedBankAccount)?.accountId,
+                previousState.amount
             )
             is TransactionIntent.LoadImprovedPaymentUxFeatureFlag -> processImprovedPaymentUxFF()
             is TransactionIntent.UpdateStakingWithdrawalSeen -> {
@@ -616,7 +622,9 @@ class TransactionModel(
                 onComplete = {
                     process(
                         TransactionIntent.ReInitialiseWithTargetAndNoSource(
-                            state.action, state.selectedTarget, state.passwordRequired
+                            state.action,
+                            state.selectedTarget,
+                            state.passwordRequired
                         )
                     )
                 },
@@ -670,8 +678,9 @@ class TransactionModel(
                     if (access is FeatureAccess.Granted &&
                         sourceAccount is NonCustodialAccount &&
                         target is TradingAccount
-                    ) interactor.userAccessForFeature(Feature.DepositCrypto)
-                    else Single.just(access)
+                    ) {
+                        interactor.userAccessForFeature(Feature.DepositCrypto)
+                    } else Single.just(access)
                 }.toMaybe()
         AssetAction.InterestDeposit -> interactor.userAccessForFeature(Feature.DepositInterest).toMaybe()
         AssetAction.Send ->
@@ -859,7 +868,8 @@ class TransactionModel(
         interactor.cancelTransaction().subscribeBy(
             onComplete = {
                 process(TransactionIntent.UpdateTransactionCancelled)
-            }, onError = {
+            },
+            onError = {
                 Timber.d("!TRANSACTION!> Unable to cancel transaction: $it")
                 errorLogger.log(TxFlowLogError.ExecuteFail(it))
             }

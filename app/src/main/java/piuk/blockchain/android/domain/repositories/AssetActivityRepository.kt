@@ -30,13 +30,13 @@ class AssetActivityRepository : ExpiringRepository<ActivitySummaryList, Blockcha
 
     fun fetch(
         account: BlockchainAccount,
-        isRefreshRequested: Boolean,
+        isRefreshRequested: Boolean
     ): Single<ActivitySummaryList> {
         val cacheMaybe = if (isRefreshRequested || isCacheExpired()) Maybe.empty() else getFromCache(account)
         return cacheMaybe.defaultIfEmpty(emptyList()).flatMap {
-            if (it.isEmpty())
+            if (it.isEmpty()) {
                 requestNetwork(account).defaultIfEmpty(emptyList())
-            else Single.just(it)
+            } else Single.just(it)
         }.map { list ->
             list.filter { item ->
                 when (account) {
@@ -80,7 +80,7 @@ class AssetActivityRepository : ExpiringRepository<ActivitySummaryList, Blockcha
         }.toSet()
 
     private fun reconcileTransfersAndBuys(
-        list: ActivitySummaryList,
+        list: ActivitySummaryList
     ): List<ActivitySummaryItem> {
         val custodialWalletActivity = list.filterIsInstance<CustodialTradingActivitySummaryItem>()
         val activityList = list.toMutableList()
@@ -101,7 +101,7 @@ class AssetActivityRepository : ExpiringRepository<ActivitySummaryList, Blockcha
     }
 
     private fun reconcileCustodialAndInterestTxs(
-        list: ActivitySummaryList,
+        list: ActivitySummaryList
     ): List<ActivitySummaryItem> {
         val interestWalletActivity = list.filter {
             it.account is EarnRewardsAccount.Interest && it is CustodialInterestActivitySummaryItem

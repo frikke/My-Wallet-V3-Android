@@ -20,10 +20,12 @@ class NonCustodialBitcoinService internal constructor(
         Sent(1), // (result + fee < 0)
         Received(2), // (result + fee > 0)
         Transfer(3), // (result + fee = 0)
+
         // 4 - is an invalid filter code
         Confirmed(5),
+
         // 6 - is a NO-OP code, should be same as 0
-        Unconfirmed(7);
+        Unconfirmed(7)
     }
 
     /**

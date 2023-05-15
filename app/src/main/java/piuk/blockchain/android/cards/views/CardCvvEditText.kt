@@ -11,7 +11,7 @@ class CardCvvEditText : CvvEditText {
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
     constructor(context: Context?, attrs: AttributeSet?, defStyle: Int) : super(context, attrs, defStyle)
 
-    private var errorMessage: String = resources.getString(R.string.invalid_cvv)
+    private var errorMessage: String = resources.getString(com.blockchain.stringResources.R.string.invalid_cvv)
 
     fun setErrorMessage(@StringRes stringRes: Int) {
         errorMessage = resources.getString(stringRes)

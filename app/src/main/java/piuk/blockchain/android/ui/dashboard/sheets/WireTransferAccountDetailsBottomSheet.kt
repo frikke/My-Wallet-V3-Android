@@ -112,7 +112,7 @@ class WireTransferAccountDetailsBottomSheet :
                                 },
                                 onEntryCopied = { entry ->
                                     copyListener.onFieldCopied(entry.title)
-                                },
+                                }
                             )
                         }
                     }
@@ -156,8 +156,10 @@ class WireTransferAccountDetailsBottomSheet :
                 errorButton.setOnClickListener {
                     dismiss()
                 }
-                errorTitle.text = uxError?.title ?: getString(R.string.common_oops_bank)
-                errorMessage.text = uxError?.description ?: getString(R.string.unable_to_load_bank_details)
+                errorTitle.text = uxError?.title ?: getString(com.blockchain.stringResources.R.string.common_oops_bank)
+                errorMessage.text = uxError?.description ?: getString(
+                    com.blockchain.stringResources.R.string.unable_to_load_bank_details
+                )
             }
             composeView.gone()
         }
@@ -174,9 +176,12 @@ class WireTransferAccountDetailsBottomSheet :
             BlockchainSnackbar.make(
                 view = binding.root,
                 message = if (field.isNotEmpty()) {
-                    String.format(getString(R.string.simple_buy_copied_to_clipboard), field)
+                    String.format(
+                        getString(com.blockchain.stringResources.R.string.simple_buy_copied_to_clipboard),
+                        field
+                    )
                 } else {
-                    getString(R.string.copied_to_clipboard)
+                    getString(com.blockchain.stringResources.R.string.copied_to_clipboard)
                 },
                 duration = Snackbar.LENGTH_SHORT,
                 type = SnackbarType.Success

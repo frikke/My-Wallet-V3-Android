@@ -26,28 +26,28 @@ fun BackupStatus(backupStatus: BackUpStatus) {
         modifier = Modifier
             .background(
                 color = backupStatus.bgColor,
-                shape = RoundedCornerShape(dimensionResource(id = R.dimen.tiny_spacing))
+                shape = RoundedCornerShape(dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing))
             )
             .padding(
-                horizontal = dimensionResource(id = R.dimen.very_small_spacing),
-                vertical = dimensionResource(id = R.dimen.tiny_spacing)
+                horizontal = dimensionResource(id = com.blockchain.componentlib.R.dimen.very_small_spacing),
+                vertical = dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing)
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
             imageResource = ImageResource.Local(
                 id = backupStatus.icon,
-                size = dimensionResource(R.dimen.size_standard),
+                size = dimensionResource(com.blockchain.componentlib.R.dimen.size_standard),
                 colorFilter = ColorFilter.tint(backupStatus.iconColor)
             )
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)))
 
         Text(
             text = stringResource(backupStatus.text),
             style = AppTheme.typography.paragraph2,
-            color = backupStatus.textColor,
+            color = backupStatus.textColor
         )
     }
 }

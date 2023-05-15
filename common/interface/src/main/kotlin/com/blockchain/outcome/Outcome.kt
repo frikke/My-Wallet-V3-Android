@@ -76,7 +76,7 @@ fun <E, T> List<Outcome<E, T>>.getFirstError() = (first { it is Outcome.Failure 
 suspend fun <E, T1, T2, R> zipOutcomes(
     p1: suspend () -> Outcome<E, T1>,
     p2: suspend () -> Outcome<E, T2>,
-    transform: (T1, T2) -> R,
+    transform: (T1, T2) -> R
 ): Outcome<E, R> = coroutineScope {
     val a1 = async { p1() }
     val a2 = async { p2() }
@@ -97,14 +97,14 @@ suspend fun <E, T1, T2, R> zipOutcomes(
 
 suspend fun <E, T1, T2> zipOutcomes(
     p1: suspend () -> Outcome<E, T1>,
-    p2: suspend () -> Outcome<E, T2>,
+    p2: suspend () -> Outcome<E, T2>
 ): Outcome<E, Pair<T1, T2>> = zipOutcomes(p1, p2) { r1, r2 -> r1 to r2 }
 
 suspend fun <E, T1, T2, T3, R> zipOutcomes(
     p1: suspend () -> Outcome<E, T1>,
     p2: suspend () -> Outcome<E, T2>,
     p3: suspend () -> Outcome<E, T3>,
-    transform: (T1, T2, T3) -> R,
+    transform: (T1, T2, T3) -> R
 ): Outcome<E, R> = coroutineScope {
     val a1 = async { p1() }
     val a2 = async { p2() }
@@ -129,7 +129,7 @@ suspend fun <E, T1, T2, T3, R> zipOutcomes(
 suspend fun <E, T1, T2, T3> zipOutcomes(
     p1: suspend () -> Outcome<E, T1>,
     p2: suspend () -> Outcome<E, T2>,
-    p3: suspend () -> Outcome<E, T3>,
+    p3: suspend () -> Outcome<E, T3>
 ): Outcome<E, Triple<T1, T2, T3>> = zipOutcomes(p1, p2, p3) { r1, r2, r3 -> Triple(r1, r2, r3) }
 
 fun <E, R> Outcome<E, R>.toDataResource(): DataResource<R> {

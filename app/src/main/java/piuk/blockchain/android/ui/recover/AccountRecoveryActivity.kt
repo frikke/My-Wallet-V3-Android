@@ -45,7 +45,7 @@ class AccountRecoveryActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         updateToolbar(
-            toolbarTitle = getString(R.string.account_recover_title),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.account_recover_title),
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         initControls()
@@ -56,9 +56,9 @@ class AccountRecoveryActivity :
     override fun render(newState: AccountRecoveryState) {
         when (newState.status) {
             AccountRecoveryStatus.INVALID_PHRASE ->
-                showSeedPhraseInputError(R.string.invalid_recovery_phrase_1)
+                showSeedPhraseInputError(com.blockchain.stringResources.R.string.invalid_recovery_phrase_1)
             AccountRecoveryStatus.WORD_COUNT_ERROR ->
-                showSeedPhraseInputError(R.string.recovery_phrase_word_count_error)
+                showSeedPhraseInputError(com.blockchain.stringResources.R.string.recovery_phrase_word_count_error)
             AccountRecoveryStatus.RECOVERY_SUCCESSFUL -> {
                 launchResetPasswordFlow(newState.seedPhrase)
             }
@@ -66,14 +66,14 @@ class AccountRecoveryActivity :
                 analytics.logEvent(AccountRecoveryAnalytics.RecoveryFailed(false))
                 BlockchainSnackbar.make(
                     binding.root,
-                    getString(R.string.restore_failed),
+                    getString(com.blockchain.stringResources.R.string.restore_failed),
                     type = SnackbarType.Error
                 ).show()
             }
             AccountRecoveryStatus.RESET_KYC_FAILED ->
                 BlockchainSnackbar.make(
                     binding.root,
-                    getString(R.string.reset_kyc_failed),
+                    getString(com.blockchain.stringResources.R.string.reset_kyc_failed),
                     type = SnackbarType.Error
                 ).show()
             else -> {
@@ -107,13 +107,13 @@ class AccountRecoveryActivity :
                 visibleIf { email.isNotEmpty() && userId.isNotEmpty() && recoveryToken.isNotEmpty() }
                 text = StringUtils.getStringWithMappedAnnotations(
                     context = this@AccountRecoveryActivity,
-                    stringId = R.string.reset_account_notice,
+                    stringId = com.blockchain.stringResources.R.string.reset_account_notice,
                     linksMap = emptyMap(),
                     onClick = { launchResetAccountFlow() }
                 )
                 movementMethod = LinkMovementMethod.getInstance()
             }
-            resetKycLabel.text = getString(R.string.reset_kyc_notice_1)
+            resetKycLabel.text = getString(com.blockchain.stringResources.R.string.reset_kyc_notice_1)
 
             verifyButton.setOnClickListener {
                 analytics.logEvent(AccountRecoveryAnalytics.MnemonicEntered(isCustodialAccount = false))

@@ -25,15 +25,17 @@ internal fun promptForAccountLabel(
     @StringRes title: Int,
     @StringRes msg: Int,
     initialText: String = "",
-    @StringRes okBtnText: Int = R.string.save_name,
+    @StringRes okBtnText: Int = com.blockchain.stringResources.R.string.save_name,
     @StringRes cancelText: Int = android.R.string.cancel,
     okAction: (String) -> Unit
 ) {
     val editCtrl = AppCompatEditText(ctx).apply {
         inputType = InputType.TYPE_TEXT_FLAG_CAP_WORDS
         filters = arrayOf<InputFilter>(InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH))
-        setHint(R.string.name)
-        contentDescription = resources.getString(R.string.content_desc_edit_account_label)
+        setHint(com.blockchain.stringResources.R.string.name)
+        contentDescription = resources.getString(
+            com.blockchain.stringResources.R.string.content_desc_edit_account_label
+        )
 
         if (initialText.length <= ADDRESS_LABEL_MAX_LENGTH) {
             setText(initialText)
@@ -41,7 +43,7 @@ internal fun promptForAccountLabel(
         }
     }
 
-    AlertDialog.Builder(ctx, R.style.AlertDialogStyle)
+    AlertDialog.Builder(ctx, com.blockchain.componentlib.R.style.AlertDialogStyle)
         .setTitle(title)
         .setMessage(msg)
         .setView(ctx.getAlertDialogPaddedView(editCtrl))
@@ -53,7 +55,7 @@ internal fun promptForAccountLabel(
             } else {
                 BlockchainSnackbar.make(
                     editCtrl,
-                    ctx.getString(R.string.label_cant_be_empty),
+                    ctx.getString(com.blockchain.stringResources.R.string.label_cant_be_empty),
                     duration = Snackbar.LENGTH_SHORT,
                     type = SnackbarType.Error
                 ).show()
@@ -68,12 +70,12 @@ internal fun promptArchive(
     @StringRes msg: Int,
     action: () -> Unit
 ) {
-    AlertDialog.Builder(ctx, R.style.AlertDialogStyle)
+    AlertDialog.Builder(ctx, com.blockchain.componentlib.R.style.AlertDialogStyle)
         .setTitle(title)
         .setMessage(msg)
         .setCancelable(false)
-        .setPositiveButton(R.string.common_yes) { _, _ -> action() }
-        .setNegativeButton(R.string.common_no, null)
+        .setPositiveButton(com.blockchain.stringResources.R.string.common_yes) { _, _ -> action() }
+        .setNegativeButton(com.blockchain.stringResources.R.string.common_no, null)
         .show()
 }
 
@@ -81,12 +83,12 @@ fun promptXpubShareWarning(
     ctx: Context,
     action: () -> Unit
 ) {
-    AlertDialog.Builder(ctx, R.style.AlertDialogStyle)
-        .setTitle(R.string.warning)
-        .setMessage(R.string.xpub_sharing_warning)
+    AlertDialog.Builder(ctx, com.blockchain.componentlib.R.style.AlertDialogStyle)
+        .setTitle(com.blockchain.stringResources.R.string.warning)
+        .setMessage(com.blockchain.stringResources.R.string.xpub_sharing_warning)
         .setCancelable(false)
-        .setPositiveButton(R.string.dialog_continue) { _, _ -> action() }
-        .setNegativeButton(android.R.string.cancel, null)
+        .setPositiveButton(com.blockchain.stringResources.R.string.dialog_continue) { _, _ -> action() }
+        .setNegativeButton(com.blockchain.stringResources.R.string.common_cancel, null)
         .show()
 }
 
@@ -118,16 +120,18 @@ fun showAddressQrCode(
     val imageView = view.findViewById<View>(R.id.imageview_qr) as ImageView
     imageView.setImageBitmap(bitmap)
 
-    AlertDialog.Builder(ctx, R.style.AlertDialogStyle)
+    AlertDialog.Builder(ctx, com.blockchain.componentlib.R.style.AlertDialogStyle)
         .setTitle(heading)
         .setMessage(note)
         .setView(view)
-        .setNegativeButton(android.R.string.cancel, null)
+        .setNegativeButton(com.blockchain.stringResources.R.string.common_cancel, null)
         .setPositiveButton(copyBtn) { _, _ ->
             val clipboard = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip: ClipData = ClipData.newPlainText("Send address", qrString)
             BlockchainSnackbar.make(
-                view, ctx.getString(R.string.copied_to_clipboard), type = SnackbarType.Success
+                view,
+                ctx.getString(com.blockchain.stringResources.R.string.copied_to_clipboard),
+                type = SnackbarType.Success
             ).show()
             clipboard.setPrimaryClip(clip)
         }
@@ -143,16 +147,16 @@ fun promptImportKeyPassword(
         inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
     }
 
-    AlertDialog.Builder(ctx, R.style.AlertDialogStyle)
-        .setTitle(R.string.app_name)
-        .setMessage(R.string.bip38_password_entry)
+    AlertDialog.Builder(ctx, com.blockchain.componentlib.R.style.AlertDialogStyle)
+        .setTitle(com.blockchain.stringResources.R.string.app_name)
+        .setMessage(com.blockchain.stringResources.R.string.bip38_password_entry)
         .setView(ctx.getAlertDialogPaddedView(editCtrl))
         .setCancelable(false)
-        .setPositiveButton(android.R.string.ok) { _, _ ->
+        .setPositiveButton(com.blockchain.stringResources.R.string.common_ok) { _, _ ->
             val password = editCtrl.getTextString().trim { it <= ' ' }
             okAction(password)
         }
-        .setNegativeButton(android.R.string.cancel, null)
+        .setNegativeButton(com.blockchain.stringResources.R.string.common_cancel, null)
         .show()
 }
 
@@ -160,10 +164,10 @@ fun promptTransferFunds(
     ctx: Context,
     okAction: () -> Unit
 ) {
-    AlertDialog.Builder(ctx, R.style.AlertDialogStyle)
-        .setTitle(R.string.transfer_funds_title)
-        .setMessage(R.string.transfer_funds_description_1)
-        .setPositiveButton(R.string.transfer_all) { _, _ -> okAction() }
-        .setNegativeButton(R.string.not_now, null)
+    AlertDialog.Builder(ctx, com.blockchain.componentlib.R.style.AlertDialogStyle)
+        .setTitle(com.blockchain.stringResources.R.string.transfer_funds_title)
+        .setMessage(com.blockchain.stringResources.R.string.transfer_funds_description_1)
+        .setPositiveButton(com.blockchain.stringResources.R.string.transfer_all) { _, _ -> okAction() }
+        .setNegativeButton(com.blockchain.stringResources.R.string.not_now, null)
         .show()
 }

@@ -57,7 +57,7 @@ fun IntroductionScreen(content: IntroductionScreenContent) {
                 text = stringResource(content.description),
                 style = AppTheme.typography.paragraph1,
                 color = AppTheme.colors.title,
-                textAlign = TextAlign.Center,
+                textAlign = TextAlign.Center
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))

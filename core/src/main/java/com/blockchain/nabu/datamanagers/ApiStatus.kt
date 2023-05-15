@@ -9,7 +9,7 @@ interface ApiStatus {
     fun isHealthy(): Single<Boolean>
 }
 
-/*Logic: if there is an incident with a component name = Wallet whose component status is NOT Operational,*/
+// Logic: if there is an incident with a component name = Wallet whose component status is NOT Operational,
 class BlockchainApiStatus(private val apiStatusService: ApiStatusService) : ApiStatus {
     override fun isHealthy(): Single<Boolean> {
         return apiStatusService.apiIncidents().map {

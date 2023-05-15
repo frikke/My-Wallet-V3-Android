@@ -48,16 +48,16 @@ fun AppMaintenanceScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(
-                        start = dimensionResource(R.dimen.standard_spacing),
-                        end = dimensionResource(R.dimen.standard_spacing),
-                        top = dimensionResource(R.dimen.standard_spacing),
-                        bottom = dimensionResource(R.dimen.large_spacing),
+                        start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                        end = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                        top = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                        bottom = dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)
                     ),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
                     imageResource = ImageResource.Local(
-                        R.drawable.ic_blockchain_logo_with_text
+                        com.blockchain.componentlib.R.drawable.ic_blockchain_logo_with_text
                     )
                 )
 
@@ -68,16 +68,20 @@ fun AppMaintenanceScreen(
                 }
 
                 Text(
-                    modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_spacing)),
+                    modifier = Modifier.padding(
+                        start = dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)
+                    ),
                     style = AppTheme.typography.title3,
                     color = Grey900,
-                    text = stringResource(id = title),
+                    text = stringResource(id = title)
                 )
 
-                Spacer(Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
+                Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)))
 
                 Text(
-                    modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_spacing)),
+                    modifier = Modifier.padding(
+                        start = dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)
+                    ),
                     style = AppTheme.typography.body1,
                     color = Grey900,
                     textAlign = TextAlign.Center,
@@ -92,7 +96,7 @@ fun AppMaintenanceScreen(
                         text = "Debug Build - Click to skip",
                         onClick = debugSkip
                     )
-                    Spacer(Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
+                    Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)))
                 }
 
                 button1?.let { buttonSettings ->
@@ -104,7 +108,7 @@ fun AppMaintenanceScreen(
                 }
 
                 if (button1 != null && button2 != null) {
-                    Spacer(Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
+                    Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)))
                 }
 
                 button2?.let { buttonSettings ->

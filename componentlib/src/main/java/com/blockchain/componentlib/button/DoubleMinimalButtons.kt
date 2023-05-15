@@ -56,9 +56,8 @@ fun DoubleMinimalButtons(
     endButtonState: ButtonState = ButtonState.Enabled,
     startButtonIcon: ImageResource = ImageResource.None,
     endButtonIcon: ImageResource = ImageResource.None,
-    isDarkTheme: Boolean = isSystemInDarkTheme(),
+    isDarkTheme: Boolean = isSystemInDarkTheme()
 ) {
-
     val startButtonInteractionSource = remember { MutableInteractionSource() }
     var startButtonBackgroundColor by remember(isDarkTheme) {
         mutableStateOf(if (isDarkTheme) Color.Transparent else Color.White)
@@ -108,7 +107,6 @@ fun DoubleMinimalButtons(
     }
 
     LaunchedEffect(startButtonInteractionSource, startButtonState, isDarkTheme) {
-
         fun cancel() {
             startButtonBackgroundColor = if (isDarkTheme) Color.Transparent else Color.White
             borderColor = when (startButtonState) {
@@ -133,12 +131,11 @@ fun DoubleMinimalButtons(
             },
             onCancel = {
                 cancel()
-            },
+            }
         )
     }
 
     LaunchedEffect(endButtonInteractionSource, endButtonState, isDarkTheme) {
-
         fun cancel() {
             endButtonBackgroundColor = if (isDarkTheme) Color.Transparent else Color.White
             borderColor = when (endButtonState) {
@@ -163,7 +160,7 @@ fun DoubleMinimalButtons(
             },
             onCancel = {
                 cancel()
-            },
+            }
         )
     }
 
@@ -197,7 +194,7 @@ fun DoubleMinimalButtons(
                     backgroundColor = animateColorAsState(targetValue = startButtonBackgroundColor).value,
                     contentColor = Color.Unspecified,
                     disabledBackgroundColor = animateColorAsState(targetValue = startButtonBackgroundColor).value,
-                    disabledContentColor = Color.Unspecified,
+                    disabledContentColor = Color.Unspecified
                 ),
                 elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
                 content = {
@@ -207,7 +204,7 @@ fun DoubleMinimalButtons(
                         textColor = startTextColor,
                         contentAlpha = startTextAlpha,
                         loadingIconResId = loadingIcon,
-                        icon = startButtonIcon,
+                        icon = startButtonIcon
                     )
                 }
             )
@@ -238,7 +235,7 @@ fun DoubleMinimalButtons(
                     backgroundColor = animateColorAsState(targetValue = endButtonBackgroundColor).value,
                     contentColor = Color.Unspecified,
                     disabledBackgroundColor = animateColorAsState(targetValue = endButtonBackgroundColor).value,
-                    disabledContentColor = Color.Unspecified,
+                    disabledContentColor = Color.Unspecified
                 ),
                 elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
                 content = {
@@ -248,7 +245,7 @@ fun DoubleMinimalButtons(
                         textColor = endTextColor,
                         contentAlpha = endTextAlpha,
                         loadingIconResId = loadingIcon,
-                        icon = endButtonIcon,
+                        icon = endButtonIcon
                     )
                 }
             )
@@ -265,7 +262,7 @@ private fun DoubleMinimalButtons() {
                 startButtonText = "Primary",
                 onStartButtonClick = { },
                 endButtonText = "Secondary",
-                onEndButtonClick = { },
+                onEndButtonClick = { }
             )
         }
     }

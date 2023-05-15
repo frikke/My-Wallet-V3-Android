@@ -100,9 +100,9 @@ internal class FiatCryptoConversionModel(
     ): Single<ExchangeRate> {
         return if (wasInternalRateOverridden) {
             val customRate = internalRate.value
-            if (customRate.from == input && customRate.to == output)
+            if (customRate.from == input && customRate.to == output) {
                 Single.just(customRate)
-            else Single.just(customRate.inverse())
+            } else Single.just(customRate.inverse())
         } else {
             internalRate.onNext(ExchangeRate.zeroRateExchangeRate(input, output))
             getExchangeRate(input, output)
@@ -122,7 +122,8 @@ internal class FiatCryptoConversionModel(
         output: Currency
     ): Single<ExchangeRate> {
         return exchangeRates.exchangeRateLegacy(
-            input, output
+            input,
+            output
         ).firstOrError()
     }
 }

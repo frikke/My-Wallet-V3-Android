@@ -106,7 +106,7 @@ private fun RecurringBuyDetailScreen(
             } else {
                 StackedIcon.None
             },
-            title = stringResource(R.string.coinview_rb_card_title),
+            title = stringResource(com.blockchain.stringResources.R.string.coinview_rb_card_title),
             onCloseClick = closeOnClick
         )
 
@@ -165,7 +165,7 @@ private fun RecurringBuyDetailData(
             modifier = Modifier
                 .padding(AppTheme.dimensions.standardSpacing)
                 .fillMaxWidth(),
-            text = stringResource(R.string.common_remove),
+            text = stringResource(com.blockchain.stringResources.R.string.common_remove),
             textColor = AppTheme.colors.error,
             onClick = {
                 removeOnClick()
@@ -191,13 +191,13 @@ private fun RecurringBuyDetailItem(
         Text(
             text = key,
             style = AppTheme.typography.paragraph2,
-            color = AppTheme.colors.body,
+            color = AppTheme.colors.body
         )
         Spacer(modifier = Modifier.weight(1F))
         Text(
             text = value,
             style = AppTheme.typography.paragraph2,
-            color = AppTheme.colors.title,
+            color = AppTheme.colors.title
         )
     }
 }
@@ -205,10 +205,10 @@ private fun RecurringBuyDetailItem(
 @Composable
 private fun RecurringBuyDetail.build(): Map<String, String> {
     return mutableMapOf(
-        stringResource(R.string.amount) to amount,
-        stringResource(R.string.common_crypto) to assetName,
-        stringResource(R.string.payment_method) to paymentMethod,
-        stringResource(R.string.recurring_buy_frequency_label_1) to frequency.value(),
-        stringResource(R.string.recurring_buy_info_purchase_label_1) to nextBuy,
+        stringResource(com.blockchain.stringResources.R.string.amount) to amount,
+        stringResource(com.blockchain.stringResources.R.string.common_crypto) to assetName,
+        stringResource(com.blockchain.stringResources.R.string.payment_method) to paymentMethod,
+        stringResource(com.blockchain.stringResources.R.string.recurring_buy_frequency_label_1) to frequency.value(),
+        stringResource(com.blockchain.stringResources.R.string.recurring_buy_info_purchase_label_1) to nextBuy
     )
 }

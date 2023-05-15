@@ -45,7 +45,6 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
 
     @Test
     fun `Balance is fetched correctly and is non-zero`() {
-
         whenever(exchangeRates.exchangeRateToUserFiat(TEST_ASSET))
             .thenReturn(Observable.just(TEST_TO_USER_RATE_1))
 
@@ -73,7 +72,6 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
 
     @Test
     fun `Balance is fetched correctly and is zero`() {
-
         whenever(exchangeRates.exchangeRateToUserFiat(TEST_ASSET))
             .thenReturn(Observable.just(TEST_TO_USER_RATE_1))
 
@@ -99,7 +97,6 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
 
     @Test
     fun `rate changes are propagated correctly`() {
-
         val scheduler = TestScheduler()
 
         val rates = listOf(TEST_TO_USER_RATE_1, TEST_TO_USER_RATE_2)

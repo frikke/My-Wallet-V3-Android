@@ -18,7 +18,7 @@ class SimpleImageViewActivity : AppCompatActivity() {
 
         findViewById<SimpleImageView>(R.id.local_image_view).apply {
             image = ImageResource.Local(
-                id = R.drawable.ic_blockchain,
+                id = com.blockchain.componentlib.R.drawable.ic_blockchain,
                 contentDescription = ""
             )
             scaleType = ContentScale.Fit
@@ -26,7 +26,7 @@ class SimpleImageViewActivity : AppCompatActivity() {
 
         findViewById<SimpleImageView>(R.id.local_image_w_bkgd_view).apply {
             image = ImageResource.LocalWithBackground(
-                id = R.drawable.ic_blockchain,
+                id = com.blockchain.componentlib.R.drawable.ic_blockchain,
                 iconColor = Blue600,
                 backgroundColor = Color.Black,
                 contentDescription = "",

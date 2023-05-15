@@ -16,7 +16,7 @@ interface ProveApi {
 
     @POST("kyc/prove/auth/instant-link/start")
     suspend fun startInstantLinkAuth(
-        @Query("mobileNumber") mobileNumber: String,
+        @Query("mobileNumber") mobileNumber: String
     ): Outcome<Exception, StartInstantLinkAuthResponse>
 
     @POST("kyc/prove/auth/mobile/start")
@@ -30,11 +30,11 @@ interface ProveApi {
 
     @POST("kyc/prove/pre-fill")
     suspend fun getPrefillData(
-        @Query("dob") dob: String, // ISO 8601
+        @Query("dob") dob: String // ISO 8601
     ): Outcome<Exception, PrefillDataResponse>
 
     @POST("kyc/prove/pii")
     suspend fun submitData(
-        @Body data: PrefillDataSubmissionRequest,
+        @Body data: PrefillDataSubmissionRequest
     ): Outcome<Exception, Unit>
 }

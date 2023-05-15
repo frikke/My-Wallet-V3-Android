@@ -32,11 +32,13 @@ sealed interface BankAliasNavigationEvent : NavigationEvent {
 class BankAliasLinkViewModel(
     private val bankService: BankService,
     private val debounceSearchTimeoutInMillis: Long = SEARCH_TEXT_DEBOUNCE_TIMEOUT
-) : MviViewModel<BankAliasLinkIntent,
+) : MviViewModel<
+    BankAliasLinkIntent,
     BankAliasLinkViewState,
     BankAliasLinkModelState,
     BankAliasNavigationEvent,
-    ModelConfigArgs.NoArgs>(BankAliasLinkModelState()) {
+    ModelConfigArgs.NoArgs
+    >(BankAliasLinkModelState()) {
 
     private val searchText = MutableStateFlow("")
 

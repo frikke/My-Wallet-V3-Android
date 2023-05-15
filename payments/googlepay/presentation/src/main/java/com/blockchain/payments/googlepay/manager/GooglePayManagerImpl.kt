@@ -12,7 +12,7 @@ import kotlinx.serialization.json.Json
 
 class GooglePayManagerImpl(
     private val paymentsClient: PaymentsClient,
-    private val json: Json,
+    private val json: Json
 ) : GooglePayManager {
 
     override suspend fun checkIfGooglePayIsAvailable(googlePayRequest: GooglePayRequest): Boolean =

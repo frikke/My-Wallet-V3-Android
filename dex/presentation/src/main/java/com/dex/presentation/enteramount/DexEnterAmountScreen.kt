@@ -171,17 +171,18 @@ fun DexEnterAmountScreen(
                             NavArgument(
                                 key = ARG_ALLOWANCE_TX,
                                 value = Json.encodeToString(AllowanceTxUiData.serializer(), event.data)
-                            ),
+                            )
                         )
                     )
                 )
+
                 is AmountNavigationEvent.AllowanceTxFailed -> {
                     scope.launch {
                         chromePillProvider.show(
                             PillAlert(
                                 text = TextValue.StringValue(
                                     context.getString(
-                                        R.string.approval_for_token_failed,
+                                        com.blockchain.stringResources.R.string.approval_for_token_failed,
                                         event.currencyTicker
                                     )
                                 ),
@@ -191,13 +192,14 @@ fun DexEnterAmountScreen(
                         )
                     }
                 }
+
                 is AmountNavigationEvent.AllowanceTxCompleted -> {
                     scope.launch {
                         chromePillProvider.show(
                             PillAlert(
                                 text = TextValue.StringValue(
                                     context.getString(
-                                        R.string.approval_for_token_completed,
+                                        com.blockchain.stringResources.R.string.approval_for_token_completed,
                                         event.currencyTicker
                                     )
                                 ),
@@ -323,26 +325,30 @@ private fun NoInputScreen(
                 StandardVerticalSpacer()
                 Image(
                     imageResource = ImageResource.Local(
-                        id = R.drawable.ic_empty_state_deposit,
-                        contentDescription = stringResource(id = R.string.dex_no_input_title),
+                        id = com.blockchain.componentlib.R.drawable.ic_empty_state_deposit,
+                        contentDescription = stringResource(
+                            id = com.blockchain.stringResources.R.string.dex_no_input_title
+                        )
                     )
                 )
                 StandardVerticalSpacer()
 
                 SimpleText(
-                    text = stringResource(id = R.string.dex_no_input_title),
+                    text = stringResource(id = com.blockchain.stringResources.R.string.dex_no_input_title),
                     style = ComposeTypographies.Title3,
                     color = ComposeColors.Title,
                     gravity = ComposeGravities.Centre
                 )
 
                 SimpleText(
-                    text = stringResource(id = R.string.transfer_from_your_trading_account),
+                    text = stringResource(
+                        id = com.blockchain.stringResources.R.string.transfer_from_your_trading_account
+                    ),
                     style = ComposeTypographies.Body1,
                     color = ComposeColors.Body,
                     gravity = ComposeGravities.Centre,
                     modifier = Modifier.padding(
-                        vertical = AppTheme.dimensions.smallSpacing,
+                        vertical = AppTheme.dimensions.smallSpacing
                     )
                 )
 
@@ -353,7 +359,7 @@ private fun NoInputScreen(
                             vertical = AppTheme.dimensions.standardSpacing,
                             horizontal = AppTheme.dimensions.smallSpacing
                         ),
-                    text = stringResource(id = R.string.common_receive),
+                    text = stringResource(id = com.blockchain.stringResources.R.string.common_receive),
                     onClick = receive
                 )
             }
@@ -374,7 +380,6 @@ fun InputScreen(
     txInProgressDismiss: () -> Unit,
     viewState: InputAmountViewState.TransactionInputState
 ) {
-
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -393,8 +398,12 @@ fun InputScreen(
         viewState.topScreenUiError?.let {
             UiError(
                 modifier = Modifier.padding(bottom = AppTheme.dimensions.smallSpacing),
-                title = it.title ?: stringResource(id = R.string.common_http_error_title),
-                description = it.description ?: stringResource(id = R.string.common_http_error_description),
+                title = it.title ?: stringResource(
+                    id = com.blockchain.stringResources.R.string.common_http_error_title
+                ),
+                description = it.description ?: stringResource(
+                    id = com.blockchain.stringResources.R.string.common_http_error_description
+                ),
                 close = null
             )
         }
@@ -402,8 +411,8 @@ fun InputScreen(
         viewState.txInProgressWarning?.let {
             UiError(
                 modifier = Modifier.padding(bottom = AppTheme.dimensions.smallSpacing),
-                title = stringResource(id = R.string.tx_in_process),
-                description = stringResource(id = R.string.not_accurate_balance),
+                title = stringResource(id = com.blockchain.stringResources.R.string.tx_in_process),
+                description = stringResource(id = com.blockchain.stringResources.R.string.not_accurate_balance),
                 close = txInProgressDismiss
             )
         }
@@ -459,8 +468,9 @@ fun InputScreen(
 
         viewState.allowanceCanBeRevoked.takeIf { it }?.let {
             PrimaryButton(
-                state = if (viewState.operationInProgress == DexOperation.PUSHING_ALLOWANCE_TX)
-                    ButtonState.Loading else ButtonState.Enabled,
+                state = if (viewState.operationInProgress == DexOperation.PUSHING_ALLOWANCE_TX) {
+                    ButtonState.Loading
+                } else ButtonState.Enabled,
                 modifier = Modifier.padding(all = AppTheme.dimensions.standardSpacing),
                 text = "Revoke allowance for ${viewState.sourceCurrency?.displayTicker}",
                 onClick = revokeAllowance
@@ -470,7 +480,7 @@ fun InputScreen(
         viewState.alertError?.let {
             AlertButton(
                 modifier = Modifier
-                    .padding(vertical = dimensionResource(id = R.dimen.small_spacing))
+                    .padding(vertical = dimensionResource(id = com.blockchain.componentlib.R.dimen.small_spacing))
                     .fillMaxWidth(),
                 text = it.message(LocalContext.current),
                 onClick = { },
@@ -491,10 +501,11 @@ fun InputScreen(
 private fun PreviewSwapButton(onClick: () -> Unit, state: ButtonState) {
     PrimaryButton(
         modifier = Modifier
-            .padding(top = dimensionResource(id = R.dimen.small_spacing))
+            .padding(top = dimensionResource(id = com.blockchain.componentlib.R.dimen.small_spacing))
             .fillMaxWidth(),
         state = state,
-        text = stringResource(id = R.string.preview_swap), onClick = onClick
+        text = stringResource(id = com.blockchain.stringResources.R.string.preview_swap),
+        onClick = onClick
     )
 }
 
@@ -502,13 +513,13 @@ private fun PreviewSwapButton(onClick: () -> Unit, state: ButtonState) {
 private fun TokenAllowance(onClick: () -> Unit, currency: Currency, txInProgress: Boolean) {
     MinimalButton(
         modifier = Modifier
-            .padding(top = dimensionResource(id = R.dimen.small_spacing))
+            .padding(top = dimensionResource(id = com.blockchain.componentlib.R.dimen.small_spacing))
             .background(Color.White, shape = AppTheme.shapes.extraLarge)
             .fillMaxWidth(),
         state = if (txInProgress) ButtonState.Loading else ButtonState.Enabled,
         minHeight = 56.dp,
         icon = Icons.Question.withTint(AppTheme.colors.primary),
-        text = stringResource(id = R.string.approve_token, currency.displayTicker),
+        text = stringResource(id = com.blockchain.stringResources.R.string.approve_token, currency.displayTicker),
         onClick = onClick
     )
 }
@@ -576,8 +587,8 @@ private fun Fee(uiFee: UiFee) {
         content = {
             Text(
                 modifier = Modifier
-                    .padding(start = dimensionResource(id = R.dimen.tiny_spacing)),
-                text = stringResource(id = R.string.estimated_fees),
+                    .padding(start = dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing)),
+                text = stringResource(id = com.blockchain.stringResources.R.string.estimated_fees),
                 style = AppTheme.typography.paragraph2,
                 color = AppTheme.colors.title
             )
@@ -609,8 +620,8 @@ private fun PriceFetching() {
         content = {
             Text(
                 modifier = Modifier
-                    .padding(start = dimensionResource(id = R.dimen.tiny_spacing)),
-                text = stringResource(id = R.string.fetching_quote),
+                    .padding(start = dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing)),
+                text = stringResource(id = com.blockchain.stringResources.R.string.fetching_quote),
                 style = AppTheme.typography.paragraph2,
                 color = AppTheme.colors.title
             )
@@ -618,9 +629,9 @@ private fun PriceFetching() {
         contentStart = {
             ButtonLoadingIndicator(
                 modifier = Modifier.size(24.dp),
-                loadingIconResId = R.drawable.ic_loading_minimal_light
+                loadingIconResId = com.blockchain.componentlib.R.drawable.ic_loading_minimal_light
             )
-        },
+        }
     )
 }
 
@@ -633,7 +644,7 @@ private fun Settings(onClick: () -> Unit) {
     ) {
         Spacer(Modifier.weight(1f))
         TertiaryButton(
-            text = stringResource(id = R.string.common_settings),
+            text = stringResource(id = com.blockchain.stringResources.R.string.common_settings),
             textColor = Grey900,
             onClick = onClick,
             icon = Icons.Settings

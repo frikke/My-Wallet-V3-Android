@@ -212,7 +212,7 @@ class SimpleBuyCryptoFragment :
         with(activity) {
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
             updateToolbar(
-                toolbarTitle = getString(R.string.tx_title_buy, asset.displayTicker),
+                toolbarTitle = getString(com.blockchain.stringResources.R.string.tx_title_buy, asset.displayTicker),
                 backAction = {
                     analytics.logEvent(BuyAmountScreenBackClickedEvent)
                     activity.onBackPressedDispatcher.onBackPressed()
@@ -253,12 +253,13 @@ class SimpleBuyCryptoFragment :
                 currentFraudFlow?.let { fraudService.trackFlow(it) }
                 startBuy()
             }
-            text = getString(R.string.preview_buy)
+            text = getString(com.blockchain.stringResources.R.string.preview_buy)
         }
 
         compositeDisposable += binding.inputAmount.onImeAction.subscribe {
-            if (it == PrefixedOrSuffixedEditText.ImeOptions.NEXT)
+            if (it == PrefixedOrSuffixedEditText.ImeOptions.NEXT) {
                 startBuy()
+            }
         }
 
         if (launchLinkCard) {
@@ -299,8 +300,8 @@ class SimpleBuyCryptoFragment :
             is CardRejectionState.AlwaysRejected -> {
                 val error = cardInfo.error ?: ServerSideUxErrorInfo(
                     id = null,
-                    title = getString(R.string.card_issuer_always_rejects_title),
-                    description = getString(R.string.card_issuer_always_rejects_desc),
+                    title = getString(com.blockchain.stringResources.R.string.card_issuer_always_rejects_title),
+                    description = getString(com.blockchain.stringResources.R.string.card_issuer_always_rejects_desc),
                     iconUrl = "",
                     statusUrl = "",
                     actions = emptyList(),
@@ -311,9 +312,10 @@ class SimpleBuyCryptoFragment :
                     description = error.description,
                     error = error.id.orEmpty(),
                     serverSideUxErrorInfo = error,
-                    closeFlowOnDeeplinkFallback = true,
+                    closeFlowOnDeeplinkFallback = true
                 )
             }
+
             is CardRejectionState.MaybeRejected -> {
                 val error = cardInfo.error
                 navigator().showErrorInBottomSheet(
@@ -321,9 +323,10 @@ class SimpleBuyCryptoFragment :
                     description = error.description,
                     error = error.id.orEmpty(),
                     serverSideUxErrorInfo = error,
-                    closeFlowOnDeeplinkFallback = false,
+                    closeFlowOnDeeplinkFallback = false
                 )
             }
+
             CardRejectionState.NotRejected -> {
                 // do nothing
             }
@@ -338,7 +341,7 @@ class SimpleBuyCryptoFragment :
         statusIconUrl: String?,
         actions: List<ServerErrorAction>,
         analyticsCategories: List<String>,
-        closeFlowOnDeeplinkFallback: Boolean,
+        closeFlowOnDeeplinkFallback: Boolean
     ) {
         navigator().showErrorInBottomSheet(
             title = title.orEmpty(),
@@ -353,7 +356,7 @@ class SimpleBuyCryptoFragment :
                 actions = actions,
                 categories = analyticsCategories
             ),
-            closeFlowOnDeeplinkFallback = closeFlowOnDeeplinkFallback,
+            closeFlowOnDeeplinkFallback = closeFlowOnDeeplinkFallback
         )
     }
 
@@ -373,6 +376,7 @@ class SimpleBuyCryptoFragment :
                         mode = PaymentMethodChooserBottomSheet.DisplayMode.PAYMENT_METHODS,
                         canAddNewPayment = paymentOptions.availablePaymentMethods.any { method -> method.canBeAdded() }
                     )
+
                 PaymentMethodsChooserState.AVAILABLE_TO_ADD ->
                     PaymentMethodChooserBottomSheet.newInstance(
                         paymentMethods = paymentOptions.availablePaymentMethods
@@ -412,11 +416,11 @@ class SimpleBuyCryptoFragment :
 
     private fun showDialogRecurringBuyUnavailable(paymentMethodDefined: Boolean) {
         showAlert(
-            AlertDialog.Builder(requireContext(), R.style.AlertDialogStyle)
-                .setTitle(R.string.recurring_buy_unavailable_title)
-                .setMessage(R.string.recurring_buy_unavailable_message)
+            AlertDialog.Builder(requireContext(), com.blockchain.componentlib.R.style.AlertDialogStyle)
+                .setTitle(com.blockchain.stringResources.R.string.recurring_buy_unavailable_title)
+                .setMessage(com.blockchain.stringResources.R.string.recurring_buy_unavailable_message)
                 .setCancelable(false)
-                .setPositiveButton(R.string.recurring_buy_cta_alert) { dialog, _ ->
+                .setPositiveButton(com.blockchain.stringResources.R.string.recurring_buy_cta_alert) { dialog, _ ->
                     val interval = RecurringBuyFrequency.ONE_TIME
                     model.process(SimpleBuyIntent.RecurringBuyIntervalUpdated(interval))
                     binding.recurringBuyCta.apply {
@@ -474,7 +478,7 @@ class SimpleBuyCryptoFragment :
                                 SimpleBuyIntent.PrefillEnterAmount(maxAmount as FiatValue)
                             )
                         },
-                        maxButtonText = stringResource(R.string.buy_max),
+                        maxButtonText = stringResource(com.blockchain.stringResources.R.string.buy_max),
                         areButtonsTransparent = false
                     )
                 }
@@ -550,10 +554,14 @@ class SimpleBuyCryptoFragment :
         val transactionsLimit = newState.transactionsLimit
         if (transactionsLimit is TransactionsLimit.Limited) {
             binding.inputAmount.showInfo(
-                getString(R.string.tx_enter_amount_orders_limit_info, transactionsLimit.maxTransactionsLeft)
+                getString(
+                    com.blockchain.stringResources.R.string.tx_enter_amount_orders_limit_info,
+                    transactionsLimit.maxTransactionsLeft
+                )
             ) {
                 val info = bottomSheetInfoCustomiser.info(
-                    InfoBottomSheetType.TRANSACTIONS_LIMIT, newState,
+                    InfoBottomSheetType.TRANSACTIONS_LIMIT,
+                    newState,
                     newState.fiatCurrency.type
                 )
                 if (info != null) {
@@ -596,6 +604,7 @@ class SimpleBuyCryptoFragment :
             newState.kycVerificationState != null &&
             (newState.orderState == OrderState.PENDING_CONFIRMATION || newState.featureFlagSet.feynmanCheckoutFF)
         ) {
+            model.process(SimpleBuyIntent.NavigationHandled)
             handlePostOrderCreationAction(newState)
         }
 
@@ -607,7 +616,9 @@ class SimpleBuyCryptoFragment :
             model.process(SimpleBuyIntent.ResetLinkBankTransfer)
             startActivityForResult(
                 BankAuthActivity.newInstance(
-                    it, BankAuthSource.SIMPLE_BUY, requireContext()
+                    it,
+                    BankAuthSource.SIMPLE_BUY,
+                    requireContext()
                 ),
                 BankAuthActivity.LINK_BANK_REQUEST_CODE
             )
@@ -636,6 +647,7 @@ class SimpleBuyCryptoFragment :
                         as? CardRejectionState.AlwaysRejected
                     )?.renderAlwaysRejectedCardError()
             }
+
             newState.errorStateShouldBeIndicated() -> showError(newState)
             else -> showCta()
         }
@@ -658,6 +670,7 @@ class SimpleBuyCryptoFragment :
             // suggested upgrade
             TransactionErrorState.OVER_GOLD_TIER_LIMIT,
             TransactionErrorState.OVER_SILVER_TIER_LIMIT -> InfoBottomSheetType.OVER_MAX_LIMIT
+
             TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT -> InfoBottomSheetType.ABOVE_MAX_PAYMENT_METHOD_LIMIT
             else -> null
         }
@@ -678,7 +691,7 @@ class SimpleBuyCryptoFragment :
     }
 
     private fun handlePossibleInfoAction(
-        info: TransactionFlowBottomSheetInfo,
+        info: TransactionFlowBottomSheetInfo
     ): () -> Unit {
         val type = info.action?.actionType ?: return {}
         return when (type) {
@@ -686,6 +699,7 @@ class SimpleBuyCryptoFragment :
                 analytics.logEvent(InfoBottomSheetKycUpsellActionClicked(AssetAction.Buy))
                 showBottomSheet(KycUpgradeNowSheet.newInstance())
             }
+
             InfoActionType.BUY -> {
                 {}
             }
@@ -717,14 +731,17 @@ class SimpleBuyCryptoFragment :
             newState.selectedPaymentMethod?.isActive() == true -> {
                 navigator().goToCheckOutScreen()
             }
+
             newState.selectedPaymentMethod?.paymentMethodType == PaymentMethodType.GOOGLE_PAY &&
                 newState.kycVerificationState == KycState.VERIFIED_AND_ELIGIBLE -> {
                 // We need to ensure that only verified and eligible users can use Google Pay
                 navigator().goToCheckOutScreen()
             }
+
             newState.selectedPaymentMethod?.isEligible == true -> {
                 addPaymentMethod(newState.selectedPaymentMethod.paymentMethodType, newState.fiatCurrency)
             }
+
             else -> {
                 require(newState.kycVerificationState != null)
                 require(newState.kycVerificationState != KycState.VERIFIED_AND_ELIGIBLE)
@@ -735,16 +752,17 @@ class SimpleBuyCryptoFragment :
                     }
                     // Awaiting results state
                     KycState.IN_REVIEW,
-                    KycState.UNDECIDED,
+                    KycState.UNDECIDED
                     -> {
                         navigator().goToKycVerificationScreen()
                     }
                     // Got results, kyc verification screen will show error
                     KycState.VERIFIED_BUT_NOT_ELIGIBLE,
-                    KycState.FAILED,
+                    KycState.FAILED
                     -> {
                         navigator().goToKycVerificationScreen()
                     }
+
                     KycState.VERIFIED_AND_ELIGIBLE -> throw IllegalStateException(
                         "Payment method should be active or eligible"
                     )
@@ -897,7 +915,10 @@ class SimpleBuyCryptoFragment :
     private fun renderBankPayment(paymentMethod: PaymentMethod.Bank) {
         binding.paymentMethodDetailsRoot.apply {
             primaryText = paymentMethod.bankName
-            secondaryText = getString(R.string.payment_method_limit, paymentMethod.limits.max.toStringWithSymbol())
+            secondaryText = getString(
+                com.blockchain.stringResources.R.string.payment_method_limit,
+                paymentMethod.limits.max.toStringWithSymbol()
+            )
             showDefaultTextColours()
             startImageResource = if (paymentMethod.iconUrl.isNotEmpty()) {
                 ImageResource.Remote(paymentMethod.iconUrl)
@@ -912,12 +933,15 @@ class SimpleBuyCryptoFragment :
     private fun renderUndefinedCardPayment(selectedPaymentMethod: PaymentMethod.UndefinedCard) {
         binding.paymentMethodDetailsRoot.apply {
             primaryText = if (canUseCreditCards()) {
-                getString(R.string.credit_or_debit_card)
+                getString(com.blockchain.stringResources.R.string.credit_or_debit_card)
             } else {
-                getString(R.string.add_debit_card)
+                getString(com.blockchain.stringResources.R.string.add_debit_card)
             }
             secondaryText =
-                getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
+                getString(
+                    com.blockchain.stringResources.R.string.payment_method_limit,
+                    selectedPaymentMethod.limits.max.toStringWithSymbol()
+                )
             showDefaultTextColours()
             startImageResource =
                 ImageResource.Local(contentDescription = "UndefinedCard", id = R.drawable.ic_payment_card)
@@ -926,9 +950,12 @@ class SimpleBuyCryptoFragment :
 
     private fun renderUndefinedBankTransfer(selectedPaymentMethod: PaymentMethod.UndefinedBankTransfer) {
         binding.paymentMethodDetailsRoot.apply {
-            primaryText = getString(R.string.easy_bank_transfer)
+            primaryText = getString(com.blockchain.stringResources.R.string.easy_bank_transfer)
             secondaryText =
-                getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
+                getString(
+                    com.blockchain.stringResources.R.string.payment_method_limit,
+                    selectedPaymentMethod.limits.max.toStringWithSymbol()
+                )
             showDefaultTextColours()
             startImageResource = ImageResource.Local(
                 contentDescription = "UndefinedBankTransfer",
@@ -943,7 +970,10 @@ class SimpleBuyCryptoFragment :
                 StringLocalizationUtil.getBankDepositTitle(selectedPaymentMethod.fiatCurrency.networkTicker)
             )
             secondaryText =
-                getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
+                getString(
+                    com.blockchain.stringResources.R.string.payment_method_limit,
+                    selectedPaymentMethod.limits.max.toStringWithSymbol()
+                )
             showDefaultTextColours()
             startImageResource = ImageResource.Local(
                 contentDescription = "UndefinedBankTransfer",
@@ -957,7 +987,10 @@ class SimpleBuyCryptoFragment :
             paymentMethodDetailsRoot.apply {
                 primaryText = selectedPaymentMethod.dottedEndDigits()
                 secondaryText =
-                    getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
+                    getString(
+                        com.blockchain.stringResources.R.string.payment_method_limit,
+                        selectedPaymentMethod.limits.max.toStringWithSymbol()
+                    )
                 startImageResource = ImageResource.Local(
                     selectedPaymentMethod.cardType.icon()
                 )
@@ -969,6 +1002,7 @@ class SimpleBuyCryptoFragment :
                         btnContinue.gone()
                         tags = emptyList()
                     }
+
                     is CardRejectionState.MaybeRejected -> {
                         showDefaultTextColours()
                         btnError.gone()
@@ -981,6 +1015,7 @@ class SimpleBuyCryptoFragment :
                             )
                         )
                     }
+
                     else -> {
                         showDefaultTextColours()
                         tags = emptyList()
@@ -1010,7 +1045,7 @@ class SimpleBuyCryptoFragment :
             showDefaultTextColours()
             startImageResource = ImageResource.Local(
                 contentDescription = "googlePayIcon",
-                id = R.drawable.google_pay_mark
+                id = com.blockchain.payments.googlepay.R.drawable.google_pay_mark
             )
         }
         disableRecurringBuyCta(false)
@@ -1025,8 +1060,8 @@ class SimpleBuyCryptoFragment :
         binding.btnError.apply {
             val error = error ?: ServerSideUxErrorInfo(
                 id = null,
-                title = getString(R.string.card_issuer_always_rejects_title),
-                description = getString(R.string.card_issuer_always_rejects_desc),
+                title = getString(com.blockchain.stringResources.R.string.card_issuer_always_rejects_title),
+                description = getString(com.blockchain.stringResources.R.string.card_issuer_always_rejects_desc),
                 iconUrl = "",
                 statusUrl = "",
                 actions = emptyList(),
@@ -1061,155 +1096,178 @@ class SimpleBuyCryptoFragment :
         when (errorState) {
             ErrorState.DailyLimitExceeded ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.sb_checkout_daily_limit_title),
-                    description = getString(R.string.sb_checkout_daily_limit_blurb),
+                    title = getString(com.blockchain.stringResources.R.string.sb_checkout_daily_limit_title),
+                    description = getString(com.blockchain.stringResources.R.string.sb_checkout_daily_limit_blurb),
                     error = OVER_MAXIMUM_SOURCE_LIMIT
                 )
+
             ErrorState.WeeklyLimitExceeded ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.sb_checkout_weekly_limit_title),
-                    description = getString(R.string.sb_checkout_weekly_limit_blurb),
+                    title = getString(com.blockchain.stringResources.R.string.sb_checkout_weekly_limit_title),
+                    description = getString(com.blockchain.stringResources.R.string.sb_checkout_weekly_limit_blurb),
                     error = OVER_MAXIMUM_SOURCE_LIMIT
                 )
+
             ErrorState.YearlyLimitExceeded ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.sb_checkout_yearly_limit_title),
-                    description = getString(R.string.sb_checkout_yearly_limit_blurb),
+                    title = getString(com.blockchain.stringResources.R.string.sb_checkout_yearly_limit_title),
+                    description = getString(com.blockchain.stringResources.R.string.sb_checkout_yearly_limit_blurb),
                     error = OVER_MAXIMUM_SOURCE_LIMIT
                 )
+
             ErrorState.ExistingPendingOrder ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.sb_checkout_pending_order_title),
-                    description = getString(R.string.sb_checkout_pending_order_blurb),
+                    title = getString(com.blockchain.stringResources.R.string.sb_checkout_pending_order_title),
+                    description = getString(com.blockchain.stringResources.R.string.sb_checkout_pending_order_blurb),
                     error = PENDING_ORDERS_LIMIT_REACHED
                 )
+
             ErrorState.InsufficientCardFunds ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.title_cardInsufficientFunds),
-                    description = getString(R.string.msg_cardInsufficientFunds),
+                    title = getString(com.blockchain.stringResources.R.string.title_cardInsufficientFunds),
+                    description = getString(com.blockchain.stringResources.R.string.msg_cardInsufficientFunds),
                     error = INSUFFICIENT_FUNDS
                 )
+
             ErrorState.CardBankDeclined ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.title_cardBankDecline),
-                    description = getString(R.string.msg_cardBankDecline),
+                    title = getString(com.blockchain.stringResources.R.string.title_cardBankDecline),
+                    description = getString(com.blockchain.stringResources.R.string.msg_cardBankDecline),
                     error = errorState.toString()
                 )
+
             ErrorState.CardDuplicated ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.title_cardDuplicate),
-                    description = getString(R.string.msg_cardDuplicate),
+                    title = getString(com.blockchain.stringResources.R.string.title_cardDuplicate),
+                    description = getString(com.blockchain.stringResources.R.string.msg_cardDuplicate),
                     error = errorState.toString()
                 )
+
             ErrorState.CardBlockchainDeclined ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.title_cardBlockchainDecline),
-                    description = getString(R.string.msg_cardBlockchainDecline),
+                    title = getString(com.blockchain.stringResources.R.string.title_cardBlockchainDecline),
+                    description = getString(com.blockchain.stringResources.R.string.msg_cardBlockchainDecline),
                     error = errorState.toString()
                 )
+
             ErrorState.CardAcquirerDeclined ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.title_cardAcquirerDecline),
-                    description = getString(R.string.msg_cardAcquirerDecline),
+                    title = getString(com.blockchain.stringResources.R.string.title_cardAcquirerDecline),
+                    description = getString(com.blockchain.stringResources.R.string.msg_cardAcquirerDecline),
                     error = errorState.toString()
                 )
+
             ErrorState.CardPaymentNotSupported ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.title_cardPaymentNotSupported),
-                    description = getString(R.string.msg_cardPaymentNotSupported),
+                    title = getString(com.blockchain.stringResources.R.string.title_cardPaymentNotSupported),
+                    description = getString(com.blockchain.stringResources.R.string.msg_cardPaymentNotSupported),
                     error = errorState.toString()
                 )
+
             ErrorState.CardCreateFailed ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.title_cardCreateFailed),
-                    description = getString(R.string.msg_cardCreateFailed),
+                    title = getString(com.blockchain.stringResources.R.string.title_cardCreateFailed),
+                    description = getString(com.blockchain.stringResources.R.string.msg_cardCreateFailed),
                     error = errorState.toString()
                 )
+
             ErrorState.CardPaymentFailed ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.title_cardPaymentFailed),
-                    description = getString(R.string.msg_cardPaymentFailed),
+                    title = getString(com.blockchain.stringResources.R.string.title_cardPaymentFailed),
+                    description = getString(com.blockchain.stringResources.R.string.msg_cardPaymentFailed),
                     error = errorState.toString()
                 )
+
             ErrorState.CardCreateAbandoned ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.title_cardCreateAbandoned),
-                    description = getString(R.string.msg_cardCreateAbandoned),
+                    title = getString(com.blockchain.stringResources.R.string.title_cardCreateAbandoned),
+                    description = getString(com.blockchain.stringResources.R.string.msg_cardCreateAbandoned),
                     error = errorState.toString()
                 )
+
             ErrorState.CardCreateExpired ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.title_cardCreateExpired),
-                    description = getString(R.string.msg_cardCreateExpired),
+                    title = getString(com.blockchain.stringResources.R.string.title_cardCreateExpired),
+                    description = getString(com.blockchain.stringResources.R.string.msg_cardCreateExpired),
                     error = errorState.toString()
                 )
+
             ErrorState.CardCreateBankDeclined ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.title_cardCreateBankDeclined),
-                    description = getString(R.string.msg_cardCreateBankDeclined),
+                    title = getString(com.blockchain.stringResources.R.string.title_cardCreateBankDeclined),
+                    description = getString(com.blockchain.stringResources.R.string.msg_cardCreateBankDeclined),
                     error = errorState.toString()
                 )
+
             ErrorState.CardCreateDebitOnly ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.title_cardCreateDebitOnly),
-                    description = getString(R.string.msg_cardCreateDebitOnly),
+                    title = getString(com.blockchain.stringResources.R.string.title_cardCreateDebitOnly),
+                    description = getString(com.blockchain.stringResources.R.string.msg_cardCreateDebitOnly),
                     serverSideUxErrorInfo = ServerSideUxErrorInfo(
                         id = null,
-                        title = getString(R.string.title_cardCreateDebitOnly),
-                        description = getString(R.string.msg_cardCreateDebitOnly),
-                        iconUrl = getString(R.string.empty),
-                        statusUrl = getString(R.string.empty),
+                        title = getString(com.blockchain.stringResources.R.string.title_cardCreateDebitOnly),
+                        description = getString(com.blockchain.stringResources.R.string.msg_cardCreateDebitOnly),
+                        iconUrl = getString(com.blockchain.stringResources.R.string.empty),
+                        statusUrl = getString(com.blockchain.stringResources.R.string.empty),
                         actions = listOf(
                             ServerErrorAction(
-                                getString(R.string.sb_checkout_card_debit_only_cta), DIFFERENT_PAYMENT_URL
+                                getString(com.blockchain.stringResources.R.string.sb_checkout_card_debit_only_cta),
+                                DIFFERENT_PAYMENT_URL
                             )
                         ),
                         categories = emptyList()
                     ),
                     error = errorState.toString()
                 )
+
             ErrorState.CardPaymentDebitOnly ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.title_cardPaymentDebitOnly),
-                    description = getString(R.string.msg_cardPaymentDebitOnly),
+                    title = getString(com.blockchain.stringResources.R.string.title_cardPaymentDebitOnly),
+                    description = getString(com.blockchain.stringResources.R.string.msg_cardPaymentDebitOnly),
                     error = errorState.toString()
                 )
+
             ErrorState.CardNoToken ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.title_cardCreateNoToken),
-                    description = getString(R.string.msg_cardCreateNoToken),
+                    title = getString(com.blockchain.stringResources.R.string.title_cardCreateNoToken),
+                    description = getString(com.blockchain.stringResources.R.string.msg_cardCreateNoToken),
                     error = errorState.toString()
                 )
+
             is ErrorState.BankLinkMaxAccountsReached ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.bank_linking_max_accounts_title),
-                    description = getString(R.string.bank_linking_max_accounts_subtitle),
+                    title = getString(com.blockchain.stringResources.R.string.bank_linking_max_accounts_title),
+                    description = getString(com.blockchain.stringResources.R.string.bank_linking_max_accounts_subtitle),
                     error = errorState.toString(),
                     nabuApiException = errorState.error
                 )
+
             is ErrorState.BankLinkMaxAttemptsReached ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.bank_linking_max_attempts_title),
-                    description = getString(R.string.bank_linking_max_attempts_subtitle),
+                    title = getString(com.blockchain.stringResources.R.string.bank_linking_max_attempts_title),
+                    description = getString(com.blockchain.stringResources.R.string.bank_linking_max_attempts_subtitle),
                     error = errorState.toString(),
                     nabuApiException = errorState.error
                 )
+
             is ErrorState.UnhandledHttpError ->
                 navigator().showErrorInBottomSheet(
                     title = getString(
-                        R.string.common_http_error_with_message,
+                        com.blockchain.stringResources.R.string.common_http_error_with_message,
                         errorState.nabuApiException.getErrorDescription()
                     ),
                     description = errorState.nabuApiException.getErrorDescription(),
                     error = NABU_ERROR,
                     nabuApiException = errorState.nabuApiException
                 )
+
             ErrorState.InternetConnectionError ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.executing_connection_error),
-                    description = getString(R.string.something_went_wrong_try_again),
-                    error = INTERNET_CONNECTION_ERROR,
+                    title = getString(com.blockchain.stringResources.R.string.executing_connection_error),
+                    description = getString(com.blockchain.stringResources.R.string.something_went_wrong_try_again),
+                    error = INTERNET_CONNECTION_ERROR
                 )
+
             is ErrorState.ServerSideUxError ->
                 navigator().showErrorInBottomSheet(
                     title = errorState.serverSideUxErrorInfo.title,
@@ -1217,26 +1275,35 @@ class SimpleBuyCryptoFragment :
                     error = ClientErrorAnalytics.SERVER_SIDE_HANDLED_ERROR,
                     serverSideUxErrorInfo = errorState.serverSideUxErrorInfo
                 )
+
             ErrorState.SettlementInsufficientBalance ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.title_cardInsufficientFunds),
-                    description = getString(R.string.trading_deposit_description_insufficient),
+                    title = getString(com.blockchain.stringResources.R.string.title_cardInsufficientFunds),
+                    description = getString(
+                        com.blockchain.stringResources.R.string.trading_deposit_description_insufficient
+                    ),
                     error = SETTLEMENT_INSUFFICIENT_BALANCE
                 )
+
             ErrorState.SettlementStaleBalance ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.trading_deposit_title_stale_balance),
-                    description = getString(R.string.trading_deposit_description_stale),
+                    title = getString(com.blockchain.stringResources.R.string.trading_deposit_title_stale_balance),
+                    description = getString(com.blockchain.stringResources.R.string.trading_deposit_description_stale),
                     error = SETTLEMENT_STALE_BALANCE
                 )
+
             ErrorState.SettlementGenericError ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.common_oops_bank),
-                    description = getString(R.string.trading_deposit_description_generic),
+                    title = getString(com.blockchain.stringResources.R.string.common_oops_bank),
+                    description = getString(
+                        com.blockchain.stringResources.R.string.trading_deposit_description_generic
+                    ),
                     error = SETTLEMENT_GENERIC_ERROR
                 )
+
             is ErrorState.SettlementRefreshRequired ->
                 navigator().showBankRefreshError(errorState.accountId)
+
             ErrorState.ApproveBankInvalid,
             ErrorState.ApprovedBankAccountInvalid,
             ErrorState.ApprovedBankDeclined,
@@ -1268,6 +1335,7 @@ class SimpleBuyCryptoFragment :
                     "Error $errorState should not presented here"
                 )
             }
+
             ErrorState.BuyPaymentMethodsUnavailable -> {
                 navigator().goToBlockedBuyScreen()
             }
@@ -1331,6 +1399,7 @@ class SimpleBuyCryptoFragment :
                 val intent = Intent(activity, CardDetailsActivity::class.java)
                 startActivityForResult(intent, ADD_CARD_REQUEST_CODE)
             }
+
             PaymentMethodType.FUNDS -> {
                 showBottomSheet(
                     WireTransferAccountDetailsBottomSheet.newInstance(
@@ -1338,9 +1407,11 @@ class SimpleBuyCryptoFragment :
                     )
                 )
             }
+
             PaymentMethodType.BANK_TRANSFER -> {
                 model.process(SimpleBuyIntent.LinkBankTransferRequested)
             }
+
             else -> {
             }
         }
@@ -1447,21 +1518,32 @@ class SimpleBuyCryptoFragment :
     private fun TransactionErrorState.message(state: SimpleBuyState): String =
         when (this) {
             TransactionErrorState.BELOW_MIN_LIMIT ->
-                resources.getString(R.string.minimum_buy, state.limits.minAmount.toStringWithSymbol())
+                resources.getString(
+                    com.blockchain.stringResources.R.string.minimum_buy,
+                    state.limits.minAmount.toStringWithSymbol()
+                )
+
             TransactionErrorState.INSUFFICIENT_FUNDS -> resources.getString(
-                R.string.not_enough_funds, state.fiatCurrency.displayTicker
+                com.blockchain.stringResources.R.string.not_enough_funds,
+                state.fiatCurrency.displayTicker
             )
+
             TransactionErrorState.OVER_SILVER_TIER_LIMIT,
             TransactionErrorState.OVER_GOLD_TIER_LIMIT -> resources.getString(
-                R.string.over_your_limit
+                com.blockchain.stringResources.R.string.over_your_limit
             )
+
             TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT -> resources.getString(
-                R.string.minimum_buy, state.limits.minAmount.toStringWithSymbol()
+                com.blockchain.stringResources.R.string.minimum_buy,
+                state.limits.minAmount.toStringWithSymbol()
             )
+
             TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT -> resources.getString(
-                R.string.maximum_with_value, state.limits.maxAmount.toStringWithSymbol()
+                com.blockchain.stringResources.R.string.maximum_with_value,
+                state.limits.maxAmount.toStringWithSymbol()
             )
-            else -> resources.getString(R.string.empty)
+
+            else -> resources.getString(com.blockchain.stringResources.R.string.empty)
         }
 
     private fun SimpleBuyState.errorStateShouldBeIndicated() =
@@ -1470,32 +1552,53 @@ class SimpleBuyCryptoFragment :
 
 fun RecurringBuyFrequency.toRecurringBuySuggestionTitle(context: Context): String {
     return when (this) {
-        RecurringBuyFrequency.WEEKLY -> context.getString(R.string.checkout_rb_weekly_title)
-        RecurringBuyFrequency.BI_WEEKLY -> context.getString(R.string.checkout_rb_biweekly_title)
-        RecurringBuyFrequency.MONTHLY -> context.getString(R.string.checkout_rb_monthly_title)
-        else -> context.getString(R.string.checkout_rb_weekly_title)
+        RecurringBuyFrequency.WEEKLY -> context.getString(
+            com.blockchain.stringResources.R.string.checkout_rb_weekly_title
+        )
+
+        RecurringBuyFrequency.BI_WEEKLY -> context.getString(
+            com.blockchain.stringResources.R.string.checkout_rb_biweekly_title
+        )
+
+        RecurringBuyFrequency.MONTHLY -> context.getString(
+            com.blockchain.stringResources.R.string.checkout_rb_monthly_title
+        )
+
+        else -> context.getString(com.blockchain.stringResources.R.string.checkout_rb_weekly_title)
     }
 }
 
 fun RecurringBuyFrequency.toHumanReadableRecurringBuy(context: Context): String {
     return when (this) {
-        RecurringBuyFrequency.ONE_TIME -> context.getString(R.string.recurring_buy_one_time_selector)
-        RecurringBuyFrequency.DAILY -> context.getString(R.string.recurring_buy_daily_1)
-        RecurringBuyFrequency.WEEKLY -> context.getString(R.string.recurring_buy_weekly_1)
-        RecurringBuyFrequency.BI_WEEKLY -> context.getString(R.string.recurring_buy_bi_weekly_1)
-        RecurringBuyFrequency.MONTHLY -> context.getString(R.string.recurring_buy_monthly_1)
-        else -> context.getString(R.string.common_unknown)
+        RecurringBuyFrequency.ONE_TIME -> context.getString(
+            com.blockchain.stringResources.R.string.recurring_buy_one_time_selector
+        )
+
+        RecurringBuyFrequency.DAILY -> context.getString(com.blockchain.stringResources.R.string.recurring_buy_daily_1)
+        RecurringBuyFrequency.WEEKLY -> context.getString(
+            com.blockchain.stringResources.R.string.recurring_buy_weekly_1
+        )
+
+        RecurringBuyFrequency.BI_WEEKLY -> context.getString(
+            com.blockchain.stringResources.R.string.recurring_buy_bi_weekly_1
+        )
+
+        RecurringBuyFrequency.MONTHLY -> context.getString(
+            com.blockchain.stringResources.R.string.recurring_buy_monthly_1
+        )
+
+        else -> context.getString(com.blockchain.stringResources.R.string.common_unknown)
     }
 }
 
 @StringRes fun RecurringBuyFrequency.toHumanReadableRecurringBuy(): Int {
     return when (this) {
-        RecurringBuyFrequency.ONE_TIME -> R.string.recurring_buy_one_time_selector
-        RecurringBuyFrequency.DAILY -> R.string.recurring_buy_daily_1
-        RecurringBuyFrequency.WEEKLY -> R.string.recurring_buy_weekly_1
-        RecurringBuyFrequency.BI_WEEKLY -> R.string.recurring_buy_bi_weekly_1
-        RecurringBuyFrequency.MONTHLY -> R.string.recurring_buy_monthly_1
-        else -> R.string.common_unknown
+        RecurringBuyFrequency.ONE_TIME -> com.blockchain.stringResources.R.string.recurring_buy_one_time_selector
+        RecurringBuyFrequency.DAILY -> com.blockchain.stringResources.R.string.recurring_buy_daily_1
+        RecurringBuyFrequency.WEEKLY -> com.blockchain.stringResources.R.string.recurring_buy_weekly_1
+        RecurringBuyFrequency.BI_WEEKLY -> com.blockchain.stringResources.R.string.recurring_buy_bi_weekly_1
+        RecurringBuyFrequency.MONTHLY -> com.blockchain.stringResources.R.string.recurring_buy_monthly_1
+        else -> com.blockchain.stringResources.R.string.common_unknown
     }
 }
 
@@ -1503,28 +1606,33 @@ fun RecurringBuyFrequency.toHumanReadableRecurringDate(context: Context, dateTim
     return when (this) {
         RecurringBuyFrequency.DAILY -> {
             context.getString(
-                R.string.recurring_buy_frequency_subtitle_each_day,
+                com.blockchain.stringResources.R.string.recurring_buy_frequency_subtitle_each_day,
                 dateTime.to12HourFormat()
             )
         }
+
         RecurringBuyFrequency.BI_WEEKLY, RecurringBuyFrequency.WEEKLY -> {
             context.getString(
-                R.string.recurring_buy_frequency_subtitle,
+                com.blockchain.stringResources.R.string.recurring_buy_frequency_subtitle,
                 dateTime.dayOfWeek
                     .getDisplayName(TextStyle.FULL, Locale.getDefault())
                     .toString().capitalizeFirstChar()
             )
         }
+
         RecurringBuyFrequency.MONTHLY -> {
             if (dateTime.isLastDayOfTheMonth()) {
-                context.getString(R.string.recurring_buy_frequency_subtitle_monthly_last_day)
+                context.getString(
+                    com.blockchain.stringResources.R.string.recurring_buy_frequency_subtitle_monthly_last_day
+                )
             } else {
                 context.getString(
-                    R.string.recurring_buy_frequency_subtitle_monthly,
+                    com.blockchain.stringResources.R.string.recurring_buy_frequency_subtitle_monthly,
                     dateTime.dayOfMonth.toString()
                 )
             }
         }
+
         RecurringBuyFrequency.ONE_TIME,
         RecurringBuyFrequency.UNKNOWN -> ""
     }

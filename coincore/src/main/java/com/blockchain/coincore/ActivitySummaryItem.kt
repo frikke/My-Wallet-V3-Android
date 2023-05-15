@@ -45,7 +45,7 @@ class FiatActivitySummaryItem(
     override val account: FiatAccount,
     val type: TransactionType,
     override val state: TransactionState,
-    val paymentMethodId: String?,
+    val paymentMethodId: String?
 ) : CustodialTransaction {
     override val stateIsFinalised: Boolean
         get() = state.isFinalised
@@ -69,7 +69,7 @@ interface ActivitySummaryItem : Comparable<ActivitySummaryItem> {
         get() = Calendar.getInstance().apply { timeInMillis = timeStampMs }
 
     override operator fun compareTo(
-        other: ActivitySummaryItem,
+        other: ActivitySummaryItem
     ) = (other.timeStampMs - timeStampMs).sign
 
     val account: SingleAccount
@@ -91,7 +91,7 @@ data class TradeActivitySummaryItem(
     val withdrawalNetworkFee: Money,
     val currencyPair: CurrencyPair,
     val fiatValue: Money,
-    override val currency: FiatCurrency,
+    override val currency: FiatCurrency
 ) : CustodialTransaction {
     override val account: SingleAccount
         get() = sendingAccount
@@ -117,7 +117,7 @@ data class RecurringBuyActivitySummaryItem(
     val paymentMethodId: String,
     val paymentMethodType: PaymentMethodType,
     val type: OrderType,
-    val recurringBuyId: String?,
+    val recurringBuyId: String?
 ) : CustodialTransaction {
     override val state: CustodialTransactionState
         get() = transactionState
@@ -209,7 +209,7 @@ data class CustodialTradingActivitySummaryItem(
     val paymentMethodId: String,
     val paymentMethodType: PaymentMethodType,
     val depositPaymentId: String,
-    val recurringBuyId: String? = null,
+    val recurringBuyId: String? = null
 ) : CustodialTransaction {
     override val stateIsFinalised: Boolean
         get() = state > OrderState.PENDING_EXECUTION
@@ -228,7 +228,7 @@ data class CustodialTransferActivitySummaryItem(
     override val state: TransactionState,
     val fiatValue: FiatValue,
     val type: TransactionType,
-    val paymentMethodId: String?,
+    val paymentMethodId: String?
 ) : CustodialTransaction {
     val isConfirmed: Boolean by lazy {
         state == TransactionState.COMPLETED
@@ -316,5 +316,8 @@ abstract class NonCustodialActivitySummaryItem : CryptoActivitySummaryItem {
 typealias ActivitySummaryList = List<ActivitySummaryItem>
 
 fun FiatValue.toStringWithSymbolOrLessThanOnePenny(): String =
-    if (isZero) "<${FiatValue.fromMajor(currency, BigDecimal("0.01")).toStringWithSymbol()}"
-    else toStringWithSymbol()
+    if (isZero) {
+        "<${FiatValue.fromMajor(currency, BigDecimal("0.01")).toStringWithSymbol()}"
+    } else {
+        toStringWithSymbol()
+    }

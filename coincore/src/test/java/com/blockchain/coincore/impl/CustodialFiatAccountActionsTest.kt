@@ -41,7 +41,7 @@ class CustodialFiatAccountActionsTest : CoincoreTestBase() {
         configureActionTest(
             canTransactWithBankMethods = false,
             accountBalance = FiatValue.fromMinor(TEST_FIAT_ASSET, BigInteger.TEN),
-            actionableBalance = FiatValue.fromMinor(TEST_FIAT_ASSET, BigInteger.TEN),
+            actionableBalance = FiatValue.fromMinor(TEST_FIAT_ASSET, BigInteger.TEN)
         )
 
         // Act
@@ -62,7 +62,7 @@ class CustodialFiatAccountActionsTest : CoincoreTestBase() {
         configureActionTest(
             canTransactWithBankMethods = true,
             accountBalance = FiatValue.fromMinor(TEST_FIAT_ASSET, BigInteger.TEN),
-            actionableBalance = FiatValue.fromMinor(TEST_FIAT_ASSET, BigInteger.ZERO),
+            actionableBalance = FiatValue.fromMinor(TEST_FIAT_ASSET, BigInteger.ZERO)
         )
 
         // Act
@@ -85,7 +85,7 @@ class CustodialFiatAccountActionsTest : CoincoreTestBase() {
         configureActionTest(
             canTransactWithBankMethods = true,
             accountBalance = FiatValue.fromMinor(TEST_FIAT_ASSET, BigInteger.TEN),
-            actionableBalance = FiatValue.fromMinor(TEST_FIAT_ASSET, BigInteger.TEN),
+            actionableBalance = FiatValue.fromMinor(TEST_FIAT_ASSET, BigInteger.TEN)
         )
 
         // Act
@@ -117,9 +117,8 @@ class CustodialFiatAccountActionsTest : CoincoreTestBase() {
         canTransactWithBankMethods: Boolean,
         accountBalance: FiatValue,
         actionableBalance: FiatValue,
-        pendingBalance: FiatValue = FiatValue.zero(TEST_FIAT_ASSET),
+        pendingBalance: FiatValue = FiatValue.zero(TEST_FIAT_ASSET)
     ) {
-
         whenever(bankService.canTransactWithBankMethods(TEST_FIAT_ASSET))
             .thenReturn(
                 Single.just(canTransactWithBankMethods)

@@ -169,7 +169,7 @@ class SimpleBuyActivity :
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         updateToolbar(
-            toolbarTitle = getString(R.string.common_buy),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.common_buy),
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         analytics.logEvent(BuyAssetScreenViewedEvent)
@@ -266,7 +266,10 @@ class SimpleBuyActivity :
     override fun onDestroy() {
         super.onDestroy()
         fraudService.endFlows(
-            FraudFlow.ACH_DEPOSIT, FraudFlow.OB_DEPOSIT, FraudFlow.CARD_DEPOSIT, FraudFlow.MOBILE_WALLET_DEPOSIT
+            FraudFlow.ACH_DEPOSIT,
+            FraudFlow.OB_DEPOSIT,
+            FraudFlow.CARD_DEPOSIT,
+            FraudFlow.MOBILE_WALLET_DEPOSIT
         )
         compositeDisposable.clear()
         googlePayResponseInterceptor.clear()
@@ -397,7 +400,7 @@ class SimpleBuyActivity :
         addToBackStack: Boolean,
         isPaymentAuthorised: Boolean,
         showRecurringBuySuggestion: Boolean,
-        recurringBuyFrequencyRemote: RecurringBuyFrequency?,
+        recurringBuyFrequencyRemote: RecurringBuyFrequency?
     ) {
         supportFragmentManager.beginTransaction()
             .addTransactionAnimation()
@@ -462,7 +465,7 @@ class SimpleBuyActivity :
         errorDescription: String?,
         nabuApiException: NabuApiException?,
         serverSideUxErrorInfo: ServerSideUxErrorInfo?,
-        closeFlowOnDeeplinkFallback: Boolean,
+        closeFlowOnDeeplinkFallback: Boolean
     ) {
         serverSideUxErrorInfo?.actions?.assignErrorActions(closeFlowOnDeeplinkFallback)
 
@@ -473,7 +476,7 @@ class SimpleBuyActivity :
                     description = description,
                     errorButtonCopies = if (serverSideUxErrorInfo?.actions?.isEmpty() == true) {
                         ErrorButtonCopies(
-                            primaryButtonText = getString(R.string.common_ok)
+                            primaryButtonText = getString(com.blockchain.stringResources.R.string.common_ok)
                         )
                     } else {
                         serverSideUxErrorInfo?.actions?.mapToErrorCopies()
@@ -503,11 +506,15 @@ class SimpleBuyActivity :
         showBottomSheet(
             ErrorSlidingBottomDialog.newInstance(
                 ErrorDialogData(
-                    title = getString(R.string.common_oops_bank),
-                    description = getString(R.string.trading_deposit_description_requires_update),
+                    title = getString(com.blockchain.stringResources.R.string.common_oops_bank),
+                    description = getString(
+                        com.blockchain.stringResources.R.string.trading_deposit_description_requires_update
+                    ),
                     errorButtonCopies = ErrorButtonCopies(
-                        primaryButtonText = getString(R.string.trading_deposit_relink_bank_account),
-                        secondaryButtonText = getString(R.string.common_ok),
+                        primaryButtonText = getString(
+                            com.blockchain.stringResources.R.string.trading_deposit_relink_bank_account
+                        ),
+                        secondaryButtonText = getString(com.blockchain.stringResources.R.string.common_ok)
                     ),
                     error = SETTLEMENT_REFRESH_REQUIRED,
                     action = ACTION_BUY,
@@ -661,7 +668,7 @@ class SimpleBuyActivity :
             launchFromApprovalDeepLink: Boolean = false,
             launchLinkCard: Boolean = false,
             launchNewPaymentMethodSelection: Boolean = false,
-            fromRecurringBuy: Boolean = false,
+            fromRecurringBuy: Boolean = false
         ) = Intent(context, SimpleBuyActivity::class.java).apply {
             putExtra(STARTED_FROM_NAVIGATION_KEY, launchFromNavigationBar)
             putExtra(ASSET_KEY, asset?.networkTicker)
