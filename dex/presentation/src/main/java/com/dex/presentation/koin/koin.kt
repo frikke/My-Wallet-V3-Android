@@ -26,7 +26,8 @@ val dexPresentation = module {
                 exchangeRatesDataManager = get(),
                 allowanceProcessor = get(),
                 dexSlippageService = get(),
-                dexChainService = get()
+                dexChainService = get(),
+                assetCatalogue = get()
             )
         }
 

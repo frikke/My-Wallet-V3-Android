@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -83,6 +82,9 @@ import com.blockchain.componentlib.theme.Red400
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.data.DataResource
+import com.blockchain.data.dataOrElse
+import com.blockchain.data.map
 import com.blockchain.dex.presentation.R
 import com.blockchain.koin.payloadScope
 import com.blockchain.preferences.DexPrefs
@@ -268,6 +270,7 @@ fun DexEnterAmountScreen(
         (viewState as? InputAmountViewState.NoInputViewState)?.let {
             paddedItem(paddingValues = PaddingValues(spacing)) {
                 NoInputScreen(
+                    networkSelection = it.networkSelection,
                     selectNetworkOnClick = {
                         navController.navigate(DexDestination.SelectNetwork.route)
                         keyboardController?.hide()
@@ -281,6 +284,7 @@ fun DexEnterAmountScreen(
 
 @Composable
 private fun NoInputScreen(
+    networkSelection: DataResource<NetworkSelection>,
     selectNetworkOnClick: () -> Unit,
     receive: () -> Unit
 ) {
@@ -288,8 +292,10 @@ private fun NoInputScreen(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        NetworkSelection(onClick = selectNetworkOnClick)
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+        ((networkSelection as? DataResource.Data)?.data as? NetworkSelection.Available)?.let {
+            NetworkSelection(logo = it.logo, name = it.name, onClick = selectNetworkOnClick)
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+        }
 
         Surface(
             color = AppTheme.colors.background,
@@ -364,8 +370,10 @@ fun InputScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        NetworkSelection(onClick = selectNetworkOnClick)
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+        ((viewState.networkSelection as? DataResource.Data)?.data as? NetworkSelection.Available)?.let {
+            NetworkSelection(logo = it.logo, name = it.name, onClick = selectNetworkOnClick)
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+        }
 
         viewState.topScreenUiError?.let {
             UiError(
@@ -412,7 +420,9 @@ fun InputScreen(
             )
         )
 
-        Settings(settingsOnClick)
+        ((viewState.networkSelection as? DataResource.Data)?.data as? NetworkSelection.Unavailable)?.let {
+            Settings(settingsOnClick)
+        }
 
         viewState.uiFee?.takeIf { viewState.operationInProgress == DexOperation.NONE }?.let { uiFee ->
             Fee(uiFee)
@@ -618,6 +628,8 @@ private fun Settings(onClick: () -> Unit) {
 
 @Composable
 private fun NetworkSelection(
+    logo: String,
+    name: String,
     onClick: () -> Unit
 ) {
     Surface(
@@ -634,7 +646,7 @@ private fun NetworkSelection(
             SmallTagIcon(
                 icon = StackedIcon.SmallTag(
                     main = Icons.Filled.Network.withSize(16.dp),
-                    tag = Icons.Filled.Check
+                    tag = ImageResource.Remote(logo)
                 ),
                 iconBackground = Grey000,
                 tagIconSize = 12.dp
@@ -652,7 +664,7 @@ private fun NetworkSelection(
             Spacer(modifier = Modifier.weight(1F))
 
             Text(
-                text = "Eth",
+                text = name,
                 style = AppTheme.typography.paragraph2,
                 color = AppTheme.colors.title
             )
@@ -667,15 +679,46 @@ private fun NetworkSelection(
 @Preview
 @Composable
 private fun PreviewNetworkSelection() {
-    NetworkSelection(onClick = {})
+    NetworkSelection(
+        logo = "", name = "ETH",
+        onClick = {}
+    )
 }
 
 @Preview
 @Composable
-private fun PreviewInputScreen() {
+private fun PreviewInputScreen_NetworkSelection() {
     InputScreen(
         {}, {}, {}, {}, {}, {}, {}, {}, {},
         InputAmountViewState.TransactionInputState(
+            networkSelection = DataResource.Data(NetworkSelection.Available("", "ETH")),
+            sourceCurrency = CryptoCurrency.ETHER,
+            destinationCurrency = CryptoCurrency.BTC,
+            maxAmount = Money.fromMajor(CryptoCurrency.ETHER, 100.toBigDecimal()),
+            txAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
+            operationInProgress = DexOperation.NONE,
+            destinationAccountBalance = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
+            sourceAccountBalance = Money.fromMajor(CryptoCurrency.ETHER, 200.toBigDecimal()),
+            inputExchangeAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
+            outputExchangeAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
+            outputAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
+            allowanceCanBeRevoked = false,
+            uiFee = UiFee(
+                Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
+                Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
+            ),
+            previewActionButtonState = ActionButtonState.ENABLED,
+        )
+    )
+}
+
+@Preview
+@Composable
+private fun PreviewInputScreen_NoNetworkSelection() {
+    InputScreen(
+        {}, {}, {}, {}, {}, {}, {}, {}, {},
+        InputAmountViewState.TransactionInputState(
+            networkSelection = DataResource.Data(NetworkSelection.Unavailable),
             sourceCurrency = CryptoCurrency.ETHER,
             destinationCurrency = CryptoCurrency.BTC,
             maxAmount = Money.fromMajor(CryptoCurrency.ETHER, 100.toBigDecimal()),

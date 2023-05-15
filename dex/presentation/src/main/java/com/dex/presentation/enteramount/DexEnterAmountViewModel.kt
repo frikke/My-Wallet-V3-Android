@@ -9,6 +9,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
+import com.blockchain.data.map
+import com.blockchain.data.updateDataWith
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.safeLet
 import com.blockchain.outcome.Outcome
@@ -26,6 +28,8 @@ import com.dex.domain.SlippageService
 import com.dex.presentation.uierrors.AlertError
 import com.dex.presentation.uierrors.DexUiError
 import com.dex.presentation.uierrors.toUiErrors
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
@@ -49,7 +53,8 @@ class DexEnterAmountViewModel(
     private val enviromentConfig: EnvironmentConfig,
     private val dexAllowanceService: AllowanceService,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
-    private val dexChainService: DexChainService
+    private val dexChainService: DexChainService,
+    private val assetCatalogue: AssetCatalogue
 ) : MviViewModel<
     InputAmountIntent,
     InputAmountViewState,
@@ -76,7 +81,7 @@ class DexEnterAmountViewModel(
                 is DataResource.Data -> if (canTransact.data) {
                     showInputUi(state)
                 } else {
-                    showNoInoutUi()
+                    showNoInoutUi(state)
                 }
                 /**
                  * todo map loading errors
@@ -86,12 +91,15 @@ class DexEnterAmountViewModel(
         }
     }
 
-    private fun showNoInoutUi(): InputAmountViewState =
-        InputAmountViewState.NoInputViewState
+    private fun showNoInoutUi(state: AmountModelState): InputAmountViewState =
+        InputAmountViewState.NoInputViewState(
+            networkSelection = state.networkSelection()
+        )
 
     private fun showInputUi(state: AmountModelState): InputAmountViewState {
         val transaction = state.transaction
         return InputAmountViewState.TransactionInputState(
+            networkSelection = state.networkSelection(),
             sourceCurrency = transaction?.sourceAccount?.currency,
             destinationCurrency = transaction?.destinationAccount?.currency,
             maxAmount = transaction?.sourceAccount?.takeIf { !it.currency.isNetworkNativeAsset() }?.balance,
@@ -170,6 +178,7 @@ class DexEnterAmountViewModel(
     override suspend fun handleIntent(modelState: AmountModelState, intent: InputAmountIntent) {
         when (intent) {
             InputAmountIntent.InitTransaction -> {
+                loadNetworks()
                 initTransaction()
             }
             is InputAmountIntent.AmountUpdated -> {
@@ -312,6 +321,18 @@ class DexEnterAmountViewModel(
         }
     }
 
+    private fun loadNetworks() {
+        viewModelScope.launch {
+            dexChainService.supportedNetworks().collectLatest { coinNetworks ->
+                updateState {
+                    it.copy(
+                        networks = it.networks.updateDataWith(coinNetworks)
+                    )
+                }
+            }
+        }
+    }
+
     private fun initTransaction() {
         viewModelScope.launch {
             val selectedSlippage = dexSlippageService.selectedSlippage()
@@ -325,6 +346,7 @@ class DexEnterAmountViewModel(
                     )
                     updateState { state ->
                         state.copy(
+                            selectedChain = chainId,
                             canTransact = DataResource.Data(true)
                         )
                     }
@@ -336,6 +358,7 @@ class DexEnterAmountViewModel(
                     subscribeForTxUpdates()
                 } ?: updateState { state ->
                     state.copy(
+                        selectedChain = chainId,
                         canTransact = DataResource.Data(false)
                     )
                 }
@@ -470,10 +493,27 @@ class DexEnterAmountViewModel(
             }
         }
     }
+
+    private fun AmountModelState.networkSelection(): DataResource<NetworkSelection> {
+        return networks.map { coinNetworks ->
+            coinNetworks.first { it.chainId == selectedChain }
+                .takeIf { coinNetworks.size > 1 }
+        }.map { coinNetwork ->
+            coinNetwork?.let {
+                val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(coinNetwork.networkTicker)
+                check(assetInfo != null)
+                NetworkSelection.Available(
+                    logo = assetInfo.logo,
+                    name = coinNetwork.name
+                )
+            } ?: NetworkSelection.Unavailable
+        }
+    }
 }
 
 sealed class InputAmountViewState : ViewState {
     data class TransactionInputState(
+        val networkSelection: DataResource<NetworkSelection>,
         val sourceCurrency: Currency?,
         val destinationCurrency: Currency?,
         val maxAmount: Money?,
@@ -504,8 +544,20 @@ sealed class InputAmountViewState : ViewState {
             get() = errors.filterIsInstance<AlertError>().firstOrNull()
     }
 
-    object NoInputViewState : InputAmountViewState()
+    data class NoInputViewState(
+        val networkSelection: DataResource<NetworkSelection>,
+    ) : InputAmountViewState()
+
     object Loading : InputAmountViewState()
+}
+
+sealed interface NetworkSelection {
+    data class Available(
+        val logo: String,
+        val name: String
+    ) : NetworkSelection
+
+    object Unavailable : NetworkSelection
 }
 
 data class UiFee(
@@ -514,6 +566,8 @@ data class UiFee(
 )
 
 data class AmountModelState(
+    val networks: DataResource<List<CoinNetwork>> = DataResource.Loading,
+    val selectedChain: Int? = null,
     val canTransact: DataResource<Boolean> = DataResource.Loading,
     val transaction: DexTransaction?,
     val ignoredTxErrors: List<DexUiError> = emptyList(),
