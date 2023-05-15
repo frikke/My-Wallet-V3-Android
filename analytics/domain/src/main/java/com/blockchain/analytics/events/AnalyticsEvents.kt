@@ -430,7 +430,25 @@ enum class AnalyticsNames(val eventName: String) {
     SWAP_CONFIRMATION_VIEWED("Wallet Swap Confirmation Screen Viewed"),
     SWAP_CONFIRMATION_SWAP_CLICKED("Wallet Swap Confirmation Screen Confirm Swap Clicked"),
     SWAP_CONFIRMATION_PENDING_VIEWED("Wallet Swap Post Confirmation Pending Viewed"),
-    SWAP_CONFIRMATION_SUCCESS_VIEWED("Wallet Swap Post Confirmation Success Viewed")
+    SWAP_CONFIRMATION_SUCCESS_VIEWED("Wallet Swap Post Confirmation Success Viewed"),
+
+    // dex
+    DEX_ONBOARDING_VIEWED("DEX Onboarding Viewed"),
+    DEX_SWAP_AMOUNT_ENTERED("DEX Swap Amount Entered"),
+    DEX_COUNTRY_INELIGIBLE_VIEWED("DEX Country Ineligible Viewed"),
+    DEX_SWAP_SELECT_SOURCE_OPENED("DEX Swap Input Opened"),
+    DEX_SWAP_SELECT_DESTINATION_OPENED("DEX Swap Output Opened"),
+    DEX_SWAP_DESTINATION_NOT_FOUND("DEX Swap Output Not Found"),
+    DEX_SWAP_OUTPUT_SELECTED("DEX Swap Output Selected"),
+    DEX_SWAP_APPROVE_TOKEN_CLICKED("DEX Swap Approve token clicked"),
+    DEX_SWAP_APPROVE_TOKEN_CONFIRMED("DEX Swap Approve token confirmed"),
+    DEX_SWAP_PREVIEW_VIEWED("DEX Swap Preview Viewed"),
+    DEX_SWAP_CONFIRM_CLICKED("DEX Swap Confirm Clicked"),
+    DEX_SWAP_IN_PROGRESS_VIEWED("DEX Swapping Viewed"),
+    DEX_SWAP_EXECUTED_VIEWED("DEX Swap Executed Viewed"),
+    DEX_SWAP_FAILED_VIEWED("DEX Swap Failed Viewed"),
+    DEX_SETTINGS_OPENED("DEX Settings opened"),
+    DEX_SLIPPAGE_CHANGED("DEX Slippage changed")
 }
 
 enum class LaunchOrigin {

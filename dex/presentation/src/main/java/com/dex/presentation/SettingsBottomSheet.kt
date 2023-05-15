@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -18,6 +19,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.chip.ChipState
 import com.blockchain.componentlib.option.ChipOption
@@ -28,12 +30,14 @@ import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.dex.presentation.R
 import com.blockchain.koin.payloadScope
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun SettingsBottomSheet(
     closeClicked: () -> Unit,
-    viewModel: SettingsViewModel = getViewModel(scope = payloadScope)
+    viewModel: SettingsViewModel = getViewModel(scope = payloadScope),
+    analytics: Analytics = get(),
 ) {
     val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -48,6 +52,10 @@ fun SettingsBottomSheet(
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
+    }
+
+    LaunchedEffect(Unit) {
+        analytics.logEvent(DexAnalyticsEvents.SettingsOpened)
     }
 
     val viewState: SettingsViewState by viewModel.viewState.collectAsStateLifecycleAware()
@@ -77,6 +85,7 @@ fun SettingsBottomSheet(
                                 it.factor
                             )
                         )
+                        analytics.logEvent(DexAnalyticsEvents.SlippageChanged)
                         closeClicked()
                     }
                 )
