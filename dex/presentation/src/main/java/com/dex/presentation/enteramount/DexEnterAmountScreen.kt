@@ -234,7 +234,7 @@ fun DexEnterAmountScreen(
             )
         }
 
-        (viewState as? InputAmountViewState.TransactionInputState)?.let {viewState ->
+        (viewState as? InputAmountViewState.TransactionInputState)?.let { viewState ->
             paddedItem(paddingValues = PaddingValues(spacing)) {
                 InputScreen(
                     selectSourceAccount = {
