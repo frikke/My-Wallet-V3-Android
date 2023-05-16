@@ -401,7 +401,7 @@ enum class AnalyticsNames(val eventName: String) {
     SUPERAPP_DEFI_BACKUP_MANUALLY_CLICKED("Back Up Flow Backup Manually Clicked"),
     SUPERAPP_DEFI_BACKUP_SUCCESSFUL_VIEWED("Back Up Flow DeFi Wallet Back Up Successful Viewed"),
     SUPERAPP_DEFI_DCA_LEARN_MORE_CLICKED("Wallet Coinview X Sell Learn More Clicked"),
-    TOP_MOVER_DASHBOARD_CLICKED("Wallet Dashboard top mover card clicked"),
+    TOP_MOVER_DASHBOARD_CLICKED("Wallet Dashboard Top Mover Card Clicked"),
     TOP_MOVER_PRICES_CLICKED("Prices Tab Top Mover Card Clicked"),
     TOP_MOVER_BUY_CLICKED("Buy List Top Mover Card Clicked"),
 
