@@ -372,12 +372,7 @@ val blockchainApiModule = module {
             api = api
         )
     }
-    factory {
-        val api = get<Retrofit>(blockchainApi).create(DexTxApi::class.java)
-        DexTransactionsApiService(
-            api = api
-        )
-    }
+
     factory {
         val api = get<Retrofit>(nabuApi).create(DexQuotesApi::class.java)
         DexQuotesApiService(
@@ -544,6 +539,14 @@ val blockchainApiModule = module {
             DynamicSelfCustodyService(
                 selfCustodyApi = api,
                 credentials = get()
+            )
+        }
+
+        scoped {
+            val api = get<Retrofit>(blockchainApi).create(DexTxApi::class.java)
+            DexTransactionsApiService(
+                api = api,
+                dynamicSelfCustodyService = get()
             )
         }
 

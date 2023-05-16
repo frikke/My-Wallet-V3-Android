@@ -7,6 +7,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
+import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrElse
@@ -142,7 +143,7 @@ class DexEnterAmountViewModel(
             destinationAccountBalance = transaction?.destinationAccount?.balance,
             sourceAccountBalance = transaction?.sourceAccount?.balance,
             operationInProgress = state.operationInProgress,
-            uiFee = uiFee(
+            uiFee = uiNetworkFee(
                 transaction?.quote?.networkFees,
                 state.feeToFiatExchangeRate
             ),
@@ -180,15 +181,17 @@ class DexEnterAmountViewModel(
         }
     }
 
-    private fun uiFee(fees: Money?, feeToFiatExchangeRate: ExchangeRate?): UiFee? {
+    private fun uiNetworkFee(fees: Money?, feeToFiatExchangeRate: ExchangeRate?): UiNetworkFee {
         return fees?.let { fee ->
-            UiFee(
+            UiNetworkFee.DefinedFee(
                 fee = fee,
                 feeInFiat = feeToFiatExchangeRate?.let {
                     fiatAmount(fee, it)
                 }
             )
-        }
+        } ?: UiNetworkFee.PlaceholderFee(
+            Money.zero(currencyPrefs.selectedFiatCurrency)
+        )
     }
 
     private fun fiatAmount(amount: Money, exchangeRate: ExchangeRate): Money {
@@ -430,6 +433,9 @@ class DexEnterAmountViewModel(
         }
     }
 
+    /*
+    * Revoke Allowance is used only in debug builds
+    * */
     private suspend fun checkIfAllowanceCanBeRevoked(transaction: DexTransaction) {
         if (transaction.sourceAccount.currency.isLayer2Token && enviromentConfig.isRunningInDebugMode()) {
             val allowanceOutcome = dexAllowanceService.tokenAllowance(transaction.sourceAccount.currency)
@@ -542,7 +548,7 @@ sealed class InputAmountViewState : ViewState {
         val outputExchangeAmount: Money?,
         val outputAmount: Money?,
         val allowanceCanBeRevoked: Boolean,
-        val uiFee: UiFee?,
+        val uiFee: UiNetworkFee,
         val previewActionButtonState: ActionButtonState,
         private val errors: List<DexUiError> = emptyList()
     ) : InputAmountViewState() {
@@ -569,10 +575,26 @@ sealed class InputAmountViewState : ViewState {
     object Loading : InputAmountViewState()
 }
 
-data class UiFee(
-    val feeInFiat: Money?,
-    val fee: Money
-)
+sealed class UiNetworkFee {
+    class DefinedFee(
+        val feeInFiat: Money?,
+        val fee: Money
+    ) : UiNetworkFee()
+
+    data class PlaceholderFee(val defFee: Money) : UiNetworkFee()
+
+    val uiText: String
+        get() = when (this) {
+            is DefinedFee -> "~ ${feeInFiat?.toStringWithSymbol() ?: fee.toStringWithSymbol()}"
+            is PlaceholderFee -> "~ ${defFee.toStringWithSymbol()}"
+        }
+
+    val textColor: ComposeColors
+        get() = when (this) {
+            is DefinedFee -> ComposeColors.Title
+            is PlaceholderFee -> ComposeColors.Body
+        }
+}
 
 data class AmountModelState(
     val networks: DataResource<List<CoinNetwork>> = DataResource.Loading,

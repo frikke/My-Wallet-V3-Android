@@ -87,6 +87,7 @@ internal class FraudRepository(
 
                     val option: Options = Options.Builder()
                         .setClientID(clientId)
+                        .setSourcePlatform("Native")
                         .enableBehaviorBiometrics(true)
                         .enableClipboardTracking(true)
                         .apply {

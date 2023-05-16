@@ -47,7 +47,7 @@ data class DexTokenResponse(
     private val verifiedBy: Int
 ) {
     val isVerified: Boolean
-        get() = verifiedBy > 0
+        get() = verifiedBy > 1
 }
 
 @Serializable

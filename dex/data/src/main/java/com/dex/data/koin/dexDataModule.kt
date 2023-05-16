@@ -63,15 +63,14 @@ val dexDataModule = module {
                 gasFeeCalculator = get(),
                 assetCatalogue = get(),
                 nonCustodialService = get(),
-                networkAccountsService = get(),
-                defiAccountReceiveAddressService = get()
+                defiAccountReceiveAddressService = get(),
+                json = get()
             )
         }.bind(AllowanceService::class)
 
         scoped {
             DexTransactionRepository(
                 apiService = get(),
-                networkAccountsService = get(),
                 nonCustodialService = get()
             )
         }.bind(DexTransactionService::class)
