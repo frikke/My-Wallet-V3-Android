@@ -5,6 +5,7 @@ import com.blockchain.core.chains.ethereum.EvmNetworkPreImageSigner
 import com.blockchain.outcome.Outcome
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
+import kotlinx.serialization.json.JsonObject
 
 class AllowanceTransactionProcessor(
     private val allowanceService: AllowanceService,
@@ -56,6 +57,6 @@ class AllowanceTransactionProcessor(
 data class AllowanceTransaction(
     val fees: Money,
     val currencyToAllow: AssetInfo,
-    val rawTx: String,
+    val rawTx: JsonObject,
     val preImages: List<PreImage>
 )

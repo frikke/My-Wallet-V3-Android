@@ -9,9 +9,4 @@ interface DexTxApi {
     suspend fun allowance(
         @Body request: AllowanceBodyRequest
     ): Outcome<Exception, TokenAllowanceResponse>
-
-    @POST("currency/evm/buildTx")
-    suspend fun buildTx(
-        @Body request: BuildDexTxBodyRequest
-    ): Outcome<Exception, BuiltDexTxResponse>
 }

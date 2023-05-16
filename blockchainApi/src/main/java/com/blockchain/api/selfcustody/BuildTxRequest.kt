@@ -16,13 +16,20 @@ data class BuildTxRequest(
     @SerialName("destination")
     val destination: String,
     @SerialName("amount")
-    val amount: String,
+    val amount: String?,
     @SerialName("fee")
     val fee: String,
     @SerialName("extraData")
     val extraData: ExtraData,
     @SerialName("maxVerificationVersion")
-    val maxVerificationVersion: Int
+    val maxVerificationVersion: Int,
+)
+
+@Serializable
+data class SwapTx(
+    val data: String,
+    val value: String,
+    val gasLimit: String
 )
 
 @Serializable
@@ -30,5 +37,7 @@ data class ExtraData(
     @SerialName("memo")
     val memo: String,
     @SerialName("feeCurrency")
-    val feeCurrency: String
+    val feeCurrency: String,
+    val swapTx: SwapTx?,
+    val spender: String?,
 )

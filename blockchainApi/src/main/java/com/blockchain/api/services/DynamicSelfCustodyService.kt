@@ -23,6 +23,7 @@ import com.blockchain.api.selfcustody.RemoveSubscriptionRequest
 import com.blockchain.api.selfcustody.SelfCustodyApi
 import com.blockchain.api.selfcustody.Signature
 import com.blockchain.api.selfcustody.SubscriptionInfo
+import com.blockchain.api.selfcustody.SwapTx
 import com.blockchain.api.selfcustody.TransactionHistoryRequest
 import com.blockchain.api.selfcustody.TransactionHistoryResponse
 import com.blockchain.api.selfcustody.activity.ActivityDetailGroupsDto
@@ -86,6 +87,7 @@ class DynamicSelfCustodyService(
             )
         }
     }
+
     suspend fun subscribe(
         data: List<SubscriptionInfo>
     ): Outcome<Exception, CommonResponse> {
@@ -113,6 +115,7 @@ class DynamicSelfCustodyService(
             )
         }
     }
+
     suspend fun getSubscriptions(): Outcome<Exception, GetSubscriptionsResponse> {
         val authInfo =
             authInfo ?: return Outcome.Failure(UninitializedPropertyAccessException("Couldn't get credentials"))
@@ -124,6 +127,7 @@ class DynamicSelfCustodyService(
             )
         }
     }
+
     suspend fun getBalances(
         currencies: List<String> = emptyList(),
         fiatCurrency: String
@@ -155,6 +159,7 @@ class DynamicSelfCustodyService(
             )
         )
     }
+
     suspend fun getTransactionHistory(
         currency: String,
         contractAddress: String?
@@ -169,6 +174,7 @@ class DynamicSelfCustodyService(
             )
         )
     }
+
     suspend fun getActivityDetails(
         txId: String,
         network: String,
@@ -193,16 +199,19 @@ class DynamicSelfCustodyService(
             )
         )
     }
+
     suspend fun buildTransaction(
         currency: String,
         accountIndex: Int = 0,
         type: String,
         transactionTarget: String,
-        amount: String,
+        amount: String?,
         fee: String,
         memo: String = "",
         feeCurrency: String = currency,
-        maxVerificationVersion: Int = 1
+        maxVerificationVersion: Int = 1,
+        swapTx: SwapTx?,
+        spender: String?
     ): Outcome<Exception, BuildTxResponse> {
         val authInfo =
             authInfo ?: return Outcome.Failure(UninitializedPropertyAccessException("Couldn't get credentials"))
@@ -217,12 +226,15 @@ class DynamicSelfCustodyService(
                 fee = fee,
                 extraData = ExtraData(
                     memo = memo,
-                    feeCurrency = feeCurrency
+                    feeCurrency = feeCurrency,
+                    swapTx = swapTx,
+                    spender = spender,
                 ),
                 maxVerificationVersion = maxVerificationVersion
             )
         )
     }
+
     suspend fun pushTransaction(
         currency: String,
         rawTx: JsonObject,
@@ -239,6 +251,7 @@ class DynamicSelfCustodyService(
             )
         )
     }
+
     private suspend fun <T> authIfFails(
         f: suspend () -> Outcome<Exception, T>
 
