@@ -7,14 +7,14 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.filterListData
 import com.blockchain.data.mapList
 import com.blockchain.data.updateDataWith
-import com.dex.domain.DexChainService
+import com.dex.domain.DexNetworkService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CoinNetwork
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class SelectNetworkViewModel(
-    private val dexChainService: DexChainService,
+    private val dexNetworkService: DexNetworkService,
     private val assetCatalogue: AssetCatalogue
 ) : MviViewModel<
     SelectNetworkIntent,
@@ -24,7 +24,7 @@ class SelectNetworkViewModel(
     ModelConfigArgs.NoArgs
     >(
     initialState = SelectNetworkModelState(
-        selectedChainId = dexChainService.selectedChainId()
+        selectedChainId = dexNetworkService.selectedChainId()
     )
 ) {
 
@@ -32,7 +32,7 @@ class SelectNetworkViewModel(
 
     init {
         viewModelScope.launch {
-            dexChainService.supportedNetworks()
+            dexNetworkService.supportedNetworks()
                 .filterListData {
                     it.chainId != null &&
                         assetCatalogue.assetInfoFromNetworkTicker(it.nativeAssetTicker) != null
@@ -61,7 +61,7 @@ class SelectNetworkViewModel(
     ) {
         when (intent) {
             is SelectNetworkIntent.UpdateSelectedNetwork -> {
-                dexChainService.updateSelectedNetwork(intent.chainId)
+                dexNetworkService.updateSelectedNetwork(intent.chainId)
             }
         }
     }

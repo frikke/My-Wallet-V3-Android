@@ -13,7 +13,7 @@ import com.dex.data.stores.SlippageRepository
 import com.dex.domain.AllowanceService
 import com.dex.domain.DexAccountsService
 import com.dex.domain.DexBalanceService
-import com.dex.domain.DexChainService
+import com.dex.domain.DexNetworkService
 import com.dex.domain.DexQuotesService
 import com.dex.domain.DexTransactionService
 import com.dex.domain.SlippageService
@@ -63,15 +63,14 @@ val dexDataModule = module {
                 gasFeeCalculator = get(),
                 assetCatalogue = get(),
                 nonCustodialService = get(),
-                networkAccountsService = get(),
-                defiAccountReceiveAddressService = get()
+                defiAccountReceiveAddressService = get(),
+                json = get()
             )
         }.bind(AllowanceService::class)
 
         scoped {
             DexTransactionRepository(
                 apiService = get(),
-                networkAccountsService = get(),
                 nonCustodialService = get()
             )
         }.bind(DexTransactionService::class)
@@ -89,7 +88,7 @@ val dexDataModule = module {
             )
         }
 
-        scoped<DexChainService> {
+        scoped<DexNetworkService> {
             DexNetworkRepository(
                 dexPrefs = get(),
                 dexChainDataStorage = get(),

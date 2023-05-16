@@ -50,6 +50,7 @@ import com.blockchain.chrome.LocalChromePillProvider
 import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
 import com.blockchain.componentlib.alert.PillAlert
 import com.blockchain.componentlib.alert.PillAlertType
+import com.blockchain.componentlib.anim.AnimatedAmountCounter
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -67,6 +68,7 @@ import com.blockchain.componentlib.icons.Alert
 import com.blockchain.componentlib.icons.Check
 import com.blockchain.componentlib.icons.ChevronRight
 import com.blockchain.componentlib.icons.Close
+import com.blockchain.componentlib.icons.Gas
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Network
 import com.blockchain.componentlib.icons.Question
@@ -451,7 +453,7 @@ fun InputScreen(
             )
         )
 
-        viewState.uiFee?.takeIf { viewState.operationInProgress == DexOperation.NONE }?.let { uiFee ->
+        viewState.uiFee.takeIf { viewState.operationInProgress == DexOperation.NONE }?.let { uiFee ->
             Fee(uiFee)
         }
         viewState.operationInProgress.takeIf { it == DexOperation.PRICE_FETCHING }?.let {
@@ -582,7 +584,7 @@ private fun UiError(
 }
 
 @Composable
-private fun Fee(uiFee: UiFee) {
+private fun Fee(uiFee: UiNetworkFee) {
     TableRow(
         modifier = Modifier
             .padding(top = AppTheme.dimensions.smallSpacing)
@@ -598,17 +600,15 @@ private fun Fee(uiFee: UiFee) {
         },
         contentStart = {
             Image(
-                imageResource = ImageResource.Remote(
-                    uiFee.fee.currency.logo,
-                    size = 24.dp
-                )
+                imageResource = Icons.Gas
             )
         },
         contentEnd = {
-            Text(
-                text = "~ ${uiFee.feeInFiat?.toStringWithSymbol() ?: uiFee.fee.toStringWithSymbol()}",
-                style = AppTheme.typography.body2,
-                color = AppTheme.colors.title
+            AnimatedAmountCounter(
+                amountText = uiFee.uiText,
+                style = ComposeTypographies.Paragraph2,
+                color = uiFee.textColor,
+                gravity = ComposeGravities.Start
             )
         }
     )
@@ -785,7 +785,7 @@ private fun PreviewInputScreen_NetworkSelection() {
             outputExchangeAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
             outputAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
             allowanceCanBeRevoked = false,
-            uiFee = UiFee(
+            uiFee = UiNetworkFee.DefinedFee(
                 Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
                 Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
             ),

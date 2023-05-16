@@ -152,7 +152,9 @@ internal class NonCustodialRepository(
             transactionTarget,
             amount,
             fee.toNetwork(),
-            memo
+            memo,
+            swapTx = null,
+            spender = null
         )
 
     override fun getFeeCurrencyFor(asset: AssetInfo): AssetInfo =

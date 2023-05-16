@@ -2,8 +2,7 @@ package com.dex.data
 
 import com.blockchain.DefiWalletReceiveAddressService
 import com.blockchain.api.dex.DexTransactionsApiService
-import com.blockchain.api.dex.PubKeySource
-import com.blockchain.api.dex.RawTxResponse
+import com.blockchain.api.dex.GasValuesPayload
 import com.blockchain.coincore.eth.GasFeeCalculator
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.PreImage
@@ -15,7 +14,6 @@ import com.blockchain.data.firstOutcome
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
-import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
 import com.dex.domain.AllowanceService
 import com.dex.domain.AllowanceTransaction
 import com.dex.domain.AllowanceTransactionState
@@ -33,8 +31,8 @@ class DexAllowanceRepository(
     private val apiService: DexTransactionsApiService,
     private val dexAllowanceStorage: DexAllowanceStorage,
     private val defiAccountReceiveAddressService: DefiWalletReceiveAddressService,
-    private val networkAccountsService: NetworkAccountsService,
     private val nonCustodialService: NonCustodialService,
+    private val json: Json,
     private val assetCatalogue: AssetCatalogue,
     private val gasFeeCalculator: GasFeeCalculator
 ) : AllowanceService {
@@ -72,27 +70,21 @@ class DexAllowanceRepository(
         require(coinNetwork != null)
         val nativeAsset = assetCatalogue.fromNetworkTicker(coinNetwork.nativeAssetTicker)
         require(nativeAsset != null)
-        val network = networkAccountsService.allNetworkWallets()
-            .first {
-                it.currency.networkTicker == coinNetwork.nativeAssetTicker
-            }
 
         require(contractAddress != null)
         return address.flatMap {
             apiService.buildAllowanceTx(
                 destination = contractAddress.lowercase(),
-                sources = network.publicKey().map {
-                    PubKeySource(
-                        pubKey = it.address,
-                        style = it.style.name,
-                        descriptor = "legacy"
-                    )
-                },
                 amount = amount?.toBigInteger()?.toString() ?: "MAX",
                 network = coinNetwork.networkTicker
             ).map { buildTxResponse ->
-                val gasPrice = BigInteger(buildTxResponse.rawTx.payload.gasPrice.hex.removePrefix("0x"), 16)
-                val gasLimit = BigInteger(buildTxResponse.rawTx.payload.gasLimit.hex.removePrefix("0x"), 16)
+                val gasValuesPayload = json.decodeFromJsonElement(GasValuesPayload.serializer(), buildTxResponse.rawTx)
+                val gasPrice = gasValuesPayload.payload?.gasPrice?.let {
+                    BigInteger(it.hex.removePrefix("0x"), 16)
+                } ?: BigInteger.ZERO
+                val gasLimit = gasValuesPayload.payload?.gasLimit?.let {
+                    BigInteger(it.hex.removePrefix("0x"), 16)
+                } ?: BigInteger.ZERO
 
                 AllowanceTransaction(
                     fees = gasFeeCalculator.fee(
@@ -100,7 +92,7 @@ class DexAllowanceRepository(
                         gasPriceWei = gasPrice,
                         gasLimit = gasLimit
                     ),
-                    rawTx = Json.encodeToString(RawTxResponse.serializer(), buildTxResponse.rawTx),
+                    rawTx = buildTxResponse.rawTx,
                     preImages = buildTxResponse.preImages.map {
                         PreImage(
                             rawPreImage = it.rawPreImage,
@@ -117,12 +109,12 @@ class DexAllowanceRepository(
 
     override suspend fun pushAllowanceTransaction(
         network: CoinNetwork,
-        rawTx: String,
+        rawTx: JsonObject,
         signatures: List<TransactionSignature>
     ): Outcome<Exception, String> =
         nonCustodialService.pushTransaction(
             currency = network.nativeAssetTicker,
-            rawTx = Json.decodeFromString(JsonObject.serializer(), rawTx),
+            rawTx = rawTx,
             signatures = signatures
         ).map {
             it.txId

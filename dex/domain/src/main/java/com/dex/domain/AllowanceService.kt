@@ -5,6 +5,7 @@ import com.blockchain.outcome.Outcome
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.Money
+import kotlinx.serialization.json.JsonObject
 
 interface AllowanceService {
     suspend fun tokenAllowance(assetInfo: AssetInfo): Outcome<Exception, TokenAllowance>
@@ -15,7 +16,7 @@ interface AllowanceService {
 
     suspend fun pushAllowanceTransaction(
         network: CoinNetwork,
-        rawTx: String,
+        rawTx: JsonObject,
         signatures: List<TransactionSignature>
     ): Outcome<Exception, String>
 

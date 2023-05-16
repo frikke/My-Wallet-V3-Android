@@ -9,13 +9,15 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.dex.domain.DexAccount
 import com.dex.domain.DexAccountsService
+import com.dex.domain.DexNetworkService
 import com.dex.domain.DexTransactionProcessor
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class DexSourceAccountViewModel(
     private val dexService: DexAccountsService,
-    private val transactionProcessor: DexTransactionProcessor
+    private val transactionProcessor: DexTransactionProcessor,
+    private val dexNetworkService: DexNetworkService
 ) : MviViewModel<
     SourceAccountIntent,
     SourceAccountSelectionViewState,
@@ -49,18 +51,21 @@ class DexSourceAccountViewModel(
         when (intent) {
             SourceAccountIntent.LoadSourceAccounts -> {
                 viewModelScope.launch {
-                    dexService.sourceAccounts().collectLatest { dexAccounts ->
-                        updateState {
-                            it.copy(
-                                accounts = dexAccounts
-                            )
+                    dexService.sourceAccounts(chainId = dexNetworkService.selectedChainId())
+                        .collectLatest { dexAccounts ->
+                            updateState {
+                                it.copy(
+                                    accounts = dexAccounts
+                                )
+                            }
                         }
-                    }
                 }
             }
+
             is SourceAccountIntent.OnAccountSelected -> {
                 transactionProcessor.updateSourceAccount(intent.account)
             }
+
             is SourceAccountIntent.Search -> {
                 updateState {
                     it.copy(

@@ -43,13 +43,13 @@ class DexAccountsRepository(
     private val assetCatalogue: AssetCatalogue,
     private val dexTokensDataStorage: DexTokensDataStorage
 ) : DexAccountsService {
-    override fun sourceAccounts(): Flow<List<DexAccount>> =
-        dexSourceAccounts(chainId = dexPrefs.selectedChainId).catch {
+    override fun sourceAccounts(chainId: Int): Flow<List<DexAccount>> =
+        dexSourceAccounts(chainId = chainId).catch {
             emit(emptyList())
         }
 
-    override fun destinationAccounts(): Flow<List<DexAccount>> =
-        dexDestinationAccounts(chainId = dexPrefs.selectedChainId).catch {
+    override fun destinationAccounts(chainId: Int): Flow<List<DexAccount>> =
+        dexDestinationAccounts(chainId = chainId).catch {
             emit(emptyList())
         }
 

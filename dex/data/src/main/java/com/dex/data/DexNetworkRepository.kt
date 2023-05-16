@@ -8,7 +8,7 @@ import com.blockchain.preferences.DexPrefs
 import com.blockchain.unifiedcryptowallet.domain.balances.CoinNetworksService
 import com.blockchain.utils.toException
 import com.dex.data.stores.DexChainDataStorage
-import com.dex.domain.DexChainService
+import com.dex.domain.DexNetworkService
 import info.blockchain.balance.CoinNetwork
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +19,7 @@ class DexNetworkRepository(
     private val dexPrefs: DexPrefs,
     private val dexChainDataStorage: DexChainDataStorage,
     private val coinNetworksService: CoinNetworksService
-) : DexChainService {
+) : DexNetworkService {
     private val freshness = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
 
     private val _chainId = MutableStateFlow(dexPrefs.selectedChainId)
