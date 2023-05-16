@@ -17,9 +17,9 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.data.asObservable
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.koin.scopedInject
-import com.blockchain.store.asObservable
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable

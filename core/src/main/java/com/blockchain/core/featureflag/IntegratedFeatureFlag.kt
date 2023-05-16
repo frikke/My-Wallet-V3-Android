@@ -2,6 +2,7 @@ package com.blockchain.core.featureflag
 
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.asSingle
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.scopedInject
@@ -9,10 +10,8 @@ import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.outcome.getOrDefault
 import com.blockchain.preferences.FeatureFlagOverridePrefs
 import com.blockchain.preferences.FeatureFlagState
-import com.blockchain.store.asSingle
 import com.blockchain.utils.awaitOutcome
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.await
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject

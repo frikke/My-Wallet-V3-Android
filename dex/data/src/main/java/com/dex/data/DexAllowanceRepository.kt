@@ -11,10 +11,10 @@ import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSig
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.firstOutcome
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
-import com.blockchain.store.firstOutcome
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
 import com.dex.domain.AllowanceService
 import com.dex.domain.AllowanceTransaction

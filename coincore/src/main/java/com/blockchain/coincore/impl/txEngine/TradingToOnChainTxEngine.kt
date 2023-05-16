@@ -27,13 +27,13 @@ import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.asSingle
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransactionError
-import com.blockchain.store.asSingle
 import com.blockchain.storedatasource.FlushableDataSource
 import com.blockchain.utils.then
 import info.blockchain.balance.AssetCategory

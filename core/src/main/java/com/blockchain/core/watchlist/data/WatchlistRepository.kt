@@ -9,8 +9,8 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.doOnData
 import com.blockchain.data.map
+import com.blockchain.data.mapData
 import com.blockchain.outcome.toDataResource
-import com.blockchain.store.mapData
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
 import kotlinx.coroutines.flow.Flow

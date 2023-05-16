@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.settings
 
 import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.data.asObservable
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.model.BankState
@@ -15,7 +16,6 @@ import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.asObservable
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single

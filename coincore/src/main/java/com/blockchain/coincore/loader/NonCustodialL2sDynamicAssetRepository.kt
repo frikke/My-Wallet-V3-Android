@@ -4,8 +4,8 @@ import com.blockchain.api.coinnetworks.data.CoinNetworkDto
 import com.blockchain.core.chains.ethereum.EvmNetworksService
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.asSingle
 import com.blockchain.outcome.map
-import com.blockchain.store.asSingle
 import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.NetworkType
 import io.reactivex.rxjava3.core.Single

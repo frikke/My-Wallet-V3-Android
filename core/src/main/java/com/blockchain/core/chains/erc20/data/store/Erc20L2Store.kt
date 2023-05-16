@@ -8,12 +8,12 @@ import com.blockchain.core.chains.erc20.data.domain.toStore
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.KeyedFreshnessStrategy
+import com.blockchain.data.mapData
 import com.blockchain.outcome.map
 import com.blockchain.store.CachedData
 import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
 import com.blockchain.store.Mediator
-import com.blockchain.store.mapData
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
 import com.blockchain.utils.rxSingleOutcome
 import java.util.Calendar

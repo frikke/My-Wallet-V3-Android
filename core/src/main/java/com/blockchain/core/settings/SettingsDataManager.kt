@@ -5,8 +5,8 @@ import com.blockchain.core.settings.datastore.SettingsStore
 import com.blockchain.core.utils.schedulers.applySchedulers
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.firstOutcome
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.firstOutcome
 import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency

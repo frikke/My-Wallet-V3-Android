@@ -1,10 +1,10 @@
 package piuk.blockchain.android.walletmode
 
+import com.blockchain.data.firstOutcome
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
 import com.blockchain.outcome.getOrNull
 import com.blockchain.preferences.WalletModePrefs
-import com.blockchain.store.firstOutcome
 import com.blockchain.walletmode.WalletMode
 
 class DefaultWalletModeStrategy(

@@ -14,12 +14,12 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.data.asSingle
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.koin.defaultOrder
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.presentation.koin.scopedInject
-import com.blockchain.store.asSingle
 import com.blockchain.utils.zipObservables
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.core.Single

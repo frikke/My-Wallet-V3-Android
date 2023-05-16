@@ -9,7 +9,9 @@ import com.blockchain.core.recurringbuy.domain.model.FundsAccount
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.flatMapData
 import com.blockchain.data.map
+import com.blockchain.data.mapData
 import com.blockchain.data.updateDataWith
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
@@ -18,8 +20,6 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.RecurringBuyPaymentDetails
 import com.blockchain.home.presentation.recurringbuy.list.toHumanReadableRecurringBuy
 import com.blockchain.home.presentation.recurringbuy.list.toHumanReadableRecurringDate
-import com.blockchain.store.flatMapData
-import com.blockchain.store.mapData
 import com.blockchain.utils.toFormattedDateWithoutYear
 import java.time.ZoneId
 import java.time.ZonedDateTime

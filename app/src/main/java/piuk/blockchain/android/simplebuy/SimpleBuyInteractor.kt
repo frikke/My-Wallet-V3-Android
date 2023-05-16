@@ -17,6 +17,7 @@ import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency
 import com.blockchain.core.recurringbuy.domain.model.RecurringBuyOrder
 import com.blockchain.core.recurringbuy.domain.model.RecurringBuyRequest
 import com.blockchain.coreandroid.remoteconfig.RemoteConfigRepository
+import com.blockchain.data.asSingle
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.domain.eligibility.model.Region
@@ -74,7 +75,6 @@ import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData
 import com.blockchain.presentation.complexcomponents.QuickFillDisplayAndAmount
 import com.blockchain.serializers.StringMapSerializer
-import com.blockchain.store.asSingle
 import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo

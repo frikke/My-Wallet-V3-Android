@@ -11,12 +11,12 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
+import com.blockchain.data.mapData
 import com.blockchain.data.mapList
+import com.blockchain.data.mapListData
 import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.prices.domain.AssetPriceInfo
 import com.blockchain.prices.domain.PricesService
-import com.blockchain.store.mapData
-import com.blockchain.store.mapListData
 import com.blockchain.utils.toFlowDataResource
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency

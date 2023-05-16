@@ -3,10 +3,10 @@ package com.blockchain.coincore.impl
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.asObservable
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
-import com.blockchain.store.asObservable
 import com.blockchain.store.impl.IsCachedMediator
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
 import info.blockchain.balance.CryptoCurrency

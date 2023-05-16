@@ -12,6 +12,8 @@ import com.blockchain.core.sell.domain.SellUserEligibility
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.combineDataResources
+import com.blockchain.data.flatMapData
+import com.blockchain.data.mapData
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -19,8 +21,6 @@ import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
-import com.blockchain.store.flatMapData
-import com.blockchain.store.mapData
 import com.blockchain.utils.asFlow
 import com.blockchain.utils.zipSingles
 import com.blockchain.walletmode.WalletMode

@@ -19,6 +19,7 @@ import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.mapData
 import com.blockchain.data.onErrorReturn
 import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.InterestService
@@ -27,7 +28,6 @@ import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatusPrefs
-import com.blockchain.store.mapData
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.blockchain.utils.filterListItemIsInstance
 import com.blockchain.utils.mapList

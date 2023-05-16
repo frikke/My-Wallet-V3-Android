@@ -4,9 +4,9 @@ import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.limits.FeatureWithLimit
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.data.asSingle
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
-import com.blockchain.store.asSingle
 import io.reactivex.rxjava3.core.Single
 
 class KycLimitsInteractor(

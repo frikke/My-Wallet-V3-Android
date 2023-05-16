@@ -5,8 +5,8 @@ import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.store.getDataOrThrow
-import com.blockchain.store.mapData
+import com.blockchain.data.getDataOrThrow
+import com.blockchain.data.mapData
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money

@@ -11,6 +11,7 @@ import com.blockchain.core.buy.domain.models.SimpleBuyPair
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.mapData
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.extensions.safeLet
@@ -35,7 +36,6 @@ import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibilityDto
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairDto
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
 import com.blockchain.nabu.models.responses.swap.CustodialOrderResponse
-import com.blockchain.store.mapData
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.AssetCatalogue

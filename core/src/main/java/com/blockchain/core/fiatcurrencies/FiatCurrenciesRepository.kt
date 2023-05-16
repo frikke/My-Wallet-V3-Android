@@ -4,6 +4,7 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.api.services.FiatCurrenciesApiService
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.firstOutcome
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.fiatcurrencies.model.TradingCurrencies
 import com.blockchain.nabu.api.getuser.data.GetUserStore
@@ -14,7 +15,6 @@ import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
 import com.blockchain.outcome.mapError
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.firstOutcome
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency
 import kotlinx.coroutines.flow.Flow

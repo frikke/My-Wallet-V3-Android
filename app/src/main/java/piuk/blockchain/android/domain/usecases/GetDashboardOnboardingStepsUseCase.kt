@@ -2,6 +2,7 @@ package piuk.blockchain.android.domain.usecases
 
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.data.asSingle
 import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.domain.onboarding.DashboardOnboardingStep
 import com.blockchain.domain.onboarding.DashboardOnboardingStepState
@@ -15,7 +16,6 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.preferences.DashboardPrefs
-import com.blockchain.store.asSingle
 import com.blockchain.usecases.UseCase
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.rx3.await

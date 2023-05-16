@@ -2,7 +2,7 @@ package com.blockchain.core.walletoptions
 
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
-import com.blockchain.store.asSingle
+import com.blockchain.data.asSingle
 import com.blockchain.sunriver.XlmHorizonUrlFetcher
 import com.blockchain.sunriver.XlmTransactionTimeoutFetcher
 import info.blockchain.wallet.api.data.WalletOptions

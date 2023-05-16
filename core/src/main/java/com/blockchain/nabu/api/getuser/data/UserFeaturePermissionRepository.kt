@@ -5,6 +5,7 @@ import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.combineDataResources
+import com.blockchain.data.mapData
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
 import com.blockchain.domain.eligibility.model.ProductEligibility
@@ -14,7 +15,6 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
-import com.blockchain.store.mapData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 

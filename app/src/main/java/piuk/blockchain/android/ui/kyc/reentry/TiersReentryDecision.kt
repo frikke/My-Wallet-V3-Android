@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.kyc.reentry
 
 import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.data.asSingle
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.nabu.Feature
@@ -8,7 +9,6 @@ import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
-import com.blockchain.store.asSingle
 import com.blockchain.utils.rxMaybeOutcome
 import com.blockchain.utils.rxSingleOutcome
 import io.reactivex.rxjava3.core.Single

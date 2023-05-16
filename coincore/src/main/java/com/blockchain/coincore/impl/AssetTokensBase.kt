@@ -20,6 +20,7 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.asSingle
 import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.InterestService
@@ -34,7 +35,6 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.asSingle
 import com.blockchain.utils.unsafeLazy
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletModeService

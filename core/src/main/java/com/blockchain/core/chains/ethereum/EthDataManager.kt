@@ -12,12 +12,12 @@ import com.blockchain.core.utils.schedulers.applySchedulers
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.asSingle
 import com.blockchain.logging.LastTxUpdater
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
-import com.blockchain.store.asSingle
 import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo

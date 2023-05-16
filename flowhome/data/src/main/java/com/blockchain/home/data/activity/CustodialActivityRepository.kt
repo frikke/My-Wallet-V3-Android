@@ -5,8 +5,8 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CustodialTransaction
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.mapData
 import com.blockchain.home.activity.CustodialActivityService
-import com.blockchain.store.mapData
 import com.blockchain.walletmode.WalletMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch

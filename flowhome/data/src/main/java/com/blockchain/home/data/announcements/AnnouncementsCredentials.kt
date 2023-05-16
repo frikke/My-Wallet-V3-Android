@@ -4,11 +4,11 @@ import com.blockchain.api.announcements.DeviceInfo
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.dataOrElse
+import com.blockchain.data.mapData
 import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.outcome.getOrDefault
-import com.blockchain.store.mapData
 import com.blockchain.utils.awaitOutcome
 import kotlinx.coroutines.flow.firstOrNull
 

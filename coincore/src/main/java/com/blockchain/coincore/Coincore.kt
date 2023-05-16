@@ -16,13 +16,13 @@ import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.firstOutcome
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.getOrDefault
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.firstOutcome
 import com.blockchain.unifiedcryptowallet.domain.balances.CoinNetworksService
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet

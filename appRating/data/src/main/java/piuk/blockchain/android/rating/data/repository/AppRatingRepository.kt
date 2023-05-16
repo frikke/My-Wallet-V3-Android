@@ -1,6 +1,7 @@
 package piuk.blockchain.android.rating.data.repository
 
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.data.asSingle
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
@@ -10,7 +11,6 @@ import com.blockchain.outcome.getOrDefault
 import com.blockchain.outcome.getOrNull
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.asSingle
 import com.blockchain.utils.awaitOutcome
 import java.util.Calendar
 import java.util.concurrent.TimeUnit

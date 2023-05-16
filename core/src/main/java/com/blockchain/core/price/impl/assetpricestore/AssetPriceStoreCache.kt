@@ -8,12 +8,12 @@ import com.blockchain.core.price.impl.suggestTimescaleInterval
 import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.firstOutcome
 import com.blockchain.domain.common.model.toMillis
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
 import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
-import com.blockchain.store.firstOutcome
 import com.blockchain.store_caches_inmemory.InMemoryCacheStoreBuilder
 import com.blockchain.utils.awaitOutcome
 import info.blockchain.balance.Currency

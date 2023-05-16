@@ -18,14 +18,14 @@ import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.combineDataResources
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.doOnData
+import com.blockchain.data.flatMapData
+import com.blockchain.data.mapData
 import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.extensions.minus
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.presentation.pulltorefresh.PullToRefresh
-import com.blockchain.store.flatMapData
-import com.blockchain.store.mapData
 import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService

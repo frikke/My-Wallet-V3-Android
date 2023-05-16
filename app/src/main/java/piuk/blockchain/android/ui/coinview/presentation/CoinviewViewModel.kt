@@ -26,12 +26,12 @@ import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.doOnData
 import com.blockchain.data.doOnError
+import com.blockchain.data.filterNotLoading
 import com.blockchain.data.map
+import com.blockchain.data.mapData
 import com.blockchain.data.updateDataWith
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.filterNotLoading
-import com.blockchain.store.mapData
 import com.blockchain.utils.toFormattedDateWithoutYear
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode

@@ -8,8 +8,8 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.data.mapList
+import com.blockchain.data.mapListData
 import com.blockchain.data.updateDataWith
-import com.blockchain.store.mapListData
 import com.blockchain.transactions.common.WithId
 import com.blockchain.transactions.common.accounts.AccountUiElement
 import com.blockchain.transactions.common.withId

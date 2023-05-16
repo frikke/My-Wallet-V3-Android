@@ -2,11 +2,11 @@ package com.blockchain.store_caches_inmemory
 
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.firstOutcome
 import com.blockchain.outcome.Outcome
 import com.blockchain.store.CachedData
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Mediator
-import com.blockchain.store.firstOutcome
 import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest

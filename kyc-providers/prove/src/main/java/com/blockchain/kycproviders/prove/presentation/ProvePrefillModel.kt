@@ -9,6 +9,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.core.kyc.data.datasources.KycTiersStore
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.firstOutcome
 import com.blockchain.domain.common.model.CountryIso
 import com.blockchain.domain.common.model.Seconds
 import com.blockchain.domain.common.model.StateIso
@@ -25,7 +26,6 @@ import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
-import com.blockchain.store.firstOutcome
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
