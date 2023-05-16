@@ -785,7 +785,7 @@ private fun PreviewInputScreen_NetworkSelection() {
             outputExchangeAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
             outputAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
             allowanceCanBeRevoked = false,
-            uiFee = UiFee(
+            uiFee = UiNetworkFee.DefinedFee(
                 Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
                 Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
             ),
