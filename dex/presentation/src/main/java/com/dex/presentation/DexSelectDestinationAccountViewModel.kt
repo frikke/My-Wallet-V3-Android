@@ -9,6 +9,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.dex.domain.DexAccount
 import com.dex.domain.DexAccountsService
+import com.dex.domain.DexNetworkService
 import com.dex.domain.DexTransactionProcessor
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.zip
@@ -16,7 +17,8 @@ import kotlinx.coroutines.launch
 
 class DexSelectDestinationAccountViewModel(
     private val dexService: DexAccountsService,
-    private val transactionProcessor: DexTransactionProcessor
+    private val transactionProcessor: DexTransactionProcessor,
+    private val dexNetworkService: DexNetworkService
 ) : MviViewModel<
     DestinationAccountIntent,
     DestinationAccountSelectionViewState,
@@ -51,7 +53,7 @@ class DexSelectDestinationAccountViewModel(
         when (intent) {
             DestinationAccountIntent.LoadAccounts -> {
                 viewModelScope.launch {
-                    dexService.destinationAccounts()
+                    dexService.destinationAccounts(chainId = dexNetworkService.selectedChainId())
                         .zip(transactionProcessor.transaction) { accounts, tx ->
                             accounts.filter {
                                 it.currency.networkTicker != tx.sourceAccount.currency.networkTicker
@@ -65,10 +67,12 @@ class DexSelectDestinationAccountViewModel(
                         }
                 }
             }
+
             is DestinationAccountIntent.OnAccountSelected -> {
                 transactionProcessor.updateDestinationAccount(intent.account)
                 dexService.updatePersistedDestinationAccount(intent.account)
             }
+
             is DestinationAccountIntent.Search -> {
                 updateState {
                     it.copy(

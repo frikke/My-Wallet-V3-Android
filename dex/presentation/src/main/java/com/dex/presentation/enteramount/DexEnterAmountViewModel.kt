@@ -21,7 +21,7 @@ import com.dex.domain.AllowanceService
 import com.dex.domain.AllowanceTransactionProcessor
 import com.dex.domain.AllowanceTransactionState
 import com.dex.domain.DexAccountsService
-import com.dex.domain.DexChainService
+import com.dex.domain.DexNetworkService
 import com.dex.domain.DexTransaction
 import com.dex.domain.DexTransactionProcessor
 import com.dex.domain.DexTxError
@@ -55,7 +55,7 @@ class DexEnterAmountViewModel(
     private val enviromentConfig: EnvironmentConfig,
     private val dexAllowanceService: AllowanceService,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
-    private val dexChainService: DexChainService,
+    private val dexNetworkService: DexNetworkService,
     private val assetCatalogue: AssetCatalogue
 ) : MviViewModel<
     InputAmountIntent,
@@ -353,7 +353,7 @@ class DexEnterAmountViewModel(
 
     private fun loadNetworks() {
         viewModelScope.launch {
-            dexChainService.supportedNetworks().collectLatest { coinNetworks ->
+            dexNetworkService.supportedNetworks().collectLatest { coinNetworks ->
                 updateState {
                     it.copy(
                         networks = it.networks.updateDataWith(coinNetworks)
@@ -367,7 +367,7 @@ class DexEnterAmountViewModel(
         viewModelScope.launch {
             val selectedSlippage = dexSlippageService.selectedSlippage()
             // collect chain changes and reset transaction when it changes
-            dexChainService.chainId.collectLatest { chainId ->
+            dexNetworkService.chainId.collectLatest { chainId ->
                 val preselectedAccount = dexAccountsService.defSourceAccount(chainId = chainId)
                 preselectedAccount?.let { source ->
                     val preselectedDestination = dexAccountsService.defDestinationAccount(

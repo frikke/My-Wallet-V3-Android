@@ -26,7 +26,7 @@ val dexPresentation = module {
                 exchangeRatesDataManager = get(),
                 allowanceProcessor = get(),
                 dexSlippageService = get(),
-                dexChainService = get(),
+                dexNetworkService = get(),
                 assetCatalogue = get()
             )
         }
@@ -48,14 +48,16 @@ val dexPresentation = module {
         viewModel {
             DexSourceAccountViewModel(
                 dexService = get(),
-                transactionProcessor = get()
+                transactionProcessor = get(),
+                dexNetworkService = get()
             )
         }
 
         viewModel {
             DexSelectDestinationAccountViewModel(
                 dexService = get(),
-                transactionProcessor = get()
+                transactionProcessor = get(),
+                dexNetworkService = get()
             )
         }
         viewModel {
@@ -73,7 +75,7 @@ val dexPresentation = module {
 
         viewModel {
             SelectNetworkViewModel(
-                dexChainService = get(),
+                dexNetworkService = get(),
                 assetCatalogue = get()
             )
         }
