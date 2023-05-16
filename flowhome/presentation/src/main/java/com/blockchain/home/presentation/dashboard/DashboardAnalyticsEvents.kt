@@ -112,7 +112,7 @@ sealed class DashboardAnalyticsEvents(
         private const val CURRENCY = "currency"
         private const val EARN_PRODUCT = "earn_product"
         private const val DASHBOARD_STATE = "dashboard_state"
-        private const val PERCENTAGE_MOVE = "percentage move"
+        private const val PERCENTAGE_MOVE = "percentage_move"
         private const val POSITION = "position"
     }
 }
