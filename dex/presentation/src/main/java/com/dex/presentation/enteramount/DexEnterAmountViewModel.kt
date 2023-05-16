@@ -97,7 +97,7 @@ class DexEnterAmountViewModel(
         return networks.map { coinNetworks ->
             coinNetworks.first { it.chainId == selectedChain }
         }.map { coinNetwork ->
-            val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(coinNetwork.networkTicker)
+            val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(coinNetwork.nativeAssetTicker)
             check(assetInfo != null)
             DexNetworkViewState(
                 chainId = selectedChain!!,

@@ -35,7 +35,7 @@ class SelectNetworkViewModel(
             dexChainService.supportedNetworks()
                 .filterListData {
                     it.chainId != null &&
-                        assetCatalogue.assetInfoFromNetworkTicker(it.networkTicker) != null
+                        assetCatalogue.assetInfoFromNetworkTicker(it.nativeAssetTicker) != null
                 }
                 .collectLatest { networksDataResource ->
                     updateState {
@@ -60,7 +60,7 @@ class SelectNetworkViewModel(
         intent: SelectNetworkIntent
     ) {
         when (intent) {
-            is SelectNetworkIntent.UpdateNetwork -> {
+            is SelectNetworkIntent.UpdateSelectedNetwork -> {
                 dexChainService.updateSelectedNetwork(intent.chainId)
             }
         }
@@ -68,7 +68,7 @@ class SelectNetworkViewModel(
 
     private fun CoinNetwork.toDexNetwork(selectedChainId: Int): DexNetworkViewState {
         val chainId = chainId
-        val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(networkTicker)
+        val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(nativeAssetTicker)
         check(chainId != null)
         check(assetInfo != null)
         return DexNetworkViewState(

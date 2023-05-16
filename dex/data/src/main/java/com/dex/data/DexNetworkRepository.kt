@@ -42,7 +42,7 @@ class DexNetworkRepository(
         ) { coinNetworks, dexChains ->
             coinNetworks.filter { coinNetwork ->
                 dexChains.any { dexChain ->
-                    coinNetwork.chainId == dexChain.chainId || coinNetwork.networkTicker == "MATIC"
+                    coinNetwork.chainId == dexChain.chainId
                 }
             }
         }.catch { emit(DataResource.Error(it.toException())) }

@@ -46,7 +46,7 @@ fun SelectNetwork(
     SelectNetworkScreen(
         networks = viewState.networks,
         networkOnClick = { network ->
-            viewModel.onIntent(SelectNetworkIntent.UpdateNetwork(chainId = network.chainId))
+            viewModel.onIntent(SelectNetworkIntent.UpdateSelectedNetwork(chainId = network.chainId))
             closeClicked()
         },
         closeClicked = closeClicked
