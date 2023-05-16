@@ -33,6 +33,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavController
+import com.blockchain.analytics.Analytics
 import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
 import com.blockchain.componentlib.anim.AnimatedAmountCounter
 import com.blockchain.componentlib.basic.ComposeColors
@@ -59,6 +60,7 @@ import com.blockchain.dex.presentation.R
 import com.blockchain.extensions.safeLet
 import com.blockchain.koin.payloadScope
 import com.dex.presentation.AmountFieldConfig
+import com.dex.presentation.DexAnalyticsEvents
 import com.dex.presentation.DexTxSubscribeScreen
 import com.dex.presentation.SendAndReceiveAmountFields
 import com.dex.presentation.graph.ARG_INFO_DESCRIPTION
@@ -67,17 +69,20 @@ import com.dex.presentation.graph.DexDestination
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
+import info.blockchain.balance.isLayer2Token
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.Base64
 import kotlinx.coroutines.flow.collectLatest
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun DexConfirmationScreen(
     onBackPressed: () -> Unit,
     navController: NavController,
-    viewModel: DexConfirmationViewModel = getViewModel(scope = payloadScope)
+    viewModel: DexConfirmationViewModel = getViewModel(scope = payloadScope),
+    analytics: Analytics = get(),
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -120,9 +125,32 @@ fun DexConfirmationScreen(
             title = stringResource(com.blockchain.stringResources.R.string.confirm_swap),
             onBackButtonClick = onBackPressed
         )
-        val viewState: ConfirmationScreenViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
+        val viewState: ConfirmationScreenViewState by viewModel.viewState.collectAsStateLifecycleAware()
         (viewState as? ConfirmationScreenViewState.DataConfirmationViewState)?.let { dataState ->
+
+            LaunchedEffect(Unit) {
+                with(dataState) {
+                    analytics.logEvent(
+                        DexAnalyticsEvents.PreviewViewed(
+                            inputTicker = inputCurrency?.networkTicker.orEmpty(),
+                            inputAmount = inputAmount?.toStringWithoutSymbol().orEmpty(),
+                            outputTicker = outputCurrency?.networkTicker.orEmpty(),
+                            outputAmount = outputAmount?.toStringWithoutSymbol().orEmpty(),
+                            minOutputAmount = minAmount?.value?.toStringWithoutSymbol().orEmpty(),
+                            slippage = slippage?.toString().orEmpty(),
+                            networkFee = networkFee?.value?.toStringWithoutSymbol().orEmpty(),
+                            networkFeeTicker = networkFee?.value?.currency?.networkTicker.orEmpty(),
+                            blockchainFee = blockchainFee?.value?.toStringWithoutSymbol().orEmpty(),
+                            blockchainFeeTicker = blockchainFee?.value?.currency?.networkTicker.orEmpty(),
+                            inputNetwork = inputCurrency?.takeIf { it.isLayer2Token }?.coinNetwork?.networkTicker
+                                ?: inputCurrency?.networkTicker.orEmpty(),
+                            outputNetwork = outputCurrency?.takeIf { it.isLayer2Token }?.coinNetwork?.networkTicker
+                                ?: dataState.inputCurrency?.networkTicker.orEmpty()
+                        )
+                    )
+                }
+            }
 
             var animatedState by remember {
                 mutableStateOf(dataState.toAnimatedState())
@@ -273,6 +301,27 @@ fun DexConfirmationScreen(
                     newPriceAvailableAndNotAccepted = dataState.newPriceAvailable,
                     confirm = {
                         viewModel.onIntent(ConfirmationIntent.ConfirmSwap)
+
+                        with(dataState) {
+                            analytics.logEvent(
+                                DexAnalyticsEvents.ConfirmSwapClicked(
+                                    inputTicker = inputCurrency?.networkTicker.orEmpty(),
+                                    inputAmount = inputAmount?.toStringWithoutSymbol().orEmpty(),
+                                    outputTicker = outputCurrency?.networkTicker.orEmpty(),
+                                    outputAmount = outputAmount?.toStringWithoutSymbol().orEmpty(),
+                                    minOutputAmount = minAmount?.value?.toStringWithoutSymbol().orEmpty(),
+                                    slippage = slippage?.toString().orEmpty(),
+                                    networkFee = networkFee?.value?.toStringWithoutSymbol().orEmpty(),
+                                    networkFeeTicker = networkFee?.value?.currency?.networkTicker.orEmpty(),
+                                    blockchainFee = blockchainFee?.value?.toStringWithoutSymbol().orEmpty(),
+                                    blockchainFeeTicker = blockchainFee?.value?.currency?.networkTicker.orEmpty(),
+                                    inputNetwork = inputCurrency?.takeIf { it.isLayer2Token }
+                                        ?.coinNetwork?.networkTicker ?: inputCurrency?.networkTicker.orEmpty(),
+                                    outputNetwork = outputCurrency?.takeIf { it.isLayer2Token }
+                                        ?.coinNetwork?.networkTicker ?: dataState.inputCurrency?.networkTicker.orEmpty()
+                                )
+                            )
+                        }
                     },
                     accept = {
                         viewModel.onIntent(ConfirmationIntent.AcceptPrice)

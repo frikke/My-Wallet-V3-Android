@@ -45,6 +45,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavController
+import com.blockchain.analytics.Analytics
 import com.blockchain.chrome.LocalChromePillProvider
 import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
 import com.blockchain.componentlib.alert.PillAlert
@@ -90,6 +91,7 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.preferences.DexPrefs
 import com.dex.presentation.ALLOWANCE_TRANSACTION_APPROVED
 import com.dex.presentation.AmountFieldConfig
+import com.dex.presentation.DexAnalyticsEvents
 import com.dex.presentation.DexTxSubscribeScreen
 import com.dex.presentation.SendAndReceiveAmountFields
 import com.dex.presentation.graph.ARG_ALLOWANCE_TX
@@ -114,7 +116,8 @@ fun DexEnterAmountScreen(
     viewModel: DexEnterAmountViewModel = getViewModel(scope = payloadScope),
     dexIntroPrefs: DexPrefs = get(),
     openSettings: () -> Unit,
-    launchQrScanner: () -> Unit
+    launchQrScanner: () -> Unit,
+    analytics: Analytics = get(),
 ) {
     LaunchedEffect(Unit) {
         if (!dexIntroPrefs.dexIntroShown) {
@@ -209,6 +212,7 @@ fun DexEnterAmountScreen(
                             )
                         )
                     }
+                    analytics.logEvent(DexAnalyticsEvents.ApproveTokenConfirmed)
                 }
             }
         }
@@ -230,7 +234,7 @@ fun DexEnterAmountScreen(
             )
         }
 
-        (viewState as? InputAmountViewState.TransactionInputState)?.let {
+        (viewState as? InputAmountViewState.TransactionInputState)?.let {viewState ->
             paddedItem(paddingValues = PaddingValues(spacing)) {
                 InputScreen(
                     selectSourceAccount = {
@@ -241,9 +245,12 @@ fun DexEnterAmountScreen(
                         navController.navigate(DexDestination.SelectDestinationAccount.route)
                         keyboardController?.hide()
                     },
-                    viewState = it,
+                    viewState = viewState,
                     onValueChanged = {
                         viewModel.onIntent(InputAmountIntent.AmountUpdated(it.text))
+                        viewState.sourceCurrency?.networkTicker?.let { networkTicker ->
+                            analytics.logEvent(DexAnalyticsEvents.AmountEntered(sourceTicker = networkTicker))
+                        }
                     },
                     settingsOnClick = {
                         navController.navigate(DexDestination.Settings.route)
@@ -255,6 +262,7 @@ fun DexEnterAmountScreen(
                     },
                     onTokenAllowanceRequested = {
                         viewModel.onIntent(InputAmountIntent.BuildAllowanceTransaction)
+                        analytics.logEvent(DexAnalyticsEvents.ApproveTokenClicked)
                     },
                     onPreviewClicked = {
                         navController.navigate(DexDestination.Confirmation.route)

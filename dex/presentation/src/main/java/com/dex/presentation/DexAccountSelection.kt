@@ -13,12 +13,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -42,19 +48,24 @@ import com.blockchain.componentlib.theme.SmallestVerticalSpacer
 import com.blockchain.dex.presentation.R
 import com.dex.domain.DexAccount
 import info.blockchain.balance.isLayer2Token
+import org.koin.androidx.compose.get
 
 @Composable
 fun DexAccountSelection(
     accounts: List<DexAccount>,
     onAccountSelected: (DexAccount) -> Unit,
-    onSearchTermUpdated: (String) -> Unit
+    onSearchTermUpdated: (String) -> Unit,
+    analytics: Analytics = get(),
 ) {
+    var searchTerm by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         CancelableOutlinedSearch(
             onValueChange = {
                 onSearchTermUpdated(it)
+                searchTerm = it
             },
             placeholder = stringResource(com.blockchain.stringResources.R.string.search)
         )
@@ -93,6 +104,11 @@ fun DexAccountSelection(
                             ),
                             onClick = {
                                 onAccountSelected(dexAccount)
+                                analytics.logEvent(
+                                    DexAnalyticsEvents.DestinationSelected(
+                                        dexAccount.currency.networkTicker
+                                    )
+                                )
                             }
                         )
                         if (accounts.last() != dexAccount) {
@@ -134,6 +150,14 @@ fun DexAccountSelection(
             }
             if (accounts.isEmpty()) {
                 item {
+                    LaunchedEffect(searchTerm) {
+                        analytics.logEvent(
+                            DexAnalyticsEvents.DestinationNotFound(
+                                searchTerm = searchTerm
+                            )
+                        )
+                    }
+
                     NoResults()
                 }
             }

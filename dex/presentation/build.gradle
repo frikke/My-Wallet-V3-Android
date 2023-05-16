@@ -40,6 +40,8 @@ dependencies {
     implementation project(':componentlib')
     implementation project(':chrome:common')
     implementation project(':store:core')
+    implementation project(':analytics:domain')
+
     // koin
     implementation Libraries.koinAndroid
     implementation Libraries.koinCompose

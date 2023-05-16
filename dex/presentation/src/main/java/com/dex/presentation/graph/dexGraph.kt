@@ -28,7 +28,7 @@ import kotlinx.serialization.json.Json
 fun NavGraphBuilder.dexGraph(onBackPressed: () -> Unit, navController: NavController) {
     composable(navigationEvent = DexDestination.Intro) {
         ChromeSingleScreen {
-            DexIntroductionScreens(onBackPressed)
+            DexIntroductionScreens(close = onBackPressed)
         }
     }
 
