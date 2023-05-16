@@ -39,6 +39,7 @@ dependencies {
     implementation project(':unifiedcryptowallet:domain')
     implementation project(':componentlib')
     implementation project(':chrome:common')
+    implementation project(':store:core')
     implementation project(':analytics:domain')
 
     // koin

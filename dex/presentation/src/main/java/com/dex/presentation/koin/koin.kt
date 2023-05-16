@@ -10,6 +10,7 @@ import com.dex.presentation.TokenAllowanceViewModel
 import com.dex.presentation.confirmation.DexConfirmationViewModel
 import com.dex.presentation.enteramount.DexEnterAmountViewModel
 import com.dex.presentation.inprogress.DexInProgressTxViewModel
+import com.dex.presentation.network.SelectNetworkViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -24,7 +25,9 @@ val dexPresentation = module {
                 dexAccountsService = get(),
                 exchangeRatesDataManager = get(),
                 allowanceProcessor = get(),
-                dexSlippageService = get()
+                dexSlippageService = get(),
+                dexNetworkService = get(),
+                assetCatalogue = get()
             )
         }
 
@@ -45,14 +48,16 @@ val dexPresentation = module {
         viewModel {
             DexSourceAccountViewModel(
                 dexService = get(),
-                transactionProcessor = get()
+                transactionProcessor = get(),
+                dexNetworkService = get()
             )
         }
 
         viewModel {
             DexSelectDestinationAccountViewModel(
                 dexService = get(),
-                transactionProcessor = get()
+                transactionProcessor = get(),
+                dexNetworkService = get()
             )
         }
         viewModel {
@@ -64,6 +69,13 @@ val dexPresentation = module {
 
         viewModel {
             TokenAllowanceViewModel(
+                assetCatalogue = get()
+            )
+        }
+
+        viewModel {
+            SelectNetworkViewModel(
+                dexNetworkService = get(),
                 assetCatalogue = get()
             )
         }

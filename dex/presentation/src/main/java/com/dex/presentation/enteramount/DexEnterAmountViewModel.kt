@@ -10,6 +10,9 @@ import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
+import com.blockchain.data.dataOrElse
+import com.blockchain.data.map
+import com.blockchain.data.updateDataWith
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.safeLet
 import com.blockchain.outcome.Outcome
@@ -19,13 +22,17 @@ import com.dex.domain.AllowanceService
 import com.dex.domain.AllowanceTransactionProcessor
 import com.dex.domain.AllowanceTransactionState
 import com.dex.domain.DexAccountsService
+import com.dex.domain.DexNetworkService
 import com.dex.domain.DexTransaction
 import com.dex.domain.DexTransactionProcessor
 import com.dex.domain.DexTxError
 import com.dex.domain.SlippageService
+import com.dex.presentation.network.DexNetworkViewState
 import com.dex.presentation.uierrors.AlertError
 import com.dex.presentation.uierrors.DexUiError
 import com.dex.presentation.uierrors.toUiErrors
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
@@ -48,7 +55,9 @@ class DexEnterAmountViewModel(
     private val dexSlippageService: SlippageService,
     private val enviromentConfig: EnvironmentConfig,
     private val dexAllowanceService: AllowanceService,
-    private val exchangeRatesDataManager: ExchangeRatesDataManager
+    private val exchangeRatesDataManager: ExchangeRatesDataManager,
+    private val dexNetworkService: DexNetworkService,
+    private val assetCatalogue: AssetCatalogue
 ) : MviViewModel<
     InputAmountIntent,
     InputAmountViewState,
@@ -75,7 +84,7 @@ class DexEnterAmountViewModel(
                 is DataResource.Data -> if (canTransact.data) {
                     showInputUi(state)
                 } else {
-                    showNoInoutUi()
+                    showNoInoutUi(state)
                 }
                 /**
                  * todo map loading errors
@@ -85,12 +94,37 @@ class DexEnterAmountViewModel(
         }
     }
 
-    private fun showNoInoutUi(): InputAmountViewState =
-        InputAmountViewState.NoInputViewState
+    private fun AmountModelState.reduceSelectedNetwork(): DataResource<DexNetworkViewState> {
+        return networks.map { coinNetworks ->
+            coinNetworks.first { it.chainId == selectedChain }
+        }.map { coinNetwork ->
+            val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(coinNetwork.nativeAssetTicker)
+            check(assetInfo != null)
+            DexNetworkViewState(
+                chainId = selectedChain!!,
+                logo = assetInfo.logo,
+                name = coinNetwork.name,
+                selected = true
+            )
+        }
+    }
+
+    private fun AmountModelState.reduceAllowNetworkSelection(): Boolean {
+        return networks.map { it.size > 1 }.dataOrElse(false)
+    }
+
+    private fun showNoInoutUi(state: AmountModelState): InputAmountViewState =
+        InputAmountViewState.NoInputViewState(
+            selectedNetwork = state.reduceSelectedNetwork(),
+            allowNetworkSelection = state.reduceAllowNetworkSelection()
+        )
 
     private fun showInputUi(state: AmountModelState): InputAmountViewState {
         val transaction = state.transaction
+
         return InputAmountViewState.TransactionInputState(
+            selectedNetwork = state.reduceSelectedNetwork(),
+            allowNetworkSelection = state.reduceAllowNetworkSelection(),
             sourceCurrency = transaction?.sourceAccount?.currency,
             destinationCurrency = transaction?.destinationAccount?.currency,
             maxAmount = transaction?.sourceAccount?.takeIf { !it.currency.isNetworkNativeAsset() }?.balance,
@@ -174,6 +208,7 @@ class DexEnterAmountViewModel(
     override suspend fun handleIntent(modelState: AmountModelState, intent: InputAmountIntent) {
         when (intent) {
             InputAmountIntent.InitTransaction -> {
+                loadNetworks()
                 initTransaction()
             }
 
@@ -319,27 +354,47 @@ class DexEnterAmountViewModel(
         }
     }
 
+    private fun loadNetworks() {
+        viewModelScope.launch {
+            dexNetworkService.supportedNetworks().collectLatest { coinNetworks ->
+                updateState {
+                    it.copy(
+                        networks = it.networks.updateDataWith(coinNetworks)
+                    )
+                }
+            }
+        }
+    }
+
     private fun initTransaction() {
         viewModelScope.launch {
             val selectedSlippage = dexSlippageService.selectedSlippage()
-            val preselectedAccount = dexAccountsService.defSourceAccount()
-            preselectedAccount?.let { source ->
-                val preselectedDestination = dexAccountsService.defDestinationAccount(source)
-                updateState { state ->
+            // collect chain changes and reset transaction when it changes
+            dexNetworkService.chainId.collectLatest { chainId ->
+                val preselectedAccount = dexAccountsService.defSourceAccount(chainId = chainId)
+                preselectedAccount?.let { source ->
+                    val preselectedDestination = dexAccountsService.defDestinationAccount(
+                        chainId = chainId,
+                        source = source
+                    )
+                    updateState { state ->
+                        state.copy(
+                            selectedChain = chainId,
+                            canTransact = DataResource.Data(true)
+                        )
+                    }
+                    txProcessor.initTransaction(
+                        sourceAccount = source,
+                        destinationAccount = preselectedDestination,
+                        slippage = selectedSlippage
+                    )
+                    subscribeForTxUpdates()
+                } ?: updateState { state ->
                     state.copy(
-                        canTransact = DataResource.Data(true)
+                        selectedChain = chainId,
+                        canTransact = DataResource.Data(false)
                     )
                 }
-                txProcessor.initTransaction(
-                    sourceAccount = source,
-                    destinationAccount = preselectedDestination,
-                    slippage = selectedSlippage
-                )
-                subscribeForTxUpdates()
-            } ?: updateState { state ->
-                state.copy(
-                    canTransact = DataResource.Data(false)
-                )
             }
         }
     }
@@ -480,6 +535,8 @@ class DexEnterAmountViewModel(
 
 sealed class InputAmountViewState : ViewState {
     data class TransactionInputState(
+        val selectedNetwork: DataResource<DexNetworkViewState>,
+        val allowNetworkSelection: Boolean,
         val sourceCurrency: Currency?,
         val destinationCurrency: Currency?,
         val maxAmount: Money?,
@@ -510,7 +567,11 @@ sealed class InputAmountViewState : ViewState {
             get() = errors.filterIsInstance<AlertError>().firstOrNull()
     }
 
-    object NoInputViewState : InputAmountViewState()
+    data class NoInputViewState(
+        val selectedNetwork: DataResource<DexNetworkViewState>,
+        val allowNetworkSelection: Boolean,
+    ) : InputAmountViewState()
+
     object Loading : InputAmountViewState()
 }
 
@@ -536,6 +597,8 @@ sealed class UiNetworkFee {
 }
 
 data class AmountModelState(
+    val networks: DataResource<List<CoinNetwork>> = DataResource.Loading,
+    val selectedChain: Int? = null,
     val canTransact: DataResource<Boolean> = DataResource.Loading,
     val transaction: DexTransaction?,
     val ignoredTxErrors: List<DexUiError> = emptyList(),

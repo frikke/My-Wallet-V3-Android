@@ -151,7 +151,9 @@ fun MultiAppBottomNavigationHost(
                         navController = navController,
                         savedStateHandle = navController.currentBackStackEntry
                             ?.savedStateHandle,
-                        startReceiving = { assetActionsNavigation.navigate(AssetAction.Receive) }
+                        startReceiving = { assetActionsNavigation.navigate(AssetAction.Receive) },
+                        openSettings = openSettings,
+                        launchQrScanner = launchQrScanner,
                     )
                 },
                 refreshComplete = refreshComplete,

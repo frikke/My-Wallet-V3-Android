@@ -19,6 +19,7 @@ import com.dex.presentation.confirmation.DexConfirmationInfoSheet
 import com.dex.presentation.confirmation.DexConfirmationScreen
 import com.dex.presentation.enteramount.AllowanceTxUiData
 import com.dex.presentation.inprogress.DexInProgressTransactionScreen
+import com.dex.presentation.network.SelectNetwork
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import java.util.Base64
 import kotlinx.serialization.json.Json
@@ -89,6 +90,12 @@ fun NavGraphBuilder.dexGraph(onBackPressed: () -> Unit, navController: NavContro
         )
     }
 
+    bottomSheet(navigationEvent = DexDestination.SelectNetwork) {
+        SelectNetwork(
+            closeClicked = onBackPressed
+        )
+    }
+
     bottomSheet(navigationEvent = DexDestination.TokenAllowanceSheet) {
         val data = it.arguments?.getComposeArgument(ARG_ALLOWANCE_TX) ?: throw IllegalArgumentException(
             "You must provide details"
@@ -110,6 +117,7 @@ sealed class DexDestination(
     object SelectSourceAccount : DexDestination("SelectSourceAccount")
     object SelectDestinationAccount : DexDestination("SelectDestinationAccount")
     object Settings : DexDestination("Settings")
+    object SelectNetwork : DexDestination("SelectNetwork")
     object Confirmation : DexDestination("Confirmation")
     object InProgress : DexDestination("InProgress")
     object TokenAllowanceSheet : DexDestination(route = "TokenAllowanceSheet/${ARG_ALLOWANCE_TX.wrappedArg()}}")

@@ -5,4 +5,5 @@ interface DexPrefs {
     fun markDexIntroAsSeen()
     var selectedDestinationCurrencyTicker: String
     var selectedSlippageIndex: Int
+    var selectedChainId: Int
 }

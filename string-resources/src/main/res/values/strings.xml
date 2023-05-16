@@ -3607,6 +3607,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="estimated_fees">Estimated fee</string>
     <string name="fetching_quote">Fetching best price…</string>
     <string name="not_enough_gas">Not enough %1$s for gas fees</string>
+    <string name="select_network">Select Network</string>
     <string name="allowed_slippage">Allowed Slippage</string>
     <string name="slippage_explanation">Slippage is the max percentage of price you\'re willing to allow for your swap to go through. If price changes beyond that, the swap will revert and your assets will be returned.</string>
     <string name="approve_token">Approve %1$s</string>
