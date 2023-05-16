@@ -42,7 +42,7 @@ fun SelectSourceAccountBottomSheet(
     ) {
         SheetFloatingHeader(
             icon = StackedIcon.None,
-            title = stringResource(id = com.blockchain.stringResources.R.string.select_token),
+            title = stringResource(id = com.blockchain.stringResources.R.string.your_assets),
             onCloseClick = closeClicked
         )
 
