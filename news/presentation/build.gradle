@@ -1,0 +1,46 @@
+apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+apply plugin: 'kotlin-parcelize'
+apply plugin: 'kotlinx-serialization'
+
+android {
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {}
+    }
+
+    lintOptions {
+        warningsAsErrors true
+        abortOnError true
+    }
+
+    buildFeatures {
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion Versions.composeCompiler
+    }
+
+    namespace 'com.blockchain.news.presentation'
+}
+
+dependencies {
+    implementation project(':news:domain')
+
+    // koin
+    implementation Libraries.koinAndroid
+    implementation Libraries.koinCompose
+
+    // Compose
+    implementation Libraries.composeUi
+    implementation Libraries.composeMaterial
+    implementation Libraries.composePreview
+    implementation Libraries.composeNavigation
+    implementation Libraries.accompanistPager
+    implementation Libraries.accompanistPagerIndicators
+    implementation Libraries.accompanistNavigationMaterial
+    implementation Libraries.kotlinJson
+}
