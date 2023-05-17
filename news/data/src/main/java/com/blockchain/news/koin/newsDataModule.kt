@@ -14,7 +14,8 @@ val newsDataModule = module {
 
     single<NewsService> {
         NewsRepository(
-            newsStore = get()
+            newsStore = get(),
+            remoteConfigService = get()
         )
     }
 }
