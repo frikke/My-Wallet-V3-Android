@@ -3,7 +3,7 @@ package com.blockchain.core.price.historic
 import com.blockchain.data.DataResource
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.data.RefreshStrategy
-import com.blockchain.store.mapData
+import com.blockchain.data.mapData
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency

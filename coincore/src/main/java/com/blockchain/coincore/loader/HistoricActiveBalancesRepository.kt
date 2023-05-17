@@ -3,7 +3,7 @@ package com.blockchain.coincore.loader
 import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
-import com.blockchain.store.asSingle
+import com.blockchain.data.asSingle
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Single
 

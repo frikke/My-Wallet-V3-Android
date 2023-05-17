@@ -8,6 +8,10 @@ import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.filterNotLoading
+import com.blockchain.data.flatMapData
+import com.blockchain.data.getDataOrThrow
+import com.blockchain.data.mapData
 import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.data.dataresources.staking.StakingBalanceStore
 import com.blockchain.earn.data.dataresources.staking.StakingEligibilityStore
@@ -27,10 +31,6 @@ import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.fold
 import com.blockchain.outcome.map
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.filterNotLoading
-import com.blockchain.store.flatMapData
-import com.blockchain.store.getDataOrThrow
-import com.blockchain.store.mapData
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.AssetCatalogue

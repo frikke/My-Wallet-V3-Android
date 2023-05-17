@@ -4,12 +4,12 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.data.DataResource
 import com.blockchain.data.combineDataResources
+import com.blockchain.data.mapData
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.store.mapData
 import com.blockchain.utils.toFlowDataResource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine

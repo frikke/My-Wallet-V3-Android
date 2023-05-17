@@ -24,6 +24,8 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
+import com.blockchain.data.asMaybe
+import com.blockchain.data.asSingle
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
@@ -48,8 +50,6 @@ import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.TransactionPrefs
-import com.blockchain.store.asMaybe
-import com.blockchain.store.asSingle
 import com.blockchain.utils.mapList
 import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.utils.zipObservables

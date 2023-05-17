@@ -15,12 +15,12 @@ import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSig
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.asSingle
 import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.domain.wallet.CoinType
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
-import com.blockchain.store.asSingle
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue

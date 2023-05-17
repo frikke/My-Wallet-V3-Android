@@ -4,9 +4,9 @@ import com.blockchain.coincore.AccountBalance
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.getDataOrThrow
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.LocalSettingsPrefs
-import com.blockchain.store.getDataOrThrow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.emitAll

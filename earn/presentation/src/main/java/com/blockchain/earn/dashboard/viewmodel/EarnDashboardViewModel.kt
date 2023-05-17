@@ -11,6 +11,9 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.combineDataResources
 import com.blockchain.data.doOnData
+import com.blockchain.data.filterNotLoading
+import com.blockchain.data.flatMapData
+import com.blockchain.data.mapData
 import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.domain.models.active.ActiveRewardsAccountBalance
 import com.blockchain.earn.domain.models.interest.InterestAccountBalance
@@ -26,9 +29,6 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatusPrefs
-import com.blockchain.store.filterNotLoading
-import com.blockchain.store.flatMapData
-import com.blockchain.store.mapData
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money

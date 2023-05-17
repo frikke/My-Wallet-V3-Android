@@ -8,12 +8,12 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.firstOutcome
+import com.blockchain.data.flatMapData
+import com.blockchain.data.mapData
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.toDataResource
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.firstOutcome
-import com.blockchain.store.flatMapData
-import com.blockchain.store.mapData
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkBalance
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalanceNotFoundException

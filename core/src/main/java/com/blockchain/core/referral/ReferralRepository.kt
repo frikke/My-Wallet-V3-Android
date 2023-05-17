@@ -8,6 +8,7 @@ import com.blockchain.core.referral.dataresource.ReferralStore
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.mapData
 import com.blockchain.domain.common.model.PromotionStyleInfo
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.referral.ReferralService
@@ -15,7 +16,6 @@ import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.fold
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.mapData
 import kotlinx.coroutines.flow.Flow
 
 class ReferralRepository(

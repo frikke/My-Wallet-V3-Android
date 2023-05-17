@@ -19,7 +19,9 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.combineDataResources
+import com.blockchain.data.filterNotLoading
 import com.blockchain.data.map
+import com.blockchain.data.mapData
 import com.blockchain.data.onErrorReturn
 import com.blockchain.data.updateDataWith
 import com.blockchain.domain.paymentmethods.BankService
@@ -39,8 +41,6 @@ import com.blockchain.home.presentation.activity.detail.custodial.mappers.toActi
 import com.blockchain.home.presentation.activity.list.custodial.mappers.isSellingPair
 import com.blockchain.home.presentation.activity.list.custodial.mappers.isSwapPair
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
-import com.blockchain.store.filterNotLoading
-import com.blockchain.store.mapData
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow

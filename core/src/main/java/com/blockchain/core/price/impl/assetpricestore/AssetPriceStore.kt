@@ -7,10 +7,10 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.firstOutcome
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.map
-import com.blockchain.store.firstOutcome
 import info.blockchain.balance.Currency
 import java.util.Calendar
 import java.util.concurrent.ConcurrentHashMap

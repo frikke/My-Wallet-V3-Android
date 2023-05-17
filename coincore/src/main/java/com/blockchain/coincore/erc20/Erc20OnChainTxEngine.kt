@@ -16,10 +16,10 @@ import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.fees.FeeDataManager
+import com.blockchain.data.asSingle
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatusPrefs
-import com.blockchain.store.asSingle
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.blockchain.utils.then
 import info.blockchain.balance.AssetCatalogue

@@ -4,9 +4,9 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.EmptyNavEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.data.filterListData
 import com.blockchain.data.mapList
 import com.blockchain.data.updateDataWith
-import com.blockchain.store.filterListData
 import com.dex.domain.DexNetworkService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CoinNetwork

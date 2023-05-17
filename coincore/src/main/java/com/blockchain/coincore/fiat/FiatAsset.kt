@@ -14,11 +14,11 @@ import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
+import com.blockchain.data.asSingle
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
-import com.blockchain.store.asSingle
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate

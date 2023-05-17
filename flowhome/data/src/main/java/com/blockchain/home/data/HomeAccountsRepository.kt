@@ -5,9 +5,9 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.mapData
 import com.blockchain.data.onErrorReturn
 import com.blockchain.home.domain.HomeAccountsService
-import com.blockchain.store.mapData
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single

@@ -13,13 +13,13 @@ import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.core.kyc.domain.model.TiersMap
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.getDataOrThrow
+import com.blockchain.data.mapData
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.common.extensions.wrapErrorMessage
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
-import com.blockchain.store.getDataOrThrow
-import com.blockchain.store.mapData
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money

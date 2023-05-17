@@ -25,6 +25,7 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.asObservable
 import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
@@ -33,7 +34,6 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.asObservable
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkBalance
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet

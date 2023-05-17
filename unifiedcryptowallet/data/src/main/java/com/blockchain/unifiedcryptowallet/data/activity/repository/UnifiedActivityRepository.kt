@@ -6,9 +6,9 @@ import com.blockchain.api.services.ActivityWebSocketService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.mapData
 import com.blockchain.extensions.range
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.mapData
 import com.blockchain.unifiedcryptowallet.data.activity.datasource.ActivityDetailsStore
 import com.blockchain.unifiedcryptowallet.data.activity.datasource.UnifiedActivityCache
 import com.blockchain.unifiedcryptowallet.data.activity.repository.mapper.toActivityDetailGroups

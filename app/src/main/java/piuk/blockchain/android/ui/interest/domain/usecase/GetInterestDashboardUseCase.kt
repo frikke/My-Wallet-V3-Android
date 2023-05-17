@@ -2,8 +2,8 @@ package piuk.blockchain.android.ui.interest.domain.usecase
 
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
+import com.blockchain.data.filterNotLoading
 import com.blockchain.earn.domain.service.InterestService
-import com.blockchain.store.filterNotLoading
 import info.blockchain.balance.AssetInfo
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow

@@ -49,6 +49,9 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.asSingle
+import com.blockchain.data.firstOutcome
+import com.blockchain.data.mapData
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
@@ -109,9 +112,6 @@ import com.blockchain.outcome.mapError
 import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.blockchain.store.asSingle
-import com.blockchain.store.firstOutcome
-import com.blockchain.store.mapData
 import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.utils.toZonedDateTime
 import info.blockchain.balance.AssetCatalogue

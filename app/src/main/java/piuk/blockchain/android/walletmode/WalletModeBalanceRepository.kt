@@ -5,8 +5,8 @@ import com.blockchain.coincore.total
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.mapData
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.mapData
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeBalanceService
 import info.blockchain.balance.Money

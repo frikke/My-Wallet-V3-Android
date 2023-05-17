@@ -5,6 +5,7 @@ import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.asSingle
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
 import com.blockchain.domain.eligibility.model.ProductEligibility
@@ -20,7 +21,6 @@ import com.blockchain.nabu.LinkedError
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.NabuUser
-import com.blockchain.store.asSingle
 import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.utils.zipSingles
 import io.reactivex.rxjava3.core.Completable

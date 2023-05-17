@@ -17,6 +17,7 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.combineDataResourceFlows
 import com.blockchain.data.dataOrElse
+import com.blockchain.data.flatMapData
 import com.blockchain.data.map
 import com.blockchain.earn.domain.models.ActiveRewardsRates
 import com.blockchain.earn.domain.models.StakingRewardsRates
@@ -25,7 +26,6 @@ import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.outcome.getOrDefault
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.flatMapData
 import com.blockchain.utils.awaitOutcome
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService

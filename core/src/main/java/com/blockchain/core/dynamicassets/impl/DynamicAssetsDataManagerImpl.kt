@@ -9,8 +9,8 @@ import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.core.dynamicassets.FiatAssetList
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.asSingle
 import com.blockchain.outcome.map
-import com.blockchain.store.asSingle
 import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency

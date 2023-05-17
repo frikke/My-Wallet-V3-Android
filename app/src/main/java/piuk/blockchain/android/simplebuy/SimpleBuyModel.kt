@@ -19,6 +19,7 @@ import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency
 import com.blockchain.core.recurringbuy.domain.model.RecurringBuyOrder
 import com.blockchain.core.recurringbuy.domain.model.RecurringBuyState
+import com.blockchain.data.asSingle
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.BankPartnerCallbackProvider
@@ -46,7 +47,6 @@ import com.blockchain.network.PollResult
 import com.blockchain.outcome.getOrElse
 import com.blockchain.payments.core.CardAcquirer
 import com.blockchain.preferences.RecurringBuyPrefs
-import com.blockchain.store.asSingle
 import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo

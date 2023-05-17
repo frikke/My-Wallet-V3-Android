@@ -7,12 +7,12 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.doOnData
 import com.blockchain.data.map
+import com.blockchain.data.mapData
 import com.blockchain.extensions.minus
 import com.blockchain.home.announcements.Announcement
 import com.blockchain.home.announcements.AnnouncementsService
 import com.blockchain.home.announcements.ConsumeAnnouncementAction
 import com.blockchain.preferences.IterableAnnouncementsPrefs
-import com.blockchain.store.mapData
 import com.blockchain.walletmode.WalletMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
