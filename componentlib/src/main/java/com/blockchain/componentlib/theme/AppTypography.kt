@@ -15,7 +15,6 @@ private val interBold = FontFamily(Font(R.font.inter_bold, FontWeight.Bold))
 private const val monoFontFeatures = "tnum, lnum, zero, ss01"
 private const val slashedZeroFontFeatures = "zero, ss01"
 
-
 data class AppTypography(
     val display: TextStyle = TextStyle(
         fontFamily = interSemiBold,
