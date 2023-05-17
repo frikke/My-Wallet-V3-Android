@@ -1,4 +1,4 @@
-package com.blockchain.news
+package com.blockchain.news.composable
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.news.NewsArticle
 
 @Composable
 fun NewsArticle(
