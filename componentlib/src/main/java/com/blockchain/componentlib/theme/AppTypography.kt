@@ -12,7 +12,8 @@ import com.blockchain.componentlib.R
 private val interMedium = FontFamily(Font(R.font.inter_medium, FontWeight.Normal))
 private val interSemiBold = FontFamily(Font(R.font.inter_semi_bold, FontWeight.SemiBold))
 private val interBold = FontFamily(Font(R.font.inter_bold, FontWeight.Bold))
-private val monoFontFeatures = "tnum, lnum, zero, ss01"
+private const val monoFontFeatures = "tnum, lnum, zero, ss01"
+private const val slashedZeroFontFeatures = "zero, ss01"
 
 data class AppTypography(
     val display: TextStyle = TextStyle(
@@ -36,6 +37,12 @@ data class AppTypography(
         fontFeatureSettings = monoFontFeatures,
         lineHeight = 32.sp
     ),
+    val title2SlashedZero: TextStyle = TextStyle(
+        fontFamily = interSemiBold,
+        fontSize = 24.sp,
+        fontFeatureSettings = slashedZeroFontFeatures,
+        lineHeight = 32.sp
+    ),
     val title3: TextStyle = TextStyle(
         fontFamily = interSemiBold,
         fontSize = 20.sp,
@@ -56,6 +63,12 @@ data class AppTypography(
         fontFamily = interMedium,
         fontSize = 16.sp,
         fontFeatureSettings = monoFontFeatures,
+        lineHeight = 24.sp
+    ),
+    val bodySlashedZero: TextStyle = TextStyle(
+        fontFamily = interMedium,
+        fontSize = 16.sp,
+        fontFeatureSettings = slashedZeroFontFeatures,
         lineHeight = 24.sp
     ),
     val body1: TextStyle = TextStyle(
@@ -82,6 +95,12 @@ data class AppTypography(
     val paragraph2: TextStyle = TextStyle(
         fontFamily = interSemiBold,
         fontSize = 14.sp,
+        lineHeight = 20.sp
+    ),
+    val paragraph2SlashedZero: TextStyle = TextStyle(
+        fontFamily = interSemiBold,
+        fontSize = 14.sp,
+        fontFeatureSettings = slashedZeroFontFeatures,
         lineHeight = 20.sp
     ),
     val caption1: TextStyle = TextStyle(
@@ -114,6 +133,12 @@ data class AppTypography(
     val micro2: TextStyle = TextStyle(
         fontFamily = interMedium,
         fontSize = 10.sp,
+        lineHeight = 15.sp
+    ),
+    val micro2SlashedZero: TextStyle = TextStyle(
+        fontFamily = interMedium,
+        fontSize = 10.sp,
+        fontFeatureSettings = slashedZeroFontFeatures,
         lineHeight = 15.sp
     )
 )

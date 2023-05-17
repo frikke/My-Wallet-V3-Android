@@ -429,8 +429,8 @@ private fun PriceUpdateWarning(accept: () -> Unit) {
         verticalAlignment = CenterVertically
     ) {
         Image(
-            imageResource = Icons.Error.withTint(Orange500)
-                .withSize(AppTheme.dimensions.standardSpacing)
+            imageResource = Icons.Filled.Error.withTint(Orange500)
+                .withSize(AppTheme.dimensions.largeSpacing)
         )
         SimpleText(
             modifier = Modifier.padding(start = AppTheme.dimensions.smallSpacing),
@@ -696,6 +696,12 @@ private fun SlippageConfirmation(sl: Double) {
             )
         }
     )
+}
+
+@Preview
+@Composable
+private fun PreviewPriceUpdateWarning() {
+    PriceUpdateWarning(accept = {})
 }
 
 @Preview
