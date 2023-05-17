@@ -64,8 +64,6 @@ class NewsViewModel(
                 tickers = forTicker)
                 .mapData { it.take(MAX_NEWS_COUNT) }
                 .collectLatest { newsArticles ->
-                    println("------ newss ${newsArticles}")
-
                     updateState {
                         it.copy(newsArticles = it.newsArticles.updateDataWith(newsArticles))
                     }
