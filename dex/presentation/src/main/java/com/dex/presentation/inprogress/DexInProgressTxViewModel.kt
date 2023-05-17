@@ -29,8 +29,8 @@ class DexInProgressTxViewModel(private val txProcessor: DexTransactionProcessor)
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
-    override fun reduce(state: InProgressModelState): InProgressViewState {
-        return state.transaction?.let { transaction ->
+    override fun InProgressModelState.reduce(): InProgressViewState {
+        return transaction?.let { transaction ->
             when (val result = transaction.txResult) {
                 is Outcome.Success -> stateForSuccess(transaction, result.value)
                 is Outcome.Failure -> InProgressViewState.Failure
@@ -55,7 +55,7 @@ class DexInProgressTxViewModel(private val txProcessor: DexTransactionProcessor)
                 viewModelScope.launch {
                     val transaction = txProcessor.transaction.dropWhile { it.txResult == null }.first()
                     updateState {
-                        it.copy(transaction = transaction)
+                        copy(transaction = transaction)
                     }
                 }
             }

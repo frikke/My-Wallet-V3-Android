@@ -77,11 +77,11 @@ class KycProfileModel(
                         // Don't restore data if data already present, as it'll overwrite what the user
                         // may have edited themselves
                         if (
-                            it.firstNameInput.isNotEmpty() ||
-                            it.lastNameInput.isNotEmpty() ||
-                            it.dateOfBirthInput != null
+                            firstNameInput.isNotEmpty() ||
+                            lastNameInput.isNotEmpty() ||
+                            dateOfBirthInput != null
                         ) {
-                            it
+                            this
                         } else {
                             val backendFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
                             val dateOfBirth = try {
@@ -93,7 +93,7 @@ class KycProfileModel(
                                 null
                             }
 
-                            it.copy(
+                            copy(
                                 firstNameInput = user.firstName.orEmpty(),
                                 lastNameInput = user.lastName.orEmpty(),
                                 dateOfBirthInput = dateOfBirth
@@ -104,41 +104,44 @@ class KycProfileModel(
         }
     }
 
-    override fun reduce(state: KycProfileModelState): KycProfileViewState = KycProfileViewState(
-        firstNameInput = state.firstNameInput,
-        lastNameInput = state.lastNameInput,
-        isNameInputErrorShowing = state.isNameInputErrorShowing,
-        dateOfBirthInput = state.dateOfBirthInput,
+    override fun KycProfileModelState.reduce() = KycProfileViewState(
+        firstNameInput = firstNameInput,
+        lastNameInput = lastNameInput,
+        isNameInputErrorShowing = isNameInputErrorShowing,
+        dateOfBirthInput = dateOfBirthInput,
         continueButtonState = when {
-            state.isSavingProfileLoading -> ButtonState.Loading
-            state.firstNameInput.isBlank() -> ButtonState.Disabled
-            state.lastNameInput.isBlank() -> ButtonState.Disabled
-            state.dateOfBirthInput == null -> ButtonState.Disabled
-            state.isNameInputErrorShowing -> ButtonState.Disabled
+            isSavingProfileLoading -> ButtonState.Loading
+            firstNameInput.isBlank() -> ButtonState.Disabled
+            lastNameInput.isBlank() -> ButtonState.Disabled
+            dateOfBirthInput == null -> ButtonState.Disabled
+            isNameInputErrorShowing -> ButtonState.Disabled
             else -> ButtonState.Enabled
         },
-        error = state.error
+        error = error
     )
 
     override suspend fun handleIntent(modelState: KycProfileModelState, intent: KycProfileIntent) {
         when (intent) {
             is KycProfileIntent.FirstNameInputChanged -> updateState {
-                it.copy(firstNameInput = intent.value, isNameInputErrorShowing = false)
+                copy(firstNameInput = intent.value, isNameInputErrorShowing = false)
             }
+
             is KycProfileIntent.LastNameInputChanged -> updateState {
-                it.copy(lastNameInput = intent.value, isNameInputErrorShowing = false)
+                copy(lastNameInput = intent.value, isNameInputErrorShowing = false)
             }
+
             is KycProfileIntent.DateOfBirthInputChanged -> {
-                updateState { it.copy(dateOfBirthInput = intent.value) }
+                updateState { copy(dateOfBirthInput = intent.value) }
                 if (modelState.firstNameInput.isNotBlank() && modelState.lastNameInput.isNotBlank()) {
                     nabuDataManager.isProfileNameValid(modelState.firstNameInput, modelState.lastNameInput)
                         .doOnSuccess { isValid ->
-                            updateState { it.copy(isNameInputErrorShowing = !isValid) }
+                            updateState { copy(isNameInputErrorShowing = !isValid) }
                         }
                 }
             }
+
             KycProfileIntent.ContinueClicked -> {
-                updateState { it.copy(isSavingProfileLoading = true) }
+                updateState { copy(isSavingProfileLoading = true) }
 
                 val dobDisplayFormat = SimpleDateFormat("MMMM dd, yyyy", Locale.US)
                 val dob = modelState.dateOfBirthInput?.let { dobDisplayFormat.format(it.time) }.orEmpty()
@@ -169,21 +172,24 @@ class KycProfileModel(
                     val error = when {
                         apiException?.getErrorStatusCode() == NabuErrorStatusCodes.Conflict ->
                             KycProfileError.UserConflict
+
                         apiException?.getErrorCode() == NabuErrorCodes.InvalidName ->
                             KycProfileError.InvalidName
+
                         else -> KycProfileError.Generic(it.message)
                     }
 
                     updateState {
-                        it.copy(
+                        copy(
                             error = error,
                             isNameInputErrorShowing = error == KycProfileError.InvalidName
                         )
                     }
                 }
-                updateState { it.copy(isSavingProfileLoading = false) }
+                updateState { copy(isSavingProfileLoading = false) }
             }
-            KycProfileIntent.ErrorHandled -> updateState { it.copy(error = null) }
+
+            KycProfileIntent.ErrorHandled -> updateState { copy(error = null) }
         }
     }
 }

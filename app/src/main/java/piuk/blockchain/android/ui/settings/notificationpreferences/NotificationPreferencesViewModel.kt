@@ -46,16 +46,15 @@ class NotificationPreferencesViewModel(
     ModelConfigArgs.NoArgs
     >(NotificationPreferencesModelState.Loading) {
 
-    override fun viewCreated(args: ModelConfigArgs.NoArgs) { }
+    override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: NotificationPreferencesModelState): NotificationPreferencesViewState {
-        return when (state) {
-            is NotificationPreferencesModelState.Loading -> NotificationPreferencesViewState.Loading
-            is NotificationPreferencesModelState.Data -> NotificationPreferencesViewState.Data(
-                state.categories.map { it.mapToNotificationCategory() }
-            )
-            is NotificationPreferencesModelState.Error -> NotificationPreferencesViewState.Error
-        }
+    override fun NotificationPreferencesModelState.reduce() = when (this) {
+        is NotificationPreferencesModelState.Loading -> NotificationPreferencesViewState.Loading
+        is NotificationPreferencesModelState.Data -> NotificationPreferencesViewState.Data(
+            categories.map { it.mapToNotificationCategory() }
+        )
+
+        is NotificationPreferencesModelState.Error -> NotificationPreferencesViewState.Error
     }
 
     override suspend fun handleIntent(

@@ -55,7 +55,7 @@ class AnnouncementsViewModel(
         viewModelScope.launch {
             walletModeService.walletMode.collectLatest { walletMode ->
                 updateState {
-                    it.copy(walletMode = walletMode)
+                    copy(walletMode = walletMode)
                 }
 
                 updateRemoteAnnouncementsConfirmation(
@@ -66,14 +66,12 @@ class AnnouncementsViewModel(
         }
     }
 
-    override fun reduce(state: AnnouncementModelState): AnnouncementsViewState = state.run {
-        AnnouncementsViewState(
-            remoteAnnouncements = remoteAnnouncements.forMode(walletMode),
-            hideAnnouncementsConfirmation = hideAnnouncementsConfirmation,
-            animateHideAnnouncementsConfirmation = animateHideAnnouncementsConfirmation,
-            localAnnouncements = localAnnouncements
-        )
-    }
+    override fun AnnouncementModelState.reduce() = AnnouncementsViewState(
+        remoteAnnouncements = remoteAnnouncements.forMode(walletMode),
+        hideAnnouncementsConfirmation = hideAnnouncementsConfirmation,
+        animateHideAnnouncementsConfirmation = animateHideAnnouncementsConfirmation,
+        localAnnouncements = localAnnouncements
+    )
 
     override suspend fun handleIntent(modelState: AnnouncementModelState, intent: AnnouncementsIntent) {
         when (intent) {
@@ -136,7 +134,7 @@ class AnnouncementsViewModel(
                         )
                     }
                     updateState {
-                        it.copy(remoteAnnouncements = it.remoteAnnouncements.updateDataWith(sorted))
+                        copy(remoteAnnouncements = remoteAnnouncements.updateDataWith(sorted))
                     }
 
                     updateRemoteAnnouncementsConfirmation(
@@ -151,7 +149,7 @@ class AnnouncementsViewModel(
                 }
             } else {
                 updateState {
-                    it.copy(remoteAnnouncements = DataResource.Data(emptyList()))
+                    copy(remoteAnnouncements = DataResource.Data(emptyList()))
                 }
             }
         }
@@ -173,14 +171,14 @@ class AnnouncementsViewModel(
                     delay(CONFIRMATION_DELAY)
                 }
                 updateState {
-                    it.copy(
+                    copy(
                         hideAnnouncementsConfirmation = true,
                         animateHideAnnouncementsConfirmation = withDelay
                     )
                 }
             } else {
                 updateState {
-                    it.copy(
+                    copy(
                         hideAnnouncementsConfirmation = false,
                         animateHideAnnouncementsConfirmation = true
                     )
@@ -213,7 +211,7 @@ class AnnouncementsViewModel(
                 }
 
                 updateState {
-                    it.copy(localAnnouncements = announcements)
+                    copy(localAnnouncements = announcements)
                 }
             }
         }

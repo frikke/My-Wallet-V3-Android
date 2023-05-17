@@ -52,28 +52,26 @@ class FiatFundsDetailViewModel(
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: FiatFundsDetailModelState): FiatFundsDetailViewState = state.run {
-        FiatFundsDetailViewState(
-            detail = account.map {
-                FiatFundsDetail(
-                    account = it,
-                    name = it.currency.name,
-                    logo = it.currency.logo
-                )
-            },
-            data = data,
-            showWithdrawChecksLoading = withdrawChecksLoading,
-            actionError = when (actionError) {
-                FiatActionError.None -> null
-                FiatActionError.WithdrawalInProgress ->
-                    com.blockchain.stringResources.R.string.fiat_funds_detail_pending_withdrawal
+    override fun FiatFundsDetailModelState.reduce() = FiatFundsDetailViewState(
+        detail = account.map {
+            FiatFundsDetail(
+                account = it,
+                name = it.currency.name,
+                logo = it.currency.logo
+            )
+        },
+        data = data,
+        showWithdrawChecksLoading = withdrawChecksLoading,
+        actionError = when (actionError) {
+            FiatActionError.None -> null
+            FiatActionError.WithdrawalInProgress ->
+                com.blockchain.stringResources.R.string.fiat_funds_detail_pending_withdrawal
 
-                FiatActionError.Unknown -> com.blockchain.stringResources.R.string.common_error
-            }?.let {
-                FiatActionErrorState(message = it)
-            }
-        )
-    }
+            FiatActionError.Unknown -> com.blockchain.stringResources.R.string.common_error
+        }?.let {
+            FiatActionErrorState(message = it)
+        }
+    )
 
     override suspend fun handleIntent(modelState: FiatFundsDetailModelState, intent: FiatFundsDetailIntent) {
         when (intent) {
@@ -105,7 +103,7 @@ class FiatFundsDetailViewModel(
                 .mapData { it.first { it.currency.networkTicker == fiatTicker } }
                 .onEach { dataResource ->
                     updateState {
-                        it.copy(account = it.account.updateDataWith(dataResource))
+                        copy(account = account.updateDataWith(dataResource))
                     }
                 }
                 .flatMapData { fiatAccount ->
@@ -127,7 +125,7 @@ class FiatFundsDetailViewModel(
                 }
                 .onEach { dataResource ->
                     updateState {
-                        it.copy(data = it.data.updateDataWith(dataResource))
+                        copy(data = data.updateDataWith(dataResource))
                     }
                 }
                 .collect()
@@ -150,7 +148,7 @@ class FiatFundsDetailViewModel(
                     when (dataResource) {
                         DataResource.Loading -> {
                             updateState {
-                                it.copy(
+                                copy(
                                     withdrawChecksLoading = true,
                                     actionError = FiatActionError.None
                                 )
@@ -158,7 +156,7 @@ class FiatFundsDetailViewModel(
                         }
 
                         is DataResource.Data -> {
-                            updateState { it.copy(withdrawChecksLoading = false) }
+                            updateState { copy(withdrawChecksLoading = false) }
 
                             dataResource.data.let { canWithdrawFunds ->
                                 if (canWithdrawFunds) {
@@ -169,7 +167,7 @@ class FiatFundsDetailViewModel(
                                         shouldSkipQuestionnaire = false
                                     )
                                 } else {
-                                    updateState { it.copy(actionError = FiatActionError.WithdrawalInProgress) }
+                                    updateState { copy(actionError = FiatActionError.WithdrawalInProgress) }
                                     startDismissErrorTimeout()
                                 }
                             }
@@ -177,7 +175,7 @@ class FiatFundsDetailViewModel(
 
                         is DataResource.Error -> {
                             updateState {
-                                it.copy(
+                                copy(
                                     withdrawChecksLoading = false,
                                     actionError = FiatActionError.Unknown
                                 )
@@ -195,7 +193,7 @@ class FiatFundsDetailViewModel(
             delay(SNACKBAR_MESSAGE_DURATION)
 
             updateState {
-                it.copy(actionError = FiatActionError.None)
+                copy(actionError = FiatActionError.None)
             }
         }
     }

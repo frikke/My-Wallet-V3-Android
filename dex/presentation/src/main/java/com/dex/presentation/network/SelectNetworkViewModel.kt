@@ -39,21 +39,19 @@ class SelectNetworkViewModel(
                 }
                 .collectLatest { networksDataResource ->
                     updateState {
-                        it.copy(
-                            networks = it.networks.updateDataWith(networksDataResource)
+                        copy(
+                            networks = networks.updateDataWith(networksDataResource)
                         )
                     }
                 }
         }
     }
 
-    override fun reduce(state: SelectNetworkModelState) = state.run {
-        SelectNetworkViewState(
-            networks = networks.mapList {
-                it.toDexNetwork(selectedChainId)
-            }
-        )
-    }
+    override fun SelectNetworkModelState.reduce() = SelectNetworkViewState(
+        networks = networks.mapList {
+            it.toDexNetwork(selectedChainId)
+        }
+    )
 
     override suspend fun handleIntent(
         modelState: SelectNetworkModelState,

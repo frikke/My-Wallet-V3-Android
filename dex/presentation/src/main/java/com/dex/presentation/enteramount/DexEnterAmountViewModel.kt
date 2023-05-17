@@ -77,21 +77,17 @@ class DexEnterAmountViewModel(
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
-    override fun reduce(state: AmountModelState): InputAmountViewState {
-        with(state) {
-            return when (canTransact) {
-                DataResource.Loading -> InputAmountViewState.Loading
-                is DataResource.Data -> if (canTransact.data) {
-                    showInputUi(state)
-                } else {
-                    showNoInoutUi(state)
-                }
-                /**
-                 * todo map loading errors
-                 * */
-                else -> throw IllegalStateException("Model state cannot be mapped")
-            }
+    override fun AmountModelState.reduce() = when (canTransact) {
+        DataResource.Loading -> InputAmountViewState.Loading
+        is DataResource.Data -> if (canTransact.data) {
+            showInputUi(this)
+        } else {
+            showNoInoutUi(this)
         }
+        /**
+         * todo map loading errors
+         * */
+        else -> throw IllegalStateException("Model state cannot be mapped")
     }
 
     private fun AmountModelState.reduceSelectedNetwork(): DataResource<DexNetworkViewState> {
@@ -233,7 +229,7 @@ class DexEnterAmountViewModel(
             InputAmountIntent.UnSubscribeToTxUpdates -> txProcessor.unsubscribeToTxUpdates()
             InputAmountIntent.IgnoreTxInProcessError -> {
                 updateState {
-                    it.copy(ignoredTxErrors = it.ignoredTxErrors.plus(DexUiError.TransactionInProgressError))
+                    copy(ignoredTxErrors = ignoredTxErrors.plus(DexUiError.TransactionInProgressError))
                 }
             }
 
@@ -252,21 +248,21 @@ class DexEnterAmountViewModel(
 
     private suspend fun revokeSourceAllowance(modelState: AmountModelState) {
         modelState.transaction?.sourceAccount?.currency?.let {
-            updateState { state ->
-                state.copy(operationInProgress = DexOperation.PUSHING_ALLOWANCE_TX)
+            updateState {
+                copy(operationInProgress = DexOperation.PUSHING_ALLOWANCE_TX)
             }
             allowanceProcessor.revokeAllowance(it)
             val result = dexAllowanceService.revokeAllowanceTransactionProgress(it)
             if (result == AllowanceTransactionState.COMPLETED) {
-                updateState { state ->
-                    state.copy(
+                updateState {
+                    copy(
                         operationInProgress = DexOperation.NONE,
                         canRevokeAllowance = false
                     )
                 }
             } else {
-                updateState { state ->
-                    state.copy(
+                updateState {
+                    copy(
                         operationInProgress = DexOperation.NONE
                     )
                 }
@@ -277,8 +273,8 @@ class DexEnterAmountViewModel(
     private fun buildAllowanceTransaction() {
         viewModelScope.launch {
             modelState.transaction?.sourceAccount?.currency?.let {
-                updateState { modelState ->
-                    modelState.copy(
+                updateState {
+                    copy(
                         operationInProgress = DexOperation.BUILDING_ALLOWANCE_TX
                     )
                 }
@@ -297,8 +293,8 @@ class DexEnterAmountViewModel(
                     )
                 }
 
-                updateState { modelState ->
-                    modelState.copy(
+                updateState {
+                    copy(
                         operationInProgress = DexOperation.NONE
                     )
                 }
@@ -309,7 +305,7 @@ class DexEnterAmountViewModel(
     private fun approveAllowanceTransaction() {
         viewModelScope.launch {
             updateState {
-                it.copy(operationInProgress = DexOperation.PUSHING_ALLOWANCE_TX)
+                copy(operationInProgress = DexOperation.PUSHING_ALLOWANCE_TX)
             }
 
             val txPushOutcome = allowanceProcessor.pushTx()
@@ -317,7 +313,7 @@ class DexEnterAmountViewModel(
                 pollForAllowance()
             } else {
                 updateState {
-                    it.copy(
+                    copy(
                         operationInProgress = DexOperation.NONE
                     )
                 }
@@ -333,7 +329,7 @@ class DexEnterAmountViewModel(
         )
         if (allowanceState == AllowanceTransactionState.COMPLETED) {
             updateState {
-                it.copy(
+                copy(
                     operationInProgress = DexOperation.NONE
                 )
             }
@@ -341,7 +337,7 @@ class DexEnterAmountViewModel(
             txProcessor.revalidate()
         } else {
             updateState {
-                it.copy(
+                copy(
                     operationInProgress = DexOperation.NONE
                 )
             }
@@ -358,8 +354,8 @@ class DexEnterAmountViewModel(
         viewModelScope.launch {
             dexNetworkService.supportedNetworks().collectLatest { coinNetworks ->
                 updateState {
-                    it.copy(
-                        networks = it.networks.updateDataWith(coinNetworks)
+                    copy(
+                        networks = networks.updateDataWith(coinNetworks)
                     )
                 }
             }
@@ -377,8 +373,8 @@ class DexEnterAmountViewModel(
                         chainId = chainId,
                         source = source
                     )
-                    updateState { state ->
-                        state.copy(
+                    updateState {
+                        copy(
                             selectedChain = chainId,
                             canTransact = DataResource.Data(true)
                         )
@@ -389,8 +385,8 @@ class DexEnterAmountViewModel(
                         slippage = selectedSlippage
                     )
                     subscribeForTxUpdates()
-                } ?: updateState { state ->
-                    state.copy(
+                } ?: updateState {
+                    copy(
                         selectedChain = chainId,
                         canTransact = DataResource.Data(false)
                     )
@@ -406,8 +402,8 @@ class DexEnterAmountViewModel(
             }.onEach {
                 checkIfAllowanceCanBeRevoked(it)
             }.collectLatest {
-                updateState { state ->
-                    state.copy(
+                updateState {
+                    copy(
                         transaction = it
                     )
                 }
@@ -416,16 +412,16 @@ class DexEnterAmountViewModel(
 
         viewModelScope.launch {
             txProcessor.quoteFetching.collectLatest { isFetchingQuote ->
-                updateState { state ->
-                    state.copy(
+                updateState {
+                    copy(
                         operationInProgress = when {
-                            isFetchingQuote && state.operationInProgress == DexOperation.NONE ->
+                            isFetchingQuote && operationInProgress == DexOperation.NONE ->
                                 DexOperation.PRICE_FETCHING
 
-                            !isFetchingQuote && state.operationInProgress == DexOperation.PRICE_FETCHING ->
+                            !isFetchingQuote && operationInProgress == DexOperation.PRICE_FETCHING ->
                                 DexOperation.NONE
 
-                            else -> state.operationInProgress
+                            else -> operationInProgress
                         }
                     )
                 }
@@ -441,22 +437,22 @@ class DexEnterAmountViewModel(
             val allowanceOutcome = dexAllowanceService.tokenAllowance(transaction.sourceAccount.currency)
             (allowanceOutcome as? Outcome.Success)?.value?.let { allowance ->
                 if (allowance.isTokenAllowed) {
-                    updateState { state ->
-                        state.copy(
+                    updateState {
+                        copy(
                             canRevokeAllowance = true
                         )
                     }
                 } else {
-                    updateState { state ->
-                        state.copy(
+                    updateState {
+                        copy(
                             canRevokeAllowance = false
                         )
                     }
                 }
             }
         } else {
-            updateState { state ->
-                state.copy(
+            updateState {
+                copy(
                     canRevokeAllowance = false
                 )
             }
@@ -494,8 +490,8 @@ class DexEnterAmountViewModel(
         viewModelScope.launch {
             exchangeRatesDataManager.exchangeRate(fromAsset = from, toAsset = to).collectLatest {
                 (it as? DataResource.Data)?.data?.let { rate ->
-                    updateState { state ->
-                        state.copy(
+                    updateState {
+                        copy(
                             feeToFiatExchangeRate = rate
                         )
                     }
@@ -508,8 +504,8 @@ class DexEnterAmountViewModel(
         viewModelScope.launch {
             exchangeRatesDataManager.exchangeRate(fromAsset = from, toAsset = to).collectLatest {
                 (it as? DataResource.Data)?.data?.let { rate ->
-                    updateState { state ->
-                        state.copy(
+                    updateState {
+                        copy(
                             inputToFiatExchangeRate = rate
                         )
                     }
@@ -522,8 +518,8 @@ class DexEnterAmountViewModel(
         viewModelScope.launch {
             exchangeRatesDataManager.exchangeRate(fromAsset = from, toAsset = to).collectLatest {
                 (it as? DataResource.Data)?.data?.let { rate ->
-                    updateState { state ->
-                        state.copy(
+                    updateState {
+                        copy(
                             outputToFiatExchangeRate = rate
                         )
                     }

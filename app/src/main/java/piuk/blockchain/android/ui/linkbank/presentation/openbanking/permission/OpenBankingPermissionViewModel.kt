@@ -18,7 +18,7 @@ class OpenBankingPermissionViewModel(
     initialState = OpenBankingPermissionModelState()
 ) {
     override fun viewCreated(args: OpenBankingPermissionArgs) {
-        updateState { it.copy(institution = args.institution) }
+        updateState { copy(institution = args.institution) }
     }
 
     override suspend fun handleIntent(
@@ -40,17 +40,15 @@ class OpenBankingPermissionViewModel(
         }.exhaustive
     }
 
-    override fun reduce(state: OpenBankingPermissionModelState): OpenBankingPermissionViewState {
-        return OpenBankingPermissionViewState(
-            termsOfServiceLink = state.termsOfServiceLink
-        )
-    }
+    override fun OpenBankingPermissionModelState.reduce() = OpenBankingPermissionViewState(
+        termsOfServiceLink = termsOfServiceLink
+    )
 
     private fun getTermsOfServiceLink() {
         viewModelScope.launch {
             getSafeConnectTosLinkUseCase()
                 .also { termsOfServiceLink ->
-                    updateState { it.copy(termsOfServiceLink = termsOfServiceLink) }
+                    updateState { copy(termsOfServiceLink = termsOfServiceLink) }
                 }
         }
     }

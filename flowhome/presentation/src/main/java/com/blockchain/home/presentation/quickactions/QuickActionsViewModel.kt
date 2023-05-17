@@ -54,20 +54,21 @@ class QuickActionsViewModel(
     private var fiatActionJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
-    override fun reduce(state: QuickActionsModelState): QuickActionsViewState = state.run {
-        state.maxQuickActionsOnScreen?.let { maxQuickActionsOnScreen ->
 
-            val quickActionItemsCount = if (state.quickActions.size <= maxQuickActionsOnScreen) {
+    override fun QuickActionsModelState.reduce(): QuickActionsViewState {
+        return maxQuickActionsOnScreen?.let { maxQuickActionsOnScreen ->
+
+            val quickActionItemsCount = if (quickActions.size <= maxQuickActionsOnScreen) {
                 maxQuickActionsOnScreen
             } else {
                 // (maxQuickActionsOnScreen - 1) to leave space for More action
                 (maxQuickActionsOnScreen - 1).coerceAtMost(
-                    state.quickActions.filter { it.state == ActionState.Available }.size
+                    quickActions.filter { it.state == ActionState.Available }.size
                 )
             }
 
-            val quickActions = if (state.quickActions.size > quickActionItemsCount) {
-                state.quickActions.subList(0, quickActionItemsCount).map { it.toQuickActionItem() }.plus(
+            val quickActionItems = if (quickActions.size > quickActionItemsCount) {
+                quickActions.subList(0, quickActionItemsCount).map { it.toQuickActionItem() }.plus(
                     QuickActionItem(
                         title = com.blockchain.stringResources.R.string.common_more,
                         action = QuickAction.More,
@@ -75,18 +76,18 @@ class QuickActionsViewModel(
                     )
                 )
             } else {
-                state.quickActions.map { it.toQuickActionItem() }
+                quickActions.map { it.toQuickActionItem() }
             }
 
-            val moreActions = if (state.quickActions.size > quickActionItemsCount) {
-                state.quickActions.subList(quickActionItemsCount, state.quickActions.size)
+            val moreActions = if (quickActions.size > quickActionItemsCount) {
+                quickActions.subList(quickActionItemsCount, quickActions.size)
                     .map { it.toMoreActionItem() }
             } else {
                 emptyList()
             }
 
             QuickActionsViewState(
-                actions = quickActions,
+                actions = quickActionItems,
                 moreActions = moreActions
             )
         } ?: QuickActionsViewState(
@@ -100,12 +101,12 @@ class QuickActionsViewModel(
         when (intent) {
             is QuickActionsIntent.LoadActions -> {
                 updateState {
-                    it.copy(maxQuickActionsOnScreen = intent.maxQuickActionsOnScreen)
+                    copy(maxQuickActionsOnScreen = intent.maxQuickActionsOnScreen)
                 }
 
                 walletModeService.walletMode.onEach { wMode ->
                     updateState {
-                        it.copy(
+                        copy(
                             walletMode = wMode
                         )
                     }
@@ -116,7 +117,7 @@ class QuickActionsViewModel(
                         }
                 }.collectLatest { (actions, _) ->
                     updateState {
-                        it.copy(
+                        copy(
                             quickActions = actions
                         )
                     }
@@ -126,9 +127,10 @@ class QuickActionsViewModel(
             is QuickActionsIntent.FiatAction -> {
                 handleFiatAction(action = intent.action)
             }
+
             QuickActionsIntent.Refresh -> {
                 updateState {
-                    it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
+                    copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
                 walletModeService.walletMode.take(1).flatMapLatest {
                     quickActionsService.availableQuickActionsForWalletMode(
@@ -137,12 +139,13 @@ class QuickActionsViewModel(
                     )
                 }.collectLatest { actions ->
                     updateState {
-                        it.copy(
+                        copy(
                             quickActions = actions
                         )
                     }
                 }
             }
+
             is QuickActionsIntent.ActionClicked -> {
                 navigate(intent.action.navigationEvent())
             }
@@ -161,6 +164,7 @@ class QuickActionsViewModel(
                     QuickActionsNavEvent.Swap
                 }
             }
+
             AssetAction.Sell -> QuickActionsNavEvent.Sell
             AssetAction.Buy -> QuickActionsNavEvent.Buy
             AssetAction.FiatWithdraw -> QuickActionsNavEvent.FiatWithdraw
@@ -195,16 +199,19 @@ class QuickActionsViewModel(
                 account == NullFiatAccount -> fiatActions.noEligibleAccount(
                     fiatCurrenciesService.selectedTradingCurrency
                 )
+
                 action == AssetAction.FiatDeposit -> fiatActions.deposit(
                     account = account,
                     action = action,
                     shouldLaunchBankLinkTransfer = false,
                     shouldSkipQuestionnaire = false
                 )
+
                 action == AssetAction.FiatWithdraw -> handleWithdraw(
                     account = account,
                     action = action
                 )
+
                 else -> {
                 }
             }
@@ -219,8 +226,9 @@ class QuickActionsViewModel(
                 when (dataResource) {
                     DataResource.Loading -> {
                     }
+
                     is DataResource.Data -> {
-                        //                       updateState { it.copy(withdrawChecksLoading = false) }
+                        //                       updateState { copy(withdrawChecksLoading = false) }
 
                         dataResource.data.let { canWithdrawFunds ->
                             if (canWithdrawFunds) {
@@ -233,6 +241,7 @@ class QuickActionsViewModel(
                             }
                         }
                     }
+
                     is DataResource.Error -> {
                     }
                 }
@@ -247,31 +256,37 @@ fun StateAwareAction.toQuickActionItem(): QuickActionItem {
             enabled = this.state == ActionState.Available,
             action = QuickAction.TxAction(AssetAction.Buy)
         )
+
         AssetAction.Sell -> QuickActionItem(
             title = com.blockchain.stringResources.R.string.common_sell,
             enabled = this.state == ActionState.Available,
             action = QuickAction.TxAction(AssetAction.Sell)
         )
+
         AssetAction.Swap -> QuickActionItem(
             title = com.blockchain.stringResources.R.string.common_swap,
             enabled = this.state == ActionState.Available,
             action = QuickAction.TxAction(AssetAction.Swap)
         )
+
         AssetAction.Receive -> QuickActionItem(
             title = com.blockchain.stringResources.R.string.common_receive,
             enabled = this.state == ActionState.Available,
             action = QuickAction.TxAction(AssetAction.Receive)
         )
+
         AssetAction.Send -> QuickActionItem(
             title = com.blockchain.stringResources.R.string.common_send,
             enabled = this.state == ActionState.Available,
             action = QuickAction.TxAction(AssetAction.Send)
         )
+
         AssetAction.FiatDeposit -> QuickActionItem(
             title = com.blockchain.stringResources.R.string.common_add_cash,
             enabled = this.state == ActionState.Available,
             action = QuickAction.TxAction(AssetAction.FiatDeposit)
         )
+
         AssetAction.FiatWithdraw -> QuickActionItem(
             title = com.blockchain.stringResources.R.string.common_cash_out,
             enabled = this.state == ActionState.Available,
@@ -293,6 +308,7 @@ fun StateAwareAction.toMoreActionItem(): MoreActionItem {
             action = QuickAction.TxAction(AssetAction.Send),
             enabled = this.state == ActionState.Available
         )
+
         AssetAction.FiatDeposit -> MoreActionItem(
             icon = R.drawable.ic_more_deposit,
             title = com.blockchain.stringResources.R.string.common_add_cash,
@@ -300,6 +316,7 @@ fun StateAwareAction.toMoreActionItem(): MoreActionItem {
             action = QuickAction.TxAction(AssetAction.FiatDeposit),
             enabled = this.state == ActionState.Available
         )
+
         AssetAction.FiatWithdraw -> MoreActionItem(
             icon = R.drawable.ic_more_withdraw,
             title = com.blockchain.stringResources.R.string.common_cash_out,
@@ -307,6 +324,7 @@ fun StateAwareAction.toMoreActionItem(): MoreActionItem {
             action = QuickAction.TxAction(AssetAction.FiatWithdraw),
             enabled = this.state == ActionState.Available
         )
+
         AssetAction.Buy -> MoreActionItem(
             icon = R.drawable.ic_activity_buy,
             title = com.blockchain.stringResources.R.string.common_buy,
@@ -314,6 +332,7 @@ fun StateAwareAction.toMoreActionItem(): MoreActionItem {
             action = QuickAction.TxAction(AssetAction.Buy),
             enabled = this.state == ActionState.Available
         )
+
         AssetAction.Sell -> MoreActionItem(
             icon = R.drawable.ic_activity_sell,
             title = com.blockchain.stringResources.R.string.common_sell,
@@ -321,6 +340,7 @@ fun StateAwareAction.toMoreActionItem(): MoreActionItem {
             action = QuickAction.TxAction(AssetAction.Sell),
             enabled = this.state == ActionState.Available
         )
+
         AssetAction.Swap -> MoreActionItem(
             icon = R.drawable.ic_activity_swap,
             title = com.blockchain.stringResources.R.string.common_swap,
@@ -328,6 +348,7 @@ fun StateAwareAction.toMoreActionItem(): MoreActionItem {
             action = QuickAction.TxAction(AssetAction.Swap),
             enabled = this.state == ActionState.Available
         )
+
         AssetAction.Receive -> MoreActionItem(
             icon = R.drawable.ic_activity_receive,
             title = com.blockchain.stringResources.R.string.common_receive,
@@ -335,6 +356,7 @@ fun StateAwareAction.toMoreActionItem(): MoreActionItem {
             action = QuickAction.TxAction(AssetAction.Receive),
             enabled = this.state == ActionState.Available
         )
+
         AssetAction.ViewActivity,
         AssetAction.ViewStatement,
         AssetAction.InterestDeposit,

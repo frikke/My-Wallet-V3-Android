@@ -53,23 +53,21 @@ class InterestDashboardViewModel(
         }.exhaustive
     }
 
-    override fun reduce(state: InterestDashboardModelState): InterestDashboardViewState {
-        return InterestDashboardViewState(
-            isLoading = state.isLoadingData,
-            isError = state.isError,
-            isKycGold = state.isKycGold,
-            data = state.data.run {
-                if (state.filter.isEmpty().not()) {
-                    filter {
-                        it.assetInfo.displayTicker.contains(state.filter, ignoreCase = true) ||
-                            it.assetInfo.name.contains(state.filter, ignoreCase = true)
-                    }
-                } else {
-                    this
+    override fun InterestDashboardModelState.reduce() = InterestDashboardViewState(
+        isLoading = isLoadingData,
+        isError = isError,
+        isKycGold = isKycGold,
+        data = data.run {
+            if (filter.isEmpty().not()) {
+                filter {
+                    it.assetInfo.displayTicker.contains(filter, ignoreCase = true) ||
+                        it.assetInfo.name.contains(filter, ignoreCase = true)
                 }
+            } else {
+                this
             }
-        )
-    }
+        }
+    )
 
     /**
      * Check kyc state first
@@ -82,7 +80,7 @@ class InterestDashboardViewModel(
                 .collectLatest { dataResourceKyc ->
                     when (dataResourceKyc) {
                         is DataResource.Loading -> updateState {
-                            it.copy(isLoadingData = true)
+                            copy(isLoadingData = true)
                         }
 
                         is DataResource.Data -> {
@@ -92,7 +90,7 @@ class InterestDashboardViewModel(
                                 loadInterestData()
                             } else {
                                 updateState {
-                                    it.copy(
+                                    copy(
                                         isLoadingData = false,
                                         isError = false,
                                         isKycGold = false
@@ -102,7 +100,7 @@ class InterestDashboardViewModel(
                         }
 
                         is DataResource.Error -> updateState {
-                            it.copy(
+                            copy(
                                 isLoadingData = false,
                                 isError = true
                             )
@@ -116,14 +114,14 @@ class InterestDashboardViewModel(
         getInterestDashboardUseCase().collectLatest { dataResourceInterest ->
             when (dataResourceInterest) {
                 is DataResource.Loading -> updateState {
-                    it.copy(
-                        isLoadingData = it.data.isEmpty(),
+                    copy(
+                        isLoadingData = data.isEmpty(),
                         isError = false
                     )
                 }
 
                 is DataResource.Data -> updateState {
-                    it.copy(
+                    copy(
                         isLoadingData = false,
                         isError = false,
                         isKycGold = true,
@@ -132,7 +130,7 @@ class InterestDashboardViewModel(
                 }
 
                 is DataResource.Error -> updateState {
-                    it.copy(
+                    copy(
                         isLoadingData = false,
                         isError = true
                     )
@@ -142,7 +140,7 @@ class InterestDashboardViewModel(
     }
 
     private fun filterData(filter: String) {
-        updateState { it.copy(filter = filter) }
+        updateState { copy(filter = filter) }
     }
 
     private fun handleInterestItemClicked(cryptoCurrency: AssetInfo, hasBalance: Boolean) {

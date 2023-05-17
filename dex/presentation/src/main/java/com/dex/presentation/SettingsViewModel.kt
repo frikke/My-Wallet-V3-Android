@@ -22,11 +22,9 @@ class SettingsViewModel(
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
-    override fun reduce(state: SettingsModelState): SettingsViewState {
-        return SettingsViewState(
-            slippages = state.availableSlippages
-        )
-    }
+    override fun SettingsModelState.reduce() = SettingsViewState(
+        slippages = availableSlippages
+    )
 
     override suspend fun handleIntent(modelState: SettingsModelState, intent: SettingsIntent) {
         when (intent) {
@@ -34,7 +32,7 @@ class SettingsViewModel(
                 val slippages = slippageService.availableSlippages()
                 val selectedSlippage = slippageService.selectedSlippage()
                 updateState {
-                    it.copy(
+                    copy(
                         availableSlippages = slippages.map { slp ->
                             Slippage(
                                 factor = slp,

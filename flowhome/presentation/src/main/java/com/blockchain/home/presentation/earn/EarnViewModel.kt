@@ -76,16 +76,16 @@ class EarnViewModel(
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: EarnModelState): EarnViewState {
+    override fun EarnModelState.reduce(): EarnViewState {
         if (
             // TODO(labreu): What if one of them is DataResource.Error ??
-            state.stakingAssets is DataResource.Data &&
-            state.interestAssets is DataResource.Data &&
-            state.activeRewardsAssets is DataResource.Data
+            stakingAssets is DataResource.Data &&
+            interestAssets is DataResource.Data &&
+            activeRewardsAssets is DataResource.Data
         ) {
-            val staking = (state.stakingAssets as? DataResource.Data)?.data ?: emptySet()
-            val interest = (state.interestAssets as? DataResource.Data)?.data ?: emptySet()
-            val activeRewards = (state.activeRewardsAssets as? DataResource.Data)?.data ?: emptySet()
+            val staking = (stakingAssets as? DataResource.Data)?.data ?: emptySet()
+            val interest = (interestAssets as? DataResource.Data)?.data ?: emptySet()
+            val activeRewards = (activeRewardsAssets as? DataResource.Data)?.data ?: emptySet()
 
             val assets = (staking + interest + activeRewards).toSet()
 
@@ -93,9 +93,9 @@ class EarnViewModel(
                 EarnViewState.NoAssetsInvested
             } else EarnViewState.Assets(
                 _assets = assets,
-                interestRates = state.interestRates.mapKeys { it.key.networkTicker },
-                stakingRates = state.stakingRates.mapKeys { it.key.networkTicker },
-                activeRewardsRates = state.activeRewardsRates.mapKeys { it.key.networkTicker }
+                interestRates = interestRates.mapKeys { it.key.networkTicker },
+                stakingRates = stakingRates.mapKeys { it.key.networkTicker },
+                activeRewardsRates = activeRewardsRates.mapKeys { it.key.networkTicker }
             )
         }
         return EarnViewState.None
@@ -110,9 +110,9 @@ class EarnViewModel(
                         if (it == WalletMode.CUSTODIAL) {
                             loadEarnings(forceRefresh = intent.forceRefresh)
                         } else {
-                            updateState { state ->
+                            updateState {
                                 val error = DataResource.Error(IllegalStateException("Not available in mode"))
-                                state.copy(
+                                copy(
                                     interestAssets = error,
                                     stakingAssets = error,
                                     activeRewardsAssets = error
@@ -122,6 +122,7 @@ class EarnViewModel(
                     }
                 }
             }
+
             is EarnIntent.AssetSelected -> {
                 coincore[intent.earnAsset.currency].accountGroup(
                     when (intent.earnAsset.type) {
@@ -136,10 +137,12 @@ class EarnViewModel(
                             require(account is EarnRewardsAccount.Staking)
                             EarnNavEvent.Staking(account as CryptoAccount)
                         }
+
                         EarnType.INTEREST -> {
                             require(account is EarnRewardsAccount.Interest)
                             EarnNavEvent.Interest(account as CryptoAccount)
                         }
+
                         EarnType.ACTIVE -> {
                             require(account is EarnRewardsAccount.Active)
                             EarnNavEvent.ActiveRewards(account as CryptoAccount)
@@ -149,9 +152,10 @@ class EarnViewModel(
                     navigate(it)
                 }
             }
+
             EarnIntent.Refresh -> {
                 updateState {
-                    it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
+                    copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
 
                 onIntent(EarnIntent.LoadEarnAccounts(forceRefresh = true))
@@ -197,8 +201,8 @@ class EarnViewModel(
             }
 
             prices.merge().onEach { asset ->
-                updateState { state ->
-                    state.addStakingAssetIfLoaded(asset)
+                updateState {
+                    addStakingAssetIfLoaded(asset)
                 }
             }
         }
@@ -239,8 +243,8 @@ class EarnViewModel(
                 }
 
                 prices.merge().onEach { asset ->
-                    updateState { state ->
-                        state.addInterestAssetIfLoaded(asset)
+                    updateState {
+                        addInterestAssetIfLoaded(asset)
                     }
                 }
             }
@@ -281,22 +285,22 @@ class EarnViewModel(
                 }
 
                 prices.merge().onEach { asset ->
-                    updateState { state ->
-                        state.addActiveRewardsAssetIfLoaded(asset)
+                    updateState {
+                        addActiveRewardsAssetIfLoaded(asset)
                     }
                 }
             }
         } else {
             flow {
-                updateState { state ->
-                    state.copy(activeRewardsAssets = DataResource.Data(emptySet()))
+                updateState {
+                    copy(activeRewardsAssets = DataResource.Data(emptySet()))
                 }
             }
         }
 
         val interestRates = interestService.getAllInterestRates().doOnData { rates ->
             updateState {
-                it.copy(
+                copy(
                     interestRates = rates
                 )
             }
@@ -304,7 +308,7 @@ class EarnViewModel(
 
         val stakingRates = stakingService.getRatesForAllAssets().doOnData { rates ->
             updateState {
-                it.copy(
+                copy(
                     stakingRates = rates
                 )
             }
@@ -313,7 +317,7 @@ class EarnViewModel(
         val activeRewardsRates = if (activeRewardsFeatureFlag.coEnabled()) {
             activeRewardsService.getRatesForAllAssets().doOnData { rates ->
                 updateState {
-                    it.copy(
+                    copy(
                         activeRewardsRates = rates
                     )
                 }
@@ -321,7 +325,7 @@ class EarnViewModel(
         } else {
             flow {
                 updateState {
-                    it.copy(
+                    copy(
                         activeRewardsRates = emptyMap()
                     )
                 }
@@ -344,7 +348,7 @@ class EarnViewModel(
 
         if (currentInterestAssets is DataResource.Loading && newAssets.isEmpty()) {
             updateState {
-                it.copy(
+                copy(
                     interestAssets = DataResource.Data(emptySet())
                 )
             }
@@ -360,9 +364,9 @@ class EarnViewModel(
             currentInterestAssetsSet.forEach { asset ->
                 if (asset !in newAssets) {
                     updateState {
-                        it.copy(
+                        copy(
                             interestAssets = DataResource.Data(
-                                it.interestAssets.dataOrElse(emptySet())
+                                interestAssets.dataOrElse(emptySet())
                                     .minus { earnAsset -> earnAsset.currency.networkTicker == asset }
                             )
                         )
@@ -378,7 +382,7 @@ class EarnViewModel(
 
         if (currentStackingAssets is DataResource.Loading && newAssets.isEmpty()) {
             updateState {
-                it.copy(
+                copy(
                     stakingAssets = DataResource.Data(emptySet())
                 )
             }
@@ -394,9 +398,9 @@ class EarnViewModel(
             currentStackingAssetsSet.forEach { asset ->
                 if (asset !in newAssets) {
                     updateState {
-                        it.copy(
+                        copy(
                             stakingAssets = DataResource.Data(
-                                it.stakingAssets.dataOrElse(emptySet())
+                                stakingAssets.dataOrElse(emptySet())
                                     .minus { earnAsset -> earnAsset.currency.networkTicker == asset }
                             )
                         )
@@ -412,7 +416,7 @@ class EarnViewModel(
 
         if (currentActiveRewardsAssets is DataResource.Loading && newAssets.isEmpty()) {
             updateState {
-                it.copy(
+                copy(
                     activeRewardsAssets = DataResource.Data(emptySet())
                 )
             }
@@ -428,9 +432,9 @@ class EarnViewModel(
             currentActiveRewardsAssetsSet.forEach { asset ->
                 if (asset !in newAssets) {
                     updateState {
-                        it.copy(
+                        copy(
                             activeRewardsAssets = DataResource.Data(
-                                it.activeRewardsAssets.dataOrElse(emptySet())
+                                activeRewardsAssets.dataOrElse(emptySet())
                                     .minus { earnAsset -> earnAsset.currency.networkTicker == asset }
                             )
                         )

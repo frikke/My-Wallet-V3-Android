@@ -41,19 +41,15 @@ class CustodialEmptyCardViewModel(
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
-    override fun reduce(state: CustodialEmptyCardModelState): CustodialEmptyCardViewState {
-        return with(state) {
-            CustodialEmptyCardViewState(
-                steps = this.steps,
-                tradingCurrency = fiatCurrenciesService.selectedTradingCurrency,
-                amounts = buyAmounts,
-                trendCurrency = CryptoCurrency.BTC,
-                userCanBuy = buyAccess.map {
-                    it is FeatureAccess.Granted
-                }.dataOrElse(false)
-            )
-        }
-    }
+    override fun CustodialEmptyCardModelState.reduce() = CustodialEmptyCardViewState(
+        steps = this.steps,
+        tradingCurrency = fiatCurrenciesService.selectedTradingCurrency,
+        amounts = buyAmounts,
+        trendCurrency = CryptoCurrency.BTC,
+        userCanBuy = buyAccess.map {
+            it is FeatureAccess.Granted
+        }.dataOrElse(false)
+    )
 
     override suspend fun handleIntent(modelState: CustodialEmptyCardModelState, intent: CustodialEmptyCardIntent) {
         when (intent) {
@@ -61,13 +57,13 @@ class CustodialEmptyCardViewModel(
                 try {
                     val steps = onBoardingStepsService.onBoardingSteps()
                     updateState {
-                        it.copy(
+                        copy(
                             steps = steps
                         )
                     }
                 } catch (e: Exception) {
                     updateState {
-                        it.copy(
+                        copy(
                             steps = DashboardOnboardingStep.values().map { step ->
                                 CompletableDashboardOnboardingStep(step, DashboardOnboardingStepState.INCOMPLETE)
                             }
@@ -79,7 +75,7 @@ class CustodialEmptyCardViewModel(
                     fiatCurrenciesService.selectedTradingCurrency
                 )
                 updateState {
-                    it.copy(
+                    copy(
                         buyAmounts = emptyStateAmounts
                     )
                 }
@@ -89,8 +85,8 @@ class CustodialEmptyCardViewModel(
                         Feature.Buy,
                         FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
                     ).collect {
-                        updateState { state ->
-                            state.copy(
+                        updateState {
+                            copy(
                                 buyAccess = it
                             )
                         }

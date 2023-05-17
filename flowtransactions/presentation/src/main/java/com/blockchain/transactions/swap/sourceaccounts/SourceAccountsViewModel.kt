@@ -34,21 +34,17 @@ class SourceAccountsViewModel(
 ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: SourceAccountsModelState): SourceAccountsViewState {
-        return with(state) {
-            SourceAccountsViewState(
-                accountList = accountListData
-                    .map { it.sortedByDescending { it.data.balanceFiat } }
-                    .mapList {
-                        it.reduceAccounts(
-                            includeLabel = accountListData.containsMultipleAccountsOf(
-                                it.data.account.currency.networkTicker
-                            )
-                        )
-                    }
-            )
-        }
-    }
+    override fun SourceAccountsModelState.reduce() = SourceAccountsViewState(
+        accountList = accountListData
+            .map { it.sortedByDescending { it.data.balanceFiat } }
+            .mapList {
+                it.reduceAccounts(
+                    includeLabel = accountListData.containsMultipleAccountsOf(
+                        it.data.account.currency.networkTicker
+                    )
+                )
+            }
+    )
 
     override suspend fun handleIntent(modelState: SourceAccountsModelState, intent: SourceAccountsIntent) {
         when (intent) {
@@ -57,8 +53,8 @@ class SourceAccountsViewModel(
                     .mapListData { it.withId() }
                     .collectLatest { accountListData ->
                         updateState {
-                            it.copy(
-                                accountListData = it.accountListData.updateDataWith(accountListData)
+                            copy(
+                                accountListData = accountListData.updateDataWith(accountListData)
                             )
                         }
                     }
@@ -97,6 +93,7 @@ class SourceAccountsViewModel(
                             ?.coinNetwork?.nativeAssetTicker
                             ?.let { assetCatalogue.fromNetworkTicker(it)?.logo }
                     )
+
                     else -> listOf(balanceCrypto.currency.logo)
                 }
             )

@@ -27,8 +27,8 @@ class AppMaintenanceViewModel(
         checkDownloadStatus()
     }
 
-    override fun reduce(state: AppMaintenanceModelState): AppMaintenanceViewState {
-        return AppMaintenanceViewState.fromStatus(state.status)
+    override fun AppMaintenanceModelState.reduce(): AppMaintenanceViewState {
+        return AppMaintenanceViewState.fromStatus(status)
     }
 
     override suspend fun handleIntent(modelState: AppMaintenanceModelState, intent: AppMaintenanceIntents) {
@@ -121,7 +121,7 @@ class AppMaintenanceViewModel(
                     }
 
                     is AppMaintenanceStatus.Actionable -> {
-                        updateState { it.copy(status = status) }
+                        updateState { copy(status = status) }
                     }
                 }
             }

@@ -20,22 +20,22 @@ class LocalSettingsViewModel(
         // do nothing
     }
 
-    override fun reduce(state: LocalSettingsModelState): LocalSettingsViewState =
-        when (val modelState = state.localSettings) {
-            is DataResource.Data ->
-                LocalSettingsViewState.Data(
-                    isChartVibrationEnabled = modelState.data.isChartVibrationEnabled,
-                    areSmallBalancesEnabled = modelState.data.areSmallBalancesEnabled
-                )
-            is DataResource.Error -> LocalSettingsViewState.Error(modelState.error.message.orEmpty())
-            DataResource.Loading -> LocalSettingsViewState.Loading
-        }
+    override fun LocalSettingsModelState.reduce() = when (localSettings) {
+        is DataResource.Data -> LocalSettingsViewState.Data(
+            isChartVibrationEnabled = localSettings.data.isChartVibrationEnabled,
+            areSmallBalancesEnabled = localSettings.data.areSmallBalancesEnabled
+        )
+
+        is DataResource.Error -> LocalSettingsViewState.Error(localSettings.error.message.orEmpty())
+
+        DataResource.Loading -> LocalSettingsViewState.Loading
+    }
 
     override suspend fun handleIntent(modelState: LocalSettingsModelState, intent: LocalSettingsIntent) =
         when (intent) {
             LocalSettingsIntent.LoadLocalSettings -> {
                 updateState {
-                    it.copy(
+                    copy(
                         localSettings = DataResource.Data(
                             LocalSettings(
                                 isChartVibrationEnabled = localSettingsPrefs.isChartVibrationEnabled,
@@ -45,36 +45,38 @@ class LocalSettingsViewModel(
                     )
                 }
             }
+
             is LocalSettingsIntent.ToggleChartVibration -> {
                 localSettingsPrefs.isChartVibrationEnabled = intent.isVibrationEnabled
-                updateState { state ->
-                    if (state.localSettings is DataResource.Data) {
-                        state.copy(
-                            localSettings = state.localSettings.map { settings ->
+                updateState {
+                    if (localSettings is DataResource.Data) {
+                        copy(
+                            localSettings = localSettings.map { settings ->
                                 settings.copy(
                                     isChartVibrationEnabled = intent.isVibrationEnabled
                                 )
                             }
                         )
                     } else {
-                        state
+                        this
                     }
                 }
             }
+
             is LocalSettingsIntent.ToggleSmallBalances -> {
                 localSettingsPrefs.hideSmallBalancesEnabled = intent.areSmallBalancesEnabled
 
-                updateState { state ->
-                    if (state.localSettings is DataResource.Data) {
-                        state.copy(
-                            localSettings = state.localSettings.map { settings ->
+                updateState {
+                    if (localSettings is DataResource.Data) {
+                        copy(
+                            localSettings = localSettings.map { settings ->
                                 settings.copy(
                                     areSmallBalancesEnabled = intent.areSmallBalancesEnabled
                                 )
                             }
                         )
                     } else {
-                        state
+                        this
                     }
                 }
             }

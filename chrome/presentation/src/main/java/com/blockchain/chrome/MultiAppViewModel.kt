@@ -44,25 +44,23 @@ class MultiAppViewModel(
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: MultiAppModelState): MultiAppViewState = state.run {
-        MultiAppViewState(
-            modeSwitcherOptions = walletModes?.let {
-                if (walletModes.size == 1) {
-                    ChromeModeOptions.SingleSelection(walletModes.first())
-                } else {
-                    ChromeModeOptions.MultiSelection(walletModes)
-                }
-            },
-            selectedMode = selectedWalletMode,
-            backgroundColors = selectedWalletMode?.backgroundColors(),
-            totalBalance = totalBalance.map { balance -> balance.toStringWithSymbol() },
-            shouldRevealBalance = balanceRevealed.not(),
-            bottomNavigationItems = selectedWalletMode?.bottomNavigationItems()?.filter {
-                it != ChromeBottomNavigationItem.Dex || dexEnabled
-            },
-            selectedBottomNavigationItem = selectedBottomNavigationItem
-        )
-    }
+    override fun MultiAppModelState.reduce() = MultiAppViewState(
+        modeSwitcherOptions = walletModes?.let {
+            if (walletModes.size == 1) {
+                ChromeModeOptions.SingleSelection(walletModes.first())
+            } else {
+                ChromeModeOptions.MultiSelection(walletModes)
+            }
+        },
+        selectedMode = selectedWalletMode,
+        backgroundColors = selectedWalletMode?.backgroundColors(),
+        totalBalance = totalBalance.map { balance -> balance.toStringWithSymbol() },
+        shouldRevealBalance = balanceRevealed.not(),
+        bottomNavigationItems = selectedWalletMode?.bottomNavigationItems()?.filter {
+            it != ChromeBottomNavigationItem.Dex || dexEnabled
+        },
+        selectedBottomNavigationItem = selectedBottomNavigationItem
+    )
 
     override suspend fun handleIntent(modelState: MultiAppModelState, intent: MultiAppIntents) {
         when (intent) {
@@ -70,21 +68,21 @@ class MultiAppViewModel(
                 viewModelScope.launch {
                     walletModeService.availableModes().let { availableModes ->
                         updateState {
-                            it.copy(walletModes = availableModes)
+                            copy(walletModes = availableModes)
                         }
 
                         if (availableModes.size == 1) {
                             walletModeService.updateEnabledWalletMode(availableModes.first())
 
                             updateState {
-                                it.copy(selectedWalletMode = availableModes.first())
+                                copy(selectedWalletMode = availableModes.first())
                             }
                         } else {
                             // collect wallet mode changes rather than manually change it when user switches modes
                             // as there are cases where it will change automatically
                             walletModeService.walletMode.collectLatest { walletMode ->
                                 updateState {
-                                    it.copy(selectedWalletMode = walletMode)
+                                    copy(selectedWalletMode = walletMode)
                                 }
                             }
                         }
@@ -104,13 +102,13 @@ class MultiAppViewModel(
 
             is MultiAppIntents.BalanceRevealed -> {
                 updateState {
-                    it.copy(balanceRevealed = true)
+                    copy(balanceRevealed = true)
                 }
             }
 
             is MultiAppIntents.BottomNavigationItemSelected -> {
                 updateState {
-                    it.copy(selectedBottomNavigationItem = intent.item)
+                    copy(selectedBottomNavigationItem = intent.item)
                 }
             }
         }
@@ -120,7 +118,7 @@ class MultiAppViewModel(
         viewModelScope.launch {
             val dexEnabled = dexFeatureFlag.coEnabled()
             updateState {
-                it.copy(dexEnabled = dexEnabled)
+                copy(dexEnabled = dexEnabled)
             }
         }
     }
@@ -136,7 +134,7 @@ class MultiAppViewModel(
                 .debounce(1000)
                 .collectLatest { totalBalanceDataResource ->
                     updateState {
-                        it.copy(totalBalance = totalBalanceDataResource)
+                        copy(totalBalance = totalBalanceDataResource)
                     }
 
                     if (modelState.checkAppRating &&
@@ -146,7 +144,7 @@ class MultiAppViewModel(
                         navigate(MultiAppNavigationEvent.AppRating)
 
                         updateState {
-                            it.copy(checkAppRating = false)
+                            copy(checkAppRating = false)
                         }
                     }
                 }
@@ -161,9 +159,9 @@ class MultiAppViewModel(
             )
                 .filterNot { it is DataResource.Loading }
                 .first()
-                .run {
+                .let {
                     updateState {
-                        it.copy(defiBalance = it.defiBalance.updateDataWith(this))
+                        copy(defiBalance = defiBalance.updateDataWith(it))
                     }
                 }
         }
@@ -174,6 +172,7 @@ class MultiAppViewModel(
             WalletMode.NON_CUSTODIAL -> {
                 (modelState.defiBalance as? DataResource.Data)?.data?.isZero == true
             }
+
             else -> {
                 false
             }

@@ -56,7 +56,7 @@ class VeriffSplashModel(
 
     override fun viewCreated(args: Args) {
         viewModelScope.launch {
-            updateState { it.copy(isLoading = true, continueButtonState = ButtonState.Disabled) }
+            updateState { copy(isLoading = true, continueButtonState = ButtonState.Disabled) }
             val getSupportedDocumentsDeferred = async {
                 nabuDataManager.getSupportedDocuments(args.countryIso).awaitOutcome()
             }
@@ -82,7 +82,7 @@ class VeriffSplashModel(
                         navigate(Navigation.TierCurrentState(KycState.Rejected))
                     } else {
                         updateState {
-                            it.copy(
+                            copy(
                                 error = VeriffSplashError.Generic,
                                 continueButtonState = ButtonState.Disabled
                             )
@@ -93,21 +93,21 @@ class VeriffSplashModel(
                     this@VeriffSplashModel.veriffApplicantAndToken = veriffApplicantAndToken
                     analytics.logEvent(KYCAnalyticsEvents.VeriffPreIDV("START_KYC"))
                     updateState {
-                        it.copy(
+                        copy(
                             supportedDocuments = supportedDocuments.toSortedSet(),
                             continueButtonState = ButtonState.Enabled
                         )
                     }
                 }
-            updateState { it.copy(isLoading = false) }
+            updateState { copy(isLoading = false) }
         }
     }
 
-    override fun reduce(state: VeriffSplashModelState): VeriffSplashViewState = VeriffSplashViewState(
-        isLoading = state.isLoading,
-        supportedDocuments = state.supportedDocuments,
-        error = state.error,
-        continueButtonState = state.continueButtonState
+    override fun VeriffSplashModelState.reduce() = VeriffSplashViewState(
+        isLoading = isLoading,
+        supportedDocuments = supportedDocuments,
+        error = error,
+        continueButtonState = continueButtonState
     )
 
     override suspend fun handleIntent(modelState: VeriffSplashModelState, intent: VeriffSplashIntent) {
@@ -119,8 +119,9 @@ class VeriffSplashModel(
                     navigate(Navigation.Veriff(veriffApplicantAndToken))
                 }
             }
+
             VeriffSplashIntent.OnVeriffSuccess -> {
-                updateState { it.copy(continueButtonState = ButtonState.Loading) }
+                updateState { copy(continueButtonState = ButtonState.Loading) }
                 nabuDataManager.submitVeriffVerification().awaitOutcome()
                     .flatMap {
                         userService.getUser().map { it.kycState }.awaitOutcome()
@@ -131,10 +132,11 @@ class VeriffSplashModel(
                         navigate(Navigation.TierCurrentState(kycState))
                     }
                     .doOnFailure { error ->
-                        updateState { it.copy(error = VeriffSplashError.Generic) }
+                        updateState { copy(error = VeriffSplashError.Generic) }
                     }
-                updateState { it.copy(continueButtonState = ButtonState.Enabled) }
+                updateState { copy(continueButtonState = ButtonState.Enabled) }
             }
+
             is VeriffSplashIntent.OnVeriffFailure -> {
                 analytics.logEvent(
                     VeriffAnalytics.VerifSubmissionFailed(
@@ -143,10 +145,11 @@ class VeriffSplashModel(
                     )
                 )
                 updateState {
-                    it.copy(error = VeriffSplashError.Generic)
+                    copy(error = VeriffSplashError.Generic)
                 }
             }
-            VeriffSplashIntent.ErrorHandled -> updateState { it.copy(error = null) }
+
+            VeriffSplashIntent.ErrorHandled -> updateState { copy(error = null) }
         }
     }
 }
