@@ -400,12 +400,10 @@ fun HomeScreen(
             }
         }
 
-        if (walletMode == WalletMode.CUSTODIAL) {
-            homeNews(
-                data = newsViewState.newsArticles?.toImmutableList(),
-                seeAllOnClick = {}
-            )
-        }
+        homeNews(
+            data = newsViewState.newsArticles?.toImmutableList(),
+            seeAllOnClick = {}
+        )
 
         paddedItem(
             paddingValues = PaddingValues(horizontal = 16.dp)
