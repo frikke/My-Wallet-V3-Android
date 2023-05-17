@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.tablerow.TableRowHeader
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.news.NewsArticle
 import com.blockchain.news.composable.NewsArticle
 import kotlinx.collections.immutable.ImmutableList
 
