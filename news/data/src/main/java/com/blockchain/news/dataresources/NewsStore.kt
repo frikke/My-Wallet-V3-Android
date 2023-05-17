@@ -16,9 +16,9 @@ class NewsStore(
     private val newsApiService: NewsApiService
 ) : KeyedStore<List<String>, NewsArticlesDto> by PersistedJsonSqlDelightStoreBuilder().buildKeyed(
     storeId = "NewsStore",
-    fetcher = Fetcher.Keyed.ofOutcome {
+    fetcher = Fetcher.Keyed.ofOutcome { tickers ->
         newsApiService.newsArticles(
-            tickers = listOf()
+            tickers = tickers
         )
     },
     keySerializer = ListSerializer(String.serializer()),
