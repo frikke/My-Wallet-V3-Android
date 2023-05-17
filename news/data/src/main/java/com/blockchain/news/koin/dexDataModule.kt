@@ -17,5 +17,4 @@ val newsDataModule = module {
             newsStore = get()
         )
     }
-
 }

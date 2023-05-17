@@ -4,11 +4,9 @@ import com.blockchain.api.news.NewsApiService
 import com.blockchain.api.news.NewsArticlesDto
 import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
-import com.blockchain.store.Store
 import com.blockchain.store.impl.Freshness
 import com.blockchain.store.impl.FreshnessMediator
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 

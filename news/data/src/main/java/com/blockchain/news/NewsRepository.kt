@@ -1,6 +1,5 @@
 package com.blockchain.news
 
-import com.blockchain.api.news.NewsApiService
 import com.blockchain.api.news.NewsArticlesDto
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
@@ -8,9 +7,6 @@ import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.mapData
 import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.news.dataresources.NewsStore
-import com.blockchain.outcome.getOrDefault
-import com.blockchain.outcome.mapError
-import com.blockchain.utils.awaitOutcome
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.rx3.await
 import kotlinx.serialization.decodeFromString
