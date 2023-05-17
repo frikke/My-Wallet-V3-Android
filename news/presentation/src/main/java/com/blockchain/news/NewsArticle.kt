@@ -10,6 +10,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -20,9 +21,11 @@ import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
 fun NewsArticle(
+    modifier: Modifier = Modifier,
     newsArticle: NewsArticle
 ) {
     Surface(
+        modifier = modifier,
         shape = AppTheme.shapes.large,
         color = AppTheme.colors.background,
     ) {
@@ -52,26 +55,32 @@ fun NewsArticle(
                     overflow = TextOverflow.Ellipsis
                 )
 
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+                newsArticle.author?.let {
+                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
-                Text(
-                    text = stringResource(com.blockchain.stringResources.R.string.news_author, newsArticle.author),
-                    style = AppTheme.typography.paragraph1,
-                    color = AppTheme.colors.body,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
+                    Text(
+                        text = stringResource(com.blockchain.stringResources.R.string.news_author, it),
+                        style = AppTheme.typography.paragraph1,
+                        color = AppTheme.colors.body,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+            newsArticle.image?.let {
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
-            Image(
-                imageResource = ImageResource.Remote(
-                    url = newsArticle.image,
-                    size = 64.dp
-                ),
-                defaultShape = AppTheme.shapes.large,
-            )
+                Image(
+                    imageResource =
+                    ImageResource.Remote(
+                        url = it,
+                        size = 64.dp
+                    ),
+                    defaultShape = AppTheme.shapes.large,
+                    contentScale = ContentScale.Crop
+                )
+            }
         }
     }
 }
@@ -80,10 +89,25 @@ fun NewsArticle(
 @Composable
 private fun PreviewNewsArticle() {
     NewsArticle(
-        NewsArticle(
+        newsArticle = NewsArticle(
             id = 0,
             title = "Ethereum core developers plan new testnet called Holli Ethereum core developers plan new testnet",
             image = "",
+            date = "Feb 24, 2023",
+            author = "author",
+            link = "",
+        )
+    )
+}
+
+@Preview
+@Composable
+private fun PreviewNewsArticle_NoImage() {
+    NewsArticle(
+        newsArticle = NewsArticle(
+            id = 0,
+            title = "Ethereum core developers plan new testnet called Holli Ethereum core developers plan new testnet",
+            image = null,
             date = "Feb 24, 2023",
             author = "author",
             link = "",
