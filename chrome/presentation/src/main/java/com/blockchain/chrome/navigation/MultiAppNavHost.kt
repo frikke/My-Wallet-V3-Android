@@ -11,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import com.blockchain.chrome.ChromeBottomNavigationItem
 import com.blockchain.chrome.ChromePill
 import com.blockchain.chrome.LocalChromePillProvider
+import com.blockchain.chrome.LocalNavControllerProvider
 import com.blockchain.chrome.MultiAppIntents
 import com.blockchain.chrome.MultiAppViewModel
 import com.blockchain.chrome.composable.MultiAppChrome
@@ -80,7 +81,8 @@ fun MultiAppNavHost(
 
     val chromePill: ChromePill = get(scope = payloadScope)
     CompositionLocalProvider(
-        LocalChromePillProvider provides chromePill
+        LocalChromePillProvider provides chromePill,
+        LocalNavControllerProvider provides navController
     ) {
         ModalBottomSheetLayout(
             bottomSheetNavigator,
