@@ -606,7 +606,7 @@ private fun Fee(uiFee: UiNetworkFee) {
         contentEnd = {
             AnimatedAmountCounter(
                 amountText = uiFee.uiText,
-                style = ComposeTypographies.Paragraph2,
+                style = ComposeTypographies.Paragraph2SlashedZero,
                 color = uiFee.textColor,
                 gravity = ComposeGravities.Start
             )

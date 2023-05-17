@@ -230,20 +230,21 @@ private fun ReceiveAmountAndCurrencySelection(
             !enabled -> ComposeColors.Dark
             else -> ComposeColors.Title
         }
+        val modifier = Modifier.weight(1f)
         if (animate) {
             AnimatedAmountCounter(
-                modifier = Modifier.weight(1f),
+                modifier = modifier,
                 amountText = text,
                 color = color,
                 duration = 1000L,
-                style = ComposeTypographies.Title2Mono,
+                style = ComposeTypographies.Title2SlashedZero,
                 gravity = ComposeGravities.Start
             )
         } else {
             SimpleText(
-                modifier = Modifier.weight(1f),
+                modifier = modifier,
                 text = text,
-                style = ComposeTypographies.Title2Mono,
+                style = ComposeTypographies.Title2SlashedZero,
                 color = color,
                 gravity = ComposeGravities.Start
             )
@@ -279,7 +280,7 @@ private fun AmountAndCurrencySelection(
             value = input,
             singleLine = true,
             enabled = enabled,
-            textStyle = AppTheme.typography.title2Mono.copy(color = Grey900),
+            textStyle = AppTheme.typography.title2SlashedZero.copy(color = Grey900),
             readOnly = isReadOnly,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             onValueChange = onValueChanged,
@@ -297,7 +298,7 @@ private fun AmountAndCurrencySelection(
                 placeholder = {
                     Text(
                         "0",
-                        style = AppTheme.typography.title2Mono,
+                        style = AppTheme.typography.title2SlashedZero,
                         color = Grey700
                     )
                 },
@@ -325,7 +326,7 @@ private fun RowScope.ExchangeAmount(money: Money, isEnabled: Boolean, shouldAnim
     val modifier = Modifier.weight(1f)
     val color = if (isEnabled) ComposeColors.Body else ComposeColors.Dark
 
-    val style = ComposeTypographies.BodyMono
+    val style = ComposeTypographies.BodySlashedZero
     val gravity = ComposeGravities.Start
     if (shouldAnimateChanges) {
         AnimatedAmountCounter(
@@ -456,7 +457,7 @@ private fun RowScope.MaxAmount(maxAvailable: Money, maxClick: () -> Unit) {
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
         Text(
             text = maxAvailable.toStringWithSymbol(),
-            style = AppTheme.typography.micro2,
+            style = AppTheme.typography.micro2SlashedZero,
             color = Blue600
         )
     }
@@ -476,7 +477,7 @@ private fun BalanceAmount(amount: Money) {
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
         Text(
             text = amount.toStringWithSymbol(),
-            style = AppTheme.typography.micro2,
+            style = AppTheme.typography.micro2SlashedZero,
             color = AppTheme.colors.title
         )
     }
