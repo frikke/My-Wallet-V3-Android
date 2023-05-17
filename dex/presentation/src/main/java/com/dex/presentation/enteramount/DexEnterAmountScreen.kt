@@ -237,7 +237,7 @@ fun DexEnterAmountScreen(
         }
 
         (viewState as? InputAmountViewState.TransactionInputState)?.let { viewState ->
-            paddedItem(paddingValues = PaddingValues(spacing)) {
+            paddedItem(paddingValues = PaddingValues(horizontal = spacing)) {
                 InputScreen(
                     selectSourceAccount = {
                         navController.navigate(DexDestination.SelectSourceAccount.route)
