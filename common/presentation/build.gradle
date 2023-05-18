@@ -43,4 +43,5 @@ dependencies {
     implementation Libraries.rxKotlin
     implementation Libraries.kotlinImmutableCollections
 
+    implementation Libraries.customTabs
 }

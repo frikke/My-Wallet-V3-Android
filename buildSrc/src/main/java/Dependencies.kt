@@ -46,6 +46,7 @@ object Versions {
     const val lifecycle = "2.4.1"
     const val camera = "1.0.0-rc04"
     const val cameraView = "1.0.0-alpha23"
+    const val customTabs = "1.5.0"
 
     // Support Libraries
     const val googleServices = "17.1.0"
@@ -231,6 +232,7 @@ object Libraries {
     const val camera = "androidx.camera:camera-camera2:${Versions.camera}"
     const val cameraView = "androidx.camera:camera-view:${Versions.cameraView}"
     const val cameraLifecycle = "androidx.camera:camera-lifecycle:${Versions.camera}"
+    const val customTabs = "androidx.browser:browser:${Versions.customTabs}"
 
     // Google & Firebase
     const val firebaseBom = "com.google.firebase:firebase-bom:${Versions.firebaseBom}"

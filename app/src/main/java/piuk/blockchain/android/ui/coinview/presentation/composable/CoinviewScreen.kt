@@ -270,8 +270,7 @@ fun CoinviewScreen(
                             )
 
                             News(
-                                data = newsArticles,
-                                newsArticleOnClick = {}
+                                data = newsArticles
                             )
                         }
 

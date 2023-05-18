@@ -1,5 +1,6 @@
 package com.blockchain.news.composable
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,6 +12,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -19,6 +21,9 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.news.NewsArticle
+import com.blockchain.presentation.customtabs.openUrlCustomTabs
+import com.blockchain.utils.toFormattedDate
+import java.util.Date
 
 @Composable
 fun NewsArticle(
@@ -30,8 +35,12 @@ fun NewsArticle(
         shape = AppTheme.shapes.large,
         color = AppTheme.colors.background,
     ) {
+        val context = LocalContext.current
         Row(
             modifier = Modifier
+                .clickable(
+                    onClick = { context.openUrlCustomTabs(newsArticle.link) }
+                )
                 .fillMaxWidth()
                 .padding(AppTheme.dimensions.smallSpacing)
         ) {
@@ -46,15 +55,17 @@ fun NewsArticle(
                     overflow = TextOverflow.Ellipsis
                 )
 
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+                newsArticle.date?.let {
+                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
-                Text(
-                    text = newsArticle.date,
-                    style = AppTheme.typography.paragraph1,
-                    color = AppTheme.colors.title,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
+                    Text(
+                        text = it.toFormattedDate(),
+                        style = AppTheme.typography.paragraph1,
+                        color = AppTheme.colors.title,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
 
                 newsArticle.author?.let {
                     Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
@@ -94,7 +105,7 @@ private fun PreviewNewsArticle() {
             id = 0,
             title = "Ethereum core developers plan new testnet called Holli Ethereum core developers plan new testnet",
             image = "",
-            date = "Feb 24, 2023",
+            date = Date(),
             author = "author",
             link = "",
         )
@@ -109,7 +120,7 @@ private fun PreviewNewsArticle_NoImage() {
             id = 0,
             title = "Ethereum core developers plan new testnet called Holli Ethereum core developers plan new testnet",
             image = null,
-            date = "Feb 24, 2023",
+            date = Date(),
             author = "author",
             link = "",
         )

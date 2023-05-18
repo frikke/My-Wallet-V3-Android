@@ -7,6 +7,7 @@ import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.mapData
 import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.news.dataresources.NewsStore
+import com.blockchain.utils.fromIso8601ToUtc
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.rx3.await
 import kotlinx.serialization.decodeFromString
@@ -50,7 +51,7 @@ private fun NewsArticlesDto.toNewsArticles(): List<NewsArticle> {
             id = it.id,
             title = it.title,
             image = it.image,
-            date = it.date,
+            date = it.date.fromIso8601ToUtc(),
             author = it.author,
             link = it.link
         )
