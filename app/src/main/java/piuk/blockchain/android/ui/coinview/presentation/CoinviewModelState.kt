@@ -7,6 +7,7 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
+import com.blockchain.news.NewsArticle
 import com.blockchain.walletmode.WalletMode
 import piuk.blockchain.android.ui.coinview.domain.GetAccountActionsUseCase
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
@@ -45,6 +46,9 @@ data class CoinviewModelState(
 
     // asset info
     val assetInfo: DataResource<DetailedAssetInformation> = DataResource.Loading,
+
+    // news
+    val newsArticles: DataResource<List<NewsArticle>> = DataResource.Loading,
 
     // alerts
     val alert: CoinviewPillAlert = CoinviewPillAlert.None,

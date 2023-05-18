@@ -445,6 +445,7 @@ dependencies {
     implementation project(':dex:data')
 
     implementation project(':news:data')
+    implementation project(':news:domain')
     implementation project(':news:presentation')
 
     implementation Libraries.multidex

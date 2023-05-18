@@ -9,6 +9,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
+import com.blockchain.news.NewsArticle
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
@@ -24,6 +25,7 @@ data class CoinviewViewState(
     val recurringBuys: DataResource<CoinviewRecurringBuysState>,
     val bottomQuickAction: DataResource<List<CoinviewQuickActionState>>,
     val assetInfo: CoinviewAssetInfoState,
+    val news: CoinviewNewsState,
     val pillAlert: CoinviewPillAlertState,
     val snackbarError: CoinviewSnackbarAlertState
 ) : ViewState
@@ -187,6 +189,11 @@ sealed interface CoinviewAssetInfoState {
         val website: String?
     ) : CoinviewAssetInfoState
 }
+
+// News
+data class CoinviewNewsState(
+    val newsArticles: List<NewsArticle>?
+)
 
 // Pill alerts
 sealed interface CoinviewPillAlertState {
