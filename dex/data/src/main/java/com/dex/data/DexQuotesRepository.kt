@@ -108,8 +108,7 @@ class DexQuotesRepository(
                     nabuException.getServerSideErrorInfo()?.title.orEmpty()
                 },
                 message = (it as? NabuApiException)?.let { nabuException ->
-                    nabuException.getErrorDescription().plus(" ").plus(" ")
-                        .plus(nabuException.getServerSideErrorInfo()?.description.orEmpty())
+                    nabuException.getServerSideErrorInfo()?.description.orEmpty()
                 }
             )
         }
