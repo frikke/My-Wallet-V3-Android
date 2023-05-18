@@ -46,4 +46,5 @@ include ':app',
         ':membership:data', ':membership:domain', ':membership:presentation',
         ':fiatActions', ':dex:presentation', ':dex:domain', ':dex:data',
         ':flowtransactions:presentation', ':flowtransactions:domain', ':flowtransactions:data',
-        ':betternavigation'
+        ':betternavigation',
+        ':news:data', ':news:domain'

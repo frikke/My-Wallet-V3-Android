@@ -47,6 +47,9 @@ import com.blockchain.api.kyc.ProveApi
 import com.blockchain.api.kyc.ProveApiService
 import com.blockchain.api.mercuryexperiments.MercuryExperimentsApi
 import com.blockchain.api.nabu.NabuUserApi
+import com.blockchain.api.news.NewsApi
+import com.blockchain.api.news.NewsApiService
+import com.blockchain.api.news.NewsApiServiceImpl
 import com.blockchain.api.nfts.api.NftApi
 import com.blockchain.api.nftwaitlist.data.api.NftWaitlistApi
 import com.blockchain.api.paymentmethods.PaymentMethodsApi
@@ -528,6 +531,13 @@ val blockchainApiModule = module {
     factory {
         val api = get<Retrofit>(iterableRetrofit).create(AnnouncementsApi::class.java)
         AnnouncementsApiService(
+            api = api
+        )
+    }
+
+    factory<NewsApiService> {
+        val api = get<Retrofit>(blockchainApi).create(NewsApi::class.java)
+        NewsApiServiceImpl(
             api = api
         )
     }

@@ -444,6 +444,8 @@ dependencies {
     implementation project(':dex:presentation')
     implementation project(':dex:data')
 
+    implementation project(':news:data')
+
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring
 
