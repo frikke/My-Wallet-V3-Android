@@ -26,10 +26,12 @@ sealed class Navigation : NavigationEvent {
         val original: FlatNode.Dropdown,
         val node: TreeNode.SingleSelection
     ) : Navigation()
+
     data class OpenDropdownPickerForMultipleSelection(
         val original: FlatNode.Dropdown,
         val node: TreeNode.MultipleSelection
     ) : Navigation()
+
     object FinishSuccessfully : Navigation()
 }
 
@@ -56,8 +58,8 @@ class QuestionnaireModel(
         analytics.logEvent(KycQuestionnaireViewed)
         originalQuestionnaire = args.questionnaire
         stateMachine.onStateChanged = { nodes ->
-            updateState { prevState ->
-                prevState.copy(
+            updateState {
+                copy(
                     nodes = nodes,
                     isFormValid = stateMachine.isValid(),
                     invalidNodes = emptyList() // we clear the errors after the user changes the form
@@ -67,12 +69,12 @@ class QuestionnaireModel(
         stateMachine.setRoot(args.questionnaire.nodes.toMutableNode())
     }
 
-    override fun reduce(state: QuestionnaireModelState): QuestionnaireState = QuestionnaireState(
-        nodes = state.nodes,
-        isContinueEnabled = state.isFormValid,
-        isUploadingNodes = state.isUploadingNodes,
-        invalidNodesShown = state.invalidNodes,
-        error = state.error
+    override fun QuestionnaireModelState.reduce() = QuestionnaireState(
+        nodes = nodes,
+        isContinueEnabled = isFormValid,
+        isUploadingNodes = isUploadingNodes,
+        invalidNodesShown = invalidNodes,
+        error = error
     )
 
     override suspend fun handleIntent(
@@ -90,25 +92,29 @@ class QuestionnaireModel(
                     throw IllegalStateException()
                 }
             }
+
             is QuestionnaireIntent.DropdownChoicesChanged -> {
                 stateMachine.onDropdownChoicesChanged(intent.node, intent.newChoices)
             }
+
             is QuestionnaireIntent.SelectionClicked -> {
                 stateMachine.onSelectionClicked(intent.node)
             }
+
             is QuestionnaireIntent.OpenEndedInputChanged -> {
                 stateMachine.onOpenEndedInputChanged(intent.node, intent.newInput)
             }
+
             QuestionnaireIntent.ContinueClicked -> {
                 if (!modelState.isFormValid) {
                     val error = stateMachine.findInvalidOpenEndedRegexNodeError()?.let {
                         QuestionnaireError.InvalidOpenEndedRegexMatch(it)
                     } ?: modelState.error
-                    updateState { it.copy(invalidNodes = stateMachine.invalidNodes, error = error) }
+                    updateState { copy(invalidNodes = stateMachine.invalidNodes, error = error) }
                     return
                 }
 
-                updateState { it.copy(isUploadingNodes = true, invalidNodes = emptyList()) }
+                updateState { copy(isUploadingNodes = true, invalidNodes = emptyList()) }
                 val nodes = stateMachine.getRoot().toDomain()
                 val filledQuestionnaire = originalQuestionnaire.copy(nodes = nodes)
                 when (val result = dataRemediationService.submitQuestionnaire(filledQuestionnaire)) {
@@ -116,6 +122,7 @@ class QuestionnaireModel(
                         analytics.logEvent(KycQuestionnaireSubmitted)
                         navigate(Navigation.FinishSuccessfully)
                     }
+
                     is Outcome.Failure -> updateState {
                         val invalidNodeId = (result.failure as? SubmitQuestionnaireError.InvalidNode)?.nodeId
                         val invalidNode = modelState.nodes.find { it.id == invalidNodeId }
@@ -129,7 +136,7 @@ class QuestionnaireModel(
                             }
                             QuestionnaireError.Unknown(errorMessage)
                         }
-                        it.copy(
+                        copy(
                             isUploadingNodes = false,
                             error = error,
                             invalidNodes = listOfNotNull(invalidNodeId),
@@ -138,7 +145,8 @@ class QuestionnaireModel(
                     }
                 }
             }
-            QuestionnaireIntent.ErrorHandled -> updateState { it.copy(error = null) }
+
+            QuestionnaireIntent.ErrorHandled -> updateState { copy(error = null) }
         }.exhaustive
     }
 

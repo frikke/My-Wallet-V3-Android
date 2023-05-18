@@ -59,79 +59,77 @@ class PricesViewModel(
         loadWalletMode()
     }
 
-    override fun reduce(state: PricesModelState): PricesViewState {
-        return PricesViewState(
-            availableFilters = state.filters,
-            selectedFilter = state.filterBy,
-            data = state.data
-                .filter { asset ->
-                    state.filterTerm.isEmpty() ||
-                        asset.assetInfo.displayTicker.contains(state.filterTerm, ignoreCase = true) ||
-                        asset.assetInfo.name.contains(state.filterTerm, ignoreCase = true)
-                }
-                .filter { asset ->
-                    when (state.filterBy) {
-                        PricesFilter.All -> {
-                            true
-                        }
-                        PricesFilter.Tradable -> {
-                            asset.isTradable
-                        }
-                        PricesFilter.Favorites -> {
-                            asset.isInWatchlist
-                        }
-                    }
-                }
-                .map { list ->
-                    /**
-                     * sorted by: watchlist - asset index - is tradable - marketcap
-                     */
-                    list.sortedWith(
-                        compareByDescending<AssetPriceInfo> { asset ->
-                            asset.isInWatchlist
-                        }.thenByDescending { asset ->
-                            asset.assetInfo.index
-                        }.thenByDescending { asset ->
-                            asset.isTradable
-                        }.thenByDescending { asset ->
-                            asset.price.map { price -> price.marketCap }.dataOrElse(null)
-                        }.thenBy {
-                            it.assetInfo.name
-                        }
-                    )
-                }
-                .mapList {
-                    it.toPriceItemViewState(
-                        risingFastPercent = state.risingFastPercent,
-                        withNetwork = state.walletMode != WalletMode.CUSTODIAL ||
-                            state.filterBy != PricesFilter.Tradable
-                    )
-                }
-                .map {
-                    it.groupBy {
-                        if (it.data.ticker in state.mostPopularTickers) {
-                            PricesOutputGroup.MostPopular
-                        } else PricesOutputGroup.Others
-                    }
-                },
-            topMovers = if (isTopMoversSupported(walletMode = state.walletMode, filter = state.filterBy)) {
-                state.data.map { list ->
-                    list.filter { it.price is DataResource.Data && it.isTradable }
-                        .sortedWith(
-                            compareByDescending { asset ->
-                                asset.price.map { it.delta24h.absoluteValue }.dataOrElse(0.0)
-                            }
-                        )
-                        .take(state.topMoversCount)
-                        .map {
-                            it.toPriceItemViewState(risingFastPercent = state.risingFastPercent)
-                        }
-                }
-            } else {
-                DataResource.Data(emptyList())
+    override fun PricesModelState.reduce() = PricesViewState(
+        availableFilters = filters,
+        selectedFilter = filterBy,
+        data = data
+            .filter { asset ->
+                filterTerm.isEmpty() ||
+                    asset.assetInfo.displayTicker.contains(filterTerm, ignoreCase = true) ||
+                    asset.assetInfo.name.contains(filterTerm, ignoreCase = true)
             }
-        )
-    }
+            .filter { asset ->
+                when (filterBy) {
+                    PricesFilter.All -> {
+                        true
+                    }
+                    PricesFilter.Tradable -> {
+                        asset.isTradable
+                    }
+                    PricesFilter.Favorites -> {
+                        asset.isInWatchlist
+                    }
+                }
+            }
+            .map { list ->
+                /**
+                 * sorted by: watchlist - asset index - is tradable - marketcap
+                 */
+                list.sortedWith(
+                    compareByDescending<AssetPriceInfo> { asset ->
+                        asset.isInWatchlist
+                    }.thenByDescending { asset ->
+                        asset.assetInfo.index
+                    }.thenByDescending { asset ->
+                        asset.isTradable
+                    }.thenByDescending { asset ->
+                        asset.price.map { price -> price.marketCap }.dataOrElse(null)
+                    }.thenBy {
+                        it.assetInfo.name
+                    }
+                )
+            }
+            .mapList {
+                it.toPriceItemViewState(
+                    risingFastPercent = risingFastPercent,
+                    withNetwork = walletMode != WalletMode.CUSTODIAL ||
+                        filterBy != PricesFilter.Tradable
+                )
+            }
+            .map {
+                it.groupBy {
+                    if (it.data.ticker in mostPopularTickers) {
+                        PricesOutputGroup.MostPopular
+                    } else PricesOutputGroup.Others
+                }
+            },
+        topMovers = if (isTopMoversSupported(walletMode = walletMode, filter = filterBy)) {
+            data.map { list ->
+                list.filter { it.price is DataResource.Data && it.isTradable }
+                    .sortedWith(
+                        compareByDescending { asset ->
+                            asset.price.map { it.delta24h.absoluteValue }.dataOrElse(0.0)
+                        }
+                    )
+                    .take(topMoversCount)
+                    .map {
+                        it.toPriceItemViewState(risingFastPercent = risingFastPercent)
+                    }
+            }
+        } else {
+            DataResource.Data(emptyList())
+        }
+    )
 
     private fun AssetPriceInfo.toPriceItemViewState(
         risingFastPercent: Double,
@@ -157,7 +155,7 @@ class PricesViewModel(
         when (intent) {
             is PricesIntents.LoadData -> {
                 updateState {
-                    it.copy(
+                    copy(
                         loadStrategy = intent.strategy,
                         filterBy = when (intent.strategy) {
                             PricesLoadStrategy.All -> PricesFilter.All
@@ -176,19 +174,19 @@ class PricesViewModel(
 
             is PricesIntents.FilterSearch -> {
                 updateState {
-                    it.copy(filterTerm = intent.term)
+                    copy(filterTerm = intent.term)
                 }
             }
 
             is PricesIntents.Filter -> {
                 updateState {
-                    it.copy(filterBy = intent.filter)
+                    copy(filterBy = intent.filter)
                 }
             }
 
             PricesIntents.Refresh -> {
                 updateState {
-                    it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
+                    copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
                 loadData(strategy = modelState.loadStrategy)
             }
@@ -199,7 +197,7 @@ class PricesViewModel(
         viewModelScope.launch {
             walletModeService.walletMode.collectLatest { walletMode ->
                 updateState {
-                    it.copy(walletMode = walletMode)
+                    copy(walletMode = walletMode)
                 }
             }
         }
@@ -217,7 +215,7 @@ class PricesViewModel(
             }.collectLatest { prices ->
                 updateState {
                     modelState.copy(
-                        data = it.data.updateDataWith(prices)
+                        data = data.updateDataWith(prices)
                     )
                 }
             }
@@ -230,7 +228,7 @@ class PricesViewModel(
             userFeaturePermissionService.isEligibleFor(Feature.CustodialAccounts)
                 .onErrorReturn { true }.doOnData { canTrade ->
                     updateState {
-                        it.copy(
+                        copy(
                             filters = listOfNotNull(
                                 PricesFilter.All,
                                 PricesFilter.Favorites,
@@ -250,7 +248,7 @@ class PricesViewModel(
             }
                 .collectLatest { count ->
                     updateState {
-                        it.copy(
+                        copy(
                             topMoversCount = count
                         )
                     }
@@ -264,7 +262,7 @@ class PricesViewModel(
             pricesService.mostPopularTickers()
                 .collectLatest { mostPopularTickers ->
                     updateState {
-                        it.copy(
+                        copy(
                             mostPopularTickers = mostPopularTickers
                         )
                     }
@@ -278,7 +276,7 @@ class PricesViewModel(
             pricesService.risingFastPercentThreshold()
                 .collectLatest { risingFastPercent ->
                     updateState {
-                        it.copy(
+                        copy(
                             risingFastPercent = risingFastPercent
                         )
                     }

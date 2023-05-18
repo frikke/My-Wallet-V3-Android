@@ -28,11 +28,9 @@ class NewsViewModel(
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: NewsModelState) = state.run {
-        NewsViewState(
-            newsArticles = newsArticles
-        )
-    }
+    override fun NewsModelState.reduce() = NewsViewState(
+        newsArticles = newsArticles
+    )
 
     override suspend fun handleIntent(modelState: NewsModelState, intent: NewsIntent) {
         when (intent) {
@@ -42,7 +40,7 @@ class NewsViewModel(
 
             NewsIntent.Refresh -> {
                 updateState {
-                    it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
+                    copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
 
                 loadNews(forceRefresh = true)
@@ -59,13 +57,14 @@ class NewsViewModel(
                     shouldGetFresh = forceRefresh,
                     cacheStrategy = RefreshStrategy.RefreshIfStale
                 ),
-                tickers = forTicker)
-                .mapData { it.take(MAX_NEWS_COUNT) }
-                .collectLatest { newsArticles ->
-                    updateState {
-                        it.copy(newsArticles = it.newsArticles.updateDataWith(newsArticles))
-                    }
+                tickers = forTicker
+            ).mapData {
+                it.take(MAX_NEWS_COUNT)
+            }.collectLatest { newsArticlesResource ->
+                updateState {
+                    copy(newsArticles = newsArticles.updateDataWith(newsArticlesResource))
                 }
+            }
         }
     }
 

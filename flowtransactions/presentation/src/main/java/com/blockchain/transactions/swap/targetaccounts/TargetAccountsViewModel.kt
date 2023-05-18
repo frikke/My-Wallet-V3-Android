@@ -38,13 +38,11 @@ class TargetAccountsViewModel(
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: TargetAccountsModelState) = state.run {
-        TargetAccountsViewState(
-            accountList = accountListData
-                .map { it.sortedByDescending { it.data.balanceFiat } }
-                .mapList { it.reduceAccounts() }
-        )
-    }
+    override fun TargetAccountsModelState.reduce() = TargetAccountsViewState(
+        accountList = accountListData
+            .map { it.sortedByDescending { it.data.balanceFiat } }
+            .mapList { it.reduceAccounts() }
+    )
 
     override suspend fun handleIntent(
         modelState: TargetAccountsModelState,
@@ -61,8 +59,8 @@ class TargetAccountsViewModel(
                     .mapListData { it.withId() }
                     .collectLatest { accountsData ->
                         updateState {
-                            it.copy(
-                                accountListData = it.accountListData.updateDataWith(accountsData)
+                            copy(
+                                accountListData = accountListData.updateDataWith(accountsData)
                             )
                         }
                     }

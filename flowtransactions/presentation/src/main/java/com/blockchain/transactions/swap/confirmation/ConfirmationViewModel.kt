@@ -84,7 +84,7 @@ class ConfirmationViewModel(
             exchangeRatesDataManager.exchangeRateToUserFiatFlow(sourceAccount.currency)
                 .doOnData { rate ->
                     updateState {
-                        it.copy(sourceToFiatExchangeRate = rate)
+                        copy(sourceToFiatExchangeRate = rate)
                     }
                 }
                 .collect()
@@ -94,7 +94,7 @@ class ConfirmationViewModel(
         viewModelScope.launch {
             exchangeRatesDataManager.exchangeRateToUserFiatFlow(targetAccount.currency)
                 .doOnData { rate ->
-                    updateState { it.copy(targetToFiatExchangeRate = rate) }
+                    updateState { copy(targetToFiatExchangeRate = rate) }
                 }
                 .collect()
         }
@@ -123,7 +123,7 @@ class ConfirmationViewModel(
                         depositPendingTx = pendingTx
                         updateState {
                             val sourceFee = pendingTx.feeAmount as? CryptoValue
-                            it.copy(
+                            copy(
                                 isStartingDepositOnChainTxEngine = false,
                                 sourceNetworkFeeCryptoAmount = sourceFee
                             )
@@ -145,7 +145,7 @@ class ConfirmationViewModel(
             // Looping to update the quote refresh timer and to fetch another quote when the current expires
             while (true) {
                 if (secondsUntilQuoteRefresh <= 0) {
-                    updateState { it.copy(isFetchQuoteLoading = true) }
+                    updateState { copy(isFetchQuoteLoading = true) }
                     val pair = CurrencyPair(
                         source = sourceAccount.currency,
                         destination = targetAccount.currency
@@ -162,7 +162,7 @@ class ConfirmationViewModel(
                                 .coerceIn(0, 90)
                                 .toInt()
                             updateState {
-                                it.copy(
+                                copy(
                                     quoteId = quote.id,
                                     isFetchQuoteLoading = false,
                                     targetCryptoAmount = targetCryptoAmount,
@@ -183,36 +183,36 @@ class ConfirmationViewModel(
                             thisScope.cancel()
                         }
                 }
-                updateState { it.copy(quoteRefreshRemainingSeconds = secondsUntilQuoteRefresh) }
+                updateState { copy(quoteRefreshRemainingSeconds = secondsUntilQuoteRefresh) }
                 delay(1_000)
                 secondsUntilQuoteRefresh--
             }
         }
     }
 
-    override fun reduce(state: ConfirmationModelState): ConfirmationViewState = ConfirmationViewState(
-        isFetchQuoteLoading = state.isFetchQuoteLoading,
+    override fun ConfirmationModelState.reduce(): ConfirmationViewState = ConfirmationViewState(
+        isFetchQuoteLoading = isFetchQuoteLoading,
         sourceAsset = sourceAccount.currency,
         targetAsset = targetAccount.currency,
         sourceCryptoAmount = sourceCryptoAmount,
         sourceFiatAmount = sourceCryptoAmount.toUserFiat(),
-        targetCryptoAmount = state.targetCryptoAmount,
-        targetFiatAmount = state.targetCryptoAmount?.toUserFiat(),
-        sourceToTargetExchangeRate = state.sourceToTargetExchangeRate,
-        sourceNetworkFeeCryptoAmount = state.sourceNetworkFeeCryptoAmount,
-        sourceNetworkFeeFiatAmount = state.sourceNetworkFeeCryptoAmount?.toUserFiat(),
-        targetNetworkFeeCryptoAmount = state.targetNetworkFeeCryptoAmount,
-        targetNetworkFeeFiatAmount = state.targetNetworkFeeCryptoAmount?.toUserFiat(),
+        targetCryptoAmount = targetCryptoAmount,
+        targetFiatAmount = targetCryptoAmount?.toUserFiat(),
+        sourceToTargetExchangeRate = sourceToTargetExchangeRate,
+        sourceNetworkFeeCryptoAmount = sourceNetworkFeeCryptoAmount,
+        sourceNetworkFeeFiatAmount = sourceNetworkFeeCryptoAmount?.toUserFiat(),
+        targetNetworkFeeCryptoAmount = targetNetworkFeeCryptoAmount,
+        targetNetworkFeeFiatAmount = targetNetworkFeeCryptoAmount?.toUserFiat(),
         quoteRefreshRemainingPercentage = safeLet(
-            state.quoteRefreshRemainingSeconds,
-            state.quoteRefreshTotalSeconds
+            quoteRefreshRemainingSeconds,
+            quoteRefreshTotalSeconds
         ) { remaining, total ->
             remaining.toFloat() / total.toFloat()
         },
-        quoteRefreshRemainingSeconds = state.quoteRefreshRemainingSeconds,
+        quoteRefreshRemainingSeconds = quoteRefreshRemainingSeconds,
         submitButtonState = when {
-            state.isFetchQuoteLoading || state.isStartingDepositOnChainTxEngine -> ButtonState.Disabled
-            state.isSubmittingOrderLoading -> ButtonState.Loading
+            isFetchQuoteLoading || isStartingDepositOnChainTxEngine -> ButtonState.Disabled
+            isSubmittingOrderLoading -> ButtonState.Loading
             else -> ButtonState.Enabled
         }
     )
@@ -220,7 +220,7 @@ class ConfirmationViewModel(
     override suspend fun handleIntent(modelState: ConfirmationModelState, intent: ConfirmationIntent) {
         when (intent) {
             ConfirmationIntent.SubmitClicked -> {
-                updateState { it.copy(isSubmittingOrderLoading = true) }
+                updateState { copy(isSubmittingOrderLoading = true) }
                 val quoteId = modelState.quoteId!!
 
                 // NC->NC
@@ -269,7 +269,7 @@ class ConfirmationViewModel(
                 }.doOnFailure { error ->
                     navigate(ConfirmationNavigation.NewOrderState(error.toNewOrderStateArgs()))
                 }
-                updateState { it.copy(isSubmittingOrderLoading = false) }
+                updateState { copy(isSubmittingOrderLoading = false) }
             }
         }
     }
@@ -303,6 +303,7 @@ class ConfirmationViewModel(
                 targetAccount is NonCustodialAccount -> {
                 TransferDirection.ON_CHAIN
             }
+
             sourceAccount is NonCustodialAccount -> {
                 TransferDirection.FROM_USERKEY
             }
@@ -310,6 +311,7 @@ class ConfirmationViewModel(
             targetAccount is NonCustodialAccount -> {
                 throw UnsupportedOperationException()
             }
+
             else -> {
                 TransferDirection.INTERNAL
             }

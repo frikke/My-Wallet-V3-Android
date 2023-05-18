@@ -23,20 +23,18 @@ class AppRatingViewModel(
 
     override fun viewCreated(args: AppRatingTriggerSource) {
         updateState {
-            it.copy(
+            copy(
                 walletId = authPrefs.walletGuid,
                 screenName = args.value
             )
         }
     }
 
-    override fun reduce(state: AppRatingModelState): AppRatingViewState = state.run {
-        AppRatingViewState(
-            dismiss = dismiss,
-            promptInAppReview = promptInAppReview,
-            isLoading = isLoading
-        )
-    }
+    override fun AppRatingModelState.reduce() = AppRatingViewState(
+        dismiss = dismiss,
+        promptInAppReview = promptInAppReview,
+        isLoading = isLoading
+    )
 
     override suspend fun handleIntent(modelState: AppRatingModelState, intent: AppRatingIntents) {
         when (intent) {
@@ -59,13 +57,13 @@ class AppRatingViewModel(
     }
 
     private fun submitStars(stars: Int) {
-        updateState { it.copy(stars = stars) }
+        updateState { copy(stars = stars) }
 
         // get threshold to navigate to the right screen
         viewModelScope.launch {
             appRatingService.getThreshold().let { threshold ->
                 if (stars > threshold) {
-                    updateState { it.copy(promptInAppReview = true) }
+                    updateState { copy(promptInAppReview = true) }
                 } else {
                     navigate(AppRatingNavigationEvent.Feedback)
                 }
@@ -76,7 +74,7 @@ class AppRatingViewModel(
     private fun submitFeedback(feedback: String) {
         if (feedback.isBlank().not()) {
             updateState {
-                it.copy(feedback = feedback)
+                copy(feedback = feedback)
             }
         }
 
@@ -100,7 +98,7 @@ class AppRatingViewModel(
     }
 
     private fun ratingCompleted() {
-        updateState { it.copy(dismiss = true) }
+        updateState { copy(dismiss = true) }
     }
 
     private fun postRatingData() {

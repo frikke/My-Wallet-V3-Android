@@ -86,7 +86,7 @@ class EnterAmountViewModel(
             // if no account found -> fatal error loading accounts
             if (fromAccount == null || walletMode == null) {
                 updateState {
-                    it.copy(
+                    copy(
                         fatalError = SwapEnterAmountFatalError.WalletLoading
                     )
                 }
@@ -101,7 +101,7 @@ class EnterAmountViewModel(
             )
 
             updateState {
-                it.copy(
+                copy(
                     fromAccount = fromAccountWithBalance,
                     toAccount = toAccount,
                     walletMode = walletMode,
@@ -128,7 +128,7 @@ class EnterAmountViewModel(
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: EnterAmountModelState) = state.run {
+    override fun EnterAmountModelState.reduce(): EnterAmountViewState {
         val rate = config.dataOrNull()?.sourceAccountToFiatRate
         val toUserFiat: CryptoValue.() -> FiatValue? = {
             rate?.convert(this) as FiatValue?
@@ -151,13 +151,37 @@ class EnterAmountViewModel(
             selectedInput: $selectedInput
             inputError: ${validateInput()}
             fatalError: $fatalError
-            minLimit: ${try {minLimit} catch (ex: Exception) {ex}}
-            minLimitFiat: ${try {minLimit?.toUserFiat()} catch (ex: Exception) {ex}}
-            maxLimit: ${try {maxLimit} catch (ex: Exception) {ex}}
-            maxLimitFiat: ${try {maxLimit?.toUserFiat()} catch (ex: Exception) {ex}}
+            minLimit: ${
+            try {
+                minLimit
+            } catch (ex: Exception) {
+                ex
+            }
+            }
+            minLimitFiat: ${
+            try {
+                minLimit?.toUserFiat()
+            } catch (ex: Exception) {
+                ex
+            }
+            }
+            maxLimit: ${
+            try {
+                maxLimit
+            } catch (ex: Exception) {
+                ex
+            }
+            }
+            maxLimitFiat: ${
+            try {
+                maxLimit?.toUserFiat()
+            } catch (ex: Exception) {
+                ex
+            }
+            }
             """.trimIndent()
         )
-        EnterAmountViewState(
+        return EnterAmountViewState(
             selectedInput = selectedInput,
             assets = fromAccount?.let {
                 EnterAmountAssets(
@@ -165,7 +189,7 @@ class EnterAmountViewModel(
                     to = toAccount?.currency?.toViewState()
                 )
             },
-            maxAmount = state.currencyAwareMaxAmount?.toStringWithSymbol(),
+            maxAmount = currencyAwareMaxAmount?.toStringWithSymbol(),
             fiatAmount = CurrencyValue(
                 value = if (selectedInput == InputCurrency.Currency1) {
                     fiatAmountUserInput
@@ -210,8 +234,8 @@ class EnterAmountViewModel(
         when (intent) {
             EnterAmountIntent.FlipInputs -> {
                 updateState {
-                    it.copy(
-                        selectedInput = it.selectedInput.flip()
+                    copy(
+                        selectedInput = selectedInput.flip()
                     )
                 }
             }
@@ -227,7 +251,7 @@ class EnterAmountViewModel(
                     ?.convert(fiatAmount) as CryptoValue?
 
                 updateState {
-                    it.copy(
+                    copy(
                         fiatAmountUserInput = intent.amount.removeLeadingZeros(),
                         fiatAmount = fiatAmount,
                         cryptoAmountUserInput = cryptoAmount.toInputString(),
@@ -251,7 +275,7 @@ class EnterAmountViewModel(
                     ?.convert(cryptoAmount) as FiatValue?
 
                 updateState {
-                    it.copy(
+                    copy(
                         cryptoAmountUserInput = intent.amount.removeLeadingZeros(),
                         cryptoAmount = cryptoAmount,
                         fiatAmountUserInput = fiatAmount.toInputString(),
@@ -276,7 +300,7 @@ class EnterAmountViewModel(
                 val toAccount = modelState.toAccount?.takeIf { isToAccountStillValid }
 
                 updateState {
-                    it.copy(
+                    copy(
                         fromAccount = intent.account,
                         toAccount = toAccount,
                         fiatAmount = null,
@@ -297,7 +321,7 @@ class EnterAmountViewModel(
                 val fromAccount = modelState.fromAccount?.account
                 check(fromAccount != null)
                 updateState {
-                    it.copy(
+                    copy(
                         toAccount = intent.account,
                         sourceToTargetExchangeRate = null,
                         targetNetworkFeeInSourceValue = null,
@@ -314,6 +338,7 @@ class EnterAmountViewModel(
                     InputCurrency.Currency1 -> {
                         onIntent(EnterAmountIntent.FiatInputChanged(amount = userInputBalance))
                     }
+
                     InputCurrency.Currency2 -> {
                         onIntent(EnterAmountIntent.CryptoInputChanged(amount = userInputBalance))
                     }
@@ -336,8 +361,9 @@ class EnterAmountViewModel(
                 )
                 navigate(EnterAmountNavigationEvent.Preview)
             }
+
             EnterAmountIntent.SnackbarErrorHandled -> {
-                updateState { it.copy(snackbarError = null) }
+                updateState { copy(snackbarError = null) }
             }
         }
     }
@@ -353,16 +379,16 @@ class EnterAmountViewModel(
             onChainDepositEngineInteractor.getDepositNetworkFee(sourceAccount, targetAccount, amount)
                 .doOnSuccess { fee ->
                     updateState {
-                        it.copy(sourceNetworkFee = fee)
+                        copy(sourceNetworkFee = fee)
                     }
                 }
                 .doOnFailure { error ->
-                    updateState { it.copy(snackbarError = error) }
+                    updateState { copy(snackbarError = error) }
                 }
                 .flatMap {
                     onChainDepositEngineInteractor.validateAmount(sourceAccount, targetAccount, amount)
                         .doOnFailure { error ->
-                            updateState { it.copy(depositEngineInputValidationError = error) }
+                            updateState { copy(depositEngineInputValidationError = error) }
                         }
                 }
         }
@@ -397,14 +423,14 @@ class EnterAmountViewModel(
                                 )
                             )
 
-                            it.copy(
+                            copy(
                                 sourceToTargetExchangeRate = quotePrice.sourceToDestinationRate,
                                 targetNetworkFeeInSourceValue = targetNetworkFeeInSourceValue,
                             )
                         }
                     }
                     .doOnFailure { error ->
-                        updateState { it.copy(snackbarError = error) }
+                        updateState { copy(snackbarError = error) }
                     }
 
                 delay(refreshDelay)
@@ -427,7 +453,7 @@ class EnterAmountViewModel(
 
         if (toAccount == null) {
             updateState {
-                it.copy(config = DataResource.Loading)
+                copy(config = DataResource.Loading)
             }
             return
         }
@@ -453,8 +479,8 @@ class EnterAmountViewModel(
                 }
             }.collectLatest { configData ->
                 updateState {
-                    it.copy(
-                        config = it.config.updateDataWith(configData)
+                    copy(
+                        config = config.updateDataWith(configData)
                     )
                 }
             }
@@ -536,9 +562,11 @@ class EnterAmountViewModel(
                     displayTicker = spendableBalance?.currency?.displayTicker ?: "-",
                     balance = spendableBalanceString,
                 )
+
                 OnChainDepositInputValidationError.InsufficientGas -> SwapEnterAmountInputError.InsufficientGas(
                     displayTicker = (sourceNetworkFee ?: spendableBalance)?.currency?.displayTicker ?: "-"
                 )
+
                 is OnChainDepositInputValidationError.Unknown -> SwapEnterAmountInputError.Unknown(error.error)
                 null -> null
             }
@@ -572,6 +600,7 @@ private val EnterAmountModelState.currencyAwareMaxAmount: Money?
         ) { rate, limit ->
             rate.convert(limit, RoundingMode.FLOOR)
         }
+
         InputCurrency.Currency2 -> maxLimit
     }
 

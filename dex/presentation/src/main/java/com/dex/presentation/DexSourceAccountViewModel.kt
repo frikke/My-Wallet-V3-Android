@@ -32,20 +32,16 @@ class DexSourceAccountViewModel(
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
-    override fun reduce(state: SourceAccountModelState): SourceAccountSelectionViewState {
-        return with(state) {
-            SourceAccountSelectionViewState(
-                accounts = this.accounts.filter { account ->
-                    searchFilter.isEmpty() ||
-                        account.currency.networkTicker.contains(searchFilter, true) ||
-                        account.currency.displayTicker.contains(searchFilter, true) ||
-                        account.currency.name.contains(searchFilter, true)
-                }.sortedByDescending {
-                    it.fiatBalance
-                }
-            )
+    override fun SourceAccountModelState.reduce() = SourceAccountSelectionViewState(
+        accounts = this.accounts.filter { account ->
+            searchFilter.isEmpty() ||
+                account.currency.networkTicker.contains(searchFilter, true) ||
+                account.currency.displayTicker.contains(searchFilter, true) ||
+                account.currency.name.contains(searchFilter, true)
+        }.sortedByDescending {
+            it.fiatBalance
         }
-    }
+    )
 
     override suspend fun handleIntent(modelState: SourceAccountModelState, intent: SourceAccountIntent) {
         when (intent) {
@@ -54,7 +50,7 @@ class DexSourceAccountViewModel(
                     dexService.sourceAccounts(chainId = dexNetworkService.selectedChainId())
                         .collectLatest { dexAccounts ->
                             updateState {
-                                it.copy(
+                                copy(
                                     accounts = dexAccounts
                                 )
                             }
@@ -68,7 +64,7 @@ class DexSourceAccountViewModel(
 
             is SourceAccountIntent.Search -> {
                 updateState {
-                    it.copy(
+                    copy(
                         searchFilter = intent.query
                     )
                 }

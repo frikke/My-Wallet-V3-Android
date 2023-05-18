@@ -39,34 +39,33 @@ class PrivateKeyActivityViewModel(
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: ActivityModelState<UnifiedActivityItem>): ActivityViewState = state.run {
-        ActivityViewState(
-            activity = state.activityItems
-                .filter { activityItem ->
-                    if (state.filterTerm.isEmpty()) {
-                        true
-                    } else {
-                        activityItem.summary.matches(state.filterTerm)
+    override fun ActivityModelState<UnifiedActivityItem>.reduce() = ActivityViewState(
+        activity = activityItems
+            .filter { activityItem ->
+                if (filterTerm.isEmpty()) {
+                    true
+                } else {
+                    activityItem.summary.matches(filterTerm)
+                }
+            }
+            .map { unifiedActivityItems ->
+                unifiedActivityItems.reduceActivityItems()
+            }
+            .map { groupedComponents ->
+                when (val sectionSize = sectionSize) {
+                    SectionSize.All -> {
+                        groupedComponents
+                    }
+
+                    is SectionSize.Limited -> {
+                        mapOf(
+                            TransactionGroup.Combined to groupedComponents.values.flatten().take(sectionSize.size)
+                        )
                     }
                 }
-                .map { unifiedActivityItems ->
-                    unifiedActivityItems.reduceActivityItems()
-                }
-                .map { groupedComponents ->
-                    when (val sectionSize = state.sectionSize) {
-                        SectionSize.All -> {
-                            groupedComponents
-                        }
-                        is SectionSize.Limited -> {
-                            mapOf(
-                                TransactionGroup.Combined to groupedComponents.values.flatten().take(sectionSize.size)
-                            )
-                        }
-                    }
-                },
-            walletMode = walletMode
-        )
-    }
+            },
+        walletMode = walletMode
+    )
 
     private fun List<UnifiedActivityItem>.reduceActivityItems(): Map<TransactionGroup, List<ActivityComponent>> {
         // group by date (month/year)
@@ -97,15 +96,16 @@ class PrivateKeyActivityViewModel(
     ) {
         when (intent) {
             is ActivityIntent.LoadActivity -> {
-                updateState { it.copy(sectionSize = intent.sectionSize) }
+                updateState { copy(sectionSize = intent.sectionSize) }
                 loadData()
             }
 
             is ActivityIntent.FilterSearch -> {
                 updateState {
-                    it.copy(filterTerm = intent.term)
+                    copy(filterTerm = intent.term)
                 }
             }
+
             is ActivityIntent.Refresh -> {
                 // n/a no refresh as websocket is open - always up to date
             }
@@ -124,7 +124,7 @@ class PrivateKeyActivityViewModel(
             }
                 .collect { dataResource ->
                     updateState {
-                        it.copy(activityItems = it.activityItems.updateDataWith(dataResource))
+                        copy(activityItems = activityItems.updateDataWith(dataResource))
                     }
                 }
         }
@@ -136,6 +136,7 @@ private fun ActivityDataItem.matches(filterTerm: String): Boolean = when (this) 
         leading.any { stack -> stack.value.contains(filterTerm, ignoreCase = true) } ||
             trailing.any { stack -> stack.value.contains(filterTerm, ignoreCase = true) }
     }
+
     is ActivityDataItem.Button -> {
         value.contains(filterTerm, ignoreCase = true)
     }

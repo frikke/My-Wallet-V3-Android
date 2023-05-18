@@ -43,24 +43,24 @@ class DexConfirmationViewModel(
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
-    override fun reduce(state: ConfirmationModelState): ConfirmationScreenViewState {
-        val transaction = state.transaction ?: return ConfirmationScreenViewState.Loading
+    override fun ConfirmationModelState.reduce(): ConfirmationScreenViewState {
+        val transaction = transaction ?: return ConfirmationScreenViewState.Loading
         return ConfirmationScreenViewState.DataConfirmationViewState(
             inputAmount = transaction.amount,
-            exchangeInputAmount = safeLet(transaction.amount, state.inputToFiatExchangeRate) { amount, rate ->
+            exchangeInputAmount = safeLet(transaction.amount, inputToFiatExchangeRate) { amount, rate ->
                 rate.convert(amount)
             } ?: Money.zero(currencyPrefs.selectedFiatCurrency),
             outputAmount = transaction.quote?.outputAmount?.expectedOutput,
             outputExchangeAmount = safeLet(
                 transaction.quote?.outputAmount?.expectedOutput,
-                state.outputToFiatExchangeRate
+                outputToFiatExchangeRate
             ) { amount, rate ->
                 rate.convert(amount)
             } ?: Money.zero(currencyPrefs.selectedFiatCurrency),
             inputCurrency = transaction.sourceAccount.currency,
             outputCurrency = transaction.destinationAccount?.currency,
             inputBalance = transaction.sourceAccount.balance,
-            operationInProgress = state.operationInProgress,
+            operationInProgress = operationInProgress,
             outputBalance = transaction.destinationAccount?.balance,
             dexExchangeRate = transaction.quote?.price?.toBigDecimal()?.setScale(2, RoundingMode.HALF_UP)?.max(
                 BigDecimal("0.001")
@@ -68,7 +68,7 @@ class DexConfirmationViewModel(
             slippage = transaction.slippage,
             minAmount = safeLet(
                 transaction.quote?.outputAmount?.minOutputAmount,
-                state.outputToFiatExchangeRate
+                outputToFiatExchangeRate
             ) { amount, exchangeRate ->
                 ConfirmationScreenExchangeAmount(
                     value = amount,
@@ -77,7 +77,7 @@ class DexConfirmationViewModel(
             },
             networkFee = safeLet(
                 transaction.quote?.networkFees,
-                state.networkFeesToFiatExchangeRate
+                networkFeesToFiatExchangeRate
             ) { amount, exchangeRate ->
                 ConfirmationScreenExchangeAmount(
                     value = amount,
@@ -86,7 +86,7 @@ class DexConfirmationViewModel(
             },
             blockchainFee = safeLet(
                 transaction.quote?.blockchainFees,
-                state.outputToFiatExchangeRate
+                outputToFiatExchangeRate
             ) { amount, exchangeRate ->
                 ConfirmationScreenExchangeAmount(
                     value = amount,
@@ -97,7 +97,7 @@ class DexConfirmationViewModel(
              * Ignore this error in the confirmation screen
              * */
             errors = transaction.toUiErrors().filter { it != DexUiError.TransactionInProgressError },
-            newPriceAvailable = state.priceUpdatedAndNotAccepted
+            newPriceAvailable = priceUpdatedAndNotAccepted
         )
     }
 
@@ -109,16 +109,18 @@ class DexConfirmationViewModel(
             ConfirmationIntent.ConfirmSwap -> {
                 executeTx()
             }
+
             ConfirmationIntent.StopListeningForUpdates -> {
                 job?.cancel()
             }
+
             ConfirmationIntent.AcceptPrice -> {
-                updateState { state ->
-                    state.copy(
+                updateState {
+                    copy(
                         priceUpdatedAndNotAccepted = false,
-                        acceptedQuoteRates = state.transaction?.quote?.price?.let {
-                            state.acceptedQuoteRates.plus(it)
-                        } ?: state.acceptedQuoteRates
+                        acceptedQuoteRates = transaction?.quote?.price?.let {
+                            acceptedQuoteRates.plus(it)
+                        } ?: acceptedQuoteRates
                     )
                 }
             }
@@ -127,13 +129,13 @@ class DexConfirmationViewModel(
 
     private suspend fun executeTx() {
         updateState {
-            it.copy(
+            copy(
                 operationInProgress = true
             )
         }
         transactionProcessor.execute()
         updateState {
-            it.copy(
+            copy(
                 operationInProgress = false
             )
         }
@@ -154,19 +156,19 @@ class DexConfirmationViewModel(
                     updateOutputFiatExchangeRate(currency, currencyPrefs.selectedFiatCurrency)
                 }
             }.collectLatest { tx ->
-                updateState { state ->
+                updateState {
                     val priceAccepted = tx.quote?.let {
-                        priceHasBeenAccepted(it, state.acceptedQuoteRates)
+                        priceHasBeenAccepted(it, acceptedQuoteRates)
                     } ?: false
 
-                    state.copy(
+                    copy(
                         transaction = tx,
                         priceUpdatedAndNotAccepted = !priceAccepted && tx.quote != null,
                         acceptedQuoteRates = if (priceAccepted) {
                             tx.quote?.price?.let {
-                                state.acceptedQuoteRates.plus(it)
-                            } ?: state.acceptedQuoteRates
-                        } else state.acceptedQuoteRates
+                                acceptedQuoteRates.plus(it)
+                            } ?: acceptedQuoteRates
+                        } else acceptedQuoteRates
                     )
                 }
             }
@@ -174,8 +176,8 @@ class DexConfirmationViewModel(
 
         viewModelScope.launch {
             transactionProcessor.quoteFetching.collectLatest {
-                updateState { state ->
-                    state.copy(
+                updateState {
+                    copy(
                         operationInProgress = it
                     )
                 }
@@ -194,8 +196,8 @@ class DexConfirmationViewModel(
         viewModelScope.launch {
             exchangeRatesDataManager.exchangeRate(fromAsset = currency, toAsset = selectedFiatCurrency).collectLatest {
                 (it as? DataResource.Data)?.data?.let { rate ->
-                    updateState { state ->
-                        state.copy(
+                    updateState {
+                        copy(
                             networkFeesToFiatExchangeRate = rate
                         )
                     }
@@ -208,8 +210,8 @@ class DexConfirmationViewModel(
         viewModelScope.launch {
             exchangeRatesDataManager.exchangeRate(fromAsset = from, toAsset = to).collectLatest {
                 (it as? DataResource.Data)?.data?.let { rate ->
-                    updateState { state ->
-                        state.copy(
+                    updateState {
+                        copy(
                             inputToFiatExchangeRate = rate
                         )
                     }
@@ -222,8 +224,8 @@ class DexConfirmationViewModel(
         viewModelScope.launch {
             exchangeRatesDataManager.exchangeRate(fromAsset = from, toAsset = to).collectLatest {
                 (it as? DataResource.Data)?.data?.let { rate ->
-                    updateState { state ->
-                        state.copy(
+                    updateState {
+                        copy(
                             outputToFiatExchangeRate = rate
                         )
                     }

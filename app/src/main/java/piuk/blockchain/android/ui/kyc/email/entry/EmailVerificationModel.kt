@@ -49,7 +49,7 @@ class EmailVerificationModel(
         viewModelScope.launch {
             emailUpdater.email().awaitOutcome()
                 .doOnSuccess { email ->
-                    updateState { it.copy(email = email.address, isVerified = email.isVerified) }
+                    updateState { copy(email = email.address, isVerified = email.isVerified) }
                     if (!email.isVerified) {
                         if (args.emailMustBeValidated) {
                             viewModelScope.launch { emailUpdater.resendEmail(email.address).awaitOutcome() }
@@ -58,18 +58,17 @@ class EmailVerificationModel(
                     }
                 }
                 .doOnFailure { error ->
-                    updateState { it.copy(error = EmailVerificationError.Generic(error.message)) }
+                    updateState { copy(error = EmailVerificationError.Generic(error.message)) }
                 }
         }
     }
 
-    override fun reduce(state: EmailVerificationModelState): EmailVerificationViewState =
-        EmailVerificationViewState(
-            email = state.email,
-            isVerified = state.isVerified,
-            showResendEmailConfirmation = state.showResendEmailConfirmation,
-            error = state.error
-        )
+    override fun EmailVerificationModelState.reduce() = EmailVerificationViewState(
+        email = email,
+        isVerified = isVerified,
+        showResendEmailConfirmation = showResendEmailConfirmation,
+        error = error
+    )
 
     override suspend fun handleIntent(
         modelState: EmailVerificationModelState,
@@ -81,22 +80,25 @@ class EmailVerificationModel(
             EmailVerificationIntent.EditEmailClicked -> {
                 if (modelState.email != null) navigate(Navigation.EditEmailSheet(modelState.email))
             }
+
             EmailVerificationIntent.ResendEmailClicked -> {
                 if (modelState.email != null) {
                     emailUpdater.resendEmail(modelState.email).awaitOutcome()
                         .doOnSuccess {
-                            updateState { it.copy(showResendEmailConfirmation = true) }
+                            updateState { copy(showResendEmailConfirmation = true) }
                         }
                         .doOnFailure { error ->
-                            updateState { it.copy(error = EmailVerificationError.Generic(error.message)) }
+                            updateState { copy(error = EmailVerificationError.Generic(error.message)) }
                         }
                 }
             }
+
             is EmailVerificationIntent.OnEmailChanged -> {
                 updateAndResendEmail(intent.email)
             }
+
             EmailVerificationIntent.ShowResendEmailConfirmationHandled -> updateState {
-                it.copy(showResendEmailConfirmation = false)
+                copy(showResendEmailConfirmation = false)
             }
         }
     }
@@ -107,12 +109,12 @@ class EmailVerificationModel(
             emailUpdater.pollForEmailVerification(timerInSec = 1, retries = Int.MAX_VALUE)
                 .doOnSuccess { email ->
                     updateState {
-                        it.copy(email = email.address, isVerified = email.isVerified)
+                        copy(email = email.address, isVerified = email.isVerified)
                     }
                     getUserStore.markAsStale()
                 }
                 .doOnFailure { error ->
-                    updateState { it.copy(error = EmailVerificationError.Generic(error.message)) }
+                    updateState { copy(error = EmailVerificationError.Generic(error.message)) }
                 }
         }
     }
@@ -124,11 +126,11 @@ class EmailVerificationModel(
     private suspend fun updateAndResendEmail(email: String) {
         emailUpdater.updateEmailAndSync(email).awaitOutcome()
             .doOnSuccess {
-                updateState { it.copy(email = email, showResendEmailConfirmation = true) }
+                updateState { copy(email = email, showResendEmailConfirmation = true) }
             }
             .doOnFailure { error ->
                 val message = error.asError()
-                updateState { it.copy(error = message) }
+                updateState { copy(error = message) }
             }
     }
 

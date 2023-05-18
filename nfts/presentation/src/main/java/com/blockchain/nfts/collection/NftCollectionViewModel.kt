@@ -38,14 +38,12 @@ class NftCollectionViewModel(
 ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: NftCollectionModelState): NftCollectionViewState = state.run {
-        NftCollectionViewState(
-            isPullToRefreshLoading = isPullToRefreshLoading,
-            showNextPageLoading = isNextPageLoading,
-            collection = collection.map { it.distinct() },
-            displayType = displayType
-        )
-    }
+    override fun NftCollectionModelState.reduce() = NftCollectionViewState(
+        isPullToRefreshLoading = isPullToRefreshLoading,
+        showNextPageLoading = isNextPageLoading,
+        collection = collection.map { it.distinct() },
+        displayType = displayType
+    )
 
     override suspend fun handleIntent(modelState: NftCollectionModelState, intent: NftCollectionIntent) {
         when (intent) {
@@ -53,7 +51,7 @@ class NftCollectionViewModel(
                 val account = loadAccount()
 
                 updateState {
-                    it.copy(account = account)
+                    copy(account = account)
                 }
 
                 loadNftCollection(
@@ -65,7 +63,7 @@ class NftCollectionViewModel(
 
             is NftCollectionIntent.ChangeDisplayType -> {
                 updateState {
-                    it.copy(
+                    copy(
                         displayType = intent.displayType
                     )
                 }
@@ -111,7 +109,7 @@ class NftCollectionViewModel(
 
             NftCollectionIntent.Refresh -> {
                 updateState {
-                    it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
+                    copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
 
                 check(modelState.account != null)
@@ -151,12 +149,12 @@ class NftCollectionViewModel(
                 when (dataResource) {
                     is DataResource.Loading -> {
                         updateState {
-                            it.copy(
+                            copy(
                                 isPullToRefreshLoading = forceRefresh,
-                                isNextPageLoading = it.nextPageKey != null,
-                                collection = if (it.collection is DataResource.Data) {
+                                isNextPageLoading = nextPageKey != null,
+                                collection = if (collection is DataResource.Data) {
                                     // if data is present already - don't show loading
-                                    it.collection
+                                    collection
                                 } else {
                                     dataResource
                                 }
@@ -166,7 +164,7 @@ class NftCollectionViewModel(
 
                     is DataResource.Error -> {
                         updateState {
-                            it.copy(
+                            copy(
                                 isPullToRefreshLoading = false,
                                 isNextPageLoading = false,
                                 collection = dataResource // error or old data if available
@@ -176,10 +174,10 @@ class NftCollectionViewModel(
 
                     is DataResource.Data -> {
                         updateState {
-                            val allPreviousPagesData = if (forceRefresh) emptyList() else it.allPreviousPagesData
+                            val allPreviousPagesData = if (forceRefresh) emptyList() else allPreviousPagesData
                             val allCollection = dataResource.map { data -> allPreviousPagesData + data.assets }
 
-                            it.copy(
+                            copy(
                                 isPullToRefreshLoading = false,
                                 isNextPageLoading = false,
                                 nextPageKey = dataResource.data.nextPageKey,
@@ -190,7 +188,7 @@ class NftCollectionViewModel(
                                     .dataOrElse(false).let { isOneItem ->
                                         if (isOneItem) {
                                             DisplayType.List
-                                        } else it.displayType
+                                        } else displayType
                                     }
                             )
                         }

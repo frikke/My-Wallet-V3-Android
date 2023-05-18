@@ -40,13 +40,9 @@ class PrivateKeyActivityDetailViewModel(
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(
-        state: ActivityDetailModelState<ActivityDetailGroups>
-    ): ActivityDetailViewState = state.run {
-        ActivityDetailViewState(
-            activityDetail = activityDetail.map { it.reduceActivityDetail() }
-        )
-    }
+    override fun ActivityDetailModelState<ActivityDetailGroups>.reduce() = ActivityDetailViewState(
+        activityDetail = activityDetail.map { it.reduceActivityDetail() }
+    )
 
     private fun ActivityDetailGroups.reduceActivityDetail(): ActivityDetail = when (this) {
         is ActivityDetailGroups.GroupedItems -> {
@@ -93,13 +89,14 @@ class PrivateKeyActivityDetailViewModel(
                                 )
                             }
                         }
+
                         is DataResource.Error -> flowOf(DataResource.Error(summaryDataResource.error))
                         DataResource.Loading -> flowOf(DataResource.Loading)
                     }
                 }
                 .onEach { dataResource ->
                     updateState {
-                        it.copy(activityDetail = it.activityDetail.updateDataWith(dataResource))
+                        copy(activityDetail = activityDetail.updateDataWith(dataResource))
                     }
                 }
                 .collect()

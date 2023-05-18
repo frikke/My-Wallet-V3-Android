@@ -92,7 +92,7 @@ abstract class MviViewModel<
      * Called by the Viewmodel whenever states [modelState] and [viewState] need to get updated.
      * @param stateUpdate a lambda that generates a new [modelState]
      */
-    protected fun updateState(stateUpdate: (state: TModelState) -> TModelState) {
+    protected fun updateState(stateUpdate: TModelState.() -> TModelState) {
         _modelState.value = stateUpdate(modelState)
     }
 
@@ -110,11 +110,11 @@ abstract class MviViewModel<
      */
     val viewState: StateFlow<TViewState>
         get() = _modelState.map {
-            reduce(it)
+            it.reduce()
         }.stateIn(
             viewModelScope,
             SharingStarted.Eagerly,
-            reduce(initialState).also {
+            initialState.reduce().also {
                 Timber.e("Reducing initial state $it for ViewModel ${this.javaClass.simpleName}")
             }
         )
@@ -124,7 +124,7 @@ abstract class MviViewModel<
      * model state, we create a new immutable [viewState]
      * @param state model latest internal state
      */
-    protected abstract fun reduce(state: TModelState): TViewState
+    protected abstract fun TModelState.reduce(): TViewState
 
     /**
      * Called by the UI to feed the model with Intents

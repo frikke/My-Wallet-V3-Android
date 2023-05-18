@@ -70,9 +70,11 @@ class NotificationPreferencesDetailsViewModel(
         }
     }
 
-    override fun reduce(state: NotificationPreferenceDetailsModelState): NotificationPreferenceDetailsViewState {
-        return NotificationPreferenceDetailsViewState.Data(state.title, state.description, state.methods)
-    }
+    override fun NotificationPreferenceDetailsModelState.reduce() = NotificationPreferenceDetailsViewState.Data(
+        title = title,
+        description = description,
+        methods = methods
+    )
 
     override suspend fun handleIntent(
         modelState: NotificationPreferenceDetailsModelState,

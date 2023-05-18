@@ -74,44 +74,40 @@ class AssetsViewModel(
     private var accountsJob: Job? = null
     private var fundsLocksJob: Job? = null
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
-        updateState { state ->
-            state.copy(accounts = DataResource.Data(emptyList()))
+        updateState {
+            copy(accounts = DataResource.Data(emptyList()))
         }
     }
 
-    override fun reduce(state: AssetsModelState): AssetsViewState {
-        return with(state) {
-            AssetsViewState(
-                balance = accounts.walletBalance(),
-                assets = state.assets.map { assets ->
-                    assets
-                        .filter { asset ->
-                            // create search term filter predicate
-                            asset.shouldBeFiltered(state) &&
-                                asset.balance !is DataResource.Loading &&
-                                /**
-                                 * we need to show all fiats
-                                 */
-                                (
-                                    (asset.balance as? DataResource.Data)?.data?.isPositive == true ||
-                                        asset.singleAccount is FiatAccount
-                                    )
-                        }
-                        .toHomeAssets()
-                        .allFiatAndSectionCrypto(state.sectionSize.size)
-                },
-
-                filters = filters,
-                showNoResults = state.assets.map { assets ->
-                    assets.none { it.shouldBeFiltered(state) } && assets.isNotEmpty()
-                }.dataOrElse(false),
-                showFilterIcon = !state.assets.allSmallBalances().dataOrElse(true),
-                fundsLocks = state.fundsLocks.map {
-                    it?.takeIf { it.locks.isNotEmpty() && it.onHoldTotalAmount.isPositive }
+    override fun AssetsModelState.reduce() = AssetsViewState(
+        balance = accounts.walletBalance(),
+        assets = assets.map { assets ->
+            assets
+                .filter { asset ->
+                    // create search term filter predicate
+                    asset.shouldBeFiltered(this) &&
+                        asset.balance !is DataResource.Loading &&
+                        /**
+                         * we need to show all fiats
+                         */
+                        (
+                            (asset.balance as? DataResource.Data)?.data?.isPositive == true ||
+                                asset.singleAccount is FiatAccount
+                            )
                 }
-            )
+                .toHomeAssets()
+                .allFiatAndSectionCrypto(sectionSize.size)
+        },
+
+        filters = filters,
+        showNoResults = assets.map { assets ->
+            assets.none { it.shouldBeFiltered(this) } && assets.isNotEmpty()
+        }.dataOrElse(false),
+        showFilterIcon = ! assets.allSmallBalances().dataOrElse(true),
+        fundsLocks = fundsLocks.map {
+            it?.takeIf { it.locks.isNotEmpty() && it.onHoldTotalAmount.isPositive }
         }
-    }
+    )
 
     private fun List<HomeAsset>.allFiatAndSectionCrypto(sectionSize: Int): List<HomeAsset> {
         val fiats = filterIsInstance<FiatAssetState>()
@@ -148,6 +144,7 @@ class AssetsViewModel(
                 balance = balance,
                 fiatBalance = fiatBalance
             )
+
             is FiatAccount -> FiatAssetState(
                 icon = listOf(account.currency.logo),
                 name = account.label,
@@ -155,6 +152,7 @@ class AssetsViewModel(
                 fiatBalance = fiatBalance,
                 account = account
             )
+
             else -> CustodialAssetState(
                 asset = account.currency as AssetInfo,
                 icon = listOf(account.currency.logo),
@@ -177,7 +175,7 @@ class AssetsViewModel(
                     } else
                         modelState.accounts
                 updateState {
-                    it.copy(
+                    copy(
                         sectionSize = intent.sectionSize,
                         accounts = accounts,
                         userFiat = currencyPrefs.selectedFiatCurrency
@@ -192,7 +190,7 @@ class AssetsViewModel(
 
             is AssetsIntent.LoadFilters -> {
                 updateState {
-                    it.copy(
+                    copy(
                         filters = filterService.filters() + AssetFilter.SearchFilter()
                     )
                 }
@@ -200,8 +198,8 @@ class AssetsViewModel(
 
             is AssetsIntent.FilterSearch -> {
                 updateState {
-                    it.copy(
-                        filters = it.filters.minus { it is AssetFilter.SearchFilter }
+                    copy(
+                        filters = filters.minus { it is AssetFilter.SearchFilter }
                             .plus(AssetFilter.SearchFilter(intent.term))
                     )
                 }
@@ -210,13 +208,13 @@ class AssetsViewModel(
             is AssetsIntent.UpdateFilters -> {
                 filterService.updateFilters(intent.filters)
                 updateState {
-                    it.copy(filters = intent.filters)
+                    copy(filters = intent.filters)
                 }
             }
 
             AssetsIntent.Refresh -> {
                 updateState {
-                    it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
+                    copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
                 refreshAccounts()
                 if (modelState.walletMode == WalletMode.CUSTODIAL) {
@@ -246,7 +244,7 @@ class AssetsViewModel(
             )
                 .collectLatest { dataResource ->
                     updateState {
-                        it.copy(fundsLocks = it.fundsLocks.updateDataWith(dataResource))
+                        copy(fundsLocks = fundsLocks.updateDataWith(dataResource))
                     }
                 }
         }
@@ -259,9 +257,9 @@ class AssetsViewModel(
             walletModeService.walletMode.onEach { walletMode ->
                 if (walletMode != modelState.walletMode) {
                     updateState {
-                        it.copy(
+                        copy(
                             walletMode = walletMode,
-                            accounts = it.accountsForMode(walletMode)
+                            accounts = accountsForMode(walletMode)
                         )
                     }
                 }
@@ -295,8 +293,8 @@ class AssetsViewModel(
                 )
             }
             .filterIsInstance<DataResource.Data<List<SingleAccount>>>()
-            .flatMapLatest { accounts ->
-                val balances = accounts.data.map { account ->
+            .flatMapLatest { accountsResource ->
+                val balances = accountsResource.data.map { account ->
                     account.balance(
                         freshnessStrategy = PullToRefresh.freshnessStrategy(shouldGetFresh = forceRefresh)
                     ).distinctUntilChanged()
@@ -307,10 +305,10 @@ class AssetsViewModel(
                 }.merge().scan(emptyMap<SingleAccount, DataResource<AccountBalance>>()) { acc, value ->
                     acc + value
                 }.onEach { map ->
-                    if (map.keys.containsAll(accounts.data)) {
-                        updateState { state ->
-                            state.copy(
-                                accounts = state.accounts.withBalancedAccounts(
+                    if (map.keys.containsAll(accountsResource.data)) {
+                        updateState {
+                            copy(
+                                accounts = accounts.withBalancedAccounts(
                                     map
                                 )
                             )
@@ -318,15 +316,15 @@ class AssetsViewModel(
                     }
                 }
 
-                val usdRate = accounts.data.map { account ->
+                val usdRate = accountsResource.data.map { account ->
                     exchangeRates.exchangeRate(
                         fromAsset = account.currency,
                         toAsset = FiatCurrency.Dollars
                     ).map { it to account }
                 }.merge().onEach { (usdExchangeRate, account) ->
-                    updateState { state ->
-                        state.copy(
-                            accounts = state.accounts.withUsdRate(
+                    updateState {
+                        copy(
+                            accounts = accounts.withUsdRate(
                                 account = account,
                                 usdRate = usdExchangeRate
                             )
@@ -334,14 +332,14 @@ class AssetsViewModel(
                     }
                 }
 
-                val exchangeRates = accounts.data.map { account ->
+                val exchangeRates = accountsResource.data.map { account ->
                     exchangeRates.getPricesWith24hDelta(
                         fromAsset = account.currency
                     ).map { it to account }
                 }.merge().onEach { (price, account) ->
-                    updateState { state ->
-                        state.copy(
-                            accounts = state.accounts.withPricing(account, price)
+                    updateState {
+                        copy(
+                            accounts = accounts.withPricing(account, price)
                         )
                     }
                 }
@@ -361,7 +359,7 @@ class AssetsViewModel(
             is DataResource.Loading,
             is DataResource.Error -> {
                 updateState {
-                    it.copy(
+                    copy(
                         accounts = DataResource.Data(
                             accounts.map { account ->
                                 SingleAccountBalance(
@@ -377,6 +375,7 @@ class AssetsViewModel(
                 }
                 return DataResource.Data(accounts)
             }
+
             is DataResource.Data -> {
                 val modelAccounts = stateAccounts.data
                 if (modelAccounts.size == accounts.size && modelAccounts.map { it.singleAccount.currency.networkTicker }
@@ -387,7 +386,7 @@ class AssetsViewModel(
                     return DataResource.Data(modelAccounts.map { it.singleAccount })
                 } else {
                     updateState {
-                        it.copy(
+                        copy(
                             accounts = DataResource.Data(
                                 accounts.map { account ->
                                     SingleAccountBalance(
@@ -424,6 +423,7 @@ class AssetsViewModel(
                 balances.any { balance -> balance !is DataResource.Data } ->
                     balances.firstOrNull { it is DataResource.Error }
                         ?: balances.first { it is DataResource.Loading }
+
                 balances.all { balance -> balance is DataResource.Data } -> cryptoAccounts.map {
                     when {
                         it.balance is DataResource.Data && it.exchangeRate24hWithDelta is DataResource.Data -> {
@@ -433,6 +433,7 @@ class AssetsViewModel(
                                 exchangeRate24hWithDelta.previousRate.convert(balance)
                             )
                         }
+
                         it.balance is DataResource.Error -> it.balance
                         it.exchangeRate24hWithDelta is DataResource.Error -> it.exchangeRate24hWithDelta
                         else -> DataResource.Loading
@@ -445,6 +446,7 @@ class AssetsViewModel(
                     }.let {
                         DataResource.Data(it)
                     }
+
                 else -> throw IllegalStateException("State is not valid ${accounts.map { it.balance }} ")
             }
         }

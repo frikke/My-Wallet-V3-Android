@@ -29,11 +29,9 @@ class NftDetailViewModel(
 ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: NftDetailModelState): NftDetailViewState = state.run {
-        NftDetailViewState(
-            nftAsset = asset
-        )
-    }
+    override fun NftDetailModelState.reduce(): NftDetailViewState = NftDetailViewState(
+        nftAsset = asset
+    )
 
     override suspend fun handleIntent(modelState: NftDetailModelState, intent: NftDetailIntent) {
         when (intent) {
@@ -59,8 +57,8 @@ class NftDetailViewModel(
                 pageKey = pageKey
             ).collectLatest { dataResource ->
                 updateState {
-                    it.copy(
-                        asset = it.asset.updateDataWith(dataResource)
+                    copy(
+                        asset = asset.updateDataWith(dataResource)
                     )
                 }
 
