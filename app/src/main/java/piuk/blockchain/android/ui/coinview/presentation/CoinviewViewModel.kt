@@ -118,7 +118,7 @@ class CoinviewViewModel(
     override fun viewCreated(args: CoinviewArgs) {
         (coincore[args.networkTicker] as? CryptoAsset)?.let { asset ->
             updateState {
-                it.copy(
+                copy(
                     asset = asset
                 )
             }
@@ -129,21 +129,19 @@ class CoinviewViewModel(
         }
     }
 
-    override fun reduce(state: CoinviewModelState): CoinviewViewState = state.run {
-        CoinviewViewState(
-            asset = reduceAsset(this),
-            tradeable = reduceAssetTradeable(this),
-            assetPrice = reduceAssetPrice(this),
-            watchlist = reduceWatchlist(this),
-            accounts = reduceAccounts(this),
-            centerQuickAction = reduceCenterQuickActions(this),
-            recurringBuys = reduceRecurringBuys(this),
-            bottomQuickAction = reduceBottomQuickActions(this),
-            assetInfo = reduceAssetInfo(this),
-            pillAlert = reducePillAlert(this),
-            snackbarError = reduceSnackbarError(this)
-        )
-    }
+    override fun CoinviewModelState.reduce() = CoinviewViewState(
+        asset = reduceAsset(this),
+        tradeable = reduceAssetTradeable(this),
+        assetPrice = reduceAssetPrice(this),
+        watchlist = reduceWatchlist(this),
+        accounts = reduceAccounts(this),
+        centerQuickAction = reduceCenterQuickActions(this),
+        recurringBuys = reduceRecurringBuys(this),
+        bottomQuickAction = reduceBottomQuickActions(this),
+        assetInfo = reduceAssetInfo(this),
+        pillAlert = reducePillAlert(this),
+        snackbarError = reduceSnackbarError(this)
+    )
 
     private fun reduceAsset(
         state: CoinviewModelState
@@ -218,6 +216,7 @@ class CoinviewViewModel(
                                 HistoricalTimeSpan.WEEK -> com.blockchain.stringResources.R.string.coinview_price_week
                                 HistoricalTimeSpan.MONTH ->
                                     com.blockchain.stringResources.R.string.coinview_price_month
+
                                 HistoricalTimeSpan.YEAR -> com.blockchain.stringResources.R.string.coinview_price_year
                                 HistoricalTimeSpan.ALL_TIME ->
                                     com.blockchain.stringResources.R.string.coinview_price_all
@@ -594,7 +593,7 @@ class CoinviewViewModel(
                     delay(SNACKBAR_MESSAGE_DURATION)
 
                     updateState {
-                        it.copy(alert = CoinviewPillAlert.None)
+                        copy(alert = CoinviewPillAlert.None)
                     }
                 }
             }
@@ -615,7 +614,7 @@ class CoinviewViewModel(
                     delay(SNACKBAR_MESSAGE_DURATION)
 
                     updateState {
-                        it.copy(error = CoinviewError.None)
+                        copy(error = CoinviewError.None)
                     }
                 }
             }
@@ -627,8 +626,8 @@ class CoinviewViewModel(
             is CoinviewIntent.LoadAllData -> {
                 check(modelState.asset != null) { "LoadAllData asset not initialized" }
                 val walletMode = walletModeService.walletMode.first()
-                updateState { state ->
-                    state.copy(
+                updateState {
+                    copy(
                         walletMode = walletMode
                     )
                 }
@@ -707,7 +706,7 @@ class CoinviewViewModel(
             is CoinviewIntent.NewTimeSpanSelected -> {
                 check(modelState.asset != null) { "NewTimeSpanSelected asset not initialized" }
 
-                updateState { it.copy(requestedTimeSpan = intent.timeSpan) }
+                updateState { copy(requestedTimeSpan = intent.timeSpan) }
 
                 loadPriceData(
                     asset = modelState.asset,
@@ -968,20 +967,16 @@ class CoinviewViewModel(
                 when (dataResource) {
                     DataResource.Loading -> {
                         updateState {
-                            it.copy(
+                            copy(
                                 isChartDataLoading = true,
-                                assetPriceHistory = if (it.assetPriceHistory is DataResource.Data) {
-                                    it.assetPriceHistory
-                                } else {
-                                    dataResource
-                                }
+                                assetPriceHistory = assetPriceHistory.updateDataWith(dataResource)
                             )
                         }
                     }
 
                     is DataResource.Error -> {
                         updateState {
-                            it.copy(
+                            copy(
                                 isChartDataLoading = false,
                                 assetPriceHistory = dataResource
                             )
@@ -991,14 +986,14 @@ class CoinviewViewModel(
                     is DataResource.Data -> {
                         if (dataResource.data.historicRates.isEmpty()) {
                             updateState {
-                                it.copy(
+                                copy(
                                     isChartDataLoading = false,
                                     assetPriceHistory = DataResource.Error(Exception("no historicRates"))
                                 )
                             }
                         } else {
                             updateState {
-                                it.copy(
+                                copy(
                                     isChartDataLoading = false,
                                     assetPriceHistory = dataResource,
                                     requestedTimeSpan = null
@@ -1029,7 +1024,7 @@ class CoinviewViewModel(
             val changeDifference = Money.fromMajor(fiatCurrency, difference.toBigDecimal())
 
             updateState {
-                it.copy(
+                copy(
                     interactiveAssetPrice = CoinviewAssetPrice(
                         price = Money.fromMajor(
                             fiatCurrency,
@@ -1048,7 +1043,7 @@ class CoinviewViewModel(
      * Reset [CoinviewModelState.interactiveAssetPrice] to update the price information with original value
      */
     private fun resetPriceSelection() {
-        updateState { it.copy(interactiveAssetPrice = null) }
+        updateState { copy(interactiveAssetPrice = null) }
     }
 
     // //////////////////////
@@ -1058,12 +1053,8 @@ class CoinviewViewModel(
         loadWatchlistJob = viewModelScope.launch {
             watchlistService.isAssetInWatchlist(asset.currency).collectLatest { dataResource ->
                 updateState {
-                    it.copy(
-                        watchlist = if (dataResource is DataResource.Loading && it.watchlist is DataResource.Data) {
-                            it.watchlist
-                        } else {
-                            dataResource
-                        }
+                    copy(
+                        watchlist = watchlist.updateDataWith(dataResource)
                     )
                 }
             }
@@ -1079,7 +1070,7 @@ class CoinviewViewModel(
                 when (dataResource) {
                     is DataResource.Error -> {
                         updateState {
-                            it.copy(error = CoinviewError.WatchlistToggleError)
+                            copy(error = CoinviewError.WatchlistToggleError)
                         }
                     }
 
@@ -1089,7 +1080,7 @@ class CoinviewViewModel(
                         )
 
                         updateState {
-                            it.copy(
+                            copy(
                                 alert = if (toggle == WatchlistToggle.ADD) {
                                     CoinviewPillAlert.WatchlistAdded
                                 } else {
@@ -1118,24 +1109,19 @@ class CoinviewViewModel(
             loadAssetAccountsUseCase(asset = asset).collectLatest { dataResource ->
 
                 updateState {
-                    it.copy(
-                        assetDetail = if (dataResource is DataResource.Loading && it.assetDetail is DataResource.Data) {
-                            // if data is present already - don't show loading
-                            it.assetDetail
-                        } else {
-                            dataResource
-                        },
+                    copy(
+                        assetDetail = assetDetail.updateDataWith(dataResource),
                         // on failure - fail quick actions too
                         // on data - load quick actions /see below
                         quickActions = if (dataResource is DataResource.Error) {
                             DataResource.Error(dataResource.error)
                         } else {
-                            it.quickActions
+                            quickActions
                         },
                         error = if (dataResource is DataResource.Error) {
                             CoinviewError.AccountsLoadError
                         } else {
-                            it.error
+                            error
                         }
                     )
                 }
@@ -1160,7 +1146,7 @@ class CoinviewViewModel(
 
                         is CoinviewAssetDetail.NonTradeable -> {
                             updateState {
-                                it.copy(
+                                copy(
                                     quickActions = DataResource.Data(CoinviewQuickActions.none()),
                                     recurringBuys = DataResource.Data(CoinviewRecurringBuys(emptyList(), false))
                                 )
@@ -1222,7 +1208,7 @@ class CoinviewViewModel(
                 }
                 .doOnError {
                     updateState {
-                        it.copy(error = CoinviewError.ActionsLoadError)
+                        copy(error = CoinviewError.ActionsLoadError)
                     }
                 }
         }
@@ -1362,7 +1348,7 @@ class CoinviewViewModel(
         loadRecurringBuyJob = viewModelScope.launch {
             loadAssetRecurringBuysUseCase(asset, freshnessStrategy).collectLatest { dataResource ->
                 updateState {
-                    it.copy(recurringBuys = it.recurringBuys.updateDataWith(dataResource))
+                    copy(recurringBuys = recurringBuys.updateDataWith(dataResource))
                 }
             }
         }
@@ -1393,14 +1379,8 @@ class CoinviewViewModel(
                 totalBalance = totalBalance
             ).collectLatest { dataResource ->
                 updateState {
-                    it.copy(
-                        quickActions = if (dataResource is DataResource.Loading &&
-                            it.quickActions is DataResource.Data
-                        ) {
-                            it.quickActions
-                        } else {
-                            dataResource
-                        }
+                    copy(
+                        quickActions = quickActions.updateDataWith(dataResource)
                     )
                 }
             }
@@ -1422,14 +1402,8 @@ class CoinviewViewModel(
         loadAssetInfoJob = viewModelScope.launch {
             assetService.getAssetInformation(asset = asset.currency).collectLatest { dataResource ->
                 updateState {
-                    it.copy(
-                        assetInfo = if (dataResource is DataResource.Loading &&
-                            it.assetInfo is DataResource.Data
-                        ) {
-                            it.assetInfo
-                        } else {
-                            dataResource
-                        }
+                    copy(
+                        assetInfo = assetInfo.updateDataWith(dataResource)
                     )
                 }
             }

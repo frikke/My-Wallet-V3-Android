@@ -47,7 +47,7 @@ class TargetAssetsViewModel(
         viewModelScope.launch {
             val walletMode = walletModeService.walletMode.firstOrNull()
             updateState {
-                it.copy(
+                copy(
                     walletMode = walletMode,
                     selectedAssetsModeFilter = walletMode
                 )
@@ -59,37 +59,35 @@ class TargetAssetsViewModel(
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: TargetAssetsModelState) = state.run {
-        TargetAssetsViewState(
-            showModeFilter = walletMode == WalletMode.NON_CUSTODIAL,
-            selectedModeFilter = selectedAssetsModeFilter,
-            prices = prices
-                .filter { asset ->
-                    state.filterTerm.isEmpty() ||
-                        asset.assetInfo.displayTicker.contains(state.filterTerm, ignoreCase = true) ||
-                        asset.assetInfo.name.contains(state.filterTerm, ignoreCase = true)
-                }
-                .map { list ->
-                    /**
-                     * sorted by: watchlist - asset index - marketcap
-                     */
-                    list.sortedWith(
-                        compareByDescending<AssetPriceInfo> { asset ->
-                            asset.isInWatchlist
-                        }.thenByDescending { asset ->
-                            asset.assetInfo.index
-                        }.thenByDescending { asset ->
-                            asset.price.map { price -> price.marketCap }.dataOrElse(null)
-                        }.thenBy {
-                            it.assetInfo.name
-                        }
-                    )
-                }
-                .mapList {
-                    it.toViewState(withNetwork = selectedAssetsModeFilter == WalletMode.NON_CUSTODIAL)
-                }
-        )
-    }
+    override fun TargetAssetsModelState.reduce() = TargetAssetsViewState(
+        showModeFilter = walletMode == WalletMode.NON_CUSTODIAL,
+        selectedModeFilter = selectedAssetsModeFilter,
+        prices = prices
+            .filter { asset ->
+                filterTerm.isEmpty() ||
+                    asset.assetInfo.displayTicker.contains(filterTerm, ignoreCase = true) ||
+                    asset.assetInfo.name.contains(filterTerm, ignoreCase = true)
+            }
+            .map { list ->
+                /**
+                 * sorted by: watchlist - asset index - marketcap
+                 */
+                list.sortedWith(
+                    compareByDescending<AssetPriceInfo> { asset ->
+                        asset.isInWatchlist
+                    }.thenByDescending { asset ->
+                        asset.assetInfo.index
+                    }.thenByDescending { asset ->
+                        asset.price.map { price -> price.marketCap }.dataOrElse(null)
+                    }.thenBy {
+                        it.assetInfo.name
+                    }
+                )
+            }
+            .mapList {
+                it.toViewState(withNetwork = selectedAssetsModeFilter == WalletMode.NON_CUSTODIAL)
+            }
+    )
 
     override suspend fun handleIntent(modelState: TargetAssetsModelState, intent: TargetAssetsIntent) {
         when (intent) {
@@ -99,7 +97,7 @@ class TargetAssetsViewModel(
 
             is TargetAssetsIntent.FilterSearch -> {
                 updateState {
-                    it.copy(
+                    copy(
                         filterTerm = intent.term
                     )
                 }
@@ -107,7 +105,7 @@ class TargetAssetsViewModel(
 
             is TargetAssetsIntent.ModeFilterSelected -> {
                 updateState {
-                    it.copy(
+                    copy(
                         selectedAssetsModeFilter = intent.selected
                     )
                 }
@@ -145,8 +143,8 @@ class TargetAssetsViewModel(
                     pricesService.assets(tickers)
                         .collectLatest { pricesData ->
                             updateState {
-                                it.copy(
-                                    prices = it.prices.updateDataWith(pricesData)
+                                copy(
+                                    prices = prices.updateDataWith(pricesData)
                                 )
                             }
                         }

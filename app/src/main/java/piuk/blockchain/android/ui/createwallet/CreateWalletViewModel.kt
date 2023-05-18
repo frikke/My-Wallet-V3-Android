@@ -136,7 +136,7 @@ class CreateWalletViewModel(
                     }
                     val suggested = localisedCountries.find { it.countryCode == userGeolocation }
                     updateState {
-                        it.copy(
+                        copy(
                             countryInputState = CountryInputState.Loaded(
                                 countries = localisedCountries,
                                 selected = null,
@@ -147,7 +147,7 @@ class CreateWalletViewModel(
                 }
                 .doOnFailure { error ->
                     updateState {
-                        it.copy(
+                        copy(
                             countryInputState = CountryInputState.Loaded(emptyList(), null, null),
                             error = CreateWalletError.Unknown(error.message)
                         )
@@ -156,24 +156,24 @@ class CreateWalletViewModel(
         }
     }
 
-    override fun reduce(state: CreateWalletModelState): CreateWalletViewState = CreateWalletViewState(
-        screen = state.screen,
-        emailInput = state.emailInput,
-        isShowingInvalidEmailError = state.isShowingInvalidEmailError,
-        passwordInput = state.passwordInput,
-        passwordInputError = state.passwordInputError,
-        countryInputState = state.countryInputState,
-        stateInputState = state.stateInputState,
-        areTermsOfServiceChecked = state.areTermsOfServiceChecked,
-        referralCodeInput = state.referralCodeInput,
-        isInvalidReferralErrorShowing = state.isInvalidReferralErrorShowing,
-        isCreateWalletLoading = state.isCreateWalletLoading,
+    override fun CreateWalletModelState.reduce() = CreateWalletViewState(
+        screen = screen,
+        emailInput = emailInput,
+        isShowingInvalidEmailError = isShowingInvalidEmailError,
+        passwordInput = passwordInput,
+        passwordInputError = passwordInputError,
+        countryInputState = countryInputState,
+        stateInputState = stateInputState,
+        areTermsOfServiceChecked = areTermsOfServiceChecked,
+        referralCodeInput = referralCodeInput,
+        isInvalidReferralErrorShowing = isInvalidReferralErrorShowing,
+        isCreateWalletLoading = isCreateWalletLoading,
         nextButtonState = when {
-            state.isCreateWalletLoading || state.isReferralValidationLoading -> ButtonState.Loading
-            state.validateIsNextEnabled(state.screen) -> ButtonState.Enabled
+            isCreateWalletLoading || isReferralValidationLoading -> ButtonState.Loading
+            validateIsNextEnabled(screen) -> ButtonState.Enabled
             else -> ButtonState.Disabled
         },
-        error = state.error
+        error = error
     )
 
     override suspend fun handleIntent(
@@ -186,22 +186,22 @@ class CreateWalletViewModel(
                     navigate(CreateWalletNavigation.Back)
                 }
                 CreateWalletScreen.EMAIL_AND_PASSWORD -> {
-                    updateState { it.copy(screen = CreateWalletScreen.REGION_AND_REFERRAL) }
+                    updateState { copy(screen = CreateWalletScreen.REGION_AND_REFERRAL) }
                 }
                 CreateWalletScreen.CREATION_FAILED -> {
-                    updateState { it.copy(screen = CreateWalletScreen.EMAIL_AND_PASSWORD) }
+                    updateState { copy(screen = CreateWalletScreen.EMAIL_AND_PASSWORD) }
                 }
             }
             is CreateWalletIntent.EmailInputChanged -> {
                 analytics.logEventOnce(AnalyticsEvents.WalletSignupClickEmail)
                 updateState {
-                    it.copy(emailInput = intent.input, isShowingInvalidEmailError = false)
+                    copy(emailInput = intent.input, isShowingInvalidEmailError = false)
                 }
             }
             is CreateWalletIntent.PasswordInputChanged -> {
                 analytics.logEventOnce(AnalyticsEvents.WalletSignupClickPasswordFirst)
                 updateState {
-                    it.copy(passwordInput = intent.input, passwordInputError = null)
+                    copy(passwordInput = intent.input, passwordInputError = null)
                 }
             }
             is CreateWalletIntent.CountryInputChanged -> {
@@ -214,7 +214,7 @@ class CreateWalletViewModel(
                 val hasStates = newCountry.states.isNotEmpty()
 
                 updateState {
-                    it.copy(
+                    copy(
                         countryInputState = countryInputState.copy(selected = newCountry),
                         stateInputState = if (!hasStates) StateInputState.Hidden else StateInputState.Loading
                     )
@@ -223,11 +223,11 @@ class CreateWalletViewModel(
                     fetchStatesJob = viewModelScope.launch {
                         eligibilityService.getStatesList(newCountry.countryCode, GetRegionScope.Signup)
                             .doOnSuccess { states ->
-                                updateState { it.copy(stateInputState = StateInputState.Loaded(states, null)) }
+                                updateState { copy(stateInputState = StateInputState.Loaded(states, null)) }
                             }
                             .doOnFailure { error ->
                                 updateState {
-                                    it.copy(
+                                    copy(
                                         stateInputState = StateInputState.Loaded(emptyList(), null),
                                         error = CreateWalletError.Unknown(error.message)
                                     )
@@ -238,36 +238,36 @@ class CreateWalletViewModel(
             }
             is CreateWalletIntent.StateInputChanged -> updateState {
                 analytics.logEvent(WalletCreationAnalytics.StateSelectedOnSignUp(intent.stateCode))
-                require(it.stateInputState is StateInputState.Loaded)
-                val newState = it.stateInputState.states.find { it.stateCode == intent.stateCode }!!
-                it.copy(
-                    stateInputState = it.stateInputState.copy(selected = newState)
+                require(stateInputState is StateInputState.Loaded)
+                val newState = stateInputState.states.find { it.stateCode == intent.stateCode }!!
+                copy(
+                    stateInputState = stateInputState.copy(selected = newState)
                 )
             }
             is CreateWalletIntent.ReferralInputChanged -> updateState {
-                it.copy(referralCodeInput = intent.input, isInvalidReferralErrorShowing = false)
+                copy(referralCodeInput = intent.input, isInvalidReferralErrorShowing = false)
             }
             is CreateWalletIntent.TermsOfServiceStateChanged -> updateState {
-                it.copy(areTermsOfServiceChecked = intent.isChecked)
+                copy(areTermsOfServiceChecked = intent.isChecked)
             }
             CreateWalletIntent.RegionNextClicked -> {
                 if (modelState.referralCodeInput.isEmpty()) {
-                    updateState { it.copy(screen = CreateWalletScreen.EMAIL_AND_PASSWORD) }
+                    updateState { copy(screen = CreateWalletScreen.EMAIL_AND_PASSWORD) }
                 } else {
-                    updateState { it.copy(isReferralValidationLoading = true) }
+                    updateState { copy(isReferralValidationLoading = true) }
                     analytics.logEvent(ReferralAnalyticsEvents.ReferralCodeFilled(modelState.referralCodeInput))
                     val isReferralValidOutcome = referralService.isReferralCodeValid(modelState.referralCodeInput)
                     val isReferralValid = isReferralValidOutcome is Outcome.Success && isReferralValidOutcome.value
                     if (isReferralValid) {
                         updateState {
-                            it.copy(
+                            copy(
                                 isReferralValidationLoading = false,
                                 screen = CreateWalletScreen.EMAIL_AND_PASSWORD
                             )
                         }
                     } else {
                         updateState {
-                            it.copy(
+                            copy(
                                 isReferralValidationLoading = false,
                                 isInvalidReferralErrorShowing = true
                             )
@@ -280,22 +280,22 @@ class CreateWalletViewModel(
 
                 when {
                     !formatChecker.isValidEmailAddress(modelState.emailInput) -> updateState {
-                        it.copy(isShowingInvalidEmailError = true)
+                        copy(isShowingInvalidEmailError = true)
                     }
                     modelState.passwordInput.length < MIN_PWD_LENGTH -> updateState {
-                        it.copy(passwordInputError = CreateWalletPasswordError.InvalidPasswordTooShort)
+                        copy(passwordInputError = CreateWalletPasswordError.InvalidPasswordTooShort)
                     }
                     modelState.passwordInput.length > MAX_PWD_LENGTH -> updateState {
-                        it.copy(passwordInputError = CreateWalletPasswordError.InvalidPasswordTooLong)
+                        copy(passwordInputError = CreateWalletPasswordError.InvalidPasswordTooLong)
                     }
                     !PasswordUtil.getStrength(modelState.passwordInput).isStrongEnough() -> updateState {
-                        it.copy(passwordInputError = CreateWalletPasswordError.InvalidPasswordTooWeak)
+                        copy(passwordInputError = CreateWalletPasswordError.InvalidPasswordTooWeak)
                     }
                     else -> navigate(CreateWalletNavigation.RecaptchaVerification(RecaptchaActionType.SIGNUP))
                 }
             }
             is CreateWalletIntent.RecaptchaVerificationSucceeded -> {
-                updateState { it.copy(isCreateWalletLoading = true) }
+                updateState { copy(isCreateWalletLoading = true) }
 
                 payloadDataManager.createHdWallet(
                     modelState.passwordInput,
@@ -328,7 +328,7 @@ class CreateWalletViewModel(
                     }
                     .doOnFailure {
                         updateState {
-                            it.copy(
+                            copy(
                                 isCreateWalletLoading = false,
                                 screen = CreateWalletScreen.CREATION_FAILED,
                                 emailInput = "",
@@ -341,8 +341,8 @@ class CreateWalletViewModel(
                     }
             }
             is CreateWalletIntent.RecaptchaVerificationFailed ->
-                updateState { it.copy(error = CreateWalletError.RecaptchaFailed) }
-            CreateWalletIntent.ErrorHandled -> updateState { it.copy(error = null) }
+                updateState { copy(error = CreateWalletError.RecaptchaFailed) }
+            CreateWalletIntent.ErrorHandled -> updateState { copy(error = null) }
         }
     }
 

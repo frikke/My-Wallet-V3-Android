@@ -100,7 +100,7 @@ class LauncherViewModel internal constructor(
         }
     }
 
-    override fun reduce(state: LauncherState): LauncherState = state
+    override fun LauncherState.reduce() = this
 
     private fun resumeAppFlow() {
         extractDataAndStart(modelState)

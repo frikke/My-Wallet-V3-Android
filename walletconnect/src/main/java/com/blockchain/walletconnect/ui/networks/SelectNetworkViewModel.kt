@@ -26,22 +26,18 @@ class SelectNetworkViewModel(
 ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: SelectNetworkModelState): SelectNetworkViewState {
-        return with(state) {
-            SelectNetworkViewState(
-                networks = networks,
-                selectedNetwork = selectedNetwork
-            )
-        }
-    }
+    override fun SelectNetworkModelState.reduce() = SelectNetworkViewState(
+        networks = networks,
+        selectedNetwork = selectedNetwork
+    )
 
     override suspend fun handleIntent(modelState: SelectNetworkModelState, intent: SelectNetworkIntents) {
         when (intent) {
             is SelectNetworkIntents.LoadSupportedNetworks -> loadSupportedNetworks(intent.preSelectedChainId)
             is SelectNetworkIntents.LoadIconForNetworks -> loadIconsForNetworks(intent.networks, intent.selectedNetwork)
             is SelectNetworkIntents.SelectNetwork -> updateState {
-                it.copy(
-                    selectedNetwork = it.networks.findByChainId(intent.chainId)
+                copy(
+                    selectedNetwork = networks.findByChainId(intent.chainId)
                 )
             }
         }
@@ -54,7 +50,7 @@ class SelectNetworkViewModel(
                 val networks = supportedNetworks.map { evmNetwork -> evmNetwork.toNetworkInfo() }
                 val selectedNetwork = networks.findByChainId(chainIdToSelect)
                 updateState {
-                    it.copy(
+                    copy(
                         networks = networks,
                         selectedNetwork = selectedNetwork
                     )
@@ -68,12 +64,12 @@ class SelectNetworkViewModel(
             }
             .doOnFailure {
                 Timber.e(it)
-                updateState { state -> state.copy(networks = emptyList()) }
+                updateState { copy(networks = emptyList()) }
             }
     }
 
     private fun loadIconsForNetworks(networks: List<NetworkInfo>, selectedNetwork: NetworkInfo?) = updateState {
-        it.copy(
+        copy(
             networks = networks.map { network ->
                 network.copy(
                     logo = coincore[network.networkTicker]?.currency?.logo

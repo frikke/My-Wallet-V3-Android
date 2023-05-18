@@ -66,47 +66,45 @@ class EarnDashboardViewModel(
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) { }
 
-    override fun reduce(state: EarnDashboardModelState): EarnDashboardViewState = state.run {
-        EarnDashboardViewState(
-            dashboardState = reduceDashboardState(
-                isLoading = isLoading,
-                error = error,
-                earnData = earnData,
-                earningTabFilterBy = earningTabFilterBy,
-                earningTabQueryBy = earningTabQueryBy,
-                discoverTabFilterBy = discoverTabFilterBy,
-                discoverTabQueryBy = discoverTabQueryBy,
-                hasSeenEarnIntro = hasSeenEarnIntro,
-                filterList = filterList
-            ),
+    override fun EarnDashboardModelState.reduce(): EarnDashboardViewState = EarnDashboardViewState(
+        dashboardState = reduceDashboardState(
+            isLoading = isLoading,
+            error = error,
+            earnData = earnData,
             earningTabFilterBy = earningTabFilterBy,
             earningTabQueryBy = earningTabQueryBy,
             discoverTabFilterBy = discoverTabFilterBy,
-            discoverTabQueryBy = discoverTabQueryBy
-        )
-    }
+            discoverTabQueryBy = discoverTabQueryBy,
+            hasSeenEarnIntro = hasSeenEarnIntro,
+            filterList = filterList
+        ),
+        earningTabFilterBy = earningTabFilterBy,
+        earningTabQueryBy = earningTabQueryBy,
+        discoverTabFilterBy = discoverTabFilterBy,
+        discoverTabQueryBy = discoverTabQueryBy
+    )
 
     override suspend fun handleIntent(modelState: EarnDashboardModelState, intent: EarnDashboardIntent) =
         when (intent) {
             is EarnDashboardIntent.LoadEarn -> loadEarn()
             is EarnDashboardIntent.LoadSilently -> collectEarnData(false)
             is EarnDashboardIntent.UpdateEarningTabListFilter -> updateState {
-                it.copy(
+                copy(
                     earningTabFilterBy = intent.filter
                 )
             }
             is EarnDashboardIntent.UpdateEarningTabSearchQuery -> updateState {
-                it.copy(
+                copy(
                     earningTabQueryBy = intent.searchTerm
                 )
             }
             is EarnDashboardIntent.UpdateDiscoverTabListFilter -> updateState {
-                it.copy(
+                copy(
                     discoverTabFilterBy = intent.filter
                 )
             }
             is EarnDashboardIntent.UpdateDiscoverTabSearchQuery -> updateState {
-                it.copy(
+                copy(
                     discoverTabQueryBy = intent.searchTerm
                 )
             }
@@ -164,7 +162,7 @@ class EarnDashboardViewModel(
             is EarnDashboardIntent.FinishOnboarding -> {
                 walletStatusPrefs.hasSeenEarnProductIntro = true
                 updateState {
-                    it.copy(
+                    copy(
                         hasSeenEarnIntro = true
                     )
                 }
@@ -587,7 +585,7 @@ class EarnDashboardViewModel(
         val activeRewardsEnabled = activeRewardsFeatureFlag.coEnabled()
 
         updateState {
-            it.copy(
+            copy(
                 isLoading = true,
                 hasSeenEarnIntro = walletStatusPrefs.hasSeenEarnProductIntro,
                 filterList = listOf(
@@ -748,7 +746,7 @@ class EarnDashboardViewModel(
             when (data) {
                 is DataResource.Data -> {
                     updateState {
-                        it.copy(
+                        copy(
                             isLoading = false,
                             earnData = data.data
                         )
@@ -756,7 +754,7 @@ class EarnDashboardViewModel(
                 }
                 is DataResource.Error -> {
                     updateState {
-                        it.copy(
+                        copy(
                             isLoading = false,
                             error = EarnDashboardError.DataFetchFailed
                         )
@@ -764,7 +762,7 @@ class EarnDashboardViewModel(
                 }
                 DataResource.Loading -> {
                     updateState {
-                        it.copy(isLoading = showLoading)
+                        copy(isLoading = showLoading)
                     }
                 }
             }
