@@ -10,6 +10,7 @@ import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.UserState
 import com.blockchain.nabu.service.NabuService
+import com.blockchain.preferences.CountryPrefs
 import com.blockchain.store.CachedData
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Mediator
@@ -24,6 +25,7 @@ class GetUserStore(
     private val userReporter: NabuUserReporter,
     private val remoteLogger: RemoteLogger,
     private val trust: DigitalTrust,
+    private val countryPrefs: CountryPrefs,
     private val walletReporter: WalletReporter,
     private val sessionInfo: SessionInfo,
     private val payloadDataManager: PayloadDataManager
@@ -37,6 +39,7 @@ class GetUserStore(
                         userReporter.reportUserId(user.id)
                         userReporter.reportUser(user)
                         trust.setUserId(user.id)
+                        countryPrefs.country = user.address?.countryCode.orEmpty()
                         remoteLogger.logUserId(user.id)
                         walletReporter.reportWalletGuid(payloadDataManager.guid)
                         sessionInfo.setUserId(user.id)

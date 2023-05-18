@@ -10,12 +10,12 @@ sealed class WalletCreationAnalytics(
 ) : AnalyticsEvent {
 
     class WalletSignUp(
-        countryName: String,
+        countryIso: String,
         stateIso: String?
     ) : WalletCreationAnalytics(
         event = AnalyticsNames.WALLET_SIGN_UP.eventName,
         params = mapOf(
-            COUNTRY to countryName,
+            COUNTRY to countryIso,
             STATE to stateIso
         ).filterNotNullValues()
     )

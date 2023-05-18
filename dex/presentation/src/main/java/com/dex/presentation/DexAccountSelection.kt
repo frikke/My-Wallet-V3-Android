@@ -45,7 +45,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.BasePrimaryMuted
 import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 import com.blockchain.componentlib.theme.SmallestVerticalSpacer
-import com.blockchain.dex.presentation.R
+import com.blockchain.stringResources.R
 import com.dex.domain.DexAccount
 import info.blockchain.balance.isLayer2Token
 import org.koin.androidx.compose.get
@@ -67,7 +67,7 @@ fun DexAccountSelection(
                 onSearchTermUpdated(it)
                 searchTerm = it
             },
-            placeholder = stringResource(com.blockchain.stringResources.R.string.search)
+            placeholder = stringResource(R.string.search)
         )
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
@@ -80,7 +80,7 @@ fun DexAccountSelection(
                 if (!accounts.all { it.balance.isPositive }) {
                     item {
                         TableRowHeader(
-                            title = stringResource(com.blockchain.stringResources.R.string.all_tokens)
+                            title = stringResource(R.string.all_tokens)
                         )
                         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
                     }
@@ -129,7 +129,7 @@ fun DexAccountSelection(
                 if (!accounts.all { it.balance.isZero }) {
                     item {
                         TableRowHeader(
-                            title = stringResource(com.blockchain.stringResources.R.string.all_tokens)
+                            title = stringResource(R.string.all_tokens)
                         )
                         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
                     }
@@ -148,7 +148,7 @@ fun DexAccountSelection(
                     }
                 )
             }
-            if (accounts.isEmpty()) {
+            if (accounts.isEmpty() && searchTerm.isNotEmpty()) {
                 item {
                     LaunchedEffect(searchTerm) {
                         analytics.logEvent(
@@ -157,7 +157,6 @@ fun DexAccountSelection(
                             )
                         )
                     }
-
                     NoResults()
                 }
             }
@@ -176,7 +175,7 @@ private fun NoResults() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = AppTheme.dimensions.smallSpacing),
-            text = stringResource(com.blockchain.stringResources.R.string.assets_no_result),
+            text = stringResource(R.string.assets_no_result),
             style = ComposeTypographies.Body2,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Centre
