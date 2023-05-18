@@ -56,6 +56,9 @@ import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
+import com.blockchain.home.presentation.news.NewsIntent
+import com.blockchain.home.presentation.news.NewsViewModel
+import com.blockchain.home.presentation.news.NewsViewState
 import com.blockchain.home.presentation.quickactions.QuickActions
 import com.blockchain.home.presentation.quickactions.QuickActionsIntent
 import com.blockchain.home.presentation.quickactions.QuickActionsViewModel
@@ -76,6 +79,7 @@ import com.blockchain.prices.prices.PricesViewState
 import com.blockchain.prices.prices.percentAndPositionOf
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import kotlinx.collections.immutable.toImmutableList
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
@@ -140,6 +144,9 @@ fun HomeScreen(
     val homeDappsViewModel: HomeDappsViewModel = getViewModel(scope = payloadScope)
     val homeDappsState: HomeDappsViewState by homeDappsViewModel.viewState.collectAsStateLifecycleAware()
 
+    val newsViewModel: NewsViewModel = getViewModel(scope = payloadScope)
+    val newsViewState: NewsViewState by newsViewModel.viewState.collectAsStateLifecycleAware()
+
     val walletMode by
     get<WalletModeService>(scope = payloadScope).walletMode.collectAsStateLifecycleAware(initial = null)
 
@@ -168,6 +175,7 @@ fun HomeScreen(
                 )
                 pkwActivityViewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.Limited(MAX_ACTIVITY_COUNT)))
                 homeDappsViewModel.onIntent(HomeDappsIntent.LoadData)
+                newsViewModel.onIntent(NewsIntent.LoadData)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -184,6 +192,7 @@ fun HomeScreen(
             quickActionsViewModel.onIntent(QuickActionsIntent.Refresh)
             pkwActivityViewModel.onIntent(ActivityIntent.Refresh())
             custodialActivityViewModel.onIntent(ActivityIntent.Refresh())
+            newsViewModel.onIntent(NewsIntent.Refresh)
         }
     }
 
@@ -390,6 +399,11 @@ fun HomeScreen(
                 }
             }
         }
+
+        homeNews(
+            data = newsViewState.newsArticles?.toImmutableList(),
+            seeAllOnClick = {}
+        )
 
         paddedItem(
             paddingValues = PaddingValues(horizontal = 16.dp)

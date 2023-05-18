@@ -3642,4 +3642,9 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_staking_withdrawal_queue_notice_title">Unstaking Information</string>
     <string name="earn_staking_withdrawal_queue_notice_description">The unbonding period depends on the network queue. The current unbonding period is %1$s days.</string>
     <string name="earn_staking_withdrawal_locked_countdown_message">You will be able to request another withdrawal in %1$s min.</string>
+
+    <string name="news_author">Published by %1$s</string>
+    <string name="news_home_title">Latest News</string>
+    <string name="news_title">News</string>
+
 </resources>

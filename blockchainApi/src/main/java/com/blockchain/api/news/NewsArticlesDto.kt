@@ -11,14 +11,13 @@ data class NewsArticlesDto(
 data class Article(
     val id: Int,
     val title: String,
-    val image: String,
+    val image: String? = null,
     val date: String,
-    val author: String,
+    val author: String? = null,
     val link: String,
     val assets: List<String>,
     val category: String,
     val datasource: String,
-    val logo: String,
-    val officialSource: List<String>,
-    val source: String
+    val logo: String? = null,
+    val source: String? = null
 )

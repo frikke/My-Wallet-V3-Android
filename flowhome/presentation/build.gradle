@@ -47,6 +47,9 @@ dependencies {
     implementation project(':earn:presentation')
     implementation project(':string-resources')
     implementation project(':flowprices:presentation')
+    implementation project(':news:domain')
+    implementation project(':news:presentation')
+
     implementation Libraries.composelifecycle
     // android
     implementation Libraries.design
