@@ -2,6 +2,7 @@ package com.blockchain.transactions.koin
 
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.transactions.common.OnChainDepositEngineInteractor
+import com.blockchain.transactions.common.entersecondpassword.EnterSecondPasswordArgs
 import com.blockchain.transactions.swap.confirmation.ConfirmationViewModel
 import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
@@ -62,6 +63,10 @@ val transactionsPresentationModule = module {
 
         scoped {
             SwapConfirmationArgs()
+        }
+
+        scoped {
+            EnterSecondPasswordArgs()
         }
 
         viewModel {

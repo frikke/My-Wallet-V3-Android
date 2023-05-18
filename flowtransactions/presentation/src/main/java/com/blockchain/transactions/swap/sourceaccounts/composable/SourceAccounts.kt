@@ -32,6 +32,7 @@ fun SourceAccounts(
     viewModel: SourceAccountsViewModel = getViewModel(scope = payloadScope),
     analytics: Analytics = get(),
     accountSelected: (CryptoAccountWithBalance) -> Unit,
+    navigateToEnterSecondPassword: (CryptoAccountWithBalance) -> Unit,
     onBackPressed: () -> Unit
 ) {
     val viewState: SourceAccountsViewState by viewModel.viewState.collectAsStateLifecycleAware()
@@ -45,13 +46,17 @@ fun SourceAccounts(
         navigationEvent?.let { navEvent ->
             when (navEvent) {
                 is SourceAccountsNavigationEvent.ConfirmSelection -> {
-                    accountSelected(navEvent.account)
                     analytics.logEvent(
                         SwapAnalyticsEvents.SourceAccountSelected(
                             ticker = navEvent.account.account.currency.networkTicker
                         )
                     )
-                    onBackPressed()
+                    if (navEvent.requiresSecondPassword) {
+                        navigateToEnterSecondPassword(navEvent.account)
+                    } else {
+                        accountSelected(navEvent.account)
+                        onBackPressed()
+                    }
                 }
             }
         }

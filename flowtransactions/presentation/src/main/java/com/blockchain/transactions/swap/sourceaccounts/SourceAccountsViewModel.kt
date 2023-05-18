@@ -64,9 +64,11 @@ class SourceAccountsViewModel(
                 check(modelState.accountListData is DataResource.Data)
                 modelState.accountListData.data.run {
                     check(any { it.id == intent.id })
+                    val account = first { it.id == intent.id }.data
                     navigate(
                         SourceAccountsNavigationEvent.ConfirmSelection(
-                            account = first { it.id == intent.id }.data
+                            account = account,
+                            requiresSecondPassword = account.account.requireSecondPassword(),
                         )
                     )
                 }

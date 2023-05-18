@@ -302,6 +302,7 @@ class EnterAmountViewModel(
                 updateState {
                     copy(
                         fromAccount = intent.account,
+                        secondPassword = intent.secondPassword,
                         toAccount = toAccount,
                         fiatAmount = null,
                         fiatAmountUserInput = "",
@@ -357,7 +358,7 @@ class EnterAmountViewModel(
                     sourceAccount = fromAccount,
                     targetAccount = toAccount,
                     sourceCryptoAmount = cryptoAmount,
-                    secondPassword = null // TODO(aromano): TEMP
+                    secondPassword = modelState.secondPassword
                 )
                 navigate(EnterAmountNavigationEvent.Preview)
             }
