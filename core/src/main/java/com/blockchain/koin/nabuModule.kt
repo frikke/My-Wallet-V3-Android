@@ -1,5 +1,6 @@
 package com.blockchain.koin
 
+import com.blockchain.analytics.TraitsService
 import com.blockchain.api.interceptors.SessionInfo
 import com.blockchain.api.nabuApi
 import com.blockchain.core.experiments.cache.ExperimentsStore
@@ -12,6 +13,7 @@ import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.data.GetUserStore
+import com.blockchain.nabu.api.getuser.data.UserCountryRepository
 import com.blockchain.nabu.api.getuser.data.UserFeaturePermissionRepository
 import com.blockchain.nabu.api.getuser.data.UserRepository
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
@@ -86,6 +88,7 @@ val nabuModule = module {
                 userReporter = get(uniqueUserAnalytics),
                 trust = get(),
                 remoteLogger = get(),
+                countryPrefs = get(),
                 walletReporter = get(uniqueId),
                 sessionInfo = SessionInfo,
                 payloadDataManager = get()
@@ -244,6 +247,12 @@ val nabuModule = module {
             retrofit = get(serializerExplorerRetrofit)
         )
     }
+
+    single {
+        UserCountryRepository(
+            countryPrefs = lazy { get() }
+        )
+    }.bind(TraitsService::class)
 
     single {
         ExperimentsStore(
