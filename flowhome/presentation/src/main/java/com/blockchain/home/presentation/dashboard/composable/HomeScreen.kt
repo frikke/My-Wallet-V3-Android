@@ -56,7 +56,6 @@ import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
-import com.blockchain.home.presentation.news.NewsIntent
 import com.blockchain.home.presentation.news.NewsViewModel
 import com.blockchain.home.presentation.news.NewsViewState
 import com.blockchain.home.presentation.quickactions.QuickActions
@@ -175,7 +174,7 @@ fun HomeScreen(
                 )
                 pkwActivityViewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.Limited(MAX_ACTIVITY_COUNT)))
                 homeDappsViewModel.onIntent(HomeDappsIntent.LoadData)
-                newsViewModel.onIntent(NewsIntent.LoadData)
+//                newsViewModel.onIntent(NewsIntent.LoadData)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -192,7 +191,7 @@ fun HomeScreen(
             quickActionsViewModel.onIntent(QuickActionsIntent.Refresh)
             pkwActivityViewModel.onIntent(ActivityIntent.Refresh())
             custodialActivityViewModel.onIntent(ActivityIntent.Refresh())
-            newsViewModel.onIntent(NewsIntent.Refresh)
+//            newsViewModel.onIntent(NewsIntent.Refresh)
         }
     }
 
