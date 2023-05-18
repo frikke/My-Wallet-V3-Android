@@ -44,16 +44,19 @@ enum class ComposeTypographies {
     Title4,
     Subheading,
     BodyMono,
+    BodySlashedZero,
     Body1,
     Body2,
     ParagraphMono,
     Paragraph1,
     Paragraph2,
+    Paragraph2SlashedZero,
     Caption1,
     Caption2,
     Overline,
     Micro1,
     Title2Mono,
+    Title2SlashedZero,
     Micro2;
 
     @Composable
@@ -66,17 +69,20 @@ enum class ComposeTypographies {
             Title4 -> AppTheme.typography.title4
             Subheading -> AppTheme.typography.subheading
             BodyMono -> AppTheme.typography.bodyMono
+            BodySlashedZero -> AppTheme.typography.bodySlashedZero
             Body1 -> AppTheme.typography.body1
             Body2 -> AppTheme.typography.body2
             ParagraphMono -> AppTheme.typography.paragraphMono
             Paragraph1 -> AppTheme.typography.paragraph1
             Paragraph2 -> AppTheme.typography.paragraph2
+            Paragraph2SlashedZero -> AppTheme.typography.paragraph2SlashedZero
             Caption1 -> AppTheme.typography.caption1
             Caption2 -> AppTheme.typography.caption2
             Overline -> AppTheme.typography.overline
             Micro1 -> AppTheme.typography.micro1
             Micro2 -> AppTheme.typography.micro2
             Title2Mono -> AppTheme.typography.title2Mono
+            Title2SlashedZero -> AppTheme.typography.title2SlashedZero
         }
 }
 

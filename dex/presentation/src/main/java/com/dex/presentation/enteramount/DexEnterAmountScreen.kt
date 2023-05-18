@@ -237,7 +237,7 @@ fun DexEnterAmountScreen(
         }
 
         (viewState as? InputAmountViewState.TransactionInputState)?.let { viewState ->
-            paddedItem(paddingValues = PaddingValues(spacing)) {
+            paddedItem(paddingValues = PaddingValues(horizontal = spacing)) {
                 InputScreen(
                     selectSourceAccount = {
                         navController.navigate(DexDestination.SelectSourceAccount.route)
@@ -606,7 +606,7 @@ private fun Fee(uiFee: UiNetworkFee) {
         contentEnd = {
             AnimatedAmountCounter(
                 amountText = uiFee.uiText,
-                style = ComposeTypographies.Paragraph2,
+                style = ComposeTypographies.Paragraph2SlashedZero,
                 color = uiFee.textColor,
                 gravity = ComposeGravities.Start
             )

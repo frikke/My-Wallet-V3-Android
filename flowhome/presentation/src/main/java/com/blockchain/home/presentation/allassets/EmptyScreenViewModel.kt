@@ -37,34 +37,32 @@ class EmptyScreenViewModel(
 ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: EmptyScreenModelState): EmptyScreenViewState {
-        return with(state) {
-            val hasOrMayHasAssets = hasAssets.dataOrElse(true)
-            val hasOrMayHasActivity = hasActivity.dataOrElse(true)
-            EmptyScreenViewState(
-                show = !hasOrMayHasAssets && !hasOrMayHasActivity,
-                mode = walletMode
-            )
-        }
+    override fun EmptyScreenModelState.reduce(): EmptyScreenViewState {
+        val hasOrMayHasAssets = hasAssets.dataOrElse(true)
+        val hasOrMayHasActivity = hasActivity.dataOrElse(true)
+        return EmptyScreenViewState(
+            show = !hasOrMayHasAssets && !hasOrMayHasActivity,
+            mode = walletMode
+        )
     }
 
     override suspend fun handleIntent(modelState: EmptyScreenModelState, intent: EmptyScreenIntent) {
         when (intent) {
             EmptyScreenIntent.CheckEmptyState -> {
                 viewModelScope.launch {
-                    walletModeService.walletMode.flatMapLatest {
-                        updateState { modelState ->
-                            modelState.copy(
-                                walletMode = it
+                    walletModeService.walletMode.flatMapLatest { walletMode ->
+                        updateState {
+                            copy(
+                                walletMode = walletMode
                             )
                         }
-                        when (it) {
+                        when (walletMode) {
                             WalletMode.NON_CUSTODIAL -> pkwActivityViewModel.viewState
                             WalletMode.CUSTODIAL -> custodialActivityViewModel.viewState
                         }
                     }.collect { viewState ->
-                        updateState { state ->
-                            state.copy(
+                        updateState {
+                            copy(
                                 hasActivity = viewState.activity.map { activities ->
                                     activities.any { act -> act.value.isNotEmpty() }
                                 }
@@ -75,7 +73,7 @@ class EmptyScreenViewModel(
                 viewModelScope.launch {
                     homeAssetsViewModel.viewState.collect { state ->
                         updateState {
-                            it.copy(
+                            copy(
                                 hasAssets = state.assets.map { assets ->
                                     assets.isNotEmpty()
                                 }

@@ -48,35 +48,33 @@ class StakingSummaryViewModel(
         }
     }
 
-    override fun reduce(state: StakingSummaryModelState): StakingSummaryViewState = state.run {
-        StakingSummaryViewState(
-            account = account,
-            tradingAccount = tradingAccount,
-            isLoading = isLoading,
-            errorState = errorState,
-            balanceCrypto = balance,
-            balanceFiat = balance?.toUserFiat(exchangeRatesDataManager),
-            stakedCrypto = staked,
-            stakedFiat = staked?.toUserFiat(exchangeRatesDataManager),
-            bondingCrypto = bonding,
-            bondingFiat = bonding?.toUserFiat(exchangeRatesDataManager),
-            earnedCrypto = totalEarned,
-            earnedFiat = totalEarned?.toUserFiat(exchangeRatesDataManager),
-            stakingRate = stakingRate,
-            commissionRate = stakingCommission,
-            earnFrequency = state.frequency,
-            canDeposit = canDeposit,
-            canWithdraw = canWithdraw,
-            pendingWithdrawals = reducePendingWithdrawals(pendingWithdrawals),
-            unbondingDays = unbondingDays
-        )
-    }
+    override fun StakingSummaryModelState.reduce() = StakingSummaryViewState(
+        account = account,
+        tradingAccount = tradingAccount,
+        isLoading = isLoading,
+        errorState = errorState,
+        balanceCrypto = balance,
+        balanceFiat = balance?.toUserFiat(exchangeRatesDataManager),
+        stakedCrypto = staked,
+        stakedFiat = staked?.toUserFiat(exchangeRatesDataManager),
+        bondingCrypto = bonding,
+        bondingFiat = bonding?.toUserFiat(exchangeRatesDataManager),
+        earnedCrypto = totalEarned,
+        earnedFiat = totalEarned?.toUserFiat(exchangeRatesDataManager),
+        stakingRate = stakingRate,
+        commissionRate = stakingCommission,
+        earnFrequency = frequency,
+        canDeposit = canDeposit,
+        canWithdraw = canWithdraw,
+        pendingWithdrawals = reducePendingWithdrawals(pendingWithdrawals),
+        unbondingDays = unbondingDays
+    )
 
     override suspend fun handleIntent(modelState: StakingSummaryModelState, intent: StakingSummaryIntent) {
         when (intent) {
             is StakingSummaryIntent.LoadData -> loadStakingDetails(intent.currency)
             is StakingSummaryIntent.StakingSummaryLoadError -> updateState {
-                it.copy(
+                copy(
                     errorState = StakingError.UnknownAsset(intent.assetTicker)
                 )
             }
@@ -85,7 +83,7 @@ class StakingSummaryViewModel(
 
     private suspend fun loadStakingDetails(currency: Currency) {
         updateState {
-            it.copy(
+            copy(
                 isLoading = true
             )
         }
@@ -120,7 +118,7 @@ class StakingSummaryViewModel(
             when (summary) {
                 is DataResource.Data -> updateState {
                     with(summary.data) {
-                        it.copy(
+                        copy(
                             account = account,
                             tradingAccount = tradingAccount,
                             errorState = StakingError.None,
@@ -143,10 +141,12 @@ class StakingSummaryViewModel(
                         )
                     }
                 }
+
                 is DataResource.Error -> updateState {
-                    it.copy(isLoading = false, errorState = StakingError.Other)
+                    copy(isLoading = false, errorState = StakingError.Other)
                 }
-                DataResource.Loading -> updateState { it.copy(isLoading = true) }
+
+                DataResource.Loading -> updateState { copy(isLoading = true) }
             }
         }
     }

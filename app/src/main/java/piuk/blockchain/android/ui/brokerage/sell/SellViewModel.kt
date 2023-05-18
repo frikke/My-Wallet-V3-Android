@@ -27,18 +27,17 @@ class SellViewModel(
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
-    override fun reduce(state: SellModelState): SellViewState =
-        SellViewState(
-            sellEligibility = state.sellEligibility,
-            showLoader = state.shouldShowLoading,
-            supportedAccountList = state.supportedAccountList.map { list ->
-                if (state.searchTerm.isNotEmpty()) {
-                    list.filterList(searchTerm = state.searchTerm)
-                } else {
-                    list
-                }
+    override fun SellModelState.reduce() = SellViewState(
+        sellEligibility = sellEligibility,
+        showLoader = shouldShowLoading,
+        supportedAccountList = supportedAccountList.map { list ->
+            if (searchTerm.isNotEmpty()) {
+                list.filterList(searchTerm = searchTerm)
+            } else {
+                list
             }
-        )
+        }
+    )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun handleIntent(modelState: SellModelState, intent: SellIntent) {
@@ -49,7 +48,7 @@ class SellViewModel(
                 ).collectLatest { data ->
                     if (data is DataResource.Data || modelState.sellEligibility !is DataResource.Data) {
                         updateState {
-                            it.copy(
+                            copy(
                                 sellEligibility = data
                             )
                         }
@@ -74,19 +73,19 @@ class SellViewModel(
                         shouldUpdateList(list, modelState.supportedAccountList)
                     ) {
                         updateState {
-                            it.copy(supportedAccountList = list)
+                            copy(supportedAccountList = list)
                         }
                     } else if (
                         modelState.supportedAccountList !is DataResource.Data
                     ) {
                         updateState {
-                            it.copy(supportedAccountList = list)
+                            copy(supportedAccountList = list)
                         }
                     }
                 }
             }
             is SellIntent.FilterAccounts -> updateState {
-                it.copy(searchTerm = intent.searchTerm)
+                copy(searchTerm = intent.searchTerm)
             }
         }
     }

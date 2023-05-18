@@ -32,12 +32,10 @@ class ReferralViewModel(
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: ReferralModelState): ReferralViewState = state.run {
-        ReferralViewState(
-            referralInfo = referralInfo,
-            showCodeCopyConfirmation = codeCopied
-        )
-    }
+    override fun ReferralModelState.reduce() = ReferralViewState(
+        referralInfo = referralInfo,
+        showCodeCopyConfirmation = codeCopied
+    )
 
     override suspend fun handleIntent(modelState: ReferralModelState, intent: ReferralIntent) {
         when (intent) {
@@ -51,7 +49,7 @@ class ReferralViewModel(
 
             ReferralIntent.Refresh -> {
                 updateState {
-                    it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
+                    copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
 
                 onIntent(ReferralIntent.LoadData(forceRefresh = true))
@@ -70,7 +68,7 @@ class ReferralViewModel(
             )
                 .onEach { dataResource ->
                     updateState {
-                        it.copy(referralInfo = it.referralInfo.updateDataWith(dataResource))
+                        copy(referralInfo = referralInfo.updateDataWith(dataResource))
                     }
                 }
                 .collect()
@@ -78,12 +76,12 @@ class ReferralViewModel(
     }
 
     private fun handleCodeCopied() {
-        updateState { it.copy(codeCopied = true) }
+        updateState { copy(codeCopied = true) }
 
         resetCopyConfirmationDelayJob?.cancel()
         resetCopyConfirmationDelayJob = viewModelScope.launch {
             delay(COPY_CONFIRMATION_TIMEOUT)
-            updateState { it.copy(codeCopied = false) }
+            updateState { copy(codeCopied = false) }
         }
     }
 

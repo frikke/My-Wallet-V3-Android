@@ -44,32 +44,30 @@ class InterestSummaryViewModel(
         }
     }
 
-    override fun reduce(state: InterestSummaryModelState): InterestSummaryViewState = state.run {
-        InterestSummaryViewState(
-            account = account,
-            isLoading = isLoading,
-            errorState = errorState,
-            balanceCrypto = balance,
-            balanceFiat = balance?.toUserFiat(exchangeRatesDataManager),
-            totalEarnedCrypto = totalEarned,
-            totalEarnedFiat = totalEarned?.toUserFiat(exchangeRatesDataManager),
-            pendingInterestCrypto = pendingInterest,
-            pendingInterestFiat = pendingInterest?.toUserFiat(exchangeRatesDataManager),
-            interestRate = interestRate,
-            interestCommission = interestCommission, // TODO delete this if not available
-            earnFrequency = earnFrequency,
-            nextPaymentDate = nextPaymentDate,
-            initialHoldPeriod = initialHoldPeriod,
-            canWithdraw = canWithdraw,
-            canDeposit = canDeposit
-        )
-    }
+    override fun InterestSummaryModelState.reduce() = InterestSummaryViewState(
+        account = account,
+        isLoading = isLoading,
+        errorState = errorState,
+        balanceCrypto = balance,
+        balanceFiat = balance?.toUserFiat(exchangeRatesDataManager),
+        totalEarnedCrypto = totalEarned,
+        totalEarnedFiat = totalEarned?.toUserFiat(exchangeRatesDataManager),
+        pendingInterestCrypto = pendingInterest,
+        pendingInterestFiat = pendingInterest?.toUserFiat(exchangeRatesDataManager),
+        interestRate = interestRate,
+        interestCommission = interestCommission, // TODO delete this if not available
+        earnFrequency = earnFrequency,
+        nextPaymentDate = nextPaymentDate,
+        initialHoldPeriod = initialHoldPeriod,
+        canWithdraw = canWithdraw,
+        canDeposit = canDeposit
+    )
 
     override suspend fun handleIntent(modelState: InterestSummaryModelState, intent: InterestSummaryIntent) {
         when (intent) {
             is InterestSummaryIntent.LoadData -> loadInterestDetails(intent.currency)
             is InterestSummaryIntent.InterestSummaryLoadError -> updateState {
-                it.copy(
+                copy(
                     errorState = InterestError.UnknownAsset(intent.assetTicker)
                 )
             }
@@ -78,7 +76,7 @@ class InterestSummaryViewModel(
 
     private suspend fun loadInterestDetails(currency: Currency) {
         updateState {
-            it.copy(
+            copy(
                 isLoading = true
             )
         }
@@ -98,7 +96,7 @@ class InterestSummaryViewModel(
             when (summary) {
                 is DataResource.Data -> updateState {
                     with(summary.data) {
-                        it.copy(
+                        copy(
                             account = account,
                             errorState = InterestError.None,
                             isLoading = false,
@@ -114,10 +112,12 @@ class InterestSummaryViewModel(
                         )
                     }
                 }
+
                 is DataResource.Error -> updateState {
-                    it.copy(isLoading = false, errorState = InterestError.Other)
+                    copy(isLoading = false, errorState = InterestError.Other)
                 }
-                DataResource.Loading -> updateState { it.copy(isLoading = true) }
+
+                DataResource.Loading -> updateState { copy(isLoading = true) }
             }
         }
     }

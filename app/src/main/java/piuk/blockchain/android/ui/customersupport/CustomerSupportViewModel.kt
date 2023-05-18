@@ -18,9 +18,7 @@ class CustomerSupportViewModel(
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
-    override fun reduce(state: CustomerSupportModelState): CustomerSupportViewState {
-        return CustomerSupportViewState
-    }
+    override fun CustomerSupportModelState.reduce() = CustomerSupportViewState
 
     override suspend fun handleIntent(modelState: CustomerSupportModelState, intent: CustomerSupportIntents) {
     }

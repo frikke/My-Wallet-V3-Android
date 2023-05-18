@@ -33,21 +33,17 @@ class DexSelectDestinationAccountViewModel(
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
-    override fun reduce(state: DestinationAccountModelState): DestinationAccountSelectionViewState {
-        return with(state) {
-            DestinationAccountSelectionViewState(
-                accounts = this.accounts.filter { account ->
-                    searchFilter.isEmpty() ||
-                        account.currency.networkTicker.contains(searchFilter, true) ||
-                        account.currency.displayTicker.contains(searchFilter, true) ||
-                        account.currency.name.contains(searchFilter, true)
-                }.sortedWith(
-                    compareByDescending<DexAccount> { it.fiatBalance }
-                        .thenBy { it.currency.name }
-                )
-            )
-        }
-    }
+    override fun DestinationAccountModelState.reduce() = DestinationAccountSelectionViewState(
+        accounts = this.accounts.filter { account ->
+            searchFilter.isEmpty() ||
+                account.currency.networkTicker.contains(searchFilter, true) ||
+                account.currency.displayTicker.contains(searchFilter, true) ||
+                account.currency.name.contains(searchFilter, true)
+        }.sortedWith(
+            compareByDescending<DexAccount> { it.fiatBalance }
+                .thenBy { it.currency.name }
+        )
+    )
 
     override suspend fun handleIntent(modelState: DestinationAccountModelState, intent: DestinationAccountIntent) {
         when (intent) {
@@ -60,7 +56,7 @@ class DexSelectDestinationAccountViewModel(
                             }
                         }.collectLatest { dexAccounts ->
                             updateState {
-                                it.copy(
+                                copy(
                                     accounts = dexAccounts
                                 )
                             }
@@ -75,7 +71,7 @@ class DexSelectDestinationAccountViewModel(
 
             is DestinationAccountIntent.Search -> {
                 updateState {
-                    it.copy(
+                    copy(
                         searchFilter = intent.query
                     )
                 }

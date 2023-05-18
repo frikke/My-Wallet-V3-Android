@@ -46,34 +46,33 @@ class CustodialActivityViewModel(
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: ActivityModelState<CustodialTransaction>): ActivityViewState = state.run {
-        ActivityViewState(
-            activity = state.activityItems
-                .filter { activityItem ->
-                    if (state.filterTerm.isEmpty()) {
-                        true
-                    } else {
-                        activityItem.matches(state.filterTerm)
+    override fun ActivityModelState<CustodialTransaction>.reduce() = ActivityViewState(
+        activity = activityItems
+            .filter { activityItem ->
+                if (filterTerm.isEmpty()) {
+                    true
+                } else {
+                    activityItem.matches(filterTerm)
+                }
+            }
+            .map { activityItems ->
+                activityItems.reduceActivityPage()
+            }
+            .map { groupedComponents ->
+                when (val sectionSize = sectionSize) {
+                    SectionSize.All -> {
+                        groupedComponents
+                    }
+
+                    is SectionSize.Limited -> {
+                        mapOf(
+                            TransactionGroup.Combined to groupedComponents.values.flatten().take(sectionSize.size)
+                        )
                     }
                 }
-                .map { activityItems ->
-                    activityItems.reduceActivityPage()
-                }
-                .map { groupedComponents ->
-                    when (val sectionSize = state.sectionSize) {
-                        SectionSize.All -> {
-                            groupedComponents
-                        }
-                        is SectionSize.Limited -> {
-                            mapOf(
-                                TransactionGroup.Combined to groupedComponents.values.flatten().take(sectionSize.size)
-                            )
-                        }
-                    }
-                },
-            walletMode = state.walletMode
-        )
-    }
+            },
+        walletMode = walletMode
+    )
 
     private fun List<ActivitySummaryItem>.reduceActivityPage(): Map<TransactionGroup, List<ActivityComponent>> {
         // group by date (month/year)
@@ -109,14 +108,14 @@ class CustodialActivityViewModel(
     ) {
         when (intent) {
             is ActivityIntent.LoadActivity -> {
-                updateState { it.copy(sectionSize = intent.sectionSize) }
+                updateState { copy(sectionSize = intent.sectionSize) }
                 activityJob?.cancel()
                 activityJob = viewModelScope.launch {
                     walletModeService.walletMode.flatMapLatest {
                         loadData(intent.freshnessStrategy, it)
                     }.collect { dataRes ->
                         updateState {
-                            it.copy(activityItems = it.activityItems.updateDataWith(dataRes))
+                            copy(activityItems = activityItems.updateDataWith(dataRes))
                         }
                     }
                 }
@@ -124,19 +123,19 @@ class CustodialActivityViewModel(
 
             is ActivityIntent.FilterSearch -> {
                 updateState {
-                    it.copy(filterTerm = intent.term)
+                    copy(filterTerm = intent.term)
                 }
             }
 
             is ActivityIntent.Refresh -> {
                 updateState {
-                    it.copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
+                    copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
                 walletModeService.walletMode.take(1).flatMapLatest {
                     loadData(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh), it)
                 }.collect { dataRes ->
                     updateState {
-                        it.copy(activityItems = it.activityItems.updateDataWith(dataRes))
+                        copy(activityItems = activityItems.updateDataWith(dataRes))
                     }
                 }
             }
@@ -150,6 +149,7 @@ class CustodialActivityViewModel(
                     freshnessStrategy
                 )
             }
+
             WalletMode.NON_CUSTODIAL -> flowOf(DataResource.Data(emptyList()))
         }
 }

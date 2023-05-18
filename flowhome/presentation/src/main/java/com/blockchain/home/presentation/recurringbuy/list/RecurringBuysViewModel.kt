@@ -38,47 +38,45 @@ class RecurringBuysViewModel(
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: RecurringBuysModelState): RecurringBuysViewState = state.run {
-        RecurringBuysViewState(
-            recurringBuys = state.recurringBuys
-                .map {
-                    it?.let { recurringBuys ->
-                        RecurringBuyEligibleState.Eligible(
-                            recurringBuys = recurringBuys
-                                .sortedBy { it.nextPaymentDate }
-                                .take(sectionSize.size)
-                                .map { recurringBuy ->
-                                    RecurringBuyViewState(
-                                        id = recurringBuy.id,
-                                        assetTicker = recurringBuy.asset.networkTicker,
-                                        iconUrl = recurringBuy.asset.logo,
-                                        description = TextValue.IntResValue(
-                                            com.blockchain.stringResources.R.string
-                                                .dashboard_recurring_buy_item_title_1,
-                                            listOf(
-                                                recurringBuy.amount.toStringWithSymbol(),
-                                                recurringBuy.recurringBuyFrequency.toHumanReadableRecurringBuy()
-                                            )
-                                        ),
-                                        status = if (recurringBuy.state == RecurringBuyState.ACTIVE) {
-                                            TextValue.IntResValue(
-                                                com.blockchain.stringResources.R
-                                                    .string.dashboard_recurring_buy_item_label,
-                                                listOf(recurringBuy.nextPaymentDate.toFormattedDateWithoutYear())
-                                            )
-                                        } else {
-                                            TextValue.IntResValue(
-                                                com.blockchain.stringResources.R
-                                                    .string.dashboard_recurring_buy_item_label_error
-                                            )
-                                        }
-                                    )
-                                }
-                        )
-                    } ?: RecurringBuyEligibleState.NotEligible
-                }
-        )
-    }
+    override fun RecurringBuysModelState.reduce() = RecurringBuysViewState(
+        recurringBuys = recurringBuys
+            .map {
+                it?.let { recurringBuys ->
+                    RecurringBuyEligibleState.Eligible(
+                        recurringBuys = recurringBuys
+                            .sortedBy { it.nextPaymentDate }
+                            .take(sectionSize.size)
+                            .map { recurringBuy ->
+                                RecurringBuyViewState(
+                                    id = recurringBuy.id,
+                                    assetTicker = recurringBuy.asset.networkTicker,
+                                    iconUrl = recurringBuy.asset.logo,
+                                    description = TextValue.IntResValue(
+                                        com.blockchain.stringResources.R.string
+                                            .dashboard_recurring_buy_item_title_1,
+                                        listOf(
+                                            recurringBuy.amount.toStringWithSymbol(),
+                                            recurringBuy.recurringBuyFrequency.toHumanReadableRecurringBuy()
+                                        )
+                                    ),
+                                    status = if (recurringBuy.state == RecurringBuyState.ACTIVE) {
+                                        TextValue.IntResValue(
+                                            com.blockchain.stringResources.R
+                                                .string.dashboard_recurring_buy_item_label,
+                                            listOf(recurringBuy.nextPaymentDate.toFormattedDateWithoutYear())
+                                        )
+                                    } else {
+                                        TextValue.IntResValue(
+                                            com.blockchain.stringResources.R
+                                                .string.dashboard_recurring_buy_item_label_error
+                                        )
+                                    }
+                                )
+                            }
+                    )
+                } ?: RecurringBuyEligibleState.NotEligible
+            }
+    )
 
     override suspend fun handleIntent(
         modelState: RecurringBuysModelState,
@@ -87,7 +85,7 @@ class RecurringBuysViewModel(
         when (intent) {
             is RecurringBuysIntent.LoadRecurringBuys -> {
                 updateState {
-                    it.copy(
+                    copy(
                         sectionSize = intent.sectionSize
                     )
                 }
@@ -106,12 +104,12 @@ class RecurringBuysViewModel(
                 recurringBuyService.recurringBuys(includeInactive = includeInactive)
                     .collectLatest { recurringBuys ->
                         updateState {
-                            it.copy(recurringBuys = it.recurringBuys.updateDataWith(recurringBuys))
+                            copy(recurringBuys = recurringBuys.updateDataWith(recurringBuys))
                         }
                     }
             } else {
                 updateState {
-                    it.copy(recurringBuys = DataResource.Data(null))
+                    copy(recurringBuys = DataResource.Data(null))
                 }
             }
         }

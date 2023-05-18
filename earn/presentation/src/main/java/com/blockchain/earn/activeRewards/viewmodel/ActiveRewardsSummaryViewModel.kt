@@ -52,36 +52,34 @@ class ActiveRewardsSummaryViewModel(
         }
     }
 
-    override fun reduce(state: ActiveRewardsSummaryModelState): ActiveRewardsSummaryViewState = state.run {
-        ActiveRewardsSummaryViewState(
-            account = account,
-            tradingAccount = tradingAccount,
-            isLoading = isLoading,
-            errorState = errorState,
-            balanceCrypto = balance,
-            balanceFiat = balance?.toUserFiat(exchangeRatesDataManager),
-            totalEarnedCrypto = totalEarned,
-            totalEarnedFiat = totalEarned?.toUserFiat(exchangeRatesDataManager),
-            totalSubscribedCrypto = totalSubscribed,
-            totalSubscribedFiat = totalSubscribed?.toUserFiat(exchangeRatesDataManager),
-            totalOnHoldCrypto = totalOnHold,
-            totalOnHoldFiat = totalOnHold?.toUserFiat(exchangeRatesDataManager),
-            activeRewardsRate = activeRewardsRate,
-            triggerPrice = triggerPrice,
-            rewardsFrequency = state.rewardsFrequency,
-            isWithdrawable = isWithdrawable,
-            canDeposit = canDeposit,
-            canWithdraw = canWithdraw,
-            assetFiatPrice = assetFiatPrice,
-            hasOngoingWithdrawals = hasOngoingWithdrawals
-        )
-    }
+    override fun ActiveRewardsSummaryModelState.reduce() = ActiveRewardsSummaryViewState(
+        account = account,
+        tradingAccount = tradingAccount,
+        isLoading = isLoading,
+        errorState = errorState,
+        balanceCrypto = balance,
+        balanceFiat = balance?.toUserFiat(exchangeRatesDataManager),
+        totalEarnedCrypto = totalEarned,
+        totalEarnedFiat = totalEarned?.toUserFiat(exchangeRatesDataManager),
+        totalSubscribedCrypto = totalSubscribed,
+        totalSubscribedFiat = totalSubscribed?.toUserFiat(exchangeRatesDataManager),
+        totalOnHoldCrypto = totalOnHold,
+        totalOnHoldFiat = totalOnHold?.toUserFiat(exchangeRatesDataManager),
+        activeRewardsRate = activeRewardsRate,
+        triggerPrice = triggerPrice,
+        rewardsFrequency = rewardsFrequency,
+        isWithdrawable = isWithdrawable,
+        canDeposit = canDeposit,
+        canWithdraw = canWithdraw,
+        assetFiatPrice = assetFiatPrice,
+        hasOngoingWithdrawals = hasOngoingWithdrawals
+    )
 
     override suspend fun handleIntent(modelState: ActiveRewardsSummaryModelState, intent: ActiveRewardsSummaryIntent) {
         when (intent) {
             is ActiveRewardsSummaryIntent.LoadData -> loadActiveRewardsDetails(intent.currency)
             is ActiveRewardsSummaryIntent.ActiveRewardsSummaryLoadError -> updateState {
-                it.copy(
+                copy(
                     errorState = ActiveRewardsError.UnknownAsset(intent.assetTicker)
                 )
             }
@@ -90,7 +88,7 @@ class ActiveRewardsSummaryViewModel(
 
     private suspend fun loadActiveRewardsDetails(currency: Currency) {
         updateState {
-            it.copy(
+            copy(
                 isLoading = true
             )
         }
@@ -137,7 +135,7 @@ class ActiveRewardsSummaryViewModel(
             when (summary) {
                 is DataResource.Data -> updateState {
                     with(summary.data) {
-                        it.copy(
+                        copy(
                             account = account,
                             tradingAccount = tradingAccount,
                             errorState = ActiveRewardsError.None,
@@ -160,10 +158,12 @@ class ActiveRewardsSummaryViewModel(
                         )
                     }
                 }
+
                 is DataResource.Error -> updateState {
-                    it.copy(isLoading = false, errorState = ActiveRewardsError.Other)
+                    copy(isLoading = false, errorState = ActiveRewardsError.Other)
                 }
-                DataResource.Loading -> updateState { it.copy(isLoading = true) }
+
+                DataResource.Loading -> updateState { copy(isLoading = true) }
             }
         }
     }

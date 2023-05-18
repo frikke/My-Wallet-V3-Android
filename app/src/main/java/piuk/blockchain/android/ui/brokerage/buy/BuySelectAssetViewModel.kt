@@ -30,7 +30,7 @@ class BuySelectAssetViewModel(
         viewModelScope.launch {
             val showTopMovers = topMoversInBuyFF.coEnabled()
             updateState {
-                it.copy(showTopMovers = showTopMovers)
+                copy(showTopMovers = showTopMovers)
             }
         }
     }
@@ -39,12 +39,10 @@ class BuySelectAssetViewModel(
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: BuySelectAssetModelState): BuySelectAssetViewState = state.run {
-        BuySelectAssetViewState(
-            featureAccess = featureAccess,
-            showTopMovers = showTopMovers
-        )
-    }
+    override fun BuySelectAssetModelState.reduce() = BuySelectAssetViewState(
+        featureAccess = featureAccess,
+        showTopMovers = showTopMovers
+    )
 
     override suspend fun handleIntent(
         modelState: BuySelectAssetModelState,
@@ -74,7 +72,7 @@ class BuySelectAssetViewModel(
             userFeaturePermissionService.getAccessForFeature(Feature.Buy)
                 .collectLatest { dataResource ->
                     updateState {
-                        it.copy(featureAccess = it.featureAccess.updateDataWith(dataResource))
+                        copy(featureAccess = featureAccess.updateDataWith(dataResource))
                     }
                 }
         }

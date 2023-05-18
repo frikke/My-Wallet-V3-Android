@@ -46,50 +46,46 @@ class RecurringBuysDetailViewModel(
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(
-        state: RecurringBuysDetailModelState
-    ): RecurringBuyDetailViewState = state.run {
-        RecurringBuyDetailViewState(
-            detail = recurringBuy.map { recurringBuy ->
-                RecurringBuyDetail(
-                    iconUrl = recurringBuy.asset.logo,
-                    amount = recurringBuy.amount.toStringWithSymbol(),
-                    assetName = recurringBuy.asset.name,
-                    assetTicker = recurringBuy.asset.networkTicker,
-                    paymentMethod = when (recurringBuy.paymentMethodType) {
-                        PaymentMethodType.FUNDS -> {
-                            recurringBuy.amount.currency.name
+    override fun RecurringBuysDetailModelState.reduce() = RecurringBuyDetailViewState(
+        detail = recurringBuy.map { recurringBuy ->
+            RecurringBuyDetail(
+                iconUrl = recurringBuy.asset.logo,
+                amount = recurringBuy.amount.toStringWithSymbol(),
+                assetName = recurringBuy.asset.name,
+                assetTicker = recurringBuy.asset.networkTicker,
+                paymentMethod = when (recurringBuy.paymentMethodType) {
+                    PaymentMethodType.FUNDS -> {
+                        recurringBuy.amount.currency.name
+                    }
+                    PaymentMethodType.PAYMENT_CARD -> {
+                        (recurringBuy.paymentDetails as PaymentMethod.Card).let {
+                            "${it.uiLabel()} ••••${it.endDigits}"
                         }
-                        PaymentMethodType.PAYMENT_CARD -> {
-                            (recurringBuy.paymentDetails as PaymentMethod.Card).let {
-                                "${it.uiLabel()} ••••${it.endDigits}"
-                            }
+                    }
+                    else -> {
+                        (recurringBuy.paymentDetails as PaymentMethod.Bank).let {
+                            "${it.bankName} ••••${it.accountEnding}"
                         }
-                        else -> {
-                            (recurringBuy.paymentDetails as PaymentMethod.Bank).let {
-                                "${it.bankName} ••••${it.accountEnding}"
-                            }
-                        }
-                    },
-                    frequency = TextValue.Combined(
-                        listOf(
-                            TextValue.IntResValue(
-                                recurringBuy.recurringBuyFrequency.toHumanReadableRecurringBuy()
-                            ),
-                            recurringBuy.recurringBuyFrequency.toHumanReadableRecurringDate(
-                                ZonedDateTime.ofInstant(
-                                    recurringBuy.nextPaymentDate.toInstant(),
-                                    ZoneId.systemDefault()
-                                )
+                    }
+                },
+                frequency = TextValue.Combined(
+                    listOf(
+                        TextValue.IntResValue(
+                            recurringBuy.recurringBuyFrequency.toHumanReadableRecurringBuy()
+                        ),
+                        recurringBuy.recurringBuyFrequency.toHumanReadableRecurringDate(
+                            ZonedDateTime.ofInstant(
+                                recurringBuy.nextPaymentDate.toInstant(),
+                                ZoneId.systemDefault()
                             )
                         )
-                    ),
-                    nextBuy = recurringBuy.nextPaymentDate.toFormattedDateWithoutYear()
-                )
-            },
-            cancelationInProgress = cancelationInProgress
-        )
-    }
+                    )
+                ),
+                nextBuy = recurringBuy.nextPaymentDate.toFormattedDateWithoutYear()
+            )
+        },
+        cancelationInProgress = cancelationInProgress
+    )
 
     override suspend fun handleIntent(
         modelState: RecurringBuysDetailModelState,
@@ -104,7 +100,7 @@ class RecurringBuysDetailViewModel(
                 check(modelState.recurringBuy is DataResource.Data)
 
                 updateState {
-                    it.copy(cancelationInProgress = true)
+                    copy(cancelationInProgress = true)
                 }
 
                 recurringBuyService.cancelRecurringBuy(
@@ -137,8 +133,8 @@ class RecurringBuysDetailViewModel(
                 }
                 .collectLatest { recurringBuy ->
                     updateState {
-                        it.copy(
-                            recurringBuy = it.recurringBuy.updateDataWith(recurringBuy)
+                        copy(
+                            recurringBuy = recurringBuy.updateDataWith(recurringBuy)
                         )
                     }
                 }

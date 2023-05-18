@@ -1,22 +1,27 @@
 package com.dex.presentation
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,6 +39,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.anim.AnimatedAmountCounter
@@ -55,6 +62,7 @@ import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.dex.presentation.R
+import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 
@@ -84,8 +92,6 @@ fun SendAndReceiveAmountFields(
         input = TextFieldValue("")
     }
 
-    var size by remember { mutableStateOf(IntSize.Zero) }
-
     Box(modifier = modifier) {
         Column {
             Row(
@@ -94,9 +100,7 @@ fun SendAndReceiveAmountFields(
                         color = Color.White,
                         shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing)
                     )
-                    .onGloballyPositioned { coordinates ->
-                        size = coordinates.size
-                    }
+                    .padding(AppTheme.dimensions.smallSpacing)
             ) {
                 Column {
                     AmountAndCurrencySelection(
@@ -121,7 +125,13 @@ fun SendAndReceiveAmountFields(
                         enabled = sendAmountFieldConfig.isEnabled,
                         canChangeCurrency = sendAmountFieldConfig.canChangeCurrency
                     )
-                    Row {
+
+                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         sendAmountFieldConfig.exchange?.let {
                             ExchangeAmount(it, true)
                         }
@@ -150,6 +160,7 @@ fun SendAndReceiveAmountFields(
                         color = Color.White,
                         shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing)
                     )
+                    .padding(AppTheme.dimensions.smallSpacing)
             ) {
                 Column {
                     ReceiveAmountAndCurrencySelection(
@@ -160,7 +171,13 @@ fun SendAndReceiveAmountFields(
                         animate = receiveAmountFieldConfig.shouldAnimateChanges,
                         canChangeCurrency = receiveAmountFieldConfig.canChangeCurrency
                     )
-                    Row {
+
+                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         receiveAmountFieldConfig.exchange?.let {
                             ExchangeAmount(
                                 money = it,
@@ -175,7 +192,22 @@ fun SendAndReceiveAmountFields(
                 }
             }
         }
-        MaskedCircleArrow(size)
+
+        Surface(
+            modifier = Modifier
+                .size(AppTheme.dimensions.hugeSpacing)
+                .align(Alignment.Center),
+            shape = CircleShape,
+            border = BorderStroke(AppTheme.dimensions.tinySpacing, AppTheme.colors.backgroundMuted)
+        ) {
+            Image(
+                imageResource = Icons.ArrowDown.withBackground(
+                    backgroundColor = Color.White,
+                    backgroundSize = AppTheme.dimensions.standardSpacing,
+                    iconSize = AppTheme.dimensions.standardSpacing
+                )
+            )
+        }
     }
 }
 
@@ -189,43 +221,30 @@ private fun ReceiveAmountAndCurrencySelection(
     animate: Boolean
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                end = AppTheme.dimensions.smallSpacing
-            ),
+        modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val modifier = Modifier
-            .weight(1f)
-            .padding(
-                start = AppTheme.dimensions.smallSpacing,
-                top = AppTheme.dimensions.smallSpacing
-            )
-            .defaultMinSize(
-                minWidth = TextFieldDefaults.MinWidth,
-                minHeight = TextFieldDefaults.MinHeight
-            )
         val text = input.ifEmpty { "0" }
         val color = when {
             input.isEmpty() -> ComposeColors.Body
             !enabled -> ComposeColors.Dark
             else -> ComposeColors.Title
         }
+        val modifier = Modifier.weight(1f)
         if (animate) {
             AnimatedAmountCounter(
                 modifier = modifier,
                 amountText = text,
                 color = color,
                 duration = 1000L,
-                style = ComposeTypographies.Title2Mono,
+                style = ComposeTypographies.Title2SlashedZero,
                 gravity = ComposeGravities.Start
             )
         } else {
             SimpleText(
                 modifier = modifier,
                 text = text,
-                style = ComposeTypographies.Title2Mono,
+                style = ComposeTypographies.Title2SlashedZero,
                 color = color,
                 gravity = ComposeGravities.Start
             )
@@ -238,6 +257,7 @@ private fun ReceiveAmountAndCurrencySelection(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun AmountAndCurrencySelection(
     isReadOnly: Boolean,
@@ -249,39 +269,50 @@ private fun AmountAndCurrencySelection(
     onValueChanged: (TextFieldValue) -> Unit
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                end = AppTheme.dimensions.smallSpacing
-            ),
+        modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        TextField(
+
+        val interactionSource = remember { MutableInteractionSource() }
+
+        BasicTextField(
             modifier = Modifier.weight(1f),
             value = input,
             singleLine = true,
             enabled = enabled,
-            textStyle = AppTheme.typography.title2Mono,
+            textStyle = AppTheme.typography.title2SlashedZero.copy(color = Grey900),
             readOnly = isReadOnly,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            placeholder = {
-                Text(
-                    "0",
-                    style = AppTheme.typography.title2Mono,
-                    color = Grey700
-                )
-            },
-            colors = TextFieldDefaults.textFieldColors(
-                textColor = Grey900,
-                disabledTextColor = Grey300,
-                backgroundColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent
-            ),
+            onValueChange = onValueChanged,
             maxLines = 1,
-            onValueChange = onValueChanged
-        )
+            interactionSource = interactionSource,
+        ) { innerTextField ->
+            TextFieldDefaults.TextFieldDecorationBox(
+                value = input.text,
+                innerTextField = innerTextField,
+                singleLine = true,
+                visualTransformation = VisualTransformation.None,
+                interactionSource = interactionSource,
+                contentPadding = PaddingValues(0.dp),
+                enabled = enabled,
+                placeholder = {
+                    Text(
+                        "0",
+                        style = AppTheme.typography.title2SlashedZero,
+                        color = Grey700
+                    )
+                },
+                colors = TextFieldDefaults.textFieldColors(
+                    textColor = Grey900,
+                    disabledTextColor = Grey300,
+                    backgroundColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent,
+                ),
+            )
+        }
+
         CurrencySelection(
             onClick = onClick,
             enabled = canChangeCurrency,
@@ -292,15 +323,10 @@ private fun AmountAndCurrencySelection(
 
 @Composable
 private fun RowScope.ExchangeAmount(money: Money, isEnabled: Boolean, shouldAnimateChanges: Boolean = false) {
-    val modifier = Modifier
-        .padding(
-            start = AppTheme.dimensions.smallSpacing,
-            bottom = AppTheme.dimensions.smallSpacing
-        )
-        .weight(1f)
+    val modifier = Modifier.weight(1f)
     val color = if (isEnabled) ComposeColors.Body else ComposeColors.Dark
 
-    val style = ComposeTypographies.BodyMono
+    val style = ComposeTypographies.BodySlashedZero
     val gravity = ComposeGravities.Start
     if (shouldAnimateChanges) {
         AnimatedAmountCounter(
@@ -420,11 +446,6 @@ private fun MaskedCircleArrow(parentSize: IntSize) {
 private fun RowScope.MaxAmount(maxAvailable: Money, maxClick: () -> Unit) {
     Row(
         modifier = Modifier
-            .padding(
-                start = AppTheme.dimensions.smallSpacing,
-                end = AppTheme.dimensions.smallSpacing,
-                bottom = AppTheme.dimensions.smallSpacing
-            )
             .clickableNoEffect { maxClick() }
             .wrapContentSize()
     ) {
@@ -436,7 +457,7 @@ private fun RowScope.MaxAmount(maxAvailable: Money, maxClick: () -> Unit) {
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
         Text(
             text = maxAvailable.toStringWithSymbol(),
-            style = AppTheme.typography.micro2,
+            style = AppTheme.typography.micro2SlashedZero,
             color = Blue600
         )
     }
@@ -445,13 +466,8 @@ private fun RowScope.MaxAmount(maxAvailable: Money, maxClick: () -> Unit) {
 @Composable
 private fun BalanceAmount(amount: Money) {
     Row(
-        modifier = Modifier
-            .padding(
-                start = AppTheme.dimensions.smallSpacing,
-                end = AppTheme.dimensions.smallSpacing,
-                bottom = AppTheme.dimensions.smallSpacing
-            )
-            .wrapContentSize()
+        modifier = Modifier.wrapContentSize(),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = stringResource(id = com.blockchain.stringResources.R.string.common_balance),
@@ -461,7 +477,7 @@ private fun BalanceAmount(amount: Money) {
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
         Text(
             text = amount.toStringWithSymbol(),
-            style = AppTheme.typography.micro2,
+            style = AppTheme.typography.micro2SlashedZero,
             color = AppTheme.colors.title
         )
     }
@@ -491,6 +507,59 @@ private fun RowScope.Balance() {
         )
     }
 }
+
+@Preview
+@Composable
+private fun PreviewReceiveAmountAndCurrencySelection() {
+    ReceiveAmountAndCurrencySelection(
+        input = "123",
+        enabled = false,
+        canChangeCurrency = true,
+        onClick = {},
+        currency = CryptoCurrency.BTC,
+        animate = true
+    )
+}
+
+@Preview
+@Composable
+private fun PreviewAmountAndCurrencySelection() {
+    AmountAndCurrencySelection(
+        isReadOnly = false,
+        input = TextFieldValue(text = "123"),
+        enabled = true,
+        canChangeCurrency = true,
+        onClick = {},
+        currency = CryptoCurrency.BTC,
+        onValueChanged = {}
+    )
+}
+
+@Preview
+@Composable
+private fun PreviewBalanceAmount() {
+    BalanceAmount(Money.fromMajor(CryptoCurrency.BTC, 1234.toBigDecimal()))
+}
+
+@Preview
+@Composable
+private fun PreviewSendAndReceiveAmountFields() {
+    SendAndReceiveAmountFields(
+        onValueChanged = {},
+        sendAmountFieldConfig = AmountFieldConfig(
+            isEnabled = true, shouldAnimateChanges = false, isReadOnly = false, onCurrencyClicked = {},
+            canChangeCurrency = true, amount = moneyPreview, exchange = moneyPreview, currency = CryptoCurrency.BTC,
+            balance = moneyPreview, max = moneyPreview
+        ),
+        receiveAmountFieldConfig = AmountFieldConfig(
+            isEnabled = true, shouldAnimateChanges = false, isReadOnly = false, onCurrencyClicked = {},
+            canChangeCurrency = true, amount = moneyPreview, exchange = moneyPreview, currency = CryptoCurrency.BTC,
+            balance = moneyPreview, max = moneyPreview
+        ),
+    )
+}
+
+private val moneyPreview = Money.fromMajor(CryptoCurrency.BTC, 1234.toBigDecimal())
 
 class AmountFieldConfig(
     val isEnabled: Boolean,

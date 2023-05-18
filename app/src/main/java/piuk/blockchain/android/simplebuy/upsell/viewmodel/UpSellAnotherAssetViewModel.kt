@@ -38,7 +38,7 @@ class UpSellAnotherAssetViewModel(
     override fun viewCreated(args: UpSellAnotherAssetArgs) {
         viewModelScope.launch {
             updateState {
-                it.copy(
+                copy(
                     assetJustBoughtTicker = args.assetJustBoughtTicker,
                     isLoading = true
                 )
@@ -46,14 +46,12 @@ class UpSellAnotherAssetViewModel(
         }
     }
 
-    override fun reduce(state: UpsellAnotherAssetModelState): UpsellAnotherAssetViewState = state.run {
-        UpsellAnotherAssetViewState(
-            assetsToUpSell = assetsToUpSell.mapList {
-                it.toPriceItemViewState()
-            }.toImmutableList(),
-            isLoading = isLoading
-        )
-    }
+    override fun UpsellAnotherAssetModelState.reduce() = UpsellAnotherAssetViewState(
+        assetsToUpSell = assetsToUpSell.mapList {
+            it.toPriceItemViewState()
+        }.toImmutableList(),
+        isLoading = isLoading
+    )
 
     override suspend fun handleIntent(modelState: UpsellAnotherAssetModelState, intent: UpSellAnotherAssetIntent) {
         when (intent) {
@@ -76,7 +74,7 @@ class UpSellAnotherAssetViewModel(
             pricesService.mostPopularAssets()
                 .collectLatest { mostPopularAssets ->
                     updateState {
-                        it.copy(
+                        copy(
                             assetsToUpSell = mostPopularAssets.filter { asset ->
                                 asset.assetInfo.networkTicker != modelState.assetJustBoughtTicker
                             },

@@ -38,26 +38,26 @@ class HomeDappsViewModel(
     private var sessionsJob = loadSessions()
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
-    override fun reduce(state: HomeDappsModelState): HomeDappsViewState {
-        return when (state.connectedSessions) {
-            is DataResource.Loading -> HomeDappsViewState.Loading
-            is DataResource.Data -> {
-                val sessions = state.connectedSessions.data
-                if (sessions.isEmpty()) {
-                    HomeDappsViewState.NoSessions
-                } else {
-                    val dappSessions = sessions.map {
-                        reduceWalletConnectSession(it)
-                    }
-                    HomeDappsViewState.HomeDappsSessions(dappSessions)
-                }
-            }
 
-            is DataResource.Error -> {
+    override fun HomeDappsModelState.reduce() = when (connectedSessions) {
+        is DataResource.Loading -> HomeDappsViewState.Loading
+        is DataResource.Data -> {
+            val sessions = connectedSessions.data
+            if (sessions.isEmpty()) {
                 HomeDappsViewState.NoSessions
+            } else {
+                val dappSessions = sessions.map {
+                    reduceWalletConnectSession(it)
+                }
+                HomeDappsViewState.HomeDappsSessions(dappSessions)
             }
         }
+
+        is DataResource.Error -> {
+            HomeDappsViewState.NoSessions
+        }
     }
+
     override suspend fun handleIntent(modelState: HomeDappsModelState, intent: HomeDappsIntent) {
         when (intent) {
             is HomeDappsIntent.LoadData -> {
@@ -89,7 +89,7 @@ class HomeDappsViewModel(
             }.collectLatest { sessions ->
                 Timber.d("Loaded WalletConnect sessions: $sessions")
                 updateState {
-                    it.copy(connectedSessions = DataResource.Data(sessions))
+                    copy(connectedSessions = DataResource.Data(sessions))
                 }
             }
         }

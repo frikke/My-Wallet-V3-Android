@@ -28,20 +28,16 @@ class TokenAllowanceViewModel(
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
-    override fun reduce(state: AllowanceModelState): AllowanceViewState {
-        return with(state) {
-            AllowanceViewState(
-                networkFee = networkFeeString,
-                nativeAsset = nativeAsset,
-                assetInfo = assetInfo
-            )
-        }
-    }
+    override fun AllowanceModelState.reduce() = AllowanceViewState(
+        networkFee = networkFeeString,
+        nativeAsset = nativeAsset,
+        assetInfo = assetInfo
+    )
 
     override suspend fun handleIntent(modelState: AllowanceModelState, intent: AllowanceIntent) {
         when (intent) {
             is AllowanceIntent.FetchAllowanceTxDetails -> updateState {
-                it.copy(
+                copy(
                     networkFeeString = intent.data.fiatFees,
                     nativeAsset = assetCatalogue.assetInfoFromNetworkTicker(intent.data.networkNativeAssetTicker),
                     assetInfo = assetCatalogue.assetInfoFromNetworkTicker(intent.data.currencyTicker)

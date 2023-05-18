@@ -67,7 +67,7 @@ class AddressVerificationModel(
 
         if (prefilledAddress != null) {
             updateState {
-                it.copy(
+                copy(
                     isShowingStateInput = countryIso == "US",
                     countryInput = Locale("", countryIso).displayCountry,
                     stateInput = state?.displayName.orEmpty(),
@@ -84,7 +84,7 @@ class AddressVerificationModel(
             }
         } else {
             updateState {
-                it.copy(
+                copy(
                     isShowingStateInput = countryIso == "US",
                     countryInput = Locale("", countryIso).displayCountry,
                     stateInput = state?.displayName.orEmpty()
@@ -93,30 +93,30 @@ class AddressVerificationModel(
         }
     }
 
-    override fun reduce(state: AddressVerificationModelState) = AddressVerificationState(
-        step = state.step,
-        searchInput = state.searchInput,
-        isSearchLoading = state.isSearchLoading,
-        error = state.error,
-        areResultsHidden = state.areResultsHidden,
-        showManualOverride = allowManualOverride && state.showManualOverride,
-        results = state.results,
-        loadingAddressDetails = state.loadingAddressDetails,
-        showInvalidStateErrorDialog = state.showInvalidStateErrorDialog,
-        mainLineInput = state.mainLineInput,
+    override fun AddressVerificationModelState.reduce() = AddressVerificationState(
+        step = step,
+        searchInput = searchInput,
+        isSearchLoading = isSearchLoading,
+        error = error,
+        areResultsHidden = areResultsHidden,
+        showManualOverride = allowManualOverride && showManualOverride,
+        results = results,
+        loadingAddressDetails = loadingAddressDetails,
+        showInvalidStateErrorDialog = showInvalidStateErrorDialog,
+        mainLineInput = mainLineInput,
         isMainLineInputEnabled = allowManualOverride,
-        secondLineInput = state.secondLineInput,
-        cityInput = state.cityInput,
-        isShowingStateInput = state.isShowingStateInput,
-        stateInput = state.stateInput,
-        showPostcodeError = state.showPostcodeError,
-        postCodeInput = state.postCodeInput,
-        countryInput = state.countryInput,
+        secondLineInput = secondLineInput,
+        cityInput = cityInput,
+        isShowingStateInput = isShowingStateInput,
+        stateInput = stateInput,
+        showPostcodeError = showPostcodeError,
+        postCodeInput = postCodeInput,
+        countryInput = countryInput,
         saveButtonState = if (
-            state.mainLineInput.isNotBlank() &&
-            state.cityInput.isNotBlank() &&
-            !(state.isShowingStateInput && state.stateInput.isBlank()) &&
-            state.postCodeInput.isNotBlank()
+            mainLineInput.isNotBlank() &&
+            cityInput.isNotBlank() &&
+            !(isShowingStateInput && stateInput.isBlank()) &&
+            postCodeInput.isNotBlank()
         ) {
             ButtonState.Enabled
         } else {
@@ -134,14 +134,14 @@ class AddressVerificationModel(
         intent: AddressVerificationIntent
     ) {
         when (intent) {
-            AddressVerificationIntent.ErrorHandled -> updateState { it.copy(error = null) }
+            AddressVerificationIntent.ErrorHandled -> updateState { copy(error = null) }
             AddressVerificationIntent.InvalidStateErrorHandled ->
-                updateState { it.copy(showInvalidStateErrorDialog = false) }
+                updateState { copy(showInvalidStateErrorDialog = false) }
             AddressVerificationIntent.LaunchSupportClicked -> navigate(Navigation.LaunchSupport)
             is AddressVerificationIntent.SearchInputChanged -> {
                 // If just the selection changes we just want to update the state and do nothing else
                 if (modelState.searchInput.text == intent.newInput.text) {
-                    updateState { it.copy(searchInput = intent.newInput) }
+                    updateState { copy(searchInput = intent.newInput) }
                     return
                 }
                 cancelSearchForAddresses()
@@ -152,7 +152,7 @@ class AddressVerificationModel(
                     intent.newInput.text.startsWith(container.title + " ")
                 }
                 updateState {
-                    it.copy(
+                    copy(
                         searchInput = intent.newInput,
                         container = newContainer
                     )
@@ -160,11 +160,11 @@ class AddressVerificationModel(
 
                 if (intent.newInput.text.isEmpty()) {
                     updateState {
-                        it.copy(results = emptyList())
+                        copy(results = emptyList())
                     }
                 } else if (intent.newInput.text.length < MIN_QUERY_LENGTH) {
                     updateState {
-                        it.copy(areResultsHidden = true, isSearchLoading = false, showManualOverride = false)
+                        copy(areResultsHidden = true, isSearchLoading = false, showManualOverride = false)
                     }
                 } else {
                     searchForAddresses(intent.newInput.text, newContainer?.id)
@@ -179,7 +179,7 @@ class AddressVerificationModel(
                     val newInputText = intent.result.title + " "
                     val newInput = TextFieldValue(text = newInputText, selection = TextRange(newInputText.length))
                     updateState {
-                        it.copy(
+                        copy(
                             searchInput = newInput,
                             container = intent.result
                         )
@@ -190,10 +190,10 @@ class AddressVerificationModel(
             is AddressVerificationIntent.ErrorWhileSaving -> {
                 when (intent.error) {
                     AddressVerificationSavingError.InvalidPostCode -> updateState {
-                        it.copy(showPostcodeError = true)
+                        copy(showPostcodeError = true)
                     }
                     is AddressVerificationSavingError.Unknown -> updateState {
-                        it.copy(error = AddressVerificationError.Unknown(intent.error.message))
+                        copy(error = AddressVerificationError.Unknown(intent.error.message))
                     }
                 }
             }
@@ -201,23 +201,23 @@ class AddressVerificationModel(
                 cancelSearchForAddresses()
                 cancelFetchAddressDetails()
                 updateState {
-                    it.copy(step = AddressVerificationStep.DETAILS, mainLineInput = modelState.searchInput.text)
+                    copy(step = AddressVerificationStep.DETAILS, mainLineInput = modelState.searchInput.text)
                 }
             }
             is AddressVerificationIntent.MainLineInputChanged -> {
-                updateState { it.copy(mainLineInput = intent.newInput) }
+                updateState { copy(mainLineInput = intent.newInput) }
             }
             is AddressVerificationIntent.SecondLineInputChanged -> {
-                updateState { it.copy(secondLineInput = intent.newInput) }
+                updateState { copy(secondLineInput = intent.newInput) }
             }
             is AddressVerificationIntent.CityInputChanged -> {
-                updateState { it.copy(cityInput = intent.newInput) }
+                updateState { copy(cityInput = intent.newInput) }
             }
             is AddressVerificationIntent.PostCodeInputChanged -> {
-                updateState { it.copy(postCodeInput = intent.newInput, showPostcodeError = false) }
+                updateState { copy(postCodeInput = intent.newInput, showPostcodeError = false) }
             }
             AddressVerificationIntent.SaveClicked -> {
-                updateState { it.copy(showPostcodeError = false) }
+                updateState { copy(showPostcodeError = false) }
 
                 val addressDetails = AddressDetails(
                     firstLine = modelState.mainLineInput,
@@ -232,7 +232,7 @@ class AddressVerificationModel(
             AddressVerificationIntent.BackClicked -> {
                 if (modelState.step == AddressVerificationStep.DETAILS) {
                     val searchInput = modelState.searchInput
-                    updateState { it.copy(step = AddressVerificationStep.SEARCH, searchInput = TextFieldValue("")) }
+                    updateState { copy(step = AddressVerificationStep.SEARCH, searchInput = TextFieldValue("")) }
                     onIntent(AddressVerificationIntent.SearchInputChanged(searchInput))
                 } else {
                     navigate(Navigation.Back)
@@ -243,7 +243,7 @@ class AddressVerificationModel(
 
     private fun fetchAddressDetails(autocompleteAddress: AutocompleteAddress) {
         updateState {
-            it.copy(
+            copy(
                 loadingAddressDetails = autocompleteAddress
             )
         }
@@ -267,7 +267,7 @@ class AddressVerificationModel(
                         state != USState.findStateByCode(result.provinceCode)
                     ) {
                         updateState {
-                            it.copy(
+                            copy(
                                 loadingAddressDetails = null,
                                 showInvalidStateErrorDialog = true
                             )
@@ -276,7 +276,7 @@ class AddressVerificationModel(
                     }
 
                     updateState {
-                        it.copy(
+                        copy(
                             step = AddressVerificationStep.DETAILS,
                             loadingAddressDetails = null,
                             mainLineInput = mainLine.ifEmpty { autocompleteAddress.title },
@@ -288,7 +288,7 @@ class AddressVerificationModel(
                 }
                 .doOnFailure { error ->
                     updateState {
-                        it.copy(
+                        copy(
                             loadingAddressDetails = null,
                             error = AddressVerificationError.Unknown(error.localizedMessage)
                         )
@@ -299,17 +299,17 @@ class AddressVerificationModel(
 
     private fun cancelFetchAddressDetails() {
         fetchAddressDetailsJob?.cancel()
-        updateState { it.copy(loadingAddressDetails = null) }
+        updateState { copy(loadingAddressDetails = null) }
     }
 
     private fun searchForAddresses(input: String, containerId: String?) {
-        updateState { it.copy(isSearchLoading = true) }
+        updateState { copy(isSearchLoading = true) }
         searchQueryJob = viewModelScope.launch {
             delay(500) // debounce
             addressVerificationService.getAutocompleteAddresses(input, countryIso, state?.iSOAbbreviation, containerId)
                 .doOnSuccess { results ->
                     updateState {
-                        it.copy(
+                        copy(
                             isSearchLoading = false,
                             results = results,
                             areResultsHidden = false,
@@ -319,7 +319,7 @@ class AddressVerificationModel(
                 }
                 .doOnFailure { error ->
                     updateState {
-                        it.copy(
+                        copy(
                             isSearchLoading = false,
                             showManualOverride = true,
                             error = AddressVerificationError.Unknown(error.localizedMessage)
@@ -331,6 +331,6 @@ class AddressVerificationModel(
 
     private fun cancelSearchForAddresses() {
         searchQueryJob?.cancel()
-        updateState { it.copy(isSearchLoading = false) }
+        updateState { copy(isSearchLoading = false) }
     }
 }

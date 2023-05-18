@@ -58,13 +58,13 @@ class SecurityCodeViewModel(
     >(SecurityCodeModelState()) {
 
     override fun viewCreated(args: SecurityCodeArgs) {
-        updateState { it.copy(paymentId = args.paymentId) }
+        updateState { copy(paymentId = args.paymentId) }
 
         viewModelScope.launch {
             paymentMethodsService.getCardDetailsCo(args.cardId)
                 .doOnSuccess { cardInfo ->
                     updateState {
-                        it.copy(
+                        copy(
                             isCardDetailsLoading = false,
                             cardName = cardInfo.card?.label,
                             lastCardDigits = cardInfo.card?.number,
@@ -75,7 +75,7 @@ class SecurityCodeViewModel(
                 }
                 .doOnFailure { error ->
                     updateState {
-                        it.copy(
+                        copy(
                             isCardDetailsLoading = false,
                             error = UpdateSecurityCodeError.CardDetailsFailed(error.message)
                         )
@@ -84,39 +84,39 @@ class SecurityCodeViewModel(
         }
     }
 
-    override fun reduce(state: SecurityCodeModelState) = SecurityCodeViewState(
-        cardDetailsLoading = state.isCardDetailsLoading,
+    override fun SecurityCodeModelState.reduce() = SecurityCodeViewState(
+        cardDetailsLoading = isCardDetailsLoading,
         nextButtonState = when {
-            state.isCardDetailsLoading || state.cvvValue.length < 3 -> ButtonState.Disabled
-            state.isSecurityCodeUpdating -> ButtonState.Loading
+            isCardDetailsLoading || cvvValue.length < 3 -> ButtonState.Disabled
+            isSecurityCodeUpdating -> ButtonState.Loading
             else -> ButtonState.Enabled
         },
-        cvv = state.cvvValue,
-        cvvLength = if (state.cardType?.toCardType() == CardType.AMEX) 4 else 3,
-        cardName = state.cardName ?: state.cardType,
-        lastCardDigits = state.lastCardDigits,
+        cvv = cvvValue,
+        cvvLength = if (cardType?.toCardType() == CardType.AMEX) 4 else 3,
+        cardName = cardName ?: cardType,
+        lastCardDigits = lastCardDigits,
         cardIcon = ImageResource.Local(
-            id = state.cardType?.toCardType()?.icon() ?: R.drawable.ic_card_icon,
+            id = cardType?.toCardType()?.icon() ?: R.drawable.ic_card_icon,
             contentDescription = null
         ),
-        error = state.error
+        error = error
     )
 
     override suspend fun handleIntent(modelState: SecurityCodeModelState, intent: SecurityCodeIntent) {
         when (intent) {
-            is SecurityCodeIntent.CvvInputChanged -> updateState { it.copy(cvvValue = intent.cvvValue) }
+            is SecurityCodeIntent.CvvInputChanged -> updateState { copy(cvvValue = intent.cvvValue) }
             SecurityCodeIntent.NextClicked -> updateCvv()
         }.exhaustive
     }
 
     private fun updateCvv() {
         modelState.paymentId?.let { paymentId ->
-            updateState { it.copy(isSecurityCodeUpdating = true) }
+            updateState { copy(isSecurityCodeUpdating = true) }
             viewModelScope.launch {
                 paymentMethodsService.updateCvv(paymentId = paymentId, cvv = modelState.cvvValue)
                     .doOnSuccess {
                         updateState {
-                            it.copy(
+                            copy(
                                 isSecurityCodeUpdating = false,
                                 error = null
                             )
@@ -128,7 +128,7 @@ class SecurityCodeViewModel(
                             navigate(SecurityCodeNavigation.FinishWithUxError(error.getServerSideErrorInfo()!!))
                         } else {
                             updateState {
-                                it.copy(
+                                copy(
                                     isSecurityCodeUpdating = false,
                                     error = UpdateSecurityCodeError.UpdateCvvFailed(error.message)
                                 )

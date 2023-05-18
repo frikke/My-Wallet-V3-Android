@@ -74,13 +74,9 @@ class CustodialActivityDetailViewModel(
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(
-        state: ActivityDetailModelState<CustodialActivityDetail>
-    ): ActivityDetailViewState = state.run {
-        ActivityDetailViewState(
-            activityDetail = activityDetail.map { it.toActivityDetail() }
-        )
-    }
+    override fun ActivityDetailModelState<CustodialActivityDetail>.reduce() = ActivityDetailViewState(
+        activityDetail = activityDetail.map { it.toActivityDetail() }
+    )
 
     override suspend fun handleIntent(
         modelState: ActivityDetailModelState<CustodialActivityDetail>,
@@ -129,7 +125,7 @@ class CustodialActivityDetailViewModel(
                 }
                 .collect { dataResource ->
                     updateState {
-                        it.copy(activityDetail = it.activityDetail.updateDataWith(dataResource))
+                        copy(activityDetail = activityDetail.updateDataWith(dataResource))
                     }
                 }
         }
