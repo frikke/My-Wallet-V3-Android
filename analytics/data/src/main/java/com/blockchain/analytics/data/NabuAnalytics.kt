@@ -4,6 +4,7 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.AnalyticsContextProvider
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.AnalyticsLocalPersistence
+import com.blockchain.analytics.AnalyticsSettings
 import com.blockchain.analytics.NabuAnalyticsEvent
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.api.services.AnalyticsService
@@ -12,7 +13,6 @@ import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.stores.NabuSessionTokenStore
-import com.blockchain.operations.AppStartUpFlushable
 import com.blockchain.preferences.SessionPrefs
 import com.blockchain.utils.Optional
 import com.blockchain.utils.emptySubscribe
@@ -40,7 +40,7 @@ class NabuAnalytics(
     lifecycleObservable: LifecycleObservable,
     private val analyticsContextProvider: AnalyticsContextProvider,
     private val tokenStore: NabuSessionTokenStore
-) : Analytics, AppStartUpFlushable {
+) : Analytics, AnalyticsSettings {
     private val compositeDisposable = CompositeDisposable()
 
     init {
@@ -100,9 +100,6 @@ class NabuAnalytics(
             }
         }
     }
-
-    override val tag: String
-        get() = "nabu_analytics_flush"
 
     override fun flush(): Completable {
         return localAnalyticsPersistence.getAllItems().flatMapCompletable { events ->
