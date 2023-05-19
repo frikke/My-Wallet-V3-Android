@@ -80,7 +80,7 @@ fun DexAccountSelection(
                 if (!accounts.all { it.balance.isPositive }) {
                     item {
                         TableRowHeader(
-                            title = stringResource(R.string.all_tokens)
+                            title = stringResource(R.string.your_assets)
                         )
                         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
                     }
