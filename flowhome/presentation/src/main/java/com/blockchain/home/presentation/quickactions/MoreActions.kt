@@ -2,10 +2,7 @@ package com.blockchain.home.presentation.quickactions
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
@@ -69,8 +66,6 @@ private fun MoreActionsScreen(
     onActionClick: (AssetAction) -> Unit,
     dismiss: () -> Unit
 ) {
-    val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-
     Column(modifier = Modifier.fillMaxWidth()) {
         SheetHeader(
             title = stringResource(id = com.blockchain.stringResources.R.string.common_more),
@@ -103,7 +98,6 @@ private fun MoreActionsScreen(
                 Divider(color = Color(0XFFF1F2F7))
             }
         }
-        Spacer(modifier = Modifier.size(navBarHeight))
     }
 }
 

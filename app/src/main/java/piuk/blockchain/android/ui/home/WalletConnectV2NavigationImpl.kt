@@ -25,20 +25,20 @@ class WalletConnectV2NavigationImpl(
 
     private var walletConnectEventsTask: Job? = null
 
-    override suspend fun launchWalletConnectV2() {
+    override fun launchWalletConnectV2() {
         Timber.d("Launching WalletConnect V2")
-        if (walletConnectEventsTask == null && walletConnectV2FeatureFlag.coEnabled()) {
+        if (walletConnectEventsTask == null) {
 
             require(activity != null)
 
-            walletConnectV2Service.init()
-
             walletConnectEventsTask = activity.lifecycleScope.launch {
-                walletConnectV2Service.walletEvents.flowWithLifecycle(activity.lifecycle)
-                    .distinctUntilChanged()
-                    .collectLatest {
-                        processWalletConnectV2Event(it)
-                    }
+                if (walletConnectV2FeatureFlag.coEnabled()) {
+                    walletConnectV2Service.walletEvents.flowWithLifecycle(activity.lifecycle)
+                        .distinctUntilChanged()
+                        .collectLatest {
+                            processWalletConnectV2Event(it)
+                        }
+                }
             }
         }
     }

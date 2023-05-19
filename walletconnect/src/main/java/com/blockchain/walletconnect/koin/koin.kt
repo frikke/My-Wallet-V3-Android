@@ -17,8 +17,11 @@ import com.blockchain.walletconnect.domain.WalletConnectUrlValidator
 import com.blockchain.walletconnect.domain.WalletConnectV2Service
 import com.blockchain.walletconnect.domain.WalletConnectV2UrlValidator
 import com.blockchain.walletconnect.ui.dapps.DappsListModel
+import com.blockchain.walletconnect.ui.dapps.v2.WalletConnectDappListViewModel
+import com.blockchain.walletconnect.ui.dapps.v2.WalletConnectSessionDetailViewModel
 import com.blockchain.walletconnect.ui.networks.SelectNetworkViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -43,11 +46,11 @@ val walletConnectModule = module {
 
         scoped {
             WalletConnectV2ServiceImpl(
-                get(),
-                get(),
-                get(),
-                get(),
-                get(),
+                application = get(),
+                ethDataManager = get(),
+                coincore = get(),
+                ethRequestSign = get(),
+                ethRequestSend = get(),
             )
         }.apply {
             bind(WalletConnectV2Service::class)
@@ -95,6 +98,24 @@ val walletConnectModule = module {
             SelectNetworkViewModel(
                 coincore = get(),
                 ethDataManager = get()
+            )
+        }
+
+        viewModel {
+            WalletConnectDappListViewModel(
+                sessionsRepository = get(),
+                walletConnectService = get(),
+                walletConnectV2Service = get(),
+                walletConnectV2FeatureFlag = get(walletConnectV2FeatureFlag),
+
+            )
+        }
+
+        viewModel {
+            WalletConnectSessionDetailViewModel(
+                sessionsRepository = get(),
+                walletConnectService = get(),
+                walletConnectV2Service = get(),
             )
         }
     }

@@ -3647,4 +3647,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="news_home_title">Latest News</string>
     <string name="news_title">News</string>
 
+    <string name="dapps_list_title">Connected Apps</string>
+    <string name="common_disconnect_all">Disconnect All</string>
 </resources>

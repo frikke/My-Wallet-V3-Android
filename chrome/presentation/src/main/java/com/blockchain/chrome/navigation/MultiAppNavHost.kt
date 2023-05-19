@@ -45,7 +45,9 @@ import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.transactions.swap.SwapGraph
 import com.blockchain.transactions.swap.swapGraphHost
+import com.blockchain.walletconnect.ui.navigation.WalletConnectDestination
 import com.blockchain.walletconnect.ui.navigation.WalletConnectV2Navigation
+import com.blockchain.walletconnect.ui.navigation.walletConnectGraph
 import com.blockchain.walletmode.WalletMode
 import com.dex.presentation.graph.dexGraph
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
@@ -167,11 +169,18 @@ fun MultiAppNavHost(
                     openExternalUrl = openExternalUrl,
                     onBackPressed = navController::popBackStack
                 )
+
                 dexGraph(
                     onBackPressed = navController::popBackStack,
                     navController = navController
                 )
+
                 swapGraphHost(mainNavController = navController)
+
+                walletConnectGraph(
+                    onBackPressed = navController::popBackStack,
+                    navController = navController,
+                )
             }
         }
     }
@@ -280,7 +289,19 @@ private fun NavGraphBuilder.chrome(
             openSwap = {
                 // TODO(aromano): navigation TEMP
                 navController.navigate(SwapGraph::class.java.name)
-            }
+            },
+            onWalletConnectSessionClicked = {
+                navController.navigate(
+                    WalletConnectDestination.WalletConnectManageSession,
+                    listOfNotNull(
+                        NavArgument(key = WalletConnectDestination.ARG_SESSION_ID, value = it.sessionId),
+                        NavArgument(key = WalletConnectDestination.ARG_IS_V2_SESSION, value = it.isV2)
+                    ),
+                )
+            },
+            onWalletConnectSeeAllSessionsClicked = {
+                navController.navigate(WalletConnectDestination.WalletConnectDappList)
+            },
         )
     }
 }
