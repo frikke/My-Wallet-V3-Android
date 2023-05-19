@@ -202,7 +202,7 @@ class EnterAmountViewModel(
                 ticker = fiatCurrency.symbol,
                 isPrefix = true,
                 separateWithSpace = false,
-                zeroHint = "0.00"
+                zeroHint = "0"
             ),
             cryptoAmount = fromAccount?.let {
                 CurrencyValue(
