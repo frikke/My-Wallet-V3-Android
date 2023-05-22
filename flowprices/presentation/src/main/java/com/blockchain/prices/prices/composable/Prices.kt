@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
+import com.blockchain.componentlib.icons.Fire
+import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
 import com.blockchain.componentlib.system.ShimmerLoadingCard
@@ -207,7 +209,12 @@ fun ColumnScope.PricesScreenData(
                     )
                 }
             ) {
-                TableRowHeader(title = stringResource(com.blockchain.stringResources.R.string.prices_top_movers))
+                TableRowHeader(
+                    title = stringResource(com.blockchain.stringResources.R.string.prices_top_movers),
+                    icon = Icons.Filled.Fire
+                        .withSize(AppTheme.dimensions.smallSpacing)
+                        .withTint(AppTheme.colors.warningMuted)
+                )
             }
 
             item {
