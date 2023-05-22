@@ -19,7 +19,7 @@ fun Balance(
     percentageChangeData: PercentageChangeData
 ) {
     Column(
-        modifier = modifier.padding(vertical = AppTheme.dimensions.smallSpacing),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -51,7 +51,7 @@ fun Balance(
 
 @Preview
 @Composable
-fun DefaultBalance_Preview() {
+private fun DefaultBalance_Preview() {
     AppTheme {
         AppSurface {
             Balance(

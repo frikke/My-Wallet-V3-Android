@@ -75,7 +75,9 @@ fun AssetPrice(
 @Composable
 fun AssetPriceInfoLoading() {
     Column(
-        modifier = Modifier.fillMaxWidth().padding(top = AppTheme.dimensions.smallSpacing),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = AppTheme.dimensions.smallSpacing),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ShimmerLoadingBox(
@@ -105,7 +107,12 @@ fun AssetPriceInfoData(
     resetPriceInformation: () -> Unit,
     onNewTimeSpanSelected: (HistoricalTimeSpan) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
+
         Balance(
             modifier = Modifier.fillMaxWidth(),
             price = data.price,

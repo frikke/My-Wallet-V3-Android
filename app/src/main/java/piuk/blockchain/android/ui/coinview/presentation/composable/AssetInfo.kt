@@ -11,7 +11,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.SmallMinimalButton
+import com.blockchain.componentlib.button.SmallTertiaryButton
 import com.blockchain.componentlib.expandables.ExpandableItem
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.previewAnalytics
@@ -55,9 +57,7 @@ fun AssetInfoData(
     onWebsiteClick: () -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(AppTheme.dimensions.smallSpacing)
+        modifier = Modifier.fillMaxWidth()
     ) {
         ExpandableItem(
             title = stringResource(com.blockchain.stringResources.R.string.coinview_about_asset, data.assetName),
@@ -72,7 +72,7 @@ fun AssetInfoData(
         data.website?.let {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
-            SmallMinimalButton(
+            SmallTertiaryButton(
                 text = stringResource(com.blockchain.stringResources.R.string.coinview_asset_info_cta),
                 onClick = {
                     analytics.logEvent(

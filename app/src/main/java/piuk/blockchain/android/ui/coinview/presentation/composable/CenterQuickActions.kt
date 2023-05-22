@@ -44,9 +44,7 @@ fun CenterQuickActionsData(
         Empty()
     } else {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(AppTheme.dimensions.smallSpacing)
+            modifier = Modifier.fillMaxWidth()
         ) {
             data.data.forEachIndexed { index, action ->
                 TertiaryButton(

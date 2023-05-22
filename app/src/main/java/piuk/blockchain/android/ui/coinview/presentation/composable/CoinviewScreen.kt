@@ -5,10 +5,12 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -215,6 +217,7 @@ fun CoinviewScreen(
                 DataResource.Loading -> {
                     // n/a
                 }
+
                 is DataResource.Error -> {
                     UnknownAsset(onContactSupportClick = onContactSupportClick)
                 }
@@ -235,34 +238,55 @@ fun CoinviewScreen(
                                 onNewTimeSpanSelected = onNewTimeSpanSelected
                             )
 
-                            CenterQuickActions(
-                                data = quickActionsCenter,
-                                onQuickActionClick = onQuickActionClick
-                            )
+                            Box(
+                                modifier = Modifier.padding(
+                                    start = AppTheme.dimensions.smallSpacing,
+                                    end = AppTheme.dimensions.smallSpacing,
+                                    bottom = AppTheme.dimensions.smallSpacing
+                                )
+                            ) {
+                                CenterQuickActions(
+                                    data = quickActionsCenter,
+                                    onQuickActionClick = onQuickActionClick
+                                )
+                            }
 
-                            AssetAccounts(
-                                analytics = analytics,
-                                data = accounts,
-                                l1Network = asset.data.l1Network,
-                                assetTicker = asset.data.asset.networkTicker,
-                                onAccountClick = onAccountClick,
-                                onLockedAccountClick = onLockedAccountClick
-                            )
+                            Box(
+                                modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
+                            ) {
+                                AssetAccounts(
+                                    analytics = analytics,
+                                    data = accounts,
+                                    l1Network = asset.data.l1Network,
+                                    assetTicker = asset.data.asset.networkTicker,
+                                    onAccountClick = onAccountClick,
+                                    onLockedAccountClick = onLockedAccountClick
+                                )
+                            }
 
-                            RecurringBuys(
-                                analytics = analytics,
-                                rBuysState = recurringBuys,
-                                assetTicker = asset.data.asset.networkTicker,
-                                onRecurringBuyUpsellClick = onRecurringBuyUpsellClick,
-                                onRecurringBuyItemClick = onRecurringBuyItemClick
-                            )
+                            Box(
+                                modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
+                            ) {
+                                RecurringBuys(
+                                    analytics = analytics,
+                                    rBuysState = recurringBuys,
+                                    assetTicker = asset.data.asset.networkTicker,
+                                    onRecurringBuyUpsellClick = onRecurringBuyUpsellClick,
+                                    onRecurringBuyItemClick = onRecurringBuyItemClick
+                                )
 
-                            AssetInfo(
-                                analytics = analytics,
-                                data = assetInfo,
-                                assetTicker = asset.data.asset.networkTicker,
-                                onWebsiteClick = onWebsiteClick
-                            )
+                            }
+
+                            Box(
+                                modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
+                            ) {
+                                AssetInfo(
+                                    analytics = analytics,
+                                    data = assetInfo,
+                                    assetTicker = asset.data.asset.networkTicker,
+                                    onWebsiteClick = onWebsiteClick
+                                )
+                            }
                         }
 
                         Column(modifier = Modifier.fillMaxWidth()) {
