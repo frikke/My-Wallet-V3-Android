@@ -47,7 +47,6 @@ internal fun LazyListScope.homeRecurringBuys(
         )
     }
 
-
     if (recurringBuys.isEmpty()) {
         paddedItem(
             paddingValues = {
