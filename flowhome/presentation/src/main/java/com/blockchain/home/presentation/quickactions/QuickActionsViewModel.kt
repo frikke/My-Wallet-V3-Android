@@ -312,7 +312,7 @@ fun StateAwareAction.toMoreActionItem(): MoreActionItem {
         AssetAction.FiatDeposit -> MoreActionItem(
             icon = R.drawable.ic_more_deposit,
             title = com.blockchain.stringResources.R.string.common_add_cash,
-            subtitle = com.blockchain.stringResources.R.string.add_cash_from_your_bank_or_card,
+            subtitle = com.blockchain.stringResources.R.string.fiat_funds_detail_deposit_details,
             action = QuickAction.TxAction(AssetAction.FiatDeposit),
             enabled = this.state == ActionState.Available
         )
