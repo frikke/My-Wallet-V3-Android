@@ -988,6 +988,7 @@ class PrefsUtil(
         private const val DEX_LAST_SELECTED_SLIPPAGE_INDEX = "LAST_SELECTED_SLIPPAGE_INDEX"
         private const val DEX_LAST_SELECTED_DESTINATION_TICKER = "DEX_LAST_SELECTED_DESTINATION_TICKER"
         private const val DEX_SELECTED_CHAIN_ID = "DEX_SELECTED_CHAIN_ID"
+        private const val ALLOWANCE_APPROVED_BUT_PENDING_TOKENS = "DEX_ALLOWANCE_APPROVED_BUT_PENDING_TOKENS"
 
         // iterable announcements
         private const val ITERABLE_SEEN_ANNOUNCEMENTS = "ITERABLE_SEEN_ANNOUNCEMENTS"
@@ -1044,6 +1045,12 @@ class PrefsUtil(
         get() = getValue(DEX_SELECTED_CHAIN_ID, ETH_CHAIN_ID)
         set(value) {
             setValue(DEX_SELECTED_CHAIN_ID, value)
+        }
+
+    override var allowanceApprovedButPendingTokens: Set<String>
+        get() = getValue(ALLOWANCE_APPROVED_BUT_PENDING_TOKENS, "").split(",").toSet()
+        set(value) {
+            setValue(ALLOWANCE_APPROVED_BUT_PENDING_TOKENS, value.joinToString(separator = ","))
         }
 }
 

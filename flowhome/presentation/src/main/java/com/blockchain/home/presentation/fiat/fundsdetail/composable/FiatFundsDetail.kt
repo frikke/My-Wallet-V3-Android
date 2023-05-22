@@ -5,10 +5,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -158,8 +155,6 @@ fun FiatFundDetailScreenData(
     retryLoadData: () -> Unit,
     onBackPressed: () -> Unit
 ) {
-    val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-
     Column(modifier = Modifier.fillMaxWidth()) {
         Box(contentAlignment = Alignment.BottomCenter) {
             Column(modifier = Modifier.fillMaxWidth()) {
@@ -270,8 +265,6 @@ fun FiatFundDetailScreenData(
                 )
             }
         }
-
-        Spacer(modifier = Modifier.size(navBarHeight))
     }
 }
 

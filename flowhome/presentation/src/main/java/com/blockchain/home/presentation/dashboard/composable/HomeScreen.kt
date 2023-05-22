@@ -59,7 +59,6 @@ import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.HomeDestination
 import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
-import com.blockchain.home.presentation.news.NewsIntent
 import com.blockchain.home.presentation.news.NewsViewModel
 import com.blockchain.home.presentation.news.NewsViewState
 import com.blockchain.home.presentation.quickactions.QuickActions
@@ -80,6 +79,7 @@ import com.blockchain.prices.prices.PricesLoadStrategy
 import com.blockchain.prices.prices.PricesViewModel
 import com.blockchain.prices.prices.PricesViewState
 import com.blockchain.prices.prices.percentAndPositionOf
+import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import kotlinx.collections.immutable.toImmutableList
@@ -109,6 +109,8 @@ fun HomeScreen(
     startPhraseRecovery: () -> Unit,
     processAnnouncementUrl: (String) -> Unit,
     openSwap: () -> Unit,
+    onWalletConnectSessionClicked: (DappSessionUiElement) -> Unit,
+    onWalletConnectSeeAllSessionsClicked: () -> Unit
 ) {
     var menuOptionsHeight: Int by remember { mutableStateOf(0) }
     var balanceOffsetToMenuOption: Float by remember { mutableStateOf(0F) }
@@ -335,9 +337,8 @@ fun HomeScreen(
             homeDapps(
                 homeDappsState = homeDappsState,
                 openQrCodeScanner = launchQrScanner,
-                onSessionClicked = { session ->
-                    // open dapp detail
-                }
+                onDappSessionClicked = onWalletConnectSessionClicked,
+                onWalletConnectSeeAllSessionsClicked = onWalletConnectSeeAllSessionsClicked,
             )
         }
 

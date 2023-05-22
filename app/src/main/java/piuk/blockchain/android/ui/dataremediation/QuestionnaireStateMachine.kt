@@ -49,7 +49,7 @@ class QuestionnaireStateMachine {
         if (parentTreeNode is TreeNode.SingleSelection) {
             parentTreeNode.children
                 .filterIsInstance<TreeNode.Selection>()
-                .forEach { it.isChecked = it.id == newChoicesIds.first() }
+                .forEach { it.isChecked = it.id == newChoicesIds.firstOrNull() }
         } else if (parentTreeNode is TreeNode.MultipleSelection) {
             parentTreeNode.children
                 .filterIsInstance<TreeNode.Selection>()

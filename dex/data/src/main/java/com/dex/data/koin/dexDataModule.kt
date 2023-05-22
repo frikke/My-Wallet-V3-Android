@@ -64,7 +64,8 @@ val dexDataModule = module {
                 assetCatalogue = get(),
                 nonCustodialService = get(),
                 defiAccountReceiveAddressService = get(),
-                json = get()
+                json = get(),
+                dexPrefs = get()
             )
         }.bind(AllowanceService::class)
 

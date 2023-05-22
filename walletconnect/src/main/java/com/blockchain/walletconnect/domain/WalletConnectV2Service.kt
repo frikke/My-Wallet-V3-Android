@@ -10,8 +10,6 @@ interface WalletConnectV2Service {
     val walletEvents: SharedFlow<Wallet.Model>
     val userEvents: SharedFlow<WalletConnectUserEvent>
 
-    fun init()
-
     suspend fun pair(pairingUrl: String)
 
     fun buildApprovedSessionNamespaces(
@@ -20,6 +18,8 @@ interface WalletConnectV2Service {
     fun approveLastSession()
     suspend fun getSessions(): List<WalletConnectSession>
     fun getSessionsFlow(): Flow<List<WalletConnectSession>>
+
+    suspend fun getSession(sessionId: String): WalletConnectSession?
     suspend fun disconnectSession(sessionTopic: String)
     suspend fun disconnectAllSessions()
     fun clearSessionProposals()

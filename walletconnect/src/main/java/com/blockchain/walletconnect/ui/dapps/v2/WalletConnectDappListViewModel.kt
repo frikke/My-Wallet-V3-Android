@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.dapps
+package com.blockchain.walletconnect.ui.dapps.v2
 
 import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
@@ -22,48 +22,58 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class HomeDappsViewModel(
+class WalletConnectDappListViewModel(
     private val sessionsRepository: SessionRepository,
     private val walletConnectService: WalletConnectServiceAPI,
     private val walletConnectV2Service: WalletConnectV2Service,
     private val walletConnectV2FeatureFlag: FeatureFlag
 ) : MviViewModel<
-    HomeDappsIntent,
-    HomeDappsViewState,
-    HomeDappsModelState,
-    HomeDappsNavEvent,
+    WalletConnectDappListIntent,
+    WalletConnectDappListViewState,
+    WalletConnectDappListModelState,
+    WalletConnectDappListNavEvent,
     ModelConfigArgs.NoArgs>(
-    HomeDappsModelState()
+    WalletConnectDappListModelState()
 ) {
 
     private var sessionsJob = loadSessions()
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
-
-    override fun HomeDappsModelState.reduce() = when (connectedSessions) {
-        is DataResource.Loading -> HomeDappsViewState.Loading
+    override fun WalletConnectDappListModelState.reduce() = when (connectedSessions) {
+        is DataResource.Error,
+        is DataResource.Loading -> WalletConnectDappListViewState.Loading
         is DataResource.Data -> {
-            val sessions = connectedSessions.data
-            if (sessions.isEmpty()) {
-                HomeDappsViewState.NoSessions
-            } else {
-                val dappSessions = sessions.map {
-                    it.toDappSessionUiElement()
-                }
-                HomeDappsViewState.HomeDappsSessions(dappSessions)
+            val dappSessions = connectedSessions.data.map {
+                it.toDappSessionUiElement()
             }
-        }
-
-        is DataResource.Error -> {
-            HomeDappsViewState.NoSessions
+            WalletConnectDappListViewState.WalletConnectDappListSessions(dappSessions)
         }
     }
 
-    override suspend fun handleIntent(modelState: HomeDappsModelState, intent: HomeDappsIntent) {
+    override suspend fun handleIntent(
+        modelState: WalletConnectDappListModelState,
+        intent: WalletConnectDappListIntent
+    ) {
         when (intent) {
-            is HomeDappsIntent.LoadData -> {
+            is WalletConnectDappListIntent.LoadData -> {
                 sessionsJob.cancel()
                 sessionsJob = loadSessions()
+            }
+            is WalletConnectDappListIntent.DisconnectAllSessions -> {
+                sessionsJob.cancel()
+
+                // Disconnect V2 sessions
+                walletConnectV2Service.disconnectAllSessions()
+
+                // Disconnect V1 sessions
+                if (modelState.connectedSessions is DataResource.Data) {
+                    modelState.connectedSessions.data
+                        .filter { !it.isV2 }
+                        .map {
+                            Timber.d("Disconnecting session: $it")
+                            walletConnectService.disconnect(it).subscribe()
+                        }
+                }
             }
         }
     }
@@ -87,18 +97,20 @@ class HomeDappsViewModel(
     }
 }
 
-data class HomeDappsModelState(
+data class WalletConnectDappListModelState(
     val connectedSessions: DataResource<List<WalletConnectSession>> = DataResource.Loading
 ) : ModelState
 
-sealed class HomeDappsViewState : ViewState {
-    object Loading : HomeDappsViewState()
-    object NoSessions : HomeDappsViewState()
-    data class HomeDappsSessions(val connectedSessions: List<DappSessionUiElement> = emptyList()) : HomeDappsViewState()
+sealed class WalletConnectDappListViewState : ViewState {
+    object Loading : WalletConnectDappListViewState()
+    data class WalletConnectDappListSessions(
+        val connectedSessions: List<DappSessionUiElement> = emptyList()
+    ) : WalletConnectDappListViewState()
 }
 
-sealed interface HomeDappsNavEvent : NavigationEvent
+sealed interface WalletConnectDappListNavEvent : NavigationEvent
 
-sealed interface HomeDappsIntent : Intent<HomeDappsModelState> {
-    object LoadData : HomeDappsIntent
+sealed interface WalletConnectDappListIntent : Intent<WalletConnectDappListModelState> {
+    object LoadData : WalletConnectDappListIntent
+    object DisconnectAllSessions : WalletConnectDappListIntent
 }

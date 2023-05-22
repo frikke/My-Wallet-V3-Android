@@ -10,6 +10,7 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.dataOrElse
+import com.blockchain.data.filterNotLoading
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DexPrefs
 import com.blockchain.utils.asFlow
@@ -88,9 +89,8 @@ class DexAccountsRepository(
                     chainId = chainId
                 )
             )
-        ).map {
-            it.dataOrElse(emptyList())
-        }
+        ).filterNotLoading()
+            .map { it.dataOrElse(emptyList()) }
 
     private fun dexSourceAccounts(
         chainId: Int
@@ -146,6 +146,7 @@ class DexAccountsRepository(
             }
             val all = allAccounts.map {
                 it.filter { account -> (account.currency as? AssetInfo)?.coinNetwork?.chainId == chainId }
+                    .filterIsInstance<CryptoAccount>()
             }
 
             active.flatMapLatest { activeAcc ->
@@ -153,28 +154,27 @@ class DexAccountsRepository(
                     allAcc.filter {
                         it.currency.networkTicker !in activeAcc.map { acc -> acc.key.currency.networkTicker }
                     }
-                }.mapNotNull { accounts ->
-                    accounts.map { account ->
-                        val token = tokens.firstOrNull { it.symbol == account.currency.networkTicker }
-                        val accountCurrency = (account.currency as? AssetInfo) ?: return@mapNotNull null
+                }.map { accounts ->
+                    accounts.mapNotNull { account ->
+                        val token =
+                            tokens.firstOrNull { it.symbol == account.currency.networkTicker } ?: return@mapNotNull null
                         DexAccount(
                             account = account,
                             balance = Money.zero(account.currency),
                             fiatBalance = Money.zero(currencyPrefs.selectedFiatCurrency),
                             currency = DexCurrency(
-                                account.currency as AssetInfo,
-                                contractAddress = accountCurrency.l2identifier
-                                    ?: token?.address
-                                    ?: return@mapNotNull null,
-                                chainId = accountCurrency.coinNetwork?.chainId ?: return@mapNotNull null,
-                                isVerified = token?.isVerified ?: false
+                                account.currency,
+                                contractAddress = account.currency.l2identifier
+                                    ?: token.address,
+                                index = tokens.indexOfFirst { it.symbol == account.currency.networkTicker },
+                                chainId = account.currency.coinNetwork?.chainId ?: return@mapNotNull null,
+                                isVerified = token.isVerified
                             )
                         )
                     }.plus(
-                        activeAcc.map { (account, balance) ->
+                        activeAcc.mapNotNull { (account, balance) ->
                             val accountCurrency = (account.currency as? AssetInfo) ?: return@mapNotNull null
                             val token = tokens.firstOrNull { it.symbol == accountCurrency.networkTicker }
-
                             DexAccount(
                                 account = account,
                                 currency = DexCurrency(

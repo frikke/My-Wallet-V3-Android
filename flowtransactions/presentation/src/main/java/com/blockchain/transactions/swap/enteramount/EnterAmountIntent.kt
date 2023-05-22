@@ -16,7 +16,8 @@ sealed interface EnterAmountIntent : Intent<EnterAmountModelState> {
     ) : EnterAmountIntent
 
     data class FromAccountChanged(
-        val account: CryptoAccountWithBalance
+        val account: CryptoAccountWithBalance,
+        val secondPassword: String?,
     ) : EnterAmountIntent {
         override fun isValidFor(modelState: EnterAmountModelState): Boolean {
             return modelState.fromAccount?.account?.matches(account.account) != true

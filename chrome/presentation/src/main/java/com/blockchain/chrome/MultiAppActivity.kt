@@ -251,9 +251,7 @@ class MultiAppActivity :
                 deeplinkNavigationHandler.checkDeeplinkDestination(intent)
             }
 
-            lifecycleScope.launch {
-                walletConnectV2Navigation.launchWalletConnectV2()
-            }
+            walletConnectV2Navigation.launchWalletConnectV2()
         }
     }
 

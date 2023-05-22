@@ -99,9 +99,6 @@ class CustodialTradingAccount(
             }
         }
 
-    override fun requireSecondPassword(): Single<Boolean> =
-        Single.just(false)
-
     override fun matches(other: CryptoAccount): Boolean =
         other is CustodialTradingAccount && other.currency == currency
 

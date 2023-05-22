@@ -82,6 +82,7 @@ import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.prices.navigation.PricesNavigation
+import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
 import com.blockchain.walletconnect.ui.navigation.WalletConnectV2Navigation
 import com.blockchain.walletmode.WalletMode
 import kotlin.math.min
@@ -142,7 +143,9 @@ fun MultiAppChrome(
     openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
-    openSwap: () -> Unit
+    openSwap: () -> Unit,
+    onWalletConnectSessionClicked: (DappSessionUiElement) -> Unit,
+    onWalletConnectSeeAllSessionsClicked: () -> Unit
 ) {
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(MultiAppIntents.LoadData)
@@ -220,7 +223,9 @@ fun MultiAppChrome(
             nftNavigation = nftNavigation,
             earnNavigation = earnNavigation,
             processAnnouncementUrl = processAnnouncementUrl,
-            openSwap = openSwap
+            openSwap = openSwap,
+            onWalletConnectSessionClicked = onWalletConnectSessionClicked,
+            onWalletConnectSeeAllSessionsClicked = onWalletConnectSeeAllSessionsClicked
         )
     }
 }
@@ -265,7 +270,9 @@ fun MultiAppChromeScreen(
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
     processAnnouncementUrl: (String) -> Unit,
-    openSwap: () -> Unit
+    openSwap: () -> Unit,
+    onWalletConnectSessionClicked: (DappSessionUiElement) -> Unit,
+    onWalletConnectSeeAllSessionsClicked: () -> Unit
 ) {
     val toolbarState = rememberToolbarState(modeSwitcherOptions)
     val navController = rememberNavController()
@@ -794,7 +801,6 @@ fun MultiAppChromeScreen(
                     navController = graphNavController,
                     qrScanNavigation = qrScanNavigation,
                     supportNavigation = supportNavigation,
-                    walletConnectV2Navigation = walletConnectV2Navigation,
                     startPhraseRecovery = startPhraseRecovery,
                     openExternalUrl = openExternalUrl,
                     openNftHelp = openNftHelp,
@@ -802,7 +808,9 @@ fun MultiAppChromeScreen(
                     nftNavigation = nftNavigation,
                     earnNavigation = earnNavigation,
                     processAnnouncementUrl = processAnnouncementUrl,
-                    openSwap = openSwap
+                    openSwap = openSwap,
+                    onWalletConnectSessionClicked = onWalletConnectSessionClicked,
+                    onWalletConnectSeeAllSessionsClicked = onWalletConnectSeeAllSessionsClicked
                 )
             }
 

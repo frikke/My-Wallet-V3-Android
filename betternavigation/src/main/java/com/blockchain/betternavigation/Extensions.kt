@@ -1,7 +1,13 @@
 package com.blockchain.betternavigation
 
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.ComposeNavigator
@@ -123,7 +129,11 @@ fun <Args : Serializable?> NavGraphBuilder.typedBottomSheet(
                     argsHolder[argsId] as Args
                 }
                 val navContext = NavContext(navController, argsHolder)
+
                 content(navContext, args)
+
+                val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                Spacer(modifier = Modifier.size(navBarHeight))
             }
         ).apply {
             this.route = destination.route

@@ -22,6 +22,7 @@ import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.preferences.AppInfoPrefs.Companion.DEFAULT_APP_VERSION_CODE
+import com.blockchain.walletconnect.domain.WalletConnectV2Service
 import com.facebook.stetho.Stetho
 import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import com.google.android.gms.common.ConnectionResult
@@ -29,6 +30,11 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.security.ProviderInstaller
 import com.google.android.play.core.missingsplits.MissingSplitsManagerFactory
 import com.google.firebase.FirebaseApp
+import com.walletconnect.android.Core
+import com.walletconnect.android.CoreClient
+import com.walletconnect.android.relay.ConnectionType
+import com.walletconnect.web3.wallet.client.Wallet
+import com.walletconnect.web3.wallet.client.Web3Wallet
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -54,6 +60,7 @@ open class BlockchainApplication : Application() {
     private val remoteLogger: RemoteLogger by inject()
     private val trust: SiftDigitalTrust by inject()
     private val fraudService: FraudService by inject()
+    private val walletConnectServiceV2: WalletConnectV2Service by inject()
 
     private val lifecycleListener: AppLifecycleListener by lazy {
         AppLifecycleListener(lifeCycleInterestedComponent, remoteLogger)
@@ -107,6 +114,43 @@ open class BlockchainApplication : Application() {
         sslPinningObservable
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(onNext = ::onConnectionEvent)
+
+        // WalletConnect V2 Initialization
+        val projectId = "bcb13be5052677e9e7848634a68206ae" // TODO HARDCODED
+        val relayUrl = "relay.walletconnect.com"
+        val serverUrl = "wss://$relayUrl?projectId=$projectId"
+        val connectionType = ConnectionType.AUTOMATIC
+
+        CoreClient.initialize(
+            relayServerUrl = serverUrl,
+            connectionType = connectionType,
+            application = this,
+            metaData = Core.Model.AppMetaData(
+                name = "Blockchain.com",
+                description = "",
+                url = "https://www.blockchain.com",
+                icons = listOf("https://www.blockchain.com/static/apple-touch-icon.png"),
+                redirect = null,
+                verifyUrl = null
+            ),
+            relay = null,
+            keyServerUrl = null,
+            networkClientTimeout = null,
+            onError = { error ->
+                Timber.e("WalletConnect V2: Core error: $error")
+            },
+        )
+
+        val initParams = Wallet.Params.Init(CoreClient)
+        Web3Wallet.initialize(
+            initParams,
+            onSuccess = {
+                Timber.d("WalletConnect V2: Web3Wallet init success")
+            },
+            onError = { error ->
+                Timber.e("WalletConnect V2: Web3Wallet init error: $error")
+            }
+        )
 
         AppVersioningChecks(
             context = this,

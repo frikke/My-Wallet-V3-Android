@@ -3,10 +3,7 @@ package com.dex.presentation.confirmation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -25,7 +22,6 @@ import com.blockchain.dex.presentation.R
 
 @Composable
 fun DexConfirmationInfoSheet(closeClicked: () -> Unit, title: String, description: String) {
-    val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.Center,
@@ -64,6 +60,5 @@ fun DexConfirmationInfoSheet(closeClicked: () -> Unit, title: String, descriptio
             text = stringResource(id = com.blockchain.stringResources.R.string.common_got_it),
             onClick = closeClicked
         )
-        Spacer(modifier = Modifier.size(navBarHeight))
     }
 }
