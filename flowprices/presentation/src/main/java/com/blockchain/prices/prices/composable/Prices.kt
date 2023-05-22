@@ -204,7 +204,6 @@ fun ColumnScope.PricesScreenData(
                     PaddingValues(
                         start = AppTheme.dimensions.smallSpacing,
                         end = AppTheme.dimensions.smallSpacing,
-                        top = AppTheme.dimensions.smallSpacing,
                         bottom = AppTheme.dimensions.tinySpacing
                     )
                 }
