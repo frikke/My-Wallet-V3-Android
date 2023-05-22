@@ -13,10 +13,8 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Icons
@@ -85,44 +83,67 @@ internal fun LazyListScope.homeAssets(
     openFiatActionDetail: (String) -> Unit
 ) {
     paddedItem(
-        paddingValues = PaddingValues(horizontal = 16.dp)
+        paddingValues = {
+            PaddingValues(
+                start = AppTheme.dimensions.smallSpacing,
+                end = AppTheme.dimensions.smallSpacing,
+                top = AppTheme.dimensions.smallSpacing,
+                bottom = AppTheme.dimensions.tinySpacing
+            )
+        }
     ) {
         val showSeeAll = data.filterIsInstance<HomeCryptoAsset>().isNotEmpty()
-        Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)))
         TableRowHeader(
             title = stringResource(com.blockchain.stringResources.R.string.ma_home_assets_title),
             actionTitle = stringResource(com.blockchain.stringResources.R.string.see_all).takeIf { showSeeAll },
             actionOnClick = openCryptoAssets.takeIf { showSeeAll }
         )
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
     }
 
     locks?.let {
         paddedItem(
-            paddingValues = PaddingValues(horizontal = 16.dp)
+            paddingValues = {
+                PaddingValues(
+                    start = AppTheme.dimensions.smallSpacing,
+                    end = AppTheme.dimensions.smallSpacing,
+                    bottom = AppTheme.dimensions.tinySpacing
+                )
+            }
         ) {
             FundLocksData(
                 total = locks.onHoldTotalAmount,
                 onClick = { fundsLocksOnClick(it) }
             )
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
         }
     }
 
     paddedRoundedCornersItems(
         items = data.filterIsInstance<CustodialAssetState>(),
         key = { state -> state.asset.networkTicker },
-        paddingValues = PaddingValues(horizontal = 16.dp)
+        paddingValues = {
+            PaddingValues(
+                start = AppTheme.dimensions.smallSpacing,
+                end = AppTheme.dimensions.smallSpacing,
+                bottom = AppTheme.dimensions.smallSpacing
+            )
+        }
     ) {
         BalanceWithPriceChange(
             cryptoAsset = it,
             onAssetClick = assetOnClick
         )
     }
+
     paddedRoundedCornersItems(
         items = data.filterIsInstance<NonCustodialAssetState>(),
         key = { state -> state.asset.networkTicker },
-        paddingValues = PaddingValues(horizontal = 16.dp)
+        paddingValues = {
+            PaddingValues(
+                start = AppTheme.dimensions.smallSpacing,
+                end = AppTheme.dimensions.smallSpacing,
+                bottom = AppTheme.dimensions.smallSpacing
+            )
+        }
     ) {
         BalanceWithFiatAndCryptoBalance(
             cryptoAsset = it,
@@ -130,20 +151,16 @@ internal fun LazyListScope.homeAssets(
         )
     }
 
-    item {
-        val fiatSpacer = if (data.filterIsInstance<CustodialAssetState>().isNotEmpty() &&
-            data.filterIsInstance<FiatAssetState>().isNotEmpty()
-        ) {
-            AppTheme.dimensions.smallSpacing
-        } else
-            0.dp
-        Spacer(modifier = Modifier.size(fiatSpacer))
-    }
-
     paddedRoundedCornersItems(
         items = data.filterIsInstance<FiatAssetState>(),
         key = { state -> state.account.currency.networkTicker },
-        paddingValues = PaddingValues(horizontal = 16.dp)
+        paddingValues = {
+            PaddingValues(
+                start = AppTheme.dimensions.smallSpacing,
+                end = AppTheme.dimensions.smallSpacing,
+                bottom = AppTheme.dimensions.smallSpacing
+            )
+        }
     ) {
         BalanceChangeTableRow(
             name = it.name,

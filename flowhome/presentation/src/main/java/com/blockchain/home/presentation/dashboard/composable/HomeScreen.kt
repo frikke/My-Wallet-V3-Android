@@ -177,7 +177,7 @@ fun HomeScreen(
                 )
                 pkwActivityViewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.Limited(MAX_ACTIVITY_COUNT)))
                 homeDappsViewModel.onIntent(HomeDappsIntent.LoadData)
-//                newsViewModel.onIntent(NewsIntent.LoadData)
+                //                newsViewModel.onIntent(NewsIntent.LoadData)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -194,7 +194,7 @@ fun HomeScreen(
             quickActionsViewModel.onIntent(QuickActionsIntent.Refresh)
             pkwActivityViewModel.onIntent(ActivityIntent.Refresh())
             custodialActivityViewModel.onIntent(ActivityIntent.Refresh())
-//            newsViewModel.onIntent(NewsIntent.Refresh)
+            //            newsViewModel.onIntent(NewsIntent.Refresh)
         }
     }
 
@@ -242,7 +242,9 @@ fun HomeScreen(
         quickActionsState.actions.let {
             val wMode = walletMode ?: return@let
             paddedItem(
-                paddingValues = PaddingValues(horizontal = 16.dp)
+                paddingValues = {
+                    PaddingValues(AppTheme.dimensions.smallSpacing)
+                }
             ) {
                 QuickActions(
                     quickActionItems = it,
@@ -279,17 +281,19 @@ fun HomeScreen(
             }
         }
 
-        paddedItem(
-            paddingValues = PaddingValues(horizontal = 16.dp)
-        ) {
-            LocalAnnouncements(
-                announcements = announcementsState.localAnnouncements,
-                onClick = { announcement ->
-                    when (announcement.type) {
-                        LocalAnnouncementType.PHRASE_RECOVERY -> startPhraseRecovery()
+        announcementsState.localAnnouncements.takeIf { it.isNotEmpty() }?.let { localAnnouncements ->
+            paddedItem(
+                paddingValues = { PaddingValues(AppTheme.dimensions.smallSpacing) }
+            ) {
+                LocalAnnouncements(
+                    announcements = localAnnouncements,
+                    onClick = { announcement ->
+                        when (announcement.type) {
+                            LocalAnnouncementType.PHRASE_RECOVERY -> startPhraseRecovery()
+                        }
                     }
-                }
-            )
+                )
+            }
         }
 
         walletMode?.let {
@@ -389,15 +393,10 @@ fun HomeScreen(
 
         (referralState.referralInfo as? DataResource.Data)?.data?.let {
             (it as? ReferralInfo.Data)?.let {
-                paddedItem(
-                    paddingValues = PaddingValues(horizontal = 16.dp)
-                ) {
-                    Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
-                    ReferralComponent(
-                        openReferral = openReferral,
-                        referralData = it
-                    )
-                }
+                homeReferral(
+                    referralData = it,
+                    openReferral = openReferral
+                )
             }
         }
 
@@ -406,13 +405,9 @@ fun HomeScreen(
             seeAllOnClick = {}
         )
 
-        paddedItem(
-            paddingValues = PaddingValues(horizontal = 16.dp)
-        ) {
-            HelpAndSupport(
-                openSupportCenter = { supportNavigation.launchSupportCenter() }
-            )
-        }
+        homeHelp(
+            openSupportCenter = { supportNavigation.launchSupportCenter() }
+        )
 
         item {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.borderRadiiLarge))

@@ -1,14 +1,9 @@
 package com.blockchain.home.presentation.dashboard.composable
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.Analytics
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
 import com.blockchain.componentlib.tablerow.TableRowHeader
@@ -32,10 +27,16 @@ fun LazyListScope.homeActivityScreen(
         activity.isNotEmpty()
     }?.let { activities ->
         paddedItem(
-            paddingValues = PaddingValues(horizontal = 16.dp)
+            paddingValues = {
+                PaddingValues(
+                    start = AppTheme.dimensions.smallSpacing,
+                    end = AppTheme.dimensions.smallSpacing,
+                    top = AppTheme.dimensions.smallSpacing,
+                    bottom = AppTheme.dimensions.tinySpacing
+                )
+            }
         ) {
             val analytics: Analytics = get()
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
             TableRowHeader(
                 title = stringResource(com.blockchain.stringResources.R.string.ma_home_activity_title),
                 actionTitle = stringResource(com.blockchain.stringResources.R.string.see_all),
@@ -44,12 +45,18 @@ fun LazyListScope.homeActivityScreen(
                     analytics.logEvent(DashboardAnalyticsEvents.ActivitySeeAllClicked)
                 }
             )
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
         }
+
         paddedRoundedCornersItems(
             items = activities,
             key = { it.id },
-            paddingValues = PaddingValues(horizontal = 16.dp)
+            paddingValues = {
+                PaddingValues(
+                    start = AppTheme.dimensions.smallSpacing,
+                    end = AppTheme.dimensions.smallSpacing,
+                    bottom = AppTheme.dimensions.smallSpacing
+                )
+            }
         ) {
             ActivityComponentItem(
                 component = it,

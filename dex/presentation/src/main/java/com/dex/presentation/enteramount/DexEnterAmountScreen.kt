@@ -222,7 +222,6 @@ fun DexEnterAmountScreen(
 
     val viewState: InputAmountViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
-    val spacing = AppTheme.dimensions.smallSpacing
     LazyColumn(
         state = listState,
         modifier = Modifier
@@ -237,7 +236,11 @@ fun DexEnterAmountScreen(
         }
 
         (viewState as? InputAmountViewState.TransactionInputState)?.let { viewState ->
-            paddedItem(paddingValues = PaddingValues(horizontal = spacing)) {
+            paddedItem(
+                paddingValues = {
+                    PaddingValues(horizontal = AppTheme.dimensions.smallSpacing)
+                }
+            ) {
                 InputScreen(
                     selectSourceAccount = {
                         navController.navigate(DexDestination.SelectSourceAccount.route)
@@ -284,7 +287,11 @@ fun DexEnterAmountScreen(
         }
 
         (viewState as? InputAmountViewState.NoInputViewState)?.let {
-            paddedItem(paddingValues = PaddingValues(spacing)) {
+            paddedItem(
+                paddingValues = {
+                    PaddingValues(horizontal = AppTheme.dimensions.smallSpacing)
+                }
+            ) {
                 NoInputScreen(
                     networkSelection = it.selectedNetwork,
                     allowNetworkSelection = it.allowNetworkSelection,
