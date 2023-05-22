@@ -38,7 +38,7 @@ internal fun LazyListScope.homeRecurringBuys(
         TableRowHeader(
             title = stringResource(com.blockchain.stringResources.R.string.recurring_buy_toolbar),
             actionTitle = stringResource(
-                com.blockchain.stringResources.R.string.manage
+                com.blockchain.stringResources.R.string.see_all
             ).takeIf { recurringBuys.isNotEmpty() },
             actionOnClick = {
                 manageOnclick()
