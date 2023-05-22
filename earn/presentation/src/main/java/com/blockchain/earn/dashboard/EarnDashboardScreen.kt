@@ -261,7 +261,7 @@ fun EarningAndDiscover(
             }
         )
 
-        StandardVerticalSpacer()
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
 
         when (selectedTab) {
             SelectedTab.Earning -> {
@@ -318,8 +318,8 @@ private fun DiscoverScreen(
             Column(modifier = Modifier.background(color = AppTheme.colors.light)) {
                 Box(
                     modifier = Modifier.padding(
-                        top = AppTheme.dimensions.verySmallSpacing,
-                        bottom = AppTheme.dimensions.verySmallSpacing
+                        top = AppTheme.dimensions.smallSpacing,
+                        bottom = AppTheme.dimensions.smallSpacing
                     )
                 ) {
                     NonCancelableOutlinedSearch(
@@ -332,8 +332,6 @@ private fun DiscoverScreen(
                     )
                 }
 
-                TinyVerticalSpacer()
-
                 TagButtonRow(
                     selected = filterBy,
                     values = filtersAvailable.map {
@@ -342,7 +340,7 @@ private fun DiscoverScreen(
                     onClick = { filter -> filterAction(filter) }
                 )
 
-                TinyVerticalSpacer()
+                Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
             }
         }
 
@@ -366,90 +364,64 @@ private fun DiscoverScreen(
                 )
             }
         } else {
-            itemsIndexed(
-                items = discoverAssetList,
-                itemContent = { index, item ->
-                    val top = if (index == 0) {
-                        AppTheme.dimensions.smallSpacing
-                    } else {
-                        AppTheme.dimensions.noSpacing
-                    }
-                    val bottom = if (index == discoverAssetList.lastIndex) {
-                        AppTheme.dimensions.smallSpacing
-                    } else {
-                        AppTheme.dimensions.noSpacing
-                    }
 
-                    Surface(
-                        shape = RoundedCornerShape(
-                            topStart = top,
-                            topEnd = top,
-                            bottomEnd = bottom,
-                            bottomStart = bottom
+            roundedCornersItems(
+                items = discoverAssetList
+            ) { asset ->
+                Column {
+                    BalanceTableRow(
+                        modifier = Modifier.alpha(
+                            if (asset.eligibility !is EarnRewardsEligibility.Eligible) {
+                                0.5f
+                            } else {
+                                1f
+                            }
                         ),
-                        color = Color.Transparent
-                    ) {
-                        Column {
-                            BalanceTableRow(
-                                modifier = Modifier.alpha(
-                                    if (item.eligibility !is EarnRewardsEligibility.Eligible) {
-                                        0.5f
-                                    } else {
-                                        1f
-                                    }
-                                ),
-                                titleStart = buildAnnotatedString { append(item.assetName) },
-                                startImageResource = ImageResource.Remote(item.iconUrl),
-                                bodyStart = buildAnnotatedString {
-                                    append(
-                                        stringResource(
-                                            id = com.blockchain.stringResources.R.string.staking_summary_rate_value,
-                                            item.rate.toString()
-                                        )
+                        titleStart = buildAnnotatedString { append(asset.assetName) },
+                        startImageResource = ImageResource.Remote(asset.iconUrl),
+                        bodyStart = buildAnnotatedString {
+                            append(
+                                stringResource(
+                                    id = com.blockchain.stringResources.R.string.staking_summary_rate_value,
+                                    asset.rate.toString()
+                                )
+                            )
+                        },
+                        tags = listOf(
+                            TagViewState(
+                                when (asset.type) {
+                                    EarnType.Passive -> stringResource(
+                                        id = com.blockchain.stringResources.R
+                                            .string.earn_rewards_label_passive_short
+                                    )
+
+                                    EarnType.Staking -> stringResource(
+                                        id = com.blockchain.stringResources.R
+                                            .string.earn_rewards_label_staking_short
+                                    )
+
+                                    EarnType.Active -> stringResource(
+                                        id = com.blockchain.stringResources.R
+                                            .string.earn_rewards_label_active_short
                                     )
                                 },
-                                tags = listOf(
-                                    TagViewState(
-                                        when (item.type) {
-                                            EarnType.Passive -> stringResource(
-                                                id = com.blockchain.stringResources.R
-                                                    .string.earn_rewards_label_passive_short
-                                            )
-
-                                            EarnType.Staking -> stringResource(
-                                                id = com.blockchain.stringResources.R
-                                                    .string.earn_rewards_label_staking_short
-                                            )
-
-                                            EarnType.Active -> stringResource(
-                                                id = com.blockchain.stringResources.R
-                                                    .string.earn_rewards_label_active_short
-                                            )
-                                        },
-                                        TagType.Default()
-                                    )
-                                ),
-                                isInlineTags = true,
-                                endImageResource = ImageResource.Local(
-                                    com.blockchain.componentlib.R.drawable.ic_chevron_end
-                                ),
-                                onClick = {
-                                    onItemClicked(item)
-                                }
+                                TagType.Default()
                             )
-
-                            if (index < discoverAssetList.lastIndex) {
-                                HorizontalDivider(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    dividerColor = AppTheme.colors.backgroundMuted
-                                )
-                            } else {
-                                Spacer(modifier = Modifier.height(100.dp))
-                            }
+                        ),
+                        isInlineTags = true,
+                        endImageResource = ImageResource.Local(
+                            com.blockchain.componentlib.R.drawable.ic_chevron_end
+                        ),
+                        onClick = {
+                            onItemClicked(asset)
                         }
-                    }
+                    )
                 }
-            )
+            }
+
+            item {
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.borderRadiiLarge))
+            }
         }
     }
 }
