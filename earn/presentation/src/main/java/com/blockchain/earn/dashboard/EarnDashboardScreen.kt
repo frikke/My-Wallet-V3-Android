@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,6 +42,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.analytics.Analytics
+import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -55,6 +57,7 @@ import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.control.NonCancelableOutlinedSearch
 import com.blockchain.componentlib.control.TabSwitcher
 import com.blockchain.componentlib.divider.HorizontalDivider
+import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.system.LazyRoundedCornersColumnIndexed
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.BalanceTableRow
@@ -658,61 +661,54 @@ private fun EarningScreen(
                 onClick = { investNowClicked() }
             )
         } else {
-            Box {
-                LazyRoundedCornersColumnIndexed(
-                    modifier = Modifier.fillMaxSize(),
-                    items = earningAssetList,
-                    rowContent = { asset, index ->
-                        Column {
-                            BalanceTableRow(
-                                titleStart = buildAnnotatedString { append(asset.assetName) },
-                                titleEnd = buildAnnotatedString { append(asset.balanceFiat.toStringWithSymbol()) },
-                                startImageResource = ImageResource.Remote(asset.iconUrl),
-                                bodyStart = buildAnnotatedString {
-                                    append(
-                                        stringResource(
-                                            id = com.blockchain.stringResources.R.string.staking_summary_rate_value,
-                                            asset.rate.toString()
-                                        )
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                roundedCornersItems(earningAssetList) { asset ->
+                    Column {
+                        BalanceTableRow(
+                            titleStart = buildAnnotatedString { append(asset.assetName) },
+                            titleEnd = buildAnnotatedString { append(asset.balanceFiat.toStringWithSymbol()) },
+                            startImageResource = ImageResource.Remote(asset.iconUrl),
+                            bodyStart = buildAnnotatedString {
+                                append(
+                                    stringResource(
+                                        id = com.blockchain.stringResources.R.string.staking_summary_rate_value,
+                                        asset.rate.toString()
                                     )
-                                },
-                                tags = listOf(
-                                    TagViewState(
-                                        when (asset.type) {
-                                            EarnType.Passive -> stringResource(
-                                                id =
-                                                com.blockchain.stringResources.R.string.earn_rewards_label_passive_short
-                                            )
-
-                                            EarnType.Staking -> stringResource(
-                                                id =
-                                                com.blockchain.stringResources.R.string.earn_rewards_label_staking_short
-                                            )
-
-                                            EarnType.Active -> stringResource(
-                                                id =
-                                                com.blockchain.stringResources.R.string.earn_rewards_label_active_short
-                                            )
-                                        },
-                                        TagType.Default()
-                                    )
-                                ),
-                                isInlineTags = true,
-                                bodyEnd = buildAnnotatedString { append(asset.balanceCrypto.toStringWithSymbol()) },
-                                onClick = { onItemClicked(asset) }
-                            )
-
-                            if (index < earningAssetList.lastIndex) {
-                                HorizontalDivider(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    dividerColor = AppTheme.colors.backgroundMuted
                                 )
-                            } else {
-                                Spacer(modifier = Modifier.height(100.dp))
-                            }
-                        }
+                            },
+                            tags = listOf(
+                                TagViewState(
+                                    when (asset.type) {
+                                        EarnType.Passive -> stringResource(
+                                            id =
+                                            com.blockchain.stringResources.R.string.earn_rewards_label_passive_short
+                                        )
+
+                                        EarnType.Staking -> stringResource(
+                                            id =
+                                            com.blockchain.stringResources.R.string.earn_rewards_label_staking_short
+                                        )
+
+                                        EarnType.Active -> stringResource(
+                                            id =
+                                            com.blockchain.stringResources.R.string.earn_rewards_label_active_short
+                                        )
+                                    },
+                                    TagType.Default()
+                                )
+                            ),
+                            isInlineTags = true,
+                            bodyEnd = buildAnnotatedString { append(asset.balanceCrypto.toStringWithSymbol()) },
+                            onClick = { onItemClicked(asset) }
+                        )
                     }
-                )
+                }
+
+                item {
+                    Spacer(modifier = Modifier.size(AppTheme.dimensions.borderRadiiLarge))
+                }
             }
         }
     }
