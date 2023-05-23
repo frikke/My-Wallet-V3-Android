@@ -40,5 +40,6 @@ data class DexCurrency(
     private val currency: AssetInfo,
     val isVerified: Boolean,
     val chainId: Int,
+    override val index: Int = currency.index,
     val contractAddress: String
 ) : AssetInfo by currency

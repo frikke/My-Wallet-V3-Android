@@ -33,6 +33,7 @@ class AllowanceTransactionProcessor(
         return allowanceService.pushAllowanceTransaction(
             network = network,
             signatures = transactionSignatures,
+            assetInfo = transaction.currencyToAllow,
             rawTx = transaction.rawTx
         )
     }
@@ -47,6 +48,7 @@ class AllowanceTransactionProcessor(
             require(network != null)
             allowanceService.pushAllowanceTransaction(
                 network = network,
+                assetInfo = assetInfo,
                 signatures = transactionSignatures,
                 rawTx = builtTx.rawTx
             )

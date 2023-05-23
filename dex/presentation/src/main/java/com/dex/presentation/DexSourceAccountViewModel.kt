@@ -80,7 +80,7 @@ sealed class SourceAccountIntent : Intent<SourceAccountModelState> {
 }
 
 data class SourceAccountSelectionViewState(
-    val accounts: List<DexAccount> = emptyList()
+    val accounts: List<DexAccount>,
 ) : ViewState
 
 data class SourceAccountModelState(

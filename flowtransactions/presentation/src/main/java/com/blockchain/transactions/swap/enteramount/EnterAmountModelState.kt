@@ -21,6 +21,7 @@ data class EnterAmountModelState(
     val walletMode: WalletMode? = null,
 
     val fromAccount: CryptoAccountWithBalance? = null,
+    val secondPassword: String? = null,
     val toAccount: CryptoAccount? = null,
     val fiatCurrency: FiatCurrency,
 

@@ -1,4 +1,4 @@
-package com.blockchain.walletconnect.ui.composable
+package com.blockchain.walletconnect.ui.composable.common
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -60,7 +60,7 @@ fun WalletConnectDappTableRow(
                     .wrapContentWidth(align = Alignment.End)
                     .weight(1f),
                 content = {
-                    Image(imageResource = ImageResource.Remote(session.chainLogo))
+                    Image(imageResource = ImageResource.Remote(session.chainLogo, size = 12.dp))
                     TinyHorizontalSpacer()
                     SimpleText(
                         text = session.chainName,
@@ -69,11 +69,12 @@ fun WalletConnectDappTableRow(
                         gravity = ComposeGravities.Start
                     )
                 },
-                onClick = onSessionClicked,
+                onClick = { }, // no-op
                 shape = CircleShape,
                 colors = ButtonDefaults.buttonColors(backgroundColor = AppTheme.colors.light)
             )
-        }
+        },
+        onContentClicked = onSessionClicked
     )
 }
 
@@ -84,20 +85,15 @@ fun WalletConnectDappTableRowPreview() {
         WalletConnectDappTableRow(
             session = DappSessionUiElement(
                 dappName = "My Dapp",
+                dappDescription = "This is a description of my dapp",
                 dappUrl = "https://mydapp.com",
                 dappLogoUrl = "https://mydapp.com/logo.png",
                 chainName = "Ethereum",
                 chainLogo = "https://ethereum.org/logo.png",
+                sessionId = "1234567890",
+                isV2 = true
             ),
             onSessionClicked = {},
         )
     }
 }
-
-data class DappSessionUiElement(
-    val dappName: String,
-    val dappUrl: String,
-    val dappLogoUrl: String,
-    val chainName: String,
-    val chainLogo: String,
-)

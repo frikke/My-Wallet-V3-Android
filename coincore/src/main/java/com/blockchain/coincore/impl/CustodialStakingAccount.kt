@@ -80,9 +80,6 @@ class CustodialStakingAccount(
     override val directions: Set<TransferDirection>
         get() = emptySet()
 
-    override fun requireSecondPassword(): Single<Boolean> =
-        Single.just(false)
-
     override fun matches(other: CryptoAccount): Boolean =
         other is CustodialStakingAccount && other.currency == currency
 

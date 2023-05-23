@@ -12,26 +12,31 @@ import com.blockchain.componentlib.tablerow.TableRowHeader
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.home.presentation.dapps.HomeDappsViewState
 import com.blockchain.home.presentation.dapps.composable.WalletConnectDashboardCTA
-import com.blockchain.walletconnect.ui.composable.DappSessionUiElement
-import com.blockchain.walletconnect.ui.composable.WalletConnectDappTableRow
+import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
+import com.blockchain.walletconnect.ui.composable.common.WalletConnectDappTableRow
+import org.koin.androidx.compose.get
+import timber.log.Timber
 
 internal fun LazyListScope.homeDapps(
     homeDappsState: HomeDappsViewState,
-    onSessionClicked: (DappSessionUiElement) -> Unit,
-    openQrCodeScanner: () -> Unit,
+    onWalletConnectSeeAllSessionsClicked: () -> Unit,
+    onDappSessionClicked: (DappSessionUiElement) -> Unit,
+    openQrCodeScanner: () -> Unit
 ) {
 
     if (homeDappsState !is HomeDappsViewState.Loading) {
         paddedItem(
             paddingValues = PaddingValues(horizontal = 16.dp)
         ) {
-            // val analytics: Analytics = get() TODO add analytics
             Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
             TableRowHeader(
                 title = "Connected Apps",
-                actionOnClick = {
-                    // TODO: See All clicked
-                }
+                actionOnClick = onWalletConnectSeeAllSessionsClicked,
+                actionTitle = if (homeDappsState is HomeDappsViewState.HomeDappsSessions) {
+                    "See All"
+                } else {
+                    null
+                },
             )
             Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
         }
@@ -48,7 +53,10 @@ internal fun LazyListScope.homeDapps(
         ) { session ->
             WalletConnectDappTableRow(
                 session = session,
-                onSessionClicked = { onSessionClicked(session) }
+                onSessionClicked = {
+                    Timber.d("Session clicked: $session")
+                    onDappSessionClicked(session)
+                }
             )
         }
     }

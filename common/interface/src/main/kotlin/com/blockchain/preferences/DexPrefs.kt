@@ -6,4 +6,6 @@ interface DexPrefs {
     var selectedDestinationCurrencyTicker: String
     var selectedSlippageIndex: Int
     var selectedChainId: Int
+
+    var allowanceApprovedButPendingTokens: Set<String>
 }

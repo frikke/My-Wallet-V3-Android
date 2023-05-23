@@ -45,8 +45,6 @@ class NullCryptoAccount(
         return Single.just(ActionState.Unavailable)
     }
 
-    override fun requireSecondPassword(): Single<Boolean> = Single.just(false)
-
     override fun matches(other: CryptoAccount): Boolean =
         other is NullCryptoAccount
 }

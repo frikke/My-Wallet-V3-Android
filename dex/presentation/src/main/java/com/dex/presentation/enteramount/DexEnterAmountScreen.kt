@@ -275,6 +275,9 @@ fun DexEnterAmountScreen(
                     },
                     revokeAllowance = {
                         viewModel.onIntent(InputAmountIntent.RevokeSourceCurrencyAllowance)
+                    },
+                    onTokenAllowanceApproveButPending = {
+                        viewModel.onIntent(InputAmountIntent.PollForPendingAllowance)
                     }
                 )
             }
@@ -383,6 +386,7 @@ fun InputScreen(
     selectSourceAccount: () -> Unit,
     selectDestinationAccount: () -> Unit,
     onTokenAllowanceRequested: () -> Unit,
+    onTokenAllowanceApproveButPending: () -> Unit,
     onPreviewClicked: () -> Unit,
     revokeAllowance: () -> Unit,
     onValueChanged: (TextFieldValue) -> Unit,
@@ -460,15 +464,17 @@ fun InputScreen(
             PriceFetching()
         }
 
-        viewState.noTokenAllowanceError?.let {
+        viewState.noTokenAllowanceError?.let { allowanceError ->
             TokenAllowance(
                 onClick = onTokenAllowanceRequested,
-                currency = it.token,
-                txInProgress = viewState.operationInProgress in listOf(
-                    DexOperation.PUSHING_ALLOWANCE_TX,
-                    DexOperation.BUILDING_ALLOWANCE_TX
-                )
+                currency = allowanceError.token,
+                txInProgress = viewState.allowanceTransactionInProgress
             )
+            LaunchedEffect(key1 = allowanceError.hasBeenApproved) {
+                if (allowanceError.hasBeenApproved) {
+                    onTokenAllowanceApproveButPending()
+                }
+            }
         }
 
         viewState.allowanceCanBeRevoked.takeIf { it }?.let {
@@ -766,7 +772,7 @@ private fun PreviewNetworkSelection_Loading() {
 @Composable
 private fun PreviewInputScreen_NetworkSelection() {
     InputScreen(
-        {}, {}, {}, {}, {}, {}, {}, {}, {},
+        {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         InputAmountViewState.TransactionInputState(
             selectedNetwork = DataResource.Data(
                 DexNetworkViewState(

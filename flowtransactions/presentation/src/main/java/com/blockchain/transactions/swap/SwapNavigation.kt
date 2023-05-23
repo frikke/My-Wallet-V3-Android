@@ -18,6 +18,8 @@ import com.blockchain.betternavigation.typedComposable
 import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.chrome.composable.ChromeSingleScreen
 import com.blockchain.koin.payloadScope
+import com.blockchain.transactions.common.entersecondpassword.EnterSecondPasswordArgs
+import com.blockchain.transactions.common.entersecondpassword.composable.EnterSecondPasswordScreen
 import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
 import com.blockchain.transactions.swap.confirmation.composable.ConfirmationScreen
 import com.blockchain.transactions.swap.enteramount.EnterAmountIntent
@@ -39,6 +41,7 @@ object SwapGraph : NavGraph() {
     object EnterAmount : Destination()
     object InputError : DestinationWithArgs<SwapEnterAmountInputError>()
     object SourceAccounts : Destination()
+    object EnterSecondPassword : Destination()
     object TargetAsset : DestinationWithArgs<String>()
     object TargetAccount : DestinationWithArgs<TargetAccountsArgs>()
     object Confirmation : Destination()
@@ -50,9 +53,11 @@ fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
     // TODO(aromano): navigation TEMP
     composable(SwapGraph::class.java.name) {
         val confirmationArgs = get<SwapConfirmationArgs>(scope = payloadScope)
+        val enterSecondPasswordArgs = get<EnterSecondPasswordArgs>(scope = payloadScope)
         DisposableEffect(Unit) {
             onDispose {
                 confirmationArgs.reset()
+                enterSecondPasswordArgs.reset()
             }
         }
 
@@ -84,7 +89,23 @@ fun NavGraphBuilder.swapGraphHost(mainNavController: NavController) {
                 ChromeBottomSheet(onClose = ::navigateUp) {
                     SourceAccounts(
                         accountSelected = {
-                            viewModel.onIntent(EnterAmountIntent.FromAccountChanged(it))
+                            viewModel.onIntent(EnterAmountIntent.FromAccountChanged(it, null))
+                        },
+                        navigateToEnterSecondPassword = { account ->
+                            enterSecondPasswordArgs.update(account)
+                            navigateTo(SwapGraph.EnterSecondPassword)
+                        },
+                        onBackPressed = ::navigateUp
+                    )
+                }
+            }
+
+            typedBottomSheet(SwapGraph.EnterSecondPassword) {
+                ChromeBottomSheet(onClose = ::navigateUp) {
+                    EnterSecondPasswordScreen(
+                        onAccountSecondPasswordValidated = { account, secondPassword ->
+                            viewModel.onIntent(EnterAmountIntent.FromAccountChanged(account, secondPassword))
+                            popBackStack(SwapGraph.EnterAmount, false)
                         },
                         onBackPressed = ::navigateUp
                     )

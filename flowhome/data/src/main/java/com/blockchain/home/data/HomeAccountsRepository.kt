@@ -50,7 +50,7 @@ class HomeAccountsRepository(
     private fun activeCustodialWallets(freshnessStrategy: FreshnessStrategy) =
         coincore.activeWalletsInMode(WalletMode.CUSTODIAL, freshnessStrategy).map { it.accounts }
             .map {
-                DataResource.Data(it) as DataResource<List<SingleAccount>>
+                DataResource.Data(it)
             }.onErrorReturn {
                 emptyList()
             }

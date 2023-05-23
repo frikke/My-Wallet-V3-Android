@@ -17,8 +17,10 @@ import org.mockito.Mockito
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import piuk.blockchain.android.BlockchainTestApplication
+import piuk.blockchain.android.FakeCoreClient
+import piuk.blockchain.android.FakeWeb3Wallet
 
-@Config(sdk = [26], application = BlockchainTestApplication::class)
+@Config(sdk = [26], application = BlockchainTestApplication::class, shadows = [FakeCoreClient::class, FakeWeb3Wallet::class])
 @RunWith(RobolectricTestRunner::class)
 class KoinGraphTest : KoinTest {
 

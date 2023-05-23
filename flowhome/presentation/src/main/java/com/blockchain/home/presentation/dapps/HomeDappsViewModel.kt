@@ -14,10 +14,11 @@ import com.blockchain.walletconnect.domain.SessionRepository
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.domain.WalletConnectV2Service
-import com.blockchain.walletconnect.ui.composable.DappSessionUiElement
-import info.blockchain.balance.CryptoCurrency
+import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
+import com.blockchain.walletconnect.ui.composable.common.toDappSessionUiElement
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -47,7 +48,7 @@ class HomeDappsViewModel(
                 HomeDappsViewState.NoSessions
             } else {
                 val dappSessions = sessions.map {
-                    reduceWalletConnectSession(it)
+                    it.toDappSessionUiElement()
                 }
                 HomeDappsViewState.HomeDappsSessions(dappSessions)
             }
@@ -67,30 +68,20 @@ class HomeDappsViewModel(
         }
     }
 
-    private fun reduceWalletConnectSession(session: WalletConnectSession): DappSessionUiElement {
-        return DappSessionUiElement(
-            dappName = session.dAppInfo.peerMeta.name,
-            dappUrl = session.dAppInfo.peerMeta.url.substringAfter("https://"),
-            dappLogoUrl = session.dAppInfo.peerMeta.icons.firstOrNull().orEmpty(),
-            chainName = CryptoCurrency.ETHER.name, // TODO support other ERC20 chains
-            chainLogo = CryptoCurrency.ETHER.logo // TODO support other ERC20 chains
-        )
-    }
-
     private fun loadSessions() = viewModelScope.launch {
-        if (walletConnectV2FeatureFlag.coEnabled()) {
-            val sessionsV1Flow = sessionsRepository.retrieve()
-                .onErrorReturn { emptyList() }.asFlow()
+        val sessionsV1Flow = sessionsRepository.retrieve()
+            .onErrorReturn { emptyList() }.asFlow()
 
-            val sessionsV2Flow = walletConnectV2Service.getSessionsFlow()
+        val sessionsV2Flow =
+            if (walletConnectV2FeatureFlag.coEnabled()) walletConnectV2Service.getSessionsFlow()
+            else emptyFlow()
 
-            combine(sessionsV1Flow, sessionsV2Flow) { sessionsV1, sessionsV2 ->
-                sessionsV1 + sessionsV2
-            }.collectLatest { sessions ->
-                Timber.d("Loaded WalletConnect sessions: $sessions")
-                updateState {
-                    copy(connectedSessions = DataResource.Data(sessions))
-                }
+        combine(sessionsV1Flow, sessionsV2Flow) { sessionsV1, sessionsV2 ->
+            sessionsV1 + sessionsV2
+        }.collectLatest { sessions ->
+            Timber.d("Loaded WalletConnect sessions: $sessions")
+            updateState {
+                copy(connectedSessions = DataResource.Data(sessions.take(5)))
             }
         }
     }
