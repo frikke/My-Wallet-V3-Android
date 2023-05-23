@@ -19,6 +19,7 @@ import com.blockchain.walletconnect.domain.WalletConnectV2UrlValidator
 import com.blockchain.walletconnect.ui.dapps.DappsListModel
 import com.blockchain.walletconnect.ui.dapps.v2.WalletConnectDappListViewModel
 import com.blockchain.walletconnect.ui.dapps.v2.WalletConnectSessionDetailViewModel
+import com.blockchain.walletconnect.ui.dapps.v2.WalletConnectSessionProposalViewModel
 import com.blockchain.walletconnect.ui.networks.SelectNetworkViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -115,6 +116,12 @@ val walletConnectModule = module {
             WalletConnectSessionDetailViewModel(
                 sessionsRepository = get(),
                 walletConnectService = get(),
+                walletConnectV2Service = get(),
+            )
+        }
+
+        viewModel {
+            WalletConnectSessionProposalViewModel(
                 walletConnectV2Service = get(),
             )
         }

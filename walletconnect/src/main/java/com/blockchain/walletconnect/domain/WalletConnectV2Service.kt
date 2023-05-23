@@ -16,12 +16,15 @@ interface WalletConnectV2Service {
         sessionProposal: Wallet.Model.SessionProposal
     ): Flow<Map<String, Wallet.Model.Namespace.Session>>
     fun approveLastSession()
+    fun getSessionProposalState(): Flow<WalletConnectSessionProposalState?>
     suspend fun getSessions(): List<WalletConnectSession>
     fun getSessionsFlow(): Flow<List<WalletConnectSession>>
 
     suspend fun getSession(sessionId: String): WalletConnectSession?
     suspend fun disconnectSession(sessionTopic: String)
     suspend fun disconnectAllSessions()
+
+    suspend fun getSessionProposal(sessionId: String): Wallet.Model.SessionProposal?
     fun clearSessionProposals()
     suspend fun sessionRequestComplete(
         sessionRequest: Wallet.Model.SessionRequest,
@@ -47,4 +50,9 @@ interface WalletConnectV2Service {
 
 interface WalletConnectV2UrlValidator {
     fun validateURI(uri: String): Boolean
+}
+
+enum class WalletConnectSessionProposalState {
+    APPROVED,
+    REJECTED
 }

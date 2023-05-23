@@ -51,6 +51,7 @@ import com.blockchain.componentlib.theme.END_TRADING
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.START_DEFI
 import com.blockchain.componentlib.theme.START_TRADING
+import com.blockchain.componentlib.theme.clickableWithIndication
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.koin.payloadScope
 import com.blockchain.preferences.AuthPrefs
@@ -312,7 +313,7 @@ fun NavigationBar(
 fun RowScope.StartButton(button: NavigationBarButton.Icon) {
     Box(
         modifier = Modifier
-            .clickable {
+            .clickableWithIndication {
                 button.onClick.invoke()
             }
             .align(CenterVertically)

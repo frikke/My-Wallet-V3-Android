@@ -64,6 +64,14 @@ sealed class WalletConnectAnalytics(
         )
     )
 
+    object HomeCTAClicked : WalletConnectAnalytics(
+        event = AnalyticsNames.WALLETCONNECT_HOME_CTA_CLICKED.eventName
+    )
+
+    class HomeDappClicked(network: String) : WalletConnectAnalytics(
+        event = AnalyticsNames.WALLETCONNECT_HOME_CONNECTED_APP_CLICKED.eventName
+    )
+
     enum class DappConnectionAction {
         CANCEL, CONFIRM, DISCONNECT, DISCONNECT_INTENT
     }
