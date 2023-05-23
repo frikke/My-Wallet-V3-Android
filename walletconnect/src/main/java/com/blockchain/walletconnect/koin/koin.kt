@@ -6,6 +6,7 @@ import com.blockchain.walletconnect.data.EthWalletAddressProvider
 import com.blockchain.walletconnect.data.SignRequestHandler
 import com.blockchain.walletconnect.data.WalletConnectMetadataRepository
 import com.blockchain.walletconnect.data.WalletConnectService
+import com.blockchain.walletconnect.data.WalletConnectSessionsStorage
 import com.blockchain.walletconnect.data.WalletConnectV2ServiceImpl
 import com.blockchain.walletconnect.domain.EthRequestSign
 import com.blockchain.walletconnect.domain.EthSendTransactionRequest
@@ -19,6 +20,7 @@ import com.blockchain.walletconnect.domain.WalletConnectV2UrlValidator
 import com.blockchain.walletconnect.ui.dapps.DappsListModel
 import com.blockchain.walletconnect.ui.dapps.v2.WalletConnectDappListViewModel
 import com.blockchain.walletconnect.ui.dapps.v2.WalletConnectSessionDetailViewModel
+import com.blockchain.walletconnect.ui.dapps.v2.WalletConnectSessionProposalViewModel
 import com.blockchain.walletconnect.ui.networks.SelectNetworkViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -78,9 +80,14 @@ val walletConnectModule = module {
 
         factory {
             WalletConnectMetadataRepository(
-                metadataRepository = get()
+                metadataRepository = get(),
+                walletConnectSessionsStorage = get()
             )
         }.bind(SessionRepository::class)
+
+        scoped {
+            WalletConnectSessionsStorage(metadataRepository = get())
+        }
 
         factory {
             DappsListModel(
@@ -115,6 +122,12 @@ val walletConnectModule = module {
             WalletConnectSessionDetailViewModel(
                 sessionsRepository = get(),
                 walletConnectService = get(),
+                walletConnectV2Service = get(),
+            )
+        }
+
+        viewModel {
+            WalletConnectSessionProposalViewModel(
                 walletConnectV2Service = get(),
             )
         }

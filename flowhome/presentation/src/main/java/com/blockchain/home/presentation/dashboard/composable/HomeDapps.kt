@@ -10,13 +10,14 @@ import com.blockchain.home.presentation.dapps.HomeDappsViewState
 import com.blockchain.home.presentation.dapps.composable.WalletConnectDashboardCTA
 import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
 import com.blockchain.walletconnect.ui.composable.common.WalletConnectDappTableRow
+import org.koin.androidx.compose.get
 import timber.log.Timber
 
 internal fun LazyListScope.homeDapps(
     homeDappsState: HomeDappsViewState,
     onWalletConnectSeeAllSessionsClicked: () -> Unit,
     onDappSessionClicked: (DappSessionUiElement) -> Unit,
-    openQrCodeScanner: () -> Unit,
+    openQrCodeScanner: () -> Unit
 ) {
 
     if (homeDappsState !is HomeDappsViewState.Loading) {
@@ -30,7 +31,6 @@ internal fun LazyListScope.homeDapps(
                 )
             }
         ) {
-            // val analytics: Analytics = get() TODO add analytics
             TableRowHeader(
                 title = "Connected Apps",
                 actionOnClick = onWalletConnectSeeAllSessionsClicked,

@@ -10,6 +10,7 @@ import com.blockchain.walletconnect.domain.DAppInfo
 import com.blockchain.walletconnect.domain.EthRequestSign
 import com.blockchain.walletconnect.domain.EthSendTransactionRequest
 import com.blockchain.walletconnect.domain.WalletConnectSession
+import com.blockchain.walletconnect.domain.WalletConnectSessionProposalState
 import com.blockchain.walletconnect.domain.WalletConnectUserEvent
 import com.blockchain.walletconnect.domain.WalletConnectV2Service
 import com.blockchain.walletconnect.domain.WalletConnectV2Service.Companion.EVM_CHAIN_ROOT
@@ -24,6 +25,7 @@ import com.blockchain.walletconnect.domain.WalletConnectV2UrlValidator
 import com.blockchain.walletconnect.domain.WalletInfo
 import com.blockchain.walletconnect.ui.networks.ETH_CHAIN_ID
 import com.blockchain.walletmode.WalletMode
+import com.walletconnect.android.internal.common.scope
 import com.walletconnect.web3.wallet.client.Wallet
 import com.walletconnect.web3.wallet.client.Web3Wallet
 import info.blockchain.balance.CryptoCurrency
@@ -66,7 +68,10 @@ class WalletConnectV2ServiceImpl(
     override val userEvents: SharedFlow<WalletConnectUserEvent> = _walletConnectUserEvents.asSharedFlow()
 
     init {
-        Web3Wallet.setWalletDelegate(this)
+        val delegate = this
+        scope.launch {
+            Web3Wallet.setWalletDelegate(delegate)
+        }
     }
 
     override suspend fun pair(pairingUrl: String) {
@@ -75,7 +80,7 @@ class WalletConnectV2ServiceImpl(
             val pairingParams = Wallet.Params.Pair(pairingUrl)
             Web3Wallet.pair(
                 pairingParams,
-                onSuccess = { wallet ->
+                onSuccess = {
                     Timber.d("WalletConnect V2: pairing success")
                 },
                 onError = { error ->
@@ -172,6 +177,23 @@ class WalletConnectV2ServiceImpl(
             Timber.d("WalletConnect V2: Emitting initial list of sessions")
             emit(getSessions())
         }.distinctUntilChanged() // Ensure that the same list is not emitted multiple times
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun getSessionProposalState(): Flow<WalletConnectSessionProposalState?> {
+        return _walletEvents.transformLatest { event ->
+            when (event) {
+                is Wallet.Model.SettledSessionResponse.Result -> {
+                    emit(WalletConnectSessionProposalState.APPROVED)
+                }
+                is Wallet.Model.SettledSessionResponse.Error -> {
+                    emit(WalletConnectSessionProposalState.REJECTED)
+                }
+                else -> emit(null)
+            }
+        }.onStart {
+            emit(null)
+        }.distinctUntilChanged()
+    }
 
     override suspend fun getSession(sessionId: String): WalletConnectSession? =
         withContext(Dispatchers.IO) {
@@ -286,6 +308,11 @@ class WalletConnectV2ServiceImpl(
             )
         }
     }
+
+    override suspend fun getSessionProposal(sessionId: String): Wallet.Model.SessionProposal? =
+        withContext(Dispatchers.IO) {
+            Web3Wallet.getSessionProposals().firstOrNull { it.pairingTopic == sessionId }
+        }
 
     override fun clearSessionProposals() {
         Timber.d("WalletConnect V2: Clearing Session Proposals")

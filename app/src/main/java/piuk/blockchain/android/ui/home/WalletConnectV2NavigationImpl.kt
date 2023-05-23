@@ -1,15 +1,17 @@
 package piuk.blockchain.android.ui.home
 
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
-import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import androidx.navigation.NavHostController
+import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
+import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.walletconnect.domain.WalletConnectV2Service
-import com.blockchain.walletconnect.domain.WalletConnectV2SessionProposal
+import com.blockchain.walletconnect.ui.navigation.WalletConnectDestination
 import com.blockchain.walletconnect.ui.navigation.WalletConnectV2Navigation
-import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet
-import com.blockchain.walletconnect.ui.sessionapproval.WCSessionUpdatedBottomSheet
 import com.walletconnect.web3.wallet.client.Wallet
+import java.net.URLEncoder
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
@@ -18,7 +20,8 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class WalletConnectV2NavigationImpl(
-    private val activity: BlockchainActivity?,
+    private val lifecycle: Lifecycle,
+    private val navController: NavHostController,
     private val walletConnectV2Service: WalletConnectV2Service,
     private val walletConnectV2FeatureFlag: FeatureFlag,
 ) : WalletConnectV2Navigation {
@@ -28,12 +31,9 @@ class WalletConnectV2NavigationImpl(
     override fun launchWalletConnectV2() {
         Timber.d("Launching WalletConnect V2")
         if (walletConnectEventsTask == null) {
-
-            require(activity != null)
-
-            walletConnectEventsTask = activity.lifecycleScope.launch {
+            walletConnectEventsTask = lifecycle.coroutineScope.launch {
                 if (walletConnectV2FeatureFlag.coEnabled()) {
-                    walletConnectV2Service.walletEvents.flowWithLifecycle(activity.lifecycle)
+                    walletConnectV2Service.walletEvents.flowWithLifecycle(lifecycle)
                         .distinctUntilChanged()
                         .collectLatest {
                             processWalletConnectV2Event(it)
@@ -43,39 +43,37 @@ class WalletConnectV2NavigationImpl(
         }
     }
 
-    override fun approveOrRejectSession(dappName: String, dappDescription: String, dappLogoUrl: String) {
-        activity!!.showBottomSheet(
-            WCApproveSessionBottomSheet.newInstanceWalletConnectV2(
-                WalletConnectV2SessionProposal(
-                    dappName = dappName,
-                    dappDescription = dappDescription,
-                    dappLogoUrl = dappLogoUrl,
-                )
-            )
+    override fun approveOrRejectSession(sessionId: String, walletAddress: String) {
+        navController.navigate(
+            WalletConnectDestination.WalletConnectSessionProposal,
+            listOfNotNull(
+                NavArgument(key = WalletConnectDestination.ARG_SESSION_ID, value = sessionId),
+                NavArgument(key = WalletConnectDestination.ARG_WALLET_ADDRESS, value = walletAddress)
+            ),
         )
     }
 
-    override fun sessionApproveSuccess(dappName: String, dappLogoUrl: String) {
-        activity!!.showBottomSheet(
-            WCSessionUpdatedBottomSheet.newInstanceV2SessionApproved(dappName = dappName, dappLogoUrl = dappLogoUrl)
-        )
+    override fun approveSession() {
+        walletConnectV2Service.approveLastSession()
     }
 
-    override fun sessionApproveFailed() {
-        activity!!.showBottomSheet(
-            WCSessionUpdatedBottomSheet.newInstanceV2SessionRejected("", "")
-        )
-    }
-
-    override fun sessionRejected(dappName: String, dappLogoUrl: String) {
-        activity!!.showBottomSheet(
-            WCSessionUpdatedBottomSheet.newInstanceV2SessionRejected(dappName, dappLogoUrl)
-        )
+    override fun rejectSession() {
+        walletConnectV2Service.clearSessionProposals()
     }
 
     override fun sessionUnsupported(dappName: String, dappLogoUrl: String) {
-        activity!!.showBottomSheet(
-            WCSessionUpdatedBottomSheet.newInstanceV2SessionNotSupported(dappName, dappLogoUrl)
+        navController.navigate(
+            WalletConnectDestination.WalletConnectSessionNotSupported,
+            listOfNotNull(
+                NavArgument(
+                    key = WalletConnectDestination.ARG_DAPP_NAME,
+                    value = dappName
+                ),
+                NavArgument(
+                    key = WalletConnectDestination.ARG_DAPP_LOGO_URL,
+                    value = URLEncoder.encode(dappLogoUrl, "UTF-8")
+                )
+            )
         )
     }
 
@@ -86,27 +84,11 @@ class WalletConnectV2NavigationImpl(
                 walletConnectV2Service.buildApprovedSessionNamespaces(event)
                     .catch {
                         Timber.e("Error building approved session namespaces ${it.message}")
-                        sessionUnsupported(event.name, event.icons.first().toString())
+                        sessionUnsupported(event.name, event.icons.firstOrNull()?.toString().orEmpty())
                     }
                     .collectLatest {
-                        approveOrRejectSession(
-                            event.name,
-                            event.description,
-                            event.icons.first().toString()
-                        )
+                        approveOrRejectSession(event.pairingTopic, event.proposerPublicKey)
                     }
-            }
-            is Wallet.Model.SettledSessionResponse.Result -> {
-                sessionApproveSuccess(
-                    dappName = event.session.metaData?.name.orEmpty(),
-                    dappLogoUrl = event.session.metaData?.icons?.first().orEmpty()
-                )
-            }
-            is Wallet.Model.SettledSessionResponse.Error -> {
-                sessionApproveFailed()
-            }
-            is Wallet.Model.Error -> {
-                sessionApproveFailed()
             }
             else -> {
                 Timber.e("Unknown event $event")

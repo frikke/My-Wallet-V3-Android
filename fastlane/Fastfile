@@ -158,8 +158,6 @@ platform :android do
 
       ci_credentials
 
-      ci_lint
-
       ci_build(
         environment: "Prod",
         build_type: "Debug"

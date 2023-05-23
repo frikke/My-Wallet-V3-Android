@@ -150,6 +150,9 @@ android {
 
             buildConfigField "String", "SARDINE_CLIENT_ID", "\"${buildProperties.secrets['sardineProduction']}\""
 
+            buildConfigField "String", "WALLETCONNECT_PROJECT_ID", "\"${buildProperties.secrets['walletConnectProjectId']}\""
+            buildConfigField "String", "WALLETCONNECT_RELAY_URL", "\"${buildProperties.secrets['walletConnectRelayUrl']}\""
+
             buildConfigField "boolean", "ALPHA", "false"
 
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
@@ -205,6 +208,9 @@ android {
             buildConfigField "String", "RECAPTCHA_PASS", "\"${buildProperties.secrets['recaptchaPassProduction']}\""
 
             buildConfigField "String", "SARDINE_CLIENT_ID", "\"${buildProperties.secrets['sardineProduction']}\""
+
+            buildConfigField "String", "WALLETCONNECT_PROJECT_ID", "\"${buildProperties.secrets['walletConnectProjectId']}\""
+            buildConfigField "String", "WALLETCONNECT_RELAY_URL", "\"${buildProperties.secrets['walletConnectRelayUrl']}\""
 
             buildConfigField "boolean", "ALPHA", "true"
 
@@ -264,6 +270,9 @@ android {
             buildConfigField "String", "CHECKMARKET_URL", "\"${buildProperties.secrets['checkMarketStaging']}\""
 
             buildConfigField "String", "SARDINE_CLIENT_ID", "\"${buildProperties.secrets['sardineStaging']}\""
+
+            buildConfigField "String", "WALLETCONNECT_PROJECT_ID", "\"${buildProperties.secrets['walletConnectProjectId']}\""
+            buildConfigField "String", "WALLETCONNECT_RELAY_URL", "\"${buildProperties.secrets['walletConnectRelayUrl']}\""
 
             buildConfigField "boolean", "ALPHA", "false"
 

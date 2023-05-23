@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -31,10 +32,12 @@ import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.koin.payloadScope
 import com.blockchain.stringResources.R
+import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
 import com.blockchain.walletconnect.ui.dapps.v2.WalletConnectSessionDetailIntent
 import com.blockchain.walletconnect.ui.dapps.v2.WalletConnectSessionDetailViewModel
 import com.blockchain.walletconnect.ui.dapps.v2.WalletConnectSessionDetailViewState
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -42,6 +45,7 @@ fun WalletConnectDappSessionDetail(
     sessionId: String,
     isV2: Boolean,
     onDismiss: () -> Unit,
+    analytics: Analytics = get()
 ) {
 
     val sessionDetailViewModel: WalletConnectSessionDetailViewModel = getViewModel(scope = payloadScope)
@@ -64,6 +68,12 @@ fun WalletConnectDappSessionDetail(
                 session = session,
                 onDisconnectClicked = {
                     sessionDetailViewModel.onIntent(WalletConnectSessionDetailIntent.DisconnectSession)
+                    analytics.logEvent(
+                        WalletConnectAnalytics.ConnectedDappActioned(
+                            dappName = session.dappName,
+                            action = WalletConnectAnalytics.DappConnectionAction.DISCONNECT
+                        )
+                    )
                     onDismiss()
                 },
                 onDismiss = onDismiss

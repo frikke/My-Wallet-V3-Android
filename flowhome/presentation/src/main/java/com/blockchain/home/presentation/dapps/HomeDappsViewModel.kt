@@ -81,7 +81,7 @@ class HomeDappsViewModel(
         }.collectLatest { sessions ->
             Timber.d("Loaded WalletConnect sessions: $sessions")
             updateState {
-                copy(connectedSessions = DataResource.Data(sessions))
+                copy(connectedSessions = DataResource.Data(sessions.take(5)))
             }
         }
     }
