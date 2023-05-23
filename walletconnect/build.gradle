@@ -20,6 +20,8 @@ dependencies {
     implementation project(':logging:domain')
     implementation project(':analytics:domain')
     implementation project(':chrome:common')
+    implementation project(':store:core')
+    implementation project(':store:caches:persistedjsonsqldelight')
 
     implementation Libraries.gson
     implementation Libraries.okHttp

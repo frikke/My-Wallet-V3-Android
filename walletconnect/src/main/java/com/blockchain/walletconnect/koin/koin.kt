@@ -6,6 +6,7 @@ import com.blockchain.walletconnect.data.EthWalletAddressProvider
 import com.blockchain.walletconnect.data.SignRequestHandler
 import com.blockchain.walletconnect.data.WalletConnectMetadataRepository
 import com.blockchain.walletconnect.data.WalletConnectService
+import com.blockchain.walletconnect.data.WalletConnectSessionsStorage
 import com.blockchain.walletconnect.data.WalletConnectV2ServiceImpl
 import com.blockchain.walletconnect.domain.EthRequestSign
 import com.blockchain.walletconnect.domain.EthSendTransactionRequest
@@ -79,9 +80,14 @@ val walletConnectModule = module {
 
         factory {
             WalletConnectMetadataRepository(
-                metadataRepository = get()
+                metadataRepository = get(),
+                walletConnectSessionsStorage = get()
             )
         }.bind(SessionRepository::class)
+
+        scoped {
+            WalletConnectSessionsStorage(metadataRepository = get())
+        }
 
         factory {
             DappsListModel(

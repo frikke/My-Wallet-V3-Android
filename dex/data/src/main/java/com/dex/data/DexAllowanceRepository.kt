@@ -52,7 +52,7 @@ class DexAllowanceRepository(
                     AllowanceKey(
                         address = it.address,
                         currencyContract = contractAddress,
-                        networkSymbol = assetInfo.coinNetwork!!.nativeAssetTicker
+                        networkSymbol = assetInfo.coinNetwork!!.networkTicker
                     )
                 )
             ).firstOutcome().map { resp ->
