@@ -60,7 +60,7 @@ class NabuAnalytics(
         compositeDisposable += payloadScope.get<WalletModeService>().walletModeSingle
             .flatMapCompletable { walletMode ->
                 localAnalyticsPersistence.save(
-                    analyticsEvent.toNabuAnalyticsEvent().withWalletMode(walletMode)
+                    analyticsEvent.toNabuAnalyticsEvent()
                 )
             }
             .subscribeOn(Schedulers.computation())
@@ -101,7 +101,7 @@ class NabuAnalytics(
         }
     }
 
-    override fun flush(): Completable {
+    override fun flush(overrideWalletMode: WalletMode?): Completable {
         return localAnalyticsPersistence.getAllItems().flatMapCompletable { events ->
             // Whats happening here is that we split the retrieved items into sublists of size = BATCH_SIZE
             // and then each one of these sublists is converted to the corresponding completable that actually is the
@@ -114,7 +114,7 @@ class NabuAnalytics(
             }
 
             val completables = listOfSublists.map { list ->
-                postEvents(list).then {
+                postEvents(events = list, overrideWalletMode = overrideWalletMode).then {
                     localAnalyticsPersistence.removeOldestItems(list.size)
                 }
             }
@@ -130,9 +130,12 @@ class NabuAnalytics(
         }
     }
 
-    private fun postEvents(events: List<NabuAnalyticsEvent>): Completable =
+    private fun postEvents(
+        events: List<NabuAnalyticsEvent>,
+        overrideWalletMode: WalletMode? = null
+    ): Completable =
         rxSingle {
-            analyticsContextProvider.context()
+            analyticsContextProvider.context(overrideWalletMode)
         }.flatMapCompletable { context ->
             tokenStore.getAccessToken().firstOrError().flatMapCompletable {
                 analyticsService.postEvents(
@@ -164,10 +167,6 @@ private fun AnalyticsEvent.toNabuAnalyticsEvent(): NabuAnalyticsEvent =
             it.value.toJsonElement()
         }.plusOriginIfAvailable(this.origin)
     )
-
-private fun NabuAnalyticsEvent.withWalletMode(walletMode: WalletMode) = copy(
-    properties = properties.plus("app_mode" to walletMode.toTraitsString().toJsonElement())
-)
 
 private fun Map<String, JsonElement>.plusOriginIfAvailable(launchOrigin: LaunchOrigin?): Map<String, JsonElement> {
     val origin = launchOrigin ?: return this

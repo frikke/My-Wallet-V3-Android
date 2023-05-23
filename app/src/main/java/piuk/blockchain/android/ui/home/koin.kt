@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.home
 
 import com.blockchain.analytics.TraitsService
+import com.blockchain.koin.applicationScope
 import com.blockchain.koin.blockchainMembershipsFeatureFlag
 import com.blockchain.koin.earnTabFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
@@ -68,7 +69,9 @@ val mainModule = module {
         scoped {
             WalletModeRepository(
                 walletModeStore = get(),
-                defaultWalletModeStrategy = get()
+                defaultWalletModeStrategy = get(),
+                analyticsSettings = get(),
+                coroutineScope = get(applicationScope)
             )
         }.bind(WalletModeService::class)
     }

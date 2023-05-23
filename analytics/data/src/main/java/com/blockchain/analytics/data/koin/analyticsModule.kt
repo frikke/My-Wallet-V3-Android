@@ -24,11 +24,13 @@ val analyticsModule = module {
         AnalyticsImpl(
             firebaseAnalytics = get(),
             nabuAnalytics = get(nabu),
+            nabuAnalyticsSettings = get(nabu),
             remoteLogger = get(),
             store = get()
         )
     }.apply {
         bind(Analytics::class)
+        bind(AnalyticsSettings::class)
         bind(ProviderSpecificAnalytics::class)
     }
 

@@ -87,9 +87,9 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.await
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
-import org.koin.core.component.inject
 import org.koin.core.parameter.parametersOf
 import org.koin.core.scope.Scope
 import piuk.blockchain.android.rating.presentaion.AppRatingFragment
@@ -113,8 +113,6 @@ class MultiAppActivity :
     KoinScopeComponent {
 
     override val statusbarColor: ModeBackgroundColor = ModeBackgroundColor.None
-
-    private val analyticsSettings: AnalyticsSettings by inject()
 
     override val scope: Scope = payloadScope
     private val deeplinkNavigationHandler: DeeplinkNavigationHandler by viewModel()
@@ -261,16 +259,6 @@ class MultiAppActivity :
             lifecycleScope.launch {
                 walletConnectV2Navigation.launchWalletConnectV2()
             }
-        }
-
-        lifecycleScope.launch {
-            walletModeService.walletMode.drop(1)
-                .onEach {
-                    analyticsSettings.flush()
-                        .onErrorComplete()
-                        .await()
-                }
-                .collect()
         }
     }
 

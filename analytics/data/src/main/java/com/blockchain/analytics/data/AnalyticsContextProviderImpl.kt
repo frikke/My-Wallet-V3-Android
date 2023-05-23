@@ -7,6 +7,7 @@ import com.blockchain.analytics.AnalyticsContextProvider
 import com.blockchain.analytics.DeviceInfo
 import com.blockchain.analytics.ScreenInfo
 import com.blockchain.analytics.TraitsService
+import com.blockchain.walletmode.WalletMode
 import java.util.Locale
 import java.util.TimeZone
 
@@ -14,13 +15,15 @@ class AnalyticsContextProviderImpl constructor(
     private val traitsServices: List<TraitsService>
 ) : AnalyticsContextProvider {
 
-    override suspend fun context(): AnalyticsContext {
+    override suspend fun context(
+        overrideWalletMode: WalletMode?
+    ): AnalyticsContext {
         return AnalyticsContext(
             device = getDeviceInfo(),
             locale = Locale.getDefault().toString(),
             screen = getScreenInfo(),
             timezone = TimeZone.getDefault().id,
-            traits = traitsServices.map { traitsService -> traitsService.traits() }
+            traits = traitsServices.map { traitsService -> traitsService.traits(overrideWalletMode) }
                 .reduce { acc, map -> acc.plus(map) }
         )
     }

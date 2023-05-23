@@ -3,11 +3,12 @@ package piuk.blockchain.android.util
 import android.content.Context
 import android.view.accessibility.AccessibilityManager
 import com.blockchain.analytics.TraitsService
+import com.blockchain.walletmode.WalletMode
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
 class AccessibilityTraitsRepository(private val context: Context) : TraitsService {
-    override suspend fun traits(): Map<String, String> {
+    override suspend fun traits(overrideWalletMode: WalletMode?): Map<String, String> {
         return mapOf(
             "accessibility_enabled" to isAccessibilityEnabled().toString()
         )

@@ -9,14 +9,15 @@ import com.blockchain.walletmode.WalletModeService
 import kotlinx.coroutines.rx3.await
 
 class WalletModeTraitsRepository : TraitsService {
-    override suspend fun traits(): Map<String, String> {
+    override suspend fun traits(overrideWalletMode: WalletMode?): Map<String, String> {
         val walletModeService = payloadScope.getOrNull<WalletModeService>()
         val topMoversInBuyFF = payloadScope.getOrNull<FeatureFlag>(topMoversInBuy)
         return if (walletModeService != null) {
-            val walletMode = walletModeService.walletModeSingle.await()
+            val wMode = overrideWalletMode ?: walletModeService.walletModeSingle.await()
+            println("------ walletMode $wMode")
             mapOf(
                 "is_superapp_v1" to true.toString(),
-                "app_mode" to walletMode.toTraitsString(),
+                "app_mode" to wMode.toTraitsString(),
                 "buy_top_movers_enabled" to (topMoversInBuyFF?.coEnabled() ?: false).toString()
             )
         } else {

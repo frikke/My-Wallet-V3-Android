@@ -1,6 +1,7 @@
 package com.blockchain.analytics
 
 import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Completable
 import java.io.Serializable
 
@@ -11,7 +12,7 @@ interface Analytics {
 }
 
 interface AnalyticsSettings {
-    fun flush(): Completable
+    fun flush(overrideWalletMode: WalletMode? = null): Completable
 }
 
 interface UserAnalytics {

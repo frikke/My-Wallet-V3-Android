@@ -4,9 +4,11 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.AnalyticsEvent
+import com.blockchain.analytics.AnalyticsSettings
 import com.blockchain.analytics.ProviderSpecificAnalytics
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.walletmode.WalletMode
 import com.google.firebase.analytics.FirebaseAnalytics
 import java.io.Serializable
 import java.lang.StringBuilder
@@ -14,9 +16,10 @@ import java.lang.StringBuilder
 class AnalyticsImpl internal constructor(
     private val firebaseAnalytics: FirebaseAnalytics,
     private val nabuAnalytics: Analytics,
+    private val nabuAnalyticsSettings: AnalyticsSettings,
     private val remoteLogger: RemoteLogger,
     private val store: SharedPreferences
-) : Analytics, ProviderSpecificAnalytics {
+) : Analytics, ProviderSpecificAnalytics, AnalyticsSettings {
 
     private val sentAnalytics = mutableSetOf<String>()
 
@@ -88,4 +91,6 @@ class AnalyticsImpl internal constructor(
             .apply { event.params.forEach { append(", ${it.key}=${it.value}") } }
             .append("]")
             .toString()
+
+    override fun flush(overrideWalletMode: WalletMode?) = nabuAnalyticsSettings.flush(overrideWalletMode)
 }
