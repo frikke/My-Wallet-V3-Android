@@ -1,6 +1,8 @@
 package com.blockchain.chrome
 
 import androidx.annotation.StringRes
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.navigation.NavHostController
 import com.blockchain.chrome.common.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Blockchain
@@ -23,4 +25,8 @@ fun WalletMode.titleSuperApp(): Int = when (this) {
 fun WalletMode.titleIcon(): ImageResource.Local? = when (this) {
     WalletMode.CUSTODIAL -> Icons.Filled.Blockchain
     WalletMode.NON_CUSTODIAL -> null
+}
+
+val LocalNavControllerProvider = staticCompositionLocalOf<NavHostController> {
+    error("No navigation host controller provided.")
 }

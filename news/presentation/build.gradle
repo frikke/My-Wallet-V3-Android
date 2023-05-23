@@ -30,6 +30,9 @@ android {
 dependencies {
     implementation project(':news:domain')
     implementation project(':componentlib')
+    implementation project(':common:interface')
+    implementation project(':common:presentation')
+    implementation project(':commonarch')
 
     // koin
     implementation Libraries.koinAndroid

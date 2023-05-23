@@ -36,6 +36,7 @@ import com.blockchain.metadata.metadataModule
 import com.blockchain.network.modules.apiModule
 import com.blockchain.network.modules.okHttpModule
 import com.blockchain.news.koin.newsDataModule
+import com.blockchain.news.koin.newsPresentationModule
 import com.blockchain.nfts.data.koin.nftDataModule
 import com.blockchain.nfts.koin.nftPresentationModule
 import com.blockchain.notifications.koin.notificationModule
@@ -185,7 +186,7 @@ object KoinStarter {
                     pricesDataModule,
                     proveModule,
                     transactionsPresentationModule, transactionsDataModule,
-                    newsDataModule
+                    newsDataModule, newsPresentationModule
                 )
             )
         }
