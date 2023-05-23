@@ -23,7 +23,7 @@ class WalletModeRepository(
     private val walletModeStore: WalletModeStore,
     private val defaultWalletModeStrategy: DefaultWalletModeStrategy,
     private val analyticsSettings: AnalyticsSettings,
-    private val coroutineScope : CoroutineScope
+    private val coroutineScope: CoroutineScope
 ) : WalletModeService {
 
     private val _walletMode: MutableSharedFlow<WalletMode> = MutableSharedFlow(
@@ -51,7 +51,7 @@ class WalletModeRepository(
         coroutineScope.launch {
             _walletMode.firstOrNull()?.let { currentWalletMode ->
                 if (currentWalletMode != type) {
-                    analyticsSettings.flush(currentWalletMode)
+                    analyticsSettings.flush(overrideWalletMode = currentWalletMode)
                         .onErrorComplete()
                         .await()
                 }
