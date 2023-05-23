@@ -64,7 +64,7 @@ class SignRequestHandler(
                 val target = EthereumSignMessageTarget(
                     dAppAddress = dappMetaData.url,
                     dAppName = dappMetaData.name,
-                    dAppLogoUrl = dappMetaData.icons.first(),
+                    dAppLogoUrl = dappMetaData.icons.firstOrNull().orEmpty(),
                     message = sessionRequest.request.toEthSignedMessage(),
                     onTxCompleted = onTxCompleted,
                     onTxCancelled = onTxCancelled,
@@ -148,7 +148,7 @@ class SignRequestHandler(
                 val target = EthereumSendTransactionTarget(
                     dAppAddress = dappMetaData.url,
                     dAppName = dappMetaData.name,
-                    dAppLogoURL = dappMetaData.icons.first(),
+                    dAppLogoURL = dappMetaData.icons.firstOrNull().orEmpty(),
                     transaction = sessionRequest.request.toEthTransaction(),
                     onTxCancelled = onTxCancelled,
                     onTxCompleted = onTxCompleted,

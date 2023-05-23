@@ -448,7 +448,11 @@ enum class AnalyticsNames(val eventName: String) {
     DEX_SWAP_EXECUTED_VIEWED("DEX Swap Executed Viewed"),
     DEX_SWAP_FAILED_VIEWED("DEX Swap Failed Viewed"),
     DEX_SETTINGS_OPENED("DEX Settings opened"),
-    DEX_SLIPPAGE_CHANGED("DEX Slippage changed")
+    DEX_SLIPPAGE_CHANGED("DEX Slippage changed"),
+
+    // Wallet Connect V2
+    WALLETCONNECT_HOME_CONNECTED_APP_CLICKED("Wallet Dashboard Connected App Clicked"),
+    WALLETCONNECT_HOME_CTA_CLICKED("Wallet Dashboard Connect A Dapp Through Wallet Connect Clicked")
 }
 
 enum class LaunchOrigin {

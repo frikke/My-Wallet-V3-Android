@@ -3649,4 +3649,7 @@ If you want to know more about our verification process visit our <annotation li
 
     <string name="dapps_list_title">Connected Apps</string>
     <string name="common_disconnect_all">Disconnect All</string>
+    <string name="walletconnect_dapp_list_scan_cta">Connect a Dapp</string>
+    <string name="walletconnect_session_approved_title">You\'re connected to %1$s</string>
+    <string name="walletconnect_session_rejected_title">Your connection to %1$s was rejected</string>
 </resources>
