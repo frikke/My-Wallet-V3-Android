@@ -33,7 +33,6 @@ data class NativeCurrency(
     val name: String,
     val address: String,
     val decimals: Int,
-    val verifiedBy: Int
 )
 
 @Serializable
