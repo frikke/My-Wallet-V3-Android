@@ -17,7 +17,6 @@ import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.BackgroundMuted
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
-import com.blockchain.dex.presentation.R
 import com.blockchain.koin.payloadScope
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
@@ -50,7 +49,10 @@ fun SelectDestinationAccountBottomSheet(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(AppTheme.dimensions.smallSpacing)
+                .padding(
+                    start = AppTheme.dimensions.smallSpacing,
+                    end = AppTheme.dimensions.smallSpacing
+                )
         ) {
             DexAccountSelection(
                 accounts = viewState.accounts,

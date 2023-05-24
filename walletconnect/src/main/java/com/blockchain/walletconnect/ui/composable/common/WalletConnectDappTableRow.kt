@@ -1,14 +1,14 @@
 package com.blockchain.walletconnect.ui.composable.common
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,12 +55,18 @@ fun WalletConnectDappTableRow(
             }
         },
         contentEnd = {
-            Button(
+            Row(
                 modifier = Modifier
                     .wrapContentWidth(align = Alignment.End)
-                    .weight(1f),
+                    .background(AppTheme.colors.light, shape = CircleShape)
+                    .weight(1f)
+                    .padding(
+                        horizontal = AppTheme.dimensions.tinySpacing,
+                        vertical = AppTheme.dimensions.smallestSpacing,
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
                 content = {
-                    Image(imageResource = ImageResource.Remote(session.chainLogo, size = 12.dp))
+                    Image(imageResource = ImageResource.Remote(session.chainLogo, size = 16.dp))
                     TinyHorizontalSpacer()
                     SimpleText(
                         text = session.chainName,
@@ -69,9 +75,6 @@ fun WalletConnectDappTableRow(
                         gravity = ComposeGravities.Start
                     )
                 },
-                onClick = { }, // no-op
-                shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(backgroundColor = AppTheme.colors.light)
             )
         },
         onContentClicked = onSessionClicked

@@ -1,21 +1,15 @@
 package com.dex.data
 
-import com.blockchain.api.dex.DexTokenResponse
-import com.blockchain.api.dex.DexTokensRequest
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
-import com.blockchain.data.dataOrElse
-import com.blockchain.data.filterNotLoading
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DexPrefs
 import com.blockchain.utils.asFlow
 import com.blockchain.walletmode.WalletMode
-import com.dex.data.stores.DexTokensDataStorage
 import com.dex.domain.DexAccount
 import com.dex.domain.DexAccountsService
 import com.dex.domain.DexCurrency
@@ -42,7 +36,6 @@ class DexAccountsRepository(
     private val currencyPrefs: CurrencyPrefs,
     private val dexPrefs: DexPrefs,
     private val assetCatalogue: AssetCatalogue,
-    private val dexTokensDataStorage: DexTokensDataStorage
 ) : DexAccountsService {
     override fun sourceAccounts(chainId: Int): Flow<List<DexAccount>> =
         dexSourceAccounts(chainId = chainId).catch {
@@ -80,45 +73,27 @@ class DexAccountsRepository(
 
     private val freshness = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
 
-    private fun dexAvailableTokens(
-        chainId: Int
-    ): Flow<List<DexTokenResponse>> =
-        dexTokensDataStorage.stream(
-            freshness.withKey(
-                DexTokensRequest(
-                    chainId = chainId
-                )
-            )
-        ).filterNotLoading()
-            .map { it.dataOrElse(emptyList()) }
-
     private fun dexSourceAccounts(
         chainId: Int
     ): Flow<List<DexAccount>> {
-        return dexAvailableTokens(chainId = chainId).flatMapLatest { tokens ->
-            activeAccounts().map {
-                it.filterKeys { account ->
-                    account.currency.coinNetwork?.chainId == chainId
-                }.filterValues { balance ->
-                    balance.total.isPositive
-                }
-            }.map { balancedAccounts ->
-                balancedAccounts.mapNotNull { (account, balance) ->
-                    val token = tokens.firstOrNull { it.symbol == account.currency.networkTicker }
-                    DexAccount(
-                        account = account,
-                        balance = balance.total,
-                        currency = DexCurrency(
-                            account.currency,
-                            contractAddress = account.currency.l2identifier
-                                ?: token?.address
-                                ?: return@mapNotNull null,
-                            chainId = chainId,
-                            isVerified = token?.isVerified ?: false
-                        ),
-                        fiatBalance = balance.totalFiat
-                    )
-                }
+        return activeAccounts().map {
+            it.filterKeys { account ->
+                account.currency.coinNetwork?.chainId == chainId
+            }.filterValues { balance ->
+                balance.total.isPositive
+            }
+        }.map { balancedAccounts ->
+            balancedAccounts.mapNotNull { (account, balance) ->
+                DexAccount(
+                    account = account,
+                    balance = balance.total,
+                    currency = DexCurrency(
+                        currency = account.currency,
+                        contractAddress = account.currency.l2identifier,
+                        chainId = chainId,
+                    ),
+                    fiatBalance = balance.totalFiat
+                )
             }
         }.onEach {
             sourceAccountsCache[chainId] = it
@@ -138,66 +113,55 @@ class DexAccountsRepository(
     private fun dexDestinationAccounts(
         chainId: Int
     ): Flow<List<DexAccount>> {
-        return dexAvailableTokens(chainId = chainId).flatMapLatest { tokens ->
-            val active = activeAccounts().map {
-                it.filterKeys { account ->
-                    account.currency.coinNetwork?.chainId == chainId
-                }
+        val active = activeAccounts().map {
+            it.filterKeys { account ->
+                account.currency.coinNetwork?.chainId == chainId
             }
-            val all = allAccounts.map {
-                it.filter { account -> (account.currency as? AssetInfo)?.coinNetwork?.chainId == chainId }
-                    .filterIsInstance<CryptoAccount>()
-            }
+        }
 
-            active.flatMapLatest { activeAcc ->
-                all.map { allAcc ->
-                    allAcc.filter {
-                        it.currency.networkTicker !in activeAcc.map { acc -> acc.key.currency.networkTicker }
-                    }
-                }.map { accounts ->
-                    accounts.mapNotNull { account ->
-                        val token =
-                            tokens.firstOrNull { it.symbol == account.currency.networkTicker } ?: return@mapNotNull null
+        val all = allAccounts.map {
+            it.filter { account -> (account.currency as? AssetInfo)?.coinNetwork?.chainId == chainId }
+                .filterIsInstance<CryptoAccount>()
+        }
+
+        return active.flatMapLatest { activeAcc ->
+            all.map { allAcc ->
+                allAcc.filter {
+                    it.currency.networkTicker !in activeAcc.map { acc -> acc.key.currency.networkTicker }
+                }
+            }.map { accounts ->
+                accounts.mapNotNull { account ->
+                    DexAccount(
+                        account = account,
+                        balance = Money.zero(account.currency),
+                        fiatBalance = Money.zero(currencyPrefs.selectedFiatCurrency),
+                        currency = DexCurrency(
+                            currency = account.currency,
+                            contractAddress = account.currency.l2identifier,
+                            chainId = account.currency.coinNetwork?.chainId ?: return@mapNotNull null,
+                        )
+                    )
+                }.plus(
+                    activeAcc.mapNotNull { (account, balance) ->
+                        val accountCurrency = (account.currency as? AssetInfo) ?: return@mapNotNull null
                         DexAccount(
                             account = account,
-                            balance = Money.zero(account.currency),
-                            fiatBalance = Money.zero(currencyPrefs.selectedFiatCurrency),
                             currency = DexCurrency(
                                 account.currency,
-                                contractAddress = account.currency.l2identifier
-                                    ?: token.address,
-                                index = tokens.indexOfFirst { it.symbol == account.currency.networkTicker },
-                                chainId = account.currency.coinNetwork?.chainId ?: return@mapNotNull null,
-                                isVerified = token.isVerified
-                            )
+                                contractAddress = accountCurrency.l2identifier,
+                                chainId = accountCurrency.coinNetwork?.chainId ?: return@mapNotNull null,
+                            ),
+                            balance = balance.total,
+                            fiatBalance = balance.totalFiat
                         )
-                    }.plus(
-                        activeAcc.mapNotNull { (account, balance) ->
-                            val accountCurrency = (account.currency as? AssetInfo) ?: return@mapNotNull null
-                            val token = tokens.firstOrNull { it.symbol == accountCurrency.networkTicker }
-                            DexAccount(
-                                account = account,
-                                currency = DexCurrency(
-                                    account.currency,
-                                    contractAddress = (account.currency as? AssetInfo)?.l2identifier
-                                        ?: token?.address
-                                        ?: return@mapNotNull null,
-                                    chainId = accountCurrency.coinNetwork?.chainId ?: return@mapNotNull null,
-                                    isVerified = token?.isVerified ?: false
-                                ),
-                                balance = balance.total,
-                                fiatBalance = balance.totalFiat
-                            )
-                        }
-                    )
-                }
-            }.onEach {
-                destinationAccountsCache[chainId] = it
+                    }
+                )
             }
+        }.onEach {
+            destinationAccountsCache[chainId] = it
         }.onStart {
             destinationAccountsCache[chainId]
-                .takeIf { !it.isNullOrEmpty() }
-                ?.let { emit(it) }
+                .takeIf { !it.isNullOrEmpty() }?.let { emit(it) }
         }
     }
 

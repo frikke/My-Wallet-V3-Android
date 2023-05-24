@@ -31,6 +31,7 @@ import com.blockchain.data.map
 import com.blockchain.data.mapData
 import com.blockchain.data.updateDataWith
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.news.NewsService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.toFormattedDateWithoutYear
 import com.blockchain.wallet.DefaultLabels
@@ -87,7 +88,8 @@ class CoinviewViewModel(
     private val loadQuickActionsUseCase: LoadQuickActionsUseCase,
     private val assetService: AssetService,
     private val custodialWalletManager: CustodialWalletManager,
-    private val recurringBuyService: RecurringBuyService
+    private val recurringBuyService: RecurringBuyService,
+    private val newsService: NewsService
 ) : MviViewModel<
     CoinviewIntent,
     CoinviewViewState,
@@ -97,7 +99,8 @@ class CoinviewViewModel(
     >(CoinviewModelState()) {
 
     companion object {
-        const val SNACKBAR_MESSAGE_DURATION: Long = 3000L
+        private const val SNACKBAR_MESSAGE_DURATION: Long = 3000L
+        private const val MAX_NEWS_COUNT = 5
     }
 
     private var loadPriceDataJob: Job? = null
@@ -107,6 +110,7 @@ class CoinviewViewModel(
     private var loadQuickActionsJob: Job? = null
     private var loadRecurringBuyJob: Job? = null
     private var loadAssetInfoJob: Job? = null
+    private var loadNewsJob: Job? = null
     private var snackbarMessageJob: Job? = null
     private var pillAlertJob: Job? = null
 
@@ -139,6 +143,7 @@ class CoinviewViewModel(
         recurringBuys = reduceRecurringBuys(this),
         bottomQuickAction = reduceBottomQuickActions(this),
         assetInfo = reduceAssetInfo(this),
+        news = reduceNews(),
         pillAlert = reducePillAlert(this),
         snackbarError = reduceSnackbarError(this)
     )
@@ -577,6 +582,10 @@ class CoinviewViewModel(
         }
     }
 
+    private fun CoinviewModelState.reduceNews() = CoinviewNewsState(
+        newsArticles = newsArticles.dataOrElse(emptyList())
+    )
+
     private fun reducePillAlert(state: CoinviewModelState): CoinviewPillAlertState = state.run {
         when (state.alert) {
             CoinviewPillAlert.WatchlistAdded -> CoinviewPillAlertState.Alert(
@@ -636,6 +645,7 @@ class CoinviewViewModel(
                 onIntent(CoinviewIntent.LoadAccountsData)
                 onIntent(CoinviewIntent.LoadWatchlistData)
                 onIntent(CoinviewIntent.LoadAssetInfo)
+                onIntent(CoinviewIntent.LoadNews)
             }
 
             CoinviewIntent.LoadPriceData -> {
@@ -684,6 +694,14 @@ class CoinviewViewModel(
                 check(modelState.asset != null) { "LoadAssetInfo asset not initialized" }
 
                 loadAssetInformation(
+                    asset = modelState.asset
+                )
+            }
+
+            CoinviewIntent.LoadNews -> {
+                check(modelState.asset != null) { "LoadAssetInfo asset not initialized" }
+
+                loadNews(
                     asset = modelState.asset
                 )
             }
@@ -1404,6 +1422,25 @@ class CoinviewViewModel(
                 updateState {
                     copy(
                         assetInfo = assetInfo.updateDataWith(dataResource)
+                    )
+                }
+            }
+        }
+    }
+
+    // //////////////////////
+    // News
+    private fun loadNews(asset: CryptoAsset) {
+        loadNewsJob?.cancel()
+        loadNewsJob = viewModelScope.launch {
+            newsService.articles(
+                tickers = listOf(asset.currency.networkTicker)
+            ).mapData {
+                it.take(MAX_NEWS_COUNT)
+            }.collectLatest {
+                updateState {
+                    copy(
+                        newsArticles = newsArticles.updateDataWith(it)
                     )
                 }
             }

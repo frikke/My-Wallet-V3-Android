@@ -26,6 +26,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModelStoreOwner
 import com.blockchain.analytics.Analytics
+import com.blockchain.chrome.LocalNavControllerProvider
+import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.theme.AppTheme
@@ -54,8 +56,10 @@ import com.blockchain.home.presentation.dapps.HomeDappsViewModel
 import com.blockchain.home.presentation.dapps.HomeDappsViewState
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.home.presentation.navigation.HomeDestination
 import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
+import com.blockchain.home.presentation.news.NewsIntent
 import com.blockchain.home.presentation.news.NewsViewModel
 import com.blockchain.home.presentation.news.NewsViewState
 import com.blockchain.home.presentation.quickactions.QuickActions
@@ -107,7 +111,7 @@ fun HomeScreen(
     processAnnouncementUrl: (String) -> Unit,
     openSwap: () -> Unit,
     onWalletConnectSessionClicked: (DappSessionUiElement) -> Unit,
-    onWalletConnectSeeAllSessionsClicked: () -> Unit,
+    onWalletConnectSeeAllSessionsClicked: () -> Unit
 ) {
     var menuOptionsHeight: Int by remember { mutableStateOf(0) }
     var balanceOffsetToMenuOption: Float by remember { mutableStateOf(0F) }
@@ -115,6 +119,7 @@ fun HomeScreen(
     var balanceScrollRange: Float by remember { mutableStateOf(0F) }
 
     val lifecycleOwner = LocalLifecycleOwner.current
+    val navController = LocalNavControllerProvider.current
 
     val homeAssetsViewModel: AssetsViewModel = getViewModel(scope = payloadScope)
     val assetsViewState: AssetsViewState by homeAssetsViewModel.viewState.collectAsStateLifecycleAware()
@@ -177,7 +182,7 @@ fun HomeScreen(
                 )
                 pkwActivityViewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.Limited(MAX_ACTIVITY_COUNT)))
                 homeDappsViewModel.onIntent(HomeDappsIntent.LoadData)
-                //                newsViewModel.onIntent(NewsIntent.LoadData)
+                newsViewModel.onIntent(NewsIntent.LoadData)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -194,7 +199,7 @@ fun HomeScreen(
             quickActionsViewModel.onIntent(QuickActionsIntent.Refresh)
             pkwActivityViewModel.onIntent(ActivityIntent.Refresh())
             custodialActivityViewModel.onIntent(ActivityIntent.Refresh())
-            //            newsViewModel.onIntent(NewsIntent.Refresh)
+            newsViewModel.onIntent(NewsIntent.Refresh)
         }
     }
 
@@ -402,7 +407,9 @@ fun HomeScreen(
 
         homeNews(
             data = newsViewState.newsArticles?.toImmutableList(),
-            seeAllOnClick = {}
+            seeAllOnClick = {
+                navController.navigate(HomeDestination.News)
+            }
         )
 
         homeHelp(
