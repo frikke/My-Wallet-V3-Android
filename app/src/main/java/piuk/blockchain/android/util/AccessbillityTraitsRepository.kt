@@ -3,7 +3,6 @@ package piuk.blockchain.android.util
 import android.content.Context
 import android.view.accessibility.AccessibilityManager
 import com.blockchain.analytics.TraitsService
-import com.blockchain.walletmode.WalletMode
 import org.koin.dsl.bind
 import org.koin.dsl.module
 

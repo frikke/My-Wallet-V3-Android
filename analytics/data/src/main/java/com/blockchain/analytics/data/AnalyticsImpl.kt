@@ -8,7 +8,6 @@ import com.blockchain.analytics.AnalyticsSettings
 import com.blockchain.analytics.ProviderSpecificAnalytics
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.walletmode.WalletMode
 import com.google.firebase.analytics.FirebaseAnalytics
 import java.io.Serializable
 import java.lang.StringBuilder

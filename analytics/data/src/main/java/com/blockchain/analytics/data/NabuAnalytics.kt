@@ -27,9 +27,9 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.coroutines.rx3.await
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.rxSingle
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
@@ -164,8 +164,10 @@ class NabuAnalytics(
 private fun Single<AnalyticsContext>.plusWalletModeTrait(
     events: List<NabuAnalyticsEvent>
 ): Single<AnalyticsContext> {
-    val appModeTrait = (events.firstOrNull { it.properties.containsKey("app_mode") }
-        ?.properties?.get("app_mode") as? JsonPrimitive?)?.content
+    val appModeTrait = (
+        events.firstOrNull { it.properties.containsKey("app_mode") }
+            ?.properties?.get("app_mode") as? JsonPrimitive?
+        )?.content
 
     return flatMap { analyticsContext ->
         appModeTrait?.let {
