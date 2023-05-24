@@ -5,7 +5,6 @@ import com.blockchain.core.experiments.cache.ExperimentsStore
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
-import com.blockchain.walletmode.WalletMode
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -16,7 +15,7 @@ class ExperimentTraitsRepository(
     val experimentsStore: ExperimentsStore
 ) : TraitsService {
 
-    override suspend fun traits(overrideWalletMode: WalletMode?): Map<String, String> = getExperiments()
+    override suspend fun traits(): Map<String, String> = getExperiments()
 
     private suspend fun getExperiments(): Map<String, String> {
         return experimentsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))

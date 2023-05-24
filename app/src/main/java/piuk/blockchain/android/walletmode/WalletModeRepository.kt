@@ -48,10 +48,11 @@ class WalletModeRepository(
         }
 
     override suspend fun updateEnabledWalletMode(type: WalletMode) {
+        // also flush analytics if we're changing wallet mode
         coroutineScope.launch {
             _walletMode.firstOrNull()?.let { currentWalletMode ->
                 if (currentWalletMode != type) {
-                    analyticsSettings.flush(overrideWalletMode = currentWalletMode)
+                    analyticsSettings.flush()
                         .onErrorComplete()
                         .await()
                 }

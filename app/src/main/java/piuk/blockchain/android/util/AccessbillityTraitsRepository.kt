@@ -8,7 +8,7 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 
 class AccessibilityTraitsRepository(private val context: Context) : TraitsService {
-    override suspend fun traits(overrideWalletMode: WalletMode?): Map<String, String> {
+    override suspend fun traits(): Map<String, String> {
         return mapOf(
             "accessibility_enabled" to isAccessibilityEnabled().toString()
         )

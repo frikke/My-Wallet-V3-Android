@@ -92,5 +92,5 @@ class AnalyticsImpl internal constructor(
             .append("]")
             .toString()
 
-    override fun flush(overrideWalletMode: WalletMode?) = nabuAnalyticsSettings.flush(overrideWalletMode)
+    override fun flush() = nabuAnalyticsSettings.flush()
 }

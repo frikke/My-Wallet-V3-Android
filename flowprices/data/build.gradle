@@ -8,6 +8,7 @@ dependencies {
     implementation project(':store:core')
     implementation project(':coincore')
     implementation project(':core')
+    implementation project(':analytics:domain')
 
     // rx
     implementation Libraries.rxKotlin
