@@ -133,10 +133,8 @@ class NabuAnalytics(
         }
     }
 
-    private fun postEvents(
-        events: List<NabuAnalyticsEvent>
-    ): Completable {
-        return rxSingle { analyticsContextProvider.context() }
+    private fun postEvents(events: List<NabuAnalyticsEvent>): Completable =
+        rxSingle { analyticsContextProvider.context() }
             .plusWalletModeTrait(events = events)
             .flatMapCompletable { context ->
                 tokenStore.getAccessToken().firstOrError().flatMapCompletable {
@@ -150,7 +148,6 @@ class NabuAnalytics(
                     )
                 }
             }
-    }
 
     override fun logEventOnce(analyticsEvent: AnalyticsEvent) {}
 
