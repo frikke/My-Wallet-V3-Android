@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -93,13 +92,16 @@ fun QuickActions(
                             } else {
                                 assetActionsNavigation.navigate(AssetAction.Swap)
                             }
+
                             QuickActionsNavEvent.DexOrSwapOption -> openDexSwapOptions()
                             QuickActionsNavEvent.FiatDeposit -> quickActionsViewModel.onIntent(
                                 QuickActionsIntent.FiatAction(AssetAction.FiatDeposit)
                             )
+
                             QuickActionsNavEvent.FiatWithdraw -> quickActionsViewModel.onIntent(
                                 QuickActionsIntent.FiatAction(AssetAction.FiatWithdraw)
                             )
+
                             QuickActionsNavEvent.More -> openMoreQuickActions()
                         }
                     }
@@ -129,9 +131,7 @@ private fun QuickActionsScreen(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
-        modifier = Modifier
-            .padding(vertical = AppTheme.dimensions.smallSpacing)
-            .fillMaxWidth()
+        modifier = Modifier.fillMaxWidth()
     ) {
         quickActionItems.forEachIndexed { index, quickAction ->
             Column(
@@ -198,6 +198,7 @@ private val QuickActionItem.icon: ImageResource
             AssetAction.Receive -> Icons.Receive
             else -> throw UnsupportedOperationException()
         }
+
         QuickAction.More -> Icons.MenuKebabHorizontal
     }.withBackground(
         backgroundColor = White,

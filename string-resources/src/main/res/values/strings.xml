@@ -3530,7 +3530,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="put_your_crypto_to_work">Put your crypto to work</string>
     <string name="staking_asset">Staked %1s</string>
     <string name="earn_rate">%1$s%% Rate</string>
-    <string name="add_cash_from_your_bank_or_card">Add cash from your bank or card</string>
+    <string name="add_cash_from_your_bank_or_card">Add cash from your bank</string>
     <string name="cash_out_bank">Cash out to your bank</string>
     <string name="buy_different_crypto">Buy a different crypto</string>
     <string name="select_an_option">Select an option</string>

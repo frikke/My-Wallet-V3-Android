@@ -110,6 +110,7 @@ class CoinviewViewModel(
     private var loadQuickActionsJob: Job? = null
     private var loadRecurringBuyJob: Job? = null
     private var loadAssetInfoJob: Job? = null
+    private var loadNewsJob: Job? = null
     private var snackbarMessageJob: Job? = null
     private var pillAlertJob: Job? = null
 
@@ -1430,8 +1431,8 @@ class CoinviewViewModel(
     // //////////////////////
     // News
     private fun loadNews(asset: CryptoAsset) {
-        loadAssetInfoJob?.cancel()
-        loadAssetInfoJob = viewModelScope.launch {
+        loadNewsJob?.cancel()
+        loadNewsJob = viewModelScope.launch {
             newsService.articles(
                 tickers = listOf(asset.currency.networkTicker)
             ).mapData {

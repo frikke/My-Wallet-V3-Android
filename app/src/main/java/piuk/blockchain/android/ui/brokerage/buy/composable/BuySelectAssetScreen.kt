@@ -19,7 +19,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.blockchain.analytics.Analytics
 import com.blockchain.api.NabuApiException
@@ -61,7 +60,6 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
-import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.ui.brokerage.buy.BuyAnalyticsEvents
 import piuk.blockchain.android.ui.brokerage.buy.BuySelectAssetIntent
@@ -113,6 +111,7 @@ fun BuySelectAssetScreen(
             DataResource.Loading -> {
                 Loading()
             }
+
             is DataResource.Error -> {
                 Error(
                     error = error,
@@ -120,6 +119,7 @@ fun BuySelectAssetScreen(
                     onErrorContactSupportClicked = onErrorContactSupportClicked
                 )
             }
+
             is DataResource.Data -> {
                 when (val reason = (data as? FeatureAccess.Blocked)?.reason) {
                     is BlockedReason.NotEligible -> {
@@ -128,17 +128,20 @@ fun BuySelectAssetScreen(
                             onEmptyStateClicked = onEmptyStateClicked
                         )
                     }
+
                     is BlockedReason.InsufficientTier -> {
                         KycUpgradeNowScreen(
                             startKycClicked = startKycClicked
                         )
                     }
+
                     is BlockedReason.Sanctions -> {
                         BlockedDueToSanctions(
                             reason = reason,
                             onEmptyStateClicked = onEmptyStateClicked
                         )
                     }
+
                     is BlockedReason.TooManyInFlightTransactions,
                     is BlockedReason.ShouldAcknowledgeStakingWithdrawal,
                     BlockedReason.ShouldAcknowledgeActiveRewardsWithdrawalWarning,
@@ -173,6 +176,7 @@ private fun Assets(
             DataResource.Loading -> {
                 Loading()
             }
+
             is DataResource.Error -> {
                 Error(
                     error = error,
@@ -182,6 +186,7 @@ private fun Assets(
                     onErrorContactSupportClicked = onErrorContactSupportClicked
                 )
             }
+
             is DataResource.Data -> {
                 AssetsData(
                     showTopMovers = showTopMovers,
@@ -229,10 +234,15 @@ private fun AssetsData(
             // top movers
             if (showTopMovers) {
                 paddedItem(
-                    paddingValues = PaddingValues(horizontal = 16.dp)
+                    paddingValues = {
+                        PaddingValues(
+                            start = AppTheme.dimensions.smallSpacing,
+                            end = AppTheme.dimensions.smallSpacing,
+                            bottom = AppTheme.dimensions.tinySpacing
+                        )
+                    }
                 ) {
                     TableRowHeader(title = stringResource(com.blockchain.stringResources.R.string.prices_top_movers))
-                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
                 }
 
                 item {
@@ -257,7 +267,13 @@ private fun AssetsData(
             }
 
             if (searchedText.isNotEmpty() && mostPopular.isEmpty() && others.isEmpty()) {
-                paddedItem(paddingValues = PaddingValues(horizontal = 16.dp)) {
+                paddedItem(
+                    paddingValues = {
+                        PaddingValues(
+                            horizontal = AppTheme.dimensions.smallSpacing,
+                        )
+                    }
+                ) {
                     SimpleText(
                         modifier = Modifier.fillMaxWidth(),
                         text = stringResource(com.blockchain.stringResources.R.string.assets_no_result),
@@ -269,9 +285,16 @@ private fun AssetsData(
             } else {
                 // popular header + list
                 if (mostPopular.isNotEmpty()) {
-                    paddedItem(paddingValues = PaddingValues(horizontal = 16.dp)) {
+                    paddedItem(
+                        paddingValues = {
+                            PaddingValues(
+                                start = AppTheme.dimensions.smallSpacing,
+                                end = AppTheme.dimensions.smallSpacing,
+                                bottom = AppTheme.dimensions.tinySpacing
+                            )
+                        }
+                    ) {
                         TableRowHeader(title = stringResource(com.blockchain.stringResources.R.string.most_popular))
-                        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
                     }
 
                     paddedRoundedCornersItems(
@@ -279,7 +302,9 @@ private fun AssetsData(
                         key = {
                             it.asset.networkTicker
                         },
-                        paddingValues = PaddingValues(horizontal = 16.dp)
+                        paddingValues = {
+                            PaddingValues(horizontal = AppTheme.dimensions.smallSpacing)
+                        }
                     ) { cryptoAsset ->
                         BalanceChangeTableRow(
                             data = cryptoAsset.data,
@@ -296,9 +321,16 @@ private fun AssetsData(
 
                 // popular header + list
                 if (others.isNotEmpty()) {
-                    paddedItem(paddingValues = PaddingValues(horizontal = 16.dp)) {
+                    paddedItem(
+                        paddingValues = {
+                            PaddingValues(
+                                start = AppTheme.dimensions.smallSpacing,
+                                end = AppTheme.dimensions.smallSpacing,
+                                bottom = AppTheme.dimensions.tinySpacing
+                            )
+                        }
+                    ) {
                         TableRowHeader(title = stringResource(com.blockchain.stringResources.R.string.other_tokens))
-                        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
                     }
 
                     paddedRoundedCornersItems(
@@ -306,7 +338,9 @@ private fun AssetsData(
                         key = {
                             it.asset.networkTicker
                         },
-                        paddingValues = PaddingValues(horizontal = 16.dp)
+                        paddingValues = {
+                            PaddingValues(horizontal = AppTheme.dimensions.smallSpacing)
+                        }
                     ) { cryptoAsset ->
                         BalanceChangeTableRow(
                             data = cryptoAsset.data,

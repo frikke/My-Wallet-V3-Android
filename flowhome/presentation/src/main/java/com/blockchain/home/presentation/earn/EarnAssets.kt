@@ -26,7 +26,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.Analytics
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
@@ -51,10 +50,16 @@ internal fun LazyListScope.homeEarnAssets(
         return
     }
     paddedItem(
-        paddingValues = PaddingValues(horizontal = 16.dp)
+        paddingValues = {
+            PaddingValues(
+                start = AppTheme.dimensions.smallSpacing,
+                end = AppTheme.dimensions.smallSpacing,
+                top = AppTheme.dimensions.largeSpacing,
+                bottom = AppTheme.dimensions.tinySpacing
+            )
+        }
     ) {
         val analytics: Analytics = get()
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
         TableRowHeader(
             title = stringResource(com.blockchain.stringResources.R.string.common_earn),
             actionTitle = stringResource(com.blockchain.stringResources.R.string.manage).takeIf {
@@ -65,21 +70,23 @@ internal fun LazyListScope.homeEarnAssets(
                 analytics.logEvent(DashboardAnalyticsEvents.EarnManageClicked)
             }.takeIf { earnState is EarnViewState.Assets }
         )
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
     }
     when (earnState) {
         EarnViewState.NoAssetsInvested ->
             paddedItem(
-                paddingValues = PaddingValues(horizontal = 16.dp)
+                paddingValues = { PaddingValues(horizontal = AppTheme.dimensions.smallSpacing) }
             ) {
                 NoAssetsInvested(openEarnDashboard = openEarnDashboard)
             }
+
         is EarnViewState.Assets -> {
             val mAssets = earnState.assets
             paddedRoundedCornersItems(
                 items = mAssets.toList(),
                 key = { it.type.hashCode() + it.currency.networkTicker.hashCode() },
-                paddingValues = PaddingValues(horizontal = 16.dp)
+                paddingValues = {
+                    PaddingValues(horizontal = AppTheme.dimensions.smallSpacing)
+                }
             ) { asset ->
                 BalanceTableRow(
                     titleStart = buildAnnotatedString {
@@ -99,9 +106,11 @@ internal fun LazyListScope.homeEarnAssets(
                                 EarnType.INTEREST -> stringResource(
                                     id = com.blockchain.stringResources.R.string.earn_rewards_label_passive
                                 )
+
                                 EarnType.STAKING -> stringResource(
                                     id = com.blockchain.stringResources.R.string.earn_rewards_label_staking
                                 )
+
                                 EarnType.ACTIVE -> stringResource(
                                     id = com.blockchain.stringResources.R.string.earn_rewards_label_active
                                 )
@@ -123,6 +132,7 @@ internal fun LazyListScope.homeEarnAssets(
                 )
             }
         }
+
         EarnViewState.None -> {
         }
     }

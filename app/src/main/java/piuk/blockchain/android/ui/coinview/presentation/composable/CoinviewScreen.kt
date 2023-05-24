@@ -240,39 +240,63 @@ fun CoinviewScreen(
                                 onNewTimeSpanSelected = onNewTimeSpanSelected
                             )
 
-                            CenterQuickActions(
-                                data = quickActionsCenter,
-                                onQuickActionClick = onQuickActionClick
-                            )
+                            Box(
+                                modifier = Modifier.padding(
+                                    start = AppTheme.dimensions.smallSpacing,
+                                    end = AppTheme.dimensions.smallSpacing,
+                                    bottom = AppTheme.dimensions.smallSpacing
+                                )
+                            ) {
+                                CenterQuickActions(
+                                    data = quickActionsCenter,
+                                    onQuickActionClick = onQuickActionClick
+                                )
+                            }
 
-                            AssetAccounts(
-                                analytics = analytics,
-                                data = accounts,
-                                l1Network = asset.data.l1Network,
-                                assetTicker = asset.data.asset.networkTicker,
-                                onAccountClick = onAccountClick,
-                                onLockedAccountClick = onLockedAccountClick
-                            )
+                            Box(
+                                modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
+                            ) {
+                                AssetAccounts(
+                                    analytics = analytics,
+                                    data = accounts,
+                                    l1Network = asset.data.l1Network,
+                                    assetTicker = asset.data.asset.networkTicker,
+                                    onAccountClick = onAccountClick,
+                                    onLockedAccountClick = onLockedAccountClick
+                                )
+                            }
 
-                            RecurringBuys(
-                                analytics = analytics,
-                                rBuysState = recurringBuys,
-                                assetTicker = asset.data.asset.networkTicker,
-                                onRecurringBuyUpsellClick = onRecurringBuyUpsellClick,
-                                onRecurringBuyItemClick = onRecurringBuyItemClick
-                            )
+                            Box(
+                                modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
+                            ) {
+                                RecurringBuys(
+                                    analytics = analytics,
+                                    rBuysState = recurringBuys,
+                                    assetTicker = asset.data.asset.networkTicker,
+                                    onRecurringBuyUpsellClick = onRecurringBuyUpsellClick,
+                                    onRecurringBuyItemClick = onRecurringBuyItemClick
+                                )
+                            }
 
-                            AssetInfo(
-                                analytics = analytics,
-                                data = assetInfo,
-                                assetTicker = asset.data.asset.networkTicker,
-                                onWebsiteClick = onWebsiteClick
-                            )
+                            Box(
+                                modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
+                            ) {
+                                AssetInfo(
+                                    analytics = analytics,
+                                    data = assetInfo,
+                                    assetTicker = asset.data.asset.networkTicker,
+                                    onWebsiteClick = onWebsiteClick
+                                )
+                            }
 
-                            News(
-                                data = newsArticles,
-                                newsArticleOnClick = {}
-                            )
+                            Box(
+                                modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
+                            ) {
+                                News(
+                                    data = newsArticles,
+                                    newsArticleOnClick = {}
+                                )
+                            }
                         }
 
                         Column(modifier = Modifier.fillMaxWidth()) {

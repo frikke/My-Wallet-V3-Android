@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.tablerow.TableRowHeader
 import com.blockchain.componentlib.theme.AppTheme
@@ -22,15 +21,20 @@ internal fun LazyListScope.homeNews(
 ) {
     data?.takeIf { it.isNotEmpty() }?.let { newsArticles ->
         paddedItem(
-            paddingValues = PaddingValues(horizontal = 16.dp)
+            paddingValues = {
+                PaddingValues(
+                    start = AppTheme.dimensions.smallSpacing,
+                    end = AppTheme.dimensions.smallSpacing,
+                    top = AppTheme.dimensions.smallSpacing,
+                    bottom = AppTheme.dimensions.tinySpacing
+                )
+            }
         ) {
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
             TableRowHeader(
                 title = stringResource(com.blockchain.stringResources.R.string.news_home_title),
                 actionTitle = stringResource(com.blockchain.stringResources.R.string.see_all),
                 actionOnClick = seeAllOnClick
             )
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
         }
 
         itemsIndexed(

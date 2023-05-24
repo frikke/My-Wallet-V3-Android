@@ -2,9 +2,9 @@ package com.blockchain.home.presentation.dashboard.composable
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.ui.unit.dp
 import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.lazylist.paddedItem
+import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.allassets.AssetsViewState
@@ -21,12 +21,15 @@ fun LazyListScope.emptyCard(
 
     if (state == DashboardState.EMPTY) {
         paddedItem(
-            paddingValues = PaddingValues(horizontal = 16.dp)
+            paddingValues = {
+                PaddingValues(horizontal = AppTheme.dimensions.smallSpacing)
+            }
         ) {
             when (walletMode) {
                 WalletMode.CUSTODIAL -> CustodialEmptyStateCards(
                     assetActionsNavigation = assetActionsNavigation
                 )
+
                 WalletMode.NON_CUSTODIAL -> NonCustodialEmptyStateCard {
                     assetActionsNavigation.navigate(AssetAction.Receive)
                 }

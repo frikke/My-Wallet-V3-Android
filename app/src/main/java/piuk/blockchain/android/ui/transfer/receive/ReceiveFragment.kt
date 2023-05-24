@@ -97,7 +97,7 @@ class ReceiveFragment :
 
     private fun setupSearchBox() {
         with(binding.searchBoxLayout) {
-            placeholder = getString(com.blockchain.stringResources.R.string.search_wallets_hint)
+            placeholder = getString(com.blockchain.stringResources.R.string.search_coins_hint)
             onValueChange = { term ->
                 model.process(ReceiveIntent.FilterAssets(term))
             }

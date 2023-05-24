@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,7 +33,6 @@ import com.blockchain.componentlib.utils.value
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.recurringbuy.RecurringBuysAnalyticsEvents
 import org.koin.androidx.compose.get
-import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState.Data.CoinviewRecurringBuyState
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
@@ -47,17 +45,17 @@ fun RecurringBuys(
     onRecurringBuyUpsellClick: () -> Unit,
     onRecurringBuyItemClick: (String) -> Unit
 ) {
-    Column(
-        modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
-    ) {
+    Column {
         when (rBuysState) {
             DataResource.Loading -> {
                 RecurringBuysTitle()
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
                 RecurringBuysLoading()
             }
 
             is DataResource.Error -> {
                 RecurringBuysTitle()
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
                 RecurringBuysError()
             }
 
@@ -66,6 +64,7 @@ fun RecurringBuys(
                     when (rbState) {
                         CoinviewRecurringBuysState.Upsell -> {
                             RecurringBuysTitle()
+                            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
                             RecurringBuysUpsell(
                                 analytics = analytics,
                                 onRecurringBuyUpsellClick = onRecurringBuyUpsellClick
@@ -75,13 +74,14 @@ fun RecurringBuys(
                         is CoinviewRecurringBuysState.Data -> {
                             if (rbState.recurringBuys.isNotEmpty()) {
                                 RecurringBuysTitle()
+                                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+                                RecurringBuysData(
+                                    analytics = analytics,
+                                    data = rbState,
+                                    assetTicker = assetTicker,
+                                    onRecurringBuyItemClick = onRecurringBuyItemClick
+                                )
                             }
-                            RecurringBuysData(
-                                analytics = analytics,
-                                data = rbState,
-                                assetTicker = assetTicker,
-                                onRecurringBuyItemClick = onRecurringBuyItemClick
-                            )
                         }
                     }
                 }
@@ -95,7 +95,6 @@ private fun RecurringBuysTitle() {
     TableRowHeader(
         title = stringResource(com.blockchain.stringResources.R.string.recurring_buy_toolbar)
     )
-    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 }
 
 @Composable

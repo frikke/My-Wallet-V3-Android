@@ -17,7 +17,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -149,7 +148,7 @@ fun WalletConnectDappList(
             LazyColumn {
                 paddedRoundedCornersItems(
                     items = sessions,
-                    paddingValues = PaddingValues(horizontal = 16.dp)
+                    paddingValues = { PaddingValues(horizontal = AppTheme.dimensions.smallSpacing) }
                 ) { session ->
                     WalletConnectDappTableRow(
                         session = session,
