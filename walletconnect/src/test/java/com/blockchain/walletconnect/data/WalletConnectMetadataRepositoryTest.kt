@@ -1,5 +1,6 @@
 package com.blockchain.walletconnect.data
 
+import com.blockchain.data.DataResource
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.walletconnect.domain.ClientMeta
@@ -11,23 +12,27 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Maybe
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.serialization.json.Json
 import org.junit.Test
 
 class WalletConnectMetadataRepositoryTest {
 
     private val metadataRepository: MetadataRepository = mock()
-    private val subject = WalletConnectMetadataRepository(metadataRepository)
+    private val walletConnectSessionsStorage: WalletConnectSessionsStorage = mock()
+    private val subject = WalletConnectMetadataRepository(metadataRepository, walletConnectSessionsStorage)
 
     @Test
     fun `load json sessions from metadata should create the corresponding v1 sessions`() {
-        whenever(metadataRepository.loadRawValue(MetadataEntry.WALLET_CONNECT_METADATA)).thenReturn(
-            Maybe.just(
-                sampleMetadataString
+        whenever(walletConnectSessionsStorage.stream(any())).thenReturn(
+            flowOf(
+                DataResource.Data(
+                    Json.decodeFromString(WalletConnectMetadata.serializer(), sampleMetadataString)
+                )
             )
         )
 
-        val test = subject.retrieve().test()
+        val test = subject.retrieve().test().await()
 
         test.assertValue { sessions ->
             sessions.size == 2 &&
@@ -60,22 +65,15 @@ class WalletConnectMetadataRepositoryTest {
 
     @Test
     fun `load json sessions from metadata with no sessions should not create any v1 sessions`() {
-        whenever(metadataRepository.loadRawValue(MetadataEntry.WALLET_CONNECT_METADATA)).thenReturn(
-            Maybe.empty()
+        whenever(walletConnectSessionsStorage.stream(any())).thenReturn(
+            flowOf(
+                DataResource.Data(
+                    WalletConnectMetadata(WalletConnectSessions(emptyList()))
+                )
+            )
         )
 
-        val test = subject.retrieve().test()
-
-        test.assertValue { sessions ->
-            sessions.isEmpty()
-        }
-    }
-
-    @Test
-    fun `load json sessions from metadata with empty response should not create any v1 sessions`() {
-        whenever(metadataRepository.loadRawValue(MetadataEntry.WALLET_CONNECT_METADATA)).thenReturn(Maybe.just("{}"))
-
-        val test = subject.retrieve().test()
+        val test = subject.retrieve().test().await()
 
         test.assertValue { sessions ->
             sessions.isEmpty()
@@ -84,43 +82,53 @@ class WalletConnectMetadataRepositoryTest {
 
     @Test
     fun `load json sessions from metadata with null chainID should set chainID to 1`() {
-        whenever(metadataRepository.loadRawValue(MetadataEntry.WALLET_CONNECT_METADATA)).thenReturn(
-            Maybe.just(
-                "{\n" +
-                    "    \"sessions\":\n" +
-                    "    {\n" +
-                    "        \"v1\":\n" +
-                    "        [\n" +
-                    "            {\n" +
-                    "                \"dAppInfo\":\n" +
-                    "                {\n" +
-                    "                    \"peerId\": \"PEER_ID\",\n" +
-                    "                    \"peerMeta\":\n" +
-                    "                    {\n" +
-                    "                        \"description\": \"description\",\n" +
-                    "                        \"icons\":\n" +
-                    "                        [\n" +
-                    "                            \"https://random_icon.org\"\n" +
-                    "                        ],\n" +
-                    "                        \"name\": \"dappName\",\n" +
-                    "                        \"url\": \"dappUrl\"\n" +
-                    "                    }\n" +
-                    "                },\n" +
-                    "                \"url\": \"sessionUrl\",\n" +
-                    "                \"walletInfo\":\n" +
-                    "                {\n" +
-                    "                    \"clientId\": \"12345-6789-1234\",\n" +
-                    "                    \"sourcePlatform\": \"Android\"\n" +
-                    "                }\n" +
-                    "            }\n" +
-                    "           \n" +
-                    "        ]\n" +
-                    "    }\n" +
-                    "}"
+        whenever(
+            walletConnectSessionsStorage.stream(any())
+        ).thenReturn(
+            flowOf(
+                DataResource.Data(
+                    Json {
+                        ignoreUnknownKeys = true
+                        explicitNulls = false
+                    }.decodeFromString(
+                        WalletConnectMetadata.serializer(),
+                        "{\n" +
+                            "    \"sessions\":\n" +
+                            "    {\n" +
+                            "        \"v1\":\n" +
+                            "        [\n" +
+                            "            {\n" +
+                            "                \"dAppInfo\":\n" +
+                            "                {\n" +
+                            "                    \"peerId\": \"PEER_ID\",\n" +
+                            "                    \"peerMeta\":\n" +
+                            "                    {\n" +
+                            "                        \"description\": \"description\",\n" +
+                            "                        \"icons\":\n" +
+                            "                        [\n" +
+                            "                            \"https://random_icon.org\"\n" +
+                            "                        ],\n" +
+                            "                        \"name\": \"dappName\",\n" +
+                            "                        \"url\": \"dappUrl\"\n" +
+                            "                    }\n" +
+                            "                },\n" +
+                            "                \"url\": \"sessionUrl\",\n" +
+                            "                \"walletInfo\":\n" +
+                            "                {\n" +
+                            "                    \"clientId\": \"12345-6789-1234\",\n" +
+                            "                    \"sourcePlatform\": \"Android\"\n" +
+                            "                }\n" +
+                            "            }\n" +
+                            "           \n" +
+                            "        ]\n" +
+                            "    }\n" +
+                            "}"
+                    )
+                )
             )
         )
 
-        val test = subject.retrieve().test()
+        val test = subject.retrieve().test().await()
 
         test.assertValue { sessions ->
             sessions.size == 1 &&
@@ -141,9 +149,11 @@ class WalletConnectMetadataRepositoryTest {
 
     @Test
     fun `store a new session should append the new one to the existing metadata payload`() {
-        whenever(metadataRepository.loadRawValue(MetadataEntry.WALLET_CONNECT_METADATA)).thenReturn(
-            Maybe.just(
-                sampleMetadataString
+        whenever(walletConnectSessionsStorage.stream(any())).thenReturn(
+            flowOf(
+                DataResource.Data(
+                    Json.decodeFromString(WalletConnectMetadata.serializer(), sampleMetadataString)
+                )
             )
         )
 
@@ -166,7 +176,7 @@ class WalletConnectMetadataRepositoryTest {
                     chainId = 12
                 )
             )
-        ).test()
+        ).test().await()
 
         test.assertComplete()
         verify(metadataRepository).saveRawValue(

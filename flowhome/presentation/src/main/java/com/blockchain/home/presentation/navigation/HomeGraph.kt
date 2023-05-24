@@ -19,6 +19,7 @@ import com.blockchain.home.presentation.recurringbuy.detail.composable.Recurring
 import com.blockchain.home.presentation.recurringbuy.list.composable.RecurringBuyDashboard
 import com.blockchain.home.presentation.referral.composable.ReferralCode
 import com.blockchain.home.presentation.swapdexoption.SwapDexOptionScreen
+import com.blockchain.news.composable.NewsArticlesScreen
 import com.blockchain.walletmode.WalletMode
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 
@@ -144,5 +145,12 @@ fun NavGraphBuilder.homeGraph(
             assetActionsNavigation = assetActionsNavigation
         )
     }
-    // add other composable screens here
+
+    composable(navigationEvent = HomeDestination.News) {
+        ChromeSingleScreen {
+            NewsArticlesScreen(
+                onBackPressed = onBackPressed
+            )
+        }
+    }
 }

@@ -57,13 +57,14 @@ class DexQuotesRepository(
                 fromCurrency = FromCurrency(
                     chainId = dexQuoteParams.sourceAccount.currency.chainId,
                     symbol = dexQuoteParams.sourceAccount.currency.networkTicker,
-                    address = dexQuoteParams.sourceAccount.currency.contractAddress,
+                    address = dexQuoteParams.sourceAccount.currency.contractAddress ?: PLACEHOLDER_CONTRACT_ADDRESS,
                     amount = dexQuoteParams.amount.toBigInteger().toString()
                 ),
                 toCurrency = ToCurrency(
                     chainId = dexQuoteParams.destinationAccount.currency.chainId,
                     symbol = dexQuoteParams.destinationAccount.currency.networkTicker,
                     address = dexQuoteParams.destinationAccount.currency.contractAddress
+                        ?: PLACEHOLDER_CONTRACT_ADDRESS
                 ),
                 slippage = dexQuoteParams.slippage,
                 address = it.address,
@@ -143,3 +144,5 @@ class DexQuotesRepository(
         return coincoreAccount.balance().map { it.total }.first()
     }
 }
+
+private const val PLACEHOLDER_CONTRACT_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"

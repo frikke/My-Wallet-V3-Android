@@ -65,6 +65,8 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
      */
     object LoadAssetInfo : CoinviewIntent
 
+    object LoadNews : CoinviewIntent
+
     /**
      * Performs price updates while chart is interactive
      */

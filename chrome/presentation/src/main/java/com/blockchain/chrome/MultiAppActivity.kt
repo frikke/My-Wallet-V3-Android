@@ -68,7 +68,6 @@ import com.blockchain.presentation.sheets.NoBalanceActionBottomSheet
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.domain.WalletConnectV2Service
-import com.blockchain.walletconnect.ui.navigation.WalletConnectV2Navigation
 import com.blockchain.walletconnect.ui.networks.NetworkInfo
 import com.blockchain.walletconnect.ui.networks.SelectNetworkBottomSheet
 import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet
@@ -174,12 +173,6 @@ class MultiAppActivity :
         )
     }
 
-    private val walletConnectV2Navigation: WalletConnectV2Navigation = payloadScope.get {
-        parametersOf(
-            this
-        )
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // allow to draw on status and navigation bars
@@ -233,7 +226,6 @@ class MultiAppActivity :
                 supportNavigation = supportNavigation,
                 nftNavigation = nftNavigation,
                 earnNavigation = earnNavigation,
-                walletConnectV2Navigation = walletConnectV2Navigation,
                 openExternalUrl = ::openExternalUrl,
                 processAnnouncementUrl = ::processAnnouncementUrl
             )
@@ -250,10 +242,6 @@ class MultiAppActivity :
 
             lifecycleScope.launch {
                 deeplinkNavigationHandler.checkDeeplinkDestination(intent)
-            }
-
-            lifecycleScope.launch {
-                walletConnectV2Navigation.launchWalletConnectV2()
             }
         }
     }

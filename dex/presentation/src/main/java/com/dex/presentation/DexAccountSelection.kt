@@ -80,7 +80,7 @@ fun DexAccountSelection(
                 if (!accounts.all { it.balance.isPositive }) {
                     item {
                         TableRowHeader(
-                            title = stringResource(R.string.all_tokens)
+                            title = stringResource(R.string.your_assets)
                         )
                         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
                     }
@@ -93,9 +93,6 @@ fun DexAccountSelection(
                     content = { dexAccount ->
                         BalanceFiatAndCryptoTableRow(
                             title = dexAccount.currency.name,
-                            titleIcon = dexAccount.currency.isVerified.takeIf { it }?.let {
-                                Icons.Filled.Verified.withTint(BasePrimaryMuted).withSize(14.dp)
-                            },
                             tag = dexAccount.currency.takeIf { it.isLayer2Token }?.coinNetwork?.shortName ?: "",
                             valueCrypto = dexAccount.balance.toStringWithSymbol(),
                             valueFiat = dexAccount.fiatBalance.toStringWithSymbol(),

@@ -3,6 +3,8 @@ package com.blockchain.koin.modules
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
+import androidx.lifecycle.Lifecycle
+import androidx.navigation.NavHostController
 import com.blockchain.api.ConnectionApi
 import com.blockchain.api.interceptors.SessionInfo
 import com.blockchain.appinfo.AppInfo
@@ -326,9 +328,10 @@ val applicationModule = module {
             bind(EarnNavigation::class)
         }
 
-        factory { (activity: BlockchainActivity) ->
+        scoped { (lifecycle: Lifecycle, navController: NavHostController) ->
             WalletConnectV2NavigationImpl(
-                activity = activity,
+                lifecycle = lifecycle,
+                navController = navController,
                 walletConnectV2Service = get(),
                 walletConnectV2FeatureFlag = get(walletConnectV2FeatureFlag),
             )

@@ -25,7 +25,6 @@ val dexDataModule = module {
         scoped {
             DexAccountsRepository(
                 coincore = get(),
-                dexTokensDataStorage = get(),
                 dexPrefs = get(),
                 assetCatalogue = get(),
                 currencyPrefs = get()
