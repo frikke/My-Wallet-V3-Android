@@ -49,6 +49,7 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetTradeableState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntent
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewNewsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPillAlertState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
@@ -114,6 +115,7 @@ fun Coinview(
         onWebsiteClick = {
             viewModel.onIntent(CoinviewIntent.VisitAssetWebsite)
         },
+        newsArticles = viewState.news,
         pillAlert = viewState.pillAlert,
         snackbarAlert = viewState.snackbarError
     )
@@ -153,6 +155,8 @@ fun CoinviewScreen(
 
     assetInfo: CoinviewAssetInfoState,
     onWebsiteClick: () -> Unit,
+
+    newsArticles: CoinviewNewsState,
 
     pillAlert: CoinviewPillAlertState,
 
@@ -215,6 +219,7 @@ fun CoinviewScreen(
                 DataResource.Loading -> {
                     // n/a
                 }
+
                 is DataResource.Error -> {
                     UnknownAsset(onContactSupportClick = onContactSupportClick)
                 }
@@ -262,6 +267,11 @@ fun CoinviewScreen(
                                 data = assetInfo,
                                 assetTicker = asset.data.asset.networkTicker,
                                 onWebsiteClick = onWebsiteClick
+                            )
+
+                            News(
+                                data = newsArticles,
+                                newsArticleOnClick = {}
                             )
                         }
 
@@ -361,6 +371,8 @@ fun PreviewCoinviewScreen() {
         assetInfo = CoinviewAssetInfoState.Loading,
         onWebsiteClick = {},
 
+        newsArticles = CoinviewNewsState(emptyList()),
+
         pillAlert = CoinviewPillAlertState.None,
         snackbarAlert = CoinviewSnackbarAlertState.None
     )
@@ -402,6 +414,8 @@ fun PreviewCoinviewScreen_Unknown() {
 
         assetInfo = CoinviewAssetInfoState.Loading,
         onWebsiteClick = {},
+
+        newsArticles = CoinviewNewsState(emptyList()),
 
         pillAlert = CoinviewPillAlertState.None,
         snackbarAlert = CoinviewSnackbarAlertState.None

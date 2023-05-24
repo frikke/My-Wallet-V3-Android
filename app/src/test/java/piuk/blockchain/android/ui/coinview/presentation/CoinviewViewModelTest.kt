@@ -14,6 +14,7 @@ import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.data.DataResource
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.news.NewsService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.testutils.CoroutineTestRule
 import com.blockchain.wallet.DefaultLabels
@@ -100,6 +101,8 @@ class CoinviewViewModelTest {
 
     private val recurringBuyService: RecurringBuyService = mockk()
 
+    private val newsService: NewsService = mockk()
+
     private val tradingWalletLabel = "TradingWalletLabel"
 
     @Before
@@ -120,7 +123,8 @@ class CoinviewViewModelTest {
             loadQuickActionsUseCase = loadQuickActionsUseCase,
             assetService = assetService,
             custodialWalletManager = custodialWalletManager,
-            recurringBuyService = recurringBuyService
+            recurringBuyService = recurringBuyService,
+            newsService = newsService
         )
 
         every { cryptoAsset.currency } returns currency
