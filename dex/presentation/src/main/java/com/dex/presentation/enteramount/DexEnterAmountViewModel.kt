@@ -170,7 +170,7 @@ class DexEnterAmountViewModel(
                     it == DexTxError.NotEnoughFunds ||
                     it == DexTxError.NotEnoughGas ||
                     it is DexTxError.QuoteError ||
-                    it == DexTxError.TokenNotAllowed
+                    it is DexTxError.TokenNotAllowed
             } -> ActionButtonState.INVISIBLE
 
             else -> ActionButtonState.ENABLED
@@ -242,6 +242,10 @@ class DexEnterAmountViewModel(
                         )
                     )
                 }
+            }
+
+            InputAmountIntent.PollForPendingAllowance -> {
+                pollForAllowance()
             }
         }
     }
@@ -324,6 +328,9 @@ class DexEnterAmountViewModel(
     private suspend fun pollForAllowance() {
         val currency = modelState.transaction?.sourceAccount?.currency
         check(currency != null)
+        updateState {
+            copy(operationInProgress = DexOperation.POLLING_ALLOWANCE_TX)
+        }
         val allowanceState = dexAllowanceService.allowanceTransactionProgress(
             assetInfo = currency
         )
@@ -548,7 +555,15 @@ sealed class InputAmountViewState : ViewState {
         val previewActionButtonState: ActionButtonState,
         private val errors: List<DexUiError> = emptyList()
     ) : InputAmountViewState() {
-        fun canChangeInputCurrency() = operationInProgress != DexOperation.PUSHING_ALLOWANCE_TX
+        fun canChangeInputCurrency() =
+            operationInProgress !in listOf(DexOperation.PUSHING_ALLOWANCE_TX, DexOperation.POLLING_ALLOWANCE_TX)
+
+        val allowanceTransactionInProgress: Boolean
+            get() = operationInProgress in listOf(
+                DexOperation.PUSHING_ALLOWANCE_TX,
+                DexOperation.BUILDING_ALLOWANCE_TX,
+                DexOperation.POLLING_ALLOWANCE_TX
+            )
 
         val topScreenUiError: DexUiError.CommonUiError?
             get() = errors.filterIsInstance<DexUiError.CommonUiError>().firstOrNull()
@@ -633,11 +648,17 @@ sealed class InputAmountIntent : Intent<AmountModelState> {
     object BuildAllowanceTransaction : InputAmountIntent()
     object IgnoreTxInProcessError : InputAmountIntent()
     object RevokeSourceCurrencyAllowance : InputAmountIntent()
+    object PollForPendingAllowance : InputAmountIntent() {
+        override fun isValidFor(modelState: AmountModelState): Boolean {
+            return modelState.operationInProgress != DexOperation.POLLING_ALLOWANCE_TX
+        }
+    }
+
     class AmountUpdated(val amountString: String) : InputAmountIntent()
 }
 
 enum class DexOperation {
-    NONE, PRICE_FETCHING, PUSHING_ALLOWANCE_TX, BUILDING_ALLOWANCE_TX
+    NONE, PRICE_FETCHING, PUSHING_ALLOWANCE_TX, POLLING_ALLOWANCE_TX, BUILDING_ALLOWANCE_TX
 }
 
 @kotlinx.serialization.Serializable

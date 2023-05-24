@@ -53,6 +53,7 @@ import com.blockchain.componentlib.icons.UnfoldMore
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.clickableNoEffect
+import com.blockchain.componentlib.utils.conditional
 import java.text.DecimalFormatSymbols
 import java.util.Locale
 import java.util.regex.Pattern
@@ -115,25 +116,25 @@ fun TwoCurrenciesInput(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp)
-            .then(
-                if (textFieldHeight > 0) {
-                    Modifier.height(
-                        with(localDensity) {
-                            // bottom one is scaled to 0.5 so full size should be 1.5x
-                            (textFieldHeight * 1.5F).toDp()
-                        }
-                    )
-                } else {
-                    Modifier
-                }
-            )
+            .conditional(textFieldHeight > 0) {
+                height(
+                    with(localDensity) {
+                        // bottom one is scaled to 0.5 so full size should be 1.5x
+                        (textFieldHeight * 1.5F).toDp()
+                    }
+                )
+            }
     ) {
+        val inputHeightModifier = Modifier.onGloballyPositioned {
+            if (textFieldHeight == 0) {
+                textFieldHeight = it.size.height
+            }
+        }
+
         CurrencyInput(
             modifier = Modifier
-                .onGloballyPositioned {
-                    if (textFieldHeight == 0) {
-                        textFieldHeight = it.size.height
-                    }
+                .conditional(selected == InputCurrency.Currency1) {
+                    inputHeightModifier
                 },
             maxHeight = textFieldHeight,
             focused = selected == InputCurrency.Currency1,
@@ -147,6 +148,10 @@ fun TwoCurrenciesInput(
         )
 
         CurrencyInput(
+            modifier = Modifier
+                .conditional(selected == InputCurrency.Currency2) {
+                    inputHeightModifier
+                },
             maxHeight = textFieldHeight,
             focused = selected == InputCurrency.Currency2,
             focusRequester = focusRequester2,
@@ -181,6 +186,7 @@ fun TwoCurrenciesInput(
                         InputCurrency.Currency1 -> {
                             c1Value = c1Value.copy(selection = TextRange(0, c1Value.text.length))
                         }
+
                         InputCurrency.Currency2 -> {
                             c2Value = c2Value.copy(selection = TextRange(0, c2Value.text.length))
                         }

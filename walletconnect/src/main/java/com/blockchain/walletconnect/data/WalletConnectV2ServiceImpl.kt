@@ -10,6 +10,7 @@ import com.blockchain.walletconnect.domain.DAppInfo
 import com.blockchain.walletconnect.domain.EthRequestSign
 import com.blockchain.walletconnect.domain.EthSendTransactionRequest
 import com.blockchain.walletconnect.domain.WalletConnectSession
+import com.blockchain.walletconnect.domain.WalletConnectSessionProposalState
 import com.blockchain.walletconnect.domain.WalletConnectUserEvent
 import com.blockchain.walletconnect.domain.WalletConnectV2Service
 import com.blockchain.walletconnect.domain.WalletConnectV2Service.Companion.EVM_CHAIN_ROOT
@@ -24,9 +25,7 @@ import com.blockchain.walletconnect.domain.WalletConnectV2UrlValidator
 import com.blockchain.walletconnect.domain.WalletInfo
 import com.blockchain.walletconnect.ui.networks.ETH_CHAIN_ID
 import com.blockchain.walletmode.WalletMode
-import com.walletconnect.android.Core
-import com.walletconnect.android.CoreClient
-import com.walletconnect.android.relay.ConnectionType
+import com.walletconnect.android.internal.common.scope
 import com.walletconnect.web3.wallet.client.Wallet
 import com.walletconnect.web3.wallet.client.Web3Wallet
 import info.blockchain.balance.CryptoCurrency
@@ -68,43 +67,11 @@ class WalletConnectV2ServiceImpl(
     private val _walletConnectUserEvents: MutableSharedFlow<WalletConnectUserEvent> = MutableSharedFlow()
     override val userEvents: SharedFlow<WalletConnectUserEvent> = _walletConnectUserEvents.asSharedFlow()
 
-    override fun init() {
-        // WalletConnect V2 Initialization
-        val projectId = "bcb13be5052677e9e7848634a68206ae" // TODO HARDCODED
-        val relayUrl = "relay.walletconnect.com"
-        val serverUrl = "wss://$relayUrl?projectId=$projectId"
-        val connectionType = ConnectionType.AUTOMATIC
-
-        CoreClient.initialize(
-            relayServerUrl = serverUrl,
-            connectionType = connectionType,
-            application = application,
-            metaData = Core.Model.AppMetaData(
-                name = "Blockchain.com",
-                description = "",
-                url = "https://www.blockchain.com",
-                icons = listOf("https://www.blockchain.com/static/apple-touch-icon.png"),
-                redirect = null,
-                verifyUrl = null
-            ),
-            relay = null,
-            keyServerUrl = null,
-            networkClientTimeout = null,
-            onError = { error ->
-                Timber.e("Core error: $error")
-            },
-        )
-
-        val initParams = Wallet.Params.Init(CoreClient)
-        Web3Wallet.initialize(
-            initParams,
-            onSuccess = {
-                Web3Wallet.setWalletDelegate(this)
-            },
-            onError = { error ->
-                Timber.e("Web3Wallet init error: $error")
-            }
-        )
+    init {
+        val delegate = this
+        scope.launch {
+            Web3Wallet.setWalletDelegate(delegate)
+        }
     }
 
     override suspend fun pair(pairingUrl: String) {
@@ -113,7 +80,7 @@ class WalletConnectV2ServiceImpl(
             val pairingParams = Wallet.Params.Pair(pairingUrl)
             Web3Wallet.pair(
                 pairingParams,
-                onSuccess = { wallet ->
+                onSuccess = {
                     Timber.d("WalletConnect V2: pairing success")
                 },
                 onError = { error ->
@@ -210,6 +177,28 @@ class WalletConnectV2ServiceImpl(
             Timber.d("WalletConnect V2: Emitting initial list of sessions")
             emit(getSessions())
         }.distinctUntilChanged() // Ensure that the same list is not emitted multiple times
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun getSessionProposalState(): Flow<WalletConnectSessionProposalState?> {
+        return _walletEvents.transformLatest { event ->
+            when (event) {
+                is Wallet.Model.SettledSessionResponse.Result -> {
+                    emit(WalletConnectSessionProposalState.APPROVED)
+                }
+                is Wallet.Model.SettledSessionResponse.Error -> {
+                    emit(WalletConnectSessionProposalState.REJECTED)
+                }
+                else -> emit(null)
+            }
+        }.onStart {
+            emit(null)
+        }.distinctUntilChanged()
+    }
+
+    override suspend fun getSession(sessionId: String): WalletConnectSession? =
+        withContext(Dispatchers.IO) {
+            Web3Wallet.getActiveSessionByTopic(sessionId)?.toDomainWalletConnectSession()
+        }
 
     override suspend fun ethSign(sessionRequest: Wallet.Model.SessionRequest) =
         ethRequestSign.onEthSignV2(
@@ -319,6 +308,11 @@ class WalletConnectV2ServiceImpl(
             )
         }
     }
+
+    override suspend fun getSessionProposal(sessionId: String): Wallet.Model.SessionProposal? =
+        withContext(Dispatchers.IO) {
+            Web3Wallet.getSessionProposals().firstOrNull { it.pairingTopic == sessionId }
+        }
 
     override fun clearSessionProposals() {
         Timber.d("WalletConnect V2: Clearing Session Proposals")

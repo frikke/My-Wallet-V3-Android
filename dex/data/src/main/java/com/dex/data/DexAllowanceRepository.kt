@@ -12,8 +12,10 @@ import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.firstOutcome
 import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
+import com.blockchain.preferences.DexPrefs
 import com.dex.domain.AllowanceService
 import com.dex.domain.AllowanceTransaction
 import com.dex.domain.AllowanceTransactionState
@@ -33,6 +35,7 @@ class DexAllowanceRepository(
     private val defiAccountReceiveAddressService: DefiWalletReceiveAddressService,
     private val nonCustodialService: NonCustodialService,
     private val json: Json,
+    private val dexPrefs: DexPrefs,
     private val assetCatalogue: AssetCatalogue,
     private val gasFeeCalculator: GasFeeCalculator
 ) : AllowanceService {
@@ -49,13 +52,18 @@ class DexAllowanceRepository(
                     AllowanceKey(
                         address = it.address,
                         currencyContract = contractAddress,
-                        networkSymbol = assetInfo.coinNetwork!!.nativeAssetTicker
+                        networkSymbol = assetInfo.coinNetwork!!.networkTicker
                     )
                 )
             ).firstOutcome().map { resp ->
                 TokenAllowance(
                     resp.result.allowance
                 )
+            }.doOnSuccess { alowance ->
+                if (alowance.isTokenAllowed) {
+                    dexPrefs.allowanceApprovedButPendingTokens =
+                        dexPrefs.allowanceApprovedButPendingTokens.minus(assetInfo.networkTicker)
+                }
             }
         }
     }
@@ -110,6 +118,7 @@ class DexAllowanceRepository(
     override suspend fun pushAllowanceTransaction(
         network: CoinNetwork,
         rawTx: JsonObject,
+        assetInfo: AssetInfo,
         signatures: List<TransactionSignature>
     ): Outcome<Exception, String> =
         nonCustodialService.pushTransaction(
@@ -118,6 +127,10 @@ class DexAllowanceRepository(
             signatures = signatures
         ).map {
             it.txId
+        }.doOnSuccess {
+            dexPrefs.allowanceApprovedButPendingTokens = dexPrefs.allowanceApprovedButPendingTokens.plus(
+                assetInfo.networkTicker
+            )
         }
 
     private suspend fun pollForAllowanceState(
@@ -141,7 +154,16 @@ class DexAllowanceRepository(
     }
 
     override suspend fun allowanceTransactionProgress(assetInfo: AssetInfo): AllowanceTransactionState {
-        return pollForAllowanceState(assetInfo) { it.isTokenAllowed }
+        return pollForAllowanceState(assetInfo) { it.isTokenAllowed }.also {
+            if (it == AllowanceTransactionState.COMPLETED) {
+                dexPrefs.allowanceApprovedButPendingTokens =
+                    dexPrefs.allowanceApprovedButPendingTokens.minus(assetInfo.networkTicker)
+            }
+        }
+    }
+
+    override suspend fun isAllowanceApprovedButPending(assetInfo: AssetInfo): Boolean {
+        return assetInfo.networkTicker in dexPrefs.allowanceApprovedButPendingTokens
     }
 
     override suspend fun revokeAllowanceTransactionProgress(assetInfo: AssetInfo): AllowanceTransactionState {

@@ -19,8 +19,6 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.base.addTransactionAnimation
 import com.blockchain.commonarch.presentation.mvi.MviActivity
-import com.blockchain.componentlib.alert.BlockchainSnackbar
-import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
@@ -48,7 +46,6 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.isLayer2Token
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
 import org.koin.java.KoinJavaComponent
@@ -199,23 +196,9 @@ class TransactionFlowActivity :
             action = action
         )
 
-        compositeDisposable += sourceAccount.requireSecondPassword()
-            .map { intentMapper.map(it) }
-            .subscribeBy(
-                onSuccess = { transactionIntent ->
-                    startingIntent = transactionIntent
-                    model.process(transactionIntent)
-                },
-                onError = {
-                    Timber.e("Unable to configure transaction flow, aborting. e == $it")
-                    BlockchainSnackbar.make(
-                        binding.root,
-                        getString(com.blockchain.stringResources.R.string.common_error),
-                        type = SnackbarType.Error
-                    ).show()
-                    finish()
-                }
-            )
+        val transactionIntent = intentMapper.map(sourceAccount.requireSecondPassword())
+        startingIntent = transactionIntent
+        model.process(transactionIntent)
 
         if (action == AssetAction.Swap || action == AssetAction.Sell) {
             lifecycleScope.launchWhenResumed {

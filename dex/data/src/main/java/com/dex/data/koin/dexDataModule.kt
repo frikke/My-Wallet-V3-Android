@@ -25,7 +25,6 @@ val dexDataModule = module {
         scoped {
             DexAccountsRepository(
                 coincore = get(),
-                dexTokensDataStorage = get(),
                 dexPrefs = get(),
                 assetCatalogue = get(),
                 currencyPrefs = get()
@@ -64,7 +63,8 @@ val dexDataModule = module {
                 assetCatalogue = get(),
                 nonCustodialService = get(),
                 defiAccountReceiveAddressService = get(),
-                json = get()
+                json = get(),
+                dexPrefs = get()
             )
         }.bind(AllowanceService::class)
 

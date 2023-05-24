@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
+import com.blockchain.stringResources.R.string
 import com.blockchain.walletconnect.R
 import com.blockchain.walletconnect.databinding.SessionApprovalBottomSheetBinding
 import com.blockchain.walletconnect.domain.WalletConnectSession
@@ -47,16 +48,16 @@ class WCSessionUpdatedBottomSheet : SlidingModalBottomDialog<SessionApprovalBott
 
             title.text = getString(
                 if (approved)
-                    com.blockchain.stringResources.R.string.dapp_is_now_approved else
-                    com.blockchain.stringResources.R.string.dapp_is_now_rejected,
+                    string.dapp_is_now_approved else
+                    string.dapp_is_now_rejected,
                 sessionV2DappName ?: session?.dAppInfo?.peerMeta?.name
             )
             description.goneIf { approved }
             description.text =
                 if (!networkSupported)
-                    getString(com.blockchain.stringResources.R.string.dapp_network_not_supported)
+                    getString(string.dapp_network_not_supported)
                 else if (!approved)
-                    getString(com.blockchain.stringResources.R.string.go_back_to_your_browser)
+                    getString(string.go_back_to_your_browser)
                 else ""
 
             cancelButton.gone()
@@ -66,7 +67,7 @@ class WCSessionUpdatedBottomSheet : SlidingModalBottomDialog<SessionApprovalBott
             )
 
             approveButton.apply {
-                text = getString(com.blockchain.stringResources.R.string.common_ok)
+                text = getString(string.common_ok)
                 onClick = {
                     dismiss()
                 }

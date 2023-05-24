@@ -72,11 +72,13 @@ data class CreateWalletModelState(
                     this.isEmpty() || this.length == REFERRAL_CODE_LENGTH
                 }
         }
+
         CreateWalletScreen.EMAIL_AND_PASSWORD -> {
             emailInput.isNotEmpty() &&
                 passwordInput.isNotEmpty() &&
                 areTermsOfServiceChecked
         }
+
         else -> true
     }
 }
@@ -185,25 +187,30 @@ class CreateWalletViewModel(
                 CreateWalletScreen.REGION_AND_REFERRAL -> {
                     navigate(CreateWalletNavigation.Back)
                 }
+
                 CreateWalletScreen.EMAIL_AND_PASSWORD -> {
                     updateState { copy(screen = CreateWalletScreen.REGION_AND_REFERRAL) }
                 }
+
                 CreateWalletScreen.CREATION_FAILED -> {
                     updateState { copy(screen = CreateWalletScreen.EMAIL_AND_PASSWORD) }
                 }
             }
+
             is CreateWalletIntent.EmailInputChanged -> {
                 analytics.logEventOnce(AnalyticsEvents.WalletSignupClickEmail)
                 updateState {
                     copy(emailInput = intent.input, isShowingInvalidEmailError = false)
                 }
             }
+
             is CreateWalletIntent.PasswordInputChanged -> {
                 analytics.logEventOnce(AnalyticsEvents.WalletSignupClickPasswordFirst)
                 updateState {
                     copy(passwordInput = intent.input, passwordInputError = null)
                 }
             }
+
             is CreateWalletIntent.CountryInputChanged -> {
                 analytics.logEvent(WalletCreationAnalytics.CountrySelectedOnSignUp(intent.countryCode))
                 fetchStatesJob?.cancel()
@@ -236,6 +243,7 @@ class CreateWalletViewModel(
                     }
                 }
             }
+
             is CreateWalletIntent.StateInputChanged -> updateState {
                 analytics.logEvent(WalletCreationAnalytics.StateSelectedOnSignUp(intent.stateCode))
                 require(stateInputState is StateInputState.Loaded)
@@ -244,12 +252,15 @@ class CreateWalletViewModel(
                     stateInputState = stateInputState.copy(selected = newState)
                 )
             }
+
             is CreateWalletIntent.ReferralInputChanged -> updateState {
                 copy(referralCodeInput = intent.input, isInvalidReferralErrorShowing = false)
             }
+
             is CreateWalletIntent.TermsOfServiceStateChanged -> updateState {
                 copy(areTermsOfServiceChecked = intent.isChecked)
             }
+
             CreateWalletIntent.RegionNextClicked -> {
                 if (modelState.referralCodeInput.isEmpty()) {
                     updateState { copy(screen = CreateWalletScreen.EMAIL_AND_PASSWORD) }
@@ -275,6 +286,7 @@ class CreateWalletViewModel(
                     }
                 }
             }
+
             CreateWalletIntent.EmailPasswordNextClicked -> {
                 analytics.logEventOnce(AnalyticsEvents.WalletSignupCreated)
 
@@ -282,18 +294,23 @@ class CreateWalletViewModel(
                     !formatChecker.isValidEmailAddress(modelState.emailInput) -> updateState {
                         copy(isShowingInvalidEmailError = true)
                     }
+
                     modelState.passwordInput.length < MIN_PWD_LENGTH -> updateState {
                         copy(passwordInputError = CreateWalletPasswordError.InvalidPasswordTooShort)
                     }
+
                     modelState.passwordInput.length > MAX_PWD_LENGTH -> updateState {
                         copy(passwordInputError = CreateWalletPasswordError.InvalidPasswordTooLong)
                     }
+
                     !PasswordUtil.getStrength(modelState.passwordInput).isStrongEnough() -> updateState {
                         copy(passwordInputError = CreateWalletPasswordError.InvalidPasswordTooWeak)
                     }
+
                     else -> navigate(CreateWalletNavigation.RecaptchaVerification(RecaptchaActionType.SIGNUP))
                 }
             }
+
             is CreateWalletIntent.RecaptchaVerificationSucceeded -> {
                 updateState { copy(isCreateWalletLoading = true) }
 
@@ -304,11 +321,11 @@ class CreateWalletViewModel(
                     intent.recaptchaToken
                 ).awaitOutcome()
                     .doOnSuccess { wallet ->
-                        val countryName =
-                            (modelState.countryInputState as CountryInputState.Loaded).selected!!.name
-                        val countryIso = modelState.countryInputState.selected!!.countryCode
+                        val countryIso =
+                            (modelState.countryInputState as CountryInputState.Loaded)
+                                .selected!!.countryCode
                         val stateIso = (modelState.stateInputState as? StateInputState.Loaded)?.selected?.stateCode
-                        analytics.logEvent(WalletCreationAnalytics.WalletSignUp(countryName, stateIso))
+                        analytics.logEvent(WalletCreationAnalytics.WalletSignUp(countryIso, stateIso))
 
                         walletStatusPrefs.apply {
                             isNewlyCreated = true
@@ -340,9 +357,12 @@ class CreateWalletViewModel(
                         specificAnalytics.logSignUp(false)
                     }
             }
+
             is CreateWalletIntent.RecaptchaVerificationFailed ->
                 updateState { copy(error = CreateWalletError.RecaptchaFailed) }
-            CreateWalletIntent.ErrorHandled -> updateState { copy(error = null) }
+
+            CreateWalletIntent.ErrorHandled ->
+                updateState { copy(error = CreateWalletError.RecaptchaFailed) }
         }
     }
 

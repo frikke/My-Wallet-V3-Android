@@ -6,7 +6,9 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -17,8 +19,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icon.CustomStackedIcon
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.MenuKebabVertical
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.END_DEFI
@@ -44,6 +51,7 @@ import com.blockchain.componentlib.theme.END_TRADING
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.START_DEFI
 import com.blockchain.componentlib.theme.START_TRADING
+import com.blockchain.componentlib.theme.clickableWithIndication
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.koin.payloadScope
 import com.blockchain.preferences.AuthPrefs
@@ -70,6 +78,13 @@ sealed class NavigationBarButton(val onClick: () -> Unit) {
 
     data class TextWithColorInt(val text: String, @ColorRes val colorId: Int? = null, val onTextClick: () -> Unit) :
         NavigationBarButton(onTextClick)
+
+    data class DropdownMenu(
+        val expanded: MutableState<Boolean>,
+        val onMenuClick: () -> Unit,
+        val content: @Composable ColumnScope.() -> Unit
+    ) :
+        NavigationBarButton(onMenuClick)
 }
 
 @Composable
@@ -163,13 +178,14 @@ fun NavigationBar(
 }
 
 @Composable
-private fun NavigationBar(
+fun NavigationBar(
     walletMode: WalletMode?,
     mutedBg: Boolean,
     title: String,
     icon: StackedIcon = StackedIcon.None,
     startNavigationBarButton: NavigationBarButton? = null,
-    endNavigationBarButtons: List<NavigationBarButton> = emptyList()
+    endNavigationBarButtons: List<NavigationBarButton> = emptyList(),
+    spaceBetweenArrangement: Boolean = false
 ) {
     Box(
         modifier = Modifier
@@ -201,7 +217,8 @@ private fun NavigationBar(
                     AppTheme.shapes.veryLarge.copy(bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp))
                 )
                 .padding(horizontal = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = if (spaceBetweenArrangement) Arrangement.SpaceBetween else Arrangement.Start
         ) {
             startNavigationBarButton?.let { button ->
                 when (button) {
@@ -211,6 +228,7 @@ private fun NavigationBar(
                     is NavigationBarButton.IconResource -> {
                         StartButtonResource(button = button)
                     }
+                    is NavigationBarButton.DropdownMenu,
                     is NavigationBarButton.Text,
                     is NavigationBarButton.TextWithColorInt -> {
                     }
@@ -228,7 +246,7 @@ private fun NavigationBar(
             }
 
             Text(
-                modifier = Modifier.weight(1f),
+                modifier = if (!spaceBetweenArrangement) Modifier.weight(1f) else Modifier,
                 text = title,
                 color = AppTheme.colors.title,
                 style = AppTheme.typography.body2
@@ -272,6 +290,18 @@ private fun NavigationBar(
                                 style = AppTheme.typography.body2
                             )
                         }
+                        is NavigationBarButton.DropdownMenu -> {
+                            com.blockchain.componentlib.basic.Image(imageResource = Icons.MenuKebabVertical)
+
+                            // DropdownMenu uses MaterialTheme.shapes.medium for its shape, so we need to override it
+                            MaterialTheme(shapes = MaterialTheme.shapes.copy(medium = AppTheme.shapes.large)) {
+                                DropdownMenu(
+                                    expanded = it.expanded.value,
+                                    onDismissRequest = { it.expanded.value = false },
+                                    content = it.content
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -283,7 +313,7 @@ private fun NavigationBar(
 fun RowScope.StartButton(button: NavigationBarButton.Icon) {
     Box(
         modifier = Modifier
-            .clickable {
+            .clickableWithIndication {
                 button.onClick.invoke()
             }
             .align(CenterVertically)

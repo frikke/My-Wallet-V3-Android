@@ -149,6 +149,7 @@ class DexTransactionProcessor(
                             }
                             updateTxQuote(it.value)
                         }
+
                         is Outcome.Failure -> {
                             (it.failure as? DexTxError.QuoteError)?.let { qError ->
                                 updateQuoteError(qError)
@@ -214,6 +215,7 @@ class DexTransactionProcessor(
                     quote = quote,
                     quoteError = null
                 )
+
                 DexQuote.InvalidQuote -> it.copy(
                     quote = null,
                     quoteError = null
@@ -315,7 +317,11 @@ class DexTransactionProcessor(
             allowance?.let {
                 if (!it.isTokenAllowed)
                     return copy(
-                        txErrors = txErrors.plus(DexTxError.TokenNotAllowed)
+                        txErrors = txErrors.plus(
+                            DexTxError.TokenNotAllowed(
+                                allowanceService.isAllowanceApprovedButPending(sourceAccount.currency)
+                            )
+                        )
                     )
                 else this
             } ?: return this
@@ -350,7 +356,7 @@ private fun DexTransaction.quoteParams(): DexQuoteParams? {
             destinationAccount = d,
             amount = a,
             slippage = slippage,
-            sourceHasBeenAllowed = !txErrors.contains(DexTxError.TokenNotAllowed)
+            sourceHasBeenAllowed = txErrors.any { it is DexTxError.TokenNotAllowed }.not()
         )
     }
 }
@@ -413,7 +419,7 @@ sealed class DexTxError {
             get() = true
     }
 
-    object TokenNotAllowed : DexTxError() {
+    data class TokenNotAllowed(val hasBeenApproved: Boolean) : DexTxError() {
         override val allowsQuotesFetching: Boolean
             get() = true
     }

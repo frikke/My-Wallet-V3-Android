@@ -20,6 +20,7 @@ import com.blockchain.preferences.Authorization
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.BrowserIdentity
 import com.blockchain.preferences.BrowserIdentityMapping
+import com.blockchain.preferences.CountryPrefs
 import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
@@ -90,6 +91,7 @@ class PrefsUtil(
     LocalSettingsPrefs,
     SuperAppMvpPrefs,
     CowboysPrefs,
+    CountryPrefs,
     ExchangeCampaignPrefs,
     IterableAnnouncementsPrefs {
 
@@ -118,7 +120,6 @@ class PrefsUtil(
 
     override var pinId: String
         get() = getValue(KEY_PIN_IDENTIFIER) ?: backupStore.getString(KEY_PIN_IDENTIFIER, null) ?: ""
-
         @SuppressLint("ApplySharedPref")
         set(value) {
             setValue(KEY_PIN_IDENTIFIER, value)
@@ -981,11 +982,13 @@ class PrefsUtil(
         private const val WALLET_MODE_LEGACY_KEY = "WALLET_MODE"
         private const val WALLET_MODE_KEY = "WALLET_MODE_UPDATED_KEY"
         private const val USER_DEFAULTED_TO_PKW = "USER_DEFAULTED_TO_PKW"
+        private const val USER_COUNTRY = "USER_COUNTRY"
         private const val SHOULD_SHOW_SMALL_BALANCES = "should_show_small_balances"
         private const val DEX_INTRO_SHOWN = "dex_intro_shown"
         private const val DEX_LAST_SELECTED_SLIPPAGE_INDEX = "LAST_SELECTED_SLIPPAGE_INDEX"
         private const val DEX_LAST_SELECTED_DESTINATION_TICKER = "DEX_LAST_SELECTED_DESTINATION_TICKER"
         private const val DEX_SELECTED_CHAIN_ID = "DEX_SELECTED_CHAIN_ID"
+        private const val ALLOWANCE_APPROVED_BUT_PENDING_TOKENS = "DEX_ALLOWANCE_APPROVED_BUT_PENDING_TOKENS"
 
         // iterable announcements
         private const val ITERABLE_SEEN_ANNOUNCEMENTS = "ITERABLE_SEEN_ANNOUNCEMENTS"
@@ -1032,11 +1035,22 @@ class PrefsUtil(
         set(value) {
             setValue(DEX_LAST_SELECTED_DESTINATION_TICKER, value)
         }
-
+    override var country: String
+        get() =
+            getValue(USER_COUNTRY, "")
+        set(value) {
+            setValue(USER_COUNTRY, value)
+        }
     override var selectedChainId: Int
         get() = getValue(DEX_SELECTED_CHAIN_ID, ETH_CHAIN_ID)
         set(value) {
             setValue(DEX_SELECTED_CHAIN_ID, value)
+        }
+
+    override var allowanceApprovedButPendingTokens: Set<String>
+        get() = getValue(ALLOWANCE_APPROVED_BUT_PENDING_TOKENS, "").split(",").toSet()
+        set(value) {
+            setValue(ALLOWANCE_APPROVED_BUT_PENDING_TOKENS, value.joinToString(separator = ","))
         }
 }
 

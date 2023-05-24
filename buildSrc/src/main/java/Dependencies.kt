@@ -9,7 +9,7 @@ object Versions {
     const val compileSdk = 33
 
     const val versionCode = 26653
-    const val versionName = "202305.1.0"
+    const val versionName = "202305.2.0"
 
     const val buildTools = "30.0.3"
 
@@ -391,8 +391,6 @@ object Libraries {
     const val firebaseCrashlyticsPlugin =
         "com.google.firebase:firebase-crashlytics-gradle:${Versions.firebaseCrashlyticsPlugin}"
     const val firebaseAnalytics = "com.google.firebase:firebase-analytics"
-    const val embraceIOSwazzler = "io.embrace:embrace-swazzler:${Versions.embraceIO}"
-    const val embraceIOSDK = "io.embrace:embrace-android-sdk:${Versions.embraceIO}"
 
     // Debugging
     const val stetho = "com.facebook.stetho:stetho:${Versions.stetho}"

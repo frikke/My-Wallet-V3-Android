@@ -66,8 +66,7 @@ fun WalletConnectDashboardCTA(
             contentEnd = {
                 Button(
                     modifier = Modifier
-                        .wrapContentWidth(align = Alignment.End)
-                        .weight(1f),
+                        .wrapContentWidth(align = Alignment.End),
                     content = {
                         Image(
                             imageResource = ImageResource.Local(

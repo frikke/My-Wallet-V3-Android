@@ -29,7 +29,7 @@ import com.blockchain.nfts.collection.screen.NftCollection
 import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.prices.prices.composable.Prices
-import com.blockchain.walletconnect.ui.navigation.WalletConnectV2Navigation
+import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.dex.presentation.enteramount.DexEnterAmountScreen
@@ -66,9 +66,10 @@ fun MultiAppBottomNavigationHost(
     openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
-    walletConnectV2Navigation: WalletConnectV2Navigation,
     processAnnouncementUrl: (String) -> Unit,
-    openSwap: () -> Unit
+    openSwap: () -> Unit,
+    onWalletConnectSessionClicked: (DappSessionUiElement) -> Unit,
+    onWalletConnectSeeAllSessionsClicked: () -> Unit
 ) {
     val walletMode by get<WalletModeService>(scope = payloadScope)
         .walletMode.collectAsStateLifecycleAware(initial = null)
@@ -135,7 +136,9 @@ fun MultiAppBottomNavigationHost(
                         openMoreQuickActions = openMoreQuickActions,
                         startPhraseRecovery = startPhraseRecovery,
                         processAnnouncementUrl = processAnnouncementUrl,
-                        openSwap = openSwap
+                        openSwap = openSwap,
+                        onWalletConnectSessionClicked = onWalletConnectSessionClicked,
+                        onWalletConnectSeeAllSessionsClicked = onWalletConnectSeeAllSessionsClicked
                     )
                 }
             )

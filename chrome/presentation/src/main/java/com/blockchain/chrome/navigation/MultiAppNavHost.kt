@@ -3,11 +3,15 @@ package com.blockchain.chrome.navigation
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.chrome.ChromeBottomNavigationItem
 import com.blockchain.chrome.ChromePill
 import com.blockchain.chrome.LocalChromePillProvider
@@ -46,13 +50,17 @@ import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.transactions.swap.SwapGraph
 import com.blockchain.transactions.swap.swapGraphHost
+import com.blockchain.walletconnect.domain.WalletConnectAnalytics
+import com.blockchain.walletconnect.ui.navigation.WalletConnectDestination
 import com.blockchain.walletconnect.ui.navigation.WalletConnectV2Navigation
+import com.blockchain.walletconnect.ui.navigation.walletConnectGraph
 import com.blockchain.walletmode.WalletMode
 import com.dex.presentation.graph.dexGraph
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
+import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalMaterialNavigationApi::class)
 @Composable
@@ -70,7 +78,6 @@ fun MultiAppNavHost(
     supportNavigation: SupportNavigation,
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
-    walletConnectV2Navigation: WalletConnectV2Navigation,
     openExternalUrl: (url: String) -> Unit,
     processAnnouncementUrl: (url: String) -> Unit
 ) {
@@ -78,6 +85,16 @@ fun MultiAppNavHost(
 
     val bottomSheetNavigator = rememberBottomSheetNavigator(skipHalfExpanded = true)
     val navController = rememberNavController(bottomSheetNavigator)
+
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+
+    val walletConnectV2Navigation: WalletConnectV2Navigation = get(
+        scope = payloadScope,
+        parameters = { parametersOf(lifecycle, navController) }
+    )
+    LaunchedEffect(Unit) {
+        walletConnectV2Navigation.launchWalletConnectV2()
+    }
 
     val chromePill: ChromePill = get(scope = payloadScope)
     CompositionLocalProvider(
@@ -129,7 +146,6 @@ fun MultiAppNavHost(
                     openExternalUrl = openExternalUrl,
                     nftNavigation = nftNavigation,
                     earnNavigation = earnNavigation,
-                    walletConnectV2Navigation = walletConnectV2Navigation,
                     processAnnouncementUrl = processAnnouncementUrl
                 )
 
@@ -169,11 +185,19 @@ fun MultiAppNavHost(
                     openExternalUrl = openExternalUrl,
                     onBackPressed = navController::popBackStack
                 )
+
                 dexGraph(
                     onBackPressed = navController::popBackStack,
                     navController = navController
                 )
+
                 swapGraphHost(mainNavController = navController)
+
+                walletConnectGraph(
+                    onBackPressed = navController::popBackStack,
+                    navController = navController,
+                    onLaunchQrCodeScan = { qrScanNavigation.launchQrScan() },
+                )
             }
         }
     }
@@ -192,11 +216,13 @@ private fun NavGraphBuilder.chrome(
     supportNavigation: SupportNavigation,
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
-    walletConnectV2Navigation: WalletConnectV2Navigation,
     openExternalUrl: (url: String) -> Unit,
     processAnnouncementUrl: (url: String) -> Unit
 ) {
     composable(navigationEvent = ChromeDestination.Main) {
+
+        val analytics: Analytics = get()
+
         MultiAppChrome(
             viewModel = viewModel,
             onModeLongClicked = { walletMode ->
@@ -217,7 +243,6 @@ private fun NavGraphBuilder.chrome(
             settingsNavigation = settingsNavigation,
             pricesNavigation = pricesNavigation,
             qrScanNavigation = qrScanNavigation,
-            walletConnectV2Navigation = walletConnectV2Navigation,
             supportNavigation = supportNavigation,
             openCryptoAssets = {
                 navController.navigate(HomeDestination.CryptoAssets)
@@ -282,7 +307,23 @@ private fun NavGraphBuilder.chrome(
             openSwap = {
                 // TODO(aromano): navigation TEMP
                 navController.navigate(SwapGraph::class.java.name)
-            }
+            },
+            onWalletConnectSessionClicked = {
+                analytics.logEvent(WalletConnectAnalytics.HomeDappClicked(it.chainName))
+
+                navController.navigate(
+                    WalletConnectDestination.WalletConnectManageSession,
+                    listOfNotNull(
+                        NavArgument(key = WalletConnectDestination.ARG_SESSION_ID, value = it.sessionId),
+                        NavArgument(key = WalletConnectDestination.ARG_IS_V2_SESSION, value = it.isV2)
+                    ),
+                )
+            },
+            onWalletConnectSeeAllSessionsClicked = {
+                analytics.logEvent(WalletConnectAnalytics.ConnectedDappsListClicked(origin = LaunchOrigin.HOME))
+
+                navController.navigate(WalletConnectDestination.WalletConnectDappList)
+            },
         )
     }
 }

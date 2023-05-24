@@ -38,7 +38,7 @@ data class DexQuoteParams(
 
 data class DexCurrency(
     private val currency: AssetInfo,
-    val isVerified: Boolean,
     val chainId: Int,
-    val contractAddress: String
+    override val index: Int = currency.index,
+    val contractAddress: String?
 ) : AssetInfo by currency

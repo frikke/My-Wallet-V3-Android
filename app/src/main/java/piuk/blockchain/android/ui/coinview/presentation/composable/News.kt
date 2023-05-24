@@ -13,6 +13,8 @@ import com.blockchain.news.NewsArticle
 import com.blockchain.news.composable.NewsArticle
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
+import org.koin.androidx.compose.get
+import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewNewsState
 
 @Composable

@@ -145,9 +145,6 @@ class CryptoExchangeAccount internal constructor(
 
     override val baseActions: Single<Set<AssetAction>> = Single.just(emptySet())
 
-    override fun requireSecondPassword(): Single<Boolean> =
-        Single.just(false)
-
     override fun matches(other: CryptoAccount): Boolean =
         other is CryptoExchangeAccount && other.currency == currency
 
@@ -278,8 +275,7 @@ abstract class CryptoNonCustodialAccount(
     /*
      * TODO(antonis-bc) remove this from account
      * */
-    override fun requireSecondPassword(): Single<Boolean> =
-        Single.fromCallable { payloadDataManager.isDoubleEncrypted }
+    override fun requireSecondPassword(): Boolean = payloadDataManager.isDoubleEncrypted
 
     abstract fun createTxEngine(target: TransactionTarget, action: AssetAction): TxEngine
 

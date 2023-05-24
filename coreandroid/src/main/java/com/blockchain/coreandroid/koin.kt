@@ -15,6 +15,7 @@ import com.blockchain.preferences.AppMaintenancePrefs
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BankLinkingPrefs
+import com.blockchain.preferences.CountryPrefs
 import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
@@ -68,6 +69,7 @@ val coreAndroidModule = module {
         bind(DashboardPrefs::class)
         bind(DexPrefs::class)
         bind(SecurityPrefs::class)
+        bind(CountryPrefs::class)
         bind(PricesPrefs::class)
         bind(WalletModePrefs::class)
         bind(RemoteConfigPrefs::class)

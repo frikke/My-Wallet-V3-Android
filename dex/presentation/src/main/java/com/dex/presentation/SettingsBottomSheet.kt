@@ -2,10 +2,7 @@ package com.dex.presentation
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
@@ -39,7 +36,6 @@ fun SettingsBottomSheet(
     viewModel: SettingsViewModel = getViewModel(scope = payloadScope),
     analytics: Analytics = get(),
 ) {
-    val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner) {
@@ -97,6 +93,5 @@ fun SettingsBottomSheet(
             style = AppTheme.typography.paragraph1,
             color = Grey700
         )
-        Spacer(modifier = Modifier.size(navBarHeight))
     }
 }
