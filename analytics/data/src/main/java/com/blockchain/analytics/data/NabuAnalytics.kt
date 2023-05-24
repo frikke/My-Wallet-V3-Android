@@ -166,27 +166,26 @@ private fun Single<AnalyticsContext>.plusWalletModeTrait(
             ?.properties?.get("app_mode") as? JsonPrimitive?
         )?.content
 
+    fun AnalyticsContext.withWalletModeTrait(appModeTrait: String): AnalyticsContext {
+        return copy(
+            traits = traits + mapOf(
+                "is_superapp_v1" to true.toString(),
+                "app_mode" to appModeTrait
+            )
+        )
+    }
+
     return flatMap { analyticsContext ->
         appModeTrait?.let {
             Single.just(
-                analyticsContext.copy(
-                    traits = analyticsContext.traits + mapOf(
-                        "is_superapp_v1" to true.toString(),
-                        "app_mode" to appModeTrait
-                    )
-                )
+                analyticsContext.withWalletModeTrait(appModeTrait)
             )
         } ?: kotlin.run {
             // default to current app mode
             val walletModeService = payloadScope.get<WalletModeService>()
             rxSingle { walletModeService.walletModeSingle.await() }
                 .map { appMode ->
-                    analyticsContext.copy(
-                        traits = analyticsContext.traits + mapOf(
-                            "is_superapp_v1" to true.toString(),
-                            "app_mode" to appMode.toTraitsString()
-                        )
-                    )
+                    analyticsContext.withWalletModeTrait(appMode.toTraitsString())
                 }
         }
     }
