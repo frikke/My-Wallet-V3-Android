@@ -24,9 +24,11 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,10 +72,11 @@ import info.blockchain.balance.Money
 fun SendAndReceiveAmountFields(
     modifier: Modifier = Modifier,
     onValueChanged: (TextFieldValue) -> Unit,
+    reset: Boolean,
     sendAmountFieldConfig: AmountFieldConfig,
     receiveAmountFieldConfig: AmountFieldConfig
 ) {
-    var input by remember {
+    var input by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(
             TextFieldValue(
                 sendAmountFieldConfig.amount?.takeIf {
@@ -83,14 +86,11 @@ fun SendAndReceiveAmountFields(
         )
     }
 
-    /**
-     * ensure that model amount and ui amount are in sync
-     */
-    if (sendAmountFieldConfig.amount == null &&
-        input.text.toBigDecimalOrNull()?.signum() == 1
-    ) {
-        input = TextFieldValue("")
-    }
+    LaunchedEffect(key1 = reset, block = {
+        if (reset) {
+            input = TextFieldValue()
+        }
+    })
 
     Box(modifier = modifier) {
         Column {
@@ -551,6 +551,7 @@ private fun PreviewSendAndReceiveAmountFields() {
             canChangeCurrency = true, amount = moneyPreview, exchange = moneyPreview, currency = CryptoCurrency.BTC,
             balance = moneyPreview, max = moneyPreview
         ),
+        reset = false,
         receiveAmountFieldConfig = AmountFieldConfig(
             isEnabled = true, shouldAnimateChanges = false, isReadOnly = false, onCurrencyClicked = {},
             canChangeCurrency = true, amount = moneyPreview, exchange = moneyPreview, currency = CryptoCurrency.BTC,

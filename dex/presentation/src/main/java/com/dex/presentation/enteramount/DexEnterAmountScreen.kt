@@ -450,7 +450,7 @@ fun InputScreen(
                 balance = viewState.sourceAccountBalance,
                 canChangeCurrency = viewState.canChangeInputCurrency()
             ),
-
+            reset = viewState.txAmount == null,
             receiveAmountFieldConfig = AmountFieldConfig(
                 isReadOnly = true,
                 isEnabled = viewState.operationInProgress == DexOperation.NONE,
