@@ -10,7 +10,7 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 
 data class ConfirmationModelState(
-    val isStartingDepositOnChainTxEngine: Boolean = true,
+    val isStartingDepositOnChainTxEngine: Boolean = false,
     val isFetchQuoteLoading: Boolean = true,
     val isSubmittingOrderLoading: Boolean = false,
 

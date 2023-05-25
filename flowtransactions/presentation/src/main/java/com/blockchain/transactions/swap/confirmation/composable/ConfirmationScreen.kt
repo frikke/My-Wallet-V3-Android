@@ -159,7 +159,10 @@ private fun ConfirmationContent(
 
             StandardVerticalSpacer()
 
-            if (state.sourceNetworkFeeCryptoAmount != null || state.targetNetworkFeeCryptoAmount != null) {
+            if (
+                (state.sourceNetworkFeeCryptoAmount != null && !state.sourceNetworkFeeCryptoAmount.isZero) ||
+                (state.targetNetworkFeeCryptoAmount != null && !state.targetNetworkFeeCryptoAmount.isZero)
+            ) {
                 NetworkFees(
                     sourceNetworkFeeCryptoAmount = state.sourceNetworkFeeCryptoAmount,
                     sourceNetworkFeeFiatAmount = state.sourceNetworkFeeFiatAmount,

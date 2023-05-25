@@ -138,6 +138,7 @@ fun NavContext.SellEnterAmount(
         LaunchedEffect(viewState.snackbarError) {
             val error = viewState.snackbarError
             if (error != null) {
+                keyboardController?.hide()
                 scaffoldState.snackbarHostState.showSnackbar(
                     message = error.localizedMessage ?: context.getString(R.string.common_error),
                     duration = SnackbarDuration.Long,
@@ -261,13 +262,8 @@ private fun EnterAmountScreen(
             QuickFillRow(
                 quickFillButtonData = quickFillButtonData,
                 onQuickFillItemClick = quickFillEntryClicked,
-                onMaxItemClick = {
-                    setMaxOnClick()
-                },
-                maxButtonText = stringResource(
-                    R.string.common_max_arg,
-                    quickFillButtonData.maxAmount.toStringWithSymbol()
-                ),
+                onMaxItemClick = { setMaxOnClick() },
+                maxButtonText = stringResource(R.string.sell_enter_amount_max),
                 areButtonsTransparent = false,
             )
 

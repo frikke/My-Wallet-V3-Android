@@ -126,6 +126,7 @@ fun EnterAmount(
         LaunchedEffect(viewState.snackbarError) {
             val error = viewState.snackbarError
             if (error != null) {
+                keyboardController?.hide()
                 scaffoldState.snackbarHostState.showSnackbar(
                     message = error.localizedMessage ?: context.getString(
                         R.string.common_error

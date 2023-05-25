@@ -4,6 +4,7 @@ import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.transactions.swap.confirmation.ConfirmationViewModel
 import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
+import com.blockchain.transactions.swap.sourceaccounts.SourceAccountsViewModel
 import com.blockchain.transactions.swap.targetaccounts.TargetAccountsViewModel
 import com.blockchain.transactions.swap.targetassets.TargetAssetsViewModel
 import com.blockchain.walletmode.WalletMode
@@ -12,6 +13,13 @@ import org.koin.dsl.module
 
 val swapTransactionsPresentationModule = module {
     scope(payloadScopeQualifier) {
+        viewModel {
+            SourceAccountsViewModel(
+                swapService = get(),
+                assetCatalogue = get()
+            )
+        }
+
         viewModel {
             EnterAmountViewModel(
                 swapService = get(),

@@ -51,12 +51,11 @@ import com.blockchain.componentlib.utils.AnnotatedStringUtils
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.urllinks.CHECKOUT_REFUND_POLICY
-import com.blockchain.presentation.urllinks.EXCHANGE_SWAP_RATE_EXPLANATION
 import com.blockchain.presentation.urllinks.NETWORK_ERC20_EXPLANATION
 import com.blockchain.presentation.urllinks.NETWORK_FEE_EXPLANATION
+import com.blockchain.presentation.urllinks.ORDER_PRICE_EXPLANATION
 import com.blockchain.stringResources.R
 import com.blockchain.transactions.common.confirmation.composable.ConfirmationSection
-import com.blockchain.transactions.common.confirmation.composable.ConfirmationTableRow
 import com.blockchain.transactions.sell.confirmation.ConfirmationIntent
 import com.blockchain.transactions.sell.confirmation.ConfirmationNavigation
 import com.blockchain.transactions.sell.confirmation.ConfirmationViewModel
@@ -105,7 +104,7 @@ fun ConfirmationScreen(
 
     Column {
         NavigationBar(
-            title = stringResource(R.string.swap_confirmation_navbar),
+            title = stringResource(R.string.common_confirm),
             onBackButtonClick = backClicked
         )
 
@@ -166,7 +165,7 @@ private fun ConfirmationContent(
 
                 HorizontalDivider(Modifier.fillMaxWidth())
 
-                ConfirmationTableRow(
+                SellConfirmationTableRow(
                     startTitle = stringResource(R.string.common_from),
                     endTitle = state.sourceAsset.name,
                     onClick = null
@@ -174,7 +173,7 @@ private fun ConfirmationContent(
 
                 HorizontalDivider(Modifier.fillMaxWidth())
 
-                ConfirmationTableRow(
+                SellConfirmationTableRow(
                     startTitle = stringResource(R.string.common_to),
                     endTitle = state.targetAsset.name,
                     onClick = null
@@ -182,13 +181,13 @@ private fun ConfirmationContent(
 
                 HorizontalDivider(Modifier.fillMaxWidth())
 
-                if (state.sourceNetworkFeeFiatAmount != null) {
+                if (state.sourceNetworkFeeFiatAmount != null && !state.sourceNetworkFeeFiatAmount.isZero) {
                     NetworkFee(state.sourceAsset, state.sourceNetworkFeeFiatAmount)
 
                     HorizontalDivider(Modifier.fillMaxWidth())
                 }
 
-                ConfirmationTableRow(
+                SellConfirmationTableRow(
                     startTitle = stringResource(R.string.common_total),
                     endTitle = state.totalFiatAmount?.toStringWithSymbol().orEmpty(),
                     endByline = state.totalCryptoAmount?.toStringWithSymbol().orEmpty(),
@@ -216,7 +215,7 @@ private fun ConfirmationContent(
                 .fillMaxWidth()
                 .padding(AppTheme.dimensions.smallSpacing)
                 .align(Alignment.BottomCenter),
-            text = stringResource(R.string.common_swap),
+            text = stringResource(R.string.sell_confirmation_cta_button),
             state = state.submitButtonState,
             onClick = submitOnClick
         )
@@ -228,7 +227,7 @@ fun SellDisclaimer() {
     val context = LocalContext.current
     val map = mapOf("refund_policy" to CHECKOUT_REFUND_POLICY)
     val disclaimer = AnnotatedStringUtils.getAnnotatedStringWithMappedAnnotations(
-        stringId = R.string.swap_confirmation_disclaimer_1,
+        stringId = R.string.sell_confirmation_disclaimer,
         linksMap = map,
         context = context
     )
@@ -261,7 +260,7 @@ fun SellQuoteTimer(remainingSeconds: Int, remainingPercentage: Float, modifier: 
         SimpleText(
             text = stringResource(R.string.tx_confirmation_quote_refresh_timer),
             style = ComposeTypographies.Paragraph2,
-            color = ComposeColors.Title,
+            color = ComposeColors.Body,
             gravity = ComposeGravities.Start
         )
 
@@ -291,91 +290,96 @@ private fun ConfirmationExplainerTableRow(
     modifier: Modifier = Modifier,
 ) {
     var isExplainerVisible by remember { mutableStateOf(false) }
-    Row(
-        modifier = modifier.clickable {
-            isExplainerVisible = !isExplainerVisible
-        },
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        SimpleText(
-            text = startTitle,
-            style = ComposeTypographies.Paragraph2,
-            color = ComposeColors.Title,
-            gravity = ComposeGravities.Start
-        )
 
-        Image(
-            modifier = Modifier.padding(start = AppTheme.dimensions.smallestSpacing),
-            imageResource = Icons.Filled.Question
-                .withSize(AppTheme.dimensions.smallSpacing)
-                .withTint(AppTheme.colors.medium)
-        )
-
-        Spacer(Modifier.weight(1f))
-
-        if (endTitle != null) {
+    Column(Modifier.padding(AppTheme.dimensions.smallSpacing)) {
+        Row(
+            modifier = modifier
+                .clickable {
+                    isExplainerVisible = !isExplainerVisible
+                },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             SimpleText(
-                text = endTitle,
+                text = startTitle,
                 style = ComposeTypographies.Paragraph2,
-                color = ComposeColors.Title,
+                color = ComposeColors.Body,
                 gravity = ComposeGravities.Start
             )
-        }
-    }
 
-    if (isExplainerVisible) {
-        val context = LocalContext.current
-        SimpleText(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = AppTheme.dimensions.tinySpacing),
-            text = explainerText,
-            style = ComposeTypographies.Caption1,
-            color = ComposeColors.Body,
-            gravity = ComposeGravities.Start,
-            onAnnotationClicked = { tag, value ->
-                if (tag == AnnotatedStringUtils.TAG_URL) {
-                    Intent(Intent.ACTION_VIEW, Uri.parse(value))
-                        .apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
-                        .also { context.startActivity(it) }
-                }
+            Image(
+                modifier = Modifier.padding(start = AppTheme.dimensions.smallestSpacing),
+                imageResource = Icons.Filled.Question
+                    .withSize(AppTheme.dimensions.smallSpacing)
+                    .withTint(AppTheme.colors.medium)
+            )
+
+            Spacer(Modifier.weight(1f))
+
+            if (endTitle != null) {
+                SimpleText(
+                    text = endTitle,
+                    style = ComposeTypographies.Paragraph2,
+                    color = ComposeColors.Title,
+                    gravity = ComposeGravities.Start
+                )
             }
-        )
+        }
+
+        if (isExplainerVisible) {
+            val context = LocalContext.current
+            SimpleText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = AppTheme.dimensions.tinySpacing),
+                text = explainerText,
+                style = ComposeTypographies.Caption1,
+                color = ComposeColors.Body,
+                gravity = ComposeGravities.Start,
+                onAnnotationClicked = { tag, value ->
+                    if (tag == AnnotatedStringUtils.TAG_URL) {
+                        Intent(Intent.ACTION_VIEW, Uri.parse(value))
+                            .apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
+                            .also { context.startActivity(it) }
+                    }
+                }
+            )
+        }
     }
 }
 
 @Composable
-private fun SellExchangeRate(rate: ExchangeRate?, modifier: Modifier = Modifier) {
+private fun SellExchangeRate(rate: ExchangeRate?) {
     val context = LocalContext.current
-    val learnMoreString = AnnotatedStringUtils.getAnnotatedStringWithMappedAnnotations(
-        context = context,
-        stringId = R.string.common_linked_learn_more,
-        linksMap = mapOf("learn_more_link" to EXCHANGE_SWAP_RATE_EXPLANATION)
-    )
-    val exchangeRateExplainer = buildAnnotatedString {
-        append(
-            stringResource(
-                R.string.checkout_swap_exchange_note,
-                rate!!.to.symbol,
-                rate.from.symbol
-            )
+    val exchangeRateExplainer = rate?.let {
+        val learnMoreString = AnnotatedStringUtils.getAnnotatedStringWithMappedAnnotations(
+            context = context,
+            stringId = R.string.common_linked_learn_more,
+            linksMap = mapOf("learn_more_link" to ORDER_PRICE_EXPLANATION)
         )
-        append(" ")
-        append(learnMoreString)
+        buildAnnotatedString {
+            append(stringResource(R.string.checkout_item_price_blurb))
+            append(" ")
+            append(learnMoreString)
+        }
     }
 
-    ConfirmationExplainerTableRow(
-        modifier = modifier,
-        startTitle = stringResource(R.string.tx_confirmation_exchange_rate_label),
-        endTitle = rate?.let {
-            stringResource(
+    if (exchangeRateExplainer != null) {
+        ConfirmationExplainerTableRow(
+            startTitle = stringResource(R.string.tx_confirmation_exchange_rate_label),
+            endTitle = stringResource(
                 R.string.tx_confirmation_exchange_rate_value,
                 rate.from.displayTicker,
                 rate.price.toStringWithSymbol()
-            )
-        },
-        explainerText = exchangeRateExplainer,
-    )
+            ),
+            explainerText = exchangeRateExplainer,
+        )
+    } else {
+        SellConfirmationTableRow(
+            startTitle = stringResource(R.string.tx_confirmation_exchange_rate_label),
+            endTitle = null,
+            onClick = null,
+        )
+    }
 }
 
 @Composable

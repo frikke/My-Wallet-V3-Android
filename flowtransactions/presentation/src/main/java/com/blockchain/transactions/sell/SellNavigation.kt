@@ -18,7 +18,6 @@ import com.blockchain.chrome.composable.ChromeSingleScreen
 import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.common.entersecondpassword.EnterSecondPasswordArgs
 import com.blockchain.transactions.common.entersecondpassword.composable.EnterSecondPasswordScreen
-import com.blockchain.transactions.common.sourceaccounts.composable.SourceAccounts
 import com.blockchain.transactions.sell.confirmation.SellConfirmationArgs
 import com.blockchain.transactions.sell.confirmation.composable.ConfirmationScreen
 import com.blockchain.transactions.sell.enteramount.EnterAmountIntent
@@ -28,6 +27,7 @@ import com.blockchain.transactions.sell.enteramount.composable.InputErrorScreen
 import com.blockchain.transactions.sell.enteramount.composable.SellEnterAmount
 import com.blockchain.transactions.sell.neworderstate.composable.NewOrderStateArgs
 import com.blockchain.transactions.sell.neworderstate.composable.NewOrderStateScreen
+import com.blockchain.transactions.sell.sourceaccounts.composable.SourceAccounts
 import com.blockchain.transactions.sell.targetassets.TargetAssetsArgs
 import com.blockchain.transactions.sell.targetassets.composable.TargetAssets
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
@@ -75,7 +75,6 @@ fun SellGraphHost(
         typedBottomSheet(SellGraph.SourceAccounts) {
             ChromeBottomSheet(onClose = ::navigateUp) {
                 SourceAccounts(
-                    isSwap = false,
                     accountSelected = {
                         viewModel.onIntent(EnterAmountIntent.FromAccountChanged(it, null))
                     },

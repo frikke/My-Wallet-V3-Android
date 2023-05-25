@@ -1,4 +1,4 @@
-package com.blockchain.transactions.common.sourceaccounts.composable
+package com.blockchain.transactions.sell.sourceaccounts.composable
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,22 +19,16 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.stringResources.R
 import com.blockchain.transactions.common.CryptoAccountWithBalance
 import com.blockchain.transactions.common.accounts.composable.AccountList
-import com.blockchain.transactions.common.sourceaccounts.SourceAccountsIntent
-import com.blockchain.transactions.common.sourceaccounts.SourceAccountsNavigationEvent
-import com.blockchain.transactions.common.sourceaccounts.SourceAccountsViewModel
-import com.blockchain.transactions.common.sourceaccounts.SourceAccountsViewState
-import com.blockchain.transactions.swap.SwapAnalyticsEvents
+import com.blockchain.transactions.sell.sourceaccounts.SourceAccountsIntent
+import com.blockchain.transactions.sell.sourceaccounts.SourceAccountsNavigationEvent
+import com.blockchain.transactions.sell.sourceaccounts.SourceAccountsViewModel
+import com.blockchain.transactions.sell.sourceaccounts.SourceAccountsViewState
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
-import org.koin.core.parameter.parametersOf
 
 @Composable
 fun SourceAccounts(
-    isSwap: Boolean,
-    viewModel: SourceAccountsViewModel = getViewModel(
-        scope = payloadScope,
-        parameters = { parametersOf(isSwap) }
-    ),
+    viewModel: SourceAccountsViewModel = getViewModel(scope = payloadScope),
     analytics: Analytics = get(),
     accountSelected: (CryptoAccountWithBalance) -> Unit,
     navigateToEnterSecondPassword: (CryptoAccountWithBalance) -> Unit,
@@ -51,19 +45,12 @@ fun SourceAccounts(
         navigationEvent?.let { navEvent ->
             when (navEvent) {
                 is SourceAccountsNavigationEvent.ConfirmSelection -> {
-                    if (isSwap) {
-                        analytics.logEvent(
-                            SwapAnalyticsEvents.SourceAccountSelected(
-                                ticker = navEvent.account.account.currency.networkTicker
-                            )
-                        )
-                    } else {
-//                        analytics.logEvent(
-//                            SellAnalyticsEvents.SourceAccountSelected(
-//                                ticker = navEvent.account.account.currency.networkTicker
-//                            )
+                    // TODO(aromano): SELL analytics
+//                    analytics.logEvent(
+//                        SellAnalyticsEvents.SourceAccountSelected(
+//                            ticker = navEvent.account.account.currency.networkTicker
 //                        )
-                    }
+//                    )
                     if (navEvent.requiresSecondPassword) {
                         navigateToEnterSecondPassword(navEvent.account)
                     } else {
@@ -80,11 +67,7 @@ fun SourceAccounts(
     ) {
         SheetFlatHeader(
             icon = StackedIcon.None,
-            title = if (isSwap) {
-                stringResource(R.string.common_swap_from)
-            } else {
-                stringResource(R.string.common_sell)
-            },
+            title = stringResource(R.string.common_sell),
             onCloseClick = onBackPressed
         )
 

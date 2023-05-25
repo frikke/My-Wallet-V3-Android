@@ -8,6 +8,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.R
@@ -40,7 +43,9 @@ fun CustomTableRow(
     icon: StackedIcon = StackedIcon.None,
     leadingComponents: List<ViewType>,
     trailingComponents: List<ViewType>,
-    onClick: (() -> Unit)? = null
+    onClick: (() -> Unit)? = null,
+    backgroundColor: Color = AppTheme.colors.background,
+    backgroundShape: Shape = RectangleShape
 ) {
     FlexibleTableRow(
         paddingValues = PaddingValues(AppTheme.dimensions.smallSpacing),
@@ -77,7 +82,9 @@ fun CustomTableRow(
                 }
             }
         },
-        onContentClicked = onClick
+        onContentClicked = onClick,
+        backgroundColor = backgroundColor,
+        backgroundShape = backgroundShape
     )
 }
 

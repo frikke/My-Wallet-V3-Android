@@ -1858,7 +1858,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="swap_neworderstate_pending_deposit_title">Swapping %1$s</string>
     <string name="swap_neworderstate_pending_deposit_description">Your initial swap of %1$s for %2$s is being processed (usually %3$s minutes). Your balance will update once it\'s complete.</string>
     <string name="swap_neworderstate_succeeded_title">Swap Complete!</string>
-    <string name="swap_neworderstate_succeeded_description">Your swapped %1$s for %2$s</string>
+    <string name="swap_neworderstate_succeeded_description">You swapped %1$s for %2$s</string>
 
     <!--  Sell Confirmation  -->
     <string name="sell_targetasset_sell_for">Sell for</string>
@@ -1867,9 +1867,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="sell_neworderstate_pending_deposit_title">Selling %1$s</string>
     <string name="sell_neworderstate_pending_deposit_description">Your sale of %1$s of %2$s is being processed (usually %3$s minutes). Your balance will update once it\'s complete.</string>
     <string name="sell_neworderstate_pending_deposit_l2_description">Your sale of %1$s of %2$s on %3$s is being processed (usually %4$s minutes). Your balance will update once it\'s complete.</string>
-    <string name="sell_neworderstate_succeeded_title">Swap Complete!</string>
-    <string name="sell_neworderstate_succeeded_description">Your swapped %1$s for %2$s</string>
-
+    <string name="sell_neworderstate_succeeded_title">Sell complete!</string>
+    <string name="sell_neworderstate_succeeded_description">You sold %1$s for %2$s.</string>
 
     <!--Tx Flow Info messaging-->
     <string name="not_enough_funds">Not Enough %1$s</string>
