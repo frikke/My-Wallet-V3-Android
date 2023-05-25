@@ -64,7 +64,7 @@ private fun SelectNetworkScreen(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppTheme.colors.backgroundMuted)
+            .background(AppTheme.colors.background)
     ) {
         SheetHeader(
             title = stringResource(id = com.blockchain.stringResources.R.string.select_network),

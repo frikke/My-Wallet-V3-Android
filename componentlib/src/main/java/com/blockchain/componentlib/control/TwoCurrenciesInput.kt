@@ -193,7 +193,7 @@ fun TwoCurrenciesInput(
                     }
                 },
                 imageResource = Icons.UnfoldMore.withBackground(
-                    backgroundColor = AppTheme.colors.background,
+                    backgroundColor = AppTheme.colors.backgroundSecondary,
                     iconSize = 24.dp,
                     backgroundSize = 24.dp,
                     shape = RoundedCornerShape(8.dp)
@@ -301,7 +301,7 @@ private fun BoxScope.CurrencyInput(
 private fun CurrencyValue.zeroHint(): AnnotatedString {
     @Composable
     fun color(visible: Boolean): Color {
-        return if (visible) AppTheme.colors.dark else AppTheme.colors.backgroundMuted
+        return if (visible) AppTheme.colors.dark else AppTheme.colors.background
     }
 
     return buildAnnotatedString {

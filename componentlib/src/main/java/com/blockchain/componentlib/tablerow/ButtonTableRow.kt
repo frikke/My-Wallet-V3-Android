@@ -104,7 +104,7 @@ private fun ButtonTableRow(
                     .padding(horizontal = 12.dp, vertical = 8.dp),
                 text = actionText,
                 style = AppTheme.typography.paragraph2,
-                color = AppTheme.colors.background
+                color = AppTheme.colors.backgroundSecondary
             )
         },
         onContentClicked = onClick

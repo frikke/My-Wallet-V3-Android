@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -214,7 +213,7 @@ fun NftCreator(creator: NftCreator) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppTheme.colors.background, AppTheme.shapes.large)
+            .background(AppTheme.colors.backgroundSecondary, AppTheme.shapes.large)
             .padding(AppTheme.dimensions.smallSpacing),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -227,7 +226,7 @@ fun NftCreator(creator: NftCreator) {
             } else {
                 StackedIcon.SingleIcon(ImageResource.Remote(creator.imageUrl))
             },
-            iconBackground = AppTheme.colors.background,
+            iconBackground = AppTheme.colors.backgroundSecondary,
             size = AppTheme.dimensions.standardSpacing,
             iconShape = AppTheme.shapes.medium
         )
@@ -257,7 +256,7 @@ fun NftTrait(trait: NftTrait) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = AppTheme.colors.background)
+            .background(color = AppTheme.colors.backgroundSecondary)
             .padding(AppTheme.dimensions.smallSpacing)
     ) {
         Text(

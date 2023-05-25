@@ -27,7 +27,7 @@ private fun TableRow(
     contentEnd: @Composable (RowScope.() -> Unit)? = null,
     contentBottom: @Composable (() -> Unit)? = null,
     onContentClicked: (() -> Unit)? = null,
-    backgroundColor: Color = AppTheme.colors.background,
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary,
     backgroundShape: Shape = RectangleShape
 ) {
     Column(
@@ -71,7 +71,7 @@ fun TableRow(
     contentEnd: @Composable (RowScope.() -> Unit)? = null,
     contentBottom: @Composable (() -> Unit)? = null,
     onContentClicked: (() -> Unit)? = null,
-    backgroundColor: Color = AppTheme.colors.background,
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary,
     backgroundShape: Shape = RectangleShape
 ) {
     TableRow(
@@ -95,7 +95,7 @@ fun FlexibleTableRow(
     contentEnd: @Composable (RowScope.() -> Unit)? = null,
     contentBottom: @Composable (() -> Unit)? = null,
     onContentClicked: (() -> Unit)? = null,
-    backgroundColor: Color = AppTheme.colors.background
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary
 ) {
     TableRow(
         paddingValues = paddingValues,

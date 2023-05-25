@@ -49,7 +49,6 @@ import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.domain.onboarding.DashboardOnboardingStepState
-import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.dashboard.CustodialEmptyCardIntent
 import com.blockchain.home.presentation.dashboard.CustodialEmptyCardViewModel
 import com.blockchain.home.presentation.dashboard.CustodialEmptyCardViewState
@@ -132,7 +131,7 @@ fun CustodialEmptyStateCardsScreen(
         }
 
         Card(
-            backgroundColor = AppTheme.colors.background,
+            backgroundColor = AppTheme.colors.backgroundSecondary,
             shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
             elevation = 0.dp
         ) {
@@ -228,7 +227,7 @@ fun CustodialEmptyStateCardsScreen(
 @Composable
 fun BuyProgressCard(totalSteps: Int, completedSteps: Int, onboardingLaunch: () -> Unit) {
     Card(
-        backgroundColor = AppTheme.colors.background,
+        backgroundColor = AppTheme.colors.backgroundSecondary,
         shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
         elevation = 3.dp
     ) {

@@ -204,7 +204,7 @@ fun NavigationBar(
 
                         )
                     )
-                    else -> Modifier.background(AppTheme.colors.background)
+                    else -> Modifier.background(AppTheme.colors.backgroundSecondary)
                 }
             )
     ) {
@@ -213,7 +213,7 @@ fun NavigationBar(
                 .matchParentSize()
                 .align(Alignment.CenterStart)
                 .background(
-                    if (mutedBg) AppTheme.colors.backgroundMuted else AppTheme.colors.background,
+                    if (mutedBg) AppTheme.colors.background else AppTheme.colors.backgroundSecondary,
                     AppTheme.shapes.veryLarge.copy(bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp))
                 )
                 .padding(horizontal = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)),
@@ -238,8 +238,8 @@ fun NavigationBar(
             if (icon !is StackedIcon.None) {
                 CustomStackedIcon(
                     icon = icon,
-                    iconBackground = AppTheme.colors.background,
-                    borderColor = if (mutedBg) AppTheme.colors.backgroundMuted else AppTheme.colors.background
+                    iconBackground = AppTheme.colors.backgroundSecondary,
+                    borderColor = if (mutedBg) AppTheme.colors.background else AppTheme.colors.backgroundSecondary
                 )
 
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))

@@ -30,7 +30,6 @@ import com.blockchain.componentlib.basic.TextAnimatedBrush
 import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SystemColors
-import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.onboarding.introduction.IntroScreensViewModel
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletmode.WalletMode
@@ -158,8 +157,8 @@ fun IntroductionScreensData(
                 TextAnimatedBrush(
                     text = stringResource(com.blockchain.stringResources.R.string.intro_swipe_hint),
                     style = AppTheme.typography.body2,
-                    baseColor = AppTheme.colors.background.copy(alpha = 0.4F),
-                    brushColor = AppTheme.colors.background.copy(alpha = 0.9F),
+                    baseColor = AppTheme.colors.backgroundSecondary.copy(alpha = 0.4F),
+                    brushColor = AppTheme.colors.backgroundSecondary.copy(alpha = 0.9F),
                     textAlign = TextAlign.Center
                 )
             }
@@ -169,8 +168,8 @@ fun IntroductionScreensData(
             HorizontalPagerIndicator(
                 modifier = Modifier.padding(AppTheme.dimensions.smallestSpacing),
                 pagerState = pagerState,
-                activeColor = AppTheme.colors.background,
-                inactiveColor = AppTheme.colors.background.copy(alpha = 0.25F)
+                activeColor = AppTheme.colors.backgroundSecondary,
+                inactiveColor = AppTheme.colors.backgroundSecondary.copy(alpha = 0.25F)
             )
         }
     }

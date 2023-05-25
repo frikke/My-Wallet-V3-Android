@@ -40,7 +40,6 @@ import com.blockchain.componentlib.theme.Red600
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.extensions.exhaustive
-import com.blockchain.presentation.R
 import com.blockchain.presentation.backup.BackupPhraseIntent
 import com.blockchain.presentation.backup.BackupPhraseViewState
 import com.blockchain.presentation.backup.TOTAL_STEP_COUNT
@@ -116,7 +115,7 @@ fun VerifyPhraseScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.background),
+            .background(AppTheme.colors.backgroundSecondary),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         NavigationBar(

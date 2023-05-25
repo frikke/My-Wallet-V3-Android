@@ -66,7 +66,7 @@ fun TwoAssetAction(
                 .size(AppTheme.dimensions.hugeSpacing)
                 .align(Alignment.Center),
             shape = CircleShape,
-            border = BorderStroke(AppTheme.dimensions.tinySpacing, AppTheme.colors.backgroundMuted)
+            border = BorderStroke(AppTheme.dimensions.tinySpacing, AppTheme.colors.background)
         ) {
             Image(
                 imageResource = Icons.ArrowDown.withBackground(
@@ -90,7 +90,7 @@ private fun Asset(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = AppTheme.shapes.large,
-        color = AppTheme.colors.background
+        color = AppTheme.colors.backgroundSecondary
     ) {
         Row(
             modifier = Modifier

@@ -9,7 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.control.PrimarySwitch
 import com.blockchain.componentlib.control.SuccessSwitch
 import com.blockchain.componentlib.theme.AppTheme
@@ -23,7 +22,7 @@ private fun ToggleTableRow(
     isChecked: Boolean = false,
     enabled: Boolean = true,
     toggleTableRowType: ToggleTableRowType = ToggleTableRowType.Primary,
-    backgroundColor: Color = AppTheme.colors.background
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary
 ) {
     FlexibleTableRow(
         paddingValues = paddingValues,
@@ -73,7 +72,7 @@ fun ToggleTableRow(
     isChecked: Boolean = false,
     enabled: Boolean = true,
     toggleTableRowType: ToggleTableRowType = ToggleTableRowType.Primary,
-    backgroundColor: Color = AppTheme.colors.background
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary
 ) {
     ToggleTableRow(
         paddingValues = PaddingValues(
@@ -108,7 +107,7 @@ fun FlexibleToggleTableRow(
     isChecked: Boolean = false,
     enabled: Boolean = true,
     toggleTableRowType: ToggleTableRowType = ToggleTableRowType.Primary,
-    backgroundColor: Color = AppTheme.colors.background
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary
 ) {
     ToggleTableRow(
         paddingValues = paddingValues,

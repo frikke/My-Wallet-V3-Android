@@ -12,7 +12,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
@@ -35,7 +34,7 @@ fun StackedIcons(
             modifier = Modifier
                 .size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
                 .clip(CircleShape)
-                .background(AppTheme.colors.background)
+                .background(AppTheme.colors.backgroundSecondary)
                 .align(Alignment.BottomEnd)
         )
 
@@ -44,8 +43,8 @@ fun StackedIcons(
             modifier = Modifier
                 .size(28.dp)
                 .clip(CircleShape)
-                .background(AppTheme.colors.background)
-                .border(2.dp, AppTheme.colors.background, shape = CircleShape)
+                .background(AppTheme.colors.backgroundSecondary)
+                .border(2.dp, AppTheme.colors.backgroundSecondary, shape = CircleShape)
                 .align(Alignment.TopStart)
         )
     }

@@ -114,7 +114,7 @@ fun AssetAccountsError() {
             title = stringResource(com.blockchain.stringResources.R.string.coinview_account_load_error_title),
             subtitle = stringResource(com.blockchain.stringResources.R.string.coinview_account_load_error_subtitle),
             alertType = AlertType.Warning,
-            backgroundColor = AppTheme.colors.background,
+            backgroundColor = AppTheme.colors.backgroundSecondary,
             isBordered = false,
             isDismissable = false
         )

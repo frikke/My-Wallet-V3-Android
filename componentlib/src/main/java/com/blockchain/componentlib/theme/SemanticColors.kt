@@ -14,7 +14,7 @@ class SemanticColors(
     medium: Color,
     light: Color,
     background: Color,
-    backgroundMuted: Color,
+    backgroundSecondary: Color,
     primary: Color,
     primaryMuted: Color,
     success: Color,
@@ -23,6 +23,8 @@ class SemanticColors(
     warningMuted: Color,
     error: Color,
     errorMuted: Color,
+    negative: Color,
+    negativeMuted: Color,
     isLight: Boolean
 ) {
 
@@ -40,9 +42,9 @@ class SemanticColors(
         private set
     var light by mutableStateOf(light)
         private set
-    var background by mutableStateOf(background)
+    var backgroundSecondary by mutableStateOf(backgroundSecondary)
         private set
-    var backgroundMuted by mutableStateOf(backgroundMuted)
+    var background by mutableStateOf(background)
         private set
     var primary by mutableStateOf(primary)
         private set
@@ -60,6 +62,10 @@ class SemanticColors(
         private set
     var errorMuted by mutableStateOf(error)
         private set
+    var negative by mutableStateOf(negative)
+        private set
+    var negativeMuted by mutableStateOf(negativeMuted)
+        private set
     var isLight by mutableStateOf(isLight)
         private set
 
@@ -71,8 +77,8 @@ class SemanticColors(
         dark: Color = this.dark,
         medium: Color = this.medium,
         light: Color = this.light,
-        background: Color = this.background,
-        backgroundMuted: Color = this.backgroundMuted,
+        background: Color = this.backgroundSecondary,
+        backgroundMuted: Color = this.background,
         primary: Color = this.primary,
         success: Color = this.success,
         successMuted: Color = this.successMuted,
@@ -80,6 +86,8 @@ class SemanticColors(
         warningMuted: Color = this.warningMuted,
         error: Color = this.error,
         errorMuted: Color = this.errorMuted,
+        negative: Color = this.negative,
+        negativeMuted: Color = this.negativeMuted,
         isLight: Boolean = this.isLight
     ) = SemanticColors(
         title = title,
@@ -89,8 +97,8 @@ class SemanticColors(
         dark = dark,
         medium = medium,
         light = light,
-        background = background,
-        backgroundMuted = backgroundMuted,
+        backgroundSecondary = background,
+        background = backgroundMuted,
         primary = primary,
         primaryMuted = primaryMuted,
         success = success,
@@ -99,6 +107,8 @@ class SemanticColors(
         warningMuted = warningMuted,
         error = error,
         errorMuted = errorMuted,
+        negative = negative,
+        negativeMuted = negativeMuted,
         isLight = isLight
     )
 
@@ -110,8 +120,8 @@ class SemanticColors(
         dark = colors.dark
         medium = colors.medium
         light = colors.light
+        backgroundSecondary = colors.backgroundSecondary
         background = colors.background
-        backgroundMuted = colors.backgroundMuted
         primary = colors.primary
         success = colors.success
         successMuted = colors.successMuted
@@ -119,6 +129,8 @@ class SemanticColors(
         warningMuted = colors.warningMuted
         error = colors.error
         errorMuted = colors.errorMuted
+        negative = colors.negative
+        negativeMuted = colors.negativeMuted
 
         isLight = colors.isLight
     }

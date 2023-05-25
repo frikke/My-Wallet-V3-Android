@@ -40,10 +40,7 @@ import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tag.DefaultTag
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Green700
 import com.blockchain.componentlib.theme.Grey100
-import com.blockchain.componentlib.theme.Grey700
-import com.blockchain.componentlib.theme.Pink700
 import com.blockchain.data.DataResource
 import kotlin.math.absoluteValue
 
@@ -275,7 +272,7 @@ private fun BalanceChangeTableRow(
 
                             is DataResource.Data -> {
                                 Text(
-                                    text = "${valueChange.data.indicator} ${valueChange.data.value}%",
+                                    text = valueChange.data.formattedText,
                                     style = AppTheme.typography.caption1,
                                     textAlign = TextAlign.End,
                                     color = valueChange.data.color
@@ -440,21 +437,26 @@ fun ShimmerValue(modifier: Modifier = Modifier) {
 sealed interface ValueChange {
     val value: Double
     val indicator: String
+
+    @get:Composable
     val color: Color
 
     data class Up(override val value: Double) : ValueChange {
         override val indicator: String = "↑"
-        override val color: Color = Green700
+        override val color: Color
+            @Composable get() = AppTheme.colors.success
     }
 
     data class Down(override val value: Double) : ValueChange {
         override val indicator: String = "↓"
-        override val color: Color = Pink700
+        override val color: Color
+            @Composable get() = AppTheme.colors.negative
     }
 
     data class None(override val value: Double) : ValueChange {
         override val indicator: String = "→"
-        override val color: Color = Grey700
+        override val color: Color
+            @Composable get() = AppTheme.colors.body
     }
 
     companion object {
@@ -468,13 +470,18 @@ sealed interface ValueChange {
     }
 }
 
-fun ValueChange.signedValue(): Double = value.absoluteValue.run {
-    when (this@signedValue) {
-        is ValueChange.None,
-        is ValueChange.Up -> unaryPlus()
-        is ValueChange.Down -> unaryMinus()
+val ValueChange.signedValue: Double
+    get() = value.absoluteValue.run {
+        when (this@signedValue) {
+            is ValueChange.None,
+            is ValueChange.Up -> unaryPlus()
+
+            is ValueChange.Down -> unaryMinus()
+        }
     }
-}
+
+val ValueChange.formattedText: String
+    get() = "$indicator $value%"
 
 @Preview
 @Composable

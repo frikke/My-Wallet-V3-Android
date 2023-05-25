@@ -13,6 +13,7 @@ import com.blockchain.koin.buyIntercomBotFeatureFlag
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.cardPaymentAsyncFeatureFlag
 import com.blockchain.koin.cowboysPromoFeatureFlag
+import com.blockchain.koin.darkModeFeatureFlag
 import com.blockchain.koin.dexFeatureFlag
 import com.blockchain.koin.dynamicEthHotWalletAddressFeatureFlag
 import com.blockchain.koin.earnTabFeatureFlag
@@ -341,6 +342,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_walletconnect_v2",
                 "Enable WalletConnect V2"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(darkModeFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "blockchain_app_configuration_and_dark_mode",
+                "dark mode"
             )
         )
     }.bind(FeatureFlag::class)

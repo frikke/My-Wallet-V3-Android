@@ -23,7 +23,6 @@ import com.blockchain.componentlib.theme.HugeVerticalSpacer
 import com.blockchain.componentlib.theme.LargeVerticalSpacer
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.UltraLight
-import com.blockchain.earn.R
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
@@ -41,7 +40,7 @@ fun EarnProductComparator(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppTheme.colors.backgroundMuted, shape = AppTheme.shapes.medium),
+            .background(AppTheme.colors.background, shape = AppTheme.shapes.medium),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SheetHeader(

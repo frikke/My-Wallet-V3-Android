@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="background">#07080D</color>
+
     <color name="calendarAccent">#619FF7</color>
     <color name="sheetBackgroundColor">#FF20242C</color>
 </resources>

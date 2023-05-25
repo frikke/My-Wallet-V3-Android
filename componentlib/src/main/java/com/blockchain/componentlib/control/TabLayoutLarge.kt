@@ -45,7 +45,7 @@ fun TabLayoutLarge(
     ) {
         TabRow(
             selectedTabIndex = selectedItemIndex,
-            backgroundColor = AppTheme.colors.background,
+            backgroundColor = AppTheme.colors.backgroundSecondary,
             contentColor = AppTheme.colors.primary,
             divider = {},
             modifier = modifier

@@ -27,7 +27,6 @@ import com.blockchain.componentlib.tablerow.FlexibleToggleTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.extensions.replace
 import com.blockchain.home.domain.AssetFilter
-import com.blockchain.home.presentation.R
 
 @Composable
 fun CryptoAssetsFilters(
@@ -40,7 +39,7 @@ fun CryptoAssetsFilters(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                AppTheme.colors.background,
+                AppTheme.colors.backgroundSecondary,
                 RoundedCornerShape(
                     topStart = AppTheme.dimensions.borderRadiiMedium,
                     topEnd = AppTheme.dimensions.borderRadiiMedium

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="background">#FFF1F2F7</color>
+
     <color name="paletteBaseWhite">#FFFFFF</color>
     <color name="paletteBaseBlack">#000000</color>
     <color name="paletteBasePrimary">#0C6CF2</color>

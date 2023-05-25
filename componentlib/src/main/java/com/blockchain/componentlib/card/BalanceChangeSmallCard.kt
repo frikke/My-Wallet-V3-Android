@@ -24,6 +24,7 @@ import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.tablerow.ShimmerValue
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.tablerow.formattedText
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
 
@@ -34,7 +35,7 @@ fun BalanceChangeSmallCard(
     valueChange: DataResource<ValueChange>,
     imageResource: ImageResource = ImageResource.None,
     defaultIconSize: Dp = AppTheme.dimensions.standardSpacing,
-    backgroundColor: Color = AppTheme.colors.background,
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary,
     onClick: () -> Unit
 ) {
     BalanceChangeSmallCard(
@@ -59,7 +60,7 @@ private fun BalanceChangeSmallCard(
     valueChange: DataResource<ValueChange>,
     icon: StackedIcon = StackedIcon.None,
     defaultIconSize: Dp = AppTheme.dimensions.standardSpacing,
-    backgroundColor: Color = AppTheme.colors.background,
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary,
     onClick: () -> Unit
 ) {
     Surface(
@@ -105,7 +106,7 @@ private fun BalanceChangeSmallCard(
 
                 is DataResource.Data -> {
                     Text(
-                        text = "${valueChange.data.indicator} ${valueChange.data.value}%",
+                        text = valueChange.data.formattedText,
                         style = AppTheme.typography.body2,
                         color = valueChange.data.color
                     )

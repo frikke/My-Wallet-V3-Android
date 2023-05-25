@@ -81,7 +81,7 @@ fun DeFiOnboardingScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.background)
+            .background(AppTheme.colors.backgroundSecondary)
     ) {
         NavigationBar(
             title = stringResource(com.blockchain.stringResources.R.string.defi_wallet_name),

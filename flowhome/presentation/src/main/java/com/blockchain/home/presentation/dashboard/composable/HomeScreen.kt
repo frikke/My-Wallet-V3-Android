@@ -207,7 +207,7 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(
-                AppTheme.colors.backgroundMuted
+                AppTheme.colors.background
             )
     ) {
         stickyHeader {

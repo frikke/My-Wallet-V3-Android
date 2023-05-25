@@ -168,7 +168,7 @@ fun AppTheme(
 
     if (setSystemColors) {
         SystemColors(
-            statusColor = mTheme.colors.background,
+            statusColor = mTheme.colors.backgroundSecondary,
             navigationColor = navigationBackground,
             isDarkTheme = darkTheme
         )
@@ -180,8 +180,8 @@ fun AppTheme(
             primaryVariant = mTheme.colors.primaryMuted,
             secondary = mTheme.colors.light,
             secondaryVariant = mTheme.colors.dark,
-            background = mTheme.colors.background,
-            surface = mTheme.colors.background,
+            background = mTheme.colors.backgroundSecondary,
+            surface = mTheme.colors.backgroundSecondary,
             error = mTheme.colors.error,
             onPrimary = mTheme.colors.light,
             onSecondary = mTheme.colors.primary,

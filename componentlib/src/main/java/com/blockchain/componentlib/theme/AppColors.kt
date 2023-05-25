@@ -92,8 +92,8 @@ val defLightColors = SemanticColors(
     dark = Grey300,
     medium = Grey100,
     light = Grey000,
-    background = Color.White,
-    backgroundMuted = BackgroundMuted,
+    background = BackgroundMuted,
+    backgroundSecondary = Color.White,
     primary = Blue600,
     primaryMuted = Blue400,
     success = Green700,
@@ -102,6 +102,8 @@ val defLightColors = SemanticColors(
     warningMuted = Orange400,
     error = Red600,
     errorMuted = Red400,
+    negative = Pink700,
+    negativeMuted = Pink700,
     isLight = true
 )
 
@@ -114,7 +116,7 @@ val defDarkColors = SemanticColors(
     medium = Dark600,
     light = Dark800,
     background = Dark900,
-    backgroundMuted = Dark900,
+    backgroundSecondary = Dark800,
     primary = Blue400,
     primaryMuted = Blue400, // todo unknown atm
     success = Green400,
@@ -123,8 +125,10 @@ val defDarkColors = SemanticColors(
     warningMuted = Orange400, // todo unknown atm
     error = Red400,
     errorMuted = Red400, // todo unknown atm
+    negative = Pink700,
+    negativeMuted = Pink700,
     isLight = false
 )
 
-val LocalLightColors = compositionLocalOf { defLightColors }
-val LocalDarkColors = compositionLocalOf { defDarkColors }
+val LocalLightColors = compositionLocalOf { defLightColors2 }
+val LocalDarkColors = compositionLocalOf { defDarkColors2 }

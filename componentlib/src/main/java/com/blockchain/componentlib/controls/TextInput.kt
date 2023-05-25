@@ -44,7 +44,6 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.basic.ImageResource.None.shape
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -53,7 +52,6 @@ import com.blockchain.componentlib.theme.Dark600
 import com.blockchain.componentlib.theme.Dark700
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey600
-import com.blockchain.stringResources.R
 
 sealed class TextInputState(val message: String? = null) {
     data class Default(val defaultMessage: String? = null) : TextInputState(defaultMessage)
@@ -496,7 +494,7 @@ fun OutlinedTextInput(
     }
 
     val backgroundColor = if (enabled) {
-        AppTheme.colors.background
+        AppTheme.colors.backgroundSecondary
     } else {
         if (!isSystemInDarkTheme()) {
             Grey000

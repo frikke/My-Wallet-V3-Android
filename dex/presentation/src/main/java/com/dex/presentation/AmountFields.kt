@@ -198,7 +198,7 @@ fun SendAndReceiveAmountFields(
                 .size(AppTheme.dimensions.hugeSpacing)
                 .align(Alignment.Center),
             shape = CircleShape,
-            border = BorderStroke(AppTheme.dimensions.tinySpacing, AppTheme.colors.backgroundMuted)
+            border = BorderStroke(AppTheme.dimensions.tinySpacing, AppTheme.colors.background)
         ) {
             Image(
                 imageResource = Icons.ArrowDown.withBackground(

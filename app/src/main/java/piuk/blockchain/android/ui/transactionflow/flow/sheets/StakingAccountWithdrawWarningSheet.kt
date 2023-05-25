@@ -154,7 +154,7 @@ fun StakingAccountInfo(
                 modifier = Modifier
                     .size(dimensionResource(com.blockchain.componentlib.R.dimen.epic_spacing))
                     .clip(CircleShape)
-                    .background(AppTheme.colors.background)
+                    .background(AppTheme.colors.backgroundSecondary)
                     .align(Alignment.Center)
             )
 
@@ -163,10 +163,10 @@ fun StakingAccountInfo(
                 modifier = Modifier
                     .size(dimensionResource(com.blockchain.componentlib.R.dimen.huge_spacing))
                     .clip(CircleShape)
-                    .background(AppTheme.colors.background)
+                    .background(AppTheme.colors.backgroundSecondary)
                     .border(
                         dimensionResource(com.blockchain.componentlib.R.dimen.borderRadiiSmallest),
-                        color = AppTheme.colors.background,
+                        color = AppTheme.colors.backgroundSecondary,
                         shape = CircleShape
                     )
                     .align(Alignment.BottomEnd)

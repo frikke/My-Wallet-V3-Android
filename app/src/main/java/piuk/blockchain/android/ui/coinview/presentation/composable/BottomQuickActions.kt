@@ -98,7 +98,7 @@ fun BottomQuickActionData(
                     text = action.name.value(),
                     icon = ImageResource.Local(
                         action.logo.value,
-                        colorFilter = ColorFilter.tint(AppTheme.colors.background),
+                        colorFilter = ColorFilter.tint(AppTheme.colors.backgroundSecondary),
                         size = AppTheme.dimensions.standardSpacing
                     ),
                     onClick = { onQuickActionClick(action) }

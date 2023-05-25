@@ -54,7 +54,7 @@ fun BackupSuccessScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.background),
+            .background(AppTheme.colors.backgroundSecondary),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         NavigationBar(

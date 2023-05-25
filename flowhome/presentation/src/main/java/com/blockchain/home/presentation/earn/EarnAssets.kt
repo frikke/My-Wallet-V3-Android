@@ -151,7 +151,7 @@ fun NoAssetsInvested(
     openEarnDashboard: () -> Unit = {}
 ) {
     Card(
-        backgroundColor = AppTheme.colors.background,
+        backgroundColor = AppTheme.colors.backgroundSecondary,
         shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
         elevation = 0.dp
     ) {

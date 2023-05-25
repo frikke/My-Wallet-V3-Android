@@ -25,7 +25,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -120,7 +119,7 @@ fun ModeSwitcher(
                                 .graphicsLayer {
                                     this.alpha = alpha()
                                 },
-                            imageResource = icon.withTint(AppTheme.colors.background)
+                            imageResource = icon.withTint(AppTheme.colors.backgroundSecondary)
                         )
                     }
 
@@ -131,7 +130,7 @@ fun ModeSwitcher(
                                 this.alpha = alpha()
                             },
                         style = AppTheme.typography.title3,
-                        color = AppTheme.colors.background,
+                        color = AppTheme.colors.backgroundSecondary,
                         text = stringResource(mode.titleSuperApp())
                     )
                 }
@@ -166,7 +165,7 @@ fun ModeSwitcher(
                             }
                         }
                         .background(
-                            color = AppTheme.colors.background,
+                            color = AppTheme.colors.backgroundSecondary,
                             shape = RoundedCornerShape(AppTheme.dimensions.standardSpacing)
                         )
                 )

@@ -34,7 +34,7 @@ class ColorsActivity : AppCompatActivity() {
             ViewSystemUtils.getSemanticColors(this).light.toArgb()
         )
         findViewById<AppCompatImageView>(R.id.background_color).setBackgroundColor(
-            ViewSystemUtils.getSemanticColors(this).background.toArgb()
+            ViewSystemUtils.getSemanticColors(this).backgroundSecondary.toArgb()
         )
         findViewById<AppCompatImageView>(R.id.primary_color).setBackgroundColor(
             ViewSystemUtils.getSemanticColors(this).primary.toArgb()

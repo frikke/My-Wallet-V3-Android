@@ -23,7 +23,7 @@ fun MinimalButton(
     icon: ImageResource = ImageResource.None,
     minHeight: Dp = 48.dp,
     isTransparent: Boolean = true,
-    backgroundColour: Color = AppTheme.colors.background
+    backgroundColour: Color = AppTheme.colors.backgroundSecondary
 ) {
     OutlinedButton(
         text = text,

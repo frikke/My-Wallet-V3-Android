@@ -17,7 +17,7 @@ import com.blockchain.componentlib.theme.AppTheme
 fun ShimmerLoadingCard(
     modifier: Modifier = Modifier,
     itemCount: Int = 2,
-    backgroundColor: Color = AppTheme.colors.background,
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary,
     shape: Shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
     elevation: Dp = 0.dp,
     showEndBlocks: Boolean = true,
