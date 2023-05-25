@@ -213,14 +213,14 @@ class SwapFragment :
                 .doOnTerminate { hideLoading() }
                 .subscribeBy(
                     onSuccess = { composite ->
-                        showSwapUi(composite.orders, composite.hasAtLeastOneAccountToSwapFrom)
-
                         if (composite.tiers.isVerified()) {
                             if (composite.newSwapFlowFFEnabled) {
                                 startSwap()
                                 requireActivity().finish()
                                 return@subscribeBy
                             }
+
+                            showSwapUi(composite.orders, composite.hasAtLeastOneAccountToSwapFrom)
 
                             binding.swapViewFlipper.displayedChild = when {
                                 composite.hasAtLeastOneAccountToSwapFrom -> SWAP_VIEW
@@ -252,6 +252,7 @@ class SwapFragment :
                                 showKycUpsellIfEligible(composite.limits)
                             }
                         } else {
+                            showSwapUi(composite.orders, composite.hasAtLeastOneAccountToSwapFrom)
                             binding.swapViewFlipper.displayedChild = KYC_VIEW
                             initKycView()
                         }

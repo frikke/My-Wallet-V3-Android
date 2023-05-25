@@ -6,6 +6,7 @@ import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.domain.trade.model.QuickFillRoundingData
 import com.blockchain.extensions.safeLet
+import com.blockchain.transactions.common.CombinedSourceNetworkFees
 import com.blockchain.transactions.common.CryptoAccountWithBalance
 import com.blockchain.transactions.common.OnChainDepositInputValidationError
 import info.blockchain.balance.CryptoValue
@@ -25,7 +26,7 @@ data class EnterAmountModelState(
     val quickFillRoundingData: List<QuickFillRoundingData.SellSwapRoundingData>? = null,
 
     val sourceToTargetExchangeRate: ExchangeRate? = null,
-    val sourceNetworkFee: CryptoValue? = null,
+    val sourceNetworkFees: CombinedSourceNetworkFees? = null,
     val depositEngineInputValidationError: OnChainDepositInputValidationError? = null,
 
     val fiatAmount: FiatValue? = null,
@@ -40,8 +41,8 @@ data class EnterAmountModelState(
 ) : ModelState {
     /**
      * A word on limits and fees, the actual Minimum order Limit is [productLimits], eg. 5 XLM, for us to comply with this min order value
-     * we'll have to add the [sourceNetworkFee], eg. 2 XLM, so the min input limit is now 5 + 2 XLM, this behaviour is not explicit
-     * in the [minLimit] calculation below because the [cryptoAmount] is the final order amount, the [sourceNetworkFee] is completely
+     * we'll have to add the [sourceNetworkFees.feeForAmount], eg. 2 XLM, so the min input limit is now 5 + 2 XLM, this behaviour is not explicit
+     * in the [minLimit] calculation below because the [cryptoAmount] is the final order amount, the [sourceNetworkFees.feeForAmount] is completely
      * separate and will only be "charged" when the user performs the NC deposit into BCDC account address, hence why it's actually
      * part of the [maxLimit] instead, to ensure whatever the user inputs in [cryptoAmount] never exceeds [spendableBalance].
      */
@@ -66,9 +67,9 @@ data class EnterAmountModelState(
         }
 
     val spendableBalance: CryptoValue?
-        get() = safeLet(fromAccount?.balanceCrypto, sourceNetworkFee) { balance, sourceNetworkFee ->
-            if (balance.currency == sourceNetworkFee.currency) {
-                balance - sourceNetworkFee
+        get() = safeLet(fromAccount?.balanceCrypto, sourceNetworkFees) { balance, sourceNetworkFees ->
+            if (balance.currency == sourceNetworkFees.feeForFullAvailable.currency) {
+                balance - sourceNetworkFees.feeForFullAvailable
             } else {
                 balance
             }

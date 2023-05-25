@@ -95,7 +95,7 @@ fun OutlinedButton(
 
     val interactionSource = remember { MutableInteractionSource() }
     LaunchedEffect(interactionSource, state, isDarkTheme) {
-        backgroundColor = Color.Unspecified
+        backgroundColor = backgroundColour
         borderColor = when (state) {
             ButtonState.Disabled -> {
                 if (isDarkTheme) disabledBorderDarkColor else disabledBorderLightColor
@@ -106,7 +106,7 @@ fun OutlinedButton(
         }
 
         fun cancelState() {
-            backgroundColor = Color.Unspecified
+            backgroundColor = backgroundColour
             borderColor = when (state) {
                 ButtonState.Disabled -> {
                     if (isDarkTheme) disabledBorderDarkColor else disabledBorderLightColor

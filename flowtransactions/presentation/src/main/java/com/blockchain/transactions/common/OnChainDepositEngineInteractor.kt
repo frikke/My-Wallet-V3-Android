@@ -36,7 +36,7 @@ class OnChainDepositEngineInteractor(
         sourceAccount: CryptoNonCustodialAccount,
         targetAccount: TransactionTarget,
         amount: CryptoValue,
-    ): Outcome<Exception, CryptoValue> = mutex.withLock {
+    ): Outcome<Exception, CombinedSourceNetworkFees> = mutex.withLock {
         check(action == AssetAction.Swap || action == AssetAction.Sell)
 
         initialiseDepositTxEngineIfNeeded(action, sourceAccount, targetAccount)
@@ -114,13 +114,17 @@ class OnChainDepositEngineInteractor(
     private suspend fun getSourceNetworkFee(
         amount: CryptoValue,
         depositPendingTx: PendingTx,
-    ): Outcome<Exception, CryptoValue> {
+    ): Outcome<Exception, CombinedSourceNetworkFees> {
         return txEngine.doUpdateAmount(amount, depositPendingTx).awaitOutcome()
             .doOnSuccess { pendingTx ->
                 this.pendingTx = pendingTx
             }
             .map { pendingTx ->
-                pendingTx.feeAmount as CryptoValue
+                CombinedSourceNetworkFees(
+                    amount = amount,
+                    feeForAmount = pendingTx.feeAmount as CryptoValue,
+                    feeForFullAvailable = pendingTx.feeForFullAvailable as CryptoValue,
+                )
             }
     }
 }

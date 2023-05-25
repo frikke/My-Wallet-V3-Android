@@ -1,4 +1,4 @@
-package com.blockchain.transactions.common.sourceaccounts
+package com.blockchain.transactions.sell.sourceaccounts
 
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
@@ -15,16 +15,13 @@ import com.blockchain.transactions.common.WithId
 import com.blockchain.transactions.common.accounts.AccountUiElement
 import com.blockchain.transactions.common.withId
 import com.blockchain.transactions.sell.SellService
-import com.blockchain.transactions.swap.SwapService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.isLayer2Token
 import kotlinx.coroutines.flow.collectLatest
 
 class SourceAccountsViewModel(
-    private val isSwap: Boolean,
     private val sellService: SellService,
-    private val swapService: SwapService,
     private val assetCatalogue: AssetCatalogue
 ) : MviViewModel<
     SourceAccountsIntent,
@@ -52,11 +49,7 @@ class SourceAccountsViewModel(
     override suspend fun handleIntent(modelState: SourceAccountsModelState, intent: SourceAccountsIntent) {
         when (intent) {
             is SourceAccountsIntent.LoadData -> {
-                val accounts = if (isSwap) {
-                    swapService.sourceAccountsWithBalances()
-                } else {
-                    sellService.sourceAccountsWithBalances()
-                }
+                val accounts = sellService.sourceAccountsWithBalances()
                 accounts
                     .mapListData { it.withId() }
                     .collectLatest { accountListData ->
