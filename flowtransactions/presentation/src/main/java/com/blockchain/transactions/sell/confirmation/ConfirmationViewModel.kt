@@ -82,6 +82,7 @@ class ConfirmationViewModel(
 
                 val sourceAccount = sourceAccount
                 if (sourceAccount is CryptoNonCustodialAccount) {
+                    updateState { copy(isStartingDepositOnChainTxEngine = true) }
                     depositTxEngine =
                         sourceAccount.createTxEngine(targetAccount, AssetAction.Sell) as OnChainTxEngineBase
                     custodialWalletManager.getCustodialAccountAddress(Product.TRADE, sourceAccount.currency)

@@ -2,7 +2,6 @@ package com.blockchain.koin
 
 import com.blockchain.testutils.CoroutineTestRule
 import com.blockchain.testutils.NoOpCoroutineDispatcher
-import com.blockchain.transactions.common.sourceaccounts.SourceAccountsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
@@ -51,7 +50,6 @@ class KoinGraphTest : KoinTest {
     fun `test module configuration`() {
         getKoin().checkModules {
             withInstance<CoroutineScope>(TestScope())
-            withParameter<SourceAccountsViewModel> { true }
         }
     }
 }

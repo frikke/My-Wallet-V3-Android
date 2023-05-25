@@ -20,6 +20,7 @@ import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.flatMap
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData
 import com.blockchain.presentation.complexcomponents.QuickFillDisplayAndAmount
+import com.blockchain.transactions.common.CombinedSourceNetworkFees
 import com.blockchain.transactions.common.OnChainDepositEngineInteractor
 import com.blockchain.transactions.common.OnChainDepositInputValidationError
 import com.blockchain.transactions.sell.SellService
@@ -102,6 +103,14 @@ class EnterAmountViewModel(
             }
 
             updateConfig(fromAccount, toAccount, null)
+
+            tradeDataService.getQuickFillRoundingForSell()
+                .doOnSuccess { data ->
+                    updateState { copy(quickFillRoundingData = data) }
+                }
+                .doOnFailure {
+                    // TODO(aromano): SWAP
+                }
         }
 
         viewModelScope.launch {
@@ -122,10 +131,6 @@ class EnterAmountViewModel(
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
     override fun EnterAmountModelState.reduce() = run {
-        val rate = sourceToTargetExchangeRate
-        val toUserFiat: CryptoValue.() -> FiatValue? = {
-            rate?.convert(this) as FiatValue?
-        }
         Logger.e(
             """
             fromAccount: $fromAccount
@@ -134,7 +139,7 @@ class EnterAmountViewModel(
             productLimits: $productLimits
             quickFillRoundingData: $quickFillRoundingData
             sourceToTargetExchangeRate: $sourceToTargetExchangeRate
-            sourceNetworkFee: $sourceNetworkFee
+            sourceNetworkFees: $sourceNetworkFees
             depositEngineInputValidationError: $depositEngineInputValidationError
             fiatAmount: $fiatAmount
             fiatAmountUserInput: $fiatAmountUserInput
@@ -144,9 +149,7 @@ class EnterAmountViewModel(
             inputError: ${validateInput()}
             fatalError: $fatalError
             minLimit: ${try {minLimit} catch (ex: Exception) {ex}}
-            minLimitFiat: ${try {minLimit?.toUserFiat()} catch (ex: Exception) {ex}}
             maxLimit: ${try {maxLimit} catch (ex: Exception) {ex}}
-            maxLimitFiat: ${try {maxLimit?.toUserFiat()} catch (ex: Exception) {ex}}
             """.trimIndent()
         )
         EnterAmountViewState(
@@ -183,10 +186,10 @@ class EnterAmountViewModel(
                         CurrencyType.CRYPTO -> fiatAmount?.toStringWithoutSymbol().orEmpty().ifEmpty { "0" }
                     },
                     maxFractionDigits = fiatAmount?.userDecimalPlaces ?: 2,
-                    ticker = toAccount.currency.displayTicker,
+                    ticker = toAccount.currency.symbol,
                     isPrefix = true,
                     separateWithSpace = false,
-                    zeroHint = "0.00"
+                    zeroHint = "0"
                 )
             },
             cryptoAmount = fromAccount?.let {
@@ -290,12 +293,13 @@ class EnterAmountViewModel(
                             fromAccount = intent.account,
                             secondPassword = intent.secondPassword,
                             toAccount = toAccount,
+                            productLimits = null,
                             fiatAmount = null,
                             fiatAmountUserInput = "",
                             cryptoAmount = null,
                             cryptoAmountUserInput = "",
                             sourceToTargetExchangeRate = null,
-                            sourceNetworkFee = null,
+                            sourceNetworkFees = null,
                             fatalError = null,
                         )
                     }
@@ -312,12 +316,13 @@ class EnterAmountViewModel(
                         fromAccount = intent.fromAccount,
                         secondPassword = intent.secondPassword,
                         toAccount = intent.toAccount,
+                        productLimits = null,
                         fiatAmount = null,
                         fiatAmountUserInput = "",
                         cryptoAmount = null,
                         cryptoAmountUserInput = "",
                         sourceToTargetExchangeRate = null,
-                        sourceNetworkFee = null,
+                        sourceNetworkFees = null,
                         fatalError = null,
                     )
                 }
@@ -337,11 +342,28 @@ class EnterAmountViewModel(
             }
 
             EnterAmountIntent.MaxSelected -> {
-                val userInputBalance = modelState.currencyAwareMaxAmount.toInputString()
+                val userInputBalance = modelState.maxLimit.toInputString()
 
                 when (modelState.selectedInput) {
                     CurrencyType.FIAT -> {
-                        onIntent(EnterAmountIntent.FiatInputChanged(amount = userInputBalance))
+                        /*
+                        Similarly to the problem stated in startQuotePriceRefreshing() because /brokerage/price only takes in crypto
+                        to return the resulting sourceToCryptoExchangeRate, and this rate being variable depending on the amount being sold,
+                        it will cause the maxLimit in Fiat to keep changing depending on the amount sent. Eg:
+                            * user has 100 Crypto balance
+                            * user types 10 Fiat
+                            * /brokerage/price returns sourceToTargetExchangeRate of 1.0
+                            * so maxLimit is now 100 Crypto or 100 Fiat
+                            * user clicks max, we input 100 Fiat
+                            * /brokerage/price now returns sourceToTargetExchangeRate of 1.1
+                            * so maxLimit is now only 90 Fiat
+                            * so the current 100 Fiat input is over the max as thus invalid
+
+                        To prevent this, when the user clicks Max we switch the input to CRYPTO and input the crypto maxLimit instead
+                        which is stable and doesn't depend on the /brokerage/price rate
+                         */
+                        updateState { copy(selectedInput = CurrencyType.CRYPTO) }
+                        onIntent(EnterAmountIntent.CryptoInputChanged(amount = userInputBalance))
                     }
                     CurrencyType.CRYPTO -> {
                         onIntent(EnterAmountIntent.CryptoInputChanged(amount = userInputBalance))
@@ -383,9 +405,9 @@ class EnterAmountViewModel(
         getSourceNetworkFeeJob = viewModelScope.launch {
             updateState { copy(depositEngineInputValidationError = null) }
             onChainDepositEngineInteractor.getDepositNetworkFee(AssetAction.Sell, sourceAccount, targetAccount, amount)
-                .doOnSuccess { fee ->
+                .doOnSuccess { fees ->
                     updateState {
-                        copy(sourceNetworkFee = fee)
+                        copy(sourceNetworkFees = fees)
                     }
                 }
                 .doOnFailure { error ->
@@ -419,7 +441,56 @@ class EnterAmountViewModel(
             while (true) {
                 tradeDataService.getSellQuotePrice(pair, amount, direction)
                     .doOnSuccess { quotePrice ->
-                        updateState { copy(sourceToTargetExchangeRate = quotePrice.sourceToDestinationRate) }
+                        val rate = quotePrice.sourceToDestinationRate
+                        /*
+                            There's a problem we need to address when the user is inputting Fiat:
+                            The price endpoint only takes in Crypto which means that when the user
+                            inputs Fiat we have to convert to crypto using the previous rate and then send that converted crypto
+                            to /brokerage/price, the problem arises when the rate that we used to convert to crypto when sending the amount
+                            is different than what we get back from the /brokerage/price.
+                            Eg. current rate: 1.0
+                                * user inputs 10 Fiat
+                                * we convert to 10 Crypto
+                                * we send 10 Crypto to /brokerage/price which returns us resultAmount: 9 Fiat and rate: 0.9
+                                * If the user was inputting Crypto there would be no problem, the Crypto input would remain 10 Crypto
+                                    and the resulting Fiat would change to 9 Fiat
+                                * However if the user is inputting Fiat as in this example we simply cannot change it's input to 9
+                                    because the user is actively interacting with it and the user meant to actually sell 9 Fiat worth of Crypto
+                                * So what we need to do is convert the 10 Fiat into Crypto using the new Rate and update the Crypto being shown
+                                * So in case the user would still see 10 Fiat in the input
+                                * We convert 10 Fiat into Crypto using the new 0.9 Rate, which would be around 11 Crypto
+                                * We update the cryptoAmount to show the new crypto amount
+                                * *WARNING* So at this point Crypto has changed, and thus we should go again to the /brokerage/price endpoint
+                                    to get the most up to date rate for this amount, but this process would be never ending because we'd get a slightly
+                                    different rate back, update the crypto and call /brokerage/price again, etc...
+                                    So we don't go to /brokerage/price again, we assume the rate is correct until the next /brokerage/price refresh cycle
+                         */
+                        when (modelState.selectedInput) {
+                            CurrencyType.CRYPTO -> {
+                                // The cryptoToFiat rate might have changed so we have to keep the cryptoInput as it
+                                // is but we need to update the resulting fiatAmount
+                                val cryptoAmount = modelState.cryptoAmount ?: CryptoValue.zero(sourceAccount.currency)
+                                val newFiatAmount = rate.convert(cryptoAmount) as FiatValue
+                                updateState {
+                                    copy(
+                                        sourceToTargetExchangeRate = rate,
+                                        fiatAmountUserInput = newFiatAmount.toInputString(),
+                                        fiatAmount = newFiatAmount,
+                                    )
+                                }
+                            }
+                            CurrencyType.FIAT -> {
+                                val fiatAmount = modelState.fiatAmount ?: FiatValue.zero(targetAccount.currency)
+                                val newCryptoAmount = rate.inverse().convert(fiatAmount) as CryptoValue
+                                updateState {
+                                    copy(
+                                        sourceToTargetExchangeRate = rate,
+                                        cryptoAmountUserInput = newCryptoAmount.toInputString(),
+                                        cryptoAmount = newCryptoAmount,
+                                    )
+                                }
+                            }
+                        }
                     }
                     .doOnFailure { error ->
                         updateState { copy(snackbarError = error) }
@@ -441,6 +512,8 @@ class EnterAmountViewModel(
 
         if (fromAccount is CryptoNonCustodialAccount) {
             getSourceNetworkFeeAndDepositEngineInputValidation(fromAccount, toAccount, amount)
+        } else {
+            updateState { copy(sourceNetworkFees = CombinedSourceNetworkFees.zero(fromAccount.currency)) }
         }
 
         configJob = viewModelScope.launch {
@@ -534,10 +607,12 @@ class EnterAmountViewModel(
                     displayTicker = spendableBalance?.currency?.displayTicker ?: "-",
                     balance = spendableBalanceString,
                 )
-                OnChainDepositInputValidationError.InsufficientGas -> SellEnterAmountInputError.InsufficientGas(
-                    displayTicker = (sourceNetworkFee ?: spendableBalance)?.currency?.displayTicker ?: "-"
-                )
-                is OnChainDepositInputValidationError.Unknown -> SellEnterAmountInputError.Unknown(error.error)
+                OnChainDepositInputValidationError.InsufficientGas -> {
+                    val asset = (sourceNetworkFees?.feeForAmount ?: spendableBalance)?.currency
+                    SellEnterAmountInputError.InsufficientGas(
+                        displayTicker = asset?.displayTicker ?: "-"
+                    )
+                } is OnChainDepositInputValidationError.Unknown -> SellEnterAmountInputError.Unknown(error.error)
                 null -> null
             }
         }
@@ -575,6 +650,7 @@ private fun Money?.toInputString(): String = this?.toBigDecimal()
     ?.setScale(this.userDecimalPlaces, RoundingMode.FLOOR)
     ?.stripTrailingZeros()
     ?.takeIf { it != BigDecimal.ZERO }
+    ?.toDouble()
     ?.toString().orEmpty()
 
 private fun getQuickFillCryptoButtonData(
@@ -620,7 +696,7 @@ private fun QuickFillButtonData.toFiat(
             if (prefillCrypto in limits) {
                 data.copy(
                     displayValue = prefillFiat.toStringWithSymbol(includeDecimalsWhenWhole = false),
-                    amount = prefillCrypto,
+                    amount = prefillFiat,
                 )
             } else {
                 null

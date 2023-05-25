@@ -18,7 +18,6 @@ import com.blockchain.chrome.composable.ChromeSingleScreen
 import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.common.entersecondpassword.EnterSecondPasswordArgs
 import com.blockchain.transactions.common.entersecondpassword.composable.EnterSecondPasswordScreen
-import com.blockchain.transactions.common.sourceaccounts.composable.SourceAccounts
 import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
 import com.blockchain.transactions.swap.confirmation.composable.ConfirmationScreen
 import com.blockchain.transactions.swap.enteramount.EnterAmountIntent
@@ -28,6 +27,7 @@ import com.blockchain.transactions.swap.enteramount.composable.EnterAmount
 import com.blockchain.transactions.swap.enteramount.composable.InputErrorScreen
 import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateArgs
 import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateScreen
+import com.blockchain.transactions.swap.sourceaccounts.composable.SourceAccounts
 import com.blockchain.transactions.swap.targetaccounts.composable.TargetAccounts
 import com.blockchain.transactions.swap.targetaccounts.composable.TargetAccountsArgs
 import com.blockchain.transactions.swap.targetassets.composable.TargetAssets
@@ -77,7 +77,6 @@ fun SwapGraphHost(
         typedBottomSheet(SwapGraph.SourceAccounts) {
             ChromeBottomSheet(onClose = ::navigateUp) {
                 SourceAccounts(
-                    isSwap = true,
                     accountSelected = {
                         viewModel.onIntent(EnterAmountIntent.FromAccountChanged(it, null))
                     },

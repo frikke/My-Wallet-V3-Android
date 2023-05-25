@@ -8,6 +8,7 @@ import com.blockchain.core.limits.TxLimits
 import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrNull
 import com.blockchain.extensions.safeLet
+import com.blockchain.transactions.common.CombinedSourceNetworkFees
 import com.blockchain.transactions.common.CryptoAccountWithBalance
 import com.blockchain.transactions.common.OnChainDepositInputValidationError
 import com.blockchain.walletmode.WalletMode
@@ -25,7 +26,7 @@ data class EnterAmountModelState(
 
     val config: DataResource<EnterAmountConfig> = DataResource.Loading,
 
-    val sourceNetworkFee: CryptoValue? = null,
+    val sourceNetworkFees: CombinedSourceNetworkFees? = null,
     val targetNetworkFeeInSourceValue: CryptoValue? = null,
     val depositEngineInputValidationError: OnChainDepositInputValidationError? = null,
 
@@ -41,8 +42,8 @@ data class EnterAmountModelState(
 ) : ModelState {
     /**
      * A word on limits and fees, the actual Minimum order Limit is [config.productLimits], eg. 5 XLM, for us to comply with this min order value
-     * we'll have to add the [sourceNetworkFee], eg. 2 XLM, so the min input limit is now 5 + 2 XLM, this behaviour is not explicit
-     * in the [minLimit] calculation below because the [cryptoAmount] is the final order amount, the [sourceNetworkFee] is completely
+     * we'll have to add the [sourceNetworkFees.feeForAmount], eg. 2 XLM, so the min input limit is now 5 + 2 XLM, this behaviour is not explicit
+     * in the [minLimit] calculation below because the [cryptoAmount] is the final order amount, the [sourceNetworkFees.feeForAmount] is completely
      * separate and will only be "charged" when the user performs the NC deposit into BCDC account address, hence why it's actually
      * part of the [maxLimit] instead, to ensure whatever the user inputs in [cryptoAmount] never exceeds [spendableBalance].
      * Regarding [targetNetworkFeeInSourceValue], which is being added to the [config.productLimits.min], there's no product rule
@@ -50,7 +51,7 @@ data class EnterAmountModelState(
      * order where the input is greater than the min product limit, but also that the output in target currency the user will get will also be
      * greater than the min product limit, so in case:
      *  - [cryptoAmount] = 5 XLM
-     *  - [sourceNetworkFee] = 2 XLM
+     *  - [sourceNetworkFees.feeForAmount] = 2 XLM
      *  - [targetNetworkFeeInSourceValue] = 3 XLM
      *
      *  [minLimit] will be 8 XLM, order value will be 8 XLM, user spend 10 XLM total and will, crucially, get 5 XLM worth of
@@ -82,9 +83,9 @@ data class EnterAmountModelState(
         }
 
     val spendableBalance: CryptoValue?
-        get() = safeLet(fromAccount?.balanceCrypto, sourceNetworkFee) { balance, sourceNetworkFee ->
-            if (balance.currency == sourceNetworkFee.currency) {
-                balance - sourceNetworkFee
+        get() = safeLet(fromAccount?.balanceCrypto, sourceNetworkFees) { balance, sourceNetworkFees ->
+            if (balance.currency == sourceNetworkFees.feeForFullAvailable.currency) {
+                balance - sourceNetworkFees.feeForFullAvailable
             } else {
                 balance
             }

@@ -26,6 +26,7 @@ import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.toDataResource
+import com.blockchain.transactions.common.CombinedSourceNetworkFees
 import com.blockchain.transactions.common.OnChainDepositEngineInteractor
 import com.blockchain.transactions.common.OnChainDepositInputValidationError
 import com.blockchain.transactions.swap.SwapService
@@ -145,7 +146,7 @@ class EnterAmountViewModel(
             toAccount: $toAccount
             fiatCurrency: $fiatCurrency
             config: $config
-            sourceNetworkFee: $sourceNetworkFee
+            sourceNetworkFees: $sourceNetworkFees
             targetNetworkFeeInSourceValue: $targetNetworkFeeInSourceValue
             depositEngineInputValidationError: $depositEngineInputValidationError
             fiatAmount: $fiatAmount
@@ -308,11 +309,12 @@ class EnterAmountViewModel(
                         fromAccount = intent.account,
                         secondPassword = intent.secondPassword,
                         toAccount = toAccount,
+                        config = DataResource.Loading,
                         fiatAmount = null,
                         fiatAmountUserInput = "",
                         cryptoAmount = null,
                         cryptoAmountUserInput = "",
-                        sourceNetworkFee = null,
+                        sourceNetworkFees = null,
                         targetNetworkFeeInSourceValue = null,
                         fatalError = null,
                     )
@@ -327,6 +329,7 @@ class EnterAmountViewModel(
                 updateState {
                     copy(
                         toAccount = intent.account,
+                        config = DataResource.Loading,
                         targetNetworkFeeInSourceValue = null,
                     )
                 }
@@ -382,9 +385,9 @@ class EnterAmountViewModel(
         getSourceNetworkFeeJob = viewModelScope.launch {
             updateState { copy(depositEngineInputValidationError = null) }
             onChainDepositEngineInteractor.getDepositNetworkFee(AssetAction.Swap, sourceAccount, targetAccount, amount)
-                .doOnSuccess { fee ->
+                .doOnSuccess { fees ->
                     updateState {
-                        copy(sourceNetworkFee = fee)
+                        copy(sourceNetworkFees = fees)
                     }
                 }
                 .doOnFailure { error ->
@@ -451,18 +454,22 @@ class EnterAmountViewModel(
         getSourceNetworkFeeJob?.cancel()
         targetNetworkFeeRefreshingJob?.cancel()
 
-        if (toAccount == null) {
-            updateState {
-                copy(config = DataResource.Loading)
-            }
-            return
-        }
+        if (toAccount == null) return
 
         if (fromAccount is CryptoNonCustodialAccount) {
             val amount = cryptoAmount ?: CryptoValue.zero(fromAccount.currency)
             getSourceNetworkFeeAndDepositEngineInputValidation(fromAccount, toAccount, amount)
             if (toAccount is CryptoNonCustodialAccount) {
                 startTargetNetworkFeeRefreshing(fromAccount, toAccount, amount)
+            } else {
+                updateState { copy(targetNetworkFeeInSourceValue = CryptoValue.zero(fromAccount.currency)) }
+            }
+        } else {
+            updateState {
+                copy(
+                    sourceNetworkFees = CombinedSourceNetworkFees.zero(fromAccount.currency),
+                    targetNetworkFeeInSourceValue = CryptoValue.zero(fromAccount.currency)
+                )
             }
         }
 
@@ -570,10 +577,12 @@ class EnterAmountViewModel(
                     balance = spendableBalanceString,
                 )
 
-                OnChainDepositInputValidationError.InsufficientGas -> SwapEnterAmountInputError.InsufficientGas(
-                    displayTicker = (sourceNetworkFee ?: spendableBalance)?.currency?.displayTicker ?: "-"
-                )
-
+                OnChainDepositInputValidationError.InsufficientGas -> {
+                    val asset = (sourceNetworkFees?.feeForAmount ?: spendableBalance)?.currency
+                    SwapEnterAmountInputError.InsufficientGas(
+                        displayTicker = asset?.displayTicker ?: "-"
+                    )
+                }
                 is OnChainDepositInputValidationError.Unknown -> SwapEnterAmountInputError.Unknown(error.error)
                 null -> null
             }
@@ -620,4 +629,5 @@ private fun Money?.toInputString(): String = this?.toBigDecimal()
     ?.setScale(this.userDecimalPlaces, RoundingMode.FLOOR)
     ?.stripTrailingZeros()
     ?.takeIf { it != BigDecimal.ZERO }
+    ?.toDouble()
     ?.toString().orEmpty()

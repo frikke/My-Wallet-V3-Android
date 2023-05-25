@@ -31,9 +31,9 @@ interface TradeDataService {
         direction: TransferDirection
     ): Outcome<Exception, QuotePrice>
 
-    suspend fun getQuickFillRoundingForBuy(): Outcome<Exception, List<QuickFillRoundingData>>
+    suspend fun getQuickFillRoundingForBuy(): Outcome<Exception, List<QuickFillRoundingData.BuyRoundingData>>
 
-    suspend fun getQuickFillRoundingForSell(): Outcome<Exception, List<QuickFillRoundingData>>
+    suspend fun getQuickFillRoundingForSell(): Outcome<Exception, List<QuickFillRoundingData.SellSwapRoundingData>>
 
-    suspend fun getQuickFillRoundingForSwap(): Outcome<Exception, List<QuickFillRoundingData>>
+    suspend fun getQuickFillRoundingForSwap(): Outcome<Exception, List<QuickFillRoundingData.SellSwapRoundingData>>
 }
