@@ -44,7 +44,7 @@ fun CustomTableRow(
     leadingComponents: List<ViewType>,
     trailingComponents: List<ViewType>,
     onClick: (() -> Unit)? = null,
-    backgroundColor: Color = AppTheme.colors.background,
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary,
     backgroundShape: Shape = RectangleShape
 ) {
     FlexibleTableRow(
