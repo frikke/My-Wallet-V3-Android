@@ -79,6 +79,7 @@ import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.await
@@ -255,6 +256,7 @@ class MultiAppActivity :
                         is DeepLinkResult.DeepLinkResultSuccess -> {
                             navigateToDeeplinkDestination(result.destination)
                         }
+
                         is DeepLinkResult.DeepLinkResultUnknownLink -> {
                             result.uri?.let { uri ->
                                 checkValidUrlAndOpen(uri)
@@ -304,27 +306,33 @@ class MultiAppActivity :
                     step.amount,
                     step.estimationTime
                 )
+
             is DeeplinkNavigationStep.OpenBankingApprovalDepositInProgress ->
                 walletLinkAndOpenBankingNavigation.depositInProgress(
                     step.orderValue
                 )
+
             is DeeplinkNavigationStep.OpenBankingApprovalTimeout ->
                 walletLinkAndOpenBankingNavigation.openBankingTimeout(
                     step.currency
                 )
+
             DeeplinkNavigationStep.OpenBankingBuyApprovalError -> walletLinkAndOpenBankingNavigation.approvalError()
             DeeplinkNavigationStep.OpenBankingError -> walletLinkAndOpenBankingNavigation.openBankingError()
             is DeeplinkNavigationStep.OpenBankingErrorWithCurrency ->
                 walletLinkAndOpenBankingNavigation.openBankingError(
                     step.currency
                 )
+
             is DeeplinkNavigationStep.OpenBankingLinking -> walletLinkAndOpenBankingNavigation.launchOpenBankingLinking(
                 step.bankLinkingInfo
             )
+
             is DeeplinkNavigationStep.PaymentForCancelledOrder ->
                 walletLinkAndOpenBankingNavigation.paymentForCancelledOrder(
                     step.currency
                 )
+
             DeeplinkNavigationStep.SimpleBuyFromDeepLinkApproval ->
                 walletLinkAndOpenBankingNavigation.launchSimpleBuyFromLinkApproval()
         }
@@ -361,6 +369,7 @@ class MultiAppActivity :
                     )
                 }
             }
+
             is Destination.AssetBuyDestination -> {
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
                     assetActionsNavigation.buyCrypto(
@@ -372,6 +381,7 @@ class MultiAppActivity :
                     Timber.e("Unable to start SimpleBuyActivity from deeplink. AssetInfo is null")
                 }
             }
+
             is Destination.AssetSendDestination -> {
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
                     destinationArgs.getSendSourceCryptoAccount(assetInfo, destination.accountAddress).subscribeBy(
@@ -389,6 +399,7 @@ class MultiAppActivity :
                     Timber.e("Unable to start Send flow from deeplink. AssetInfo is null")
                 }
             }
+
             is Destination.AssetEnterAmountDestination -> {
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
                     assetActionsNavigation.buyCrypto(currency = assetInfo)
@@ -396,6 +407,7 @@ class MultiAppActivity :
                     Timber.e("Unable to start SimpleBuyActivity from deeplink. AssetInfo is null")
                 }
             }
+
             is Destination.AssetEnterAmountLinkCardDestination -> {
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
                     assetActionsNavigation.buyCrypto(currency = assetInfo, launchLinkCard = true)
@@ -407,6 +419,7 @@ class MultiAppActivity :
                     )
                 }
             }
+
             is Destination.AssetEnterAmountNewMethodDestination -> {
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
                     assetActionsNavigation.buyCrypto(
@@ -419,6 +432,7 @@ class MultiAppActivity :
                     )
                 }
             }
+
             is Destination.CustomerSupportDestination -> settingsNavigation.launchSupportCenter()
             is Destination.StartKycDestination -> assetActionsNavigation.startKyc()
             is Destination.AssetReceiveDestination -> assetActionsNavigation.receive(destination.networkTicker)
@@ -466,6 +480,7 @@ class MultiAppActivity :
                     com.blockchain.stringResources.R.string.earn_summary_sheet_error_unknown_asset,
                     error.assetTicker
                 )
+
                 InterestError.Other -> getString(com.blockchain.stringResources.R.string.earn_summary_sheet_error_other)
                 InterestError.None -> getString(com.blockchain.stringResources.R.string.empty)
             },
@@ -500,6 +515,7 @@ class MultiAppActivity :
                     com.blockchain.stringResources.R.string.earn_summary_sheet_error_unknown_asset,
                     error.assetTicker
                 )
+
                 StakingError.Other -> getString(com.blockchain.stringResources.R.string.earn_summary_sheet_error_other)
                 StakingError.None -> getString(com.blockchain.stringResources.R.string.empty)
             },
@@ -534,9 +550,11 @@ class MultiAppActivity :
                     com.blockchain.stringResources.R.string.earn_summary_sheet_error_unknown_asset,
                     error.assetTicker
                 )
+
                 ActiveRewardsError.Other -> getString(
                     com.blockchain.stringResources.R.string.earn_summary_sheet_error_other
                 )
+
                 ActiveRewardsError.None -> getString(com.blockchain.stringResources.R.string.empty)
             },
             duration = Snackbar.LENGTH_SHORT,
@@ -558,16 +576,19 @@ class MultiAppActivity :
                             reason = it.reason
                         )
                     }
+
                     is FiatActionsNavEvent.DepositQuestionnaire -> {
                         fiatActionsNavigation.depositQuestionnaire(
                             questionnaire = it.questionnaire
                         )
                     }
+
                     is FiatActionsNavEvent.LinkBankMethod -> {
                         fiatActionsNavigation.linkBankMethod(
                             paymentMethodsForAction = it.paymentMethodsForAction
                         )
                     }
+
                     is FiatActionsNavEvent.TransactionFlow -> {
                         fiatActionsNavigation.transactionFlow(
                             account = it.account,
@@ -575,12 +596,14 @@ class MultiAppActivity :
                             action = it.action
                         )
                     }
+
                     is FiatActionsNavEvent.WireTransferAccountDetails -> {
                         fiatActionsNavigation.wireTransferDetail(
                             account = it.account,
                             accountIsFunded = it.accountIsFunded
                         )
                     }
+
                     is FiatActionsNavEvent.BankLinkFlow -> {
                         fiatActionsNavigation.bankLinkFlow(
                             launcher = activityResultLinkBank,
@@ -589,12 +612,14 @@ class MultiAppActivity :
                             assetAction = it.action
                         )
                     }
+
                     is FiatActionsNavEvent.LinkBankWithAlias -> {
                         fiatActionsNavigation.bankLinkWithAlias(
                             launcher = activityResultLinkBankWithAlias,
                             fiatAccount = it.account
                         )
                     }
+
                     is FiatActionsNavEvent.KycCashBenefits -> {
                         fiatActionsNavigation.kycCashBenefits(
                             currency = it.currency
@@ -717,6 +742,7 @@ class MultiAppActivity :
                 currency = assetInfo,
                 amount = null
             )
+
             AssetAction.Receive -> assetActionsNavigation.receive(assetInfo.networkTicker)
             else -> throw IllegalStateException("Earn dashboard: ${intent.action} not valid for navigation")
         }
@@ -731,6 +757,7 @@ class MultiAppActivity :
                     )
                 }
             }
+
             HomeLaunch.BANK_DEEP_LINK_SETTINGS -> {
                 if (resultCode == RESULT_OK) {
                     settingsNavigation.settings()

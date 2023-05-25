@@ -11,7 +11,7 @@ data class NabuAnalyticsEvent(
 )
 
 @Serializable
-class AnalyticsContext(
+data class AnalyticsContext(
     val device: DeviceInfo,
     val locale: String,
     val screen: ScreenInfo,
