@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.tag
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.tablerow.PreviewBalanceChangeTableRow_Chevron
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue400
@@ -65,7 +67,7 @@ fun Tag(
             modifier = Modifier
                 .border(
                     width = if (borders) 1.dp else 0.dp,
-                    color = Grey000,
+                    color = AppTheme.colors.light,
                     shape = RoundedCornerShape(
                         size = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
                     )
@@ -110,7 +112,7 @@ fun Tag(
             modifier = Modifier
                 .border(
                     width = if (borders) 1.dp else 0.dp,
-                    color = Grey000,
+                    color = AppTheme.colors.light,
                     shape = RoundedCornerShape(
                         size = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
                     )
@@ -127,33 +129,37 @@ fun Tag(
 @Preview
 @Composable
 fun ClickableTag() {
-    AppTheme(darkTheme = false) {
-        AppSurface {
-            Tag(
-                text = "Click me",
-                size = TagSize.Primary,
-                defaultBackgroundColor = Dark600,
-                defaultTextColor = Blue400,
-                borders = true,
-                onClick = { }
-            )
-        }
-    }
+    Tag(
+        text = "Click me",
+        size = TagSize.Primary,
+        defaultBackgroundColor = Dark600,
+        defaultTextColor = Blue400,
+        borders = true,
+        onClick = { }
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewClickableTagDark() {
+    ClickableTag()
 }
 
 @Preview
 @Composable
 fun NonClickableTag() {
-    AppTheme(darkTheme = false) {
-        AppSurface {
-            Tag(
-                text = "Click me",
-                size = TagSize.Primary,
-                defaultBackgroundColor = Dark600,
-                defaultTextColor = Blue400,
-                borders = true,
-                onClick = null
-            )
-        }
-    }
+    Tag(
+        text = "Click me",
+        size = TagSize.Primary,
+        defaultBackgroundColor = Dark600,
+        defaultTextColor = Blue400,
+        borders = true,
+        onClick = null
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewNonClickableTagDark() {
+    NonClickableTag()
 }

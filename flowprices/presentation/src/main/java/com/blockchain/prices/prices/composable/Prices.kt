@@ -82,7 +82,11 @@ fun Prices(
         onDispose { }
     }
 
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(AppTheme.colors.background)
+    ) {
         MenuOptionsScreen(
             openSettings = openSettings,
             launchQrScanner = launchQrScanner
@@ -251,18 +255,11 @@ fun ColumnScope.PricesScreenData(
                     data = cryptoAsset.data,
                     onClick = { onAssetClick(cryptoAsset.asset) }
                 )
-                if (cryptoPrices.last() != cryptoAsset) {
-                    Divider(color = Color(0XFFF1F2F7))
-                }
             }
         )
 
         item {
-            Spacer(
-                modifier = Modifier
-                    .size(100.dp)
-                    .background(Color(0XFFF1F2F7))
-            )
+            Spacer(modifier = Modifier.size(100.dp))
         }
     }
 }

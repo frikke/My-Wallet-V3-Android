@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.chrome
 
+import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
@@ -146,7 +147,7 @@ fun MenuOptionsScreen(
 
 @Preview(showBackground = true, backgroundColor = 0XFF1234F2)
 @Composable
-fun PreviewMenuOptionsScreen() {
+private fun PreviewMenuOptionsScreen() {
     MenuOptionsScreen(
         walletBalance = "123.456",
         openSettings = {},
@@ -154,4 +155,10 @@ fun PreviewMenuOptionsScreen() {
         showBackground = true,
         showBalance = true
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewMenuOptionsScreenDark() {
+    PreviewMenuOptionsScreen()
 }

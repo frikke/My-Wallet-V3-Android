@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.tag
 
+import android.content.res.Configuration
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -13,25 +14,15 @@ import com.blockchain.componentlib.theme.Grey700
 fun DefaultTag(
     text: String,
     size: TagSize = TagSize.Primary,
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary,
+    textColor: Color = AppTheme.colors.body,
     onClick: (() -> Unit)? = null
 ) {
-    val defaultBackgroundColor = if (!isSystemInDarkTheme()) {
-        Color.White
-    } else {
-        Dark600
-    }
-
-    val defaultTextColor = if (!isSystemInDarkTheme()) {
-        Grey700
-    } else {
-        Color.White
-    }
-
     Tag(
         text = text,
         size = size,
-        defaultBackgroundColor = defaultBackgroundColor,
-        defaultTextColor = defaultTextColor,
+        defaultBackgroundColor = backgroundColor,
+        defaultTextColor = textColor,
         borders = true,
         onClick = onClick
     )
@@ -39,30 +30,24 @@ fun DefaultTag(
 
 @Preview
 @Composable
-fun DefaultTag_Basic() {
-    AppTheme {
-        AppSurface {
-            DefaultTag(text = "Default", onClick = null)
-        }
-    }
+private fun DefaultTag_Basic() {
+    DefaultTag(text = "Default", onClick = null)
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun DefaultTag_Dark() {
+    DefaultTag_Basic()
 }
 
 @Preview
 @Composable
-fun DefaultTag_Dark() {
-    AppTheme(darkTheme = true) {
-        AppSurface {
-            DefaultTag(text = "Default", onClick = null)
-        }
-    }
+private fun DefaultTag_clickable() {
+    DefaultTag(text = "Click me", onClick = {})
 }
 
-@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun DefaultTag_clickable() {
-    AppTheme(darkTheme = true) {
-        AppSurface {
-            DefaultTag(text = "Click me", onClick = {})
-        }
-    }
+private fun DefaultTag_clickableDark() {
+    DefaultTag_clickable()
 }

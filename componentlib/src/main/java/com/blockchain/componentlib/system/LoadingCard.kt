@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.system
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -36,7 +37,7 @@ fun ShimmerLoadingCard(
                     reversed = reversed
                 )
 
-                if (it < itemCount - 1) Divider(color = Color(0XFFF1F2F7))
+                if (it < itemCount - 1) Divider(color = AppTheme.colors.background)
             }
         }
     }
@@ -46,4 +47,10 @@ fun ShimmerLoadingCard(
 @Composable
 private fun PreviewShimmerLoadingCard() {
     ShimmerLoadingCard()
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewShimmerLoadingCardDark() {
+    PreviewShimmerLoadingCard()
 }
