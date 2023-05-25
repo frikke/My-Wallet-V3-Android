@@ -293,8 +293,7 @@ fun CoinviewScreen(
                                 modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
                             ) {
                                 News(
-                                    data = newsArticles,
-                                    newsArticleOnClick = {}
+                                    data = newsArticles
                                 )
                             }
                         }

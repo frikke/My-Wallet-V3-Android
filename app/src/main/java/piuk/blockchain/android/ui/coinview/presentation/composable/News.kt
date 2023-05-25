@@ -18,21 +18,18 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewNewsState
 
 @Composable
 fun News(
-    data: CoinviewNewsState,
-    newsArticleOnClick: () -> Unit
+    data: CoinviewNewsState
 ) {
     data.newsArticles?.takeIf { it.isNotEmpty() }?.let {
         NewsData(
-            newsArticles = it.toImmutableList(),
-            newsArticleOnClick = newsArticleOnClick
+            newsArticles = it.toImmutableList()
         )
     }
 }
 
 @Composable
 private fun NewsData(
-    newsArticles: ImmutableList<NewsArticle>,
-    newsArticleOnClick: () -> Unit
+    newsArticles: ImmutableList<NewsArticle>
 ) {
     Column {
         TableRowHeader(
