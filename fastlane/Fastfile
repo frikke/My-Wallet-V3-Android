@@ -168,6 +168,28 @@ platform :android do
 
     end
 
+       desc "Bundle of build, perform checks, runs lint and run tests on CI."
+        lane :ci_run_lint_and_tests do
+
+          ci_credentials
+          ci_lint
+          ci_build(
+            environment: "Prod",
+            build_type: "Debug"
+          )
+
+           ci_test_app
+           ci_modules_tests
+
+        end
+
+    desc "Bundle of build, perform checks, runs lint and run tests on CI."
+        lane :ci_run_lint do
+          ci_credentials
+          ci_lint
+        end
+
+
     desc "Tests to run on CI app"
     lane :ci_test_app do
       gradle(

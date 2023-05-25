@@ -208,19 +208,25 @@ fun DexConfirmationScreen(
                         Spacer(modifier = Modifier.height(AppTheme.dimensions.standardSpacing))
                     }
                     item {
-                        animatedState.confirmationExchangeRate?.let {
-                            Card(
-                                backgroundColor = AppTheme.colors.background,
-                                shape = RoundedCornerShape(
-                                    topStart = AppTheme.dimensions.mediumSpacing,
-                                    topEnd = AppTheme.dimensions.mediumSpacing
-                                ),
-                                modifier = Modifier.padding(bottom = 1.dp),
-                                elevation = 0.dp
-                            ) {
-                                ExchangeRateConfirmation(it)
+                        Card(
+                            backgroundColor = AppTheme.colors.background,
+                            shape = RoundedCornerShape(
+                                topStart = AppTheme.dimensions.mediumSpacing,
+                                topEnd = AppTheme.dimensions.mediumSpacing
+                            ),
+                            modifier = Modifier.padding(bottom = 1.dp),
+                            elevation = 0.dp
+                        ) {
+                            dataState.network?.let {
+                                NetworkConfirmation(it)
                                 Divider(color = BackgroundMuted)
                             }
+                        }
+                    }
+                    item {
+                        animatedState.confirmationExchangeRate?.let {
+                            ExchangeRateConfirmation(it)
+                            Divider(color = BackgroundMuted)
                         }
                     }
 
@@ -690,6 +696,27 @@ private fun SlippageConfirmation(sl: Double) {
             Spacer(modifier = Modifier.weight(1f))
             SimpleText(
                 text = sl.toPercentageString(),
+                style = ComposeTypographies.Paragraph2,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Start
+            )
+        }
+    )
+}
+
+@Composable
+private fun NetworkConfirmation(network: String) {
+    TableRow(
+        content = {
+            SimpleText(
+                text = stringResource(id = com.blockchain.stringResources.R.string.common_network),
+                style = ComposeTypographies.Paragraph2,
+                color = ComposeColors.Body,
+                gravity = ComposeGravities.Start
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            SimpleText(
+                text = network,
                 style = ComposeTypographies.Paragraph2,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Start
