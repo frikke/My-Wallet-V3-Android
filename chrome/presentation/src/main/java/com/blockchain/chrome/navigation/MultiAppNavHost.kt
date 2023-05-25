@@ -48,8 +48,6 @@ import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.prices.navigation.PricesNavigation
-import com.blockchain.transactions.swap.SwapGraph
-import com.blockchain.transactions.swap.swapGraphHost
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.ui.navigation.WalletConnectDestination
 import com.blockchain.walletconnect.ui.navigation.WalletConnectV2Navigation
@@ -174,10 +172,6 @@ fun MultiAppNavHost(
                         multiAppViewModel.onIntent(
                             MultiAppIntents.BottomNavigationItemSelected(ChromeBottomNavigationItem.Dex)
                         )
-                    },
-                    openSwap = {
-                        // TODO(aromano): navigation TEMP
-                        navController.navigate(SwapGraph::class.java.name)
                     }
                 )
 
@@ -190,8 +184,6 @@ fun MultiAppNavHost(
                     onBackPressed = navController::popBackStack,
                     navController = navController
                 )
-
-                swapGraphHost(mainNavController = navController)
 
                 walletConnectGraph(
                     onBackPressed = navController::popBackStack,
@@ -304,10 +296,6 @@ private fun NavGraphBuilder.chrome(
             nftNavigation = nftNavigation,
             earnNavigation = earnNavigation,
             processAnnouncementUrl = processAnnouncementUrl,
-            openSwap = {
-                // TODO(aromano): navigation TEMP
-                navController.navigate(SwapGraph::class.java.name)
-            },
             onWalletConnectSessionClicked = {
                 analytics.logEvent(WalletConnectAnalytics.HomeDappClicked(it.chainName))
 

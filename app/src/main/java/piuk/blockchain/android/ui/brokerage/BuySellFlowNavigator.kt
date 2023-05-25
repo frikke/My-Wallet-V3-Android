@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.brokerage
 
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -14,7 +15,8 @@ import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 class BuySellFlowNavigator(
     private val simpleBuySyncFactory: SimpleBuySyncFactory,
     private val custodialWalletManager: CustodialWalletManager,
-    private val userIdentity: UserIdentity
+    private val userIdentity: UserIdentity,
+    private val newSellFlowFF: FeatureFlag
 ) {
     fun navigateTo(selectedAsset: AssetInfo? = null): Single<BuySellIntroAction> {
         val state = simpleBuySyncFactory.currentState() ?: SimpleBuyState()
@@ -43,18 +45,19 @@ class BuySellFlowNavigator(
         } ?: run {
             Single.zip(
                 userIdentity.userAccessForFeature(Feature.Buy),
-                userIdentity.userAccessForFeature(Feature.Sell)
-            ) { buyAccess, sellAccess ->
+                userIdentity.userAccessForFeature(Feature.Sell),
+                newSellFlowFF.enabled
+            ) { buyAccess, sellAccess, newSellFlowFFEnabled ->
                 if (buyAccess.isBlockedDueToEligibility() && sellAccess.isBlockedDueToEligibility()) {
                     BuySellIntroAction.UserNotEligible
-                } else BuySellIntroAction.DisplayBuySellIntro
+                } else BuySellIntroAction.DisplayBuySellIntro(newSellFlowFFEnabled)
             }
         }
     }
 }
 
 sealed class BuySellIntroAction {
-    object DisplayBuySellIntro : BuySellIntroAction()
+    data class DisplayBuySellIntro(val newSellFlowFFEnabled: Boolean) : BuySellIntroAction()
     object UserNotEligible : BuySellIntroAction()
     data class StartBuyWithSelectedAsset(val selectedAsset: AssetInfo) :
         BuySellIntroAction()

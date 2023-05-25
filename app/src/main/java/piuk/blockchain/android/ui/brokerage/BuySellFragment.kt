@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import com.blockchain.analytics.Analytics
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
+import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.componentlib.viewextensions.gone
@@ -37,6 +38,7 @@ import piuk.blockchain.android.ui.brokerage.sell.SellIntroFragment
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.home.HomeScreenFragment
 import piuk.blockchain.android.ui.home.WalletClientAnalytics
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.util.AppUtil
 import retrofit2.HttpException
 
@@ -144,11 +146,11 @@ class BuySellFragment :
             buySellEmpty.gone()
             when (action) {
                 is BuySellIntroAction.DisplayBuySellIntro -> {
-                    renderBuySellUi()
+                    renderBuySellUi(action.newSellFlowFFEnabled)
                 }
                 BuySellIntroAction.UserNotEligible -> renderNotEligibleUi()
                 is BuySellIntroAction.StartBuyWithSelectedAsset -> {
-                    renderBuySellUi()
+                    renderBuySellUi(false)
                     if (!hasReturnedFromBuyActivity) {
                         hasReturnedFromBuyActivity = false
                         startActivityForResult(
@@ -212,9 +214,9 @@ class BuySellFragment :
         }
     }
 
-    private fun renderBuySellUi() {
+    private fun renderBuySellUi(newSellFlowFFEnabled: Boolean) {
         with(binding) {
-            showBuyOrSell(showView)
+            showBuyOrSell(showView, newSellFlowFFEnabled)
             buySellFragmentContainer.visible()
             notEligibleIcon.gone()
             notEligibleTitle.gone()
@@ -222,7 +224,18 @@ class BuySellFragment :
         }
     }
 
-    fun showBuyOrSell(view: BuySellViewType) {
+    fun showBuyOrSell(view: BuySellViewType, newSellFlowFFEnabled: Boolean) {
+        if (view == BuySellViewType.TYPE_SELL && newSellFlowFFEnabled) {
+            startActivity(
+                TransactionFlowActivity.newIntent(
+                    context = requireActivity(),
+                    action = AssetAction.Sell
+                )
+            )
+            requireActivity().finish()
+            return
+        }
+
         childFragmentManager.showFragment(
             fragment = when (view) {
                 BuySellViewType.TYPE_BUY -> BuySelectAssetFragment.newInstance(

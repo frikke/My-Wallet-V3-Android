@@ -82,6 +82,9 @@ class LinkedBankAccount(
 
     fun isAchCurrency() = currency.networkTicker.equals("USD", true)
 
+    override fun matches(other: FiatAccount): Boolean =
+        other is LinkedBankAccount && currency == other.currency
+
     internal class BankAccountAddress(
         override val address: String,
         override val label: String = address

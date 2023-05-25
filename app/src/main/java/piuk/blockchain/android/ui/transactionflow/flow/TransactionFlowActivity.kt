@@ -41,6 +41,7 @@ import com.blockchain.presentation.extensions.putAccount
 import com.blockchain.presentation.extensions.putTarget
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.presentation.openUrl
+import com.blockchain.transactions.NewTransactionFlowActivity
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.isLayer2Token
@@ -200,6 +201,7 @@ class TransactionFlowActivity :
         startingIntent = transactionIntent
         model.process(transactionIntent)
 
+        // TODO(aromano): SWAP SELL keep this in
         if (action == AssetAction.Swap || action == AssetAction.Sell) {
             lifecycleScope.launchWhenResumed {
                 dataRemediationService.getQuestionnaire(QuestionnaireContext.TRADING)
@@ -434,9 +436,25 @@ class TransactionFlowActivity :
                 putSerializable(ACTION, action)
             }
 
-            return Intent(context, TransactionFlowActivity::class.java).apply {
+            val activityClass = if (shouldUseNewFlow(action)) {
+                NewTransactionFlowActivity::class.java
+            } else {
+                TransactionFlowActivity::class.java
+            }
+
+            return Intent(context, activityClass).apply {
                 putExtras(bundle)
             }
+        }
+
+        // TODO(aromano): Funky code, but was the least intrusive way of feature flagging this,
+        //                since TransactionFlowActivity is used in dozens of places it would have required FFing everywhere
+        var newSwapFlowFFEnabled = false
+        var newSellFlowFFEnabled = false
+        private fun shouldUseNewFlow(action: AssetAction): Boolean = when {
+            action == AssetAction.Swap && newSwapFlowFFEnabled -> true
+            action == AssetAction.Sell && newSellFlowFFEnabled -> true
+            else -> false
         }
     }
 }

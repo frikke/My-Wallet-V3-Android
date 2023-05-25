@@ -178,6 +178,8 @@ class MultiAppActivity :
         // allow to draw on status and navigation bars
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
+        assetActionsNavigation.initNewTxFlowFFs()
+
         qrScanNavigation = payloadScope.get {
             parametersOf(
                 this

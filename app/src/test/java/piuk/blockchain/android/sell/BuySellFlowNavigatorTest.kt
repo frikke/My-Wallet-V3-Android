@@ -1,6 +1,7 @@
 package piuk.blockchain.android.sell
 
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -10,6 +11,8 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.every
+import io.mockk.mockk
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
@@ -28,6 +31,9 @@ class BuySellFlowNavigatorTest {
         on { isEligibleFor(Feature.Buy) }.thenReturn(Single.just(true))
         on { isEligibleFor(Feature.Sell) }.thenReturn(Single.just(true))
     }
+    private val newSellFlowFF: FeatureFlag = mockk {
+        every { enabled } returns Single.just(true)
+    }
     private lateinit var subject: BuySellFlowNavigator
 
     @Before
@@ -35,7 +41,8 @@ class BuySellFlowNavigatorTest {
         subject = BuySellFlowNavigator(
             simpleBuySyncFactory,
             custodialWalletManager,
-            userIdentity
+            userIdentity,
+            newSellFlowFF
         )
 
         whenever(simpleBuySyncFactory.currentState()).thenReturn(
@@ -64,7 +71,7 @@ class BuySellFlowNavigatorTest {
 
         val test = subject.navigateTo().test()
 
-        test.assertValue(BuySellIntroAction.DisplayBuySellIntro)
+        test.assertValue(BuySellIntroAction.DisplayBuySellIntro(true))
     }
 
     @Test
@@ -86,7 +93,7 @@ class BuySellFlowNavigatorTest {
 
         val test = subject.navigateTo().test()
 
-        test.assertValue(BuySellIntroAction.DisplayBuySellIntro)
+        test.assertValue(BuySellIntroAction.DisplayBuySellIntro(true))
         verify(custodialWalletManager).deleteBuyOrder("ORDERID")
     }
 }

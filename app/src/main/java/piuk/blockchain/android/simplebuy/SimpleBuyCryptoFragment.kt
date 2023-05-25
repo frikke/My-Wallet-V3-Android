@@ -12,7 +12,9 @@ import android.view.inputmethod.InputMethodManager
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
@@ -458,6 +460,7 @@ class SimpleBuyCryptoFragment :
             setContent {
                 AppTheme {
                     QuickFillRow(
+                        modifier = Modifier.padding(horizontal = AppTheme.dimensions.standardSpacing),
                         quickFillButtonData = quickFillButtonData,
                         onQuickFillItemClick = { item ->
                             model.process(SimpleBuyIntent.PrefillEnterAmount(item.amount))

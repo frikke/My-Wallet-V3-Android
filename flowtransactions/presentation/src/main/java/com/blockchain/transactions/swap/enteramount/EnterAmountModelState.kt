@@ -8,12 +8,11 @@ import com.blockchain.core.limits.TxLimits
 import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrNull
 import com.blockchain.extensions.safeLet
+import com.blockchain.transactions.common.CryptoAccountWithBalance
 import com.blockchain.transactions.common.OnChainDepositInputValidationError
-import com.blockchain.transactions.swap.CryptoAccountWithBalance
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
-import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import java.io.Serializable
 
@@ -23,11 +22,9 @@ data class EnterAmountModelState(
     val fromAccount: CryptoAccountWithBalance? = null,
     val secondPassword: String? = null,
     val toAccount: CryptoAccount? = null,
-    val fiatCurrency: FiatCurrency,
 
     val config: DataResource<EnterAmountConfig> = DataResource.Loading,
 
-    val sourceToTargetExchangeRate: ExchangeRate? = null,
     val sourceNetworkFee: CryptoValue? = null,
     val targetNetworkFeeInSourceValue: CryptoValue? = null,
     val depositEngineInputValidationError: OnChainDepositInputValidationError? = null,

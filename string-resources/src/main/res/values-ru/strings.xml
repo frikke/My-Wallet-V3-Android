@@ -3103,9 +3103,9 @@
     <string name="swap_failed">Обмен не удался</string>
     <string name="swap_failed_message">Ваш баланс не пострадал. Вы можете попробовать еще раз или отменить.</string>
     <string name="swap_confirmation_navbar">Подтвердить Swap</string>
-    <string name="swap_confirmation_quote_refresh_timer">Новое предложение в</string>
-    <string name="swap_confirmation_exchange_rate_label">Ставка</string>
-    <string name="swap_confirmation_exchange_rate_value">1 %1$s = %2$s</string>
+    <string name="tx_confirmation_quote_refresh_timer">Новое предложение в</string>
+    <string name="tx_confirmation_exchange_rate_label">Ставка</string>
+    <string name="tx_confirmation_exchange_rate_value">1 %1$s = %2$s</string>
     <string name="price_updated">Цена обновлена</string>
     <string name="accept">Принять</string>
     <string name="common_max_arg">Макс.: %1$s</string>

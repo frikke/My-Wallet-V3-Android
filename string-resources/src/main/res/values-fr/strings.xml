@@ -3100,9 +3100,9 @@
     <string name="swap_failed">Échec de l\'échange</string>
     <string name="swap_failed_message">Votre solde n\'a pas été impacté. Vous pouvez réessayer ou annuler.</string>
     <string name="swap_confirmation_navbar">Confirmer l\'échange</string>
-    <string name="swap_confirmation_quote_refresh_timer">Nouvelle cotation dans</string>
-    <string name="swap_confirmation_exchange_rate_label">Taux</string>
-    <string name="swap_confirmation_exchange_rate_value">1 %1$s = %2$s</string>
+    <string name="tx_confirmation_quote_refresh_timer">Nouvelle cotation dans</string>
+    <string name="tx_confirmation_exchange_rate_label">Taux</string>
+    <string name="tx_confirmation_exchange_rate_value">1 %1$s = %2$s</string>
     <string name="price_updated">Prix mis à jour</string>
     <string name="accept">Accepter</string>
     <string name="common_max_arg">Max. : %1$s</string>

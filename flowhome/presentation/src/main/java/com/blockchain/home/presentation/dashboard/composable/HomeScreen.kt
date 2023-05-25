@@ -109,7 +109,6 @@ fun HomeScreen(
     openMoreQuickActions: () -> Unit,
     startPhraseRecovery: () -> Unit,
     processAnnouncementUrl: (String) -> Unit,
-    openSwap: () -> Unit,
     onWalletConnectSessionClicked: (DappSessionUiElement) -> Unit,
     onWalletConnectSeeAllSessionsClicked: () -> Unit
 ) {
@@ -263,8 +262,7 @@ fun HomeScreen(
                             WalletMode.NON_CUSTODIAL -> pkwActivityState
                         }
                     ),
-                    openMoreQuickActions = openMoreQuickActions,
-                    openSwap = openSwap
+                    openMoreQuickActions = openMoreQuickActions
                 )
             }
         }

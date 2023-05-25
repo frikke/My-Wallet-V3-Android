@@ -31,4 +31,6 @@ interface AssetActionsNavigation : ActivityResultNavigation {
     fun stakingSummary(networkTicker: String)
     fun activeRewardsSummary(networkTicker: String)
     fun startKyc()
+
+    fun initNewTxFlowFFs()
 }

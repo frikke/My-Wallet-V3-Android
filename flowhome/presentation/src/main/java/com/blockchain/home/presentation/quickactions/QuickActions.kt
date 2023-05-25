@@ -39,13 +39,11 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.theme.clickableWithIndication
 import com.blockchain.componentlib.utils.previewAnalytics
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.dashboard.composable.DashboardState
 import com.blockchain.home.presentation.dashboard.eventName
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
-import com.blockchain.koin.newSwapFlowFeatureFlag
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
@@ -65,15 +63,13 @@ val maxQuickActionsOnScreen: Int
 
 @Composable
 fun QuickActions(
-    newSwapFlowFF: FeatureFlag = get(newSwapFlowFeatureFlag),
     analytics: Analytics = get(),
     quickActionItems: List<QuickActionItem>,
     assetActionsNavigation: AssetActionsNavigation,
     quickActionsViewModel: QuickActionsViewModel,
     dashboardState: DashboardState,
     openDexSwapOptions: () -> Unit,
-    openMoreQuickActions: () -> Unit,
-    openSwap: () -> Unit
+    openMoreQuickActions: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -87,12 +83,7 @@ fun QuickActions(
                             QuickActionsNavEvent.Sell -> assetActionsNavigation.navigate(AssetAction.Sell)
                             QuickActionsNavEvent.Receive -> assetActionsNavigation.navigate(AssetAction.Receive)
                             QuickActionsNavEvent.Buy -> assetActionsNavigation.navigate(AssetAction.Buy)
-                            QuickActionsNavEvent.Swap -> if (newSwapFlowFF.coEnabled()) {
-                                openSwap()
-                            } else {
-                                assetActionsNavigation.navigate(AssetAction.Swap)
-                            }
-
+                            QuickActionsNavEvent.Swap -> assetActionsNavigation.navigate(AssetAction.Swap)
                             QuickActionsNavEvent.DexOrSwapOption -> openDexSwapOptions()
                             QuickActionsNavEvent.FiatDeposit -> quickActionsViewModel.onIntent(
                                 QuickActionsIntent.FiatAction(AssetAction.FiatDeposit)

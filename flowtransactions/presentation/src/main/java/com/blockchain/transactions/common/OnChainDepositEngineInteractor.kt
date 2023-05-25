@@ -1,8 +1,8 @@
 package com.blockchain.transactions.common
 
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.makeExternalAssetAddress
@@ -32,20 +32,26 @@ class OnChainDepositEngineInteractor(
     private val mutex = Mutex()
 
     suspend fun getDepositNetworkFee(
+        action: AssetAction,
         sourceAccount: CryptoNonCustodialAccount,
-        targetAccount: CryptoAccount,
+        targetAccount: TransactionTarget,
         amount: CryptoValue,
     ): Outcome<Exception, CryptoValue> = mutex.withLock {
-        initialiseDepositTxEngineIfNeeded(sourceAccount, targetAccount)
+        check(action == AssetAction.Swap || action == AssetAction.Sell)
+
+        initialiseDepositTxEngineIfNeeded(action, sourceAccount, targetAccount)
             .flatMap { getSourceNetworkFee(amount, pendingTx) }
     }
 
     suspend fun validateAmount(
+        action: AssetAction,
         sourceAccount: CryptoNonCustodialAccount,
-        targetAccount: CryptoAccount,
+        targetAccount: TransactionTarget,
         amount: CryptoValue,
     ): Outcome<OnChainDepositInputValidationError, Unit> = mutex.withLock {
-        initialiseDepositTxEngineIfNeeded(sourceAccount, targetAccount)
+        check(action == AssetAction.Swap || action == AssetAction.Sell)
+
+        initialiseDepositTxEngineIfNeeded(action, sourceAccount, targetAccount)
             .flatMap {
                 txEngine.doUpdateAmount(amount, pendingTx).awaitOutcome()
                     .doOnSuccess { pendingTx ->
@@ -66,21 +72,28 @@ class OnChainDepositEngineInteractor(
     }
 
     private suspend fun initialiseDepositTxEngineIfNeeded(
+        action: AssetAction,
         sourceAccount: CryptoNonCustodialAccount,
-        targetAccount: CryptoAccount,
+        targetAccount: TransactionTarget,
     ): Outcome<Exception, Unit> =
         if (currentSourceAsset != sourceAccount.currency) {
-            updateDepositTxEngine(sourceAccount, targetAccount)
+            updateDepositTxEngine(action, sourceAccount, targetAccount)
         } else {
             Outcome.Success(Unit)
         }
 
     private suspend fun updateDepositTxEngine(
+        action: AssetAction,
         sourceAccount: CryptoNonCustodialAccount,
-        targetAccount: CryptoAccount,
+        targetAccount: TransactionTarget,
     ): Outcome<Exception, Unit> {
-        txEngine = sourceAccount.createTxEngine(targetAccount, AssetAction.Swap) as OnChainTxEngineBase
-        return custodialWalletManager.getCustodialAccountAddress(Product.TRADE, sourceAccount.currency)
+        val product = when (action) {
+            AssetAction.Swap -> Product.TRADE
+            AssetAction.Sell -> Product.SELL
+            else -> throw UnsupportedOperationException()
+        }
+        txEngine = sourceAccount.createTxEngine(targetAccount, action) as OnChainTxEngineBase
+        return custodialWalletManager.getCustodialAccountAddress(product, sourceAccount.currency)
             .awaitOutcome()
             .flatMap { sampleDepositAddress ->
                 txEngine.start(

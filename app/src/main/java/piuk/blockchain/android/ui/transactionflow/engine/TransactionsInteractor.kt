@@ -36,6 +36,8 @@ import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.toPreferencesValue
+import com.blockchain.domain.trade.TradeDataService
+import com.blockchain.domain.trade.model.QuickFillRoundingData
 import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
@@ -72,8 +74,6 @@ import io.reactivex.rxjava3.subjects.PublishSubject
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
-import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
-import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 import timber.log.Timber
 
@@ -93,7 +93,7 @@ class TransactionInteractor(
     private val bankLinkingPrefs: BankLinkingPrefs,
     private val dismissRecorder: DismissRecorder,
     private val fiatCurrenciesService: FiatCurrenciesService,
-    private val quickFillRoundingService: QuickFillRoundingService,
+    private val tradeDataService: TradeDataService,
     private val localSettingsPrefs: LocalSettingsPrefs,
     private val improvedPaymentUxFF: FeatureFlag,
     private val dynamicAssetRepository: UniversalDynamicAssetRepository,
@@ -534,7 +534,11 @@ class TransactionInteractor(
     fun updateStakingExplainerAcknowledged(networkTicker: String) {}
 
     fun getRoundingDataForAction(action: AssetAction): Single<List<QuickFillRoundingData>> =
-        quickFillRoundingService.getQuickFillRoundingForAction(action)
+        when (action) {
+            AssetAction.Swap -> rxSingleOutcome { tradeDataService.getQuickFillRoundingForSwap() }
+            AssetAction.Sell -> rxSingleOutcome { tradeDataService.getQuickFillRoundingForSell() }
+            else -> throw UnsupportedOperationException()
+        }
 
     fun isImprovedPaymentUxFFEnabled() = improvedPaymentUxFF.enabled
 

@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.transactionflow.engine.domain.model
+package com.blockchain.domain.trade.model
 
 import kotlinx.serialization.Serializable
 
@@ -16,15 +16,3 @@ sealed class QuickFillRoundingData {
         val rounding: Int
     ) : QuickFillRoundingData()
 }
-
-@Serializable
-data class SellSwapRounding(
-    val multiplier: Float,
-    val rounding: List<Int>
-)
-
-@Serializable
-data class BuyRounding(
-    val multiplier: Float,
-    val rounding: Int
-)

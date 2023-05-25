@@ -1,4 +1,4 @@
-package com.blockchain.transactions.swap.sourceaccounts
+package com.blockchain.transactions.common.sourceaccounts
 
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
@@ -10,10 +10,11 @@ import com.blockchain.data.map
 import com.blockchain.data.mapList
 import com.blockchain.data.mapListData
 import com.blockchain.data.updateDataWith
+import com.blockchain.transactions.common.CryptoAccountWithBalance
 import com.blockchain.transactions.common.WithId
 import com.blockchain.transactions.common.accounts.AccountUiElement
 import com.blockchain.transactions.common.withId
-import com.blockchain.transactions.swap.CryptoAccountWithBalance
+import com.blockchain.transactions.sell.SellService
 import com.blockchain.transactions.swap.SwapService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -21,6 +22,8 @@ import info.blockchain.balance.isLayer2Token
 import kotlinx.coroutines.flow.collectLatest
 
 class SourceAccountsViewModel(
+    private val isSwap: Boolean,
+    private val sellService: SellService,
     private val swapService: SwapService,
     private val assetCatalogue: AssetCatalogue
 ) : MviViewModel<
@@ -49,7 +52,12 @@ class SourceAccountsViewModel(
     override suspend fun handleIntent(modelState: SourceAccountsModelState, intent: SourceAccountsIntent) {
         when (intent) {
             is SourceAccountsIntent.LoadData -> {
-                swapService.sourceAccountsWithBalances()
+                val accounts = if (isSwap) {
+                    swapService.sourceAccountsWithBalances()
+                } else {
+                    sellService.sourceAccountsWithBalances()
+                }
+                accounts
                     .mapListData { it.withId() }
                     .collectLatest { accountListData ->
                         updateState {

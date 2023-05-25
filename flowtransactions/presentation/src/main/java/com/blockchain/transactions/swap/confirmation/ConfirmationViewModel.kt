@@ -49,7 +49,7 @@ sealed interface ConfirmationNavigation : NavigationEvent {
 }
 
 class ConfirmationViewModel(
-    private val confirmationArgs: SwapConfirmationArgs,
+    private val args: SwapConfirmationArgs,
     private val brokerageDataManager: BrokerageDataManager,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val custodialWalletManager: CustodialWalletManager,
@@ -65,13 +65,11 @@ class ConfirmationViewModel(
     ConfirmationModelState()
 ) {
     private val sourceAccount: CryptoAccount
-        get() = confirmationArgs.sourceAccount
+        get() = args.sourceAccount.data!!
     private val targetAccount: CryptoAccount
-        get() = confirmationArgs.targetAccount
-    private val sourceCryptoAmount: CryptoValue
-        get() = confirmationArgs.sourceCryptoAmount
-    private val secondPassword: String?
-        get() = confirmationArgs.secondPassword
+        get() = args.targetAccount.data!!
+    private val sourceCryptoAmount: CryptoValue = args.sourceCryptoAmount
+    private val secondPassword: String? = args.secondPassword
 
     private var quoteRefreshingJob: Job? = null
 
@@ -79,59 +77,63 @@ class ConfirmationViewModel(
     private lateinit var depositPendingTx: PendingTx
 
     init {
-        // Convert Source Crypto Amount to Fiat
-        viewModelScope.launch {
-            exchangeRatesDataManager.exchangeRateToUserFiatFlow(sourceAccount.currency)
-                .doOnData { rate ->
-                    updateState {
-                        copy(sourceToFiatExchangeRate = rate)
-                    }
-                }
-                .collect()
-        }
-
-        // Convert Target Crypto Amount to Fiat
-        viewModelScope.launch {
-            exchangeRatesDataManager.exchangeRateToUserFiatFlow(targetAccount.currency)
-                .doOnData { rate ->
-                    updateState { copy(targetToFiatExchangeRate = rate) }
-                }
-                .collect()
-        }
-
-        startQuoteRefreshing()
-
-        viewModelScope.launch {
-            val sourceAccount = sourceAccount
-            if (sourceAccount is CryptoNonCustodialAccount) {
-                depositTxEngine = sourceAccount.createTxEngine(targetAccount, AssetAction.Swap) as OnChainTxEngineBase
-                custodialWalletManager.getCustodialAccountAddress(Product.TRADE, sourceAccount.currency)
-                    .awaitOutcome()
-                    .flatMap { sampleDepositAddress ->
-                        depositTxEngine.start(
-                            sourceAccount = sourceAccount,
-                            txTarget = makeExternalAssetAddress(
-                                asset = sourceAccount.currency,
-                                address = sampleDepositAddress
-                            ),
-                            exchangeRates = exchangeRatesDataManager
-                        )
-                        depositTxEngine.doInitialiseTx().awaitOutcome()
-                    }.flatMap { pendingTx ->
-                        depositTxEngine.doUpdateAmount(sourceCryptoAmount, pendingTx).awaitOutcome()
-                    }.doOnSuccess { pendingTx ->
-                        depositPendingTx = pendingTx
+        @Suppress("UNNECESSARY_SAFE_CALL") // Because of KoinGraphTest
+        if (args?.sourceAccount?.data != null && args?.targetAccount?.data != null) {
+            // Convert Source Crypto Amount to Fiat
+            viewModelScope.launch {
+                exchangeRatesDataManager.exchangeRateToUserFiatFlow(sourceAccount.currency)
+                    .doOnData { rate ->
                         updateState {
-                            val sourceFee = pendingTx.feeAmount as? CryptoValue
-                            copy(
-                                isStartingDepositOnChainTxEngine = false,
-                                sourceNetworkFeeCryptoAmount = sourceFee
-                            )
+                            copy(sourceToFiatExchangeRate = rate)
                         }
-                    }.doOnFailure { error ->
-                        navigate(ConfirmationNavigation.NewOrderState(error.toNewOrderStateArgs()))
-                        quoteRefreshingJob?.cancel()
                     }
+                    .collect()
+            }
+
+            // Convert Target Crypto Amount to Fiat
+            viewModelScope.launch {
+                exchangeRatesDataManager.exchangeRateToUserFiatFlow(targetAccount.currency)
+                    .doOnData { rate ->
+                        updateState { copy(targetToFiatExchangeRate = rate) }
+                    }
+                    .collect()
+            }
+
+            startQuoteRefreshing()
+
+            viewModelScope.launch {
+                val sourceAccount = sourceAccount
+                if (sourceAccount is CryptoNonCustodialAccount) {
+                    depositTxEngine =
+                        sourceAccount.createTxEngine(targetAccount, AssetAction.Swap) as OnChainTxEngineBase
+                    custodialWalletManager.getCustodialAccountAddress(Product.TRADE, sourceAccount.currency)
+                        .awaitOutcome()
+                        .flatMap { sampleDepositAddress ->
+                            depositTxEngine.start(
+                                sourceAccount = sourceAccount,
+                                txTarget = makeExternalAssetAddress(
+                                    asset = sourceAccount.currency,
+                                    address = sampleDepositAddress
+                                ),
+                                exchangeRates = exchangeRatesDataManager
+                            )
+                            depositTxEngine.doInitialiseTx().awaitOutcome()
+                        }.flatMap { pendingTx ->
+                            depositTxEngine.doUpdateAmount(sourceCryptoAmount, pendingTx).awaitOutcome()
+                        }.doOnSuccess { pendingTx ->
+                            depositPendingTx = pendingTx
+                            updateState {
+                                val sourceFee = pendingTx.feeAmount as? CryptoValue
+                                copy(
+                                    isStartingDepositOnChainTxEngine = false,
+                                    sourceNetworkFeeCryptoAmount = sourceFee
+                                )
+                            }
+                        }.doOnFailure { error ->
+                            navigate(ConfirmationNavigation.NewOrderState(error.toNewOrderStateArgs()))
+                            quoteRefreshingJob?.cancel()
+                        }
+                }
             }
         }
     }
@@ -229,11 +231,6 @@ class ConfirmationViewModel(
                 val requireRefundAddress = transferDirection == TransferDirection.ON_CHAIN ||
                     transferDirection == TransferDirection.FROM_USERKEY
 
-                // TODO(aromano): SWAP
-                //                if (requireSecondPassword && secondPassword.isEmpty()) {
-                //                    throw IllegalArgumentException("Second password not supplied")
-                //                }
-
                 zipOutcomes(
                     sourceAccount.receiveAddress::awaitOutcome,
                     targetAccount.receiveAddress::awaitOutcome
@@ -252,7 +249,9 @@ class ConfirmationViewModel(
                 }.doOnSuccess { order ->
                     quoteRefreshingJob?.cancel()
                     swapTransactionsStore.invalidate()
-                    tradingStore.invalidate()
+                    if (transferDirection == TransferDirection.INTERNAL) {
+                        tradingStore.invalidate()
+                    }
                     // TODO(aromano): SWAP ANALYTICS
                     //                    analyticsHooks.onTransactionSuccess(newState)
 

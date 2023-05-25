@@ -30,6 +30,7 @@ import com.blockchain.domain.paymentmethods.model.BankPaymentApproval
 import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.trade.model.QuickFillRoundingData
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethods
 import com.blockchain.logging.RemoteLogger
@@ -61,7 +62,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import java.util.Stack
 import kotlin.math.max
-import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import piuk.blockchain.android.ui.transactionflow.flow.getLabelForDomain
 import timber.log.Timber
 

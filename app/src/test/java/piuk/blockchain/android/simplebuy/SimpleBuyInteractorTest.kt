@@ -1,6 +1,6 @@
 package piuk.blockchain.android.simplebuy
 
-import com.blockchain.coincore.AssetAction
+import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.kyc.domain.KycService
@@ -18,6 +18,7 @@ import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.paymentmethods.model.BankPartnerCallbackProvider
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.trade.TradeDataService
+import com.blockchain.domain.trade.model.QuickFillRoundingData
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CardAttributes
@@ -34,21 +35,22 @@ import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
 import io.reactivex.rxjava3.core.Single
 import java.math.BigDecimal
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
-import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
-import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 
 class SimpleBuyInteractorTest {
 
@@ -69,7 +71,7 @@ class SimpleBuyInteractorTest {
     private val paymentsRepository: PaymentsRepository = mock()
     private val rbExperimentFF: FeatureFlag = mock()
     private val remoteConfigRepository: RemoteConfigRepository = mock()
-    private val tradeDataService: TradeDataService = mock()
+    private val tradeDataService: TradeDataService = mockk()
     private val buyQuoteRefreshFF: FeatureFlag = mock()
     private val plaidFF: FeatureFlag = mock()
     private val cardPaymentAsyncFF: FeatureFlag = mock()
@@ -92,7 +94,13 @@ class SimpleBuyInteractorTest {
             )
         )
     }
-    private val quickFillRoundingService: QuickFillRoundingService = mock()
+
+    @get:Rule
+    val initSchedulers = rxInit {
+        mainTrampoline()
+        ioTrampoline()
+        computationTrampoline()
+    }
 
     @Before
     fun setup() {
@@ -119,23 +127,20 @@ class SimpleBuyInteractorTest {
             plaidFF = plaidFF,
             rbExperimentFF = rbExperimentFF,
             remoteConfigRepository = remoteConfigRepository,
-            tradeDataService = tradeDataService,
             feynmanEnterAmountFF = feynmanEnterAmountScreenFF,
             feynmanCheckoutFF = feynmanCheckoutScreenFF,
-            quickFillRoundingService = quickFillRoundingService,
+            tradeDataService = tradeDataService,
             brokerageDataManager = brokerageDataManager,
             improvedPaymentUxFF = improvedPaymentUxFF,
             recurringBuyService = recurringBuyService,
             dismissRecorder = dismissRecorder
         )
 
-        whenever(quickFillRoundingService.getQuickFillRoundingForAction(AssetAction.Buy)).thenReturn(
-            Single.just(
-                listOf(
-                    QuickFillRoundingData.BuyRoundingData(2, 10),
-                    QuickFillRoundingData.BuyRoundingData(2, 50),
-                    QuickFillRoundingData.BuyRoundingData(2, 100)
-                )
+        coEvery { tradeDataService.getQuickFillRoundingForBuy() } returns Outcome.Success(
+            listOf(
+                QuickFillRoundingData.BuyRoundingData(2, 10),
+                QuickFillRoundingData.BuyRoundingData(2, 50),
+                QuickFillRoundingData.BuyRoundingData(2, 100)
             )
         )
     }
@@ -166,8 +171,7 @@ class SimpleBuyInteractorTest {
                 it.second!!.quickFillButtons[2].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(400))
         }
 
-        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
-        verifyNoMoreInteractions(quickFillRoundingService)
+        coVerify(exactly = 1) { tradeDataService.getQuickFillRoundingForBuy() }
     }
 
     @Test
@@ -196,8 +200,7 @@ class SimpleBuyInteractorTest {
                 it.second!!.quickFillButtons[1].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(400))
         }
 
-        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
-        verifyNoMoreInteractions(quickFillRoundingService)
+        coVerify(exactly = 1) { tradeDataService.getQuickFillRoundingForBuy() }
     }
 
     @Test
@@ -224,8 +227,7 @@ class SimpleBuyInteractorTest {
                 it.second?.maxAmount == maxAmount
         }
 
-        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
-        verifyNoMoreInteractions(quickFillRoundingService)
+        coVerify(exactly = 1) { tradeDataService.getQuickFillRoundingForBuy() }
     }
 
     @Test
@@ -252,8 +254,7 @@ class SimpleBuyInteractorTest {
                 it.second!!.quickFillButtons[2].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(800))
         }
 
-        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
-        verifyNoMoreInteractions(quickFillRoundingService)
+        coVerify(exactly = 1) { tradeDataService.getQuickFillRoundingForBuy() }
     }
 
     @Test
@@ -278,8 +279,7 @@ class SimpleBuyInteractorTest {
                 it.second!!.quickFillButtons.isEmpty()
         }
 
-        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
-        verifyNoMoreInteractions(quickFillRoundingService)
+        coVerify(exactly = 1) { tradeDataService.getQuickFillRoundingForBuy() }
     }
 
     @Test
@@ -305,12 +305,11 @@ class SimpleBuyInteractorTest {
                 it.second!!.quickFillButtons[0].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(200))
         }
 
-        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
-        verifyNoMoreInteractions(quickFillRoundingService)
+        coVerify(exactly = 1) { tradeDataService.getQuickFillRoundingForBuy() }
     }
 
     @Test
-    fun `when third quick fill button over payment limit then last is not returned`() {
+    fun `when third quick fill button over payment limit then last is not returned`() = runTest {
         whenever(simpleBuyPrefs.getLastAmount("BTC-USD")).thenReturn("50")
         val fiatCurrency = FiatCurrency.Dollars
         val assetCode = "BTC"
@@ -325,16 +324,18 @@ class SimpleBuyInteractorTest {
             false,
             FiatValue.zero(FiatCurrency.Dollars)
         ).test()
+        println("boom 1")
         test.assertValue {
+            println("boom 1.1")
             it.first == limits.minAmount &&
                 it.second?.maxAmount == limits.maxAmount &&
                 it.second!!.quickFillButtons.size == 2 &&
                 it.second!!.quickFillButtons[0].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(200)) &&
                 it.second!!.quickFillButtons[1].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(400))
         }
+        println("boom 2")
 
-        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
-        verifyNoMoreInteractions(quickFillRoundingService)
+        coVerify(exactly = 1) { tradeDataService.getQuickFillRoundingForBuy() }
     }
 
     @Test
@@ -364,8 +365,7 @@ class SimpleBuyInteractorTest {
                 it.second!!.quickFillButtons[2].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(400))
         }
 
-        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
-        verifyNoMoreInteractions(quickFillRoundingService)
+        coVerify(exactly = 1) { tradeDataService.getQuickFillRoundingForBuy() }
     }
 
     @Test

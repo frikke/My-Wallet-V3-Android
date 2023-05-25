@@ -2,7 +2,7 @@ package com.blockchain.transactions.swap.enteramount
 
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
-import com.blockchain.transactions.swap.CryptoAccountWithBalance
+import com.blockchain.transactions.common.CryptoAccountWithBalance
 
 sealed interface EnterAmountIntent : Intent<EnterAmountModelState> {
     object FlipInputs : EnterAmountIntent

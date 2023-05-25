@@ -3097,9 +3097,9 @@
     <string name="swap_failed">Error en el intercambio</string>
     <string name="swap_failed_message">Su saldo no ha cambiado. Puede intentarlo de nuevo o cancelar.</string>
     <string name="swap_confirmation_navbar">Confirmar Swap</string>
-    <string name="swap_confirmation_quote_refresh_timer">Nueva cotización en</string>
-    <string name="swap_confirmation_exchange_rate_label">Comisión</string>
-    <string name="swap_confirmation_exchange_rate_value">1 %1$s = %2$s</string>
+    <string name="tx_confirmation_quote_refresh_timer">Nueva cotización en</string>
+    <string name="tx_confirmation_exchange_rate_label">Comisión</string>
+    <string name="tx_confirmation_exchange_rate_value">1 %1$s = %2$s</string>
     <string name="price_updated">Precio actualizado</string>
     <string name="accept">Aceptar</string>
     <string name="common_max_arg">Máx.: %1$s</string>

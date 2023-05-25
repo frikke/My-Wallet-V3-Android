@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.home
 
 import android.os.Handler
 import android.os.Looper
+import androidx.lifecycle.lifecycleScope
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
@@ -11,9 +12,14 @@ import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.earn.activeRewards.ActiveRewardsSummaryBottomSheet
 import com.blockchain.earn.interest.InterestSummaryBottomSheet
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.koin.newSellFlowFeatureFlag
+import com.blockchain.koin.newSwapFlowFeatureFlag
 import com.blockchain.prices.navigation.PricesNavigation
 import info.blockchain.balance.AssetInfo
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.get
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivity
@@ -21,8 +27,18 @@ import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingActivi
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.locks.LocksDetailsActivity
 import piuk.blockchain.android.ui.settings.SettingsActivity
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 
 class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : AssetActionsNavigation, PricesNavigation {
+
+    private val newSwapFlowFF: FeatureFlag?
+        get() = activity?.run {
+            get(newSwapFlowFeatureFlag)
+        }
+    private val newSellFlowFF: FeatureFlag?
+        get() = activity?.run {
+            get(newSellFlowFeatureFlag)
+        }
 
     private val actionsResultContract =
         activity?.registerForActivityResult(ActionActivity.BlockchainActivityResultContract()) {
@@ -160,5 +176,14 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
         activityResultDashboardOnboarding?.launch(
             DashboardOnboardingActivity.ActivityArgs(initialSteps = initialSteps, isSuperappDesignEnabled = true)
         )
+    }
+
+    // TODO(aromano): Funky code, but was the least intrusive way of feature flagging this,
+    //                since TransactionFlowActivity is used in dozens of places it would have required FFing everywhere
+    override fun initNewTxFlowFFs() {
+        activity?.lifecycleScope?.launch {
+            TransactionFlowActivity.newSwapFlowFFEnabled = newSwapFlowFF?.coEnabled() ?: false
+            TransactionFlowActivity.newSellFlowFFEnabled = newSellFlowFF?.coEnabled() ?: false
+        }
     }
 }

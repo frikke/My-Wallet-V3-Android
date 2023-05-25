@@ -74,7 +74,7 @@ fun NewOrderStateScreen(
     analytics: Analytics = get(),
     args: NewOrderStateArgs,
     deeplinkRedirector: DeeplinkRedirector = get(scope = payloadScope),
-    exitSwap: () -> Unit
+    exitFlow: () -> Unit
 ) {
     val context = LocalContext.current
     var handleDeeplinkUrl by remember { mutableStateOf<String?>(null) }
@@ -91,7 +91,7 @@ fun NewOrderStateScreen(
                         }
                     }
                 }
-            exitSwap()
+            exitFlow()
         }
     }
 
@@ -110,7 +110,7 @@ fun NewOrderStateScreen(
         handleDeeplinkUrlAndExit = { deeplinkUrl ->
             handleDeeplinkUrl = deeplinkUrl
         },
-        exitSwap = exitSwap
+        exitSwap = exitFlow
     )
 }
 

@@ -141,7 +141,6 @@ fun MultiAppChrome(
     openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
-    openSwap: () -> Unit,
     onWalletConnectSessionClicked: (DappSessionUiElement) -> Unit,
     onWalletConnectSeeAllSessionsClicked: () -> Unit
 ) {
@@ -220,7 +219,6 @@ fun MultiAppChrome(
             nftNavigation = nftNavigation,
             earnNavigation = earnNavigation,
             processAnnouncementUrl = processAnnouncementUrl,
-            openSwap = openSwap,
             onWalletConnectSessionClicked = onWalletConnectSessionClicked,
             onWalletConnectSeeAllSessionsClicked = onWalletConnectSeeAllSessionsClicked
         )
@@ -266,7 +264,6 @@ fun MultiAppChromeScreen(
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
     processAnnouncementUrl: (String) -> Unit,
-    openSwap: () -> Unit,
     onWalletConnectSessionClicked: (DappSessionUiElement) -> Unit,
     onWalletConnectSeeAllSessionsClicked: () -> Unit
 ) {
@@ -804,7 +801,6 @@ fun MultiAppChromeScreen(
                     nftNavigation = nftNavigation,
                     earnNavigation = earnNavigation,
                     processAnnouncementUrl = processAnnouncementUrl,
-                    openSwap = openSwap,
                     onWalletConnectSessionClicked = onWalletConnectSessionClicked,
                     onWalletConnectSeeAllSessionsClicked = onWalletConnectSeeAllSessionsClicked
                 )

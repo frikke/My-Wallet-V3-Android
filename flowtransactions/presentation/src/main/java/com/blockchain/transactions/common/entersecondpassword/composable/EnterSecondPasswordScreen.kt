@@ -27,17 +27,18 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.koin.payloadScope
 import com.blockchain.stringResources.R
+import com.blockchain.transactions.common.CryptoAccountWithBalance
 import com.blockchain.transactions.common.entersecondpassword.EnterSecondPasswordArgs
-import com.blockchain.transactions.swap.CryptoAccountWithBalance
 import org.koin.androidx.compose.get
 
 @Composable
 fun EnterSecondPasswordScreen(
+    args: EnterSecondPasswordArgs,
     coincore: Coincore = get(scope = payloadScope),
     onAccountSecondPasswordValidated: (CryptoAccountWithBalance, secondPassword: String) -> Unit,
     onBackPressed: () -> Unit,
 ) {
-    val args: EnterSecondPasswordArgs = get(scope = payloadScope)
+    val sourceAccount = args.sourceAccount.data ?: return
 
     var isShowingError by remember { mutableStateOf(false) }
     var passwordInput by remember { mutableStateOf("") }
@@ -61,7 +62,7 @@ fun EnterSecondPasswordScreen(
                 val password = passwordInput
                 val isValid = coincore.validateSecondPassword(password)
                 if (isValid) {
-                    onAccountSecondPasswordValidated(args.sourceAccount, password)
+                    onAccountSecondPasswordValidated(sourceAccount, password)
                 } else {
                     isShowingError = true
                 }
