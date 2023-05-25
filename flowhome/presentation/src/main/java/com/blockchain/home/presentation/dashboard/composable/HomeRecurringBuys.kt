@@ -1,17 +1,11 @@
 package com.blockchain.home.presentation.dashboard.composable
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.Analytics
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Sync
 import com.blockchain.componentlib.lazylist.paddedItem
@@ -23,7 +17,6 @@ import com.blockchain.componentlib.utils.value
 import com.blockchain.home.presentation.recurringbuy.RecurringBuysAnalyticsEvents
 import com.blockchain.home.presentation.recurringbuy.list.RecurringBuyViewState
 import com.blockchain.home.presentation.recurringbuy.list.composable.RecurringBuyTableRow
-import org.koin.androidx.compose.get
 
 internal fun LazyListScope.homeRecurringBuys(
     analytics: Analytics,
@@ -33,25 +26,36 @@ internal fun LazyListScope.homeRecurringBuys(
     recurringBuyOnClick: (String) -> Unit
 ) {
     paddedItem(
-        paddingValues = PaddingValues(horizontal = 16.dp)
+        paddingValues = {
+            PaddingValues(
+                start = AppTheme.dimensions.smallSpacing,
+                end = AppTheme.dimensions.smallSpacing,
+                top = AppTheme.dimensions.smallSpacing,
+                bottom = AppTheme.dimensions.tinySpacing
+            )
+        }
     ) {
-        Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)))
         TableRowHeader(
             title = stringResource(com.blockchain.stringResources.R.string.recurring_buy_toolbar),
             actionTitle = stringResource(
-                com.blockchain.stringResources.R.string.manage
+                com.blockchain.stringResources.R.string.see_all
             ).takeIf { recurringBuys.isNotEmpty() },
             actionOnClick = {
                 manageOnclick()
                 analytics.logEvent(RecurringBuysAnalyticsEvents.ManageClicked)
             }.takeIf { recurringBuys.isNotEmpty() }
         )
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
     }
 
     if (recurringBuys.isEmpty()) {
         paddedItem(
-            paddingValues = PaddingValues(horizontal = 16.dp)
+            paddingValues = {
+                PaddingValues(
+                    start = AppTheme.dimensions.smallSpacing,
+                    end = AppTheme.dimensions.smallSpacing,
+                    bottom = AppTheme.dimensions.smallSpacing
+                )
+            }
         ) {
             Surface(
                 shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
@@ -73,7 +77,13 @@ internal fun LazyListScope.homeRecurringBuys(
     } else {
         paddedRoundedCornersItems(
             items = recurringBuys,
-            paddingValues = PaddingValues(horizontal = 16.dp)
+            paddingValues = {
+                PaddingValues(
+                    start = AppTheme.dimensions.smallSpacing,
+                    end = AppTheme.dimensions.smallSpacing,
+                    bottom = AppTheme.dimensions.smallSpacing
+                )
+            }
         ) { recurringBuy ->
             RecurringBuyTableRow(
                 description = recurringBuy.description.value(),

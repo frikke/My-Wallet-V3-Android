@@ -1,43 +1,36 @@
 package com.blockchain.transactions.koin
 
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.transactions.common.OnChainDepositEngineInteractor
-import com.blockchain.transactions.common.entersecondpassword.EnterSecondPasswordArgs
 import com.blockchain.transactions.swap.confirmation.ConfirmationViewModel
 import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
-import com.blockchain.transactions.swap.sourceaccounts.SourceAccountsViewModel
 import com.blockchain.transactions.swap.targetaccounts.TargetAccountsViewModel
 import com.blockchain.transactions.swap.targetassets.TargetAssetsViewModel
 import com.blockchain.walletmode.WalletMode
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
-val transactionsPresentationModule = module {
+val swapTransactionsPresentationModule = module {
     scope(payloadScopeQualifier) {
-        factory {
-            OnChainDepositEngineInteractor(
-                custodialWalletManager = get(),
-                exchangeRatesDataManager = get(),
-            )
-        }
-
         viewModel {
             EnterAmountViewModel(
                 swapService = get(),
                 exchangeRates = get(),
-                currencyPrefs = get(),
                 walletModeService = get(),
                 tradeDataService = get(),
                 onChainDepositEngineInteractor = get(),
-                confirmationArgs = get(),
+                fiatCurrenciesService = get(),
             )
         }
 
-        viewModel {
-            SourceAccountsViewModel(
-                swapService = get(),
-                assetCatalogue = get()
+        viewModel { (args: SwapConfirmationArgs) ->
+            ConfirmationViewModel(
+                args = args,
+                brokerageDataManager = get(),
+                exchangeRatesDataManager = get(),
+                custodialWalletManager = get(),
+                swapTransactionsStore = get(),
+                tradingStore = get(),
             )
         }
 
@@ -58,25 +51,6 @@ val transactionsPresentationModule = module {
                 mode = mode,
                 swapService = get(),
                 assetCatalogue = get()
-            )
-        }
-
-        scoped {
-            SwapConfirmationArgs()
-        }
-
-        scoped {
-            EnterSecondPasswordArgs()
-        }
-
-        viewModel {
-            ConfirmationViewModel(
-                confirmationArgs = get(),
-                brokerageDataManager = get(),
-                exchangeRatesDataManager = get(),
-                custodialWalletManager = get(),
-                swapTransactionsStore = get(),
-                tradingStore = get(),
             )
         }
     }

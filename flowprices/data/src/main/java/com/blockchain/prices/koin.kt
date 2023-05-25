@@ -1,5 +1,6 @@
 package com.blockchain.prices
 
+import com.blockchain.analytics.TraitsService
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.prices.domain.PricesService
 import org.koin.dsl.bind
@@ -17,4 +18,8 @@ val pricesDataModule = module {
             )
         }.bind(PricesService::class)
     }
+
+    factory {
+        TopMoversTraitsRepository()
+    }.bind(TraitsService::class)
 }

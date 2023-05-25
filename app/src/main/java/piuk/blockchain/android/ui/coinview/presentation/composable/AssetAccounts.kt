@@ -108,7 +108,6 @@ fun AssetAccountsError() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(AppTheme.dimensions.smallSpacing)
             .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
     ) {
         CardAlert(
@@ -133,9 +132,7 @@ fun AssetAccountsData(
 ) {
     data.data?.let {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(AppTheme.dimensions.smallSpacing)
+            modifier = Modifier.fillMaxWidth()
         ) {
             // balance
             Row(

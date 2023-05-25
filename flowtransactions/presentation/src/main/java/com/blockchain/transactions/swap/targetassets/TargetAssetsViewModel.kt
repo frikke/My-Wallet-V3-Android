@@ -14,7 +14,7 @@ import com.blockchain.data.updateDataWith
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.prices.domain.AssetPriceInfo
 import com.blockchain.prices.domain.PricesService
-import com.blockchain.transactions.swap.CryptoAccountWithBalance
+import com.blockchain.transactions.common.CryptoAccountWithBalance
 import com.blockchain.transactions.swap.SwapService
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -116,7 +116,7 @@ class TargetAssetsViewModel(
                 check(modelState.selectedAssetsModeFilter != null)
                 viewModelScope.launch {
                     swapService
-                        .accountsWithBalanceOfMode(
+                        .targetAccountsWithBalanceOfMode(
                             sourceTicker,
                             intent.ticker,
                             modelState.selectedAssetsModeFilter

@@ -104,7 +104,9 @@ class TransferQuotesEngine private constructor(
                     val getQuote = sellSwapBrokerageQuoteFF.enabled.flatMap { enabled ->
                         if (enabled) {
                             when (product) {
-                                Product.SELL -> brokerageDataManager.getSellQuote(pair, amount, direction)
+                                Product.SELL -> rxSingleOutcome {
+                                    brokerageDataManager.getSellQuote(pair, amount, direction)
+                                }
                                 Product.TRADE -> rxSingleOutcome {
                                     brokerageDataManager.getSwapQuote(pair, amount, direction)
                                 }

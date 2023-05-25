@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.domain.trade.model.QuickFillRoundingData
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData
 import com.blockchain.presentation.complexcomponents.QuickFillDisplayAndAmount
 import com.blockchain.presentation.complexcomponents.QuickFillRowView
@@ -19,7 +20,6 @@ import piuk.blockchain.android.ui.transactionflow.engine.PrefillAmounts
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
-import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import piuk.blockchain.android.ui.transactionflow.flow.convertFiatToCrypto
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.EnterAmountCustomisations
 
@@ -115,10 +115,12 @@ class QuickFillRowView @JvmOverloads constructor(
         quickFillButtonData = QuickFillButtonData(
             maxAmount = state.maxSpendable,
             quickFillButtons = listOfAmounts.distinct().map { amount ->
+                val index = listOfAmounts.indexOf(amount)
                 QuickFillDisplayAndAmount(
                     displayValue = amount.toStringWithSymbol(includeDecimalsWhenWhole = false),
                     amount = amount,
-                    position = listOfAmounts.indexOf(amount)
+                    roundingData = roundingData[index],
+                    position = index,
                 )
             }
         )
@@ -174,6 +176,7 @@ class QuickFillRowView @JvmOverloads constructor(
                     QuickFillDisplayAndAmount(
                         displayValue = value.second,
                         amount = prefillAmount,
+                        roundingData = QuickFillRoundingData.SellSwapRoundingData(value.first, listOf(1)),
                         position = multiplierValues.indexOf(value)
                     )
                 )

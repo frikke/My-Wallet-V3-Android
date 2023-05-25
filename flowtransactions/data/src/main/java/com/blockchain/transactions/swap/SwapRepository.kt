@@ -12,6 +12,7 @@ import com.blockchain.core.limits.TxLimits
 import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.filterListData
+import com.blockchain.data.firstOutcome
 import com.blockchain.data.flatMapData
 import com.blockchain.data.mapData
 import com.blockchain.data.mapListData
@@ -20,6 +21,11 @@ import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
+import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.getOrDefault
+import com.blockchain.outcome.map
+import com.blockchain.transactions.common.CryptoAccountWithBalance
+import com.blockchain.utils.awaitOutcome
 import com.blockchain.utils.toFlowDataResource
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetCategory
@@ -87,7 +93,7 @@ internal class SwapRepository(
     override suspend fun highestBalanceSourceAccount(): CryptoAccountWithBalance? {
         return sourceAccountsWithBalances()
             .filterIsInstance<DataResource.Data<List<CryptoAccountWithBalance>>>()
-            .map { it.data.maxBy { it.balanceCrypto.toBigDecimal() } }
+            .map { it.data.maxByOrNull { it.balanceFiat.toBigDecimal() } }
             .firstOrNull()
     }
 
@@ -153,18 +159,18 @@ internal class SwapRepository(
             .firstOrNull()
     }
 
-    override suspend fun isAccountValidForSource(
-        account: CryptoAccount,
+    override suspend fun isTargetAccountValidForSource(
+        targetAccount: CryptoAccount,
         sourceTicker: String,
         mode: WalletMode
     ): Boolean {
         return targetAccountsForMode(sourceTicker = sourceTicker, mode = mode)
-            .filterIsInstance<DataResource.Data<List<CryptoAccount>>>()
-            .map { it.data.contains(account) }
-            .firstOrNull() ?: false
+            .firstOutcome()
+            .map { accounts -> accounts.any { account -> account.matches(targetAccount) } }
+            .getOrDefault(false)
     }
 
-    override fun accountsWithBalanceOfMode(
+    override fun targetAccountsWithBalanceOfMode(
         sourceTicker: String,
         selectedAssetTicker: String,
         mode: WalletMode
@@ -194,12 +200,12 @@ internal class SwapRepository(
             .withBalance()
     }
 
-    override fun limits(
+    override suspend fun limits(
         from: CryptoCurrency,
         to: CryptoCurrency,
         fiat: FiatCurrency,
         direction: TransferDirection,
-    ): Flow<DataResource<TxLimits>> {
+    ): Outcome<Exception, TxLimits> {
         return limitsDataManager.getLimits(
             outputCurrency = from,
             sourceCurrency = from,
@@ -207,11 +213,11 @@ internal class SwapRepository(
             legacyLimits = walletManager.getProductTransferLimits(
                 fiat,
                 Product.TRADE,
-                TransferDirection.INTERNAL
+                direction
             ).map { it as LegacyLimits },
             sourceAccountType = direction.sourceAccountType(),
             targetAccountType = direction.targetAccountType(),
-        ).toFlowDataResource()
+        ).awaitOutcome()
     }
 
     private fun CryptoAccount.isAvailableToSwapFrom(pairs: List<CurrencyPair>): Boolean =

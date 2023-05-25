@@ -1,4 +1,4 @@
-package com.blockchain.transactions.swap.sourceaccounts.composable
+package com.blockchain.transactions.common.sourceaccounts.composable
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,20 +16,25 @@ import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.koin.payloadScope
+import com.blockchain.stringResources.R
+import com.blockchain.transactions.common.CryptoAccountWithBalance
 import com.blockchain.transactions.common.accounts.composable.AccountList
-import com.blockchain.transactions.presentation.R
-import com.blockchain.transactions.swap.CryptoAccountWithBalance
+import com.blockchain.transactions.common.sourceaccounts.SourceAccountsIntent
+import com.blockchain.transactions.common.sourceaccounts.SourceAccountsNavigationEvent
+import com.blockchain.transactions.common.sourceaccounts.SourceAccountsViewModel
+import com.blockchain.transactions.common.sourceaccounts.SourceAccountsViewState
 import com.blockchain.transactions.swap.SwapAnalyticsEvents
-import com.blockchain.transactions.swap.sourceaccounts.SourceAccountsIntent
-import com.blockchain.transactions.swap.sourceaccounts.SourceAccountsNavigationEvent
-import com.blockchain.transactions.swap.sourceaccounts.SourceAccountsViewModel
-import com.blockchain.transactions.swap.sourceaccounts.SourceAccountsViewState
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun SourceAccounts(
-    viewModel: SourceAccountsViewModel = getViewModel(scope = payloadScope),
+    isSwap: Boolean,
+    viewModel: SourceAccountsViewModel = getViewModel(
+        scope = payloadScope,
+        parameters = { parametersOf(isSwap) }
+    ),
     analytics: Analytics = get(),
     accountSelected: (CryptoAccountWithBalance) -> Unit,
     navigateToEnterSecondPassword: (CryptoAccountWithBalance) -> Unit,
@@ -37,7 +42,7 @@ fun SourceAccounts(
 ) {
     val viewState: SourceAccountsViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
-    LaunchedEffect(key1 = viewModel) {
+    LaunchedEffect(viewModel) {
         viewModel.onIntent(SourceAccountsIntent.LoadData)
     }
 
@@ -46,11 +51,19 @@ fun SourceAccounts(
         navigationEvent?.let { navEvent ->
             when (navEvent) {
                 is SourceAccountsNavigationEvent.ConfirmSelection -> {
-                    analytics.logEvent(
-                        SwapAnalyticsEvents.SourceAccountSelected(
-                            ticker = navEvent.account.account.currency.networkTicker
+                    if (isSwap) {
+                        analytics.logEvent(
+                            SwapAnalyticsEvents.SourceAccountSelected(
+                                ticker = navEvent.account.account.currency.networkTicker
+                            )
                         )
-                    )
+                    } else {
+//                        analytics.logEvent(
+//                            SellAnalyticsEvents.SourceAccountSelected(
+//                                ticker = navEvent.account.account.currency.networkTicker
+//                            )
+//                        )
+                    }
                     if (navEvent.requiresSecondPassword) {
                         navigateToEnterSecondPassword(navEvent.account)
                     } else {
@@ -67,7 +80,11 @@ fun SourceAccounts(
     ) {
         SheetFlatHeader(
             icon = StackedIcon.None,
-            title = stringResource(com.blockchain.stringResources.R.string.common_swap_from),
+            title = if (isSwap) {
+                stringResource(R.string.common_swap_from)
+            } else {
+                stringResource(R.string.common_sell)
+            },
             onCloseClick = onBackPressed
         )
 

@@ -2,7 +2,6 @@ package com.blockchain.componentlib.charts
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -19,7 +18,7 @@ fun Balance(
     percentageChangeData: PercentageChangeData
 ) {
     Column(
-        modifier = modifier.padding(vertical = AppTheme.dimensions.smallSpacing),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -51,7 +50,7 @@ fun Balance(
 
 @Preview
 @Composable
-fun DefaultBalance_Preview() {
+private fun DefaultBalance_Preview() {
     AppTheme {
         AppSurface {
             Balance(

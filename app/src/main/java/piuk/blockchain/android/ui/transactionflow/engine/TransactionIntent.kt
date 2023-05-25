@@ -24,6 +24,7 @@ import com.blockchain.domain.paymentmethods.model.BankPaymentApproval
 import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.trade.model.QuickFillRoundingData
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.datamanagers.TransactionError
@@ -32,7 +33,6 @@ import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import java.util.Stack
-import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import retrofit2.HttpException
 
 sealed class TransactionIntent : MviIntent<TransactionState> {

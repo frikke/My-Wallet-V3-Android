@@ -10,6 +10,7 @@ import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.paymentmethods.model.EligiblePaymentMethodType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.trade.TradeDataService
 import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
@@ -26,12 +27,12 @@ import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.FiatCurrency
+import io.mockk.mockk
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
-import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 
 class TransactionInteractorTest {
@@ -58,7 +59,7 @@ class TransactionInteractorTest {
     private val bankLinkingPrefs: BankLinkingPrefs = mock()
     private val dismissRecorder: DismissRecorder = mock()
     private val fiatCurrenciesService: FiatCurrenciesService = mock()
-    private val quickFillRoundingService: QuickFillRoundingService = mock()
+    private val tradeDataService: TradeDataService = mockk()
     private val hideDustFF: FeatureFlag = mock()
     private val improvedPaymentUxFF: FeatureFlag = mock()
     private val localSettingsPrefs: LocalSettingsPrefs = mock()
@@ -87,7 +88,7 @@ class TransactionInteractorTest {
             bankLinkingPrefs = bankLinkingPrefs,
             dismissRecorder = dismissRecorder,
             fiatCurrenciesService = fiatCurrenciesService,
-            quickFillRoundingService = quickFillRoundingService,
+            tradeDataService = tradeDataService,
             localSettingsPrefs = localSettingsPrefs,
             dynamicAssetRepository = dynamicRepository,
             improvedPaymentUxFF = improvedPaymentUxFF,

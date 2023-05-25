@@ -16,12 +16,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.common.R
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.SmallMinimalButton
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
+import com.blockchain.domain.trade.model.QuickFillRoundingData
+import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 
 open class QuickFillRowView @JvmOverloads constructor(
@@ -42,6 +46,7 @@ open class QuickFillRowView @JvmOverloads constructor(
             AppTheme {
                 AppSurface {
                     QuickFillRow(
+                        modifier = Modifier.padding(horizontal = AppTheme.dimensions.standardSpacing),
                         quickFillButtonData = it,
                         onQuickFillItemClick = onQuickFillItemClick,
                         onMaxItemClick = onMaxItemClick,
@@ -56,6 +61,7 @@ open class QuickFillRowView @JvmOverloads constructor(
 
 @Composable
 fun QuickFillRow(
+    modifier: Modifier = Modifier,
     quickFillButtonData: QuickFillButtonData,
     onQuickFillItemClick: (QuickFillDisplayAndAmount) -> Unit,
     onMaxItemClick: (Money) -> Unit,
@@ -63,9 +69,7 @@ fun QuickFillRow(
     areButtonsTransparent: Boolean
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing)),
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
     ) {
         if (quickFillButtonData.quickFillButtons.isNotEmpty()) {
@@ -102,6 +106,41 @@ fun QuickFillRow(
     }
 }
 
+@Preview
+@Composable
+private fun Preview() {
+    val data = QuickFillButtonData(
+        quickFillButtons = listOf(
+            QuickFillDisplayAndAmount(
+                displayValue = "25%",
+                amount = CryptoValue.zero(CryptoCurrency.BTC),
+                roundingData = QuickFillRoundingData.SellSwapRoundingData(0.25f, emptyList()),
+                position = 0
+            ),
+            QuickFillDisplayAndAmount(
+                displayValue = "50%",
+                amount = CryptoValue.zero(CryptoCurrency.BTC),
+                roundingData = QuickFillRoundingData.SellSwapRoundingData(0.5f, emptyList()),
+                position = 1
+            ),
+            QuickFillDisplayAndAmount(
+                displayValue = "75%",
+                amount = CryptoValue.zero(CryptoCurrency.BTC),
+                roundingData = QuickFillRoundingData.SellSwapRoundingData(0.75f, emptyList()),
+                position = 2
+            ),
+        ),
+        maxAmount = CryptoValue.fromMajor(CryptoCurrency.BTC, 1.0.toBigDecimal())
+    )
+    QuickFillRow(
+        quickFillButtonData = data,
+        onQuickFillItemClick = {},
+        onMaxItemClick = {},
+        maxButtonText = "1.1234567890123457 BTC",
+        areButtonsTransparent = false,
+    )
+}
+
 data class QuickFillButtonData(
     val quickFillButtons: List<QuickFillDisplayAndAmount>,
     val maxAmount: Money
@@ -110,5 +149,6 @@ data class QuickFillButtonData(
 data class QuickFillDisplayAndAmount(
     val displayValue: String,
     val amount: Money,
+    val roundingData: QuickFillRoundingData,
     val position: Int
 )

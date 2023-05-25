@@ -1848,15 +1848,27 @@ If you want to know more about our verification process visit our <annotation li
     <string name="tx_enter_amount_fee_sheet_swap_available_label">Available to Swap</string>
     <string name="tx_enter_amount_fee_sheet_sell_available_label">Available to Sell</string>
 
+    <!--  Tx Confirmation  -->
+    <string name="tx_confirmation_quote_refresh_timer">New quote in</string>
+    <string name="tx_confirmation_exchange_rate_label">Rate</string>
+    <string name="tx_confirmation_exchange_rate_value">1 %1$s = %2$s</string>
+
     <!--  Swap Confirmation  -->
     <string name="swap_confirmation_navbar">Confirm Swap</string>
-    <string name="swap_confirmation_quote_refresh_timer">New quote in</string>
-    <string name="swap_confirmation_exchange_rate_label">Rate</string>
-    <string name="swap_confirmation_exchange_rate_value">1 %1$s = %2$s</string>
     <string name="swap_neworderstate_pending_deposit_title">Swapping %1$s</string>
     <string name="swap_neworderstate_pending_deposit_description">Your initial swap of %1$s for %2$s is being processed (usually %3$s minutes). Your balance will update once it\'s complete.</string>
     <string name="swap_neworderstate_succeeded_title">Swap Complete!</string>
     <string name="swap_neworderstate_succeeded_description">Your swapped %1$s for %2$s</string>
+
+    <!--  Sell Confirmation  -->
+    <string name="sell_targetasset_sell_for">Sell for</string>
+    <string name="sell_enteramount_for">For</string>
+    <string name="sell_confirmation_navbar">Confirm</string>
+    <string name="sell_neworderstate_pending_deposit_title">Selling %1$s</string>
+    <string name="sell_neworderstate_pending_deposit_description">Your sale of %1$s of %2$s is being processed (usually %3$s minutes). Your balance will update once it\'s complete.</string>
+    <string name="sell_neworderstate_pending_deposit_l2_description">Your sale of %1$s of %2$s on %3$s is being processed (usually %4$s minutes). Your balance will update once it\'s complete.</string>
+    <string name="sell_neworderstate_succeeded_title">Swap Complete!</string>
+    <string name="sell_neworderstate_succeeded_description">Your swapped %1$s for %2$s</string>
 
 
     <!--Tx Flow Info messaging-->
@@ -3530,7 +3542,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="put_your_crypto_to_work">Put your crypto to work</string>
     <string name="staking_asset">Staked %1s</string>
     <string name="earn_rate">%1$s%% Rate</string>
-    <string name="add_cash_from_your_bank_or_card">Add cash from your bank or card</string>
+    <string name="add_cash_from_your_bank_or_card">Add cash from your bank</string>
     <string name="cash_out_bank">Cash out to your bank</string>
     <string name="buy_different_crypto">Buy a different crypto</string>
     <string name="select_an_option">Select an option</string>

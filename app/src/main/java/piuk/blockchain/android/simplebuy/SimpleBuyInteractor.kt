@@ -1,7 +1,6 @@
 package piuk.blockchain.android.simplebuy
 
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
-import com.blockchain.coincore.AssetAction
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.custodial.models.BrokerageQuote
@@ -45,6 +44,7 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.fromPreferencesValue
 import com.blockchain.domain.paymentmethods.model.toPreferencesValue
 import com.blockchain.domain.trade.TradeDataService
+import com.blockchain.domain.trade.model.QuickFillRoundingData
 import com.blockchain.domain.trade.model.QuotePrice
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.datamanagers.BuySellOrder
@@ -102,8 +102,6 @@ import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
 import piuk.blockchain.android.rating.domain.model.APP_RATING_MINIMUM_BUY_ORDERS
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
-import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
-import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import timber.log.Timber
 
 class SimpleBuyInteractor(
@@ -134,7 +132,6 @@ class SimpleBuyInteractor(
     private val feynmanCheckoutFF: FeatureFlag,
     private val improvedPaymentUxFF: FeatureFlag,
     private val remoteConfigRepository: RemoteConfigRepository,
-    private val quickFillRoundingService: QuickFillRoundingService,
     private val recurringBuyService: RecurringBuyService,
     private val dismissRecorder: DismissRecorder
 ) {
@@ -725,8 +722,9 @@ class SimpleBuyInteractor(
         prepopulatedAmountFromDeeplink: Boolean,
         prepopulatedAmount: Money
     ): Single<Pair<Money, QuickFillButtonData?>> =
-        quickFillRoundingService.getQuickFillRoundingForAction(AssetAction.Buy).map { roundingInfo ->
-
+        rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) {
+            tradeDataService.getQuickFillRoundingForBuy()
+        }.map { roundingInfo ->
             val amountString = simpleBuyPrefs.getLastAmount("$assetCode-${fiatCurrency.networkTicker}")
             val listOfAmounts = mutableListOf<Money>()
 
@@ -773,10 +771,12 @@ class SimpleBuyInteractor(
             val quickFillButtonData = QuickFillButtonData(
                 maxAmount = (limits.max as? TxLimit.Limited)?.amount ?: Money.zero(fiatCurrency),
                 quickFillButtons = listOfAmounts.distinct().map { amount ->
+                    val index = listOfAmounts.indexOf(amount)
                     QuickFillDisplayAndAmount(
                         displayValue = amount.toStringWithSymbol(includeDecimalsWhenWhole = false),
                         amount = amount,
-                        position = listOfAmounts.indexOf(amount)
+                        roundingData = roundingInfo[index],
+                        position = index,
                     )
                 }
             )

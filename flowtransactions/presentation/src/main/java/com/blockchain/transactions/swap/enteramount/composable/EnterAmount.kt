@@ -32,6 +32,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.analytics.Analytics
 import com.blockchain.betternavigation.NavContext
 import com.blockchain.betternavigation.navigateTo
+import com.blockchain.betternavigation.utils.Bindable
 import com.blockchain.componentlib.alert.CustomEmptyState
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.AlertButton
@@ -53,9 +54,10 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.extensions.safeLet
 import com.blockchain.koin.payloadScope
-import com.blockchain.transactions.presentation.R
+import com.blockchain.stringResources.R
 import com.blockchain.transactions.swap.SwapAnalyticsEvents
 import com.blockchain.transactions.swap.SwapGraph
+import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
 import com.blockchain.transactions.swap.enteramount.EnterAmountAssetState
 import com.blockchain.transactions.swap.enteramount.EnterAmountAssets
 import com.blockchain.transactions.swap.enteramount.EnterAmountIntent
@@ -83,10 +85,18 @@ fun EnterAmount(
 
     val navigationEvent by viewModel.navigationEventFlow.collectAsStateLifecycleAware(null)
     LaunchedEffect(navigationEvent) {
-        navigationEvent?.let { navigationEvent ->
-            when (navigationEvent) {
+        navigationEvent?.let { event ->
+            when (event) {
                 is EnterAmountNavigationEvent.Preview -> {
-                    navContextProvider().navigateTo(SwapGraph.Confirmation)
+                    navContextProvider().navigateTo(
+                        SwapGraph.Confirmation,
+                        SwapConfirmationArgs(
+                            sourceAccount = Bindable(event.sourceAccount),
+                            targetAccount = Bindable(event.targetAccount),
+                            sourceCryptoAmount = event.sourceCryptoAmount,
+                            secondPassword = event.secondPassword,
+                        )
+                    )
                 }
             }
         }
@@ -118,7 +128,7 @@ fun EnterAmount(
             if (error != null) {
                 scaffoldState.snackbarHostState.showSnackbar(
                     message = error.localizedMessage ?: context.getString(
-                        com.blockchain.stringResources.R.string.common_error
+                        R.string.common_error
                     ),
                     duration = SnackbarDuration.Long,
                 )
@@ -141,7 +151,7 @@ fun EnterAmount(
                 }
         ) {
             NavigationBar(
-                title = stringResource(com.blockchain.stringResources.R.string.common_swap),
+                title = stringResource(R.string.common_swap),
                 onBackButtonClick = onBackPressed,
             )
 
@@ -242,7 +252,7 @@ private fun EnterAmountScreen(
 
             SmallTertiaryButton(
                 modifier = Modifier.widthIn(min = 130.dp),
-                text = stringResource(com.blockchain.stringResources.R.string.common_max_arg, maxAmount),
+                text = stringResource(R.string.common_max_arg, maxAmount),
                 onClick = setMaxOnClick,
             )
         }
@@ -251,11 +261,13 @@ private fun EnterAmountScreen(
 
         assets?.let {
             TwoAssetActionHorizontal(
+                startTitle = stringResource(R.string.common_from),
                 start = HorizontalAssetAction(
                     assets.from.ticker,
                     StackedIcon.SingleIcon(ImageResource.Remote(assets.from.iconUrl)),
                 ),
                 startOnClick = openSourceAccounts,
+                endTitle = stringResource(R.string.common_to),
                 end = assets.to?.let {
                     HorizontalAssetAction(
                         it.ticker,
@@ -273,34 +285,34 @@ private fun EnterAmountScreen(
                 modifier = Modifier.fillMaxWidth(),
                 text = when (inputError) {
                     is SwapEnterAmountInputError.BelowMinimum -> {
-                        stringResource(com.blockchain.stringResources.R.string.minimum_with_value, inputError.minValue)
+                        stringResource(R.string.minimum_with_value, inputError.minValue)
                     }
 
                     is SwapEnterAmountInputError.AboveMaximum -> {
-                        stringResource(com.blockchain.stringResources.R.string.maximum_with_value, inputError.maxValue)
+                        stringResource(R.string.maximum_with_value, inputError.maxValue)
                     }
 
                     is SwapEnterAmountInputError.AboveBalance -> {
                         stringResource(
-                            com.blockchain.stringResources.R.string.not_enough_funds, assets?.from?.ticker.orEmpty()
+                            R.string.not_enough_funds, assets?.from?.ticker.orEmpty()
                         )
                     }
 
                     is SwapEnterAmountInputError.InsufficientGas ->
                         stringResource(
-                            com.blockchain.stringResources.R.string.confirm_status_msg_insufficient_gas,
+                            R.string.confirm_status_msg_insufficient_gas,
                             inputError.displayTicker
                         )
 
                     is SwapEnterAmountInputError.Unknown ->
-                        stringResource(com.blockchain.stringResources.R.string.common_error)
+                        stringResource(R.string.common_error)
                 },
                 state = ButtonState.Enabled,
                 onClick = { inputErrorClicked(inputError) }
             )
         } ?: PrimaryButton(
             modifier = Modifier.fillMaxWidth(),
-            text = stringResource(com.blockchain.stringResources.R.string.preview_swap),
+            text = stringResource(R.string.preview_swap),
             state = if (fiatAmount?.isEmpty() == false && cryptoAmount?.isEmpty() == false) {
                 ButtonState.Enabled
             } else {

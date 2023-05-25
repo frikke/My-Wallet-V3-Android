@@ -67,7 +67,6 @@ fun MultiAppBottomNavigationHost(
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
     processAnnouncementUrl: (String) -> Unit,
-    openSwap: () -> Unit,
     onWalletConnectSessionClicked: (DappSessionUiElement) -> Unit,
     onWalletConnectSeeAllSessionsClicked: () -> Unit
 ) {
@@ -136,7 +135,6 @@ fun MultiAppBottomNavigationHost(
                         openMoreQuickActions = openMoreQuickActions,
                         startPhraseRecovery = startPhraseRecovery,
                         processAnnouncementUrl = processAnnouncementUrl,
-                        openSwap = openSwap,
                         onWalletConnectSessionClicked = onWalletConnectSessionClicked,
                         onWalletConnectSeeAllSessionsClicked = onWalletConnectSeeAllSessionsClicked
                     )

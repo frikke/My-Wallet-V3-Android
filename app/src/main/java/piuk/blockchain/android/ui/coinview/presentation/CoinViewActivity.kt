@@ -230,7 +230,6 @@ class CoinViewActivity :
 
             is CoinviewNavigationEvent.NavigateToSwap -> {
                 analytics.logEvent(SwapAnalyticsEvents.CoinViewSwapClickedEvent)
-
                 startActivity(
                     TransactionFlowActivity.newIntent(
                         context = this,

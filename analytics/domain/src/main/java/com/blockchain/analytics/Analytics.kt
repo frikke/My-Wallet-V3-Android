@@ -1,12 +1,17 @@
 package com.blockchain.analytics
 
 import com.blockchain.analytics.events.LaunchOrigin
+import io.reactivex.rxjava3.core.Completable
 import java.io.Serializable
 
 interface Analytics {
     fun logEvent(analyticsEvent: AnalyticsEvent)
     fun logEventOnce(analyticsEvent: AnalyticsEvent)
     fun logEventOnceForSession(analyticsEvent: AnalyticsEvent)
+}
+
+interface AnalyticsSettings {
+    fun flush(): Completable
 }
 
 interface UserAnalytics {

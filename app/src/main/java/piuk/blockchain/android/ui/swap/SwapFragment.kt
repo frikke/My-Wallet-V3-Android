@@ -31,7 +31,9 @@ import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.earn.TxFlowAnalyticsAccountType
 import com.blockchain.extensions.exhaustive
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.fiatActions.fiatactions.KycBenefitsSheetHost
+import com.blockchain.koin.newSwapFlowFeatureFlag
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -89,6 +91,8 @@ class SwapFragment :
 
     private val host: Host
         get() = requireActivity() as Host
+
+    private val newSwapFlowFF: FeatureFlag by inject(newSwapFlowFeatureFlag)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -185,20 +189,23 @@ class SwapFragment :
                 walletManager.getSwapTrades().onErrorReturn { emptyList() },
                 coincore.walletsWithAction(action = AssetAction.Swap)
                     .map { it.isNotEmpty() },
-                userIdentity.userAccessForFeature(Feature.Swap)
+                userIdentity.userAccessForFeature(Feature.Swap),
+                newSwapFlowFF.enabled
             ) { tiers: KycTiers,
                 pairs: List<TrendingPair>,
                 limits: TransferLimits,
                 orders: List<CustodialOrder>,
                 hasAtLeastOneAccountToSwapFrom,
-                eligibility ->
+                eligibility,
+                newSwapFlowFFEnabled ->
                 SwapComposite(
                     tiers,
                     pairs,
                     limits,
                     orders,
                     hasAtLeastOneAccountToSwapFrom,
-                    eligibility
+                    eligibility,
+                    newSwapFlowFFEnabled
                 )
             }
                 .observeOn(AndroidSchedulers.mainThread())
@@ -209,6 +216,12 @@ class SwapFragment :
                         showSwapUi(composite.orders, composite.hasAtLeastOneAccountToSwapFrom)
 
                         if (composite.tiers.isVerified()) {
+                            if (composite.newSwapFlowFFEnabled) {
+                                startSwap()
+                                requireActivity().finish()
+                                return@subscribeBy
+                            }
+
                             binding.swapViewFlipper.displayedChild = when {
                                 composite.hasAtLeastOneAccountToSwapFrom -> SWAP_VIEW
                                 else -> SWAP_NO_ACCOUNTS
@@ -472,7 +485,8 @@ class SwapFragment :
         val limits: TransferLimits,
         val orders: List<CustodialOrder>,
         val hasAtLeastOneAccountToSwapFrom: Boolean,
-        val eligibility: FeatureAccess
+        val eligibility: FeatureAccess,
+        val newSwapFlowFFEnabled: Boolean,
     )
 
     override fun onDestroyView() {

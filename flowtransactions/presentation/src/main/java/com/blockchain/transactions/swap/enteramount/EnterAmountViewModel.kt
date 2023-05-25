@@ -1,6 +1,7 @@
 package com.blockchain.transactions.swap.enteramount
 
 import androidx.lifecycle.viewModelScope
+import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
@@ -11,11 +12,12 @@ import com.blockchain.componentlib.control.InputCurrency
 import com.blockchain.componentlib.control.flip
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
-import com.blockchain.data.combineDataResources
+import com.blockchain.data.combineDataResourceFlows
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.dataOrNull
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.trade.TradeDataService
 import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.extensions.safeLet
@@ -23,17 +25,17 @@ import com.blockchain.logging.Logger
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.flatMap
-import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.outcome.toDataResource
 import com.blockchain.transactions.common.OnChainDepositEngineInteractor
 import com.blockchain.transactions.common.OnChainDepositInputValidationError
 import com.blockchain.transactions.swap.SwapService
-import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
 import com.blockchain.utils.removeLeadingZeros
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyPair
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import java.math.BigDecimal
@@ -43,9 +45,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 /**
@@ -59,8 +61,7 @@ class EnterAmountViewModel(
     private val walletModeService: WalletModeService,
     private val tradeDataService: TradeDataService,
     private val onChainDepositEngineInteractor: OnChainDepositEngineInteractor,
-    currencyPrefs: CurrencyPrefs,
-    private val confirmationArgs: SwapConfirmationArgs
+    fiatCurrenciesService: FiatCurrenciesService,
 ) : MviViewModel<
     EnterAmountIntent,
     EnterAmountViewState,
@@ -68,12 +69,16 @@ class EnterAmountViewModel(
     EnterAmountNavigationEvent,
     ModelConfigArgs.NoArgs
     >(
-    EnterAmountModelState(fiatCurrency = currencyPrefs.selectedFiatCurrency)
+    EnterAmountModelState()
 ) {
 
     private var configJob: Job? = null
     private val fiatInputChanges = MutableSharedFlow<FiatValue>()
     private val cryptoInputChanges = MutableSharedFlow<CryptoValue>()
+
+    private val fiatCurrency: FiatCurrency by lazy {
+        fiatCurrenciesService.selectedTradingCurrency
+    }
 
     init {
         viewModelScope.launch {
@@ -140,7 +145,6 @@ class EnterAmountViewModel(
             toAccount: $toAccount
             fiatCurrency: $fiatCurrency
             config: $config
-            sourceToTargetExchangeRate: $sourceToTargetExchangeRate
             sourceNetworkFee: $sourceNetworkFee
             targetNetworkFeeInSourceValue: $targetNetworkFeeInSourceValue
             depositEngineInputValidationError: $depositEngineInputValidationError
@@ -241,7 +245,7 @@ class EnterAmountViewModel(
             }
 
             is EnterAmountIntent.FiatInputChanged -> {
-                val fiatCurrency = modelState.fiatCurrency
+                val fiatCurrency = fiatCurrency
                 val fiatAmount = intent.amount.takeIf { it.isNotEmpty() }
                     ?.let { FiatValue.fromMajor(fiatCurrency, it.toBigDecimal()) }
                     ?: FiatValue.zero(fiatCurrency)
@@ -291,8 +295,8 @@ class EnterAmountViewModel(
 
                 // verify if current TO account is still valid
                 val isToAccountStillValid = modelState.toAccount?.let {
-                    swapService.isAccountValidForSource(
-                        account = it,
+                    swapService.isTargetAccountValidForSource(
+                        targetAccount = it,
                         sourceTicker = intent.account.account.currency.networkTicker,
                         mode = modelState.walletMode
                     )
@@ -308,7 +312,6 @@ class EnterAmountViewModel(
                         fiatAmountUserInput = "",
                         cryptoAmount = null,
                         cryptoAmountUserInput = "",
-                        sourceToTargetExchangeRate = null,
                         sourceNetworkFee = null,
                         targetNetworkFeeInSourceValue = null,
                         fatalError = null,
@@ -324,7 +327,6 @@ class EnterAmountViewModel(
                 updateState {
                     copy(
                         toAccount = intent.account,
-                        sourceToTargetExchangeRate = null,
                         targetNetworkFeeInSourceValue = null,
                     )
                 }
@@ -354,13 +356,14 @@ class EnterAmountViewModel(
                 val cryptoAmount = modelState.cryptoAmount
                 check(cryptoAmount != null)
 
-                confirmationArgs.update(
-                    sourceAccount = fromAccount,
-                    targetAccount = toAccount,
-                    sourceCryptoAmount = cryptoAmount,
-                    secondPassword = modelState.secondPassword
+                navigate(
+                    EnterAmountNavigationEvent.Preview(
+                        sourceAccount = fromAccount,
+                        targetAccount = toAccount,
+                        sourceCryptoAmount = cryptoAmount,
+                        secondPassword = modelState.secondPassword
+                    )
                 )
-                navigate(EnterAmountNavigationEvent.Preview)
             }
 
             EnterAmountIntent.SnackbarErrorHandled -> {
@@ -377,7 +380,8 @@ class EnterAmountViewModel(
     ) {
         getSourceNetworkFeeJob?.cancel()
         getSourceNetworkFeeJob = viewModelScope.launch {
-            onChainDepositEngineInteractor.getDepositNetworkFee(sourceAccount, targetAccount, amount)
+            updateState { copy(depositEngineInputValidationError = null) }
+            onChainDepositEngineInteractor.getDepositNetworkFee(AssetAction.Swap, sourceAccount, targetAccount, amount)
                 .doOnSuccess { fee ->
                     updateState {
                         copy(sourceNetworkFee = fee)
@@ -387,15 +391,19 @@ class EnterAmountViewModel(
                     updateState { copy(snackbarError = error) }
                 }
                 .flatMap {
-                    onChainDepositEngineInteractor.validateAmount(sourceAccount, targetAccount, amount)
-                        .doOnFailure { error ->
-                            updateState { copy(depositEngineInputValidationError = error) }
-                        }
+                    onChainDepositEngineInteractor.validateAmount(
+                        AssetAction.Swap,
+                        sourceAccount,
+                        targetAccount,
+                        amount
+                    ).doOnFailure { error ->
+                        updateState { copy(depositEngineInputValidationError = error) }
+                    }
                 }
         }
     }
 
-    private var quotePriceRefreshingJob: Job? = null
+    private var targetNetworkFeeRefreshingJob: Job? = null
     private fun startTargetNetworkFeeRefreshing(
         sourceAccount: CryptoAccount,
         targetAccount: CryptoAccount,
@@ -405,8 +413,8 @@ class EnterAmountViewModel(
         val pair = CurrencyPair(sourceAccount.currency, targetAccount.currency)
         val direction = getTransferDirection(sourceAccount, targetAccount)
 
-        quotePriceRefreshingJob?.cancel()
-        quotePriceRefreshingJob = viewModelScope.launch {
+        targetNetworkFeeRefreshingJob?.cancel()
+        targetNetworkFeeRefreshingJob = viewModelScope.launch {
             while (true) {
                 tradeDataService.getSwapQuotePrice(pair, amount, direction)
                     .doOnSuccess { quotePrice ->
@@ -425,7 +433,6 @@ class EnterAmountViewModel(
                             )
 
                             copy(
-                                sourceToTargetExchangeRate = quotePrice.sourceToDestinationRate,
                                 targetNetworkFeeInSourceValue = targetNetworkFeeInSourceValue,
                             )
                         }
@@ -442,15 +449,7 @@ class EnterAmountViewModel(
     private fun updateConfig(fromAccount: CryptoAccount, toAccount: CryptoAccount?, cryptoAmount: CryptoValue?) {
         configJob?.cancel()
         getSourceNetworkFeeJob?.cancel()
-        quotePriceRefreshingJob?.cancel()
-
-        if (fromAccount is CryptoNonCustodialAccount && toAccount != null) {
-            val amount = cryptoAmount ?: CryptoValue.zero(fromAccount.currency)
-            getSourceNetworkFeeAndDepositEngineInputValidation(fromAccount, toAccount, amount)
-            if (toAccount is CryptoNonCustodialAccount) {
-                startTargetNetworkFeeRefreshing(fromAccount, toAccount, amount)
-            }
-        }
+        targetNetworkFeeRefreshingJob?.cancel()
 
         if (toAccount == null) {
             updateState {
@@ -459,25 +458,32 @@ class EnterAmountViewModel(
             return
         }
 
+        if (fromAccount is CryptoNonCustodialAccount) {
+            val amount = cryptoAmount ?: CryptoValue.zero(fromAccount.currency)
+            getSourceNetworkFeeAndDepositEngineInputValidation(fromAccount, toAccount, amount)
+            if (toAccount is CryptoNonCustodialAccount) {
+                startTargetNetworkFeeRefreshing(fromAccount, toAccount, amount)
+            }
+        }
+
         configJob = viewModelScope.launch {
-            combine(
-                exchangeRates.exchangeRateToUserFiatFlow(fromAccount.currency),
-                swapService.limits(
+            val limitsFlow = flow {
+                val limits = swapService.limits(
                     from = fromAccount.currency as CryptoCurrency,
                     to = toAccount.currency as CryptoCurrency,
-                    fiat = modelState.fiatCurrency,
+                    fiat = fiatCurrency,
                     direction = getTransferDirection(fromAccount, toAccount),
                 )
+                emit(limits.toDataResource())
+            }
+            combineDataResourceFlows(
+                exchangeRates.exchangeRateToUserFiatFlow(fromAccount.currency),
+                limitsFlow
             ) { exchangeRate, limits ->
-                combineDataResources(
-                    exchangeRate,
-                    limits
-                ) { exchangeRateData, limitsData ->
-                    EnterAmountConfig(
-                        sourceAccountToFiatRate = exchangeRateData,
-                        productLimits = limitsData
-                    )
-                }
+                EnterAmountConfig(
+                    sourceAccountToFiatRate = exchangeRate,
+                    productLimits = limits
+                )
             }.collectLatest { configData ->
                 updateState {
                     copy(

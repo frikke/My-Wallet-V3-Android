@@ -190,6 +190,8 @@ interface FiatAccount : SingleAccount {
     fun canWithdrawFunds(): Flow<DataResource<Boolean>>
 
     override val currency: FiatCurrency
+
+    fun matches(other: FiatAccount): Boolean
 }
 
 interface AccountGroup : BlockchainAccount {

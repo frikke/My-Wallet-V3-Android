@@ -6,6 +6,8 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.data.DataResource
 import com.blockchain.domain.transactions.TransferDirection
+import com.blockchain.outcome.Outcome
+import com.blockchain.transactions.common.CryptoAccountWithBalance
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatCurrency
@@ -38,10 +40,10 @@ interface SwapService {
     ): CryptoAccount?
 
     /**
-     * check if [account] is a valid target for [sourceTicker]
+     * check if [targetAccount] is a valid target for [sourceTicker]
      */
-    suspend fun isAccountValidForSource(
-        account: CryptoAccount,
+    suspend fun isTargetAccountValidForSource(
+        targetAccount: CryptoAccount,
         sourceTicker: String,
         mode: WalletMode
     ): Boolean
@@ -49,7 +51,7 @@ interface SwapService {
     /**
      * returns the [selectedAssetTicker] target accounts of [sourceTicker]
      */
-    fun accountsWithBalanceOfMode(
+    fun targetAccountsWithBalanceOfMode(
         sourceTicker: String,
         selectedAssetTicker: String,
         mode: WalletMode
@@ -59,10 +61,10 @@ interface SwapService {
      * returns [TxLimits] which defines min and max
      * needs to be exchanged later to fiat if needed
      */
-    fun limits(
+    suspend fun limits(
         from: CryptoCurrency,
         to: CryptoCurrency,
         fiat: FiatCurrency,
         direction: TransferDirection,
-    ): Flow<DataResource<TxLimits>>
+    ): Outcome<Exception, TxLimits>
 }

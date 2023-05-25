@@ -79,4 +79,7 @@ object NullFiatAccount : FiatAccount {
     }
 
     override fun canWithdrawFunds() = flowOf(DataResource.Data(false))
+
+    override fun matches(other: FiatAccount): Boolean =
+        other is NullFiatAccount
 }

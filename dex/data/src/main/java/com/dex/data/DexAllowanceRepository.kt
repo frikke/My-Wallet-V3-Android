@@ -84,7 +84,7 @@ class DexAllowanceRepository(
             apiService.buildAllowanceTx(
                 destination = contractAddress.lowercase(),
                 amount = amount?.toBigInteger()?.toString() ?: "MAX",
-                network = coinNetwork.networkTicker
+                networkNativeAssetTicker = coinNetwork.nativeAssetTicker
             ).map { buildTxResponse ->
                 val gasValuesPayload = json.decodeFromJsonElement(GasValuesPayload.serializer(), buildTxResponse.rawTx)
                 val gasPrice = gasValuesPayload.payload?.gasPrice?.let {

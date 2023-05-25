@@ -22,7 +22,7 @@ class DexTransactionsApiService(
 
     suspend fun buildAllowanceTx(
         destination: String,
-        network: String,
+        networkNativeAssetTicker: String,
         amount: String
     ) = dynamicSelfCustodyService.buildTransaction(
         type = "TOKEN_APPROVAL",
@@ -32,12 +32,12 @@ class DexTransactionsApiService(
         swapTx = null,
         transactionTarget = destination,
         spender = ZEROX_EXCHANGE,
-        currency = network
+        currency = networkNativeAssetTicker
     )
 
     suspend fun buildDexSwapTx(
         destination: String,
-        network: String,
+        networkNativeCurrency: String,
         data: String,
         value: String,
         gasLimit: String
@@ -53,7 +53,8 @@ class DexTransactionsApiService(
         ),
         transactionTarget = destination,
         spender = ZEROX_EXCHANGE,
-        currency = network
+        currency = networkNativeCurrency,
+        feeCurrency = networkNativeCurrency
     )
 }
 

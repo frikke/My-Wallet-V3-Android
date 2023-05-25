@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
+import com.blockchain.componentlib.icons.Fire
+import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
 import com.blockchain.componentlib.system.ShimmerLoadingCard
@@ -36,7 +38,6 @@ import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.data.toImmutableList
 import com.blockchain.koin.payloadScope
-import com.blockchain.prices.R
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.prices.prices.PriceItemViewState
 import com.blockchain.prices.prices.PricesAnalyticsEvents
@@ -128,6 +129,7 @@ fun PricesScreen(
                         .padding(horizontal = AppTheme.dimensions.smallSpacing)
                 )
             }
+
             is DataResource.Data -> {
                 PricesScreenData(
                     filters = filters,
@@ -140,6 +142,7 @@ fun PricesScreen(
                     onAssetClick = onAssetClick
                 )
             }
+
             is DataResource.Error -> {
             }
         }
@@ -197,11 +200,20 @@ fun ColumnScope.PricesScreenData(
             if (it.isEmpty()) return@let
 
             paddedItem(
-                paddingValues = PaddingValues(horizontal = 16.dp)
+                paddingValues = {
+                    PaddingValues(
+                        start = AppTheme.dimensions.smallSpacing,
+                        end = AppTheme.dimensions.smallSpacing,
+                        bottom = AppTheme.dimensions.tinySpacing
+                    )
+                }
             ) {
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
-                TableRowHeader(title = stringResource(com.blockchain.stringResources.R.string.prices_top_movers))
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+                TableRowHeader(
+                    title = stringResource(com.blockchain.stringResources.R.string.prices_top_movers),
+                    icon = Icons.Filled.Fire
+                        .withSize(AppTheme.dimensions.smallSpacing)
+                        .withTint(AppTheme.colors.warningMuted)
+                )
             }
 
             item {
@@ -231,7 +243,9 @@ fun ColumnScope.PricesScreenData(
             key = {
                 it.asset.networkTicker
             },
-            paddingValues = PaddingValues(horizontal = 16.dp),
+            paddingValues = {
+                PaddingValues(horizontal = AppTheme.dimensions.smallSpacing)
+            },
             content = { cryptoAsset ->
                 BalanceChangeTableRow(
                     data = cryptoAsset.data,

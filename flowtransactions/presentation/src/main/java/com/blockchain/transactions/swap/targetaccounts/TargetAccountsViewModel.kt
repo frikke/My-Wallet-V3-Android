@@ -9,10 +9,10 @@ import com.blockchain.data.map
 import com.blockchain.data.mapList
 import com.blockchain.data.mapListData
 import com.blockchain.data.updateDataWith
+import com.blockchain.transactions.common.CryptoAccountWithBalance
 import com.blockchain.transactions.common.WithId
 import com.blockchain.transactions.common.accounts.AccountUiElement
 import com.blockchain.transactions.common.withId
-import com.blockchain.transactions.swap.CryptoAccountWithBalance
 import com.blockchain.transactions.swap.SwapService
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetCatalogue
@@ -51,7 +51,7 @@ class TargetAccountsViewModel(
         when (intent) {
             is TargetAccountsIntent.LoadData -> {
                 swapService
-                    .accountsWithBalanceOfMode(
+                    .targetAccountsWithBalanceOfMode(
                         sourceTicker = sourceTicker,
                         selectedAssetTicker = targetTicker,
                         mode = mode

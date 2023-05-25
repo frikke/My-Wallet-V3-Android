@@ -243,6 +243,9 @@
             android:name=".ui.transactionflow.flow.TransactionFlowActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
+            android:name="com.blockchain.transactions.NewTransactionFlowActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
             android:name=".ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity android:name=".support.SupportCentreActivity" />

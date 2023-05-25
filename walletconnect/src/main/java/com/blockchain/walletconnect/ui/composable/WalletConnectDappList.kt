@@ -17,7 +17,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -118,7 +117,7 @@ fun WalletConnectDappList(
                 NavigationBar(
                     walletMode = WalletMode.NON_CUSTODIAL,
                     mutedBg = true,
-                    title = stringResource(com.blockchain.stringResources.R.string.dapps_list_title),
+                    title = stringResource(string.dapps_list_title),
                     startNavigationBarButton = NavigationBarButton.Icon(
                         drawable = R.drawable.ic_nav_bar_back,
                         onIconClick = onBackPressed,
@@ -133,7 +132,7 @@ fun WalletConnectDappList(
                                 MediumHorizontalSpacer()
                                 Text(
                                     text = stringResource(
-                                        com.blockchain.stringResources.R.string.common_disconnect_all
+                                        string.common_disconnect_all
                                     ),
                                     color = Pink700,
                                     style = AppTheme.typography.title3
@@ -149,7 +148,7 @@ fun WalletConnectDappList(
             LazyColumn {
                 paddedRoundedCornersItems(
                     items = sessions,
-                    paddingValues = PaddingValues(horizontal = 16.dp)
+                    paddingValues = { PaddingValues(horizontal = AppTheme.dimensions.smallSpacing) }
                 ) { session ->
                     WalletConnectDappTableRow(
                         session = session,

@@ -73,14 +73,23 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun ConfirmationScreen(
-    viewModel: ConfirmationViewModel = getViewModel(scope = payloadScope),
+    args: SwapConfirmationArgs,
+    viewModel: ConfirmationViewModel = getViewModel(
+        scope = payloadScope,
+        parameters = { parametersOf(args) }
+    ),
     analytics: Analytics = get(),
     openNewOrderState: (NewOrderStateArgs) -> Unit,
     backClicked: () -> Unit
 ) {
+    val sourceAccount = args.sourceAccount.data ?: return
+    val targetAccount = args.targetAccount.data ?: return
+    val sourceCryptoAmount = args.sourceCryptoAmount
+
     LaunchedEffect(Unit) {
         analytics.logEvent(SwapAnalyticsEvents.ConfirmationViewed)
     }
@@ -95,8 +104,6 @@ fun ConfirmationScreen(
 
     val state by viewModel.viewState.collectAsStateLifecycleAware()
 
-    val confirmationArgs: SwapConfirmationArgs = get(scope = payloadScope)
-
     Column {
         NavigationBar(
             title = stringResource(com.blockchain.stringResources.R.string.swap_confirmation_navbar),
@@ -110,10 +117,10 @@ fun ConfirmationScreen(
 
                 analytics.logEvent(
                     SwapAnalyticsEvents.SwapClicked(
-                        fromTicker = confirmationArgs.sourceAccount.currency.networkTicker,
-                        fromAmount = confirmationArgs.sourceCryptoAmount.toStringWithSymbol(),
-                        toTicker = confirmationArgs.targetAccount.currency.networkTicker,
-                        destination = confirmationArgs.targetAccount.accountType()
+                        fromTicker = sourceAccount.currency.networkTicker,
+                        fromAmount = sourceCryptoAmount.toStringWithSymbol(),
+                        toTicker = targetAccount.currency.networkTicker,
+                        destination = targetAccount.accountType()
                     )
                 )
             }
@@ -223,7 +230,7 @@ fun SwapQuoteTimer(remainingSeconds: Int, remainingPercentage: Float, modifier: 
     ) {
         val formattedTime = DateUtils.formatElapsedTime(remainingSeconds.toLong())
         SimpleText(
-            text = stringResource(com.blockchain.stringResources.R.string.swap_confirmation_quote_refresh_timer),
+            text = stringResource(com.blockchain.stringResources.R.string.tx_confirmation_quote_refresh_timer),
             style = ComposeTypographies.Paragraph2,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Start
@@ -262,7 +269,7 @@ private fun SwapExchangeRate(rate: ExchangeRate?, modifier: Modifier = Modifier)
             verticalAlignment = Alignment.CenterVertically
         ) {
             SimpleText(
-                text = stringResource(com.blockchain.stringResources.R.string.swap_confirmation_exchange_rate_label),
+                text = stringResource(com.blockchain.stringResources.R.string.tx_confirmation_exchange_rate_label),
                 style = ComposeTypographies.Paragraph2,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Start
@@ -280,7 +287,7 @@ private fun SwapExchangeRate(rate: ExchangeRate?, modifier: Modifier = Modifier)
             if (rate != null) {
                 SimpleText(
                     text = stringResource(
-                        com.blockchain.stringResources.R.string.swap_confirmation_exchange_rate_value,
+                        com.blockchain.stringResources.R.string.tx_confirmation_exchange_rate_value,
                         rate.from.displayTicker,
                         rate.price.toStringWithSymbol()
                     ),

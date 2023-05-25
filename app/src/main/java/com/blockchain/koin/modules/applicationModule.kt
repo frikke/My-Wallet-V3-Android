@@ -51,6 +51,7 @@ import com.blockchain.koin.feynmanEnterAmountFeatureFlag
 import com.blockchain.koin.improvedPaymentUxFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kotlinJsonAssetTicker
+import com.blockchain.koin.newSellFlowFeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
@@ -530,7 +531,6 @@ val applicationModule = module {
                 feynmanCheckoutFF = get(feynmanCheckoutFeatureFlag),
                 improvedPaymentUxFF = get(improvedPaymentUxFeatureFlag),
                 remoteConfigRepository = get(),
-                quickFillRoundingService = get(),
                 recurringBuyService = get(),
                 dismissRecorder = get()
             )
@@ -608,7 +608,8 @@ val applicationModule = module {
         factory<TradeDataService> {
             TradeDataRepository(
                 tradeService = get(),
-                assetCatalogue = get()
+                assetCatalogue = get(),
+                remoteConfigService = get()
             )
         }
 
@@ -689,7 +690,8 @@ val applicationModule = module {
             BuySellFlowNavigator(
                 custodialWalletManager = get(),
                 userIdentity = get(),
-                simpleBuySyncFactory = get()
+                simpleBuySyncFactory = get(),
+                newSellFlowFF = get(newSellFlowFeatureFlag)
             )
         }
 

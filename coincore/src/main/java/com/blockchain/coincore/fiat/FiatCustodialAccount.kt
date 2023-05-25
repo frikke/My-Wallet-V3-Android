@@ -130,6 +130,9 @@ class FiatCustodialAccount internal constructor(
 
     override val sourceState: Single<TxSourceState>
         get() = Single.just(TxSourceState.NOT_SUPPORTED)
+
+    override fun matches(other: FiatAccount): Boolean =
+        other is FiatCustodialAccount && currency == other.currency
 }
 
 class FiatAccountGroup(

@@ -15,8 +15,6 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionInteractor
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TxFlowErrorReporting
-import piuk.blockchain.android.ui.transactionflow.engine.data.QuickFillRoundingRepository
-import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
 import piuk.blockchain.android.ui.transactionflow.flow.AmountFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.AvailableToTradePropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.AvailableToWithdrawPropertyFormatter
@@ -216,13 +214,6 @@ val transactionModule = module {
         )
     }
 
-    factory {
-        QuickFillRoundingRepository(
-            remoteConfigService = get(),
-            json = get()
-        )
-    }.bind(QuickFillRoundingService::class)
-
     scope(transactionFlowActivityScope) {
         scoped {
             TransactionInteractor(
@@ -241,7 +232,7 @@ val transactionModule = module {
                 bankLinkingPrefs = payloadScope.get(),
                 dismissRecorder = payloadScope.get(),
                 fiatCurrenciesService = payloadScope.get(),
-                quickFillRoundingService = get(),
+                tradeDataService = payloadScope.get(),
                 localSettingsPrefs = get(),
                 improvedPaymentUxFF = payloadScope.get(improvedPaymentUxFeatureFlag),
                 dynamicAssetRepository = payloadScope.get(),

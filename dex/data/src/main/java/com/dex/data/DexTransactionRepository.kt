@@ -29,7 +29,7 @@ class DexTransactionRepository(
             data = quote.data,
             value = quote.value,
             gasLimit = quote.gasLimit,
-            network = coinNetwork.networkTicker
+            networkNativeCurrency = coinNetwork.nativeAssetTicker,
         ).map { builtDexTxResponse ->
             BuiltDexTransaction(
                 rawTx = builtDexTxResponse.rawTx,
@@ -53,7 +53,7 @@ class DexTransactionRepository(
         return nonCustodialService.pushTransaction(
             signatures = signatures,
             rawTx = rawTx,
-            currency = coinNetwork.networkTicker
+            currency = coinNetwork.nativeAssetTicker
         ).map {
             it.txId
         }

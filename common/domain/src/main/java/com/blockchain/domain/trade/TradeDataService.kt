@@ -1,6 +1,7 @@
 package com.blockchain.domain.trade
 
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.trade.model.QuickFillRoundingData
 import com.blockchain.domain.trade.model.QuotePrice
 import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.outcome.Outcome
@@ -29,4 +30,10 @@ interface TradeDataService {
         amount: Money,
         direction: TransferDirection
     ): Outcome<Exception, QuotePrice>
+
+    suspend fun getQuickFillRoundingForBuy(): Outcome<Exception, List<QuickFillRoundingData>>
+
+    suspend fun getQuickFillRoundingForSell(): Outcome<Exception, List<QuickFillRoundingData>>
+
+    suspend fun getQuickFillRoundingForSwap(): Outcome<Exception, List<QuickFillRoundingData>>
 }

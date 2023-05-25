@@ -44,11 +44,11 @@ class BrokerageDataManager(
         }
     }
 
-    fun getSellQuote(
+    suspend fun getSellQuote(
         pair: CurrencyPair,
         amount: Money,
         direction: TransferDirection
-    ): Single<BrokerageQuote> = rxSingleOutcome {
+    ): Outcome<Exception, BrokerageQuote> =
         brokerageService.fetchQuote(
             inputValue = amount.toBigInteger().toString(),
             paymentMethod = direction.getQuotePaymentMethod(),
@@ -58,7 +58,6 @@ class BrokerageDataManager(
         ).map { response ->
             response.toDomainModel(pair, amount)
         }
-    }
 
     suspend fun getSwapQuote(
         pair: CurrencyPair,

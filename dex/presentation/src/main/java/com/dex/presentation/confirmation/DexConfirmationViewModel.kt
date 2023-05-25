@@ -97,7 +97,8 @@ class DexConfirmationViewModel(
              * Ignore this error in the confirmation screen
              * */
             errors = transaction.toUiErrors().filter { it != DexUiError.TransactionInProgressError },
-            newPriceAvailable = priceUpdatedAndNotAccepted
+            newPriceAvailable = priceUpdatedAndNotAccepted,
+            network = transaction.sourceAccount.currency.coinNetwork?.name
         )
     }
 
@@ -274,6 +275,7 @@ sealed class ConfirmationScreenViewState : ViewState {
         val outputBalance: Money?,
         val dexExchangeRate: BigDecimal?,
         val slippage: Double?,
+        val network: String?,
         val errors: List<DexUiError> = emptyList(),
         val minAmount: ConfirmationScreenExchangeAmount?,
         val networkFee: ConfirmationScreenExchangeAmount?,

@@ -1,4 +1,4 @@
-package com.blockchain.transactions.swap.sourceaccounts
+package com.blockchain.transactions.common.sourceaccounts
 
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.data.DataResource

@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import com.blockchain.componentlib.basic.Image
@@ -31,6 +32,7 @@ import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.stringResources.R
 
 @Composable
 private fun TwoAssetActionBody(
@@ -69,10 +71,12 @@ data class HorizontalAssetAction(
 
 @Composable
 fun TwoAssetActionHorizontal(
+    startTitle: String,
     start: HorizontalAssetAction,
-    startOnClick: () -> Unit,
+    startOnClick: (() -> Unit)?,
+    endTitle: String,
     end: HorizontalAssetAction?,
-    endOnClick: () -> Unit
+    endOnClick: (() -> Unit)?
 ) {
     TwoAssetActionBody(
         start = {
@@ -82,7 +86,7 @@ fun TwoAssetActionHorizontal(
                 start.run {
                     Asset(
                         modifier = Modifier.weight(1F),
-                        title = "From",
+                        title = startTitle,
                         subtitle = assetName,
                         icon = icon,
                         onClick = startOnClick
@@ -97,13 +101,14 @@ fun TwoAssetActionHorizontal(
                 end?.run {
                     Asset(
                         modifier = Modifier.weight(1F),
-                        title = "To",
+                        title = endTitle,
                         subtitle = assetName,
                         icon = icon,
                         onClick = endOnClick
                     )
                 } ?: NoAsset(
                     modifier = Modifier.weight(1F),
+                    title = endTitle,
                     onClick = endOnClick
                 )
             }
@@ -117,7 +122,7 @@ private fun Asset(
     title: String,
     subtitle: String,
     icon: StackedIcon,
-    onClick: () -> Unit
+    onClick: (() -> Unit)?
 ) {
     Surface(
         modifier = modifier,
@@ -126,7 +131,13 @@ private fun Asset(
     ) {
         Row(
             modifier = Modifier
-                .clickable(onClick = onClick)
+                .run {
+                    if (onClick != null) {
+                        clickable(onClick = onClick)
+                    } else {
+                        this
+                    }
+                }
                 .padding(AppTheme.dimensions.smallSpacing),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -153,13 +164,14 @@ private fun Asset(
 
 @Composable
 fun NoAsset(
+    title: String,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    onClick: (() -> Unit)?
 ) {
     Asset(
         modifier = modifier,
-        title = "To",
-        subtitle = "Select",
+        title = title,
+        subtitle = stringResource(R.string.common_select),
         icon = StackedIcon.SingleIcon(Icons.Filled.Coins),
         onClick = onClick
     )
@@ -192,11 +204,13 @@ fun TwoAssetActionHorizontalLoading() {
 @Composable
 private fun PreviewTwoAssetAction() {
     TwoAssetActionHorizontal(
+        startTitle = "From",
         start = HorizontalAssetAction(
             assetName = "ETH",
             StackedIcon.SingleIcon(Icons.Receive)
         ),
         startOnClick = {},
+        endTitle = "To",
         end = HorizontalAssetAction(
             assetName = "BTC",
             StackedIcon.SingleIcon(Icons.Receive)
@@ -209,11 +223,13 @@ private fun PreviewTwoAssetAction() {
 @Composable
 private fun PreviewTwoAssetAction_Select() {
     TwoAssetActionHorizontal(
+        startTitle = "From",
         start = HorizontalAssetAction(
             assetName = "ETH",
             StackedIcon.SingleIcon(Icons.Receive)
         ),
         startOnClick = {},
+        endTitle = "To",
         end = null,
         endOnClick = {}
     )
