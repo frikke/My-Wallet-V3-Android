@@ -46,7 +46,6 @@
         android:visibility="gone"
         android:background="@drawable/bkgd_white_large_rounding"
         android:padding="@dimen/tiny_spacing"
-        android:justificationMode="inter_word"
         app:layout_constraintBottom_toTopOf="@id/confirm_cta_button"
         tools:text="Disclaimer blurb that spans several lines that spans several lines"
         tools:visibility="visible" />

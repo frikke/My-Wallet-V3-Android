@@ -36,6 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.ComposeColors
@@ -95,12 +96,19 @@ fun EarnDashboardScreen(
 ) {
     val viewState: EarnDashboardViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
-    DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(EarnDashboardIntent.LoadEarn)
-        onDispose { }
-    }
-
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.onIntent(EarnDashboardIntent.LoadEarn)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     val navEventsFlowLifecycleAware = remember(viewModel.navigationEventFlow, lifecycleOwner) {
         viewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
