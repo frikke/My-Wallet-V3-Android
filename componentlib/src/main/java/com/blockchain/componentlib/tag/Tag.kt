@@ -23,12 +23,9 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.tablerow.PreviewBalanceChangeTableRow_Chevron
-import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue400
 import com.blockchain.componentlib.theme.Dark600
-import com.blockchain.componentlib.theme.Grey000
 
 @Composable
 fun Tag(

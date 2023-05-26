@@ -39,9 +39,7 @@ import com.blockchain.componentlib.icons.Fire
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tag.DefaultTag
-import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.data.DataResource
 import kotlin.math.absoluteValue
 

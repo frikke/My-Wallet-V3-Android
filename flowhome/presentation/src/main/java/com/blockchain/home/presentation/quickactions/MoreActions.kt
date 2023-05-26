@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -20,7 +19,6 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.tablerow.DefaultTableRow
-import com.blockchain.componentlib.tablerow.PreviewBalanceChangeTableRow_Loading
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.home.presentation.R
@@ -135,7 +133,6 @@ private fun PreviewMoreActionsScreen() {
         dismiss = {}
     )
 }
-
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable

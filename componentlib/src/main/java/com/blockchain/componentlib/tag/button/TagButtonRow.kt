@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.Dp
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Blockchain
 import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.tablerow.PreviewBalanceChangeTableRow_Loading
 import com.blockchain.componentlib.theme.AppTheme
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList

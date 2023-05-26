@@ -2858,9 +2858,9 @@ If you want to know more about our verification process visit our <annotation li
     </plurals>
 
     <!-- Pin screen -->
-    <string name="pin_title_create">Choose a Wallet PIN.</string>
+    <string name="pin_title_create">Create your PIN</string>
     <string name="pin_subtitle">This will be used for Biometric Unlock Backup.</string>
-    <string name="pin_title_confirm">Confirm Your PIN.</string>
+    <string name="pin_title_confirm">Confirm Your PIN</string>
     <string name="pin_mismatch_error_msg">PINs do not match. Please try again.</string>
     <string name="pin_num_digits">Pin must contain 4 digits.</string>
     <string name="pin_toolbar_change">Change PIN</string>

@@ -11,9 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Close
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.withBackground
@@ -32,7 +30,7 @@ internal fun SheetHeaderCloseButton(
             indication = rememberRipple(bounded = false),
             onClick = { onClosePress() }
         )
-    ){
+    ) {
         Image(
             imageResource = Icons.Close
                 .withContentDescription(backPressContentDescription)

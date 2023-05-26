@@ -30,7 +30,6 @@ import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
 import com.blockchain.componentlib.viewextensions.gone
-import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.showKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -284,7 +283,7 @@ class PinActivity :
                 add(pinBox3)
             }
             pinIcon.apply {
-                image = ImageResource.Local(id = R.drawable.ic_pin, size = Dp(40f))
+                image = ImageResource.Local(id = R.drawable.ic_blockchain_logo, size = Dp(40f))
 
                 if (environmentConfig.isRunningInDebugMode()) {
                     onClick = {
@@ -546,25 +545,15 @@ class PinActivity :
     private fun setPinView(pinScreenView: PinScreenView) {
         when (pinScreenView) {
             PinScreenView.LoginWithPin -> {
-                binding.apply {
-                    titleBox.setText(com.blockchain.stringResources.R.string.pin_entry)
-                    subtitle.invisible()
-                }
+                binding.titleBox.setText(com.blockchain.stringResources.R.string.pin_entry)
             }
 
             PinScreenView.CreateNewPin -> {
-                binding.apply {
-                    titleBox.setText(com.blockchain.stringResources.R.string.pin_title_create)
-                    subtitle.setText(com.blockchain.stringResources.R.string.pin_subtitle)
-                    subtitle.visible()
-                }
+                binding.titleBox.setText(com.blockchain.stringResources.R.string.pin_title_create)
             }
 
             PinScreenView.ConfirmNewPin -> {
-                binding.apply {
-                    titleBox.setText(com.blockchain.stringResources.R.string.pin_title_confirm)
-                    subtitle.invisible()
-                }
+                binding.titleBox.setText(com.blockchain.stringResources.R.string.pin_title_confirm)
             }
         }
     }

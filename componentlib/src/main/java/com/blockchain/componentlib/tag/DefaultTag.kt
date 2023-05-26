@@ -1,14 +1,10 @@
 package com.blockchain.componentlib.tag
 
 import android.content.res.Configuration
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Dark600
-import com.blockchain.componentlib.theme.Grey700
 
 @Composable
 fun DefaultTag(
