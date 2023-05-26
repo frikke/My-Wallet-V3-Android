@@ -30,7 +30,7 @@ fun PrimaryButton(
         text = text,
         onClick = onClick,
         state = state,
-        defaultTextColor = Color.White,
+        defaultTextColor = AppTheme.colors.background,
         defaultBackgroundLightColor = defaultBackgroundColor ?: AppTheme.colors.primary,
         defaultBackgroundDarkColor = defaultBackgroundColor ?: AppTheme.colors.primary,
         disabledTextLightAlpha = 0.7f,

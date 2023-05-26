@@ -1,5 +1,7 @@
 package com.blockchain.home.presentation.quickactions
 
+import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -66,7 +67,7 @@ private fun MoreActionsScreen(
     onActionClick: (AssetAction) -> Unit,
     dismiss: () -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(modifier = Modifier.fillMaxWidth().background(AppTheme.colors.backgroundSecondary)) {
         SheetHeader(
             title = stringResource(id = com.blockchain.stringResources.R.string.common_more),
             onClosePress = dismiss,
@@ -95,7 +96,7 @@ private fun MoreActionsScreen(
             )
 
             if (actions.last() != item) {
-                Divider(color = Color(0XFFF1F2F7))
+                Divider(color = AppTheme.colors.background)
             }
         }
     }
@@ -131,4 +132,10 @@ private fun PreviewMoreActionsScreen() {
         onActionClick = {},
         dismiss = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewPreviewMoreActionsScreenDark() {
+    PreviewMoreActionsScreen()
 }

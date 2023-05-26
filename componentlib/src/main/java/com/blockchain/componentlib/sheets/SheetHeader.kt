@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.sheets
 
+import android.content.res.Configuration
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,7 +22,6 @@ import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.divider.HorizontalDivider
-import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark200
 import com.blockchain.componentlib.theme.Grey700
@@ -119,73 +119,59 @@ private fun SheetHeaderTitle(
 @Preview
 @Composable
 private fun SheetHeaderPreview() {
-    AppTheme {
-        AppSurface {
-            SheetHeader(
-                title = "Title",
-                onClosePress = { /* no-op */ }
-            )
-        }
-    }
+    SheetHeader(
+        title = "Title",
+        onClosePress = { /* no-op */ }
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewSheetHeaderPreviewDark() {
+    SheetHeaderPreview()
 }
 
 @Preview
 @Composable
 private fun SheetHeaderNoTitle() {
-    AppTheme {
-        AppSurface {
-            SheetHeader(
-                onClosePress = { /* no-op */ }
-            )
-        }
-    }
+    SheetHeader(
+        onClosePress = { /* no-op */ }
+    )
 }
 
 @Preview
 @Composable
 private fun SheetHeaderBylinePreview() {
-    AppTheme {
-        AppSurface {
-            SheetHeader(
-                title = "Title",
-                byline = "Byline",
-                onClosePress = { /* no-op */ }
-            )
-        }
-    }
+    SheetHeader(
+        title = "Title",
+        byline = "Byline",
+        onClosePress = { /* no-op */ }
+    )
 }
 
 @Preview
 @Composable
 private fun SheetHeaderWithStartIconPreview() {
-    AppTheme {
-        AppSurface {
-            SheetHeader(
-                title = "Title",
-                onClosePress = { /* no-op */ },
-                startImageResource = ImageResource.Local(
-                    id = R.drawable.ic_qr_code,
-                    contentDescription = null
-                )
-            )
-        }
-    }
+    SheetHeader(
+        title = "Title",
+        onClosePress = { /* no-op */ },
+        startImageResource = ImageResource.Local(
+            id = R.drawable.ic_qr_code,
+            contentDescription = null
+        )
+    )
 }
 
 @Preview
 @Composable
 private fun SheetHeaderBylineWithStartIconPreview() {
-    AppTheme {
-        AppSurface {
-            SheetHeader(
-                title = "Title",
-                byline = "Byline",
-                onClosePress = { /* no-op */ },
-                startImageResource = ImageResource.Local(
-                    id = R.drawable.ic_qr_code,
-                    contentDescription = null
-                )
-            )
-        }
-    }
+    SheetHeader(
+        title = "Title",
+        byline = "Byline",
+        onClosePress = { /* no-op */ },
+        startImageResource = ImageResource.Local(
+            id = R.drawable.ic_qr_code,
+            contentDescription = null
+        )
+    )
 }

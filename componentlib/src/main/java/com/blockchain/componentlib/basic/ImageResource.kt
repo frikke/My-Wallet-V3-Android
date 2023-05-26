@@ -34,6 +34,8 @@ sealed class ImageResource {
             colorFilter = colorFilter,
             size = size
         )
+
+        fun withContentDescription(contentDescription: String?) = copy(contentDescription = contentDescription)
     }
 
     class LocalWithResolvedBitmap(

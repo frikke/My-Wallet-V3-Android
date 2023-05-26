@@ -25,6 +25,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -56,6 +57,8 @@ fun ModeSwitcher(
 
     val fullModeAlpha = 1F
     val minModeAlpha = 0.6F
+
+    val valuesColor = Color.White
 
     Row(modifier = modifier.fillMaxWidth()) {
         val animatableIndicatorWidthPx = remember { Animatable(fullIndicatorWidthPx) }
@@ -119,7 +122,7 @@ fun ModeSwitcher(
                                 .graphicsLayer {
                                     this.alpha = alpha()
                                 },
-                            imageResource = icon.withTint(AppTheme.colors.backgroundSecondary)
+                            imageResource = icon.withTint(valuesColor)
                         )
                     }
 
@@ -130,7 +133,7 @@ fun ModeSwitcher(
                                 this.alpha = alpha()
                             },
                         style = AppTheme.typography.title3,
-                        color = AppTheme.colors.backgroundSecondary,
+                        color = valuesColor,
                         text = stringResource(mode.titleSuperApp())
                     )
                 }
@@ -165,7 +168,7 @@ fun ModeSwitcher(
                             }
                         }
                         .background(
-                            color = AppTheme.colors.backgroundSecondary,
+                            color = valuesColor,
                             shape = RoundedCornerShape(AppTheme.dimensions.standardSpacing)
                         )
                 )

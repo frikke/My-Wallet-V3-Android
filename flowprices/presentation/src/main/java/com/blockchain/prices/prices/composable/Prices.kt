@@ -11,14 +11,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.Analytics
@@ -82,7 +80,11 @@ fun Prices(
         onDispose { }
     }
 
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(AppTheme.colors.background)
+    ) {
         MenuOptionsScreen(
             openSettings = openSettings,
             launchQrScanner = launchQrScanner
@@ -251,18 +253,11 @@ fun ColumnScope.PricesScreenData(
                     data = cryptoAsset.data,
                     onClick = { onAssetClick(cryptoAsset.asset) }
                 )
-                if (cryptoPrices.last() != cryptoAsset) {
-                    Divider(color = Color(0XFFF1F2F7))
-                }
             }
         )
 
         item {
-            Spacer(
-                modifier = Modifier
-                    .size(100.dp)
-                    .background(Color(0XFFF1F2F7))
-            )
+            Spacer(modifier = Modifier.size(100.dp))
         }
     }
 }

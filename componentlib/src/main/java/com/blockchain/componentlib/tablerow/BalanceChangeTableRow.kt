@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.tablerow
 
+import android.content.res.Configuration
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -38,9 +39,7 @@ import com.blockchain.componentlib.icons.Fire
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tag.DefaultTag
-import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.data.DataResource
 import kotlin.math.absoluteValue
 
@@ -214,7 +213,7 @@ private fun BalanceChangeTableRow(
                             Text(
                                 text = subtitle,
                                 style = AppTheme.typography.paragraph1,
-                                color = AppTheme.colors.muted
+                                color = AppTheme.colors.body
                             )
 
                             networkTag?.let {
@@ -405,7 +404,7 @@ private fun BalanceChangeTableRowWithChevron(
             }
         },
         contentEnd = {
-            Image(imageResource = Icons.ChevronRight)
+            Image(imageResource = Icons.ChevronRight.withTint(AppTheme.colors.title))
         },
         onContentClicked = onClick
     )
@@ -424,7 +423,7 @@ fun ShimmerValue(modifier: Modifier = Modifier) {
     )
 
     val brush = Brush.linearGradient(
-        colors = listOf(Grey100, Color.White, Grey100),
+        colors = listOf(AppTheme.colors.light, AppTheme.colors.backgroundSecondary, AppTheme.colors.light),
         start = Offset(10f, 10f),
         end = Offset(translateAnim, translateAnim)
     )
@@ -485,53 +484,59 @@ val ValueChange.formattedText: String
 
 @Preview
 @Composable
-fun PreviewBalanceChangeTableRow() {
-    AppTheme {
-        AppSurface {
-            BalanceChangeTableRow(
-                name = "Bitcoin",
-                subtitle = "BTC",
-                networkTag = "Bitcoin",
-                value = DataResource.Data("$1,000.00"),
-                showRisingFastTag = true,
-                imageResource = ImageResource.Local(R.drawable.ic_blockchain),
-                valueChange = DataResource.Data(ValueChange.Up(1.88)),
-                onClick = {}
-            )
-        }
-    }
+private fun PreviewBalanceChangeTableRow() {
+    BalanceChangeTableRow(
+        name = "Bitcoin",
+        subtitle = "BTC",
+        networkTag = "Bitcoin",
+        value = DataResource.Data("$1,000.00"),
+        showRisingFastTag = true,
+        imageResource = ImageResource.Local(R.drawable.ic_blockchain),
+        valueChange = DataResource.Data(ValueChange.Up(1.88)),
+        onClick = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewBalanceChangeTableRowDark() {
+    PreviewBalanceChangeTableRow()
 }
 
 @Preview
 @Composable
 fun PreviewBalanceChangeTableRow_Chevron() {
-    AppTheme {
-        AppSurface {
-            BalanceChangeTableRow(
-                name = "Bitcoin",
-                value = DataResource.Data("$1,000.00"),
-                imageResource = ImageResource.Local(R.drawable.ic_blockchain),
-                valueChange = DataResource.Data(ValueChange.Up(1.88)),
-                showRisingFastTag = true,
-                withChevron = true,
-                onClick = {}
-            )
-        }
-    }
+    BalanceChangeTableRow(
+        name = "Bitcoin",
+        value = DataResource.Data("$1,000.00"),
+        imageResource = ImageResource.Local(R.drawable.ic_blockchain),
+        valueChange = DataResource.Data(ValueChange.Up(1.88)),
+        showRisingFastTag = true,
+        withChevron = true,
+        onClick = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewBalanceChangeTableRow_ChevronDark() {
+    PreviewBalanceChangeTableRow_Chevron()
 }
 
 @Preview
 @Composable
 fun PreviewBalanceChangeTableRow_Loading() {
-    AppTheme {
-        AppSurface {
-            BalanceChangeTableRow(
-                name = "Bitcoin",
-                value = DataResource.Loading,
-                imageResource = ImageResource.Local(R.drawable.ic_blockchain),
-                valueChange = DataResource.Loading,
-                onClick = {}
-            )
-        }
-    }
+    BalanceChangeTableRow(
+        name = "Bitcoin",
+        value = DataResource.Loading,
+        imageResource = ImageResource.Local(R.drawable.ic_blockchain),
+        valueChange = DataResource.Loading,
+        onClick = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewBalanceChangeTableRow_LoadingDark() {
+    PreviewBalanceChangeTableRow_Loading()
 }

@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.tag.button
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
@@ -62,4 +63,10 @@ fun PreviewTagButtonRow() {
         }.toImmutableList(),
         onClick = { selected = it }
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewPreviewTagButtonRowDark() {
+    PreviewTagButtonRow()
 }

@@ -73,7 +73,7 @@ fun TagButton(
                 color = if (selected) {
                     AppTheme.colors.title
                 } else {
-                    Grey400
+                    AppTheme.colors.body
                 },
                 textAlign = TextAlign.Center
             )
