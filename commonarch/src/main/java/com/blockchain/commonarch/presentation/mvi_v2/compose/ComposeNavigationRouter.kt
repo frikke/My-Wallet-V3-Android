@@ -4,11 +4,6 @@ import android.os.Bundle
 import androidx.annotation.IdRes
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetValue
@@ -210,12 +205,9 @@ fun NavGraphBuilder.bottomSheet(
 
     addDestination(
         BottomSheetNavigator.Destination(
-            provider[BottomSheetNavigator::class]
-        ) {
-            val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-            content(it)
-            Spacer(modifier = Modifier.size(navBarHeight))
-        }.apply {
+            navigator = provider[BottomSheetNavigator::class],
+            content = content
+        ).apply {
             this.route = navigationEvent.route
             arguments.forEach { (argumentName, argument) ->
                 addArgument(argumentName, argument)

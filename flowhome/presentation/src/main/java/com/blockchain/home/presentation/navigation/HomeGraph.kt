@@ -76,7 +76,7 @@ fun NavGraphBuilder.homeGraph(
     bottomSheet(navigationEvent = HomeDestination.RecurringBuyDetail) { backStackEntry ->
         val id = backStackEntry.arguments?.getComposeArgument(ARG_RECURRING_BUY_ID).orEmpty()
 
-        ChromeBottomSheet(onBackPressed) {
+        ChromeBottomSheet(onClose = onBackPressed) {
             RecurringBuyDetail(
                 recurringBuyId = id,
                 onCloseClick = onBackPressed
@@ -99,7 +99,7 @@ fun NavGraphBuilder.homeGraph(
         }
 
         walletMode?.let {
-            ChromeBottomSheet(onBackPressed) {
+            ChromeBottomSheet(onClose = onBackPressed) {
                 ActivityDetail(
                     selectedTxId = txId,
                     walletMode = walletMode,
@@ -110,7 +110,7 @@ fun NavGraphBuilder.homeGraph(
     }
 
     bottomSheet(navigationEvent = HomeDestination.Referral) {
-        ChromeBottomSheet(onBackPressed) {
+        ChromeBottomSheet(onClose = onBackPressed) {
             ReferralCode(
                 onBackPressed = onBackPressed
             )
@@ -118,7 +118,7 @@ fun NavGraphBuilder.homeGraph(
     }
 
     bottomSheet(navigationEvent = HomeDestination.SwapDexOptions) {
-        ChromeBottomSheet(onBackPressed) {
+        ChromeBottomSheet(onClose = onBackPressed) {
             SwapDexOptionScreen(
                 onBackPressed = onBackPressed,
                 openDex = openDex,
@@ -129,17 +129,21 @@ fun NavGraphBuilder.homeGraph(
 
     bottomSheet(navigationEvent = HomeDestination.FiatActionDetail) { backStackEntry ->
         val fiatTicker = backStackEntry.arguments?.getString(ARG_FIAT_TICKER).orEmpty()
-        FiatFundDetail(
-            fiatTicker = fiatTicker,
-            dismiss = onBackPressed
-        )
+        ChromeBottomSheet(fillMaxHeight = false, onClose = onBackPressed) {
+            FiatFundDetail(
+                fiatTicker = fiatTicker,
+                dismiss = onBackPressed
+            )
+        }
     }
 
-    bottomSheet(navigationEvent = HomeDestination.MoreQuickActions) { backStackEntry ->
-        MoreActions(
-            dismiss = onBackPressed,
-            assetActionsNavigation = assetActionsNavigation
-        )
+    bottomSheet(navigationEvent = HomeDestination.MoreQuickActions) {
+        ChromeBottomSheet(fillMaxHeight = false, onClose = onBackPressed) {
+            MoreActions(
+                dismiss = onBackPressed,
+                assetActionsNavigation = assetActionsNavigation
+            )
+        }
     }
 
     composable(navigationEvent = HomeDestination.News) {

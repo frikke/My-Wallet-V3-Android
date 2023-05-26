@@ -3,14 +3,15 @@ package com.blockchain.chrome.composable
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.runtime.Composable
@@ -21,8 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
 import com.blockchain.chrome.backgroundColors
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.theme.AppTheme
@@ -50,29 +49,30 @@ import org.koin.androidx.compose.get
  * }
  * ```
  */
-
 @Composable
 private fun ChromeSingleScreen(
     backgroundColor: ModeBackgroundColor = ModeBackgroundColor.Current,
-    isBottomSheet: Boolean,
+    screenType: ScreenType,
     content: @Composable () -> Unit
 ) {
-    val walletMode: WalletMode? by if (!isBottomSheet) {
+    val walletMode: WalletMode? by if (screenType is ScreenType.SingleScreen) {
         when (backgroundColor) {
             ModeBackgroundColor.Current -> {
                 get<WalletModeService>(scope = payloadScope)
                     .walletMode.collectAsStateLifecycleAware(initial = null)
             }
+
             is ModeBackgroundColor.Override -> {
                 remember { mutableStateOf(backgroundColor.walletMode) }
             }
+
             ModeBackgroundColor.None -> remember { mutableStateOf(null) }
         }
     } else {
         remember { mutableStateOf(null) }
     }
 
-    val statusBarHeight = if (!isBottomSheet) {
+    val statusBarHeight = if (screenType is ScreenType.SingleScreen) {
         WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     } else {
         0.dp
@@ -84,12 +84,20 @@ private fun ChromeSingleScreen(
     // -> Space for the status bar
     // -> main screen content
     // -> Space for the native android navigation
-    ConstraintLayout(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(if (!isBottomSheet) 1F else 0.95F)
             .then(
-                if (walletMode == null || isBottomSheet) {
+                when (screenType) {
+                    is ScreenType.SingleScreen -> Modifier.fillMaxHeight()
+                    is ScreenType.BottomSheet -> when (screenType.fillMaxHeight) {
+                        true -> Modifier.fillMaxHeight(0.95F)
+                        false -> Modifier.wrapContentHeight()
+                    }
+                }
+            )
+            .then(
+                if (walletMode == null || screenType is ScreenType.BottomSheet) {
                     Modifier.background(AppTheme.colors.background)
                 } else {
                     Modifier.background(
@@ -102,18 +110,16 @@ private fun ChromeSingleScreen(
                 }
             )
     ) {
-        val (statusBar, navBar, content) = createRefs()
-
-        Card(
+        // status bar
+        Box(
             modifier = Modifier
-                .constrainAs(content) {
-                    start.linkTo(parent.start)
-                    top.linkTo(statusBar.bottom)
-                    end.linkTo(parent.end)
-                    bottom.linkTo(navBar.top)
-                    height = Dimension.fillToConstraints
-                }
-                .fillMaxSize(),
+                .fillMaxWidth()
+                .height(statusBarHeight)
+        )
+
+        // content
+        Card(
+            modifier = Modifier,
             backgroundColor = Color(0XFFF1F2F7),
             shape = RoundedCornerShape(
                 topStart = AppTheme.dimensions.standardSpacing,
@@ -124,26 +130,9 @@ private fun ChromeSingleScreen(
             content()
         }
 
-        // status bar
-        Box(
-            modifier = Modifier
-                .constrainAs(statusBar) {
-                    start.linkTo(parent.start)
-                    top.linkTo(parent.top)
-                    end.linkTo(parent.end)
-                }
-                .fillMaxWidth()
-                .height(statusBarHeight)
-        )
-
         // nav bar
         Box(
             modifier = Modifier
-                .constrainAs(navBar) {
-                    start.linkTo(parent.start)
-                    bottom.linkTo(parent.bottom)
-                    end.linkTo(parent.end)
-                }
                 .fillMaxWidth()
                 .height(navBarHeight)
         )
@@ -157,16 +146,25 @@ fun ChromeSingleScreen(
 ) {
     ChromeSingleScreen(
         backgroundColor = backgroundColor,
-        isBottomSheet = false,
+        screenType = ScreenType.SingleScreen,
         content = content
     )
 }
 
 @Composable
 fun ChromeBottomSheet(
+    fillMaxHeight: Boolean = true,
     onClose: () -> Unit,
     content: @Composable () -> Unit
 ) {
     BackHandler(onBack = onClose)
-    ChromeSingleScreen(isBottomSheet = true, content = content)
+    ChromeSingleScreen(
+        screenType = ScreenType.BottomSheet(fillMaxHeight),
+        content = content
+    )
+}
+
+private sealed interface ScreenType {
+    object SingleScreen : ScreenType
+    data class BottomSheet(val fillMaxHeight: Boolean) : ScreenType
 }
