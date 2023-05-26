@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.blockchain.componentlib.lazylist.paddedItem
@@ -37,17 +37,13 @@ internal fun LazyListScope.homeNews(
             )
         }
 
-        itemsIndexed(
-            newsArticles
-        ) { index, article ->
+        items(newsArticles) { article ->
             NewsArticle(
                 modifier = Modifier.padding(horizontal = AppTheme.dimensions.smallSpacing),
                 newsArticle = article
             )
 
-            if (newsArticles.lastIndex > index) {
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
-            }
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
         }
     }
 }

@@ -44,7 +44,7 @@ fun DefaultTableRow(
     endTag: TagViewState? = null,
     startImageResource: ImageResource = ImageResource.None,
     endImageResource: ImageResource = Icons.ChevronRight.withTint(Grey400),
-    backgroundColor: Color = AppTheme.colors.background,
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary,
     primaryTextColor: Color = AppTheme.colors.title,
     secondaryTextColor: Color = AppTheme.colors.body
 ) {
@@ -78,7 +78,7 @@ fun DefaultTableRow(
     endTag: TagViewState? = null,
     startImageResource: ImageResource = ImageResource.None,
     endImageResource: ImageResource = ImageResource.None,
-    backgroundColor: Color = AppTheme.colors.background,
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary,
     backgroundShape: Shape = RectangleShape,
     titleColor: Color = AppTheme.colors.title,
     titleStyle: TextStyle = AppTheme.typography.body2,
@@ -118,7 +118,7 @@ fun DefaultTableRow(
     endTag: TagViewState? = null,
     startImageResource: ImageResource = ImageResource.None,
     endImageResource: ImageResource = Icons.ChevronRight.withTint(Grey400),
-    backgroundColor: Color = AppTheme.colors.background,
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary,
     primaryTextColor: Color = AppTheme.colors.title,
     secondaryTextColor: Color = AppTheme.colors.muted
 ) {
@@ -153,7 +153,7 @@ fun DefaultTableRow(
     endTag: TagViewState? = null,
     startImageResource: ImageResource = ImageResource.None,
     endImageResource: ImageResource = ImageResource.None,
-    backgroundColor: Color = AppTheme.colors.background,
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary,
     backgroundShape: Shape = RectangleShape,
     titleColor: Color = AppTheme.colors.title,
     titleStyle: TextStyle = AppTheme.typography.body2,

@@ -33,7 +33,7 @@ fun TagButton(
     Card(
         modifier = modifier,
         backgroundColor = if (selected) {
-            AppTheme.colors.background
+            AppTheme.colors.backgroundSecondary
         } else {
             Color.Transparent
         },

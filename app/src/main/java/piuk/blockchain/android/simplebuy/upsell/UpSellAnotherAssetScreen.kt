@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -95,7 +94,7 @@ fun UpSellAnotherAsset(
 @Composable
 fun MostPopularAssets(assets: ImmutableList<PriceItemViewState>, onBuyMostPopularAsset: (String) -> Unit) {
     Card(
-        backgroundColor = AppTheme.colors.background,
+        backgroundColor = AppTheme.colors.backgroundSecondary,
         shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
         elevation = 0.dp
     ) {

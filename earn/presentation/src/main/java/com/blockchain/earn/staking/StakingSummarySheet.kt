@@ -45,7 +45,6 @@ import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.theme.TinyHorizontalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
-import com.blockchain.earn.R
 import com.blockchain.earn.common.EarnFieldExplainer
 import com.blockchain.earn.common.EarnPendingWithdrawals
 import com.blockchain.earn.domain.models.EarnRewardsFrequency
@@ -107,7 +106,7 @@ fun StakingSummarySheet(
                 LargeVerticalSpacer()
 
                 Card(
-                    backgroundColor = AppTheme.colors.background,
+                    backgroundColor = AppTheme.colors.backgroundSecondary,
                     shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
                     elevation = 0.dp
                 ) {
@@ -311,7 +310,7 @@ fun StakingSummarySheetPreview() {
 @Composable
 fun StakingWithdrawalNotice(onLearnMorePressed: () -> Unit) {
     Card(
-        backgroundColor = AppTheme.colors.background,
+        backgroundColor = AppTheme.colors.backgroundSecondary,
         shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
         border = BorderStroke(
             width = 1.dp,
@@ -361,7 +360,7 @@ fun StakingWithdrawalNoticePreview() {
 @Composable
 fun StakingWithdrawalQueueNotice(unbondingDays: Int, onLearnMorePressed: () -> Unit) {
     Card(
-        backgroundColor = AppTheme.colors.background,
+        backgroundColor = AppTheme.colors.backgroundSecondary,
         shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
         elevation = 0.dp
     ) {

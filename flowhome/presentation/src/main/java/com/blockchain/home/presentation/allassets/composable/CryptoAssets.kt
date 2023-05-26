@@ -50,7 +50,6 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.home.domain.AssetFilter
-import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.allassets.AssetsIntent
 import com.blockchain.home.presentation.allassets.AssetsViewModel
@@ -225,7 +224,7 @@ fun CryptoAssetsList(
     onAssetClick: (AssetInfo) -> Unit
 ) {
     Card(
-        backgroundColor = AppTheme.colors.background,
+        backgroundColor = AppTheme.colors.backgroundSecondary,
         shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
         elevation = 0.dp
     ) {

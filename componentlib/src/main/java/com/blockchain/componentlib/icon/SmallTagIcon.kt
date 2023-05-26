@@ -26,7 +26,7 @@ import com.blockchain.componentlib.theme.AppTheme
 fun SmallTagIcon(
     icon: StackedIcon.SmallTag,
     iconBackground: Color = AppTheme.colors.light,
-    borderColor: Color = AppTheme.colors.background,
+    borderColor: Color = AppTheme.colors.backgroundSecondary,
     mainIconSize: Dp = 24.dp,
     tagIconSize: Dp? = null,
     mainIconShape: Shape = CircleShape,

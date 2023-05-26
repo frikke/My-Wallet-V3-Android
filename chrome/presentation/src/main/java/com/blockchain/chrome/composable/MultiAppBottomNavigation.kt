@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,13 +34,14 @@ fun MultiAppBottomNavigation(
     Card(
         modifier = modifier,
         elevation = 15.dp,
-        contentColor = Color.White,
+        backgroundColor = AppTheme.colors.backgroundSecondary,
         shape = RoundedCornerShape(100.dp)
     ) {
         Row(modifier = Modifier.padding(horizontal = AppTheme.dimensions.mediumSpacing)) {
             navigationItems.forEach { item ->
                 Surface(
-                    shape = AppTheme.shapes.large
+                    shape = AppTheme.shapes.large,
+                    color = AppTheme.colors.backgroundSecondary
                 ) {
                     Column(
                         modifier = Modifier
@@ -61,7 +61,7 @@ fun MultiAppBottomNavigation(
                                 } else {
                                     item.iconDefault
                                 }
-                            )
+                            ).withTint(AppTheme.colors.title)
                         )
 
                         Spacer(modifier = Modifier.size(AppTheme.dimensions.composeSmallestSpacing))

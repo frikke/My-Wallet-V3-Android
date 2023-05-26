@@ -48,7 +48,6 @@ import com.blockchain.domain.wiretransfer.WireTransferDetailsAction
 import com.blockchain.domain.wiretransfer.WireTransferDetailsFooter
 import com.blockchain.domain.wiretransfer.WireTransferDetailsSection
 import com.blockchain.domain.wiretransfer.WireTransferDetailsSectionEntry
-import piuk.blockchain.android.R
 
 @Composable
 fun WireTransferAccountDetailsScreen(
@@ -106,7 +105,7 @@ fun ColumnScope.Section(
         Modifier
             .padding(top = AppTheme.dimensions.tinySpacing)
             .background(
-                color = AppTheme.colors.background,
+                color = AppTheme.colors.backgroundSecondary,
                 shape = RoundedCornerShape(AppTheme.dimensions.smallSpacing)
             )
     ) {

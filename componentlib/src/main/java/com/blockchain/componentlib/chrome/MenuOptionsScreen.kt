@@ -20,16 +20,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.User
 import com.blockchain.componentlib.icons.Viewfinder
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -59,7 +57,7 @@ fun MenuOptionsScreen(
                 .fillMaxWidth()
                 .height(AppTheme.dimensions.xHugeSpacing)
                 .background(
-                    AppTheme.colors.backgroundMuted.copy(alpha = 0.9F)
+                    AppTheme.colors.background.copy(alpha = 0.9F)
                 )
         )
 
@@ -78,8 +76,8 @@ fun MenuOptionsScreen(
                     modifier = Modifier
                         .padding(AppTheme.dimensions.smallestSpacing)
                         .matchParentSize()
-                        .background(AppTheme.colors.background, AppTheme.shapes.large)
                         .clickable { },
+                    color = AppTheme.colors.backgroundSecondary,
                     shape = AppTheme.shapes.large,
                     elevation = 3.dp
                 ) {
@@ -93,7 +91,8 @@ fun MenuOptionsScreen(
                                         x = 0,
                                         y = balanceOffset
                                     )
-                                }.graphicsLayer {
+                                }
+                                .graphicsLayer {
                                     alpha = BALANCE_OFFSET_TARGET - balanceOffset / BALANCE_OFFSET_TARGET.toFloat()
                                 },
                             text = walletBalance,
@@ -111,12 +110,13 @@ fun MenuOptionsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
-                    imageResource = ImageResource.Local(R.drawable.ic_user_settings),
+                    imageResource = Icons.User.withTint(AppTheme.colors.title),
                     modifier = Modifier
                         .padding(AppTheme.dimensions.tinySpacing)
                         .clickable {
                             openSettings()
                         }
+
                 )
 
                 Spacer(
@@ -132,7 +132,7 @@ fun MenuOptionsScreen(
                 )
 
                 Image(
-                    imageResource = Icons.Viewfinder,
+                    imageResource = Icons.Viewfinder.withTint(AppTheme.colors.title),
                     modifier = Modifier
                         .padding(AppTheme.dimensions.tinySpacing)
                         .clickable {

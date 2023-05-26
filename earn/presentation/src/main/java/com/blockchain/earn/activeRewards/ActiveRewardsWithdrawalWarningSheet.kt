@@ -96,7 +96,7 @@ fun ActiveRewardsWithdrawalWarning(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.backgroundMuted, RoundedCornerShape(AppTheme.dimensions.tinySpacing))
+            .background(AppTheme.colors.background, RoundedCornerShape(AppTheme.dimensions.tinySpacing))
             .padding(horizontal = AppTheme.dimensions.standardSpacing)
     ) {
         Column(

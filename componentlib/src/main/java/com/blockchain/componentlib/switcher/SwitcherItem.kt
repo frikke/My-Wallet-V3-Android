@@ -52,7 +52,7 @@ fun SwitcherItem(
     }
 
     val backgroundColor = when (state) {
-        SwitcherState.Enabled -> AppTheme.colors.background
+        SwitcherState.Enabled -> AppTheme.colors.backgroundSecondary
         SwitcherState.Disabled -> AppTheme.colors.medium
     }
 

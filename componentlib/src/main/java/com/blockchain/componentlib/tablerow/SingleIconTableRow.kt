@@ -23,7 +23,7 @@ fun SingleIconTableRow(
     imageResource: ImageResource.LocalWithBackground,
     secondaryText: String? = null,
     endImageResource: ImageResource = ImageResource.None,
-    backgroundColor: Color = AppTheme.colors.background
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary
 ) {
     TableRow(
         contentStart = {

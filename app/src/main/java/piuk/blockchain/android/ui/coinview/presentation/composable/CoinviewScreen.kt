@@ -39,7 +39,6 @@ import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
-import com.blockchain.home.presentation.R
 import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.CryptoCurrency
 import org.koin.androidx.compose.get
@@ -165,7 +164,7 @@ fun CoinviewScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = AppTheme.colors.backgroundMuted)
+            .background(color = AppTheme.colors.background)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             NavigationBar(

@@ -70,7 +70,7 @@ fun AnnouncementCard(
 ) {
     Surface(
         modifier = modifier,
-        color = AppTheme.colors.background,
+        color = AppTheme.colors.backgroundSecondary,
         elevation = elevation,
         shape = AppTheme.shapes.large
     ) {

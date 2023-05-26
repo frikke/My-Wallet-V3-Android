@@ -38,7 +38,7 @@ fun NftHelpScreen(onBuyClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppTheme.colors.backgroundMuted)
+            .background(AppTheme.colors.background)
     ) {
         Box(
             modifier = Modifier

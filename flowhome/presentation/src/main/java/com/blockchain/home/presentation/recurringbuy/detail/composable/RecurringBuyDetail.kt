@@ -35,7 +35,6 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.componentlib.utils.value
 import com.blockchain.data.DataResource
-import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.recurringbuy.RecurringBuysAnalyticsEvents
 import com.blockchain.home.presentation.recurringbuy.detail.RecurringBuyDetail
 import com.blockchain.home.presentation.recurringbuy.detail.RecurringBuyDetailViewState
@@ -95,7 +94,7 @@ private fun RecurringBuyDetailScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.backgroundMuted)
+            .background(AppTheme.colors.background)
     ) {
         SheetFloatingHeader(
             icon = if (recurringBuy is DataResource.Data) {
@@ -184,7 +183,7 @@ private fun RecurringBuyDetailItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppTheme.colors.background)
+            .background(AppTheme.colors.backgroundSecondary)
             .padding(AppTheme.dimensions.smallSpacing),
         verticalAlignment = Alignment.CenterVertically
     ) {

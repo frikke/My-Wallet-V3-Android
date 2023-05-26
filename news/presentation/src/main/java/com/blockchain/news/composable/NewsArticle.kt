@@ -33,7 +33,7 @@ fun NewsArticle(
     Surface(
         modifier = modifier,
         shape = AppTheme.shapes.large,
-        color = AppTheme.colors.background,
+        color = AppTheme.colors.backgroundSecondary,
     ) {
         val context = LocalContext.current
         Row(

@@ -32,7 +32,6 @@ import com.blockchain.componentlib.theme.LargeVerticalSpacer
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
-import com.blockchain.presentation.R
 import com.blockchain.presentation.backup.BackUpStatus
 import com.blockchain.presentation.backup.BackupPhraseIntent
 import com.blockchain.presentation.backup.BackupPhraseViewState
@@ -73,7 +72,7 @@ fun CloudBackupConfirmationScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.background),
+            .background(AppTheme.colors.backgroundSecondary),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         NavigationBar(

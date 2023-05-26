@@ -31,7 +31,7 @@ fun ExpandableItem(
     numLinesVisible: Int,
     textButtonToExpand: String,
     textButtonToCollapse: String,
-    background: Color = AppTheme.colors.background
+    background: Color = AppTheme.colors.backgroundSecondary
 ) {
     var isExpanded by rememberSaveable { mutableStateOf(false) }
     var isExpandable by rememberSaveable { mutableStateOf(false) }

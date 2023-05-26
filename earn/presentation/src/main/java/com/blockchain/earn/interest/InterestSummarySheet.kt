@@ -34,7 +34,6 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.LargeVerticalSpacer
 import com.blockchain.componentlib.theme.TinyHorizontalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
-import com.blockchain.earn.R
 import com.blockchain.earn.common.EarnFieldExplainer
 import com.blockchain.earn.domain.models.EarnRewardsFrequency
 import com.blockchain.earn.interest.viewmodel.InterestError
@@ -100,7 +99,7 @@ fun InterestSummarySheet(
                 LargeVerticalSpacer()
 
                 Card(
-                    backgroundColor = AppTheme.colors.background,
+                    backgroundColor = AppTheme.colors.backgroundSecondary,
                     shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
                     elevation = 0.dp
                 ) {
@@ -144,7 +143,7 @@ fun InterestSummarySheet(
                 LargeVerticalSpacer()
 
                 Card(
-                    backgroundColor = AppTheme.colors.background,
+                    backgroundColor = AppTheme.colors.backgroundSecondary,
                     shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
                     elevation = 0.dp
                 ) {

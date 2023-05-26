@@ -14,7 +14,6 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Fire
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.extensions.safeLet
 
@@ -32,7 +31,7 @@ fun TableRowHeader(
         Text(
             text = title,
             style = AppTheme.typography.body2,
-            color = Grey700
+            color = AppTheme.colors.body
         )
 
         if (icon != ImageResource.None) {

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -23,7 +22,6 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
-import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import org.koin.androidx.compose.get
 
@@ -38,7 +36,7 @@ fun NonCustodialEmptyStateCard(
             .fillMaxWidth()
     ) {
         Card(
-            backgroundColor = AppTheme.colors.background,
+            backgroundColor = AppTheme.colors.backgroundSecondary,
             shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
             elevation = 3.dp
         ) {

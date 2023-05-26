@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -45,7 +44,7 @@ fun CustomEmptyState(
 ) {
     Column(
         modifier
-            .background(AppTheme.colors.backgroundMuted)
+            .background(AppTheme.colors.background)
             .padding(AppTheme.dimensions.smallSpacing)
     ) {
         Column(
@@ -62,8 +61,8 @@ fun CustomEmptyState(
                 ),
                 mainIconSize = 88.dp,
                 tagIconSize = 44.dp,
-                iconBackground = AppTheme.colors.background,
-                borderColor = AppTheme.colors.backgroundMuted
+                iconBackground = AppTheme.colors.backgroundSecondary,
+                borderColor = AppTheme.colors.background
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))

@@ -25,7 +25,7 @@ fun OverlapIcon(
     icon: StackedIcon.OverlappingPair,
     iconSize: Dp,
     iconBackground: Color = AppTheme.colors.light,
-    borderColor: Color = AppTheme.colors.background,
+    borderColor: Color = AppTheme.colors.backgroundSecondary,
     alphaProvider: () -> Float = { 1F }
 ) {
     val borderSize = AppTheme.dimensions.composeSmallestSpacing

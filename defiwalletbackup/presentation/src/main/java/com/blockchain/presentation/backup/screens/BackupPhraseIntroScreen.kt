@@ -46,7 +46,6 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.utils.clickableNoEffect
-import com.blockchain.presentation.R
 import com.blockchain.presentation.backup.BackUpStatus
 import com.blockchain.presentation.backup.BackupAnalyticsEvents
 import com.blockchain.presentation.backup.BackupPhraseIntent
@@ -96,7 +95,7 @@ fun BackupPhraseIntroScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.background)
+            .background(AppTheme.colors.backgroundSecondary)
     ) {
         NavigationBar(
             modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),

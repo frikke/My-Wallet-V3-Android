@@ -6,10 +6,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.updateToolbar
-import piuk.blockchain.android.R
+import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.darkModeFeatureFlag
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.FragmentAboutAppBinding
 import piuk.blockchain.android.rating.presentaion.AppRatingFragment
 import piuk.blockchain.android.rating.presentaion.AppRatingTriggerSource
@@ -26,6 +30,8 @@ class AboutAppFragment : Fragment(), SettingsScreen {
         (activity as? SettingsNavigator) ?: throw IllegalStateException(
             "Parent must implement SettingsNavigator"
         )
+
+    private val darkModeFF: FeatureFlag by inject(darkModeFeatureFlag)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -69,6 +75,22 @@ class AboutAppFragment : Fragment(), SettingsScreen {
                 primaryText = getString(com.blockchain.stringResources.R.string.about_app_privacy_policy)
                 onClick = { onPrivacyClicked() }
             }
+
+            darkModeFF.enabled
+                .onErrorReturn { false }
+                .subscribe { enabled ->
+                    if (enabled) {
+                        light.visible()
+                        light.setOnClickListener {
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                        }
+
+                        dark.visible()
+                        dark.setOnClickListener {
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                        }
+                    }
+                }
         }
     }
 

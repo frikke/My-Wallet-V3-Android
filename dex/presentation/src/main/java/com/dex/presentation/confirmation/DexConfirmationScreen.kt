@@ -56,7 +56,6 @@ import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Orange500
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
-import com.blockchain.dex.presentation.R
 import com.blockchain.extensions.safeLet
 import com.blockchain.koin.payloadScope
 import com.dex.presentation.AmountFieldConfig
@@ -210,7 +209,7 @@ fun DexConfirmationScreen(
                     }
                     item {
                         Card(
-                            backgroundColor = AppTheme.colors.background,
+                            backgroundColor = AppTheme.colors.backgroundSecondary,
                             shape = RoundedCornerShape(
                                 topStart = AppTheme.dimensions.mediumSpacing,
                                 topEnd = AppTheme.dimensions.mediumSpacing
@@ -268,7 +267,7 @@ fun DexConfirmationScreen(
                     item {
                         animatedState.bcdcFee?.let {
                             Card(
-                                backgroundColor = AppTheme.colors.background,
+                                backgroundColor = AppTheme.colors.backgroundSecondary,
                                 shape = RoundedCornerShape(
                                     bottomEnd = AppTheme.dimensions.mediumSpacing,
                                     bottomStart = AppTheme.dimensions.mediumSpacing

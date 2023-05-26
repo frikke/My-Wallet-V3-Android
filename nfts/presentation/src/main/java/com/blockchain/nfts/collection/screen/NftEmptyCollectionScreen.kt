@@ -93,7 +93,7 @@ private fun NftEmptyCollection(
             SecondaryButton(
                 modifier = Modifier.weight(1F),
                 text = stringResource(com.blockchain.stringResources.R.string.nft_cta_buy),
-                icon = Icons.NewWindow.withTint(AppTheme.colors.background),
+                icon = Icons.NewWindow.withTint(AppTheme.colors.backgroundSecondary),
                 onClick = onExternalShopClick
             )
 
@@ -102,7 +102,7 @@ private fun NftEmptyCollection(
             PrimaryButton(
                 modifier = Modifier.weight(1F),
                 text = stringResource(com.blockchain.stringResources.R.string.common_receive),
-                icon = Icons.Receive.withTint(AppTheme.colors.background),
+                icon = Icons.Receive.withTint(AppTheme.colors.backgroundSecondary),
                 onClick = onReceiveClick
             )
         }

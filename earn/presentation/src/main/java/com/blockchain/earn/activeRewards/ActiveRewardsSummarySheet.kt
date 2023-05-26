@@ -39,7 +39,6 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.LargeVerticalSpacer
 import com.blockchain.componentlib.theme.TinyHorizontalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
-import com.blockchain.earn.R
 import com.blockchain.earn.activeRewards.viewmodel.ActiveRewardsError
 import com.blockchain.earn.activeRewards.viewmodel.ActiveRewardsSummaryViewState
 import com.blockchain.earn.common.EarnFieldExplainer
@@ -109,7 +108,7 @@ fun ActiveRewardsSummarySheet(
                 LargeVerticalSpacer()
 
                 Card(
-                    backgroundColor = AppTheme.colors.background,
+                    backgroundColor = AppTheme.colors.backgroundSecondary,
                     shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
                     elevation = 0.dp
                 ) {
@@ -171,7 +170,7 @@ fun ActiveRewardsSummarySheet(
                 LargeVerticalSpacer()
 
                 Card(
-                    backgroundColor = AppTheme.colors.background,
+                    backgroundColor = AppTheme.colors.backgroundSecondary,
                     shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
                     elevation = 0.dp
                 ) {

@@ -38,7 +38,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.analytics.Analytics
-import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -169,7 +168,7 @@ fun EarnDashboard(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = AppTheme.colors.backgroundMuted)
+            .background(color = AppTheme.colors.background)
     ) {
         MenuOptionsScreen(
             openSettings = openSettings,
@@ -302,7 +301,7 @@ private fun DiscoverScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.backgroundMuted)
+            .background(AppTheme.colors.background)
     ) {
         item {
             ProductComparatorCta(onOpenProductComparator = onOpenProductComparator)

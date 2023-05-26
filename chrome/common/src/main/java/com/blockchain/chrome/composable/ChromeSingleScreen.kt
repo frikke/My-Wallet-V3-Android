@@ -90,7 +90,7 @@ private fun ChromeSingleScreen(
             .fillMaxHeight(if (!isBottomSheet) 1F else 0.95F)
             .then(
                 if (walletMode == null || isBottomSheet) {
-                    Modifier.background(AppTheme.colors.backgroundMuted)
+                    Modifier.background(AppTheme.colors.background)
                 } else {
                     Modifier.background(
                         brush = Brush.horizontalGradient(

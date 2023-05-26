@@ -28,7 +28,6 @@ import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
-import com.blockchain.presentation.R
 import com.blockchain.presentation.backup.BackupPhraseIntent
 import com.blockchain.presentation.backup.BackupPhraseViewState
 import com.blockchain.presentation.backup.CopyState
@@ -71,7 +70,7 @@ fun ManualBackupScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.background),
+            .background(AppTheme.colors.backgroundSecondary),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         NavigationBar(

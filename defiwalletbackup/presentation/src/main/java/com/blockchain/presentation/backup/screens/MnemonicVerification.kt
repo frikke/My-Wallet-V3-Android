@@ -27,7 +27,6 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.extensions.exhaustive
-import com.blockchain.presentation.R
 import com.blockchain.presentation.backup.UserMnemonicVerificationStatus
 import com.google.accompanist.flowlayout.FlowMainAxisAlignment
 import com.google.accompanist.flowlayout.FlowRow
@@ -50,7 +49,7 @@ fun MnemonicVerification(
                 }.exhaustive,
                 shape = AppTheme.shapes.large
             )
-            .background(color = AppTheme.colors.backgroundMuted, shape = AppTheme.shapes.large)
+            .background(color = AppTheme.colors.background, shape = AppTheme.shapes.large)
             .padding(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing))
             .heightIn(min = 182.dp),
         mainAxisAlignment = FlowMainAxisAlignment.Center,

@@ -141,7 +141,7 @@ fun EnterAmount(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .background(color = AppTheme.colors.backgroundMuted)
+                .background(color = AppTheme.colors.background)
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = {

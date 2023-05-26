@@ -21,7 +21,7 @@ import com.blockchain.componentlib.theme.AppTheme
 fun CustomStackedIcon(
     icon: StackedIcon,
     iconBackground: Color = AppTheme.colors.light,
-    borderColor: Color = AppTheme.colors.background,
+    borderColor: Color = AppTheme.colors.backgroundSecondary,
     size: Dp = AppTheme.dimensions.standardSpacing,
     iconShape: Shape = CircleShape,
     alphaProvider: () -> Float = { 1F }

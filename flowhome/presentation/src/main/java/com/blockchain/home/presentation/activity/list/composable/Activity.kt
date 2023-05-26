@@ -275,7 +275,7 @@ fun ActivityGroups(
 private fun TransactionRow(group: TransactionGroup) {
     Row(
         modifier = Modifier
-            .background(AppTheme.colors.backgroundMuted)
+            .background(AppTheme.colors.background)
             .padding(vertical = AppTheme.dimensions.tinySpacing)
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically

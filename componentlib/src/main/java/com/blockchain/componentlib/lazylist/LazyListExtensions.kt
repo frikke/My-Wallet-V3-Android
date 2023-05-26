@@ -10,20 +10,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
 import androidx.compose.material.Divider
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.BackgroundMuted
+import com.blockchain.componentlib.utils.conditional
 
 fun <T> LazyListScope.roundedCornersItems(
     items: List<T>,
     key: ((item: T) -> Any)? = null,
-    dividerColor: Color? = BackgroundMuted,
+    dividerColor: @Composable (() -> Color)? = { AppTheme.colors.background },
     animateItemPlacement: Boolean = false,
     content: @Composable (T) -> Unit
 ) {
@@ -41,7 +41,7 @@ fun <T> LazyListScope.roundedCornersItems(
 fun <T> LazyListScope.paddedRoundedCornersItems(
     items: List<T>,
     key: ((item: T) -> Any)? = null,
-    dividerColor: Color? = BackgroundMuted,
+    dividerColor: @Composable (() -> Color)? = { AppTheme.colors.background },
     paddingValues: @Composable () -> PaddingValues,
     animateItemPlacement: Boolean = false,
     content: @Composable (T) -> Unit
@@ -58,50 +58,59 @@ fun <T> LazyListScope.paddedRoundedCornersItems(
                     top = if (it == items.first()) paddingValues().calculateTopPadding() else 0.dp,
                     bottom = if (it == items.last()) paddingValues().calculateBottomPadding() else 0.dp
                 )
-                .then(
-                    if (animateItemPlacement) {
-                        Modifier.animateItemPlacement()
-                    } else {
-                        Modifier
-                    }
-                )
+                .conditional(animateItemPlacement) {
+                    animateItemPlacement()
+                }
         ) {
             when {
-                items.size == 1 -> Card(
-                    backgroundColor = AppTheme.colors.background,
-                    shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-                    elevation = 0.dp
-                ) {
-                    content(it)
-                }
-                it == items.first() -> Card(
-                    backgroundColor = AppTheme.colors.background,
-                    shape = RoundedCornerShape(
-                        topStart = AppTheme.dimensions.mediumSpacing,
-                        topEnd = AppTheme.dimensions.mediumSpacing
-                    ),
-                    elevation = 0.dp
-                ) {
-                    content(it)
-                    dividerColor?.let {
-                        Divider(color = it)
+                items.size == 1 -> {
+                    Surface(
+                        color = AppTheme.colors.backgroundSecondary,
+                        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing)
+                    ) {
+                        content(it)
                     }
                 }
-                it == items.last() -> Card(
-                    modifier = Modifier.padding(top = 1.dp),
-                    backgroundColor = AppTheme.colors.background,
-                    shape = RoundedCornerShape(
-                        bottomEnd = AppTheme.dimensions.mediumSpacing,
-                        bottomStart = AppTheme.dimensions.mediumSpacing
-                    ),
-                    elevation = 0.dp
-                ) {
-                    content(it)
+
+                it == items.first() -> {
+                    Surface(
+                        color = AppTheme.colors.backgroundSecondary,
+                        shape = RoundedCornerShape(
+                            topStart = AppTheme.dimensions.mediumSpacing,
+                            topEnd = AppTheme.dimensions.mediumSpacing
+                        )
+                    ) {
+                        Column {
+                            content(it)
+                            dividerColor?.let {
+                                Divider(color = dividerColor())
+                            }
+                        }
+                    }
                 }
+
+                it == items.last() -> {
+                    Surface(
+                        color = AppTheme.colors.backgroundSecondary,
+                        shape = RoundedCornerShape(
+                            bottomEnd = AppTheme.dimensions.mediumSpacing,
+                            bottomStart = AppTheme.dimensions.mediumSpacing
+                        )
+                    ) {
+                        content(it)
+                    }
+                }
+
                 else -> {
-                    content(it)
-                    dividerColor?.let {
-                        Divider(color = it)
+                    Surface(
+                        color = AppTheme.colors.backgroundSecondary,
+                    ) {
+                        Column {
+                            content(it)
+                            dividerColor?.let {
+                                Divider(color = dividerColor())
+                            }
+                        }
                     }
                 }
             }

@@ -30,7 +30,6 @@ import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.componentlib.utils.value
 import com.blockchain.data.DataResource
-import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.recurringbuy.RecurringBuysAnalyticsEvents
@@ -88,7 +87,7 @@ fun RecurringBuyDashboardScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.backgroundMuted)
+            .background(AppTheme.colors.background)
     ) {
         NavigationBar(
             title = stringResource(com.blockchain.stringResources.R.string.recurring_buy_toolbar),

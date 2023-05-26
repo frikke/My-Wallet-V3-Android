@@ -121,7 +121,7 @@ fun RecurringBuysError() {
                 com.blockchain.stringResources.R.string.coinview_recuring_buy_load_error_subtitle
             ),
             alertType = AlertType.Warning,
-            backgroundColor = AppTheme.colors.background,
+            backgroundColor = AppTheme.colors.backgroundSecondary,
             isBordered = false,
             isDismissable = false
         )

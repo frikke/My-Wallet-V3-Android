@@ -49,7 +49,7 @@ fun BalanceTableRow(
     postStartTitleImageResourceOnClick: () -> Unit = {},
     isInlineTags: Boolean = false,
     tags: List<TagViewState> = emptyList(),
-    backgroundColor: Color = AppTheme.colors.background,
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary,
     backgroundShape: Shape = RectangleShape,
     onClick: () -> Unit = {}
 ) {

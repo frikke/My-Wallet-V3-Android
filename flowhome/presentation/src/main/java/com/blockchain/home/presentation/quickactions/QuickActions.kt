@@ -14,6 +14,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
@@ -36,7 +37,6 @@ import com.blockchain.componentlib.icons.Send
 import com.blockchain.componentlib.icons.Swap
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.theme.clickableWithIndication
 import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.home.presentation.R
@@ -150,9 +150,9 @@ private fun QuickActionsScreen(
             ) {
                 Image(
                     modifier = Modifier
-                        .alpha(
-                            if (quickAction.enabled) 1f else .6f
-                        ),
+                        .graphicsLayer {
+                            alpha = if (quickAction.enabled) 1f else .6f
+                        },
                     imageResource = quickAction.icon
                 )
 
@@ -161,11 +161,11 @@ private fun QuickActionsScreen(
                 Text(
                     text = stringResource(id = quickAction.title),
                     style = AppTheme.typography.caption1,
-                    color = AppTheme.colors.muted,
+                    color = AppTheme.colors.body,
                     modifier = Modifier
-                        .alpha(
-                            if (quickAction.enabled) 1f else .6f
-                        )
+                        .graphicsLayer {
+                            alpha = if (quickAction.enabled) 1f else .6f
+                        }
                 )
             }
 
@@ -178,24 +178,30 @@ private fun QuickActionsScreen(
 
 private val QuickActionItem.icon: ImageResource
     @Composable
-    get() = when (action) {
-        is QuickAction.TxAction -> when (action.assetAction) {
-            AssetAction.Send -> Icons.Send
-            AssetAction.Swap -> Icons.Swap
-            AssetAction.Sell -> Icons.Minus
-            AssetAction.FiatDeposit -> Icons.Bank
-            AssetAction.FiatWithdraw -> Icons.Cash
-            AssetAction.Buy -> Icons.Plus
-            AssetAction.Receive -> Icons.Receive
-            else -> throw UnsupportedOperationException()
+    get() {
+        val icon = when (action) {
+            is QuickAction.TxAction -> when (action.assetAction) {
+                AssetAction.Send -> Icons.Send
+                AssetAction.Swap -> Icons.Swap
+                AssetAction.Sell -> Icons.Minus
+                AssetAction.FiatDeposit -> Icons.Bank
+                AssetAction.FiatWithdraw -> Icons.Cash
+                AssetAction.Buy -> Icons.Plus
+                AssetAction.Receive -> Icons.Receive
+                else -> throw UnsupportedOperationException()
+            }
+
+            QuickAction.More -> Icons.MenuKebabHorizontal
         }
 
-        QuickAction.More -> Icons.MenuKebabHorizontal
-    }.withBackground(
-        backgroundColor = White,
-        iconSize = AppTheme.dimensions.standardSpacing,
-        backgroundSize = AppTheme.dimensions.xHugeSpacing
-    )
+        return icon
+            .withTint(AppTheme.colors.title)
+            .withBackground(
+                backgroundColor = AppTheme.colors.backgroundSecondary,
+                iconSize = AppTheme.dimensions.standardSpacing,
+                backgroundSize = AppTheme.dimensions.xHugeSpacing
+            )
+    }
 
 @Preview(showBackground = true, backgroundColor = 0XFFF1F2F7)
 @Composable

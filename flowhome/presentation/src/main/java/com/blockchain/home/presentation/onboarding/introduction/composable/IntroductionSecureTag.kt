@@ -16,7 +16,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.system.ClippedShadow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue600
-import com.blockchain.home.presentation.R
 
 @Composable
 fun EducationalWalletModeSecureTag(
@@ -26,7 +25,7 @@ fun EducationalWalletModeSecureTag(
         modifier = Modifier.fillMaxWidth(),
         elevation = AppTheme.dimensions.mediumElevation,
         shape = RoundedCornerShape(AppTheme.dimensions.tinySpacing),
-        backgroundColor = AppTheme.colors.background.copy(alpha = 0.2F)
+        backgroundColor = AppTheme.colors.backgroundSecondary.copy(alpha = 0.2F)
     ) {
         Column(
             modifier = Modifier
@@ -37,7 +36,7 @@ fun EducationalWalletModeSecureTag(
                 Text(
                     modifier = Modifier
                         .background(
-                            AppTheme.colors.background,
+                            AppTheme.colors.backgroundSecondary,
                             RoundedCornerShape(AppTheme.dimensions.borderRadiiSmall)
                         )
                         .padding(

@@ -49,6 +49,6 @@ fun DataResource<List<PriceItemViewState>>.percentAndPositionOf(
 ): Pair<Double, Int>? {
     return flatMap { list ->
         val item = list.first { it.asset == asset }
-        item.data.delta.map { it.signedValue() to list.indexOf(item) + 1 }
+        item.data.delta.map { it.signedValue to list.indexOf(item) + 1 }
     }.dataOrElse(null)
 }

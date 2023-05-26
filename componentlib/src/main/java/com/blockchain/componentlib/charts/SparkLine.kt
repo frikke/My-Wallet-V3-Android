@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -37,7 +36,7 @@ fun SparkLine(
 
     val strokeColor = AppTheme.colors.primary
 
-    Canvas(modifier.background(AppTheme.colors.background)) {
+    Canvas(modifier.background(AppTheme.colors.backgroundSecondary)) {
         val height = this.size.height
         val width = this.size.width
         val interval = width / historicalRates.size

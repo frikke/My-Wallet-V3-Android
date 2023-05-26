@@ -331,7 +331,7 @@ private fun NoInputScreen(
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
         Surface(
-            color = AppTheme.colors.background,
+            color = AppTheme.colors.backgroundSecondary,
             shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
         ) {
             Column(
@@ -669,7 +669,7 @@ private fun NetworkSelection(
             modifier = Modifier
                 .fillMaxHeight()
                 .weight(1F),
-            color = AppTheme.colors.background,
+            color = AppTheme.colors.backgroundSecondary,
             shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
         ) {
             Row(
@@ -724,7 +724,7 @@ private fun NetworkSelection(
 
         Surface(
             modifier = Modifier.fillMaxHeight(),
-            color = AppTheme.colors.background,
+            color = AppTheme.colors.backgroundSecondary,
             shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
         ) {
             Image(

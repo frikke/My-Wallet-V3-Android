@@ -19,12 +19,11 @@ import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
-import com.blockchain.earn.R
 
 @Composable
 fun ActiveRewardsWithdrawalNotice(onLearnMorePressed: () -> Unit) {
     Card(
-        backgroundColor = AppTheme.colors.background,
+        backgroundColor = AppTheme.colors.backgroundSecondary,
         shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
         border = BorderStroke(
             width = 1.dp,
@@ -74,7 +73,7 @@ fun PreviewActiveRewardsWithdrawalNotice() {
 @Composable
 fun ActiveRewardsTradingWarning(onLearnMorePressed: () -> Unit) {
     Card(
-        backgroundColor = AppTheme.colors.background,
+        backgroundColor = AppTheme.colors.backgroundSecondary,
         shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
         border = BorderStroke(
             width = 1.dp,

@@ -17,7 +17,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.control.PrimarySwitch
 import com.blockchain.componentlib.theme.AppTheme
-import piuk.blockchain.android.R
 
 @Preview
 @Composable
@@ -55,7 +54,7 @@ fun PreferenceToggleRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .background(AppTheme.colors.background)
+                .background(AppTheme.colors.backgroundSecondary)
                 .padding(
                     start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
                     end = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
