@@ -15,7 +15,7 @@ fun NavGraphBuilder.nftGraph(
     onBackPressed: () -> Unit
 ) {
     bottomSheet(navigationEvent = NftDestination.Help) {
-        ChromeBottomSheet(onBackPressed) {
+        ChromeBottomSheet(onClose = onBackPressed) {
             NftHelpScreen(
                 onBuyClick = {
                     openExternalUrl(OPENSEA_URL)
@@ -29,7 +29,7 @@ fun NavGraphBuilder.nftGraph(
         val address = backStackEntry.arguments?.getComposeArgument(ARG_ADDRESS).orEmpty()
         val pageKey = backStackEntry.arguments?.getComposeArgument(ARG_PAGE_KEY)
 
-        ChromeBottomSheet(onBackPressed) {
+        ChromeBottomSheet(onClose = onBackPressed) {
             NftDetail(
                 nftId = nftId,
                 address = address,

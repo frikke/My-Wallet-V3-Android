@@ -1,6 +1,5 @@
 package com.blockchain.transactions.swap
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import com.blockchain.betternavigation.Destination
 import com.blockchain.betternavigation.DestinationWithArgs
@@ -67,11 +66,12 @@ fun SwapGraphHost(
         }
 
         typedBottomSheet(SwapGraph.InputError) { args ->
-            BackHandler(onBack = ::navigateUp)
-            InputErrorScreen(
-                inputError = args,
-                closeClicked = ::navigateUp,
-            )
+            ChromeBottomSheet(fillMaxHeight = false, onClose = ::navigateUp) {
+                InputErrorScreen(
+                    inputError = args,
+                    closeClicked = ::navigateUp,
+                )
+            }
         }
 
         typedBottomSheet(SwapGraph.SourceAccounts) {
