@@ -98,7 +98,8 @@ fun WalletConnectDappSessionManage(
 
             SheetHeader(
                 shouldShowDivider = false,
-                onClosePress = onDismiss
+                onClosePress = onDismiss,
+                closeButtonBackground = AppTheme.colors.backgroundSecondary
             )
 
             Image(imageResource = ImageResource.Remote(session.dappLogoUrl, size = 88.dp))

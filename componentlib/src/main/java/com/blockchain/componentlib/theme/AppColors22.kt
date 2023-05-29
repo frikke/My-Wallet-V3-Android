@@ -45,6 +45,7 @@ val defLightColors2 = SemanticColors(
     errorMuted = Red400,
     negative = Negative, //
     negativeMuted = Negative,
+    semidark = Grey400,
     isLight = true
 )
 
@@ -68,5 +69,6 @@ val defDarkColors2 = SemanticColors(
     errorMuted = Red400,
     negative = NegativeNight,
     negativeMuted = NegativeNight,
-    isLight = false
+    isLight = false,
+    semidark = Grey800,
 )

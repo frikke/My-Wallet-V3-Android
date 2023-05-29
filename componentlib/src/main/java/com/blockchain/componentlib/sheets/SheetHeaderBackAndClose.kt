@@ -52,10 +52,10 @@ fun SheetHeaderBackAndClose(
                     backPressContentDescription = backPressContentDescription,
                     modifier = Modifier
                         .padding(
-                            start = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing),
-                            top = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)
+                            start = dimensionResource(R.dimen.very_small_spacing),
+                            top = dimensionResource(R.dimen.medium_spacing)
                         )
-                        .size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
+                        .size(dimensionResource(R.dimen.standard_spacing))
                 )
 
                 SheetHeaderTitle(
@@ -64,15 +64,16 @@ fun SheetHeaderBackAndClose(
                     modifier = Modifier
                         .weight(1f)
                         .padding(
-                            top = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
-                            start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
+                            top = dimensionResource(R.dimen.medium_spacing),
+                            start = dimensionResource(R.dimen.standard_spacing)
                         )
                 )
 
                 SheetHeaderCloseButton(
                     onClosePress = onClosePress,
-                    backPressContentDescription = closePressContentDescription,
-                    modifier = Modifier.padding(dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing))
+                    modifier = Modifier.padding(dimensionResource(R.dimen.medium_spacing)),
+                    background = AppTheme.colors.backgroundSecondary,
+                    tint = AppTheme.colors.semidark
                 )
             }
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
@@ -92,7 +93,7 @@ private fun SheetHeaderTitle(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (byline == null) {
-            Spacer(Modifier.height(dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)))
+            Spacer(Modifier.height(dimensionResource(R.dimen.smallest_spacing)))
         }
 
         Text(
@@ -108,7 +109,7 @@ private fun SheetHeaderTitle(
                 color = if (isDarkMode) Dark200 else Grey600,
                 textAlign = TextAlign.Center
             )
-            Spacer(Modifier.height(dimensionResource(com.blockchain.componentlib.R.dimen.minuscule_spacing)))
+            Spacer(Modifier.height(dimensionResource(R.dimen.minuscule_spacing)))
         }
     }
 }

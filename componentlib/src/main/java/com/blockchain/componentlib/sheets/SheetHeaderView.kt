@@ -21,7 +21,6 @@ class SheetHeaderView @JvmOverloads constructor(
     var byline by mutableStateOf(null as? String?)
     var onClosePress by mutableStateOf({ })
     var startImageResource: ImageResource by mutableStateOf(ImageResource.None)
-    var closePressContentDescription by mutableStateOf(null as? String?)
 
     @Composable
     override fun Content() {
@@ -32,7 +31,6 @@ class SheetHeaderView @JvmOverloads constructor(
                     byline = byline,
                     startImageResource = startImageResource,
                     onClosePress = onClosePress,
-                    closePressContentDescription = closePressContentDescription
                 )
             }
         }

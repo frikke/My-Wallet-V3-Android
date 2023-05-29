@@ -69,7 +69,8 @@ val dexPresentation = module {
 
         viewModel {
             TokenAllowanceViewModel(
-                assetCatalogue = get()
+                assetCatalogue = get(),
+                coincore = get()
             )
         }
 

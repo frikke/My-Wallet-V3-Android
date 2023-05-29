@@ -32,6 +32,7 @@ dependencies {
     implementation project(':commonarch')
     implementation project(':balance')
     implementation project(':core')
+    implementation project(':coincore')
     implementation project(':dex:domain')
     implementation project(':common:interface')
     implementation project(':common:presentation')
@@ -54,4 +55,7 @@ dependencies {
     implementation Libraries.accompanistPagerIndicators
     implementation Libraries.accompanistNavigationMaterial
     implementation Libraries.kotlinJson
+
+    implementation Libraries.rxKotlin
+    implementation Libraries.rxjava3Coroutines
 }

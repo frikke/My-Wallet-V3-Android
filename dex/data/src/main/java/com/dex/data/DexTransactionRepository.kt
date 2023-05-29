@@ -14,7 +14,7 @@ import kotlinx.serialization.json.JsonObject
 
 class DexTransactionRepository(
     private val apiService: DexTransactionsApiService,
-    private val nonCustodialService: NonCustodialService
+    private val nonCustodialService: NonCustodialService,
 ) : DexTransactionService {
     override suspend fun buildTx(dexTransaction: DexTransaction): Outcome<Exception, BuiltDexTransaction> {
         val quote = dexTransaction.quote

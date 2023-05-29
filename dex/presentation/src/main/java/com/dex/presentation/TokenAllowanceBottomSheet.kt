@@ -1,5 +1,6 @@
 package com.dex.presentation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,7 +8,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.Divider
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -16,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -25,7 +28,10 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.icons.Gas
+import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.sheets.SheetHeader
+import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.dex.presentation.R
@@ -58,12 +64,15 @@ fun TokenAllowanceBottomSheet(
     val viewState: AllowanceViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(AppTheme.colors.background),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SheetHeader(
             onClosePress = closeClicked,
             startImageResource = ImageResource.None,
+            closeButtonBackground = AppTheme.colors.backgroundSecondary,
             shouldShowDivider = false
         )
 
@@ -71,11 +80,44 @@ fun TokenAllowanceBottomSheet(
         viewState.assetInfo?.let {
             AssetAllowanceDescription(it)
         }
+        LazyColumn(
+            modifier = Modifier
+                .padding(all = AppTheme.dimensions.smallSpacing)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(1.dp),
+        ) {
+            safeLet(
+                viewState.networkName, viewState.networkFeeCrypto, viewState.networkFeeFiat
+            ) { networkName, feeCrypto, feeFiat ->
+                item(
+                    content = {
+                        AllowanceFee(
+                            networkName = networkName,
+                            estimatedFiatFee = feeFiat,
+                            estimatedCryptoFee = feeCrypto
+                        )
+                    },
+                )
+            }
 
-        safeLet(viewState.nativeAsset, viewState.networkFee) { asset, fee ->
-            AllowanceFee(asset, fee)
-            Divider()
-            FeeNetwork(asset)
+            safeLet(
+                viewState.accountLabel,
+                viewState.nativeAssetBalanceCrypto,
+                viewState.nativeAssetBalanceFiat,
+                viewState.nativeAsset?.logo
+            ) { label, balanceCrypto, balanceFiat, logo ->
+                item(
+                    content = {
+                        NativeAssetBalance(
+                            accountLabel = label,
+                            balanceCrypto = balanceCrypto,
+                            balanceFiat = balanceFiat,
+                            logo = logo,
+                            address = viewState.receiveAddress
+                        )
+                    }
+                )
+            }
         }
 
         ApproveAndDenyButtons(
@@ -140,6 +182,7 @@ fun ApproveAndDenyButtons(onApprove: () -> Unit, onDecline: () -> Unit) {
         MinimalButton(
             text = stringResource(id = com.blockchain.stringResources.R.string.common_decline),
             onClick = onDecline,
+            isTransparent = false,
             modifier = Modifier.weight(.5f)
         )
         PrimaryButton(
@@ -151,98 +194,55 @@ fun ApproveAndDenyButtons(onApprove: () -> Unit, onDecline: () -> Unit) {
 }
 
 @Composable
-private fun AllowanceFee(assetInfo: AssetInfo, estimatedFiatFee: String) {
-    Row(
-        modifier = Modifier
-            .padding(
-                start = AppTheme.dimensions.smallSpacing,
-                end = AppTheme.dimensions.smallSpacing,
-                top = AppTheme.dimensions.standardSpacing,
-                bottom = AppTheme.dimensions.smallSpacing
-            )
-            .fillMaxWidth()
-    ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    imageResource = ImageResource.Remote(
-                        url = assetInfo.logo,
-                        size = AppTheme.dimensions.smallSpacing
-                    )
-                )
-                Text(
-                    modifier = Modifier.padding(horizontal = AppTheme.dimensions.smallestSpacing),
-                    text = "~$estimatedFiatFee",
-                    style = AppTheme.typography.paragraph2,
-                    color = AppTheme.colors.title
-                )
-            }
-            Text(
-                text = stringResource(id = com.blockchain.stringResources.R.string.estimated_fees),
-                style = AppTheme.typography.paragraph1,
-                color = AppTheme.colors.muted
-            )
+private fun AllowanceFee(
+    networkName: String,
+    estimatedFiatFee: String,
+    estimatedCryptoFee: String
+) {
+    BalanceTableRow(
+        startImageResource = Icons.Gas,
+        titleStart = buildAnnotatedString {
+            append(stringResource(id = com.blockchain.stringResources.R.string.estimated_fees))
+        },
+        backgroundShape = RoundedCornerShape(
+            topStart = AppTheme.dimensions.mediumSpacing,
+            topEnd = AppTheme.dimensions.mediumSpacing
+        ),
+        titleEnd = buildAnnotatedString {
+            append("~ $estimatedFiatFee")
+        },
+        bodyStart = buildAnnotatedString { append(networkName) },
+        bodyEnd = buildAnnotatedString {
+            append(estimatedCryptoFee)
         }
-    }
+    )
 }
 
 @Composable
-private fun FeeNetwork(assetInfo: AssetInfo) {
-    Column(
-        Modifier
-            .padding(
-                start = AppTheme.dimensions.smallSpacing,
-                end = AppTheme.dimensions.smallSpacing,
-                top = AppTheme.dimensions.smallSpacing,
-                bottom = AppTheme.dimensions.standardSpacing
-            )
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(bottom = AppTheme.dimensions.composeSmallestSpacing)
-                .fillMaxWidth()
-        ) {
-            Text(
-                text = stringResource(id = com.blockchain.stringResources.R.string.common_wallet),
-                style = AppTheme.typography.caption1,
-                color = AppTheme.colors.body
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = stringResource(id = com.blockchain.stringResources.R.string.common_network),
-                style = AppTheme.typography.caption1,
-                color = AppTheme.colors.body
-            )
+private fun NativeAssetBalance(
+    accountLabel: String,
+    balanceFiat: String,
+    balanceCrypto: String,
+    logo: String,
+    address: String?,
+) {
+    BalanceTableRow(
+        startImageResource = ImageResource.Remote(logo),
+        titleStart = buildAnnotatedString {
+            append(accountLabel)
+        },
+        backgroundShape = RoundedCornerShape(
+            bottomStart = AppTheme.dimensions.mediumSpacing,
+            bottomEnd = AppTheme.dimensions.mediumSpacing
+        ),
+        titleEnd = buildAnnotatedString {
+            append(balanceFiat)
+        },
+        bodyStart = buildAnnotatedString { append(address.orEmpty()) },
+        bodyEnd = buildAnnotatedString {
+            append(balanceCrypto)
         }
-
-        Row(
-            modifier = Modifier
-                .padding(top = AppTheme.dimensions.composeSmallestSpacing)
-                .fillMaxWidth()
-        ) {
-            Text(
-                text = stringResource(id = com.blockchain.stringResources.R.string.defi_wallet_name),
-                style = AppTheme.typography.body1,
-                color = AppTheme.colors.title
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    imageResource = ImageResource.Remote(
-                        assetInfo.logo,
-                        size = AppTheme.dimensions.smallSpacing
-                    )
-                )
-                Text(
-                    modifier = Modifier
-                        .padding(start = AppTheme.dimensions.smallestSpacing),
-                    text = assetInfo.name,
-                    style = AppTheme.typography.body1,
-                    color = AppTheme.colors.title
-                )
-            }
-        }
-    }
+    )
 }
 
 const val ALLOWANCE_TRANSACTION_APPROVED = "ALLOWANCE_TRANSACTION_APPROVED"

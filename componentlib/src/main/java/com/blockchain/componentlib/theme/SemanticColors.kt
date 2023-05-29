@@ -11,6 +11,7 @@ class SemanticColors(
     overlay: Color,
     muted: Color,
     dark: Color,
+    semidark: Color,
     medium: Color,
     light: Color,
     background: Color,
@@ -37,6 +38,8 @@ class SemanticColors(
     var muted by mutableStateOf(muted)
         private set
     var dark by mutableStateOf(dark)
+        private set
+    var semidark by mutableStateOf(semidark)
         private set
     var medium by mutableStateOf(medium)
         private set
@@ -97,6 +100,7 @@ class SemanticColors(
         dark = dark,
         medium = medium,
         light = light,
+        semidark = semidark,
         backgroundSecondary = background,
         background = backgroundMuted,
         primary = primary,
@@ -109,7 +113,7 @@ class SemanticColors(
         errorMuted = errorMuted,
         negative = negative,
         negativeMuted = negativeMuted,
-        isLight = isLight
+        isLight = isLight,
     )
 
     fun updateColorsFrom(colors: SemanticColors) {

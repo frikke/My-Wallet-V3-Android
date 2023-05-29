@@ -291,7 +291,8 @@ class DexEnterAmountViewModel(
                             AllowanceTxUiData(
                                 currencyTicker = tx.currencyToAllow.networkTicker,
                                 networkNativeAssetTicker = tx.fees.currency.networkTicker,
-                                fiatFees = (exchangeRate?.data?.convert(tx.fees) ?: tx.fees).toStringWithSymbol()
+                                feesCrypto = tx.fees.toStringWithSymbol(),
+                                feesFiat = (exchangeRate?.data?.convert(tx.fees) ?: tx.fees).toStringWithSymbol()
                             )
                         )
                     )
@@ -665,7 +666,8 @@ enum class DexOperation {
 data class AllowanceTxUiData(
     val currencyTicker: String,
     val networkNativeAssetTicker: String,
-    val fiatFees: String
+    val feesCrypto: String,
+    val feesFiat: String,
 )
 
 enum class ActionButtonState {

@@ -14,6 +14,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,7 +34,8 @@ fun SheetHeader(
     byline: String? = null,
     startImageResource: ImageResource = ImageResource.None,
     onClosePress: () -> Unit,
-    closePressContentDescription: String? = null,
+    closeButtonTint: Color = AppTheme.colors.semidark,
+    closeButtonBackground: Color = AppTheme.colors.light,
     shouldShowDivider: Boolean = true
 ) {
     Box(
@@ -52,7 +54,7 @@ fun SheetHeader(
                     Image(
                         imageResource = startImageResource,
                         modifier = Modifier
-                            .padding(top = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
+                            .padding(top = dimensionResource(R.dimen.standard_spacing))
                             .size(28.dp)
                     )
                     Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
@@ -64,18 +66,18 @@ fun SheetHeader(
                     modifier = Modifier
                         .weight(1f)
                         .padding(
-                            top = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                            top = dimensionResource(R.dimen.standard_spacing),
                             bottom = if (byline.isNullOrBlank()) 10.dp else 5.dp
                         )
                 )
-
                 SheetHeaderCloseButton(
                     onClosePress = onClosePress,
-                    backPressContentDescription = closePressContentDescription,
                     modifier = Modifier.padding(
-                        top = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
+                        top = dimensionResource(R.dimen.medium_spacing),
                         end = AppTheme.dimensions.smallSpacing
-                    )
+                    ),
+                    tint = closeButtonTint,
+                    background = closeButtonBackground
                 )
             }
             if (shouldShowDivider) {

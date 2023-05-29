@@ -10,7 +10,6 @@ import com.blockchain.home.presentation.dapps.HomeDappsViewState
 import com.blockchain.home.presentation.dapps.composable.WalletConnectDashboardCTA
 import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
 import com.blockchain.walletconnect.ui.composable.common.WalletConnectDappTableRow
-import org.koin.androidx.compose.get
 import timber.log.Timber
 
 internal fun LazyListScope.homeDapps(
