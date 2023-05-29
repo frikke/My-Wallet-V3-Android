@@ -25,8 +25,6 @@ import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.enumValueOfOrNull
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.upsellAnotherAssetFeatureFlag
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.presentation.disableBackPress
@@ -79,9 +77,6 @@ class SimpleBuyPaymentFragment :
     private lateinit var previousSelectedPaymentMethodId: String
     private lateinit var previousSelectedCryptoAsset: AssetInfo
 
-    private val upSellAnotherAssetFF: FeatureFlag by inject(upsellAnotherAssetFeatureFlag)
-    private var upSellEnabled: Boolean = false
-
     private val isPaymentAuthorised: Boolean by lazy {
         arguments?.getBoolean(IS_PAYMENT_AUTHORISED, false) ?: false
     }
@@ -128,12 +123,7 @@ class SimpleBuyPaymentFragment :
         super.onViewCreated(view, savedInstanceState)
         activity.updateToolbarTitle(getString(com.blockchain.stringResources.R.string.common_payment))
         binding.checkoutCardForm.initCheckoutPaymentForm()
-        lifecycleScope.launch {
-            if (upSellAnotherAssetFF.coEnabled()) {
-                upSellEnabled = true
-                model.process(SimpleBuyIntent.LoadAssetUpSellDismissState)
-            }
-        }
+        model.process(SimpleBuyIntent.LoadAssetUpSellDismissState)
     }
 
     override fun render(newState: SimpleBuyState) {
@@ -217,7 +207,7 @@ class SimpleBuyPaymentFragment :
                             model.process(SimpleBuyIntent.CreateRecurringBuy(it))
                         }
                     } else {
-                        if (upSellEnabled && newState.shouldUpsellAnotherAsset) {
+                        if (newState.shouldUpsellAnotherAsset) {
                             navigator().launchUpSellBottomSheet(newState.selectedCryptoAsset.networkTicker)
                         } else {
                             navigator().exitSimpleBuyFlow()

@@ -14,6 +14,7 @@ data class EnterAmountViewState(
     val snackbarError: Exception?,
     val inputError: SellEnterAmountInputError?,
     val fatalError: SellEnterAmountFatalError?,
+    val isConfirmEnabled: Boolean,
 ) : ViewState
 
 data class EnterAmountAssets(

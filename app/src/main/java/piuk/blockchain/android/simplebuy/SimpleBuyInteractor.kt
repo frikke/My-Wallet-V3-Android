@@ -1,6 +1,7 @@
 package piuk.blockchain.android.simplebuy
 
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
+import com.blockchain.core.announcements.DismissRecorder
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.custodial.models.BrokerageQuote
@@ -101,7 +102,6 @@ import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
 import piuk.blockchain.android.rating.domain.model.APP_RATING_MINIMUM_BUY_ORDERS
-import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import timber.log.Timber
 
 class SimpleBuyInteractor(
@@ -804,8 +804,8 @@ class SimpleBuyInteractor(
         )
     }
 
-    fun isAssetUpSellBottomSheetDismissed(): Single<Boolean> =
-        Single.just(dismissRecorder[DismissRecorder.UPSELL_ANOTHER_ASSET_DISMISS_KEY].isDismissed)
+    fun shouldShowUpsellAnotherAsset(): Boolean =
+        simpleBuyService.shouldShowUpsellAnotherAsset()
 
     companion object {
         private const val WEEKLY = "WEEKLY"

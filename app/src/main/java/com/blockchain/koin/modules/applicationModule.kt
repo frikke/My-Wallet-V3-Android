@@ -74,6 +74,7 @@ import com.blockchain.payments.stripe.StripeCardProcessor
 import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.presentation.navigation.DefiBackupNavigation
 import com.blockchain.prices.navigation.PricesNavigation
+import com.blockchain.transactions.upsell.viewmodel.UpSellAnotherAssetViewModel
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.BackupWallet
 import com.blockchain.wallet.DefaultLabels
@@ -130,7 +131,6 @@ import piuk.blockchain.android.simplebuy.SimpleBuyPrefsSerializer
 import piuk.blockchain.android.simplebuy.SimpleBuyPrefsSerializerImpl
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
-import piuk.blockchain.android.simplebuy.upsell.viewmodel.UpSellAnotherAssetViewModel
 import piuk.blockchain.android.ui.addresses.AccountPresenter
 import piuk.blockchain.android.ui.airdrops.AirdropCentrePresenter
 import piuk.blockchain.android.ui.auth.AuthNavigationImpl
@@ -866,11 +866,11 @@ val applicationModule = module {
             )
         }
 
-        viewModel {
+        viewModel { (assetJustTransactedTicker: String) ->
             UpSellAnotherAssetViewModel(
+                assetJustTransactedTicker = assetJustTransactedTicker,
                 pricesService = get(),
-                currencyPrefs = get(),
-                dismissRecorder = get()
+                simpleBuyService = get()
             )
         }
 

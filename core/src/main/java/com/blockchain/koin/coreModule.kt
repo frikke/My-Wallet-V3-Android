@@ -230,7 +230,8 @@ val coreModule = module {
                 buyOrdersStore = get(),
                 swapOrdersStore = get(),
                 transactionsStore = get(),
-                assetCatalogue = get()
+                assetCatalogue = get(),
+                dismissRecorder = get()
             )
         }
 

@@ -2,6 +2,7 @@ package com.blockchain.core.buy.data
 
 import com.blockchain.core.TransactionsRequest
 import com.blockchain.core.TransactionsStore
+import com.blockchain.core.announcements.DismissRecorder
 import com.blockchain.core.buy.data.dataresources.BuyOrdersStore
 import com.blockchain.core.buy.data.dataresources.BuyPairsStore
 import com.blockchain.core.buy.data.dataresources.SimpleBuyEligibilityStore
@@ -53,7 +54,8 @@ class SimpleBuyRepository(
     private val buyOrdersStore: BuyOrdersStore,
     private val swapOrdersStore: SwapTransactionsStore,
     private val transactionsStore: TransactionsStore,
-    private val assetCatalogue: AssetCatalogue
+    private val assetCatalogue: AssetCatalogue,
+    private val dismissRecorder: DismissRecorder
 ) : SimpleBuyService {
 
     override fun getEligibility(
@@ -192,6 +194,18 @@ class SimpleBuyRepository(
                 )
             }
         }
+    }
+
+    override fun shouldShowUpsellAnotherAsset(): Boolean =
+        !dismissRecorder.isDismissed(UPSELL_ANOTHER_ASSET_DISMISS_KEY)
+
+    override fun dismissUpsellAnotherAsset() = dismissRecorder.dismissPeriodic(
+        UPSELL_ANOTHER_ASSET_DISMISS_KEY,
+        DismissRecorder.ONE_MONTH
+    )
+
+    companion object {
+        private const val UPSELL_ANOTHER_ASSET_DISMISS_KEY = "UPSELL_ANOTHER_ASSET_DISMISSED"
     }
 }
 

@@ -639,12 +639,11 @@ class SimpleBuyModel(
                 recurringBuyPrefs.hasSeenRecurringBuyOptions = true
                 null
             }
-            SimpleBuyIntent.LoadAssetUpSellDismissState ->
-                interactor.isAssetUpSellBottomSheetDismissed()
-                    .subscribeBy(
-                        onSuccess = { process(SimpleBuyIntent.AssetUpSellDismissStateLoaded(it)) },
-                        onError = { Timber.e("Failed to load asset up sell dismiss state: $it") }
-                    )
+            SimpleBuyIntent.LoadAssetUpSellDismissState -> {
+                val show = interactor.shouldShowUpsellAnotherAsset()
+                process(SimpleBuyIntent.AssetUpSellDismissStateLoaded(show))
+                null
+            }
 
             else -> null
         }

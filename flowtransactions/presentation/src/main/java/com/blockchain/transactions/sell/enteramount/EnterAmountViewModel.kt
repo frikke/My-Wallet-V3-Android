@@ -152,6 +152,11 @@ class EnterAmountViewModel(
             maxLimit: ${try {maxLimit} catch (ex: Exception) {ex}}
             """.trimIndent()
         )
+        val inputError = if (fiatAmountUserInput.isNotEmpty() && cryptoAmountUserInput.isNotEmpty()) {
+            validateInput()
+        } else {
+            null
+        }
         EnterAmountViewState(
             selectedInput = when (selectedInput) {
                 CurrencyType.FIAT -> InputCurrency.Currency1
@@ -205,13 +210,11 @@ class EnterAmountViewModel(
                     zeroHint = "0"
                 )
             },
-            inputError = if (fiatAmountUserInput.isNotEmpty() && cryptoAmountUserInput.isNotEmpty()) {
-                validateInput()
-            } else {
-                null
-            },
+            inputError = inputError,
             snackbarError = snackbarError,
-            fatalError = fatalError
+            fatalError = fatalError,
+            isConfirmEnabled = fiatAmount != null && cryptoAmount != null &&
+                sourceToTargetExchangeRate != null && inputError == null,
         )
     }
 

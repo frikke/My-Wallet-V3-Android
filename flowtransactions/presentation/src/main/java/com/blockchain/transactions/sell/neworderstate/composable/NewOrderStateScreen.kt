@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.Analytics
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.isInternetConnectionError
+import com.blockchain.betternavigation.NavContext
+import com.blockchain.betternavigation.navigateTo
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -39,6 +41,7 @@ import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.TinyHorizontalSpacer
+import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.domain.common.model.ServerErrorAction
@@ -47,6 +50,7 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.presentation.checkValidUrlAndOpen
 import com.blockchain.transactions.presentation.R
+import com.blockchain.transactions.sell.SellGraph
 import com.blockchain.transactions.swap.SwapAnalyticsEvents
 import com.blockchain.utils.awaitOutcome
 import info.blockchain.balance.CryptoCurrency
@@ -70,10 +74,11 @@ data class NewOrderStateArgs(
 ) : Serializable
 
 @Composable
-fun NewOrderStateScreen(
+fun NavContext.NewOrderStateScreen(
     analytics: Analytics = get(),
     args: NewOrderStateArgs,
     deeplinkRedirector: DeeplinkRedirector = get(scope = payloadScope),
+    simpleBuyService: SimpleBuyService = get(scope = payloadScope),
     exitFlow: () -> Unit
 ) {
     val context = LocalContext.current
@@ -110,7 +115,13 @@ fun NewOrderStateScreen(
         handleDeeplinkUrlAndExit = { deeplinkUrl ->
             handleDeeplinkUrl = deeplinkUrl
         },
-        exitSwap = exitFlow
+        doneClicked = {
+            if (simpleBuyService.shouldShowUpsellAnotherAsset()) {
+                navigateTo(SellGraph.UpsellAnotherAsset, args.sourceAmount.currency.networkTicker)
+            } else {
+                exitFlow()
+            }
+        }
     )
 }
 
@@ -120,7 +131,7 @@ private fun NewOrderStateContent(
     targetAmount: FiatValue,
     orderState: NewOrderState,
     handleDeeplinkUrlAndExit: (String) -> Unit,
-    exitSwap: () -> Unit
+    doneClicked: () -> Unit
 ) {
     Column(
         modifier = Modifier.background(AppTheme.colors.light)
@@ -249,7 +260,7 @@ private fun NewOrderStateContent(
                     .fillMaxWidth()
                     .padding(AppTheme.dimensions.smallSpacing),
                 text = stringResource(com.blockchain.stringResources.R.string.common_done),
-                onClick = exitSwap
+                onClick = doneClicked
             )
         }
     }
@@ -340,7 +351,7 @@ private fun PreviewPendingDeposit() {
         targetAmount = FiatValue.fromMajor(FiatCurrency.Dollars, 50.0.toBigDecimal()),
         orderState = NewOrderState.PendingDeposit,
         handleDeeplinkUrlAndExit = {},
-        exitSwap = {}
+        doneClicked = {}
     )
 }
 
@@ -352,7 +363,7 @@ private fun PreviewSucceeded() {
         targetAmount = FiatValue.fromMajor(FiatCurrency.Dollars, 50.0.toBigDecimal()),
         orderState = NewOrderState.Succeeded,
         handleDeeplinkUrlAndExit = {},
-        exitSwap = {}
+        doneClicked = {}
     )
 }
 
@@ -386,6 +397,6 @@ private fun PreviewError() {
         targetAmount = FiatValue.fromMajor(FiatCurrency.Dollars, 50.0.toBigDecimal()),
         orderState = NewOrderState.Error(apiException),
         handleDeeplinkUrlAndExit = {},
-        exitSwap = {}
+        doneClicked = {}
     )
 }

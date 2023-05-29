@@ -5,6 +5,7 @@ import com.blockchain.coincore.AddressFactory
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
+import com.blockchain.core.announcements.DismissRecorder
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
@@ -32,7 +33,6 @@ import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 
 class TransactionInteractorTest {

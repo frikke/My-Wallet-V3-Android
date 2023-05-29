@@ -98,3 +98,11 @@ fun PreviewCustomStackedIconSingleIcon() {
         icon = StackedIcon.SingleIcon(ImageResource.Local(R.drawable.ic_close_circle_dark))
     )
 }
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewCustomStackedIconSingleIconRemote() {
+    CustomStackedIcon(
+        icon = StackedIcon.SingleIcon(ImageResource.Remote(""))
+    )
+}

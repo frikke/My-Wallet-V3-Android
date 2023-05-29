@@ -35,7 +35,6 @@ import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.sellSwapBrokerageQuoteFeatureFlag
 import com.blockchain.koin.stakingWithdrawalsFeatureFlag
 import com.blockchain.koin.topMoversInBuy
-import com.blockchain.koin.upsellAnotherAssetFeatureFlag
 import com.blockchain.koin.vgsFeatureFlag
 import com.blockchain.koin.walletConnectV2FeatureFlag
 import com.blockchain.remoteconfig.featureFlag
@@ -315,15 +314,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "blockchain_app_configuration_buy_top_movers_is_enabled",
                 "Show Top Movers in Buy flow"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(upsellAnotherAssetFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_upsell_another_asset",
-                "Upsell another asset"
             )
         )
     }.bind(FeatureFlag::class)

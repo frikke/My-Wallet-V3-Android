@@ -725,9 +725,9 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
     object LoadAssetUpSellDismissState : SimpleBuyIntent()
 
-    data class AssetUpSellDismissStateLoaded(val dismissed: Boolean) : SimpleBuyIntent() {
+    data class AssetUpSellDismissStateLoaded(val show: Boolean) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(shouldUpsellAnotherAsset = dismissed.not())
+            oldState.copy(shouldUpsellAnotherAsset = show)
     }
 
     object PromptRecurringBuyIntervals : SimpleBuyIntent() {

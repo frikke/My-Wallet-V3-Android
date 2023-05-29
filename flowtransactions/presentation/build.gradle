@@ -43,6 +43,8 @@ dependencies {
     implementation project(':flowprices:domain')
     implementation project(':deeplinking')
     implementation project(':notifications')
+    implementation project(':flowprices:presentation')
+    implementation project(':flowhome:presentation')
 
     implementation Libraries.composeUi
     implementation Libraries.composePreview

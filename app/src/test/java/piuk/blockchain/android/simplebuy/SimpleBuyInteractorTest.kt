@@ -1,6 +1,7 @@
 package piuk.blockchain.android.simplebuy
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.announcements.DismissRecorder
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.kyc.domain.KycService
@@ -50,7 +51,6 @@ import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
-import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 
 class SimpleBuyInteractorTest {
 

@@ -24,6 +24,7 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
+import com.blockchain.core.announcements.DismissRecorder
 import com.blockchain.data.asMaybe
 import com.blockchain.data.asSingle
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
@@ -73,7 +74,6 @@ import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.subjects.PublishSubject
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.rx3.rxSingle
-import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 import timber.log.Timber
 

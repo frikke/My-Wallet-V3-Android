@@ -4,11 +4,15 @@ package com.blockchain.componentlib.media
 
 import android.os.Build
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.background
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import coil.ImageLoader
 import coil.annotation.ExperimentalCoilApi
@@ -124,15 +128,25 @@ fun AsyncMediaItem(
     @DrawableRes onErrorDrawable: Int = R.drawable.ic_error
 ) {
     when (imageResource) {
-        is ImageResource.Remote -> AsyncMediaItem(
-            modifier = modifier,
-            url = imageResource.url,
-            fallbackUrlType = fallbackUrlType,
-            contentDescription = contentDescription,
-            contentScale = contentScale,
-            onLoadingPlaceholder = onLoadingPlaceholder,
-            onErrorDrawable = onErrorDrawable
-        )
+        is ImageResource.Remote -> {
+            if (LocalInspectionMode.current) {
+                Text(
+                    modifier = modifier.background(Color.Magenta),
+                    color = Color.White,
+                    text = "DEBUG",
+                )
+            } else {
+                AsyncMediaItem(
+                    modifier = modifier,
+                    url = imageResource.url,
+                    fallbackUrlType = fallbackUrlType,
+                    contentDescription = contentDescription,
+                    contentScale = contentScale,
+                    onLoadingPlaceholder = onLoadingPlaceholder,
+                    onErrorDrawable = onErrorDrawable
+                )
+            }
+        }
         ImageResource.None -> {
         }
         else -> {

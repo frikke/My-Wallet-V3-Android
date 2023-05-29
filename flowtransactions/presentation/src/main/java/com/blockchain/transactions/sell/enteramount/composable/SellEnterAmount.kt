@@ -42,7 +42,6 @@ import com.blockchain.componentlib.card.TwoAssetActionHorizontalLoading
 import com.blockchain.componentlib.control.CurrencyValue
 import com.blockchain.componentlib.control.InputCurrency
 import com.blockchain.componentlib.control.TwoCurrenciesInput
-import com.blockchain.componentlib.control.isEmpty
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Network
 import com.blockchain.componentlib.navigation.NavigationBar
@@ -189,6 +188,7 @@ fun NavContext.SellEnterAmount(
                         onFlipInputs = {
                             viewModel.onIntent(EnterAmountIntent.FlipInputs)
                         },
+                        isConfirmEnabled = viewState.isConfirmEnabled,
                         inputError = viewState.inputError,
                         inputErrorClicked = { error ->
                             navigateTo(SellGraph.InputError, error)
@@ -227,6 +227,7 @@ private fun EnterAmountScreen(
     cryptoAmount: CurrencyValue?,
     onCryptoAmountChanged: (String) -> Unit,
     onFlipInputs: () -> Unit,
+    isConfirmEnabled: Boolean,
     inputError: SellEnterAmountInputError?,
     inputErrorClicked: (SellEnterAmountInputError) -> Unit,
     openSourceAccounts: () -> Unit,
@@ -289,7 +290,7 @@ private fun EnterAmountScreen(
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
-        inputError?.let {
+        if (inputError != null) {
             AlertButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = when (inputError) {
@@ -310,18 +311,20 @@ private fun EnterAmountScreen(
                 state = ButtonState.Enabled,
                 onClick = { inputErrorClicked(inputError) }
             )
-        } ?: PrimaryButton(
-            modifier = Modifier.fillMaxWidth(),
-            text = stringResource(R.string.tx_enter_amount_sell_cta),
-            state = if (fiatAmount?.isEmpty() == false && cryptoAmount?.isEmpty() == false) {
-                ButtonState.Enabled
-            } else {
-                ButtonState.Disabled
-            },
-            onClick = {
-                previewClicked()
-            }
-        )
+        } else {
+            PrimaryButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.tx_enter_amount_sell_cta),
+                state = if (isConfirmEnabled) {
+                    ButtonState.Enabled
+                } else {
+                    ButtonState.Disabled
+                },
+                onClick = {
+                    previewClicked()
+                }
+            )
+        }
 
         Spacer(modifier = Modifier.weight(4F))
     }
@@ -388,6 +391,7 @@ private fun PreviewEnterAmountScreen() {
         ),
         onCryptoAmountChanged = {},
         onFlipInputs = {},
+        isConfirmEnabled = false,
         inputError = SellEnterAmountInputError.BelowMinimum("éjdzjjdz"),
         inputErrorClicked = {},
         openSourceAccounts = {},

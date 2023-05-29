@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.dashboard.announcements
+package com.blockchain.core.announcements
 
 import com.blockchain.preferences.SessionPrefs
 
@@ -71,8 +71,6 @@ class DismissRecorder(
         get() = clock.now() + interval
 
     companion object {
-        const val UPSELL_ANOTHER_ASSET_DISMISS_KEY = "UPSELL_ANOTHER_ASSET_DISMISSED"
-
         const val ONE_WEEK = 7L * 24L * 60L * 60L * 1000L
         const val ONE_MONTH = 30L * 24L * 60L * 60L * 1000L
         private const val DISMISS_INTERVAL_FOREVER = Long.MAX_VALUE

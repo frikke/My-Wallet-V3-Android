@@ -10,6 +10,8 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.setContent
+import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.extensions.getAccount
 import com.blockchain.presentation.extensions.getTarget
 import com.blockchain.presentation.extensions.putAccount
@@ -17,6 +19,7 @@ import com.blockchain.presentation.extensions.putTarget
 import com.blockchain.transactions.sell.SellGraphHost
 import com.blockchain.transactions.swap.SwapGraphHost
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
+import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalMaterialNavigationApi::class)
 class NewTransactionFlowActivity : BlockchainActivity() {
@@ -35,13 +38,24 @@ class NewTransactionFlowActivity : BlockchainActivity() {
         intent.extras?.getSerializable(ACTION) as AssetAction
     }
 
+    private val assetActionsNavigation: AssetActionsNavigation = payloadScope.get {
+        parametersOf(
+            this
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
             when (action) {
                 AssetAction.Swap -> SwapGraphHost(exitFlow = ::finish)
-                AssetAction.Sell -> SellGraphHost(exitFlow = ::finish)
+                AssetAction.Sell -> SellGraphHost(
+                    navigateToBuy = { asset ->
+                        assetActionsNavigation.buyCrypto(asset)
+                    },
+                    exitFlow = ::finish
+                )
                 else -> throw UnsupportedOperationException()
             }
         }

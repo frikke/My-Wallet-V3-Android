@@ -53,4 +53,8 @@ interface SimpleBuyService {
         product: Product,
         type: String? = null
     ): Flow<DataResource<List<FiatTransaction>>>
+
+    fun shouldShowUpsellAnotherAsset(): Boolean
+
+    fun dismissUpsellAnotherAsset()
 }

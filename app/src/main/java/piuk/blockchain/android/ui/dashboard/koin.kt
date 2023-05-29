@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.dashboard
 
+import com.blockchain.core.announcements.DismissClock
+import com.blockchain.core.announcements.DismissRecorder
 import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.koin.assetOrderingFeatureFlag
 import com.blockchain.koin.defaultOrder
@@ -14,8 +16,6 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.domain.usecases.ShouldShowExchangeCampaignUseCase
 import piuk.blockchain.android.ui.cowboys.CowboysPromoDataProvider
-import piuk.blockchain.android.ui.dashboard.announcements.DismissClock
-import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.dashboard.assetdetails.StateAwareActionsComparator
 import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyInteractor
 import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyModel

@@ -46,6 +46,7 @@ import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.presentation.checkValidUrlAndOpen
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.transactions.upsell.UpsellAnotherAssetBottomSheet
 import com.blockchain.utils.consume
 import com.blockchain.utils.unsafeLazy
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -65,7 +66,6 @@ import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_BUY
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_REFRESH_REQUIRED
 import piuk.blockchain.android.simplebuy.sheets.CurrencySelectionSheet
-import piuk.blockchain.android.simplebuy.upsell.UpsellAnotherAssetBottomSheet
 import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
@@ -623,7 +623,13 @@ class SimpleBuyActivity :
     }
 
     override fun launchUpSellBottomSheet(assetBoughtTicker: String) {
-        showBottomSheet(UpsellAnotherAssetBottomSheet.newInstance(assetBoughtTicker))
+        showBottomSheet(
+            UpsellAnotherAssetBottomSheet.newInstance(
+                assetTransactedTicker = assetBoughtTicker,
+                title = getString(com.blockchain.stringResources.R.string.asset_upsell_title),
+                description = getString(com.blockchain.stringResources.R.string.asset_upsell_subtitle)
+            )
+        )
     }
 
     override fun launchBuyForAsset(networkTicker: String) {
