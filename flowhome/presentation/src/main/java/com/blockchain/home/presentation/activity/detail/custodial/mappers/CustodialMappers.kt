@@ -21,6 +21,8 @@ import com.blockchain.home.presentation.activity.list.custodial.mappers.basicTit
 import com.blockchain.home.presentation.activity.list.custodial.mappers.isSellingPair
 import com.blockchain.home.presentation.activity.list.custodial.mappers.isSwapPair
 import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIcon
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIconSource
 
 internal const val MAX_ABBREVIATE_LENGTH = 15
 internal const val SIDE_ABBREVIATE_LENGTH = 4
@@ -93,7 +95,7 @@ private fun CustodialActivityDetail.floatingActions(): List<ActivityComponent> {
 
 fun CustodialActivityDetail.toActivityDetail(): ActivityDetail {
     return ActivityDetail(
-        icon = StackedIcon.SingleIcon(activity.iconDetail()),
+        icon = ActivityIcon.SingleIcon(ActivityIconSource.Local(activity.iconDetail())),
         title = activity.title(),
         subtitle = TextValue.StringValue(""), // todo
         detailItems = detailItems(),

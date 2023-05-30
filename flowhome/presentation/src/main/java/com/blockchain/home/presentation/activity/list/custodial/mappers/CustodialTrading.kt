@@ -7,15 +7,17 @@ import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIcon
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityLocalIcon
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.utils.toFormattedDate
 import java.util.Date
 
-@DrawableRes internal fun CustodialTradingActivitySummaryItem.iconSummary(): Int {
+internal fun CustodialTradingActivitySummaryItem.iconSummary(): ActivityLocalIcon {
     return when (type) {
         OrderType.BUY,
-        OrderType.RECURRING_BUY -> R.drawable.ic_activity_buy
-        OrderType.SELL -> R.drawable.ic_activity_sell
+        OrderType.RECURRING_BUY -> ActivityLocalIcon.Buy
+        OrderType.SELL -> ActivityLocalIcon.Sell
     }
 }
 

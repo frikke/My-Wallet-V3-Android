@@ -47,7 +47,7 @@ class PrivateKeyActivityDetailViewModel(
     private fun ActivityDetailGroups.reduceActivityDetail(): ActivityDetail = when (this) {
         is ActivityDetailGroups.GroupedItems -> {
             ActivityDetail(
-                icon = icon.toStackedIcon(),
+                icon = icon,
                 title = TextValue.StringValue(title),
                 subtitle = TextValue.StringValue(subtitle),
                 detailItems = detailItems.map {

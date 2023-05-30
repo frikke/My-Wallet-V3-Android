@@ -7,13 +7,14 @@ import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityLocalIcon
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.utils.toFormattedDate
 
-@DrawableRes internal fun CustodialTransferActivitySummaryItem.iconSummary(): Int {
+internal fun CustodialTransferActivitySummaryItem.iconSummary(): ActivityLocalIcon {
     return when (type) {
-        TransactionType.DEPOSIT -> R.drawable.ic_activity_receive
-        TransactionType.WITHDRAWAL -> R.drawable.ic_activity_send
+        TransactionType.DEPOSIT -> ActivityLocalIcon.Receive
+        TransactionType.WITHDRAWAL -> ActivityLocalIcon.Sell
     }
 }
 
@@ -34,6 +35,7 @@ internal fun CustodialTransferActivitySummaryItem.leadingSubtitle(): ActivitySta
     val color: ActivityTextColor = when (state) {
         TransactionState.COMPLETED,
         TransactionState.MANUAL_REVIEW -> ActivityTextColor.Muted
+
         TransactionState.PENDING -> ActivityTextColor.Muted
         TransactionState.FAILED -> ActivityTextColor.Error
     }
@@ -43,6 +45,7 @@ internal fun CustodialTransferActivitySummaryItem.leadingSubtitle(): ActivitySta
             TransactionState.COMPLETED,
             TransactionState.MANUAL_REVIEW,
             TransactionState.PENDING -> TextValue.StringValue(date.toFormattedDate())
+
             TransactionState.FAILED -> TextValue.IntResValue(
                 com.blockchain.stringResources.R.string.activity_state_failed
             )

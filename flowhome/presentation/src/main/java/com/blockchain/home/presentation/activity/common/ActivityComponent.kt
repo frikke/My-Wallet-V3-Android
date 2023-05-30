@@ -14,6 +14,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIcon
 
 /**
  * @property id Some components may want to be identified for later interaction
@@ -23,7 +24,7 @@ sealed interface ActivityComponent {
 
     data class StackView(
         override val id: String,
-        val leadingImage: StackedIcon = StackedIcon.None,
+        val leadingImage: ActivityIcon = ActivityIcon.None,
         val leading: List<ActivityStackView>,
         val trailing: List<ActivityStackView>
     ) : ActivityComponent {
@@ -57,7 +58,7 @@ fun ActivityComponentItem(component: ActivityComponent, onClick: ((ClickAction) 
         }
         is ActivityComponent.StackView -> {
             CustomTableRow(
-                icon = component.leadingImage,
+                icon = component.leadingImage.toStackedIcon(),
                 leadingComponents = component.leading.map { it.toViewType() },
                 trailingComponents = component.trailing.map { it.toViewType() },
                 onClick = { onClick?.invoke(ClickAction.Stack(data = component.id)) }

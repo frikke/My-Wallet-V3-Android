@@ -17,13 +17,14 @@ import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityLocalIcon
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
 import com.blockchain.utils.abbreviate
 import com.blockchain.utils.toFormattedString
 import info.blockchain.balance.Money
 
-internal fun TradeActivitySummaryItem.swapIconDetail(): ImageResource {
-    return Icons.Filled.Swap
+internal fun TradeActivitySummaryItem.swapIconDetail(): ActivityLocalIcon {
+    return ActivityLocalIcon.Swap
 }
 
 internal fun TradeActivitySummaryItem.swapTitle(): TextValue = TextValue.IntResValue(

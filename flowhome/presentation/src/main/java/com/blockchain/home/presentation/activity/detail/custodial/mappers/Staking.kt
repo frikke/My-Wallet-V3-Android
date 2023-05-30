@@ -20,20 +20,21 @@ import com.blockchain.home.presentation.activity.list.custodial.mappers.basicTit
 import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityLocalIcon
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
 import com.blockchain.utils.abbreviate
 import com.blockchain.utils.toFormattedString
 import info.blockchain.wallet.multiaddress.TransactionSummary
 
-internal fun CustodialStakingActivitySummaryItem.iconDetail(): ImageResource {
+internal fun CustodialStakingActivitySummaryItem.iconDetail(): ActivityLocalIcon {
     return when (state) {
         EarnRewardsState.COMPLETE -> when (type) {
-            TransactionSummary.TransactionType.DEPOSIT -> Icons.Filled.Plus
-            TransactionSummary.TransactionType.INTEREST_EARNED -> Icons.Filled.Rewards
-            TransactionSummary.TransactionType.WITHDRAW -> Icons.Filled.Minus
-            else -> Icons.Filled.Plus
+            TransactionSummary.TransactionType.DEPOSIT -> ActivityLocalIcon.Buy
+            TransactionSummary.TransactionType.INTEREST_EARNED -> ActivityLocalIcon.Reward
+            TransactionSummary.TransactionType.WITHDRAW -> ActivityLocalIcon.Sell
+            else -> ActivityLocalIcon.Buy
         }
-        else -> Icons.Filled.Rewards
+        else -> ActivityLocalIcon.Reward
     }
 }
 

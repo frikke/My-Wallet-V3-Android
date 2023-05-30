@@ -19,14 +19,15 @@ import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityLocalIcon
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
 import com.blockchain.utils.abbreviate
 import com.blockchain.utils.toFormattedString
 
-internal fun CustodialTransferActivitySummaryItem.iconDetail(): ImageResource {
+internal fun CustodialTransferActivitySummaryItem.iconDetail(): ActivityLocalIcon {
     return when (type) {
-        TransactionType.DEPOSIT -> Icons.Filled.Plus
-        TransactionType.WITHDRAWAL -> Icons.Filled.Minus
+        TransactionType.DEPOSIT -> ActivityLocalIcon.Buy
+        TransactionType.WITHDRAWAL -> ActivityLocalIcon.Sell
     }
 }
 

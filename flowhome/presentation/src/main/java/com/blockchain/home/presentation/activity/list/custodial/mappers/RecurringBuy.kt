@@ -7,12 +7,13 @@ import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityLocalIcon
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.utils.toFormattedDate
 import java.util.Date
 
-@DrawableRes internal fun RecurringBuyActivitySummaryItem.iconSummary(): Int {
-    return R.drawable.ic_activity_buy
+internal fun RecurringBuyActivitySummaryItem.iconSummary(): ActivityLocalIcon {
+    return ActivityLocalIcon.Buy
 }
 
 internal fun RecurringBuyActivitySummaryItem.leadingTitle(): ActivityStackView {

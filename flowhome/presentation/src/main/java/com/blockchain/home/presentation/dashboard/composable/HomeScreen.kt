@@ -381,6 +381,7 @@ fun HomeScreen(
             }
         )
 
+        // activity
         walletMode?.let {
             val activityState = when (it) {
                 WalletMode.CUSTODIAL -> custodialActivityState
