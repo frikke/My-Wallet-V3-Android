@@ -1,5 +1,6 @@
 package com.blockchain.home.presentation.recurringbuy.detail.composable
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.analytics.Analytics
@@ -32,7 +34,9 @@ import com.blockchain.componentlib.sheets.SheetFloatingHeader
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.componentlib.utils.value
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.recurringbuy.RecurringBuysAnalyticsEvents
@@ -113,9 +117,11 @@ private fun RecurringBuyDetailScreen(
             DataResource.Loading -> {
                 ShimmerLoadingCard(showEndBlocks = false)
             }
+
             is DataResource.Error -> {
                 closeOnClick()
             }
+
             is DataResource.Data -> {
                 RecurringBuyDetailData(
                     recurringBuy = recurringBuy.data,
@@ -210,4 +216,24 @@ private fun RecurringBuyDetail.build(): Map<String, String> {
         stringResource(com.blockchain.stringResources.R.string.recurring_buy_frequency_label_1) to frequency.value(),
         stringResource(com.blockchain.stringResources.R.string.recurring_buy_info_purchase_label_1) to nextBuy
     )
+}
+
+@Preview
+@Composable
+private fun PreviewRecurringBuyDetailData() {
+    RecurringBuyDetailData(
+        analytics = previewAnalytics,
+        recurringBuy = RecurringBuyDetail(
+            iconUrl = "", amount = "10.00", assetName = "Ethereum", assetTicker = "ETH", paymentMethod = "Euro",
+            frequency = TextValue.StringValue("daily around 1AP"), nextBuy = "Tomorrow"
+        ),
+        cancelationInProgress = true,
+        removeOnClick = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewRecurringBuyDetailDataDark() {
+    PreviewRecurringBuyDetailData()
 }

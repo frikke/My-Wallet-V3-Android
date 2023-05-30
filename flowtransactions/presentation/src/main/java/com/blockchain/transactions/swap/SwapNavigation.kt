@@ -66,7 +66,7 @@ fun SwapGraphHost(
         }
 
         typedBottomSheet(SwapGraph.InputError) { args ->
-            ChromeBottomSheet(fillMaxHeight = false, onClose = ::navigateUp) {
+            ChromeBottomSheet(onClose = ::navigateUp) {
                 InputErrorScreen(
                     inputError = args,
                     closeClicked = ::navigateUp,
@@ -75,7 +75,7 @@ fun SwapGraphHost(
         }
 
         typedBottomSheet(SwapGraph.SourceAccounts) {
-            ChromeBottomSheet(onClose = ::navigateUp) {
+            ChromeBottomSheet(fillMaxHeight = true, onClose = ::navigateUp) {
                 SourceAccounts(
                     accountSelected = {
                         viewModel.onIntent(EnterAmountIntent.FromAccountChanged(it, null))
@@ -92,7 +92,7 @@ fun SwapGraphHost(
         }
 
         typedBottomSheet(SwapGraph.EnterSecondPassword) { args ->
-            ChromeBottomSheet(onClose = ::navigateUp) {
+            ChromeBottomSheet(fillMaxHeight = true, onClose = ::navigateUp) {
                 EnterSecondPasswordScreen(
                     args = args,
                     onAccountSecondPasswordValidated = { account, secondPassword ->
@@ -106,7 +106,7 @@ fun SwapGraphHost(
 
         // support nested graph navigation(...)
         typedBottomSheet(SwapGraph.TargetAsset) { sourceTicker ->
-            ChromeBottomSheet(onClose = ::navigateUp) {
+            ChromeBottomSheet(fillMaxHeight = true, onClose = ::navigateUp) {
                 TargetAssets(
                     sourceTicker = sourceTicker,
                     accountSelected = {
@@ -119,7 +119,7 @@ fun SwapGraphHost(
         }
 
         typedBottomSheet(SwapGraph.TargetAccount) { args ->
-            ChromeBottomSheet(onClose = ::navigateUp) {
+            ChromeBottomSheet(fillMaxHeight = true, onClose = ::navigateUp) {
                 TargetAccounts(
                     sourceTicker = args.sourceTicker,
                     targetTicker = args.targetTicker,
