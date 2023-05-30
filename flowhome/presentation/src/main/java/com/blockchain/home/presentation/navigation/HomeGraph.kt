@@ -76,7 +76,7 @@ fun NavGraphBuilder.homeGraph(
     bottomSheet(navigationEvent = HomeDestination.RecurringBuyDetail) { backStackEntry ->
         val id = backStackEntry.arguments?.getComposeArgument(ARG_RECURRING_BUY_ID).orEmpty()
 
-        ChromeBottomSheet(onClose = onBackPressed) {
+        ChromeBottomSheet(fillMaxHeight = true, onClose = onBackPressed) {
             RecurringBuyDetail(
                 recurringBuyId = id,
                 onCloseClick = onBackPressed
@@ -99,7 +99,7 @@ fun NavGraphBuilder.homeGraph(
         }
 
         walletMode?.let {
-            ChromeBottomSheet(onClose = onBackPressed) {
+            ChromeBottomSheet(fillMaxHeight = true, onClose = onBackPressed) {
                 ActivityDetail(
                     selectedTxId = txId,
                     walletMode = walletMode,
@@ -110,7 +110,7 @@ fun NavGraphBuilder.homeGraph(
     }
 
     bottomSheet(navigationEvent = HomeDestination.Referral) {
-        ChromeBottomSheet(onClose = onBackPressed) {
+        ChromeBottomSheet(fillMaxHeight = true, onClose = onBackPressed) {
             ReferralCode(
                 onBackPressed = onBackPressed
             )
@@ -118,7 +118,7 @@ fun NavGraphBuilder.homeGraph(
     }
 
     bottomSheet(navigationEvent = HomeDestination.SwapDexOptions) {
-        ChromeBottomSheet(onClose = onBackPressed) {
+        ChromeBottomSheet(fillMaxHeight = true, onClose = onBackPressed) {
             SwapDexOptionScreen(
                 onBackPressed = onBackPressed,
                 openDex = openDex,
@@ -129,7 +129,7 @@ fun NavGraphBuilder.homeGraph(
 
     bottomSheet(navigationEvent = HomeDestination.FiatActionDetail) { backStackEntry ->
         val fiatTicker = backStackEntry.arguments?.getString(ARG_FIAT_TICKER).orEmpty()
-        ChromeBottomSheet(fillMaxHeight = false, onClose = onBackPressed) {
+        ChromeBottomSheet(onClose = onBackPressed) {
             FiatFundDetail(
                 fiatTicker = fiatTicker,
                 dismiss = onBackPressed
@@ -138,7 +138,7 @@ fun NavGraphBuilder.homeGraph(
     }
 
     bottomSheet(navigationEvent = HomeDestination.MoreQuickActions) {
-        ChromeBottomSheet(fillMaxHeight = false, onClose = onBackPressed) {
+        ChromeBottomSheet(onClose = onBackPressed) {
             MoreActions(
                 dismiss = onBackPressed,
                 assetActionsNavigation = assetActionsNavigation

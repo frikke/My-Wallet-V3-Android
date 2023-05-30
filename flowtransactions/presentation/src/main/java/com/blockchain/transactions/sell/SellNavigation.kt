@@ -67,7 +67,7 @@ fun SellGraphHost(
         }
 
         typedBottomSheet(SellGraph.InputError) { args ->
-            ChromeBottomSheet(fillMaxHeight = false, onClose = ::navigateUp) {
+            ChromeBottomSheet(onClose = ::navigateUp) {
                 InputErrorScreen(
                     inputError = args,
                     closeClicked = ::navigateUp,
@@ -76,7 +76,7 @@ fun SellGraphHost(
         }
 
         typedBottomSheet(SellGraph.SourceAccounts) {
-            ChromeBottomSheet(onClose = ::navigateUp) {
+            ChromeBottomSheet(fillMaxHeight = true, onClose = ::navigateUp) {
                 SourceAccounts(
                     accountSelected = {
                         viewModel.onIntent(EnterAmountIntent.FromAccountChanged(it, null))
@@ -93,7 +93,7 @@ fun SellGraphHost(
         }
 
         typedBottomSheet(SellGraph.EnterSecondPassword) { args ->
-            ChromeBottomSheet(onClose = ::navigateUp) {
+            ChromeBottomSheet(fillMaxHeight = true, onClose = ::navigateUp) {
                 EnterSecondPasswordScreen(
                     args = args,
                     onAccountSecondPasswordValidated = { account, secondPassword ->
@@ -107,7 +107,7 @@ fun SellGraphHost(
 
         // support nested graph navigation(...)
         typedBottomSheet(SellGraph.TargetAsset) { args ->
-            ChromeBottomSheet(onClose = ::navigateUp) {
+            ChromeBottomSheet(fillMaxHeight = true, onClose = ::navigateUp) {
                 TargetAssets(
                     args = args,
                     accountSelected = { fromAccount, secondPassword, toAccount ->
@@ -148,7 +148,7 @@ fun SellGraphHost(
         }
 
         typedBottomSheet(SellGraph.UpsellAnotherAsset) { assetJustSoldTicker ->
-            ChromeBottomSheet(onClose = exitFlow) {
+            ChromeBottomSheet(fillMaxHeight = true, onClose = exitFlow) {
                 SellUpsellAnotherAssetScreen(
                     assetJustSoldTicker = assetJustSoldTicker,
                     navigateToBuy = { asset ->

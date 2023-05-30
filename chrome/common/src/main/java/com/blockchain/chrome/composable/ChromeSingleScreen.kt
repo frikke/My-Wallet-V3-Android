@@ -26,6 +26,7 @@ import com.blockchain.chrome.backgroundColors
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.componentlib.utils.conditional
 import com.blockchain.koin.payloadScope
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -119,7 +120,10 @@ private fun ChromeSingleScreen(
 
         // content
         Card(
-            modifier = Modifier.weight(1F),
+            modifier = Modifier
+                .conditional(screenType.shouldFillMaxHeight()) {
+                    weight(1F)
+                },
             backgroundColor = Color(0XFFF1F2F7),
             shape = RoundedCornerShape(
                 topStart = AppTheme.dimensions.standardSpacing,
@@ -153,7 +157,7 @@ fun ChromeSingleScreen(
 
 @Composable
 fun ChromeBottomSheet(
-    fillMaxHeight: Boolean = true,
+    fillMaxHeight: Boolean = false,
     onClose: () -> Unit,
     content: @Composable () -> Unit
 ) {
@@ -168,3 +172,9 @@ private sealed interface ScreenType {
     object SingleScreen : ScreenType
     data class BottomSheet(val fillMaxHeight: Boolean) : ScreenType
 }
+
+private fun ScreenType.shouldFillMaxHeight(): Boolean =
+    when (this) {
+        is ScreenType.SingleScreen -> true
+        is ScreenType.BottomSheet -> fillMaxHeight
+    }

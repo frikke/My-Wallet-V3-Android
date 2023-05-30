@@ -57,7 +57,7 @@ fun NavGraphBuilder.dexGraph(onBackPressed: () -> Unit, navController: NavContro
     }
 
     bottomSheet(navigationEvent = DexDestination.SelectSourceAccount) {
-        ChromeBottomSheet(onClose = onBackPressed) {
+        ChromeBottomSheet(fillMaxHeight = true, onClose = onBackPressed) {
             SelectSourceAccountBottomSheet(
                 closeClicked = onBackPressed
             )
@@ -69,7 +69,7 @@ fun NavGraphBuilder.dexGraph(onBackPressed: () -> Unit, navController: NavContro
             "You must provide title"
         )
         val description = String(Base64.getUrlDecoder().decode(it.arguments?.getComposeArgument(ARG_INFO_DESCRIPTION)))
-        ChromeBottomSheet(fillMaxHeight = false, onClose = onBackPressed) {
+        ChromeBottomSheet(onClose = onBackPressed) {
             DexConfirmationInfoSheet(
                 closeClicked = onBackPressed,
                 title = title,
@@ -79,7 +79,7 @@ fun NavGraphBuilder.dexGraph(onBackPressed: () -> Unit, navController: NavContro
     }
 
     bottomSheet(navigationEvent = DexDestination.SelectDestinationAccount) {
-        ChromeBottomSheet(onClose = onBackPressed) {
+        ChromeBottomSheet(fillMaxHeight = true, onClose = onBackPressed) {
             SelectDestinationAccountBottomSheet(
                 closeClicked = onBackPressed
             )
@@ -87,7 +87,7 @@ fun NavGraphBuilder.dexGraph(onBackPressed: () -> Unit, navController: NavContro
     }
 
     bottomSheet(navigationEvent = DexDestination.Settings) {
-        ChromeBottomSheet(fillMaxHeight = false, onClose = onBackPressed) {
+        ChromeBottomSheet(onClose = onBackPressed) {
             SettingsBottomSheet(
                 closeClicked = onBackPressed
             )
@@ -95,7 +95,7 @@ fun NavGraphBuilder.dexGraph(onBackPressed: () -> Unit, navController: NavContro
     }
 
     bottomSheet(navigationEvent = DexDestination.SelectNetwork) {
-        ChromeBottomSheet(fillMaxHeight = false, onClose = onBackPressed) {
+        ChromeBottomSheet(onClose = onBackPressed) {
             SelectNetwork(
                 closeClicked = onBackPressed
             )
@@ -108,7 +108,7 @@ fun NavGraphBuilder.dexGraph(onBackPressed: () -> Unit, navController: NavContro
         )
         val allowanceTxUiData = Json.decodeFromString(AllowanceTxUiData.serializer(), data)
 
-        ChromeBottomSheet(fillMaxHeight = false, onClose = onBackPressed) {
+        ChromeBottomSheet(onClose = onBackPressed) {
             TokenAllowanceBottomSheet(
                 closeClicked = onBackPressed,
                 allowanceTxUiData = allowanceTxUiData,
