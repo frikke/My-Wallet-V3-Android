@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
@@ -25,8 +24,9 @@ import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
-import com.blockchain.dex.presentation.R
+import com.blockchain.internalnotifications.NotificationTransmitter
 import com.blockchain.koin.payloadScope
+import com.blockchain.stringResources.R
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
@@ -35,6 +35,7 @@ fun SettingsBottomSheet(
     closeClicked: () -> Unit,
     viewModel: SettingsViewModel = getViewModel(scope = payloadScope),
     analytics: Analytics = get(),
+    notificationTransmitter: NotificationTransmitter = get()
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -58,7 +59,7 @@ fun SettingsBottomSheet(
 
     Column(modifier = Modifier.fillMaxWidth()) {
         SheetHeader(
-            title = stringResource(id = com.blockchain.stringResources.R.string.allowed_slippage),
+            title = stringResource(id = R.string.allowed_slippage),
             onClosePress = closeClicked,
             startImageResource = ImageResource.None,
             shouldShowDivider = false
@@ -89,7 +90,7 @@ fun SettingsBottomSheet(
         )
         Text(
             modifier = Modifier.padding(all = AppTheme.dimensions.smallSpacing),
-            text = stringResource(id = com.blockchain.stringResources.R.string.slippage_explanation),
+            text = stringResource(id = R.string.slippage_explanation),
             style = AppTheme.typography.paragraph1,
             color = Grey700
         )

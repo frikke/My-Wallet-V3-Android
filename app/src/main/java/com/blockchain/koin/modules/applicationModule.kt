@@ -41,6 +41,8 @@ import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
+import com.blockchain.internalnotifications.NotificationReceiver
+import com.blockchain.internalnotifications.NotificationTransmitter
 import com.blockchain.keyboard.InputKeyboard
 import com.blockchain.koin.applicationScope
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
@@ -116,6 +118,7 @@ import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.everypay.service.EveryPayCardService
 import piuk.blockchain.android.exchange.ExchangeLinkingImpl
 import piuk.blockchain.android.identity.SiftDigitalTrust
+import piuk.blockchain.android.internalnotifications.NotificationsCenter
 import piuk.blockchain.android.kyc.KycDeepLinkHelper
 import piuk.blockchain.android.scan.QRCodeEncoder
 import piuk.blockchain.android.scan.QrScanResultProcessor
@@ -219,6 +222,15 @@ val applicationModule = module {
             application = get()
         )
     }.bind(LogoutTimer::class)
+
+    single {
+        NotificationsCenter(
+            scope = get(applicationScope)
+        )
+    }.apply {
+        bind(NotificationReceiver::class)
+        bind(NotificationTransmitter::class)
+    }
 
     single {
         val ctx: Context = get()

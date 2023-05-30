@@ -34,7 +34,6 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.icons.ChevronRight
 import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.Verified
 import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.tablerow.BalanceFiatAndCryptoTableRow
 import com.blockchain.componentlib.tablerow.TableRow
@@ -42,7 +41,6 @@ import com.blockchain.componentlib.tablerow.TableRowHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tag.DefaultTag
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.BasePrimaryMuted
 import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 import com.blockchain.componentlib.theme.SmallestVerticalSpacer
 import com.blockchain.stringResources.R
@@ -208,10 +206,6 @@ private fun NoBalanceDexAccountTableRow(dexAccount: DexAccount, onAccountSelecte
                             style = ComposeTypographies.Paragraph2,
                             color = ComposeColors.Title,
                             gravity = ComposeGravities.Start
-                        )
-                        Image(
-                            modifier = Modifier.padding(start = AppTheme.dimensions.smallestSpacing),
-                            imageResource = Icons.Filled.Verified.withTint(BasePrimaryMuted).withSize(14.dp)
                         )
                     }
 

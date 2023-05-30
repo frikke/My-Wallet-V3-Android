@@ -7,7 +7,6 @@ dependencies {
     implementation project(':store:core')
     implementation project(':store:caches:persistedjsonsqldelight')
     implementation project(':common:interface')
-
     implementation Libraries.kotlinCoroutines
     implementation Libraries.sqlDelight
     implementation Libraries.coroutinesSqlDelight

@@ -2,14 +2,18 @@ package com.dex.domain
 
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.PreImage
 import com.blockchain.core.chains.ethereum.EvmNetworkPreImageSigner
+import com.blockchain.internalnotifications.NotificationEvent
+import com.blockchain.internalnotifications.NotificationTransmitter
 import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.doOnSuccess
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import kotlinx.serialization.json.JsonObject
 
 class AllowanceTransactionProcessor(
     private val allowanceService: AllowanceService,
-    private val evmNetworkSigner: EvmNetworkPreImageSigner
+    private val evmNetworkSigner: EvmNetworkPreImageSigner,
+    private val notificationTransmitter: NotificationTransmitter,
 ) {
     private lateinit var transaction: AllowanceTransaction
     suspend fun buildTx(assetInfo: AssetInfo, amount: Money? = null): Outcome<Exception, AllowanceTransaction> {
@@ -35,7 +39,9 @@ class AllowanceTransactionProcessor(
             signatures = transactionSignatures,
             assetInfo = transaction.currencyToAllow,
             rawTx = transaction.rawTx
-        )
+        ).doOnSuccess {
+            notificationTransmitter.postEvent(NotificationEvent.NonCustodialTransaction)
+        }
     }
 
     suspend fun revokeAllowance(assetInfo: AssetInfo) {
