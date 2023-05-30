@@ -236,9 +236,6 @@ class ConfirmationViewModel(
                     swapActivityStore.invalidate()
                     transactionsStore.invalidate()
 
-                    // TODO(aromano): SWAP ANALYTICS
-                    //                    analyticsHooks.onTransactionSuccess(newState)
-
                     val newOrderStateArgs = NewOrderStateArgs(
                         sourceAmount = order.inputMoney as CryptoValue,
                         targetAmount = order.outputMoney as FiatValue,

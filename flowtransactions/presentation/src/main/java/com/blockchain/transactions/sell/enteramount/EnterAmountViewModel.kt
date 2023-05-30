@@ -1,6 +1,7 @@
 package com.blockchain.transactions.sell.enteramount
 
 import androidx.lifecycle.viewModelScope
+import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
@@ -23,6 +24,7 @@ import com.blockchain.presentation.complexcomponents.QuickFillDisplayAndAmount
 import com.blockchain.transactions.common.CombinedSourceNetworkFees
 import com.blockchain.transactions.common.OnChainDepositEngineInteractor
 import com.blockchain.transactions.common.OnChainDepositInputValidationError
+import com.blockchain.transactions.sell.SellAnalyticsEvents
 import com.blockchain.transactions.sell.SellService
 import com.blockchain.utils.removeLeadingZeros
 import info.blockchain.balance.CryptoCurrency
@@ -50,6 +52,7 @@ import kotlinx.coroutines.launch
 @OptIn(FlowPreview::class)
 class EnterAmountViewModel(
     private val fromTicker: String? = null,
+    private val analytics: Analytics,
     private val sellService: SellService,
     private val tradeDataService: TradeDataService,
     private val onChainDepositEngineInteractor: OnChainDepositEngineInteractor,
@@ -94,6 +97,8 @@ class EnterAmountViewModel(
                 }
                 return@launch
             }
+
+            analytics.logEvent(SellAnalyticsEvents.EnterAmountViewed(fromAccount.currency.networkTicker))
 
             updateState {
                 copy(
@@ -334,6 +339,8 @@ class EnterAmountViewModel(
             }
 
             is EnterAmountIntent.QuickFillEntryClicked -> {
+                analytics.logEvent(SellAnalyticsEvents.EnterAmountQuickFillClicked(isPartial = true))
+
                 when (modelState.selectedInput) {
                     CurrencyType.FIAT -> {
                         onIntent(EnterAmountIntent.FiatInputChanged(amount = intent.entry.amount.toInputString()))
@@ -345,6 +352,7 @@ class EnterAmountViewModel(
             }
 
             EnterAmountIntent.MaxSelected -> {
+                analytics.logEvent(SellAnalyticsEvents.EnterAmountQuickFillClicked(isPartial = false))
                 val userInputBalance = modelState.maxLimit.toInputString()
 
                 when (modelState.selectedInput) {
@@ -381,6 +389,8 @@ class EnterAmountViewModel(
                 check(toAccount != null)
                 val cryptoAmount = modelState.cryptoAmount
                 check(cryptoAmount != null)
+
+                analytics.logEvent(SellAnalyticsEvents.EnterAmountPreviewClicked(modelState.selectedInput))
 
                 navigate(
                     EnterAmountNavigationEvent.Preview(

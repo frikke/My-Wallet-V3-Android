@@ -19,6 +19,7 @@ val sellTransactionsPresentationModule = module {
 
         viewModel {
             EnterAmountViewModel(
+                analytics = get(),
                 sellService = get(),
                 tradeDataService = get(),
                 onChainDepositEngineInteractor = get(),

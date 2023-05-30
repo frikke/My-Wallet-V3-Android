@@ -81,10 +81,6 @@ fun NavContext.SellEnterAmount(
 ) {
     val viewState: EnterAmountViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
-    LaunchedEffect(viewModel) {
-//        analytics.logEvent(SellAnalyticsEvents.EnterAmountViewed)
-    }
-
     val navigationEvent by viewModel.navigationEventFlow.collectAsStateLifecycleAware(null)
     LaunchedEffect(navigationEvent) {
         navigationEvent?.let { event ->
@@ -196,19 +192,15 @@ fun NavContext.SellEnterAmount(
                         openSourceAccounts = {
                             navigateTo(SellGraph.SourceAccounts)
                             keyboardController?.hide()
-                            // TODO(aromano): events
-//                            analytics.logEvent(SellAnalyticsEvents.SelectSourceClicked)
                         },
                         quickFillEntryClicked = { entry ->
                             viewModel.onIntent(EnterAmountIntent.QuickFillEntryClicked(entry))
                         },
                         setMaxOnClick = {
                             viewModel.onIntent(EnterAmountIntent.MaxSelected)
-//                            analytics.logEvent(SellAnalyticsEvents.MaxClicked)
                         },
                         previewClicked = {
                             viewModel.onIntent(EnterAmountIntent.PreviewClicked)
-//                            analytics.logEvent(SellAnalyticsEvents.PreviewClicked)
                         },
                     )
                 }

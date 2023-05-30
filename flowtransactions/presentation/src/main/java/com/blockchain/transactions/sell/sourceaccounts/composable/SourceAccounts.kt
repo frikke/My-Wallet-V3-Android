@@ -19,6 +19,7 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.stringResources.R
 import com.blockchain.transactions.common.CryptoAccountWithBalance
 import com.blockchain.transactions.common.accounts.composable.AccountList
+import com.blockchain.transactions.sell.SellAnalyticsEvents
 import com.blockchain.transactions.sell.sourceaccounts.SourceAccountsIntent
 import com.blockchain.transactions.sell.sourceaccounts.SourceAccountsNavigationEvent
 import com.blockchain.transactions.sell.sourceaccounts.SourceAccountsViewModel
@@ -38,6 +39,7 @@ fun SourceAccounts(
 
     LaunchedEffect(viewModel) {
         viewModel.onIntent(SourceAccountsIntent.LoadData)
+        analytics.logEvent(SellAnalyticsEvents.SelectSourceViewed)
     }
 
     val navigationEvent by viewModel.navigationEventFlow.collectAsStateLifecycleAware(null)
@@ -45,12 +47,6 @@ fun SourceAccounts(
         navigationEvent?.let { navEvent ->
             when (navEvent) {
                 is SourceAccountsNavigationEvent.ConfirmSelection -> {
-                    // TODO(aromano): SELL analytics
-//                    analytics.logEvent(
-//                        SellAnalyticsEvents.SourceAccountSelected(
-//                            ticker = navEvent.account.account.currency.networkTicker
-//                        )
-//                    )
                     if (navEvent.requiresSecondPassword) {
                         navigateToEnterSecondPassword(navEvent.account)
                     } else {

@@ -50,8 +50,8 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.presentation.checkValidUrlAndOpen
 import com.blockchain.transactions.presentation.R
+import com.blockchain.transactions.sell.SellAnalyticsEvents
 import com.blockchain.transactions.sell.SellGraph
-import com.blockchain.transactions.swap.SwapAnalyticsEvents
 import com.blockchain.utils.awaitOutcome
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -102,9 +102,9 @@ fun NavContext.NewOrderStateScreen(
 
     LaunchedEffect(args.orderState) {
         when (args.orderState) {
-            NewOrderState.PendingDeposit -> analytics.logEvent(SwapAnalyticsEvents.PendingViewed)
-            NewOrderState.Succeeded -> analytics.logEvent(SwapAnalyticsEvents.SuccessViewed)
-            is NewOrderState.Error -> { /* n/a for now */ }
+            NewOrderState.PendingDeposit -> analytics.logEvent(SellAnalyticsEvents.PendingViewed)
+            NewOrderState.Succeeded -> analytics.logEvent(SellAnalyticsEvents.SuccessViewed)
+            is NewOrderState.Error -> analytics.logEvent(SellAnalyticsEvents.ErrorViewed)
         }
     }
 

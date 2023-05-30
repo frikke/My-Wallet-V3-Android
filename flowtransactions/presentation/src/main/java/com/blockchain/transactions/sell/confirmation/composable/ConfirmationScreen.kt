@@ -56,6 +56,7 @@ import com.blockchain.presentation.urllinks.NETWORK_FEE_EXPLANATION
 import com.blockchain.presentation.urllinks.ORDER_PRICE_EXPLANATION
 import com.blockchain.stringResources.R
 import com.blockchain.transactions.common.confirmation.composable.ConfirmationSection
+import com.blockchain.transactions.sell.SellAnalyticsEvents
 import com.blockchain.transactions.sell.confirmation.ConfirmationIntent
 import com.blockchain.transactions.sell.confirmation.ConfirmationNavigation
 import com.blockchain.transactions.sell.confirmation.ConfirmationViewModel
@@ -89,7 +90,7 @@ fun ConfirmationScreen(
     val sourceCryptoAmount = args.sourceCryptoAmount
 
     LaunchedEffect(Unit) {
-//        analytics.logEvent(SellAnalyticsEvents.ConfirmationViewed)
+        analytics.logEvent(SellAnalyticsEvents.ConfirmationViewed(sourceAccount.currency.networkTicker))
     }
 
     val navigationEvent by viewModel.navigationEventFlow.collectAsStateLifecycleAware(null)
@@ -113,14 +114,13 @@ fun ConfirmationScreen(
             submitOnClick = {
                 viewModel.onIntent(ConfirmationIntent.SubmitClicked)
 
-//                analytics.logEvent(
-//                    SellAnalyticsEvents.SwapClicked(
-//                        fromTicker = sourceAccount.currency.networkTicker,
-//                        fromAmount = sourceCryptoAmount.toStringWithSymbol(),
-//                        toTicker = targetAccount.currency.networkTicker,
-//                        destination = targetAccount.accountType()
-//                    )
-//                )
+                analytics.logEvent(
+                    SellAnalyticsEvents.ConfirmationSellClicked(
+                        fromTicker = sourceAccount.currency.networkTicker,
+                        fromAmount = sourceCryptoAmount.toStringWithSymbol(),
+                        toTicker = targetAccount.currency.networkTicker,
+                    )
+                )
             }
         )
     }

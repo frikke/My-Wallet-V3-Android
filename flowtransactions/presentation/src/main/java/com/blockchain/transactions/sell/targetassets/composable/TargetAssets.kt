@@ -57,11 +57,6 @@ fun TargetAssets(
         accounts = state,
         accountOnClick = { account ->
             accountSelected(sourceAccount, secondPassword, account)
-//            analytics.logEvent(
-//                SellAnalyticsEvents.DestinationAccountSelected(
-//                    ticker = account.currency.networkTicker
-//                )
-//            )
             onClosePressed()
         },
         onBackPressed = onClosePressed
