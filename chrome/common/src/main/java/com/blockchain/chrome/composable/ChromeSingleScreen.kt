@@ -119,7 +119,7 @@ private fun ChromeSingleScreen(
 
         // content
         Card(
-            modifier = Modifier,
+            modifier = Modifier.weight(1F),
             backgroundColor = Color(0XFFF1F2F7),
             shape = RoundedCornerShape(
                 topStart = AppTheme.dimensions.standardSpacing,
