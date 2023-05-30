@@ -1,12 +1,14 @@
 package com.blockchain.home.presentation.recurringbuy.list.composable
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -28,6 +30,7 @@ import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.componentlib.utils.value
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.SectionSize
@@ -67,23 +70,6 @@ fun RecurringBuyDashboard(
         }
     }
 
-    RecurringBuyDashboardScreen(
-        recurringBuys = viewState.recurringBuys,
-        openRecurringBuyDetail = openRecurringBuyDetail,
-        addOnClick = {
-            assetActionsNavigation.buyCryptoWithRecurringBuy()
-        },
-        onBackPressed = onBackPressed
-    )
-}
-
-@Composable
-fun RecurringBuyDashboardScreen(
-    recurringBuys: DataResource<RecurringBuyEligibleState>,
-    openRecurringBuyDetail: (id: String) -> Unit,
-    addOnClick: () -> Unit,
-    onBackPressed: () -> Unit
-) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -94,22 +80,43 @@ fun RecurringBuyDashboardScreen(
             onBackButtonClick = onBackPressed
         )
 
-        when (recurringBuys) {
-            DataResource.Loading -> {
-                ShimmerLoadingCard(showEndBlocks = false)
-            }
-            is DataResource.Error -> {
-                // todo error state
-            }
-            is DataResource.Data -> {
-                (recurringBuys.data as? RecurringBuyEligibleState.Eligible)?.let {
-                    RecurringBuyDashboardData(
-                        recurringBuys = it.recurringBuys.toImmutableList(),
-                        openRecurringBuyDetail = openRecurringBuyDetail,
-                        addOnClick = addOnClick
-                    )
-                } // todo ?: error state
-            }
+        Box(modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)) {
+            RecurringBuyDashboardScreen(
+                recurringBuys = viewState.recurringBuys,
+                openRecurringBuyDetail = openRecurringBuyDetail,
+                addOnClick = {
+                    assetActionsNavigation.buyCryptoWithRecurringBuy()
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun RecurringBuyDashboardScreen(
+    analytics: Analytics = get(),
+    recurringBuys: DataResource<RecurringBuyEligibleState>,
+    openRecurringBuyDetail: (id: String) -> Unit,
+    addOnClick: () -> Unit,
+) {
+    when (recurringBuys) {
+        DataResource.Loading -> {
+            ShimmerLoadingCard(showEndBlocks = false)
+        }
+
+        is DataResource.Error -> {
+            // todo error state
+        }
+
+        is DataResource.Data -> {
+            (recurringBuys.data as? RecurringBuyEligibleState.Eligible)?.let {
+                RecurringBuyDashboardData(
+                    analytics = analytics,
+                    recurringBuys = it.recurringBuys.toImmutableList(),
+                    openRecurringBuyDetail = openRecurringBuyDetail,
+                    addOnClick = addOnClick
+                )
+            } // todo ?: error state
         }
     }
 }
@@ -123,12 +130,7 @@ fun RecurringBuyDashboardData(
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.weight(1F)) {
-            LazyColumn(
-                contentPadding = PaddingValues(
-                    horizontal = AppTheme.dimensions.smallSpacing,
-                    vertical = AppTheme.dimensions.standardSpacing
-                )
-            ) {
+            LazyColumn {
                 roundedCornersItems(
                     items = recurringBuys,
                     content = { recurringBuy ->
@@ -148,10 +150,10 @@ fun RecurringBuyDashboardData(
             }
         }
 
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+
         PrimaryButton(
-            modifier = Modifier
-                .padding(AppTheme.dimensions.standardSpacing)
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             text = stringResource(com.blockchain.stringResources.R.string.recurring_buy_add),
             onClick = {
                 addOnClick()
@@ -179,32 +181,60 @@ fun RecurringBuyTableRow(
 
 @Preview
 @Composable
-fun PreviewRecurringBuyDashboardData() {
-    RecurringBuyDashboardData(
-        recurringBuys = persistentListOf(
-            RecurringBuyViewState(
-                id = "1",
-                assetTicker = "",
-                iconUrl = "",
-                description = TextValue.StringValue("20 every Tuesday"),
-                status = TextValue.StringValue("Next buy on Tue, March 18")
-            ),
-            RecurringBuyViewState(
-                id = "2",
-                assetTicker = "",
-                iconUrl = "",
-                description = TextValue.StringValue("20 every Tuesday"),
-                status = TextValue.StringValue("Next buy on Tue, March 18")
-            ),
-            RecurringBuyViewState(
-                id = "3",
-                assetTicker = "",
-                iconUrl = "",
-                description = TextValue.StringValue("20 every Tuesday"),
-                status = TextValue.StringValue("Next buy on Tue, March 18")
+fun PreviewRecurringBuyDashboardScreen() {
+    RecurringBuyDashboardScreen(
+        analytics = previewAnalytics,
+        recurringBuys = DataResource.Data(
+            RecurringBuyEligibleState.Eligible(
+                persistentListOf(
+                    RecurringBuyViewState(
+                        id = "1",
+                        assetTicker = "",
+                        iconUrl = "",
+                        description = TextValue.StringValue("20 every Tuesday"),
+                        status = TextValue.StringValue("Next buy on Tue, March 18")
+                    ),
+                    RecurringBuyViewState(
+                        id = "2",
+                        assetTicker = "",
+                        iconUrl = "",
+                        description = TextValue.StringValue("20 every Tuesday"),
+                        status = TextValue.StringValue("Next buy on Tue, March 18")
+                    ),
+                    RecurringBuyViewState(
+                        id = "3",
+                        assetTicker = "",
+                        iconUrl = "",
+                        description = TextValue.StringValue("20 every Tuesday"),
+                        status = TextValue.StringValue("Next buy on Tue, March 18")
+                    )
+                )
             )
         ),
         openRecurringBuyDetail = {},
         addOnClick = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewPreviewRecurringBuyDashboardScreenDark() {
+    PreviewRecurringBuyDashboardScreen()
+}
+
+@Preview
+@Composable
+fun PreviewRecurringBuyDashboardScreen_Loading() {
+    RecurringBuyDashboardScreen(
+        analytics = previewAnalytics,
+        recurringBuys = DataResource.Loading,
+        openRecurringBuyDetail = {},
+        addOnClick = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewRecurringBuyDashboardScreenDark_Loading() {
+    PreviewRecurringBuyDashboardScreen_Loading()
 }
