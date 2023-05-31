@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -36,11 +37,12 @@ sealed interface KeyboardButton {
     data class Value(val value: String) : KeyboardButton
     object Backspace : KeyboardButton
     object Biometrics : KeyboardButton
+    object None : KeyboardButton
 }
 
-private enum class KeyboardType {
-    Numeric,
-    Pin
+private sealed interface KeyboardType {
+    object Numeric : KeyboardType
+    data class Pin(val withBiometrics: Boolean) : KeyboardType
 }
 
 private fun KeyboardType.specialButton(): KeyboardButton {
@@ -49,18 +51,22 @@ private fun KeyboardType.specialButton(): KeyboardButton {
             DecimalFormatSymbols(Locale.getDefault()).decimalSeparator.toString()
         )
 
-        KeyboardType.Pin -> KeyboardButton.Biometrics
+        is KeyboardType.Pin -> {
+            if (withBiometrics) KeyboardButton.Biometrics
+            else KeyboardButton.None
+        }
     }
 }
 
 @Composable
 fun PinKeyboard(
+    withBiometrics: Boolean,
     backgroundColor: Color = AppTheme.colors.background,
     onClick: (KeyboardButton) -> Unit
 ) {
     Keyboard(
         backgroundColor = backgroundColor,
-        type = KeyboardType.Pin,
+        type = KeyboardType.Pin(withBiometrics),
         onClick = onClick
     )
 }
@@ -104,18 +110,23 @@ private fun Keyboard(
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 row.forEach { button ->
-                    Box(
+                    Surface(
                         modifier = Modifier
                             .weight(1F)
-                            .fillMaxHeight()
-                            .clickable { onClick(button) }
+                            .fillMaxHeight(),
+                        color = Color.Transparent,
+                        shape = AppTheme.shapes.small
                     ) {
-                        KeyboardButton(
-                            modifier = Modifier
-                                .padding(AppTheme.dimensions.tinySpacing)
-                                .align(Alignment.Center),
-                            button = button
-                        )
+                        Box(
+                            modifier = Modifier.clickable { onClick(button) }
+                        ) {
+                            KeyboardButton(
+                                modifier = Modifier
+                                    .padding(AppTheme.dimensions.tinySpacing)
+                                    .align(Alignment.Center),
+                                button = button
+                            )
+                        }
                     }
                 }
             }
@@ -130,8 +141,11 @@ private fun KeyboardButton(
 ) {
     when (button) {
         is KeyboardButton.Value -> KeyboardNumberButton(modifier, button.value)
-        is KeyboardButton.Backspace -> KeyboardIconButton(modifier, Icons.Backspace)
-        is KeyboardButton.Biometrics -> KeyboardIconButton(modifier, Icons.Fingerprint)
+        KeyboardButton.Backspace -> KeyboardIconButton(modifier, Icons.Backspace)
+        KeyboardButton.Biometrics -> KeyboardIconButton(modifier, Icons.Fingerprint)
+        KeyboardButton.None -> {
+            /*No-op*/
+        }
     }
 }
 
@@ -164,6 +178,7 @@ private fun KeyboardIconButton(
 @Composable
 private fun PreviewPinKeyboard() {
     PinKeyboard(
+        withBiometrics = true,
         onClick = {}
     )
 }

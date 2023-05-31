@@ -7,16 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".ui.settings.security.pin.PinActivity">
 
-    <androidx.appcompat.widget.AppCompatEditText
-        android:id="@+id/keyboard"
-        android:layout_width="1dp"
-        android:layout_height="0dp"
-        android:imeOptions="actionDone"
-        android:inputType="number"
-        android:maxLength="4"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <include
         android:id="@+id/toolbar"
         layout="@layout/toolbar_general"
@@ -48,7 +38,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
 
 
     <ImageView
@@ -143,20 +132,6 @@
         app:layout_constraintTop_toTopOf="@id/pinBox0"
         app:srcCompat="@drawable/pin_box_square_default_empty" />
 
-    <com.blockchain.componentlib.basic.SimpleImageView
-        android:id="@+id/fingerprint_logo"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginBottom="24dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/fingerprint_logo"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/text_view_version_code"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:tint="@color/primary_navy_dark"
-        tools:visibility="visible" />
-
     <TextView
         android:id="@+id/text_view_version_code"
         android:layout_width="wrap_content"
@@ -194,6 +169,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/pinBox0"
         tools:visibility="visible" />
+
+    <com.blockchain.componentlib.keyboard.PinKeyboardView
+        android:id="@+id/pinKeyboard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/xhuge_spacing"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/progress"
