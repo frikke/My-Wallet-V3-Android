@@ -1,5 +1,6 @@
 package com.blockchain.home.presentation.activity.detail.composable
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,11 +17,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.sheets.SheetFloatingHeader
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.CopyText
 import com.blockchain.componentlib.utils.OpenUrl
@@ -113,7 +114,7 @@ fun ActivityDetailScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color(0XFFF1F2F7))
+            .background(color = AppColors.background)
     ) {
         SheetFloatingHeader(
             icon = if (activityDetail is DataResource.Data) {
@@ -168,6 +169,7 @@ fun ActivityDetailData(
         modifier = Modifier
             .fillMaxWidth()
     ) {
+
         activityDetail.detailItems.forEach { sectionItems ->
             item {
                 ActivitySectionCard(
@@ -225,6 +227,12 @@ fun PreviewActivityScreen() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewActivityScreenDark() {
+    PreviewActivityScreen()
+}
+
 @Preview
 @Composable
 fun PreviewActivityScreenLoading() {
@@ -232,4 +240,10 @@ fun PreviewActivityScreenLoading() {
         activityDetail = DataResource.Loading,
         onCloseClick = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewActivityScreenLoadingDark() {
+    PreviewActivityScreenLoading()
 }

@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.tablerow.custom.CustomTableRow
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
@@ -88,7 +89,7 @@ fun ActivitySectionCard(
                     ActivityComponentItem(component = transaction, onClick = onClick)
 
                     if (index < components.lastIndex) {
-                        Divider(color = Color(0XFFF1F2F7))
+                        Divider(color = AppColors.background)
                     }
                 }
             }
