@@ -30,6 +30,7 @@ import com.blockchain.componentlib.icons.Backspace
 import com.blockchain.componentlib.icons.Fingerprint
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.conditional
 import java.text.DecimalFormatSymbols
 import java.util.Locale
 
@@ -118,7 +119,9 @@ private fun Keyboard(
                         shape = AppTheme.shapes.small
                     ) {
                         Box(
-                            modifier = Modifier.clickable { onClick(button) }
+                            modifier = Modifier.conditional(button != KeyboardButton.None) {
+                                clickable { onClick(button) }
+                            }
                         ) {
                             KeyboardButton(
                                 modifier = Modifier
@@ -140,7 +143,7 @@ private fun KeyboardButton(
     button: KeyboardButton
 ) {
     when (button) {
-        is KeyboardButton.Value -> KeyboardNumberButton(modifier, button.value)
+        is KeyboardButton.Value -> KeyboardValueButton(modifier, button.value)
         KeyboardButton.Backspace -> KeyboardIconButton(modifier, Icons.Backspace)
         KeyboardButton.Biometrics -> KeyboardIconButton(modifier, Icons.Fingerprint)
         KeyboardButton.None -> {
@@ -150,7 +153,7 @@ private fun KeyboardButton(
 }
 
 @Composable
-private fun KeyboardNumberButton(
+private fun KeyboardValueButton(
     modifier: Modifier,
     value: String
 ) {
