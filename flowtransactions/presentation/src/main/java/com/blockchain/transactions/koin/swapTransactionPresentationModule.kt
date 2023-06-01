@@ -4,6 +4,7 @@ import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.transactions.swap.confirmation.ConfirmationViewModel
 import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
+import com.blockchain.transactions.swap.enteramount.SwapEnterAmountArgs
 import com.blockchain.transactions.swap.sourceaccounts.SourceAccountsViewModel
 import com.blockchain.transactions.swap.targetaccounts.TargetAccountsViewModel
 import com.blockchain.transactions.swap.targetassets.TargetAssetsViewModel
@@ -20,12 +21,14 @@ val swapTransactionsPresentationModule = module {
             )
         }
 
-        viewModel {
+        viewModel { (args: SwapEnterAmountArgs) ->
             EnterAmountViewModel(
+                args = args,
                 swapService = get(),
                 exchangeRates = get(),
                 walletModeService = get(),
                 tradeDataService = get(),
+                assetCatalogue = get(),
                 onChainDepositEngineInteractor = get(),
                 fiatCurrenciesService = get(),
             )

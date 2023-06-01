@@ -6,11 +6,13 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NonCustodialAccount
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.componentlib.control.CurrencyValue
 import com.blockchain.componentlib.control.InputCurrency
+import com.blockchain.data.firstOutcome
 import com.blockchain.domain.trade.TradeDataService
 import com.blockchain.domain.trade.model.QuickFillRoundingData
 import com.blockchain.domain.transactions.TransferDirection
@@ -19,22 +21,25 @@ import com.blockchain.logging.Logger
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.flatMap
+import com.blockchain.outcome.getOrDefault
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData
 import com.blockchain.presentation.complexcomponents.QuickFillDisplayAndAmount
 import com.blockchain.transactions.common.CombinedSourceNetworkFees
+import com.blockchain.transactions.common.CryptoAccountWithBalance
 import com.blockchain.transactions.common.OnChainDepositEngineInteractor
 import com.blockchain.transactions.common.OnChainDepositInputValidationError
 import com.blockchain.transactions.sell.SellAnalyticsEvents
 import com.blockchain.transactions.sell.SellService
 import com.blockchain.utils.removeLeadingZeros
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import info.blockchain.balance.isLayer2Token
 import java.math.BigDecimal
 import java.math.RoundingMode
 import kotlin.math.roundToInt
@@ -44,17 +49,16 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
-/**
- * @property fromTicker if we come from Coinview we should have preset FROM
- */
 @OptIn(FlowPreview::class)
 class EnterAmountViewModel(
-    private val fromTicker: String? = null,
+    private val args: SellEnterAmountArgs,
     private val analytics: Analytics,
     private val sellService: SellService,
     private val tradeDataService: TradeDataService,
+    private val assetCatalogue: AssetCatalogue,
     private val onChainDepositEngineInteractor: OnChainDepositEngineInteractor,
 ) : MviViewModel<
     EnterAmountIntent,
@@ -72,10 +76,10 @@ class EnterAmountViewModel(
 
     init {
         viewModelScope.launch {
-            val toAccount = sellService.bestTargetAccount()
+            val bestToAccount = sellService.bestTargetAccount()
 
             // if no account found -> fatal error loading accounts
-            if (toAccount == null) {
+            if (bestToAccount == null) {
                 updateState {
                     copy(
                         fatalError = SellEnterAmountFatalError.WalletLoading
@@ -84,12 +88,46 @@ class EnterAmountViewModel(
                 return@launch
             }
 
-            // get highest balance account as the primary FROM
-            val fromAccountWithBalance = sellService.bestSourceAccountForTarget(toAccount)
-            val fromAccount = fromAccountWithBalance?.account
+            val argsSourceAccount = args.sourceAccount.data
+            val (fromAccount, toAccount) = if (argsSourceAccount != null) {
+                /* If the user already selected a source account we'll try to get the target fiat account to be the user's
+                   selected trading currency, if it's not possible we'll select the best possible candidate */
 
-            // if no account found -> fatal error loading accounts
-            if (fromAccount == null) {
+                val balance = argsSourceAccount.balance().firstOrNull()
+                val fromAccount = balance?.let {
+                    CryptoAccountWithBalance(
+                        account = argsSourceAccount,
+                        balanceCrypto = balance.total as CryptoValue,
+                        balanceFiat = balance.totalFiat as FiatValue,
+                    )
+                }
+
+                if (balance == null) {
+                    // if no account balance -> fatal error loading accounts
+                    null to null
+                } else if (sellService.isTargetAccountValidForSource(argsSourceAccount, bestToAccount)) {
+                    fromAccount to bestToAccount
+                } else {
+                    val toAccount = sellService.targetAccounts(argsSourceAccount).firstOutcome()
+                        .getOrDefault(null)
+                        ?.firstOrNull()
+
+                    fromAccount to toAccount
+                }
+            } else {
+                /* Given that the user will be unable to change their target fiat currency in this flow, we first get the
+                   their selected trading currency as the target and only then we get the valid source accounts
+                   that are available to sell to the fiat currency */
+
+                // get highest balance account as the primary FROM
+                val fromAccountWithBalance = sellService.bestSourceAccountForTarget(bestToAccount)
+
+                // if no account found -> fatal error loading accounts
+
+                fromAccountWithBalance to bestToAccount
+            }
+
+            if (fromAccount == null || toAccount == null) {
                 updateState {
                     copy(
                         fatalError = SellEnterAmountFatalError.WalletLoading
@@ -98,16 +136,16 @@ class EnterAmountViewModel(
                 return@launch
             }
 
-            analytics.logEvent(SellAnalyticsEvents.EnterAmountViewed(fromAccount.currency.networkTicker))
+            analytics.logEvent(SellAnalyticsEvents.EnterAmountViewed(fromAccount.account.currency.networkTicker))
 
             updateState {
                 copy(
-                    fromAccount = fromAccountWithBalance,
+                    fromAccount = fromAccount,
                     toAccount = toAccount,
                 )
             }
 
-            updateConfig(fromAccount, toAccount, null)
+            updateConfig(fromAccount.account, toAccount, null)
 
             tradeDataService.getQuickFillRoundingForSell()
                 .doOnSuccess { data ->
@@ -169,8 +207,8 @@ class EnterAmountViewModel(
             },
             assets = safeLet(fromAccount, toAccount) { fromAccount, toAccount ->
                 EnterAmountAssets(
-                    from = fromAccount.account.currency.toViewState(),
-                    to = toAccount.currency.toViewState()
+                    from = fromAccount.account.toViewState(),
+                    to = toAccount.toViewState()
                 )
             },
             quickFillButtonData = safeLet(
@@ -179,7 +217,7 @@ class EnterAmountViewModel(
                 minLimit,
                 maxLimit,
             ) { spendableBalance, quickFillRoundingData, minLimit, maxLimit ->
-                val limits = minLimit..maxLimit
+                val limits = if (minLimit > maxLimit) maxLimit..maxLimit else minLimit..maxLimit
                 val cryptoData =
                     getQuickFillCryptoButtonData(spendableBalance, limits, quickFillRoundingData)
                 when (selectedInput) {
@@ -637,16 +675,20 @@ class EnterAmountViewModel(
             else -> TransferDirection.INTERNAL
         }
 
+    private fun SingleAccount.toViewState() = EnterAmountAssetState(
+        iconUrl = currency.logo,
+        nativeAssetIconUrl = (this as? CryptoNonCustodialAccount)?.currency
+            ?.takeIf { it.isLayer2Token }
+            ?.coinNetwork?.nativeAssetTicker
+            ?.let { assetCatalogue.fromNetworkTicker(it)?.logo },
+        ticker = currency.displayTicker,
+        name = currency.name,
+    )
+
     companion object {
         private const val VALIDATION_DEBOUNCE_MS = 400L
     }
 }
-
-private fun Currency.toViewState() = EnterAmountAssetState(
-    iconUrl = logo,
-    ticker = displayTicker,
-    name = name,
-)
 
 private val EnterAmountModelState.currencyAwareMaxAmount: Money?
     get() = when (selectedInput) {
@@ -663,8 +705,8 @@ private fun Money?.toInputString(): String = this?.toBigDecimal()
     ?.setScale(this.userDecimalPlaces, RoundingMode.FLOOR)
     ?.stripTrailingZeros()
     ?.takeIf { it != BigDecimal.ZERO }
-    ?.toDouble()
-    ?.toString().orEmpty()
+    ?.toPlainString()
+    .orEmpty()
 
 private fun getQuickFillCryptoButtonData(
     spendableBalance: CryptoValue,
@@ -701,7 +743,7 @@ private fun QuickFillButtonData.toFiat(
     return QuickFillButtonData(
         maxAmount = cryptoToFiatExchangeRate.convert(maxAmount),
         quickFillButtons = quickFillButtons.mapNotNull { data ->
-            val (prefillFiat, prefillCrypto) = getRoundedFiatAndCryptoValuesPro(
+            val (prefillFiat, prefillCrypto) = getRoundedFiatAndCryptoValues(
                 data,
                 cryptoToFiatExchangeRate,
             )
@@ -718,7 +760,7 @@ private fun QuickFillButtonData.toFiat(
     )
 }
 
-private fun getRoundedFiatAndCryptoValuesPro(
+private fun getRoundedFiatAndCryptoValues(
     data: QuickFillDisplayAndAmount,
     cryptoToFiatExchangeRate: ExchangeRate,
 ): Pair<FiatValue, CryptoValue> {

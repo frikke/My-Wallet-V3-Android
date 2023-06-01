@@ -9,6 +9,7 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.makeExternalAssetAddress
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
+import com.blockchain.coincore.toUserFiat
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
@@ -171,12 +172,8 @@ class ConfirmationViewModel(
     }
 
     override fun ConfirmationModelState.reduce(): ConfirmationViewState {
-        val sourceNetworkFeeFiatAmount = safeLet(
-            sourceToTargetExchangeRate,
-            sourceNetworkFeeCryptoAmount,
-        ) { rate, fee ->
-            rate.convert(fee) as FiatValue
-        }
+        val sourceNetworkFeeFiatAmount =
+            sourceNetworkFeeCryptoAmount?.toUserFiat(exchangeRatesDataManager) as FiatValue?
 
         return ConfirmationViewState(
             isFetchQuoteLoading = isFetchQuoteLoading,
@@ -192,7 +189,11 @@ class ConfirmationViewModel(
             },
             totalCryptoAmount = let {
                 val feeAmount = sourceNetworkFeeCryptoAmount ?: CryptoValue.zero(sourceAccount.currency)
-                (sourceCryptoAmount + feeAmount) as CryptoValue
+                if (feeAmount.currency == sourceCryptoAmount.currency) {
+                    (sourceCryptoAmount + feeAmount) as CryptoValue
+                } else {
+                    sourceCryptoAmount
+                }
             },
             quoteRefreshRemainingPercentage = safeLet(
                 quoteRefreshRemainingSeconds,

@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,7 +19,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,11 +31,14 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.ParagraphIntrinsics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
@@ -104,13 +107,12 @@ fun TwoCurrenciesInput(
         c2Value = c2Value.copy(text = currency2.value)
     }
 
-    DisposableEffect(selected) {
-        when (selected) {
-            InputCurrency.Currency1 -> focusRequester1
-            InputCurrency.Currency2 -> focusRequester2
-        }.requestFocus()
-        onDispose { }
-    }
+//    LaunchedEffect(selected) {
+//        when (selected) {
+//            InputCurrency.Currency1 -> focusRequester1
+//            InputCurrency.Currency2 -> focusRequester2
+//        }.requestFocus()
+//    }
 
     Box(
         modifier = Modifier
@@ -184,11 +186,11 @@ fun TwoCurrenciesInput(
 
                     when (selected.flip()) {
                         InputCurrency.Currency1 -> {
-                            c1Value = c1Value.copy(selection = TextRange(0, c1Value.text.length))
+                            c1Value = c1Value.copy(selection = TextRange(c1Value.text.length))
                         }
 
                         InputCurrency.Currency2 -> {
-                            c2Value = c2Value.copy(selection = TextRange(0, c2Value.text.length))
+                            c2Value = c2Value.copy(selection = TextRange(c2Value.text.length))
                         }
                     }
                 },
@@ -221,6 +223,8 @@ private fun BoxScope.CurrencyInput(
         )
     }
 
+    var textFieldHeight by remember { mutableStateOf(0) }
+
     val textSizeAnim by animateFloatAsState(
         targetValue = if (focused) 40F else 20F,
         animationSpec = tween(
@@ -229,7 +233,7 @@ private fun BoxScope.CurrencyInput(
     )
 
     val translation by animateIntAsState(
-        targetValue = if (focused) 0 else maxHeight,
+        targetValue = if (focused) (maxHeight - textFieldHeight) / 2 else maxHeight,
         animationSpec = tween(
             durationMillis = BALANCE_OFFSET_ANIM_DURATION
         )
@@ -244,56 +248,95 @@ private fun BoxScope.CurrencyInput(
 
     val interactionSource = remember { MutableInteractionSource() }
 
-    BasicTextField(
-        modifier = modifier
-            .graphicsLayer {
-                translationY = translation.toFloat()
-            }
-            .align(Alignment.TopCenter)
-            .focusRequester(focusRequester)
-            .fillMaxWidth()
-            .padding(horizontal = 40.dp),
-        value = value,
-        onValueChange = {
-            if (pattern.matcher(it.text).matches()) {
-                onCurrencyValueChange(it)
-            }
-        },
-        interactionSource = interactionSource,
-        singleLine = true,
-        textStyle = AppTheme.typography.display.copy(
-            fontSize = textSizeAnim.sp,
-            textAlign = TextAlign.Center,
-            color = color
-        ),
-        readOnly = !focused,
-        visualTransformation = PrefixSuffixTransformation(
+    BoxWithConstraints(modifier.fillMaxWidth(1f)) {
+        val horizontalPadding = AppTheme.dimensions.hugeSpacing
+        val prefixSuffixTransformation = PrefixSuffixTransformation(
             value = currency.ticker,
             isPrefix = currency.isPrefix,
             separateWithSpace = currency.separateWithSpace
-        ),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-    ) { innerTextField ->
-        TextFieldDefaults.TextFieldDecorationBox(
-            value = value.text,
-            innerTextField = innerTextField,
-            singleLine = true,
-            visualTransformation = VisualTransformation.None,
-            interactionSource = interactionSource,
-            contentPadding = PaddingValues(0.dp),
-            enabled = true,
-            placeholder = {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = currency.zeroHint(),
-                    style = AppTheme.typography.display.copy(
-                        fontSize = textSizeAnim.sp
-                    ),
-                    textAlign = TextAlign.Center
+        )
+        val textStyle = AppTheme.typography.display
+
+        val density = LocalDensity.current
+        val context = LocalContext.current
+
+        val fontSizeCalculationCandidate = prefixSuffixTransformation.filter(value.annotatedString).text.text
+        val maxFontSize = remember(maxWidth, fontSizeCalculationCandidate) {
+            var shrunkFontSize = textStyle.fontSize
+            val calculateIntrinsics = {
+                ParagraphIntrinsics(
+                    text = fontSizeCalculationCandidate,
+                    style = textStyle.copy(fontSize = shrunkFontSize),
+                    density = density,
+                    fontFamilyResolver = createFontFamilyResolver(context)
                 )
             }
 
-        )
+            var intrinsics = calculateIntrinsics()
+            with(density) {
+                val textFieldDefaultHorizontalPadding = horizontalPadding.toPx()
+                val maxInputWidth = maxWidth.toPx() - 2 * textFieldDefaultHorizontalPadding
+
+                while (intrinsics.maxIntrinsicWidth > maxInputWidth) {
+                    shrunkFontSize *= 0.9
+                    intrinsics = calculateIntrinsics()
+                }
+            }
+            shrunkFontSize
+        }
+        val fontSize = textSizeAnim.coerceAtMost(maxFontSize.value).sp
+
+        BasicTextField(
+            modifier = modifier
+                .conditional(focused) {
+                    onGloballyPositioned {
+                        textFieldHeight = it.size.height
+                    }
+                }
+                .graphicsLayer {
+                    translationY = translation.toFloat()
+                }
+                .align(Alignment.TopCenter)
+                .focusRequester(focusRequester)
+                .fillMaxWidth()
+                .padding(horizontal = horizontalPadding),
+            value = value,
+            onValueChange = {
+                if (pattern.matcher(it.text).matches()) {
+                    onCurrencyValueChange(it)
+                }
+            },
+            interactionSource = interactionSource,
+            singleLine = true,
+            textStyle = textStyle.copy(
+                fontSize = fontSize,
+                textAlign = TextAlign.Center,
+                color = color
+            ),
+            readOnly = !focused,
+            visualTransformation = prefixSuffixTransformation,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+        ) { innerTextField ->
+            TextFieldDefaults.TextFieldDecorationBox(
+                value = value.text,
+                innerTextField = innerTextField,
+                singleLine = true,
+                visualTransformation = VisualTransformation.None,
+                interactionSource = interactionSource,
+                contentPadding = PaddingValues(0.dp),
+                enabled = true,
+                placeholder = {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = currency.zeroHint(),
+                        style = textStyle.copy(
+                            fontSize = fontSize
+                        ),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            )
+        }
     }
 }
 

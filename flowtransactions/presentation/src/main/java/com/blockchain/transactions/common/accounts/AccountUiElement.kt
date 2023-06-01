@@ -7,5 +7,6 @@ data class AccountUiElement(
     val l2Network: String? = null,
     val valueCrypto: String,
     val valueFiat: String,
-    val icon: List<String>
+    val icon: String,
+    val nativeAssetIcon: String?
 )

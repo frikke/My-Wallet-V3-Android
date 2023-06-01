@@ -53,7 +53,6 @@ import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.extensions.safeLet
-import com.blockchain.koin.payloadScope
 import com.blockchain.stringResources.R
 import com.blockchain.transactions.swap.SwapAnalyticsEvents
 import com.blockchain.transactions.swap.SwapGraph
@@ -67,12 +66,11 @@ import com.blockchain.transactions.swap.enteramount.EnterAmountViewState
 import com.blockchain.transactions.swap.enteramount.SwapEnterAmountFatalError
 import com.blockchain.transactions.swap.enteramount.SwapEnterAmountInputError
 import org.koin.androidx.compose.get
-import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EnterAmount(
-    viewModel: EnterAmountViewModel = getViewModel(scope = payloadScope),
+    viewModel: EnterAmountViewModel,
     analytics: Analytics = get(),
     navContextProvider: () -> NavContext,
     onBackPressed: () -> Unit
@@ -263,18 +261,10 @@ private fun EnterAmountScreen(
         assets?.let {
             TwoAssetActionHorizontal(
                 startTitle = stringResource(R.string.common_from),
-                start = HorizontalAssetAction(
-                    assets.from.ticker,
-                    StackedIcon.SingleIcon(ImageResource.Remote(assets.from.iconUrl)),
-                ),
+                start = assets.from.toAssetAction(),
                 startOnClick = openSourceAccounts,
                 endTitle = stringResource(R.string.common_to),
-                end = assets.to?.let {
-                    HorizontalAssetAction(
-                        it.ticker,
-                        StackedIcon.SingleIcon(ImageResource.Remote(it.iconUrl)),
-                    )
-                },
+                end = assets.to?.toAssetAction(),
                 endOnClick = { openTargetAccounts(assets.from.ticker) }
             )
         } ?: TwoAssetActionHorizontalLoading()
@@ -328,6 +318,18 @@ private fun EnterAmountScreen(
     }
 }
 
+private fun EnterAmountAssetState.toAssetAction() = HorizontalAssetAction(
+    assetName = ticker,
+    icon = if (nativeAssetIconUrl != null) {
+        StackedIcon.SmallTag(
+            ImageResource.Remote(iconUrl),
+            ImageResource.Remote(nativeAssetIconUrl)
+        )
+    } else {
+        StackedIcon.SingleIcon(ImageResource.Remote(iconUrl))
+    }
+)
+
 @Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
 private fun PreviewEnterAmountScreen() {
@@ -336,10 +338,12 @@ private fun PreviewEnterAmountScreen() {
         assets = EnterAmountAssets(
             from = EnterAmountAssetState(
                 iconUrl = "",
+                nativeAssetIconUrl = "",
                 ticker = "BTC"
             ),
             to = EnterAmountAssetState(
                 iconUrl = "",
+                nativeAssetIconUrl = null,
                 ticker = "ETH"
             )
         ),

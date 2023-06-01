@@ -14,6 +14,7 @@ import com.blockchain.betternavigation.typedComposable
 import com.blockchain.betternavigation.utils.Bindable
 import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.chrome.composable.ChromeSingleScreen
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.common.entersecondpassword.EnterSecondPasswordArgs
 import com.blockchain.transactions.common.entersecondpassword.composable.EnterSecondPasswordScreen
@@ -21,6 +22,7 @@ import com.blockchain.transactions.sell.confirmation.SellConfirmationArgs
 import com.blockchain.transactions.sell.confirmation.composable.ConfirmationScreen
 import com.blockchain.transactions.sell.enteramount.EnterAmountIntent
 import com.blockchain.transactions.sell.enteramount.EnterAmountViewModel
+import com.blockchain.transactions.sell.enteramount.SellEnterAmountArgs
 import com.blockchain.transactions.sell.enteramount.SellEnterAmountInputError
 import com.blockchain.transactions.sell.enteramount.composable.InputErrorScreen
 import com.blockchain.transactions.sell.enteramount.composable.SellEnterAmount
@@ -33,6 +35,7 @@ import com.blockchain.transactions.sell.upsell.SellUpsellAnotherAssetScreen
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import info.blockchain.balance.AssetInfo
 import org.koin.androidx.compose.getViewModel
+import org.koin.core.parameter.parametersOf
 
 object SellGraph : NavGraph() {
     object EnterAmount : Destination()
@@ -48,10 +51,16 @@ object SellGraph : NavGraph() {
 @ExperimentalMaterialNavigationApi
 @Composable
 fun SellGraphHost(
+    initialSourceAccount: CryptoAccount?,
     navigateToBuy: (AssetInfo) -> Unit,
     exitFlow: () -> Unit,
 ) {
-    val viewModel: EnterAmountViewModel = getViewModel(scope = payloadScope)
+    val viewModel: EnterAmountViewModel = getViewModel(
+        scope = payloadScope,
+        parameters = {
+            parametersOf(SellEnterAmountArgs(Bindable(initialSourceAccount)))
+        }
+    )
 
     TypedNavHost(
         graph = SellGraph,

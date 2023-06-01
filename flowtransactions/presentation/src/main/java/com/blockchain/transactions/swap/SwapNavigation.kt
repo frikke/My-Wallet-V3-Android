@@ -14,6 +14,7 @@ import com.blockchain.betternavigation.typedComposable
 import com.blockchain.betternavigation.utils.Bindable
 import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.chrome.composable.ChromeSingleScreen
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.common.entersecondpassword.EnterSecondPasswordArgs
 import com.blockchain.transactions.common.entersecondpassword.composable.EnterSecondPasswordScreen
@@ -21,6 +22,7 @@ import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
 import com.blockchain.transactions.swap.confirmation.composable.ConfirmationScreen
 import com.blockchain.transactions.swap.enteramount.EnterAmountIntent
 import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
+import com.blockchain.transactions.swap.enteramount.SwapEnterAmountArgs
 import com.blockchain.transactions.swap.enteramount.SwapEnterAmountInputError
 import com.blockchain.transactions.swap.enteramount.composable.EnterAmount
 import com.blockchain.transactions.swap.enteramount.composable.InputErrorScreen
@@ -32,6 +34,7 @@ import com.blockchain.transactions.swap.targetaccounts.composable.TargetAccounts
 import com.blockchain.transactions.swap.targetassets.composable.TargetAssets
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import org.koin.androidx.compose.getViewModel
+import org.koin.core.parameter.parametersOf
 
 object SwapGraph : NavGraph() {
     object EnterAmount : Destination()
@@ -47,9 +50,15 @@ object SwapGraph : NavGraph() {
 @ExperimentalMaterialNavigationApi
 @Composable
 fun SwapGraphHost(
+    initialSourceAccount: CryptoAccount?,
     exitFlow: () -> Unit,
 ) {
-    val viewModel: EnterAmountViewModel = getViewModel(scope = payloadScope)
+    val viewModel: EnterAmountViewModel = getViewModel(
+        scope = payloadScope,
+        parameters = {
+            parametersOf(SwapEnterAmountArgs(Bindable(initialSourceAccount)))
+        }
+    )
 
     TypedNavHost(
         graph = SwapGraph,

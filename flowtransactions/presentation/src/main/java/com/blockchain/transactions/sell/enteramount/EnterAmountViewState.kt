@@ -24,6 +24,7 @@ data class EnterAmountAssets(
 
 data class EnterAmountAssetState(
     val iconUrl: String,
+    val nativeAssetIconUrl: String?,
     val ticker: String,
     val name: String
 )

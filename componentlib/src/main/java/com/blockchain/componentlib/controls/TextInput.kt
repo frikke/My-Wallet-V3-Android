@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -33,8 +34,12 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.text.ParagraphIntrinsics
+import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -65,6 +70,7 @@ fun TextInput(
     modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
+    autoSize: Boolean = false,
     readOnly: Boolean = false,
     state: TextInputState = TextInputState.Default(""),
     label: String? = null,
@@ -106,6 +112,7 @@ fun TextInput(
                 onValueChange(newTextFieldValueState.text)
             }
         },
+        autoSize = autoSize,
         readOnly = readOnly,
         state = state,
         label = label,
@@ -130,6 +137,7 @@ fun TextInput(
     modifier: Modifier = Modifier,
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
+    autoSize: Boolean = false,
     readOnly: Boolean = false,
     state: TextInputState = TextInputState.Default(""),
     label: String? = null,
@@ -207,86 +215,126 @@ fun TextInput(
     }
     Column {
         val focusManager = LocalFocusManager.current
-        TextField(
-            value = newTextFieldValue,
-            onValueChange = { newValue ->
-                val newTextFieldValue = if (maxLength != Int.MAX_VALUE) {
-                    val newValueString = newValue.annotatedString.subSequence(
-                        0,
-                        newValue.annotatedString.length.coerceAtMost(maxLength)
-                    )
-                    newValue.copy(annotatedString = newValueString)
-                } else {
-                    newValue
-                }
-                onValueChange(newTextFieldValue)
-            },
-            modifier = modifier
-                .fillMaxWidth(1f)
-                .onPreviewKeyEvent { keyEvent ->
-                    if (keyEvent.key == Key.Tab && keyEvent.nativeKeyEvent.action == ACTION_DOWN) {
-                        focusManager.moveFocus(FocusDirection.Next)
-                        true
-                    } else {
-                        false
+
+        BoxWithConstraints(modifier.fillMaxWidth(1f)) {
+            val textStyle = AppTheme.typography.body1
+
+            val fontSize = if (autoSize) {
+                check(singleLine) { "autoSize only works with singleLine = false" }
+
+                val density = LocalDensity.current
+                val context = LocalContext.current
+
+                val fontSize = remember(maxWidth, newTextFieldValue.text) {
+                    var shrunkFontSize = textStyle.fontSize
+                    val calculateIntrinsics = {
+                        ParagraphIntrinsics(
+                            text = newTextFieldValue.text,
+                            style = textStyle,
+                            density = density,
+                            fontFamilyResolver = createFontFamilyResolver(context)
+                        )
                     }
+
+                    var intrinsics = calculateIntrinsics()
+                    with(density) {
+                        // TextField and OutlinedText field have default horizontal padding of 16.dp
+                        val textFieldDefaultHorizontalPadding = 16.dp.toPx()
+                        val maxInputWidth = maxWidth.toPx() - 2 * textFieldDefaultHorizontalPadding
+
+                        while (intrinsics.maxIntrinsicWidth > maxInputWidth) {
+                            shrunkFontSize *= 0.9
+                            intrinsics = calculateIntrinsics()
+                        }
+                    }
+                    shrunkFontSize
                 }
-                .onFocusChanged { focusState ->
-                    onFocusChanged.invoke(focusState)
+                fontSize
+            } else {
+                textStyle.fontSize
+            }
+
+            TextField(
+                value = newTextFieldValue,
+                onValueChange = { newValue ->
+                    val newTextFieldValue = if (maxLength != Int.MAX_VALUE) {
+                        val newValueString = newValue.annotatedString.subSequence(
+                            0,
+                            newValue.annotatedString.length.coerceAtMost(maxLength)
+                        )
+                        newValue.copy(annotatedString = newValueString)
+                    } else {
+                        newValue
+                    }
+                    onValueChange(newTextFieldValue)
                 },
-            label = if (label != null) {
-                { Text(label, style = AppTheme.typography.caption1) }
-            } else {
-                null
-            },
-            placeholder = if (placeholder != null) {
-                { Text(placeholder) }
-            } else {
-                null
-            },
-            leadingIcon = if (leadingIcon != ImageResource.None) {
-                {
-                    Image(imageResource = leadingIcon)
-                }
-            } else {
-                null
-            },
-            trailingIcon = if (trailingIcon != ImageResource.None) {
-                {
-                    Image(
-                        modifier = Modifier.clickable {
-                            onTrailingIconClicked.invoke()
-                        },
-                        imageResource = trailingIcon
-                    )
-                }
-            } else {
-                null
-            },
-            enabled = enabled,
-            readOnly = readOnly,
-            textStyle = AppTheme.typography.body1,
-            visualTransformation = visualTransformation,
-            keyboardOptions = keyboardOptions,
-            keyboardActions = keyboardActions,
-            singleLine = singleLine,
-            maxLines = maxLines,
-            colors = TextFieldDefaults.textFieldColors(
-                textColor = textColor,
-                backgroundColor = backgroundColor,
-                unfocusedLabelColor = placeholderColor,
-                unfocusedIndicatorColor = unfocusedColor,
-                focusedIndicatorColor = focusedColor,
-                focusedLabelColor = focusedColor,
-                cursorColor = focusedColor,
-                errorCursorColor = focusedColor,
-                placeholderColor = placeholderColor,
-                disabledTextColor = textColor,
-                disabledLabelColor = placeholderColor,
-                disabledPlaceholderColor = placeholderColor
-            ),
-            interactionSource = interactionSource
-        )
+                modifier = modifier
+                    .fillMaxWidth(1f)
+                    .onPreviewKeyEvent { keyEvent ->
+                        if (keyEvent.key == Key.Tab && keyEvent.nativeKeyEvent.action == ACTION_DOWN) {
+                            focusManager.moveFocus(FocusDirection.Next)
+                            true
+                        } else {
+                            false
+                        }
+                    }
+                    .onFocusChanged { focusState ->
+                        onFocusChanged.invoke(focusState)
+                    },
+                label = if (label != null) {
+                    { Text(label, style = AppTheme.typography.caption1) }
+                } else {
+                    null
+                },
+                placeholder = if (placeholder != null) {
+                    { Text(placeholder) }
+                } else {
+                    null
+                },
+                leadingIcon = if (leadingIcon != ImageResource.None) {
+                    {
+                        Image(imageResource = leadingIcon)
+                    }
+                } else {
+                    null
+                },
+                trailingIcon = if (trailingIcon != ImageResource.None) {
+                    {
+                        Image(
+                            modifier = Modifier.clickable {
+                                onTrailingIconClicked.invoke()
+                            },
+                            imageResource = trailingIcon
+                        )
+                    }
+                } else {
+                    null
+                },
+                enabled = enabled,
+                readOnly = readOnly,
+                textStyle = textStyle.copy(fontSize = fontSize),
+                visualTransformation = visualTransformation,
+                keyboardOptions = keyboardOptions,
+                keyboardActions = keyboardActions,
+                singleLine = singleLine,
+                maxLines = maxLines,
+                colors = TextFieldDefaults.textFieldColors(
+                    textColor = textColor,
+                    backgroundColor = backgroundColor,
+                    unfocusedLabelColor = placeholderColor,
+                    unfocusedIndicatorColor = unfocusedColor,
+                    focusedIndicatorColor = focusedColor,
+                    focusedLabelColor = focusedColor,
+                    cursorColor = focusedColor,
+                    errorCursorColor = focusedColor,
+                    placeholderColor = placeholderColor,
+                    disabledTextColor = textColor,
+                    disabledLabelColor = placeholderColor,
+                    disabledPlaceholderColor = placeholderColor
+                ),
+                interactionSource = interactionSource
+            )
+        }
 
         if (state.message != null) {
             Text(

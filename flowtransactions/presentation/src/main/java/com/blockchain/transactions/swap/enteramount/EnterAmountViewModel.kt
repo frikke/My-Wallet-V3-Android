@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.NonCustodialAccount
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
@@ -27,18 +28,20 @@ import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.toDataResource
 import com.blockchain.transactions.common.CombinedSourceNetworkFees
+import com.blockchain.transactions.common.CryptoAccountWithBalance
 import com.blockchain.transactions.common.OnChainDepositEngineInteractor
 import com.blockchain.transactions.common.OnChainDepositInputValidationError
 import com.blockchain.transactions.swap.SwapService
 import com.blockchain.utils.removeLeadingZeros
 import com.blockchain.walletmode.WalletModeService
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import info.blockchain.balance.isLayer2Token
 import java.math.BigDecimal
 import java.math.RoundingMode
 import kotlinx.coroutines.FlowPreview
@@ -51,16 +54,14 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
-/**
- * @property fromTicker if we come from Coinview we should have preset FROM
- */
 @OptIn(FlowPreview::class)
 class EnterAmountViewModel(
-    private val fromTicker: String? = null,
+    private val args: SwapEnterAmountArgs,
     private val swapService: SwapService,
     private val exchangeRates: ExchangeRatesDataManager,
     private val walletModeService: WalletModeService,
     private val tradeDataService: TradeDataService,
+    private val assetCatalogue: AssetCatalogue,
     private val onChainDepositEngineInteractor: OnChainDepositEngineInteractor,
     fiatCurrenciesService: FiatCurrenciesService,
 ) : MviViewModel<
@@ -84,9 +85,23 @@ class EnterAmountViewModel(
     init {
         viewModelScope.launch {
             val walletMode = walletModeService.walletMode.firstOrNull()
+            val argsSourceAccount = args.sourceAccount.data
 
-            // get highest balance account as the primary FROM
-            val fromAccountWithBalance = swapService.highestBalanceSourceAccount()
+            val fromAccountWithBalance = if (argsSourceAccount != null) {
+                val balance = argsSourceAccount.balance().firstOrNull()
+                val fromAccount = balance?.let {
+                    CryptoAccountWithBalance(
+                        account = argsSourceAccount,
+                        balanceCrypto = balance.total as CryptoValue,
+                        balanceFiat = balance.totalFiat as FiatValue,
+                    )
+                }
+                fromAccount
+            } else {
+                // get highest balance account as the primary FROM
+                swapService.highestBalanceSourceAccount()
+            }
+
             val fromAccount = fromAccountWithBalance?.account
 
             // if no account found -> fatal error loading accounts
@@ -190,8 +205,8 @@ class EnterAmountViewModel(
             selectedInput = selectedInput,
             assets = fromAccount?.let {
                 EnterAmountAssets(
-                    from = fromAccount.account.currency.toViewState(),
-                    to = toAccount?.currency?.toViewState()
+                    from = fromAccount.account.toViewState(),
+                    to = toAccount?.toViewState()
                 )
             },
             maxAmount = currencyAwareMaxAmount?.toStringWithSymbol(),
@@ -598,15 +613,19 @@ class EnterAmountViewModel(
             else -> TransferDirection.INTERNAL
         }
 
+    private fun SingleAccount.toViewState() = EnterAmountAssetState(
+        iconUrl = currency.logo,
+        nativeAssetIconUrl = (this as? CryptoNonCustodialAccount)?.currency
+            ?.takeIf { it.isLayer2Token }
+            ?.coinNetwork?.nativeAssetTicker
+            ?.let { assetCatalogue.fromNetworkTicker(it)?.logo },
+        ticker = currency.displayTicker,
+    )
+
     companion object {
         private const val VALIDATION_DEBOUNCE_MS = 400L
     }
 }
-
-private fun Currency.toViewState() = EnterAmountAssetState(
-    iconUrl = logo,
-    ticker = displayTicker
-)
 
 private val EnterAmountModelState.currencyAwareMaxAmount: Money?
     get() = when (selectedInput) {
@@ -629,5 +648,5 @@ private fun Money?.toInputString(): String = this?.toBigDecimal()
     ?.setScale(this.userDecimalPlaces, RoundingMode.FLOOR)
     ?.stripTrailingZeros()
     ?.takeIf { it != BigDecimal.ZERO }
-    ?.toDouble()
-    ?.toString().orEmpty()
+    ?.toPlainString()
+    .orEmpty()

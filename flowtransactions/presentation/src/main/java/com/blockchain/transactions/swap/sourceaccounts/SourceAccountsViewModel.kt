@@ -1,6 +1,5 @@
 package com.blockchain.transactions.swap.sourceaccounts
 
-import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
@@ -16,7 +15,6 @@ import com.blockchain.transactions.common.accounts.AccountUiElement
 import com.blockchain.transactions.common.withId
 import com.blockchain.transactions.swap.SwapService
 import info.blockchain.balance.AssetCatalogue
-import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.isLayer2Token
 import kotlinx.coroutines.flow.collectLatest
 
@@ -88,17 +86,11 @@ class SourceAccountsViewModel(
                     ?.coinNetwork?.shortName,
                 valueCrypto = balanceCrypto.toStringWithSymbol(),
                 valueFiat = balanceFiat.toStringWithSymbol(),
-                icon = when (account) {
-                    is NonCustodialAccount -> listOfNotNull(
-                        balanceCrypto.currency.logo,
-                        (balanceCrypto.currency as? AssetInfo)
-                            ?.takeIf { it.isLayer2Token }
-                            ?.coinNetwork?.nativeAssetTicker
-                            ?.let { assetCatalogue.fromNetworkTicker(it)?.logo }
-                    )
-
-                    else -> listOf(balanceCrypto.currency.logo)
-                }
+                icon = balanceCrypto.currency.logo,
+                nativeAssetIcon = (account as? CryptoNonCustodialAccount)?.currency
+                    ?.takeIf { it.isLayer2Token }
+                    ?.coinNetwork?.nativeAssetTicker
+                    ?.let { assetCatalogue.fromNetworkTicker(it)?.logo },
             )
         }
     }
