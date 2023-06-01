@@ -9,7 +9,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
@@ -29,7 +28,7 @@ fun SecondaryButton(
         text = text,
         onClick = onClick,
         state = state,
-        defaultTextColor = AppColors.title,
+        defaultTextColor = Color.White,
         defaultBackgroundLightColor = Grey800,
         defaultBackgroundDarkColor = Grey800,
         disabledTextLightAlpha = 0.7f,
