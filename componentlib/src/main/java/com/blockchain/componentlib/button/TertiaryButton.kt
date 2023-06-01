@@ -11,6 +11,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue000
@@ -22,7 +23,7 @@ fun TertiaryButton(
     text: String,
     onClick: () -> Unit,
     state: ButtonState = ButtonState.Enabled,
-    textColor: Color = Blue600,
+    textColor: Color = AppColors.primary,
     defaultBackgroundColor: Color? = null,
     icon: ImageResource = ImageResource.None,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding

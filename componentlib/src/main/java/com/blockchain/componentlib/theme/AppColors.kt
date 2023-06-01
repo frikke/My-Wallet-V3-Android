@@ -84,53 +84,5 @@ val White800 = Color.White.copy(0.8f)
 val UltraLight = Color(0XFFFAFBFF)
 val CowboysDark = Color(0XFF07080D)
 
-val defLightColors = SemanticColors(
-    title = Grey900,
-    body = Grey700,
-    overlay = Overlay600,
-    muted = Grey700,
-    dark = Grey300,
-    semidark = Grey400,
-    medium = Grey100,
-    light = Grey000,
-    background = BackgroundMuted,
-    backgroundSecondary = Color.White,
-    primary = Blue600,
-    primaryMuted = Blue400,
-    success = Green700,
-    successMuted = Green300,
-    warning = Orange600,
-    warningMuted = Orange400,
-    error = Red600,
-    errorMuted = Red400,
-    negative = Pink700,
-    negativeMuted = Pink700,
-    isLight = true
-)
-
-val defDarkColors = SemanticColors(
-    title = Color.White,
-    body = Dark200,
-    overlay = Overlay600,
-    muted = Dark400,
-    dark = Dark700,
-    medium = Dark600,
-    light = Dark800,
-    semidark = Dark800,
-    background = Dark900,
-    backgroundSecondary = Dark800,
-    primary = Blue400,
-    primaryMuted = Blue400, // todo unknown atm
-    success = Green400,
-    successMuted = Green400, // todo unknown atm
-    warning = Orange400,
-    warningMuted = Orange400, // todo unknown atm
-    error = Red400,
-    errorMuted = Red400, // todo unknown atm
-    negative = Pink700,
-    negativeMuted = Pink700,
-    isLight = false
-)
-
-val LocalLightColors = compositionLocalOf { defLightColors2 }
-val LocalDarkColors = compositionLocalOf { defDarkColors2 }
+val LocalLightColors = compositionLocalOf { defLightColors }
+val LocalDarkColors = compositionLocalOf { defDarkColors }

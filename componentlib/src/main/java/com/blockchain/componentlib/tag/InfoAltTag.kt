@@ -1,8 +1,10 @@
 package com.blockchain.componentlib.tag
 
+import android.content.res.Configuration
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue200
@@ -14,49 +16,35 @@ fun InfoAltTag(
     size: TagSize = TagSize.Primary,
     onClick: (() -> Unit)? = null
 ) {
-    val defaultBackgroundColor = if (!isSystemInDarkTheme()) {
-        Blue200
-    } else {
-        Dark600
-    }
-
-    val defaultTextColor = AppTheme.colors.primary
-
     Tag(
         text = text,
         size = size,
-        defaultBackgroundColor = defaultBackgroundColor,
-        defaultTextColor = defaultTextColor,
+        defaultBackgroundColor = AppColors.primaryLight,
+        defaultTextColor = AppColors.primary,
         onClick = onClick
     )
 }
 
 @Preview
 @Composable
-fun InfoAltTag_Basic() {
-    AppTheme {
-        AppSurface {
-            InfoAltTag(text = "Default", onClick = null)
-        }
-    }
+private fun InfoAltTag_Basic() {
+    InfoAltTag(text = "Default", onClick = null)
 }
 
-@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun InfoAltTag_Dark() {
-    AppTheme(darkTheme = true) {
-        AppSurface {
-            InfoAltTag(text = "Default", onClick = null)
-        }
-    }
+private fun InfoAltTag_BasicDark() {
+    InfoAltTag_Basic()
 }
 
 @Preview
 @Composable
 fun InfoAltTag_clickable() {
-    AppTheme(darkTheme = true) {
-        AppSurface {
-            InfoAltTag(text = "Click me", onClick = { })
-        }
-    }
+    InfoAltTag(text = "Click me", onClick = { })
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun InfoAltTag_clickableDark() {
+    InfoAltTag_clickable()
 }
