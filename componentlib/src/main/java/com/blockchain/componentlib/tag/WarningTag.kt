@@ -1,16 +1,9 @@
 package com.blockchain.componentlib.tag
 
 import android.content.res.Configuration
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.theme.AppColors
-import com.blockchain.componentlib.theme.AppSurface
-import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Dark900
-import com.blockchain.componentlib.theme.Orange100
-import com.blockchain.componentlib.theme.Orange400
-import com.blockchain.componentlib.theme.Orange600
 
 @Composable
 fun WarningTag(
@@ -38,7 +31,6 @@ fun WarningTag_Basic() {
 private fun WarningTag_BasicDark() {
     WarningTag_Basic()
 }
-
 
 @Preview
 @Composable

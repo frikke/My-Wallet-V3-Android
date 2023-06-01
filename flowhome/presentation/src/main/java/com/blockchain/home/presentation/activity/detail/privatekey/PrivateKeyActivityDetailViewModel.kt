@@ -8,7 +8,6 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.home.presentation.activity.common.toActivityComponent
-import com.blockchain.home.presentation.activity.common.toStackedIcon
 import com.blockchain.home.presentation.activity.detail.ActivityDetail
 import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
 import com.blockchain.home.presentation.activity.detail.ActivityDetailIntent

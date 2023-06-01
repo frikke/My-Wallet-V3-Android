@@ -1,11 +1,6 @@
 package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
 import com.blockchain.coincore.CustodialActiveRewardsActivitySummaryItem
-import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.Minus
-import com.blockchain.componentlib.icons.Plus
-import com.blockchain.componentlib.icons.Rewards
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.earn.domain.models.EarnRewardsState
 import com.blockchain.home.presentation.R
@@ -35,7 +30,7 @@ internal fun CustodialActiveRewardsActivitySummaryItem.iconDetail(): ActivityLoc
             TransactionSummary.TransactionType.DEBIT -> ActivityLocalIcon.Sell
             else -> ActivityLocalIcon.Buy
         }
-        else ->ActivityLocalIcon.Reward
+        else -> ActivityLocalIcon.Reward
     }
 }
 

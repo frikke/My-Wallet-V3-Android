@@ -1,8 +1,5 @@
 package com.blockchain.home.presentation.activity.detail.composable
 
-import com.blockchain.componentlib.R
-import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.activity.common.ActivityComponent

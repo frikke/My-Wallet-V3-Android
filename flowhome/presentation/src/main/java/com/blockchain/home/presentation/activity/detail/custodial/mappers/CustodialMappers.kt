@@ -9,7 +9,6 @@ import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
-import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivityStackView

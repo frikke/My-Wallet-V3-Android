@@ -1,8 +1,5 @@
 package com.blockchain.home.presentation.activity.list.composable
 
-import com.blockchain.componentlib.R
-import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.activity.common.ActivityComponent
@@ -21,7 +18,7 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
         TransactionGroup.Group.Pending to listOf(
             ActivityComponent.StackView(
                 id = "",
-                leadingImage =  ActivityIcon.SmallTag(
+                leadingImage = ActivityIcon.SmallTag(
                     main = ActivityIconSource.Local(ActivityLocalIcon.Buy),
                     tag = ActivityIconSource.Local(ActivityLocalIcon.Buy)
                 ),
@@ -48,7 +45,7 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
             ),
             ActivityComponent.StackView(
                 id = "",
-                leadingImage =  ActivityIcon.SmallTag(
+                leadingImage = ActivityIcon.SmallTag(
                     main = ActivityIconSource.Local(ActivityLocalIcon.Buy),
                     tag = ActivityIconSource.Local(ActivityLocalIcon.Buy)
                 ),
@@ -89,7 +86,7 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
         TransactionGroup.Group.Date(Calendar.getInstance().apply { set(Calendar.MONTH, 4) }) to listOf(
             ActivityComponent.StackView(
                 id = "",
-                leadingImage =  ActivityIcon.SmallTag(
+                leadingImage = ActivityIcon.SmallTag(
                     main = ActivityIconSource.Local(ActivityLocalIcon.Buy),
                     tag = ActivityIconSource.Local(ActivityLocalIcon.Buy)
                 ),
@@ -116,7 +113,7 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
             ),
             ActivityComponent.StackView(
                 id = "",
-                leadingImage =  ActivityIcon.SmallTag(
+                leadingImage = ActivityIcon.SmallTag(
                     main = ActivityIconSource.Local(ActivityLocalIcon.Buy),
                     tag = ActivityIconSource.Local(ActivityLocalIcon.Buy)
                 ),
@@ -153,7 +150,7 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
         TransactionGroup.Group.Date(Calendar.getInstance().apply { set(Calendar.MONTH, 5) }) to listOf(
             ActivityComponent.StackView(
                 id = "",
-                leadingImage =  ActivityIcon.SmallTag(
+                leadingImage = ActivityIcon.SmallTag(
                     main = ActivityIconSource.Local(ActivityLocalIcon.Buy),
                     tag = ActivityIconSource.Local(ActivityLocalIcon.Buy)
                 ),

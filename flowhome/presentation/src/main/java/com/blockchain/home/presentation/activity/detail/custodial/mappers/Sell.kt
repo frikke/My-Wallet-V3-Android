@@ -1,9 +1,6 @@
 package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
 import com.blockchain.coincore.TradeActivitySummaryItem
-import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.Minus
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityComponent

@@ -1,6 +1,5 @@
 package com.blockchain.home.presentation.activity.list.custodial.mappers
 
-import androidx.annotation.DrawableRes
 import com.blockchain.coincore.CustodialStakingActivitySummaryItem
 import com.blockchain.coincore.toStringWithSymbolOrLessThanOnePenny
 import com.blockchain.componentlib.utils.TextValue
@@ -13,7 +12,7 @@ import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.FiatValue
 import info.blockchain.wallet.multiaddress.TransactionSummary
 
- internal fun CustodialStakingActivitySummaryItem.iconSummary(): ActivityLocalIcon {
+internal fun CustodialStakingActivitySummaryItem.iconSummary(): ActivityLocalIcon {
     return when (state) {
         EarnRewardsState.COMPLETE -> when (type) {
             TransactionSummary.TransactionType.DEPOSIT -> ActivityLocalIcon.Buy

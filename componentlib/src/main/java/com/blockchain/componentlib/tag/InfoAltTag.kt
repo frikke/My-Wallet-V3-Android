@@ -1,14 +1,9 @@
 package com.blockchain.componentlib.tag
 
 import android.content.res.Configuration
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.theme.AppColors
-import com.blockchain.componentlib.theme.AppSurface
-import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue200
-import com.blockchain.componentlib.theme.Dark600
 
 @Composable
 fun InfoAltTag(

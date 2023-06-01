@@ -1,10 +1,6 @@
 package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
-import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.Minus
-import com.blockchain.componentlib.icons.Plus
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
@@ -18,7 +14,6 @@ import com.blockchain.home.presentation.activity.detail.custodial.CustodialActiv
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtraKey
 import com.blockchain.home.presentation.activity.detail.custodial.PaymentDetails
 import com.blockchain.home.presentation.activity.list.custodial.mappers.basicTitleStyle
-import com.blockchain.home.presentation.activity.list.custodial.mappers.iconSummary
 import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType

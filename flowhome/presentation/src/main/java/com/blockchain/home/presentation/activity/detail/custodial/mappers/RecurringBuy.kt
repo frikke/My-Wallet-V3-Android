@@ -3,9 +3,6 @@ package com.blockchain.home.presentation.activity.detail.custodial.mappers
 import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
-import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.Plus
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.recurringbuy.domain.model.RecurringBuy
 import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency

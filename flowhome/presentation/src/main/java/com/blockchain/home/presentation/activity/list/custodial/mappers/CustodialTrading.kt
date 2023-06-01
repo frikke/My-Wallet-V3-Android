@@ -1,13 +1,11 @@
 package com.blockchain.home.presentation.activity.list.custodial.mappers
 
-import androidx.annotation.DrawableRes
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIcon
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityLocalIcon
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.utils.toFormattedDate

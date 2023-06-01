@@ -1,6 +1,5 @@
 package com.blockchain.home.presentation.activity.list.custodial.mappers
 
-import androidx.annotation.DrawableRes
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.toStringWithSymbolOrLessThanOnePenny
 import com.blockchain.componentlib.utils.TextValue

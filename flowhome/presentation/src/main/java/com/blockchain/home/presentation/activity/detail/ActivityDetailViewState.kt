@@ -1,7 +1,6 @@
 package com.blockchain.home.presentation.activity.detail
 
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
-import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.activity.common.ActivityComponent

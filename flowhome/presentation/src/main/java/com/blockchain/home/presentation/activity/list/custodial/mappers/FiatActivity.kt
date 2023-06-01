@@ -1,6 +1,5 @@
 package com.blockchain.home.presentation.activity.list.custodial.mappers
 
-import androidx.annotation.DrawableRes
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
@@ -11,7 +10,7 @@ import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityLocalIco
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.utils.toFormattedDate
 
-  internal fun FiatActivitySummaryItem.iconSummary(): ActivityLocalIcon {
+internal fun FiatActivitySummaryItem.iconSummary(): ActivityLocalIcon {
     return when (type) {
         TransactionType.DEPOSIT -> ActivityLocalIcon.Buy
         TransactionType.WITHDRAWAL -> ActivityLocalIcon.Sell
