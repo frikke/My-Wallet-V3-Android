@@ -5,7 +5,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -20,6 +23,7 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Visible
@@ -129,20 +133,27 @@ fun MaskableTextWithToggle(
         )
 
         Row(modifier = Modifier.weight(1F)) {
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
 
-            Image(
-                modifier = Modifier.clickable(
-                    onClick = {
-                        maskedValueService.toggleMaskState()
-                    }
-                ),
-                imageResource = if (isMaskActive) {
-                    Icons.Filled.VisibleOff
-                } else {
-                    Icons.Filled.Visible
-                }.withTint(AppTheme.colors.dark)
-            )
+            Surface(
+                color = Color.Transparent,
+                shape = CircleShape
+            ) {
+                Image(
+                    modifier = Modifier
+                        .clickable(
+                            onClick = {
+                                maskedValueService.toggleMaskState()
+                            }
+                        )
+                        .padding(AppTheme.dimensions.smallestSpacing),
+                    imageResource = if (isMaskActive) {
+                        Icons.Filled.VisibleOff
+                    } else {
+                        Icons.Filled.Visible
+                    }.withTint(AppTheme.colors.dark)
+                )
+            }
         }
     }
 }
@@ -182,6 +193,18 @@ private fun PreviewMaskedAndClearText() {
         )
         PrimaryButton(text = "switch", onClick = { previewMaskedValueService.toggleMaskState() })
     }
+}
+
+@Preview
+@Composable
+private fun PreviewMaskableTextWithToggle() {
+    MaskableTextWithToggle(
+        clearText = "$",
+        maskableText = "100",
+        format = MaskedTextFormat.ClearThenMasked,
+        style = AppTheme.typography.title1,
+        color = AppTheme.colors.title,
+    )
 }
 
 private val previewMaskedValueService = object : MaskedValueService {
