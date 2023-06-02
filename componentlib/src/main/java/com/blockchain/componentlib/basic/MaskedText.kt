@@ -23,7 +23,6 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Visible
