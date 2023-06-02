@@ -39,7 +39,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.analytics.Analytics
-import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -669,22 +668,13 @@ private fun EarningScreen(
 }
 
 @Composable
-private fun EarnType.description() = when (this) {
-    EarnType.Passive -> stringResource(
-        id =
-        com.blockchain.stringResources.R.string.earn_rewards_label_passive_short
-    )
-
-    EarnType.Staking -> stringResource(
-        id =
-        com.blockchain.stringResources.R.string.earn_rewards_label_staking_short
-    )
-
-    EarnType.Active -> stringResource(
-        id =
-        com.blockchain.stringResources.R.string.earn_rewards_label_active_short
-    )
-}
+private fun EarnType.description() = stringResource(
+    when (this) {
+        EarnType.Passive -> com.blockchain.stringResources.R.string.earn_rewards_label_passive_short
+        EarnType.Staking -> com.blockchain.stringResources.R.string.earn_rewards_label_staking_short
+        EarnType.Active -> com.blockchain.stringResources.R.string.earn_rewards_label_active_short
+    }
+)
 
 private fun EarnDashboardListFilter.title(): Int =
     when (this) {
