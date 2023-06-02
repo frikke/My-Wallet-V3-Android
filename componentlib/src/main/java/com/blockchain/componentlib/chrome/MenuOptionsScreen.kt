@@ -27,6 +27,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.Image
+import com.blockchain.componentlib.basic.MaskedText
+import com.blockchain.componentlib.basic.MaskedTextFormat
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.User
 import com.blockchain.componentlib.icons.Viewfinder
@@ -38,6 +40,7 @@ const val BALANCE_OFFSET_ANIM_DURATION = 200
 @Composable
 fun MenuOptionsScreen(
     modifier: Modifier = Modifier,
+    walletBalanceCurrency: String = "",
     walletBalance: String = "",
     openSettings: () -> Unit,
     launchQrScanner: () -> Unit,
@@ -83,7 +86,7 @@ fun MenuOptionsScreen(
                     elevation = 3.dp
                 ) {
                     Box(modifier = Modifier.matchParentSize()) {
-                        Text(
+                        MaskedText(
                             modifier = Modifier
                                 .clipToBounds()
                                 .align(Alignment.Center)
@@ -96,7 +99,9 @@ fun MenuOptionsScreen(
                                 .graphicsLayer {
                                     alpha = BALANCE_OFFSET_TARGET - balanceOffset / BALANCE_OFFSET_TARGET.toFloat()
                                 },
-                            text = walletBalance,
+                            clearText = walletBalanceCurrency,
+                            maskableText = walletBalance,
+                            format = MaskedTextFormat.ClearThenMasked,
                             style = AppTheme.typography.title3,
                             color = AppTheme.colors.title
                         )

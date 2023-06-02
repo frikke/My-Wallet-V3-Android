@@ -20,6 +20,7 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.basic.MaskedText
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.icons.Icons
@@ -29,6 +30,36 @@ import com.blockchain.componentlib.tag.DefaultTag
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 import com.blockchain.componentlib.theme.SmallestVerticalSpacer
+
+@Composable
+fun MaskedBalanceFiatAndCryptoTableRow(
+    title: String,
+    titleIcon: ImageResource? = null,
+    subtitle: String = "",
+    tag: String = "",
+    valueCrypto: String,
+    valueFiat: String,
+    icon: StackedIcon = StackedIcon.None,
+    defaultIconSize: Dp = AppTheme.dimensions.standardSpacing,
+    onClick: () -> Unit
+) {
+    BalanceFiatAndCryptoTableRow(
+        allowMaskedValue = true,
+        title = title,
+        subtitle = subtitle,
+        tag = tag,
+        titleIcon = titleIcon,
+        valueCrypto = valueCrypto,
+        valueFiat = valueFiat,
+        contentStart = {
+            CustomStackedIcon(
+                icon = icon,
+                size = defaultIconSize
+            )
+        },
+        onClick = onClick
+    )
+}
 
 @Composable
 fun BalanceFiatAndCryptoTableRow(
@@ -43,6 +74,7 @@ fun BalanceFiatAndCryptoTableRow(
     onClick: () -> Unit
 ) {
     BalanceFiatAndCryptoTableRow(
+        allowMaskedValue = false,
         title = title,
         subtitle = subtitle,
         tag = tag,
@@ -61,6 +93,7 @@ fun BalanceFiatAndCryptoTableRow(
 
 @Composable
 private fun BalanceFiatAndCryptoTableRow(
+    allowMaskedValue: Boolean,
     title: String,
     subtitle: String = "",
     tag: String = "",
@@ -135,18 +168,18 @@ private fun BalanceFiatAndCryptoTableRow(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.End
                 ) {
-                    SimpleText(
+                    MaskedText(
+                        allowMaskedValue = allowMaskedValue,
                         text = valueFiat,
-                        gravity = ComposeGravities.End,
-                        style = ComposeTypographies.Paragraph2,
-                        color = ComposeColors.Title
+                        style = AppTheme.typography.paragraph2,
+                        color = AppTheme.colors.title
                     )
                     SmallestVerticalSpacer()
-                    SimpleText(
+                    MaskedText(
+                        allowMaskedValue = allowMaskedValue,
                         text = valueCrypto,
-                        gravity = ComposeGravities.End,
-                        style = ComposeTypographies.Paragraph1,
-                        color = ComposeColors.Body
+                        style = AppTheme.typography.paragraph1,
+                        color = AppTheme.colors.body
                     )
                 }
             }

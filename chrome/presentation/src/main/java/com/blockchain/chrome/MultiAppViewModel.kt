@@ -54,7 +54,7 @@ class MultiAppViewModel(
         },
         selectedMode = selectedWalletMode,
         backgroundColors = selectedWalletMode?.backgroundColors(),
-        totalBalance = totalBalance.map { balance -> balance.toStringWithSymbol() },
+        totalBalance = totalBalance,
         shouldRevealBalance = balanceRevealed.not(),
         bottomNavigationItems = selectedWalletMode?.bottomNavigationItems()?.filter {
             it != ChromeBottomNavigationItem.Dex || dexEnabled

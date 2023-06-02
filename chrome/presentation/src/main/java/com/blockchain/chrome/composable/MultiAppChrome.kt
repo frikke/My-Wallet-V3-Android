@@ -84,6 +84,7 @@ import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
 import com.blockchain.walletmode.WalletMode
+import info.blockchain.balance.Money
 import kotlin.math.min
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -233,7 +234,7 @@ fun MultiAppChromeScreen(
     modeSwitcherOptions: ChromeModeOptions,
     selectedMode: WalletMode,
     backgroundColors: ChromeBackgroundColors,
-    balance: DataResource<String>,
+    balance: DataResource<Money>,
     shouldRevealBalance: Boolean,
     bottomNavigationItems: ImmutableList<ChromeBottomNavigationItem>,
     selectedBottomNavigationItem: ChromeBottomNavigationItem,

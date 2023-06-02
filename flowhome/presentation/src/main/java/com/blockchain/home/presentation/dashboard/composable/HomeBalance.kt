@@ -2,6 +2,7 @@ package com.blockchain.home.presentation.dashboard.composable
 
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,10 +23,19 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
+import com.blockchain.componentlib.basic.ComposeColors
+import com.blockchain.componentlib.basic.ComposeTypographies
+import com.blockchain.componentlib.basic.Image
+import com.blockchain.componentlib.basic.MaskedText
+import com.blockchain.componentlib.basic.MaskedTextFormat
 import com.blockchain.componentlib.chrome.BALANCE_OFFSET_ANIM_DURATION
 import com.blockchain.componentlib.chrome.BALANCE_OFFSET_TARGET
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Visible
+import com.blockchain.componentlib.icons.VisibleOff
 import com.blockchain.componentlib.system.ShimmerLoadingBox
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.presentation.balance.BalanceDifferenceConfig
 import com.blockchain.presentation.balance.WalletBalance
@@ -37,7 +47,9 @@ fun BalanceScreen(
     modifier: Modifier = Modifier,
     walletBalance: WalletBalance,
     balanceAlphaProvider: () -> Float,
-    hideBalance: Boolean
+    hideBalance: Boolean,
+    isMaskActive: Boolean,
+    onToggleMaskClicked: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -49,7 +61,9 @@ fun BalanceScreen(
         TotalBalance(
             balance = walletBalance.balance,
             balanceAlphaProvider = balanceAlphaProvider,
-            hide = hideBalance
+            hide = hideBalance,
+            isMaskActive = isMaskActive,
+            onToggleMaskClicked = onToggleMaskClicked
         )
         BalanceDifference(
             balanceDifference = walletBalance.balanceDifference
@@ -61,7 +75,9 @@ fun BalanceScreen(
 fun TotalBalance(
     balanceAlphaProvider: () -> Float,
     hide: Boolean,
-    balance: DataResource<Money>
+    balance: DataResource<Money>,
+    isMaskActive: Boolean,
+    onToggleMaskClicked: () -> Unit
 ) {
     val balanceOffset by animateIntAsState(
         targetValue = if (hide) -BALANCE_OFFSET_TARGET else 0,
@@ -84,25 +100,46 @@ fun TotalBalance(
         }
 
         is DataResource.Data -> {
-            Text(
-                modifier = Modifier
-                    .clipToBounds()
-                    .offset {
-                        IntOffset(
-                            x = 0,
-                            y = balanceOffset
-                        )
-                    }
-                    .graphicsLayer {
-                        this.alpha = balanceAlphaProvider()
-                        val scale = (balanceAlphaProvider() * 1.6F).coerceIn(0F, 1F)
-                        scaleX = scale
-                        scaleY = scale
-                    },
-                text = balance.data.toStringWithSymbol(),
-                style = AppTheme.typography.title1,
-                color = AppTheme.colors.title
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Spacer(modifier = Modifier.weight(1F))
+
+                MaskedText(
+                    modifier = Modifier
+                        .clipToBounds()
+                        .offset {
+                            IntOffset(
+                                x = 0,
+                                y = balanceOffset
+                            )
+                        }
+                        .graphicsLayer {
+                            this.alpha = balanceAlphaProvider()
+                            val scale = (balanceAlphaProvider() * 1.6F).coerceIn(0F, 1F)
+                            scaleX = scale
+                            scaleY = scale
+                        },
+                    clearText = balance.data.symbol,
+                    maskableText = balance.data.toStringWithoutSymbol(),
+                    format = MaskedTextFormat.ClearThenMasked,
+                    style = AppTheme.typography.title1,
+                    color = AppTheme.colors.title
+                )
+
+                Row(modifier = Modifier.weight(1F)) {
+                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+                    Image(
+                        modifier = Modifier.clickable(onClick = onToggleMaskClicked),
+                        imageResource = if (isMaskActive) {
+                            Icons.Filled.VisibleOff
+                        } else {
+                            Icons.Filled.Visible
+                        }.withTint(AppTheme.colors.dark)
+                    )
+                }
+            }
         }
 
         is DataResource.Error -> {
@@ -139,7 +176,9 @@ fun PreviewBalanceScreen() {
                 cryptoBalanceNow = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal()))
             ),
             balanceAlphaProvider = { 1F },
-            hideBalance = false
+            hideBalance = false,
+            isMaskActive = false,
+            onToggleMaskClicked = {}
         )
     }
 }
@@ -154,6 +193,8 @@ fun PreviewBalanceScreenLoading() {
             cryptoBalanceNow = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal()))
         ),
         balanceAlphaProvider = { 1F },
-        hideBalance = false
+        hideBalance = false,
+        isMaskActive = false,
+        onToggleMaskClicked = {}
     )
 }

@@ -15,13 +15,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.basic.ComposeColors
+import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.basic.MaskedText
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.QuestionOff
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
+import com.blockchain.componentlib.tablerow.MaskableBalanceChangeTableRow
 import com.blockchain.componentlib.tablerow.TableRowHeader
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey400
@@ -65,7 +69,7 @@ fun FundLocksData(
 
             Spacer(modifier = Modifier.weight(1F))
 
-            Text(
+            MaskedText(
                 text = total.toStringWithSymbol(),
                 style = AppTheme.typography.paragraph2,
                 color = AppTheme.colors.muted
@@ -162,7 +166,7 @@ internal fun LazyListScope.homeAssets(
             )
         }
     ) {
-        BalanceChangeTableRow(
+        MaskableBalanceChangeTableRow(
             name = it.name,
             value = it.balance.map { money ->
                 money.toStringWithSymbol()

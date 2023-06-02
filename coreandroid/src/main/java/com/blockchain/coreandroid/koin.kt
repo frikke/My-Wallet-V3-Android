@@ -23,6 +23,7 @@ import com.blockchain.preferences.DexPrefs
 import com.blockchain.preferences.ExchangeCampaignPrefs
 import com.blockchain.preferences.IterableAnnouncementsPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
+import com.blockchain.preferences.MaskedValuePrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
@@ -92,6 +93,7 @@ val coreAndroidModule = module {
         bind(CowboysPrefs::class)
         bind(ExchangeCampaignPrefs::class)
         bind(IterableAnnouncementsPrefs::class)
+        bind(MaskedValuePrefs::class)
     }
 
     factory {
