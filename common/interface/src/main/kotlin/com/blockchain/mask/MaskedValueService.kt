@@ -4,6 +4,5 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface MaskedValueService {
     val shouldMask: StateFlow<Boolean>
-    fun updateMaskState(shouldMask: Boolean)
     fun toggleMaskState()
 }

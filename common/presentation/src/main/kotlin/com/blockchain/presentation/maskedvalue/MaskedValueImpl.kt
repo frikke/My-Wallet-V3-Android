@@ -9,11 +9,6 @@ internal class MaskedValueImpl(
 ) : MaskedValueService {
     override val shouldMask = MutableStateFlow(prefs.shouldMaskValues)
 
-    override fun updateMaskState(shouldMask: Boolean) {
-        this.shouldMask.value = shouldMask
-        prefs.shouldMaskValues = shouldMask
-    }
-
     override fun toggleMaskState() {
         this.shouldMask.value = !this.shouldMask.value
         prefs.shouldMaskValues = this.shouldMask.value

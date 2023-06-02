@@ -180,10 +180,6 @@ private fun PreviewMaskedAndClearText() {
 private val previewMaskedValueService = object : MaskedValueService {
     override val shouldMask = MutableStateFlow(false)
 
-    override fun updateMaskState(shouldMask: Boolean) {
-        this.shouldMask.value = shouldMask
-    }
-
     override fun toggleMaskState() {
         this.shouldMask.value = !this.shouldMask.value
     }
