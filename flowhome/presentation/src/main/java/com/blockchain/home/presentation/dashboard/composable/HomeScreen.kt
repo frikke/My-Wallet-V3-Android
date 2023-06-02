@@ -55,9 +55,6 @@ import com.blockchain.home.presentation.dapps.HomeDappsIntent
 import com.blockchain.home.presentation.dapps.HomeDappsViewModel
 import com.blockchain.home.presentation.dapps.HomeDappsViewState
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
-import com.blockchain.home.presentation.maskedvalue.MaskedValueIntent
-import com.blockchain.home.presentation.maskedvalue.MaskedValueViewModel
-import com.blockchain.home.presentation.maskedvalue.MaskedValueViewState
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.HomeDestination
 import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
@@ -122,9 +119,6 @@ fun HomeScreen(
 
     val lifecycleOwner = LocalLifecycleOwner.current
     val navController = LocalNavControllerProvider.current
-
-    val maskedValueViewModel: MaskedValueViewModel = getViewModel(scope = payloadScope)
-    val maskedValueViewState: MaskedValueViewState by maskedValueViewModel.viewState.collectAsStateLifecycleAware()
 
     val homeAssetsViewModel: AssetsViewModel = getViewModel(scope = payloadScope)
     val assetsViewState: AssetsViewState by homeAssetsViewModel.viewState.collectAsStateLifecycleAware()
@@ -246,10 +240,6 @@ fun HomeScreen(
                 balanceAlphaProvider = { balanceScrollRange },
                 hideBalance = balanceScrollRange <= 0.5 && menuOptionsHeight > 0F,
                 walletBalance = assetsViewState.balance,
-                isMaskActive = maskedValueViewState.isMaskActive,
-                onToggleMaskClicked = {
-                    maskedValueViewModel.onIntent(MaskedValueIntent.Toggle)
-                }
             )
         }
 

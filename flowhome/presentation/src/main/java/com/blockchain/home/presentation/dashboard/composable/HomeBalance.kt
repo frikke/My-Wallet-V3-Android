@@ -28,6 +28,7 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.MaskedText
 import com.blockchain.componentlib.basic.MaskedTextFormat
+import com.blockchain.componentlib.basic.MaskedTextWithToggle
 import com.blockchain.componentlib.chrome.BALANCE_OFFSET_ANIM_DURATION
 import com.blockchain.componentlib.chrome.BALANCE_OFFSET_TARGET
 import com.blockchain.componentlib.icons.Icons
@@ -48,8 +49,6 @@ fun BalanceScreen(
     walletBalance: WalletBalance,
     balanceAlphaProvider: () -> Float,
     hideBalance: Boolean,
-    isMaskActive: Boolean,
-    onToggleMaskClicked: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -62,8 +61,6 @@ fun BalanceScreen(
             balance = walletBalance.balance,
             balanceAlphaProvider = balanceAlphaProvider,
             hide = hideBalance,
-            isMaskActive = isMaskActive,
-            onToggleMaskClicked = onToggleMaskClicked
         )
         BalanceDifference(
             balanceDifference = walletBalance.balanceDifference
@@ -75,9 +72,7 @@ fun BalanceScreen(
 fun TotalBalance(
     balanceAlphaProvider: () -> Float,
     hide: Boolean,
-    balance: DataResource<Money>,
-    isMaskActive: Boolean,
-    onToggleMaskClicked: () -> Unit
+    balance: DataResource<Money>
 ) {
     val balanceOffset by animateIntAsState(
         targetValue = if (hide) -BALANCE_OFFSET_TARGET else 0,
@@ -100,46 +95,27 @@ fun TotalBalance(
         }
 
         is DataResource.Data -> {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Spacer(modifier = Modifier.weight(1F))
-
-                MaskedText(
-                    modifier = Modifier
-                        .clipToBounds()
-                        .offset {
-                            IntOffset(
-                                x = 0,
-                                y = balanceOffset
-                            )
-                        }
-                        .graphicsLayer {
-                            this.alpha = balanceAlphaProvider()
-                            val scale = (balanceAlphaProvider() * 1.6F).coerceIn(0F, 1F)
-                            scaleX = scale
-                            scaleY = scale
-                        },
-                    clearText = balance.data.symbol,
-                    maskableText = balance.data.toStringWithoutSymbol(),
-                    format = MaskedTextFormat.ClearThenMasked,
-                    style = AppTheme.typography.title1,
-                    color = AppTheme.colors.title
-                )
-
-                Row(modifier = Modifier.weight(1F)) {
-                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-
-                    Image(
-                        modifier = Modifier.clickable(onClick = onToggleMaskClicked),
-                        imageResource = if (isMaskActive) {
-                            Icons.Filled.VisibleOff
-                        } else {
-                            Icons.Filled.Visible
-                        }.withTint(AppTheme.colors.dark)
-                    )
-                }
-            }
+            MaskedTextWithToggle(
+                modifier = Modifier
+                    .clipToBounds()
+                    .offset {
+                        IntOffset(
+                            x = 0,
+                            y = balanceOffset
+                        )
+                    }
+                    .graphicsLayer {
+                        this.alpha = balanceAlphaProvider()
+                        val scale = (balanceAlphaProvider() * 1.6F).coerceIn(0F, 1F)
+                        scaleX = scale
+                        scaleY = scale
+                    },
+                clearText = balance.data.symbol,
+                maskableText = balance.data.toStringWithoutSymbol(),
+                format = MaskedTextFormat.ClearThenMasked,
+                style = AppTheme.typography.title1,
+                color = AppTheme.colors.title
+            )
         }
 
         is DataResource.Error -> {
@@ -177,8 +153,6 @@ fun PreviewBalanceScreen() {
             ),
             balanceAlphaProvider = { 1F },
             hideBalance = false,
-            isMaskActive = false,
-            onToggleMaskClicked = {}
         )
     }
 }
@@ -194,7 +168,5 @@ fun PreviewBalanceScreenLoading() {
         ),
         balanceAlphaProvider = { 1F },
         hideBalance = false,
-        isMaskActive = false,
-        onToggleMaskClicked = {}
     )
 }

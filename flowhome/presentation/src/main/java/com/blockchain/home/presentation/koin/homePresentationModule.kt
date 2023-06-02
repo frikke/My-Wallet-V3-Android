@@ -12,7 +12,6 @@ import com.blockchain.home.presentation.dashboard.CustodialEmptyCardViewModel
 import com.blockchain.home.presentation.earn.EarnViewModel
 import com.blockchain.home.presentation.fiat.actions.FiatActionsNavigator
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailViewModel
-import com.blockchain.home.presentation.maskedvalue.MaskedValueViewModel
 import com.blockchain.home.presentation.news.NewsViewModel
 import com.blockchain.home.presentation.onboarding.defi.DeFiOnboardingViewModel
 import com.blockchain.home.presentation.onboarding.introduction.IntroScreensViewModel
@@ -189,12 +188,5 @@ val homePresentationModule = module {
                 newsService = get()
             )
         }
-
-        viewModel {
-            MaskedValueViewModel(
-                maskedValueService = get()
-            )
-        }
-
     }
 }
