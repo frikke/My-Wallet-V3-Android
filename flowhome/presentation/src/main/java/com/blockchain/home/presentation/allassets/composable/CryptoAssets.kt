@@ -32,8 +32,6 @@ import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.system.ShimmerLoadingCard
-import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
-import com.blockchain.componentlib.tablerow.BalanceFiatAndCryptoTableRow
 import com.blockchain.componentlib.tablerow.MaskedBalanceChangeTableRow
 import com.blockchain.componentlib.tablerow.MaskedBalanceFiatAndCryptoTableRow
 import com.blockchain.componentlib.tablerow.ValueChange

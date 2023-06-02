@@ -45,7 +45,6 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.basic.MaskedText
 import com.blockchain.componentlib.basic.MaskedTextFormat
 import com.blockchain.componentlib.basic.MaskedTextWithToggle
 import com.blockchain.componentlib.basic.SimpleText
@@ -58,8 +57,6 @@ import com.blockchain.componentlib.control.NonCancelableOutlinedSearch
 import com.blockchain.componentlib.control.TabSwitcher
 import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.system.ShimmerLoadingCard
-import com.blockchain.componentlib.system.ShimmerLoadingTableRow
-import com.blockchain.componentlib.tablerow.BalanceFiatAndCryptoTableRow
 import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tablerow.MaskedBalanceFiatAndCryptoTableRow
 import com.blockchain.componentlib.tablerow.TableRow
@@ -672,7 +669,7 @@ private fun EarningScreen(
 }
 
 @Composable
-private fun EarnType.description() =  when (this) {
+private fun EarnType.description() = when (this) {
     EarnType.Passive -> stringResource(
         id =
         com.blockchain.stringResources.R.string.earn_rewards_label_passive_short

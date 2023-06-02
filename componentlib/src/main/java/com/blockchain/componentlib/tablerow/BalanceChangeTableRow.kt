@@ -31,9 +31,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
-import com.blockchain.componentlib.basic.ComposeColors
-import com.blockchain.componentlib.basic.ComposeGravities
-import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.MaskedText

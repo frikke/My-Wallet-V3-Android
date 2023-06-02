@@ -2,7 +2,6 @@ package com.blockchain.home.presentation.dashboard.composable
 
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,20 +22,12 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
-import com.blockchain.componentlib.basic.ComposeColors
-import com.blockchain.componentlib.basic.ComposeTypographies
-import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.MaskedText
 import com.blockchain.componentlib.basic.MaskedTextFormat
 import com.blockchain.componentlib.basic.MaskedTextWithToggle
 import com.blockchain.componentlib.chrome.BALANCE_OFFSET_ANIM_DURATION
 import com.blockchain.componentlib.chrome.BALANCE_OFFSET_TARGET
-import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.Visible
-import com.blockchain.componentlib.icons.VisibleOff
 import com.blockchain.componentlib.system.ShimmerLoadingBox
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.presentation.balance.BalanceDifferenceConfig
 import com.blockchain.presentation.balance.WalletBalance
