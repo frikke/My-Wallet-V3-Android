@@ -33,7 +33,8 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.basic.MaskedText
+import com.blockchain.componentlib.basic.MaskStateConfig
+import com.blockchain.componentlib.basic.MaskableText
 import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.icons.ChevronRight
 import com.blockchain.componentlib.icons.Fire
@@ -97,7 +98,7 @@ fun MaskableBalanceChangeTableRow(
 ) {
     BalanceChangeTableRow(
         modifier = modifier,
-        allowMaskedValue = true,
+        maskState = MaskStateConfig.Default,
         name = name,
         subtitle = subtitle,
         networkTag = networkTag,
@@ -128,7 +129,7 @@ fun BalanceChangeTableRow(
 ) {
     BalanceChangeTableRow(
         modifier = modifier,
-        allowMaskedValue = false,
+        maskState = MaskStateConfig.Override(maskEnabled = false),
         name = name,
         subtitle = subtitle,
         networkTag = networkTag,
@@ -143,11 +144,11 @@ fun BalanceChangeTableRow(
 }
 
 // ImageResource to StackedIcon
-// with allowMaskedValue
+// with maskState
 @Composable
 private fun BalanceChangeTableRow(
     modifier: Modifier = Modifier,
-    allowMaskedValue: Boolean,
+    maskState: MaskStateConfig,
     name: String,
     subtitle: String? = null,
     networkTag: String? = null,
@@ -161,7 +162,7 @@ private fun BalanceChangeTableRow(
 ) {
     BalanceChangeTableRow(
         modifier = modifier,
-        allowMaskedValue = allowMaskedValue,
+        maskState = maskState,
         name = name,
         subtitle = subtitle,
         networkTag = networkTag,
@@ -195,7 +196,7 @@ fun MaskedBalanceChangeTableRow(
 ) {
     BalanceChangeTableRow(
         modifier = modifier,
-        allowMaskedValue = true,
+        maskState = MaskStateConfig.Default,
         name = name,
         subtitle = subtitle,
         networkTag = networkTag,
@@ -225,7 +226,7 @@ fun BalanceChangeTableRow(
 ) {
     BalanceChangeTableRow(
         modifier = modifier,
-        allowMaskedValue = false,
+        maskState = MaskStateConfig.Override(maskEnabled = false),
         name = name,
         subtitle = subtitle,
         networkTag = networkTag,
@@ -243,7 +244,7 @@ fun BalanceChangeTableRow(
 @Composable
 private fun BalanceChangeTableRow(
     modifier: Modifier = Modifier,
-    allowMaskedValue: Boolean,
+    maskState: MaskStateConfig,
     name: String,
     subtitle: String? = null,
     networkTag: String? = null,
@@ -258,7 +259,7 @@ private fun BalanceChangeTableRow(
     if (withChevron) {
         BalanceChangeTableRowWithChevron(
             modifier = modifier,
-            allowMaskedValue = allowMaskedValue,
+            maskState = maskState,
             name = name,
             subtitle = subtitle,
             networkTag = networkTag,
@@ -276,7 +277,7 @@ private fun BalanceChangeTableRow(
     } else {
         BalanceChangeTableRow(
             modifier = modifier,
-            allowMaskedValue = allowMaskedValue,
+            maskState = maskState,
             name = name,
             subtitle = subtitle,
             networkTag = networkTag,
@@ -297,7 +298,7 @@ private fun BalanceChangeTableRow(
 @Composable
 private fun BalanceChangeTableRow(
     modifier: Modifier = Modifier,
-    allowMaskedValue: Boolean = true,
+    maskState: MaskStateConfig,
     name: String,
     subtitle: String? = null,
     networkTag: String? = null,
@@ -377,8 +378,8 @@ private fun BalanceChangeTableRow(
                         }
 
                         is DataResource.Data -> {
-                            MaskedText(
-                                allowMaskedValue = allowMaskedValue,
+                            MaskableText(
+                                maskState = maskState,
                                 text = value.data,
                                 style = AppTheme.typography.paragraph2,
                                 color = AppTheme.colors.title
@@ -422,7 +423,7 @@ private fun BalanceChangeTableRow(
 @Composable
 private fun BalanceChangeTableRowWithChevron(
     modifier: Modifier = Modifier,
-    allowMaskedValue: Boolean = true,
+    maskState: MaskStateConfig,
     name: String,
     subtitle: String? = null,
     networkTag: String? = null,
@@ -499,8 +500,8 @@ private fun BalanceChangeTableRowWithChevron(
                         }
 
                         is DataResource.Data -> {
-                            MaskedText(
-                                allowMaskedValue = allowMaskedValue,
+                            MaskableText(
+                                maskState = maskState,
                                 text = value.data,
                                 style = AppTheme.typography.paragraph1,
                                 color = AppTheme.colors.title,

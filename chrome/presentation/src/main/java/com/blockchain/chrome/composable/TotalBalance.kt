@@ -18,7 +18,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.basic.MaskedText
+import com.blockchain.componentlib.basic.MaskableText
 import com.blockchain.componentlib.basic.MaskedTextFormat
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
@@ -62,7 +62,7 @@ fun TotalBalance(
 
                 Spacer(modifier = Modifier.size(8.dp))
 
-                MaskedText(
+                MaskableText(
                     modifier = Modifier,
                     clearText = balance.map { it.symbol }.dataOrElse(""),
                     maskableText = when (balance) {

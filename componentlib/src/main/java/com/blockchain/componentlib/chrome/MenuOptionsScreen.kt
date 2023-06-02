@@ -26,7 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.MaskedText
+import com.blockchain.componentlib.basic.MaskableText
 import com.blockchain.componentlib.basic.MaskedTextFormat
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.User
@@ -85,7 +85,7 @@ fun MenuOptionsScreen(
                     elevation = 3.dp
                 ) {
                     Box(modifier = Modifier.matchParentSize()) {
-                        MaskedText(
+                        MaskableText(
                             modifier = Modifier
                                 .clipToBounds()
                                 .align(Alignment.Center)

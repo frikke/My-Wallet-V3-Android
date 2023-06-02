@@ -17,7 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.basic.MaskedText
+import com.blockchain.componentlib.basic.MaskableText
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.QuestionOff
 import com.blockchain.componentlib.lazylist.paddedItem
@@ -66,7 +66,7 @@ fun FundLocksData(
 
             Spacer(modifier = Modifier.weight(1F))
 
-            MaskedText(
+            MaskableText(
                 text = total.toStringWithSymbol(),
                 style = AppTheme.typography.paragraph2,
                 color = AppTheme.colors.muted

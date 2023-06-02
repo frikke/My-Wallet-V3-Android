@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,7 +14,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.basic.MaskedText
+import com.blockchain.componentlib.basic.MaskStateConfig
+import com.blockchain.componentlib.basic.MaskableText
 import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.tablerow.FlexibleTableRow
 import com.blockchain.componentlib.tag.TagType
@@ -28,10 +28,10 @@ private fun StyledText(
     text: String,
     style: ViewStyle.TextStyle,
     textAlign: TextAlign,
-    allowMaskedValue: Boolean,
+    maskState: MaskStateConfig
 ) {
-    MaskedText(
-        allowMaskedValue = allowMaskedValue,
+    MaskableText(
+        maskState = maskState,
         text = text,
         style = style.style.copy(
             textDecoration = style.textDecoration()
@@ -51,7 +51,7 @@ fun MaskedCustomTableRow(
     backgroundShape: Shape = RectangleShape
 ) {
     CustomTableRow(
-        allowMaskedValue = true,
+        maskState = MaskStateConfig.Default,
         icon = icon,
         leadingComponents = leadingComponents,
         trailingComponents = trailingComponents,
@@ -71,7 +71,7 @@ fun CustomTableRow(
     backgroundShape: Shape = RectangleShape
 ) {
     CustomTableRow(
-        allowMaskedValue = false,
+        maskState = MaskStateConfig.Override(maskEnabled = false),
         icon = icon,
         leadingComponents = leadingComponents,
         trailingComponents = trailingComponents,
@@ -83,7 +83,7 @@ fun CustomTableRow(
 
 @Composable
 private fun CustomTableRow(
-    allowMaskedValue: Boolean,
+    maskState: MaskStateConfig,
     icon: StackedIcon = StackedIcon.None,
     leadingComponents: List<ViewType>,
     trailingComponents: List<ViewType>,
@@ -103,7 +103,11 @@ private fun CustomTableRow(
 
             Column {
                 leadingComponents.forEachIndexed { index, viewType ->
-                    SingleComponent(viewType, isTrailing = false, allowMaskedValue = false)
+                    SingleComponent(
+                        viewType = viewType,
+                        isTrailing = false,
+                        maskState = MaskStateConfig.Override(false)
+                    )
 
                     if (index < leadingComponents.lastIndex) {
                         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
@@ -118,7 +122,11 @@ private fun CustomTableRow(
                 horizontalAlignment = Alignment.End
             ) {
                 trailingComponents.forEachIndexed { index, viewType ->
-                    SingleComponent(viewType = viewType, isTrailing = true, allowMaskedValue = allowMaskedValue)
+                    SingleComponent(
+                        viewType = viewType,
+                        isTrailing = true,
+                        maskState = maskState
+                    )
 
                     if (index < trailingComponents.lastIndex) {
                         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
@@ -136,7 +144,7 @@ private fun CustomTableRow(
 private fun SingleComponent(
     viewType: ViewType,
     isTrailing: Boolean,
-    allowMaskedValue: Boolean
+    maskState: MaskStateConfig
 ) {
     when (viewType) {
         is ViewType.Text -> {
@@ -144,7 +152,7 @@ private fun SingleComponent(
                 text = viewType.value,
                 style = viewType.style,
                 textAlign = if (isTrailing) TextAlign.End else TextAlign.Start,
-                allowMaskedValue = allowMaskedValue
+                maskState = maskState
             )
         }
 

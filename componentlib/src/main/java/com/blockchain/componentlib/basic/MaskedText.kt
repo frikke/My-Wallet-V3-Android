@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,25 +32,32 @@ import org.koin.androidx.compose.get
 
 private const val MASKED_TEXT = "••••"
 
+@Stable
 enum class MaskedTextFormat {
     ClearThenMasked, MaskedThenClear
+}
+
+@Stable
+sealed interface MaskStateConfig {
+    object Default : MaskStateConfig
+    data class Override(val maskEnabled: Boolean) : MaskStateConfig
 }
 
 /**
  * only masked text
  */
 @Composable
-fun MaskedText(
+fun MaskableText(
     modifier: Modifier = Modifier,
-    allowMaskedValue: Boolean = true,
+    maskState: MaskStateConfig = MaskStateConfig.Default,
     text: String,
     style: TextStyle,
     color: Color,
     textAlign: TextAlign? = null,
 ) {
-    MaskedText(
+    MaskableText(
         modifier = modifier,
-        allowMaskedValue = allowMaskedValue,
+        maskState = maskState,
         clearText = "",
         maskableText = text,
         format = MaskedTextFormat.ClearThenMasked,
@@ -63,21 +71,20 @@ fun MaskedText(
  * masked text with a portion that should remain clear, $100 - $••••
  */
 @Composable
-fun MaskedText(
+fun MaskableText(
     modifier: Modifier = Modifier,
-    allowMaskedValue: Boolean = true,
+    maskState: MaskStateConfig = MaskStateConfig.Default,
     clearText: String,
     maskableText: String,
     format: MaskedTextFormat,
     style: TextStyle,
     color: Color,
-    textAlign: TextAlign? = null,
+    textAlign: TextAlign? = null
 ) {
 
-    val shouldMask by if (allowMaskedValue) {
-        maskedValueServiceProvider().shouldMask.collectAsStateLifecycleAware()
-    } else {
-        remember { mutableStateOf(false) }
+    val shouldMask by when (maskState) {
+        MaskStateConfig.Default -> maskedValueServiceProvider().shouldMask.collectAsStateLifecycleAware()
+        is MaskStateConfig.Override -> remember(maskState.maskEnabled) { mutableStateOf(maskState.maskEnabled) }
     }
 
     Text(
@@ -93,7 +100,7 @@ fun MaskedText(
 }
 
 @Composable
-fun MaskedTextWithToggle(
+fun MaskableTextWithToggle(
     modifier: Modifier = Modifier,
     clearText: String,
     maskableText: String,
@@ -102,7 +109,6 @@ fun MaskedTextWithToggle(
     color: Color,
     textAlign: TextAlign? = null,
 ) {
-
     val maskedValueService = maskedValueServiceProvider()
     val isMaskActive by maskedValueService.shouldMask.collectAsStateLifecycleAware()
 
@@ -111,8 +117,9 @@ fun MaskedTextWithToggle(
     ) {
         Spacer(modifier = Modifier.weight(1F))
 
-        MaskedText(
+        MaskableText(
             modifier = modifier,
+            maskState = MaskStateConfig.Default,
             clearText = clearText,
             maskableText = maskableText,
             format = format,
@@ -153,7 +160,7 @@ private fun maskedValueServiceProvider(): MaskedValueService {
 @Composable
 private fun PreviewMaskedTextMasked() {
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-        MaskedText(
+        MaskableText(
             text = "$100",
             style = AppTheme.typography.title1,
             color = AppTheme.colors.title,
@@ -166,7 +173,7 @@ private fun PreviewMaskedTextMasked() {
 @Composable
 private fun PreviewMaskedAndClearText() {
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-        MaskedText(
+        MaskableText(
             clearText = "$",
             maskableText = "100",
             format = MaskedTextFormat.ClearThenMasked,

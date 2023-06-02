@@ -44,8 +44,8 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.basic.MaskableTextWithToggle
 import com.blockchain.componentlib.basic.MaskedTextFormat
-import com.blockchain.componentlib.basic.MaskedTextWithToggle
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
@@ -607,7 +607,7 @@ private fun EarningScreen(
     investNowClicked: () -> Unit
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        MaskedTextWithToggle(
+        MaskableTextWithToggle(
             clearText = totalEarningBalanceSymbol,
             maskableText = totalEarningBalance,
             format = MaskedTextFormat.ClearThenMasked,

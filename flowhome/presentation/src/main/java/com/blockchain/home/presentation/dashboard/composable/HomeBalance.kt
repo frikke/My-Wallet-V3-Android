@@ -22,8 +22,8 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
+import com.blockchain.componentlib.basic.MaskableTextWithToggle
 import com.blockchain.componentlib.basic.MaskedTextFormat
-import com.blockchain.componentlib.basic.MaskedTextWithToggle
 import com.blockchain.componentlib.chrome.BALANCE_OFFSET_ANIM_DURATION
 import com.blockchain.componentlib.chrome.BALANCE_OFFSET_TARGET
 import com.blockchain.componentlib.system.ShimmerLoadingBox
@@ -86,7 +86,7 @@ fun TotalBalance(
         }
 
         is DataResource.Data -> {
-            MaskedTextWithToggle(
+            MaskableTextWithToggle(
                 modifier = Modifier
                     .clipToBounds()
                     .offset {

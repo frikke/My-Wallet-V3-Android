@@ -20,7 +20,8 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.basic.MaskedText
+import com.blockchain.componentlib.basic.MaskStateConfig
+import com.blockchain.componentlib.basic.MaskableText
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.icons.Icons
@@ -44,7 +45,7 @@ fun MaskedBalanceFiatAndCryptoTableRow(
     onClick: () -> Unit
 ) {
     BalanceFiatAndCryptoTableRow(
-        allowMaskedValue = true,
+        maskState = MaskStateConfig.Default,
         title = title,
         subtitle = subtitle,
         tag = tag,
@@ -74,7 +75,7 @@ fun BalanceFiatAndCryptoTableRow(
     onClick: () -> Unit
 ) {
     BalanceFiatAndCryptoTableRow(
-        allowMaskedValue = false,
+        maskState = MaskStateConfig.Override(maskEnabled = false),
         title = title,
         subtitle = subtitle,
         tag = tag,
@@ -93,7 +94,7 @@ fun BalanceFiatAndCryptoTableRow(
 
 @Composable
 private fun BalanceFiatAndCryptoTableRow(
-    allowMaskedValue: Boolean,
+    maskState: MaskStateConfig,
     title: String,
     subtitle: String = "",
     tag: String = "",
@@ -168,15 +169,15 @@ private fun BalanceFiatAndCryptoTableRow(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.End
                 ) {
-                    MaskedText(
-                        allowMaskedValue = allowMaskedValue,
+                    MaskableText(
+                        maskState = maskState,
                         text = valueFiat,
                         style = AppTheme.typography.paragraph2,
                         color = AppTheme.colors.title
                     )
                     SmallestVerticalSpacer()
-                    MaskedText(
-                        allowMaskedValue = allowMaskedValue,
+                    MaskableText(
+                        maskState = maskState,
                         text = valueCrypto,
                         style = AppTheme.typography.paragraph1,
                         color = AppTheme.colors.body
