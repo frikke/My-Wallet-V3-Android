@@ -1,9 +1,13 @@
 package com.blockchain.notifications
 
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.asSingle
 import info.blockchain.wallet.api.WalletApi
 import io.reactivex.rxjava3.core.Completable
 
-class NotificationService(private val walletApi: WalletApi) {
+class NotificationService(private val walletApi: WalletApi, private val notificationStorage: NotificationStorage) {
     /**
      * Sends the updated Firebase token to the server along with the GUID and Shared Key
      *
@@ -14,9 +18,13 @@ class NotificationService(private val walletApi: WalletApi) {
      * returning void.
      */
     fun sendNotificationToken(token: String, guid: String, sharedKey: String): Completable =
-        Completable.fromObservable(
-            walletApi.updateFirebaseNotificationToken(token, guid, sharedKey)
-        )
+        notificationStorage.stream(
+            FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale).withKey(
+                TokenCredentials(
+                    token, sharedKey, guid
+                )
+            )
+        ).asSingle().ignoreElement()
 
     /**
      * Removes the Firebase token from the server along with the GUID and Shared Key

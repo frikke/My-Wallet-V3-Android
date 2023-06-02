@@ -26,6 +26,8 @@ dependencies {
     implementation project(':common:interface')
     implementation project(':logging:domain')
     implementation project(':blockchainApi')
+    implementation project(":store:caches:persistedjsonsqldelight")
+    implementation project(":store:core")
 
     // Expose Kotlin to all parent modules
     implementation Libraries.kotlin

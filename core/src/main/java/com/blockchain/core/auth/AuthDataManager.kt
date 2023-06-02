@@ -9,6 +9,10 @@ import com.blockchain.core.auth.model.UnknownErrorException
 import com.blockchain.core.utils.AESUtilWrapper
 import com.blockchain.core.utils.EncryptedPrefs
 import com.blockchain.core.utils.schedulers.applySchedulers
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.asSingle
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.WalletStatusPrefs
@@ -33,6 +37,7 @@ class AuthDataManager(
     private val pinRepository: PinRepository,
     private val aesUtilWrapper: AESUtilWrapper,
     private val remoteLogger: RemoteLogger,
+    private val verifyCloudBackupStorage: VerifyCloudBackupStorage,
     private val authPrefs: AuthPrefs,
     private val walletStatusPrefs: WalletStatusPrefs,
     private val encryptedPrefs: EncryptedPrefs
@@ -218,10 +223,12 @@ class AuthDataManager(
                 encryptedPrefs.clearBackup()
                 false
             }
+
             encryptedPrefs.hasBackup() && authPrefs.walletGuid.isEmpty() -> {
                 encryptedPrefs.restoreFromBackup(decryptionKey)
                 false
             }
+
             else -> {
                 encryptedPrefs.backupCurrentPrefs(decryptionKey)
                 true
@@ -305,12 +312,16 @@ class AuthDataManager(
      * @return A [Completable] wrapping the result
      */
     fun verifyCloudBackup(): Completable = if (shouldVerifyCloudBackup) {
-        walletAuthService.verifyCloudBackup(
-            guid = authPrefs.walletGuid,
-            sharedKey = authPrefs.sharedKey,
-            hasCloudBackup = true,
-            deviceType = DEVICE_TYPE_ANDROID
-        ).applySchedulers()
+        verifyCloudBackupStorage.stream(
+            FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale).withKey(
+                VerifyCloudCredentials(
+                    walletGuid = authPrefs.walletGuid,
+                    sharedKey = authPrefs.sharedKey,
+                    deviceType = DEVICE_TYPE_ANDROID,
+                    hasCloudBackup = true
+                )
+            )
+        ).asSingle().onErrorComplete().ignoreElement().applySchedulers()
     } else {
         Completable.complete()
     }

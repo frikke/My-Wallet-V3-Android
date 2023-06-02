@@ -2,6 +2,7 @@ package info.blockchain.wallet.payload
 
 import com.blockchain.AppVersion
 import com.blockchain.api.blockchainApiModule
+import com.blockchain.data.DataResource
 import com.blockchain.testutils.KoinTestRule
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
@@ -16,9 +17,10 @@ import info.blockchain.wallet.payload.data.AddressCache
 import info.blockchain.wallet.payload.data.Derivation
 import info.blockchain.wallet.payload.data.Options
 import info.blockchain.wallet.payload.data.walletdto.WalletBaseDto
+import info.blockchain.wallet.payload.store.PayloadDataStore
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Single
 import java.util.LinkedList
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.serialization.json.Json
 import org.junit.Before
 import org.junit.Rule
@@ -33,6 +35,7 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest(), KoinTest {
 
     private val balanceManagerBch: BalanceManagerBch = mock()
     private val walletApi: WalletApi = mock()
+    private val payloadDataStore: PayloadDataStore = mock()
 
     private lateinit var payloadManager: PayloadManager
 
@@ -50,6 +53,8 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest(), KoinTest {
         doNothing().`when`(balanceManagerBch).updateAllBalances(any(), any())
         payloadManager = PayloadManager(
             walletApi,
+            payloadDataStore,
+            mock(),
             mock(),
             mock(),
             balanceManagerBtc,
@@ -68,8 +73,10 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest(), KoinTest {
 
     private fun initializeAndDecryptTestWallet(resourse: String, password: String) {
         val walletBase = loadResourceContent(resourse)
-        whenever(walletApi.fetchWalletData(any(), any(), any())).thenReturn(
-            Single.just(json.decodeFromString(WalletBaseDto.serializer(), walletBase))
+        whenever(payloadDataStore.stream(any())).thenReturn(
+            flowOf(
+                DataResource.Data(json.decodeFromString(WalletBaseDto.serializer(), walletBase))
+            )
         )
         payloadManager.initializeAndDecrypt(
             "any",
@@ -82,18 +89,18 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest(), KoinTest {
     @Test
     fun `initializeAndDecryptV4payload should decrypt the right fields`() {
         initializeAndDecryptTestWallet("wallet_v4_encrypted_2.txt", "LivingDome1040")
-        assert(payloadManager.payload!!.guid == "4c4ae436-3688-4beb-90ba-8ddeff23f3b9")
-        assert(payloadManager.payload!!.dpasswordhash!!.isEmpty())
+        assert(payloadManager.payload.guid == "4c4ae436-3688-4beb-90ba-8ddeff23f3b9")
+        assert(payloadManager.payload.dpasswordhash!!.isEmpty())
         assert(
-            payloadManager.payload!!.options == Options(
+            payloadManager.payload.options == Options(
                 pbkdf2Iterations = 5000,
                 feePerKb = 10000,
                 _isHtml5Notifications = false,
                 _logoutTime = 600000
             )
         )
-        assert(payloadManager.payload?.importedAddressList!!.isEmpty())
-        assert(payloadManager.payload.isUpgradedToV3 == true)
+        assert(payloadManager.payload.importedAddressList!!.isEmpty())
+        assert(payloadManager.payload.isUpgradedToV3)
         assert(payloadManager.payload?.txNotes == emptyMap<String, String>())
 
         assert(
@@ -196,12 +203,12 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest(), KoinTest {
             Completable.complete()
         )
         initializeAndDecryptTestWallet("wallet_v3_encrypted.txt", "1234")
-        assert(payloadManager.payload!!.walletBodies!![0].accounts[0] is AccountV3)
-        payloadManager.updateDerivationsForAccounts(payloadManager.payload!!.walletBody!!.accounts).test()
-        assert(payloadManager.payload!!.walletBodies!!.size == 1)
-        assert(payloadManager.payload!!.walletBodies!![0].accounts.size == 1)
-        assert(payloadManager.payload!!.walletBodies!![0].accounts[0] is AccountV4)
-        assert((payloadManager.payload!!.walletBodies!![0].accounts[0] as AccountV4).derivations.size == 2)
+        assert(payloadManager.payload.walletBodies!![0].accounts[0] is AccountV3)
+        payloadManager.updateDerivationsForAccounts(payloadManager.payload.walletBody!!.accounts).test()
+        assert(payloadManager.payload.walletBodies!!.size == 1)
+        assert(payloadManager.payload.walletBodies!![0].accounts.size == 1)
+        assert(payloadManager.payload.walletBodies!![0].accounts[0] is AccountV4)
+        assert((payloadManager.payload.walletBodies!![0].accounts[0] as AccountV4).derivations.size == 2)
     }
 
     @Test
@@ -210,10 +217,10 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest(), KoinTest {
             Completable.complete()
         )
         initializeAndDecryptTestWallet("wallet_v4_encrypted_2.txt", "LivingDome1040")
-        assert(payloadManager.payload!!.walletBodies!![0].accounts[0].label == "Private Key Wallet")
-        payloadManager.updateAccountLabel(payloadManager.payload!!.walletBodies!![0].accounts[0], "Random Label").test()
-        assert(payloadManager.payload!!.walletBodies!![0].accounts[0].label == "Random Label")
-        assert(payloadManager.payload!!.walletBodies!![0].accounts.none { it.label == "Private Key Wallet" })
+        assert(payloadManager.payload.walletBodies!![0].accounts[0].label == "Private Key Wallet")
+        payloadManager.updateAccountLabel(payloadManager.payload.walletBodies!![0].accounts[0], "Random Label").test()
+        assert(payloadManager.payload.walletBodies!![0].accounts[0].label == "Random Label")
+        assert(payloadManager.payload.walletBodies!![0].accounts.none { it.label == "Private Key Wallet" })
     }
 
     @Test
@@ -222,9 +229,9 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest(), KoinTest {
             Completable.complete()
         )
         initializeAndDecryptTestWallet("wallet_v4_encrypted_2.txt", "LivingDome1040")
-        assert(!payloadManager.payload!!.walletBodies!![0].accounts[0].isArchived)
-        payloadManager.updateArchivedAccountState(payloadManager.payload!!.walletBodies!![0].accounts[0], true).test()
-        assert(payloadManager.payload!!.walletBodies!![0].accounts[0].isArchived)
+        assert(!payloadManager.payload.walletBodies!![0].accounts[0].isArchived)
+        payloadManager.updateArchivedAccountState(payloadManager.payload.walletBodies!![0].accounts[0], true).test()
+        assert(payloadManager.payload.walletBodies!![0].accounts[0].isArchived)
     }
 
     @Test
@@ -233,12 +240,12 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest(), KoinTest {
             Completable.complete()
         )
         initializeAndDecryptTestWallet("wallet_v4_encrypted_2.txt", "LivingDome1040")
-        assert(payloadManager.payload!!.walletBodies!![0].mnemonicVerified)
+        assert(payloadManager.payload.walletBodies!![0].mnemonicVerified)
         val responseList = LinkedList<String>()
         responseList.add("HDWallet successfully synced with server")
         mockInterceptor!!.setResponseStringList(responseList)
         payloadManager.updateMnemonicVerified(false).test()
-        assert(!payloadManager.payload!!.walletBodies!![0].mnemonicVerified)
+        assert(!payloadManager.payload.walletBodies!![0].mnemonicVerified)
     }
 
     @Test
@@ -247,8 +254,8 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest(), KoinTest {
             Completable.complete()
         )
         initializeAndDecryptTestWallet("wallet_v4_encrypted_2.txt", "LivingDome1040")
-        assert(payloadManager.payload!!.walletBodies!![0].defaultAccountIdx == 0)
+        assert(payloadManager.payload.walletBodies!![0].defaultAccountIdx == 0)
         payloadManager.updateDefaultIndex(21).test()
-        assert(payloadManager.payload!!.walletBodies!![0].defaultAccountIdx == 21)
+        assert(payloadManager.payload.walletBodies!![0].defaultAccountIdx == 21)
     }
 }

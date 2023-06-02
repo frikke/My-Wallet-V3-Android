@@ -105,15 +105,15 @@ class PinInteractor internal constructor(
         isIntercomEnabled: Boolean
     ): Single<String> =
         authDataManager.validatePin(pin)
-            .flatMap { validatedPin ->
+            .flatMap { passw ->
                 if (isIntercomEnabled) {
                     registerIntercomUser()
                 }
 
                 if (isForValidatingPinForResult) {
-                    authDataManager.verifyCloudBackup().toSingle { validatedPin }
+                    authDataManager.verifyCloudBackup().toSingle { passw }
                 } else {
-                    Single.just(validatedPin)
+                    Single.just(passw)
                 }
             }
 

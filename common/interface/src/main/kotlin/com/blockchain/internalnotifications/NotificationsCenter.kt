@@ -15,6 +15,7 @@ enum class NotificationEvent {
     Login,
     Logout,
     NonCustodialTransaction,
+    PayloadUpdated,
     TradingTransaction,
     RewardsTransaction,
     StakingTransaction,

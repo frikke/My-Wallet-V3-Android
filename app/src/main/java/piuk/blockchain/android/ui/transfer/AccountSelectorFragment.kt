@@ -24,7 +24,6 @@ import com.blockchain.utils.zipObservables
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.core.Single
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTransferAccountSelectorBinding
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.base.ViewPagerFragment

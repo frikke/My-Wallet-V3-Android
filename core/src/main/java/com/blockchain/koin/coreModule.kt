@@ -8,6 +8,7 @@ import com.blockchain.core.asset.data.AssetRepository
 import com.blockchain.core.asset.data.dataresources.AssetInformationStore
 import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.core.auth.AuthDataManager
+import com.blockchain.core.auth.VerifyCloudBackupStorage
 import com.blockchain.core.auth.WalletAuthService
 import com.blockchain.core.buy.data.SimpleBuyRepository
 import com.blockchain.core.buy.data.dataresources.BuyOrdersStore
@@ -394,6 +395,7 @@ val coreModule = module {
                 aesUtilWrapper = AESUtilWrapper,
                 remoteLogger = get(),
                 authPrefs = get(),
+                verifyCloudBackupStorage = get(),
                 walletStatusPrefs = get(),
                 encryptedPrefs = get()
             )
@@ -580,6 +582,12 @@ val coreModule = module {
         StoreWiperImpl(
             inMemoryCacheWiper = get(),
             persistedJsonSqlDelightCacheWiper = get()
+        )
+    }
+
+    single {
+        VerifyCloudBackupStorage(
+            walletApi = get()
         )
     }
 }

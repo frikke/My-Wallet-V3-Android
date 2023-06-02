@@ -19,6 +19,7 @@ import info.blockchain.wallet.payload.BalanceManagerBch
 import info.blockchain.wallet.payload.BalanceManagerBtc
 import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.payload.PayloadScopeWiper
+import info.blockchain.wallet.payload.store.PayloadDataStore
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import org.koin.dsl.bind
@@ -32,13 +33,15 @@ val walletModule = module {
         scoped {
             PayloadManager(
                 walletApi = get(),
+                payloadDataStore = get(),
                 bitcoinApi = get(),
                 multiAddressFactory = get(),
                 balanceManagerBtc = get(),
                 balanceManagerBch = get(),
                 device = get(),
                 remoteLogger = get(),
-                appVersion = get()
+                appVersion = get(),
+                notificationTransmitter = get()
             )
         }
 
@@ -47,6 +50,12 @@ val walletModule = module {
         factory { BalanceManagerBtc(bitcoinApi = get()) }
 
         factory { BalanceManagerBch(bitcoinApi = get()) }
+    }
+
+    single {
+        PayloadDataStore(
+            walletApi = get(),
+        )
     }
 
     factory {

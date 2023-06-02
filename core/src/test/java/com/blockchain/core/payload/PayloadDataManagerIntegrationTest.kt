@@ -2,6 +2,7 @@ package com.blockchain.core.payload
 
 import com.blockchain.AppVersion
 import com.blockchain.api.blockchainApiModule
+import com.blockchain.data.DataResource
 import com.blockchain.testutils.KoinTestRule
 import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.any
@@ -19,8 +20,10 @@ import info.blockchain.wallet.payload.data.AccountV4
 import info.blockchain.wallet.payload.data.AddressCache
 import info.blockchain.wallet.payload.data.Derivation
 import info.blockchain.wallet.payload.data.walletdto.WalletBaseDto
+import info.blockchain.wallet.payload.store.PayloadDataStore
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.serialization.json.Json
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
@@ -35,9 +38,12 @@ import org.koin.test.inject
  */
 class PayloadDataManagerIntegrationTest : KoinTest {
     private val walletApi: WalletApi = mock()
+    private val payloadDataStore: PayloadDataStore = mock()
     private val payloadManager = spy(
         PayloadManager(
             walletApi,
+            payloadDataStore,
+            mock(),
             mock(),
             mock(),
             mock(),
@@ -106,8 +112,8 @@ class PayloadDataManagerIntegrationTest : KoinTest {
         whenever(walletApi.updateWallet(any(), any(), any(), any(), any(), any(), any())).thenReturn(
             Completable.complete()
         )
-        whenever(walletApi.fetchWalletData(any(), any(), any())).thenReturn(
-            Single.just(json.decodeFromString(WalletBaseDto.serializer(), fetchWalletDataResponse))
+        whenever(payloadDataStore.stream(any())).thenReturn(
+            flowOf(DataResource.Data(json.decodeFromString(WalletBaseDto.serializer(), fetchWalletDataResponse)))
         )
 
         subject = PayloadDataManager(
@@ -188,8 +194,8 @@ class PayloadDataManagerIntegrationTest : KoinTest {
                     ""
                 )
 
-        whenever(walletApi.fetchWalletData(any(), any(), any())).thenReturn(
-            Single.just(json.decodeFromString(WalletBaseDto.serializer(), fetchWalletV2DataResponse))
+        whenever(payloadDataStore.stream(any())).thenReturn(
+            flowOf(DataResource.Data(json.decodeFromString(WalletBaseDto.serializer(), fetchWalletV2DataResponse)))
         )
         val test = subject.initializeAndDecrypt(
             sharedKey = "38f39fad-fd5d-449a-85e9-adcc84fffcf1",
