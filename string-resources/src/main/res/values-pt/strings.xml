@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="buy_now">Comprar Agora</string>
     <string name="deposit_enter_amount_limit_title">Limite</string>
     <string name="no_fees_title">Sem taxas</string>
@@ -2798,7 +2798,7 @@
     <string name="staking_confirmation_bonding_period_3"> Compreendo que não posso retirar a aposta até que os levantamentos sejam permitidos na rede %1$s.</string>
     <string name="staking_confirmation_bonding_period_4"> Os fundos estão sujeitos a um período de</string>
     <plurals name="staking_confirmation_bonding_period_6">
-        <item quantity="one">dia</item>
+        <item quantity="one" tools:ignore="ImpliedQuantity">dia</item>
         <item quantity="other">dias</item>
     </plurals>
     <string name="staking_confirmation_bonding_period_7"> de gerar recompensas.</string>

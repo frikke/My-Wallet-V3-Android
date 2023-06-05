@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="buy_now">Acheter maintenant</string>
     <string name="deposit_enter_amount_limit_title">Limite</string>
     <string name="no_fees_title">Aucun frais</string>
@@ -2800,7 +2800,7 @@
     <string name="staking_confirmation_bonding_period_3"> Je comprend qu\'il m\'est impossible d\'unstaker jusqu\'à ce que les retraits soient activés sur le réseau %1$s.</string>
     <string name="staking_confirmation_bonding_period_4"> Les fonds sont soumis à une période de cautionnement de</string>
     <plurals name="staking_confirmation_bonding_period_6">
-        <item quantity="one">jour</item>
+        <item quantity="one" tools:ignore="ImpliedQuantity">jour</item>
         <item quantity="other">jours</item>
         <item quantity="many">jours</item>
     </plurals>

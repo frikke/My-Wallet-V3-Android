@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="buy_now">Купить сейчас</string>
     <string name="deposit_enter_amount_limit_title">Лимит</string>
     <string name="no_fees_title">Без комиссий</string>
@@ -2802,7 +2802,7 @@
     <string name="staking_confirmation_bonding_period_3"> Я понимаю, что не смогу выводить средства из стейка, пока функция снятия не станет доступна в сети %1$s.</string>
     <string name="staking_confirmation_bonding_period_4"> На средства распространяется период удержания в</string>
     <plurals name="staking_confirmation_bonding_period_6">
-        <item quantity="one">день</item>
+        <item quantity="one" tools:ignore="ImpliedQuantity">день</item>
         <item quantity="few">дня</item>
         <item quantity="many">дней</item>
         <item quantity="other">день</item>
