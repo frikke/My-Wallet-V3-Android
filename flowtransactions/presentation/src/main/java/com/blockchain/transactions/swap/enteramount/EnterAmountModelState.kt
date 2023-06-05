@@ -2,7 +2,6 @@ package com.blockchain.transactions.swap.enteramount
 
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
-import com.blockchain.componentlib.control.InputCurrency
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.data.DataResource
@@ -13,6 +12,7 @@ import com.blockchain.transactions.common.CryptoAccountWithBalance
 import com.blockchain.transactions.common.OnChainDepositInputValidationError
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import java.io.Serializable
@@ -35,9 +35,10 @@ data class EnterAmountModelState(
     val cryptoAmount: CryptoValue? = null,
     val cryptoAmountUserInput: String = "",
 
-    val selectedInput: InputCurrency = InputCurrency.Currency1,
+    val selectedInput: CurrencyType = CurrencyType.FIAT,
 
-    val snackbarError: Exception? = null,
+    val getDepositNetworkFeeError: Exception? = null,
+    val getTargetNetworkFeeError: Exception? = null,
     val fatalError: SwapEnterAmountFatalError? = null
 ) : ModelState {
     /**

@@ -2,18 +2,15 @@ package com.blockchain.transactions.sell.enteramount
 
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
+import com.blockchain.componentlib.keyboard.KeyboardButton
 import com.blockchain.presentation.complexcomponents.QuickFillDisplayAndAmount
 import com.blockchain.transactions.common.CryptoAccountWithBalance
 
 sealed interface EnterAmountIntent : Intent<EnterAmountModelState> {
     object FlipInputs : EnterAmountIntent
 
-    data class FiatInputChanged(
-        val amount: String
-    ) : EnterAmountIntent
-
-    data class CryptoInputChanged(
-        val amount: String
+    data class KeyboardClicked(
+        val button: KeyboardButton
     ) : EnterAmountIntent
 
     data class FromAccountChanged(

@@ -1,7 +1,7 @@
 package com.blockchain.transactions.sell.enteramount.composable
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,21 +12,14 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.analytics.Analytics
 import com.blockchain.betternavigation.NavContext
 import com.blockchain.betternavigation.navigateTo
@@ -44,6 +37,8 @@ import com.blockchain.componentlib.control.InputCurrency
 import com.blockchain.componentlib.control.TwoCurrenciesInput
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Network
+import com.blockchain.componentlib.keyboard.KeyboardButton
+import com.blockchain.componentlib.keyboard.NumericKeyboard
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
@@ -107,34 +102,15 @@ fun NavContext.SellEnterAmount(
         }
     }
 
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val localFocusManager = LocalFocusManager.current
-
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_RESUME -> keyboardController?.show()
-                Lifecycle.Event.ON_PAUSE -> keyboardController?.hide()
-                else -> {}
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
-
     val context = LocalContext.current
     val scaffoldState = rememberScaffoldState()
     Scaffold(scaffoldState = scaffoldState) { padding ->
         LaunchedEffect(viewState.snackbarError) {
             val error = viewState.snackbarError
             if (error != null) {
-                keyboardController?.hide()
                 scaffoldState.snackbarHostState.showSnackbar(
                     message = error.localizedMessage ?: context.getString(R.string.common_error),
-                    duration = SnackbarDuration.Long,
+                    duration = SnackbarDuration.Short,
                 )
                 viewModel.onIntent(EnterAmountIntent.SnackbarErrorHandled)
             }
@@ -145,14 +121,6 @@ fun NavContext.SellEnterAmount(
                 .fillMaxSize()
                 .padding(padding)
                 .background(color = AppTheme.colors.background)
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onTap = {
-                            keyboardController?.hide()
-                            localFocusManager.clearFocus()
-                        }
-                    )
-                }
         ) {
             NavigationBar(
                 title = stringResource(R.string.common_sell),
@@ -172,13 +140,10 @@ fun NavContext.SellEnterAmount(
                         assets = viewState.assets,
                         quickFillButtonData = viewState.quickFillButtonData,
                         fiatAmount = viewState.fiatAmount,
-                        onFiatAmountChanged = {
-                            viewModel.onIntent(EnterAmountIntent.FiatInputChanged(it))
+                        keyboardClicked = { button ->
+                            viewModel.onIntent(EnterAmountIntent.KeyboardClicked(button))
                         },
                         cryptoAmount = viewState.cryptoAmount,
-                        onCryptoAmountChanged = {
-                            viewModel.onIntent(EnterAmountIntent.CryptoInputChanged(it))
-                        },
                         onFlipInputs = {
                             viewModel.onIntent(EnterAmountIntent.FlipInputs)
                         },
@@ -189,7 +154,6 @@ fun NavContext.SellEnterAmount(
                         },
                         openSourceAccounts = {
                             navigateTo(SellGraph.SourceAccounts)
-                            keyboardController?.hide()
                         },
                         quickFillEntryClicked = { entry ->
                             viewModel.onIntent(EnterAmountIntent.QuickFillEntryClicked(entry))
@@ -213,9 +177,8 @@ private fun EnterAmountScreen(
     assets: EnterAmountAssets?,
     quickFillButtonData: QuickFillButtonData?,
     fiatAmount: CurrencyValue?,
-    onFiatAmountChanged: (String) -> Unit,
     cryptoAmount: CurrencyValue?,
-    onCryptoAmountChanged: (String) -> Unit,
+    keyboardClicked: (KeyboardButton) -> Unit,
     onFlipInputs: () -> Unit,
     isConfirmEnabled: Boolean,
     inputError: SellEnterAmountInputError?,
@@ -240,9 +203,7 @@ private fun EnterAmountScreen(
             TwoCurrenciesInput(
                 selected = selected,
                 currency1 = fiatAmount,
-                onCurrency1ValueChange = onFiatAmountChanged,
                 currency2 = cryptoAmount,
-                onCurrency2ValueChange = onCryptoAmountChanged,
                 onFlipInputs = onFlipInputs,
             )
         }
@@ -310,7 +271,9 @@ private fun EnterAmountScreen(
             )
         }
 
-        Spacer(modifier = Modifier.weight(4F))
+        SmallVerticalSpacer()
+
+        NumericKeyboard(onClick = keyboardClicked)
     }
 }
 
@@ -329,72 +292,73 @@ private fun EnterAmountAssetState.toAssetAction() = HorizontalAssetAction(
 @Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
 private fun PreviewEnterAmountScreen() {
-    EnterAmountScreen(
-        selected = InputCurrency.Currency1,
-        assets = EnterAmountAssets(
-            from = EnterAmountAssetState(
-                iconUrl = "",
-                nativeAssetIconUrl = "",
-                ticker = "BTC",
-                name = "Bitcoin"
+    Box {
+        EnterAmountScreen(
+            selected = InputCurrency.Currency1,
+            assets = EnterAmountAssets(
+                from = EnterAmountAssetState(
+                    iconUrl = "",
+                    nativeAssetIconUrl = "",
+                    ticker = "BTC",
+                    name = "Bitcoin"
+                ),
+                to = EnterAmountAssetState(
+                    iconUrl = "",
+                    nativeAssetIconUrl = null,
+                    ticker = "USD",
+                    name = "US Dollars"
+                )
             ),
-            to = EnterAmountAssetState(
-                iconUrl = "",
-                nativeAssetIconUrl = null,
-                ticker = "USD",
-                name = "US Dollars"
-            )
-        ),
-        quickFillButtonData = QuickFillButtonData(
-            quickFillButtons = listOf(
-                QuickFillDisplayAndAmount(
-                    displayValue = "25%",
-                    amount = CryptoValue.zero(CryptoCurrency.BTC),
-                    roundingData = QuickFillRoundingData.SellSwapRoundingData(0.25f, emptyList()),
-                    position = 0
+            quickFillButtonData = QuickFillButtonData(
+                quickFillButtons = listOf(
+                    QuickFillDisplayAndAmount(
+                        displayValue = "25%",
+                        amount = CryptoValue.zero(CryptoCurrency.BTC),
+                        roundingData = QuickFillRoundingData.SellSwapRoundingData(0.25f, emptyList()),
+                        position = 0
+                    ),
+                    QuickFillDisplayAndAmount(
+                        displayValue = "50%",
+                        amount = CryptoValue.zero(CryptoCurrency.BTC),
+                        roundingData = QuickFillRoundingData.SellSwapRoundingData(0.5f, emptyList()),
+                        position = 1
+                    ),
+                    QuickFillDisplayAndAmount(
+                        displayValue = "75%",
+                        amount = CryptoValue.zero(CryptoCurrency.BTC),
+                        roundingData = QuickFillRoundingData.SellSwapRoundingData(0.75f, emptyList()),
+                        position = 2
+                    ),
                 ),
-                QuickFillDisplayAndAmount(
-                    displayValue = "50%",
-                    amount = CryptoValue.zero(CryptoCurrency.BTC),
-                    roundingData = QuickFillRoundingData.SellSwapRoundingData(0.5f, emptyList()),
-                    position = 1
-                ),
-                QuickFillDisplayAndAmount(
-                    displayValue = "75%",
-                    amount = CryptoValue.zero(CryptoCurrency.BTC),
-                    roundingData = QuickFillRoundingData.SellSwapRoundingData(0.75f, emptyList()),
-                    position = 2
-                ),
+                maxAmount = CryptoValue.fromMajor(CryptoCurrency.BTC, 1.1234567890123457.toBigDecimal())
             ),
-            maxAmount = CryptoValue.fromMajor(CryptoCurrency.BTC, 1.1234567890123457.toBigDecimal())
-        ),
-        fiatAmount = CurrencyValue(
-            value = "2,100.00",
-            maxFractionDigits = 2,
-            ticker = "$",
-            isPrefix = true,
-            separateWithSpace = false,
-            zeroHint = "0"
+            fiatAmount = CurrencyValue(
+                value = "2,100.00",
+                maxFractionDigits = 2,
+                ticker = "$",
+                isPrefix = true,
+                separateWithSpace = false,
+                zeroHint = "0"
 
-        ),
-        onFiatAmountChanged = {},
-        cryptoAmount = CurrencyValue(
-            value = "1.1292",
-            maxFractionDigits = 8,
-            ticker = "ETH",
-            isPrefix = false,
-            separateWithSpace = true,
-            zeroHint = "0"
+            ),
+            keyboardClicked = {},
+            cryptoAmount = CurrencyValue(
+                value = "1.1292",
+                maxFractionDigits = 8,
+                ticker = "ETH",
+                isPrefix = false,
+                separateWithSpace = true,
+                zeroHint = "0"
 
-        ),
-        onCryptoAmountChanged = {},
-        onFlipInputs = {},
-        isConfirmEnabled = false,
-        inputError = SellEnterAmountInputError.BelowMinimum("éjdzjjdz"),
-        inputErrorClicked = {},
-        openSourceAccounts = {},
-        quickFillEntryClicked = {},
-        setMaxOnClick = {},
-        previewClicked = {},
-    )
+            ),
+            onFlipInputs = {},
+            isConfirmEnabled = false,
+            inputError = SellEnterAmountInputError.BelowMinimum("éjdzjjdz"),
+            inputErrorClicked = {},
+            openSourceAccounts = {},
+            quickFillEntryClicked = {},
+            setMaxOnClick = {},
+            previewClicked = {},
+        )
+    }
 }

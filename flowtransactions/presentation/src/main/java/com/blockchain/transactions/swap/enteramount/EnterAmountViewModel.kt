@@ -10,7 +10,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.componentlib.control.CurrencyValue
 import com.blockchain.componentlib.control.InputCurrency
-import com.blockchain.componentlib.control.flip
+import com.blockchain.componentlib.keyboard.KeyboardButton
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.combineDataResourceFlows
@@ -38,12 +38,16 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.CurrencyPair
+import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.text.DecimalFormatSymbols
+import java.util.Locale
+import java.util.regex.Pattern
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -169,7 +173,7 @@ class EnterAmountViewModel(
             cryptoAmount: $cryptoAmount
             cryptoAmountUserInput: $cryptoAmountUserInput
             selectedInput: $selectedInput
-            inputError: ${validateInput()}
+            inputError: ${validateAmount()}
             fatalError: $fatalError
             minLimit: ${
             try {
@@ -201,8 +205,16 @@ class EnterAmountViewModel(
             }
             """.trimIndent()
         )
+        val inputError = if (fiatAmountUserInput.isNotEmpty() && cryptoAmountUserInput.isNotEmpty()) {
+            validateAmount()
+        } else {
+            null
+        }
         return EnterAmountViewState(
-            selectedInput = selectedInput,
+            selectedInput = when (selectedInput) {
+                CurrencyType.FIAT -> InputCurrency.Currency1
+                CurrencyType.CRYPTO -> InputCurrency.Currency2
+            },
             assets = fromAccount?.let {
                 EnterAmountAssets(
                     from = fromAccount.account.toViewState(),
@@ -211,7 +223,7 @@ class EnterAmountViewModel(
             },
             maxAmount = currencyAwareMaxAmount?.toStringWithSymbol(),
             fiatAmount = CurrencyValue(
-                value = if (selectedInput == InputCurrency.Currency1) {
+                value = if (selectedInput == CurrencyType.FIAT) {
                     fiatAmountUserInput
                 } else {
                     // fiatAmountUserInput.ifEmpty { "0" }
@@ -226,7 +238,7 @@ class EnterAmountViewModel(
             ),
             cryptoAmount = fromAccount?.let {
                 CurrencyValue(
-                    value = if (selectedInput == InputCurrency.Currency2) {
+                    value = if (selectedInput == CurrencyType.CRYPTO) {
                         cryptoAmountUserInput
                     } else {
                         // cryptoAmountUserInput.ifEmpty { "0" }
@@ -240,12 +252,10 @@ class EnterAmountViewModel(
                     zeroHint = "0"
                 )
             },
-            inputError = if (fiatAmountUserInput.isNotEmpty() && cryptoAmountUserInput.isNotEmpty()) {
-                validateInput()
-            } else {
-                null
-            },
-            snackbarError = snackbarError,
+            inputError = inputError,
+            // If there's an input error, most likely the quote/price endpoint or the deposit engine will fail in some way
+            // therefore we're giving preference to showing the inputError rather than the snackbarError
+            snackbarError = (getDepositNetworkFeeError ?: getTargetNetworkFeeError).takeIf { inputError == null },
             fatalError = fatalError
         )
     }
@@ -255,55 +265,37 @@ class EnterAmountViewModel(
             EnterAmountIntent.FlipInputs -> {
                 updateState {
                     copy(
-                        selectedInput = selectedInput.flip()
+                        selectedInput = when (selectedInput) {
+                            CurrencyType.CRYPTO -> CurrencyType.FIAT
+                            CurrencyType.FIAT -> CurrencyType.CRYPTO
+                        }
                     )
                 }
             }
 
-            is EnterAmountIntent.FiatInputChanged -> {
-                val fiatCurrency = fiatCurrency
-                val fiatAmount = intent.amount.takeIf { it.isNotEmpty() }
-                    ?.let { FiatValue.fromMajor(fiatCurrency, it.toBigDecimal()) }
-                    ?: FiatValue.zero(fiatCurrency)
-
-                val cryptoAmount: CryptoValue? = modelState.config.map { it.sourceAccountToFiatRate }.dataOrElse(null)
-                    ?.inverse()
-                    ?.convert(fiatAmount) as CryptoValue?
-
-                updateState {
-                    copy(
-                        fiatAmountUserInput = intent.amount.removeLeadingZeros(),
-                        fiatAmount = fiatAmount,
-                        cryptoAmountUserInput = cryptoAmount.toInputString(),
-                        cryptoAmount = cryptoAmount,
-                    )
+            is EnterAmountIntent.KeyboardClicked -> {
+                val currentInputType = modelState.selectedInput
+                val currentInput = when (currentInputType) {
+                    CurrencyType.CRYPTO -> modelState.cryptoAmountUserInput
+                    CurrencyType.FIAT -> modelState.fiatAmountUserInput
+                }
+                val currentInputCurrencyMaxFractionDigits = when (currentInputType) {
+                    CurrencyType.CRYPTO -> modelState.cryptoAmount?.userDecimalPlaces ?: 8
+                    CurrencyType.FIAT -> modelState.fiatAmount?.userDecimalPlaces ?: 2
+                }
+                val newInput = when (intent.button) {
+                    KeyboardButton.Backspace -> currentInput.dropLast(1)
+                    is KeyboardButton.Value -> currentInput + intent.button.value
+                    KeyboardButton.Biometrics,
+                    KeyboardButton.None -> throw UnsupportedOperationException()
                 }
 
-                fiatInputChanges.emit(fiatAmount)
-            }
+                if (!validateInput(newInput, currentInputCurrencyMaxFractionDigits)) return
 
-            is EnterAmountIntent.CryptoInputChanged -> {
-                val fromAccount = modelState.fromAccount?.account
-                val fromCurrency = fromAccount?.currency
-                check(fromCurrency != null)
-
-                val cryptoAmount = intent.amount.takeIf { it.isNotEmpty() }
-                    ?.let { CryptoValue.fromMajor(fromCurrency, it.toBigDecimal()) }
-                    ?: CryptoValue.zero(fromAccount.currency)
-
-                val fiatAmount: FiatValue? = modelState.config.map { it.sourceAccountToFiatRate }.dataOrElse(null)
-                    ?.convert(cryptoAmount) as FiatValue?
-
-                updateState {
-                    copy(
-                        cryptoAmountUserInput = intent.amount.removeLeadingZeros(),
-                        cryptoAmount = cryptoAmount,
-                        fiatAmountUserInput = fiatAmount.toInputString(),
-                        fiatAmount = fiatAmount
-                    )
+                when (currentInputType) {
+                    CurrencyType.FIAT -> fiatInputChanged(newInput)
+                    CurrencyType.CRYPTO -> cryptoInputChanged(newInput)
                 }
-
-                cryptoInputChanges.emit(cryptoAmount)
             }
 
             is EnterAmountIntent.FromAccountChanged -> {
@@ -356,12 +348,12 @@ class EnterAmountViewModel(
                 val userInputBalance = modelState.currencyAwareMaxAmount.toInputString()
 
                 when (modelState.selectedInput) {
-                    InputCurrency.Currency1 -> {
-                        onIntent(EnterAmountIntent.FiatInputChanged(amount = userInputBalance))
+                    CurrencyType.FIAT -> {
+                        fiatInputChanged(userInputBalance)
                     }
 
-                    InputCurrency.Currency2 -> {
-                        onIntent(EnterAmountIntent.CryptoInputChanged(amount = userInputBalance))
+                    CurrencyType.CRYPTO -> {
+                        cryptoInputChanged(userInputBalance)
                     }
                 }
             }
@@ -385,9 +377,55 @@ class EnterAmountViewModel(
             }
 
             EnterAmountIntent.SnackbarErrorHandled -> {
-                updateState { copy(snackbarError = null) }
+                updateState { copy(getDepositNetworkFeeError = null, getTargetNetworkFeeError = null) }
             }
         }
+    }
+
+    private suspend fun fiatInputChanged(newInput: String) {
+        val fiatCurrency = fiatCurrency
+        val fiatAmount = newInput.takeIf { it.isNotEmpty() }
+            ?.let { FiatValue.fromMajor(fiatCurrency, it.toBigDecimal()) }
+            ?: FiatValue.zero(fiatCurrency)
+
+        val cryptoAmount: CryptoValue? = modelState.config.map { it.sourceAccountToFiatRate }.dataOrElse(null)
+            ?.inverse()
+            ?.convert(fiatAmount) as CryptoValue?
+
+        updateState {
+            copy(
+                fiatAmountUserInput = newInput.removeLeadingZeros(),
+                fiatAmount = fiatAmount,
+                cryptoAmountUserInput = cryptoAmount.toInputString(),
+                cryptoAmount = cryptoAmount,
+            )
+        }
+
+        fiatInputChanges.emit(fiatAmount)
+    }
+
+    private suspend fun cryptoInputChanged(newInput: String) {
+        val fromAccount = modelState.fromAccount?.account
+        val fromCurrency = fromAccount?.currency
+        check(fromCurrency != null)
+
+        val cryptoAmount = newInput.takeIf { it.isNotEmpty() }
+            ?.let { CryptoValue.fromMajor(fromCurrency, it.toBigDecimal()) }
+            ?: CryptoValue.zero(fromAccount.currency)
+
+        val fiatAmount: FiatValue? = modelState.config.map { it.sourceAccountToFiatRate }.dataOrElse(null)
+            ?.convert(cryptoAmount) as FiatValue?
+
+        updateState {
+            copy(
+                cryptoAmountUserInput = newInput.removeLeadingZeros(),
+                cryptoAmount = cryptoAmount,
+                fiatAmountUserInput = fiatAmount.toInputString(),
+                fiatAmount = fiatAmount
+            )
+        }
+
+        cryptoInputChanges.emit(cryptoAmount)
     }
 
     private var getSourceNetworkFeeJob: Job? = null
@@ -398,7 +436,7 @@ class EnterAmountViewModel(
     ) {
         getSourceNetworkFeeJob?.cancel()
         getSourceNetworkFeeJob = viewModelScope.launch {
-            updateState { copy(depositEngineInputValidationError = null) }
+            updateState { copy(depositEngineInputValidationError = null, getDepositNetworkFeeError = null) }
             onChainDepositEngineInteractor.getDepositNetworkFee(AssetAction.Swap, sourceAccount, targetAccount, amount)
                 .doOnSuccess { fees ->
                     updateState {
@@ -406,7 +444,7 @@ class EnterAmountViewModel(
                     }
                 }
                 .doOnFailure { error ->
-                    updateState { copy(snackbarError = error) }
+                    updateState { copy(getDepositNetworkFeeError = error) }
                 }
                 .flatMap {
                     onChainDepositEngineInteractor.validateAmount(
@@ -434,6 +472,7 @@ class EnterAmountViewModel(
         targetNetworkFeeRefreshingJob?.cancel()
         targetNetworkFeeRefreshingJob = viewModelScope.launch {
             while (true) {
+                updateState { copy(getTargetNetworkFeeError = null) }
                 tradeDataService.getSwapQuotePrice(pair, amount, direction)
                     .doOnSuccess { quotePrice ->
                         updateState {
@@ -456,7 +495,7 @@ class EnterAmountViewModel(
                         }
                     }
                     .doOnFailure { error ->
-                        updateState { copy(snackbarError = error) }
+                        updateState { copy(getTargetNetworkFeeError = error) }
                     }
 
                 delay(refreshDelay)
@@ -533,7 +572,7 @@ class EnterAmountViewModel(
      * update the fiat value based on the crypto value input
      * and update input errors
      */
-    private fun EnterAmountModelState.validateInput(): SwapEnterAmountInputError? {
+    private fun EnterAmountModelState.validateAmount(): SwapEnterAmountInputError? {
         val cryptoAmount = cryptoAmount ?: return null
         val minLimit = minLimit
         val maxLimit = maxLimit
@@ -558,16 +597,16 @@ class EnterAmountViewModel(
             rate.convert(limit, RoundingMode.FLOOR)
         }
         val spendableBalanceString = when (selectedInput) {
-            InputCurrency.Currency1 -> spendableBalanceFiat
-            InputCurrency.Currency2 -> spendableBalance
+            CurrencyType.FIAT -> spendableBalanceFiat
+            CurrencyType.CRYPTO -> spendableBalance
         }?.toStringWithSymbol() ?: "-"
         val minLimitString = when (selectedInput) {
-            InputCurrency.Currency1 -> minLimitFiat
-            InputCurrency.Currency2 -> minLimit
+            CurrencyType.FIAT -> minLimitFiat
+            CurrencyType.CRYPTO -> minLimit
         }?.toStringWithSymbol() ?: "-"
         val maxLimitString = when (selectedInput) {
-            InputCurrency.Currency1 -> maxLimitFiat
-            InputCurrency.Currency2 -> maxLimit
+            CurrencyType.FIAT -> maxLimitFiat
+            CurrencyType.CRYPTO -> maxLimit
         }?.toStringWithSymbol() ?: "-"
 
         return when {
@@ -604,6 +643,17 @@ class EnterAmountViewModel(
         }
     }
 
+    private fun validateInput(input: String, maxFractionDigits: Int): Boolean {
+        val pattern = let {
+            val decimalSeparator = DecimalFormatSymbols(Locale.getDefault()).decimalSeparator.toString()
+            Pattern.compile(
+                "-?\\d{0,100}+((\\$decimalSeparator\\d{0,$maxFractionDigits})?)||(\\$decimalSeparator)?"
+            )
+        }
+
+        return pattern.matcher(input).matches()
+    }
+
     private fun getTransferDirection(sourceAccount: CryptoAccount, targetAccount: CryptoAccount): TransferDirection =
         when {
             sourceAccount is NonCustodialAccount && targetAccount is NonCustodialAccount -> TransferDirection.ON_CHAIN
@@ -629,14 +679,14 @@ class EnterAmountViewModel(
 
 private val EnterAmountModelState.currencyAwareMaxAmount: Money?
     get() = when (selectedInput) {
-        InputCurrency.Currency1 -> safeLet(
+        CurrencyType.FIAT -> safeLet(
             config.dataOrNull()?.sourceAccountToFiatRate,
             maxLimit,
         ) { rate, limit ->
             rate.convert(limit, RoundingMode.FLOOR)
         }
 
-        InputCurrency.Currency2 -> maxLimit
+        CurrencyType.CRYPTO -> maxLimit
     }
 
 private fun initialTargetAccountRule(fromTicker: String) = when (fromTicker) {

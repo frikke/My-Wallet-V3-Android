@@ -1,7 +1,7 @@
 package com.blockchain.transactions.swap.enteramount.composable
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,22 +13,15 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.analytics.Analytics
 import com.blockchain.betternavigation.NavContext
 import com.blockchain.betternavigation.navigateTo
@@ -48,9 +41,12 @@ import com.blockchain.componentlib.control.TwoCurrenciesInput
 import com.blockchain.componentlib.control.isEmpty
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Network
+import com.blockchain.componentlib.keyboard.KeyboardButton
+import com.blockchain.componentlib.keyboard.NumericKeyboard
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.extensions.safeLet
 import com.blockchain.stringResources.R
@@ -100,36 +96,17 @@ fun EnterAmount(
         }
     }
 
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val localFocusManager = LocalFocusManager.current
-
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_RESUME -> keyboardController?.show()
-                Lifecycle.Event.ON_PAUSE -> keyboardController?.hide()
-                else -> {}
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
-
     val context = LocalContext.current
     val scaffoldState = rememberScaffoldState()
     Scaffold(scaffoldState = scaffoldState) { padding ->
         LaunchedEffect(viewState.snackbarError) {
             val error = viewState.snackbarError
             if (error != null) {
-                keyboardController?.hide()
                 scaffoldState.snackbarHostState.showSnackbar(
                     message = error.localizedMessage ?: context.getString(
                         R.string.common_error
                     ),
-                    duration = SnackbarDuration.Long,
+                    duration = SnackbarDuration.Short,
                 )
                 viewModel.onIntent(EnterAmountIntent.SnackbarErrorHandled)
             }
@@ -140,14 +117,6 @@ fun EnterAmount(
                 .fillMaxSize()
                 .padding(padding)
                 .background(color = AppTheme.colors.background)
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onTap = {
-                            keyboardController?.hide()
-                            localFocusManager.clearFocus()
-                        }
-                    )
-                }
         ) {
             NavigationBar(
                 title = stringResource(R.string.common_swap),
@@ -168,12 +137,9 @@ fun EnterAmount(
                         assets = viewState.assets,
                         maxAmount = viewState.maxAmount,
                         fiatAmount = viewState.fiatAmount,
-                        onFiatAmountChanged = {
-                            viewModel.onIntent(EnterAmountIntent.FiatInputChanged(it))
-                        },
                         cryptoAmount = viewState.cryptoAmount,
-                        onCryptoAmountChanged = {
-                            viewModel.onIntent(EnterAmountIntent.CryptoInputChanged(it))
+                        keyboardClicked = { button ->
+                            viewModel.onIntent(EnterAmountIntent.KeyboardClicked(button))
                         },
                         onFlipInputs = {
                             viewModel.onIntent(EnterAmountIntent.FlipInputs)
@@ -184,12 +150,10 @@ fun EnterAmount(
                         },
                         openSourceAccounts = {
                             navContextProvider().navigateTo(SwapGraph.SourceAccounts)
-                            keyboardController?.hide()
                             analytics.logEvent(SwapAnalyticsEvents.SelectSourceClicked)
                         },
                         openTargetAccounts = { sourceTicker ->
                             navContextProvider().navigateTo(SwapGraph.TargetAsset, sourceTicker)
-                            keyboardController?.hide()
                             analytics.logEvent(SwapAnalyticsEvents.SelectDestinationClicked)
                         },
                         setMaxOnClick = {
@@ -213,9 +177,8 @@ private fun EnterAmountScreen(
     assets: EnterAmountAssets?,
     maxAmount: String?,
     fiatAmount: CurrencyValue?,
-    onFiatAmountChanged: (String) -> Unit,
     cryptoAmount: CurrencyValue?,
-    onCryptoAmountChanged: (String) -> Unit,
+    keyboardClicked: (KeyboardButton) -> Unit,
     onFlipInputs: () -> Unit,
     inputError: SwapEnterAmountInputError?,
     inputErrorClicked: (SwapEnterAmountInputError) -> Unit,
@@ -239,9 +202,7 @@ private fun EnterAmountScreen(
             TwoCurrenciesInput(
                 selected = selected,
                 currency1 = fiatAmount,
-                onCurrency1ValueChange = onFiatAmountChanged,
                 currency2 = cryptoAmount,
-                onCurrency2ValueChange = onCryptoAmountChanged,
                 onFlipInputs = onFlipInputs,
             )
         }
@@ -314,7 +275,9 @@ private fun EnterAmountScreen(
             }
         )
 
-        Spacer(modifier = Modifier.weight(4F))
+        SmallVerticalSpacer()
+
+        NumericKeyboard(onClick = keyboardClicked)
     }
 }
 
@@ -333,47 +296,48 @@ private fun EnterAmountAssetState.toAssetAction() = HorizontalAssetAction(
 @Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
 private fun PreviewEnterAmountScreen() {
-    EnterAmountScreen(
-        selected = InputCurrency.Currency1,
-        assets = EnterAmountAssets(
-            from = EnterAmountAssetState(
-                iconUrl = "",
-                nativeAssetIconUrl = "",
-                ticker = "BTC"
+    Box {
+        EnterAmountScreen(
+            selected = InputCurrency.Currency1,
+            assets = EnterAmountAssets(
+                from = EnterAmountAssetState(
+                    iconUrl = "",
+                    nativeAssetIconUrl = "",
+                    ticker = "BTC"
+                ),
+                to = EnterAmountAssetState(
+                    iconUrl = "",
+                    nativeAssetIconUrl = null,
+                    ticker = "ETH"
+                )
             ),
-            to = EnterAmountAssetState(
-                iconUrl = "",
-                nativeAssetIconUrl = null,
-                ticker = "ETH"
-            )
-        ),
-        maxAmount = "123.00",
-        fiatAmount = CurrencyValue(
-            value = "2,100.00",
-            maxFractionDigits = 2,
-            ticker = "$",
-            isPrefix = true,
-            separateWithSpace = false,
-            zeroHint = "0"
+            maxAmount = "123.00",
+            fiatAmount = CurrencyValue(
+                value = "2,100.00",
+                maxFractionDigits = 2,
+                ticker = "$",
+                isPrefix = true,
+                separateWithSpace = false,
+                zeroHint = "0"
 
-        ),
-        onFiatAmountChanged = {},
-        cryptoAmount = CurrencyValue(
-            value = "1.1292",
-            maxFractionDigits = 8,
-            ticker = "ETH",
-            isPrefix = false,
-            separateWithSpace = true,
-            zeroHint = "0"
+            ),
+            cryptoAmount = CurrencyValue(
+                value = "1.1292",
+                maxFractionDigits = 8,
+                ticker = "ETH",
+                isPrefix = false,
+                separateWithSpace = true,
+                zeroHint = "0"
 
-        ),
-        onCryptoAmountChanged = {},
-        onFlipInputs = {},
-        inputError = SwapEnterAmountInputError.BelowMinimum("éjdzjjdz"),
-        inputErrorClicked = {},
-        openSourceAccounts = {},
-        openTargetAccounts = {},
-        setMaxOnClick = {},
-        previewClicked = {},
-    )
+            ),
+            keyboardClicked = {},
+            onFlipInputs = {},
+            inputError = SwapEnterAmountInputError.BelowMinimum("éjdzjjdz"),
+            inputErrorClicked = {},
+            openSourceAccounts = {},
+            openTargetAccounts = {},
+            setMaxOnClick = {},
+            previewClicked = {},
+        )
+    }
 }

@@ -36,7 +36,8 @@ data class EnterAmountModelState(
 
     val selectedInput: CurrencyType = CurrencyType.FIAT,
 
-    val snackbarError: Exception? = null,
+    val getDepositNetworkFeeError: Exception? = null,
+    val getQuotePriceError: Exception? = null,
     val fatalError: SellEnterAmountFatalError? = null
 ) : ModelState {
     /**

@@ -4,31 +4,22 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -36,12 +27,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphIntrinsics
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.createFontFamilyResolver
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -57,9 +45,6 @@ import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.componentlib.utils.conditional
-import java.text.DecimalFormatSymbols
-import java.util.Locale
-import java.util.regex.Pattern
 
 data class CurrencyValue(
     val value: String,
@@ -85,34 +70,12 @@ fun InputCurrency.flip() = when (this) {
 fun TwoCurrenciesInput(
     selected: InputCurrency,
     currency1: CurrencyValue,
-    onCurrency1ValueChange: (String) -> Unit,
     currency2: CurrencyValue,
-    onCurrency2ValueChange: (String) -> Unit,
     onFlipInputs: () -> Unit
 ) {
     val localDensity = LocalDensity.current
 
     var textFieldHeight by remember { mutableStateOf(0) }
-
-    val focusRequester1 = remember { FocusRequester() }
-    val focusRequester2 = remember { FocusRequester() }
-
-    var c1Value by remember { mutableStateOf(TextFieldValue("")) }
-    LaunchedEffect(currency1.value) {
-        c1Value = c1Value.copy(text = currency1.value)
-    }
-
-    var c2Value by remember { mutableStateOf(TextFieldValue("")) }
-    LaunchedEffect(currency2.value) {
-        c2Value = c2Value.copy(text = currency2.value)
-    }
-
-//    LaunchedEffect(selected) {
-//        when (selected) {
-//            InputCurrency.Currency1 -> focusRequester1
-//            InputCurrency.Currency2 -> focusRequester2
-//        }.requestFocus()
-//    }
 
     Box(
         modifier = Modifier
@@ -140,13 +103,7 @@ fun TwoCurrenciesInput(
                 },
             maxHeight = textFieldHeight,
             focused = selected == InputCurrency.Currency1,
-            focusRequester = focusRequester1,
-            currency = currency1,
-            value = c1Value,
-            onCurrencyValueChange = {
-                onCurrency1ValueChange(it.text)
-                c1Value = it
-            }
+            currencyValue = currency1,
         )
 
         CurrencyInput(
@@ -156,13 +113,7 @@ fun TwoCurrenciesInput(
                 },
             maxHeight = textFieldHeight,
             focused = selected == InputCurrency.Currency2,
-            focusRequester = focusRequester2,
-            currency = currency2,
-            value = c2Value,
-            onCurrencyValueChange = {
-                onCurrency2ValueChange(it.text)
-                c2Value = it
-            }
+            currencyValue = currency2,
         )
 
         var switchHeight by remember { mutableStateOf(0) }
@@ -183,16 +134,6 @@ fun TwoCurrenciesInput(
             Image(
                 modifier = Modifier.clickableNoEffect {
                     onFlipInputs()
-
-                    when (selected.flip()) {
-                        InputCurrency.Currency1 -> {
-                            c1Value = c1Value.copy(selection = TextRange(c1Value.text.length))
-                        }
-
-                        InputCurrency.Currency2 -> {
-                            c2Value = c2Value.copy(selection = TextRange(c2Value.text.length))
-                        }
-                    }
                 },
                 imageResource = Icons.UnfoldMore.withBackground(
                     backgroundColor = AppTheme.colors.backgroundSecondary,
@@ -211,17 +152,22 @@ private fun BoxScope.CurrencyInput(
     modifier: Modifier = Modifier,
     maxHeight: Int,
     focused: Boolean,
-    focusRequester: FocusRequester,
-    currency: CurrencyValue,
-    value: TextFieldValue,
-    onCurrencyValueChange: (TextFieldValue) -> Unit
+    currencyValue: CurrencyValue,
 ) {
-    val pattern = remember(currency.maxFractionDigits) {
-        val decimalSeparator = DecimalFormatSymbols(Locale.getDefault()).decimalSeparator.toString()
-        Pattern.compile(
-            "-?\\d{0,100}+((\\$decimalSeparator\\d{0,${currency.maxFractionDigits}})?)||(\\$decimalSeparator)?"
-        )
+    val prefixSuffixTransformation = PrefixSuffixTransformation(
+        value = currencyValue.ticker,
+        isPrefix = currencyValue.isPrefix,
+        separateWithSpace = currencyValue.separateWithSpace
+    )
+
+    val rawValue = AnnotatedString(currencyValue.value).ifEmpty {
+        buildAnnotatedString {
+            withStyle(style = SpanStyle(color = AppTheme.colors.muted)) {
+                append(currencyValue.zeroHint)
+            }
+        }
     }
+    val value = prefixSuffixTransformation.filter(rawValue).text
 
     var textFieldHeight by remember { mutableStateOf(0) }
 
@@ -246,26 +192,18 @@ private fun BoxScope.CurrencyInput(
         )
     )
 
-    val interactionSource = remember { MutableInteractionSource() }
-
     BoxWithConstraints(modifier.fillMaxWidth(1f)) {
         val horizontalPadding = AppTheme.dimensions.hugeSpacing
-        val prefixSuffixTransformation = PrefixSuffixTransformation(
-            value = currency.ticker,
-            isPrefix = currency.isPrefix,
-            separateWithSpace = currency.separateWithSpace
-        )
         val textStyle = AppTheme.typography.display
 
         val density = LocalDensity.current
         val context = LocalContext.current
 
-        val fontSizeCalculationCandidate = prefixSuffixTransformation.filter(value.annotatedString).text.text
-        val maxFontSize = remember(maxWidth, fontSizeCalculationCandidate) {
+        val maxFontSize = remember(maxWidth, value) {
             var shrunkFontSize = textStyle.fontSize
             val calculateIntrinsics = {
                 ParagraphIntrinsics(
-                    text = fontSizeCalculationCandidate,
+                    text = value.text,
                     style = textStyle.copy(fontSize = shrunkFontSize),
                     density = density,
                     fontFamilyResolver = createFontFamilyResolver(context)
@@ -286,7 +224,7 @@ private fun BoxScope.CurrencyInput(
         }
         val fontSize = textSizeAnim.coerceAtMost(maxFontSize.value).sp
 
-        BasicTextField(
+        Text(
             modifier = modifier
                 .conditional(focused) {
                     onGloballyPositioned {
@@ -297,68 +235,17 @@ private fun BoxScope.CurrencyInput(
                     translationY = translation.toFloat()
                 }
                 .align(Alignment.TopCenter)
-                .focusRequester(focusRequester)
                 .fillMaxWidth()
                 .padding(horizontal = horizontalPadding),
-            value = value,
-            onValueChange = {
-                if (pattern.matcher(it.text).matches()) {
-                    onCurrencyValueChange(it)
-                }
-            },
-            interactionSource = interactionSource,
-            singleLine = true,
-            textStyle = textStyle.copy(
+            text = value,
+            style = textStyle.copy(
                 fontSize = fontSize,
-                textAlign = TextAlign.Center,
                 color = color
             ),
-            readOnly = !focused,
-            visualTransformation = prefixSuffixTransformation,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-        ) { innerTextField ->
-            TextFieldDefaults.TextFieldDecorationBox(
-                value = value.text,
-                innerTextField = innerTextField,
-                singleLine = true,
-                visualTransformation = VisualTransformation.None,
-                interactionSource = interactionSource,
-                contentPadding = PaddingValues(0.dp),
-                enabled = true,
-                placeholder = {
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = currency.zeroHint(),
-                        style = textStyle.copy(
-                            fontSize = fontSize
-                        ),
-                        textAlign = TextAlign.Center
-                    )
-                }
-            )
-        }
-    }
-}
-
-@Composable
-private fun CurrencyValue.zeroHint(): AnnotatedString {
-    @Composable
-    fun color(visible: Boolean): Color {
-        return if (visible) AppTheme.colors.dark else AppTheme.colors.background
-    }
-
-    return buildAnnotatedString {
-        withStyle(style = SpanStyle(color = color(!isPrefix))) {
-            append(zeroHint + separator(separateWithSpace && !isPrefix))
-        }
-
-        withStyle(style = SpanStyle(color = AppTheme.colors.title)) {
-            append(ticker)
-        }
-
-        withStyle(style = SpanStyle(color = color(isPrefix))) {
-            append(separator(separateWithSpace && isPrefix) + zeroHint)
-        }
+            color = color,
+            textAlign = TextAlign.Center,
+            maxLines = 1
+        )
     }
 }
 
@@ -384,7 +271,7 @@ private fun prefixFilter(
     separateWithSpace: Boolean
 ): TransformedText {
     val prefixWithSeparator = prefix + separator(separateWithSpace)
-    val out = prefixWithSeparator + text.text
+    val out = AnnotatedString(prefixWithSeparator) + text
     val prefixOffset = prefixWithSeparator.length
 
     val offsetTranslator = object : OffsetMapping {
@@ -398,7 +285,7 @@ private fun prefixFilter(
         }
     }
 
-    return TransformedText(AnnotatedString(out), offsetTranslator)
+    return TransformedText(out, offsetTranslator)
 }
 
 private fun suffixFilter(
@@ -407,7 +294,7 @@ private fun suffixFilter(
     separateWithSpace: Boolean
 ): TransformedText {
     val suffixWithSeparator = separator(separateWithSpace) + suffix
-    val out = text.text + suffixWithSeparator
+    val out = text + AnnotatedString(suffixWithSeparator)
     val suffixOffset = text.length
 
     val offsetTranslator = object : OffsetMapping {
@@ -421,16 +308,13 @@ private fun suffixFilter(
         }
     }
 
-    return TransformedText(AnnotatedString(out), offsetTranslator)
+    return TransformedText(out, offsetTranslator)
 }
 
 // run preview on emulator to see the right layout and animations
 @Preview(backgroundColor = 0XFFF1F2F7, showBackground = true)
 @Composable
 private fun PreviewTwoCurrenciesInput() {
-    var c1Value by remember { mutableStateOf("2100.00") }
-    var c2Value by remember { mutableStateOf("1.1292") }
-
     var selected: InputCurrency by remember {
         mutableStateOf(InputCurrency.Currency1)
     }
@@ -438,23 +322,21 @@ private fun PreviewTwoCurrenciesInput() {
     TwoCurrenciesInput(
         selected = selected,
         currency1 = CurrencyValue(
-            value = c1Value,
+            value = "2100.00",
             maxFractionDigits = 2,
             ticker = "$",
             isPrefix = true,
             separateWithSpace = false,
             zeroHint = "0"
         ),
-        onCurrency1ValueChange = { c1Value = it },
         currency2 = CurrencyValue(
-            value = c2Value,
+            value = "1.1292",
             maxFractionDigits = 8,
             ticker = "ETH",
             isPrefix = false,
             separateWithSpace = true,
             zeroHint = "0"
         ),
-        onCurrency2ValueChange = { c2Value = it },
         onFlipInputs = {
             selected = selected.flip()
         }
