@@ -172,8 +172,8 @@ class ConfirmationViewModel(
     }
 
     override fun ConfirmationModelState.reduce(): ConfirmationViewState {
-        val sourceNetworkFeeFiatAmount =
-            sourceNetworkFeeCryptoAmount?.toUserFiat(exchangeRatesDataManager) as FiatValue?
+        val sourceNetworkFeeFiatAmount = sourceNetworkFeeCryptoAmount?.takeIf { !it.isZero }
+            ?.toUserFiat(exchangeRatesDataManager) as FiatValue?
 
         return ConfirmationViewState(
             isFetchQuoteLoading = isFetchQuoteLoading,

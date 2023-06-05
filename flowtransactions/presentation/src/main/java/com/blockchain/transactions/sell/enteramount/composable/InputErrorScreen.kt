@@ -51,13 +51,13 @@ fun InputErrorScreen(
             is SellEnterAmountInputError.AboveBalance -> stringResource(
                 R.string.common_actions_not_enough_funds,
                 inputError.displayTicker,
-                "swap",
+                "sell",
                 inputError.balance,
             )
             is SellEnterAmountInputError.AboveMaximum ->
                 stringResource(R.string.trading_amount_above_max, inputError.maxValue)
             is SellEnterAmountInputError.BelowMinimum ->
-                stringResource(R.string.minimum_swap_error_message, inputError.minValue)
+                stringResource(R.string.minimum_sell_error_message, inputError.minValue)
             is SellEnterAmountInputError.InsufficientGas ->
                 stringResource(R.string.confirm_status_msg_insufficient_gas, inputError.displayTicker)
             is SellEnterAmountInputError.Unknown ->

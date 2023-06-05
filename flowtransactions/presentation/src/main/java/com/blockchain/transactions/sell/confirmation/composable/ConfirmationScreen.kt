@@ -70,6 +70,7 @@ import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.isLayer2Token
+import java.math.BigInteger
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
@@ -181,7 +182,7 @@ private fun ConfirmationContent(
 
                 HorizontalDivider(Modifier.fillMaxWidth())
 
-                if (state.sourceNetworkFeeFiatAmount != null && !state.sourceNetworkFeeFiatAmount.isZero) {
+                if (state.sourceNetworkFeeFiatAmount != null) {
                     NetworkFee(state.sourceAsset, state.sourceNetworkFeeFiatAmount)
 
                     HorizontalDivider(Modifier.fillMaxWidth())
@@ -385,7 +386,7 @@ private fun SellExchangeRate(rate: ExchangeRate?) {
 @Composable
 private fun NetworkFee(
     sourceAmountCurrency: AssetInfo,
-    sourceNetworkFeeFiatAmount: FiatValue?,
+    sourceNetworkFeeFiatAmount: FiatValue,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -407,7 +408,7 @@ private fun NetworkFee(
         }
     } else {
         val mainText = stringResource(
-            R.string.checkout_one_erc_20_fee_note,
+            R.string.checkout_one_fee_note,
             sourceAmountCurrency.coinNetwork!!.name,
             sourceAmountCurrency.name
         )
@@ -424,10 +425,18 @@ private fun NetworkFee(
         }
     }
 
+    val feeAmount = if (!sourceNetworkFeeFiatAmount.isZero) {
+        sourceNetworkFeeFiatAmount.toStringWithSymbol()
+    } else {
+        val str = FiatValue.fromMinor(sourceNetworkFeeFiatAmount.currency, BigInteger.valueOf(1))
+            .toStringWithSymbol()
+        "<$str"
+    }
+
     ConfirmationExplainerTableRow(
         modifier = modifier,
         startTitle = stringResource(R.string.checkout_item_network_fee_label),
-        endTitle = sourceNetworkFeeFiatAmount?.toStringWithSymbol(),
+        endTitle = feeAmount,
         explainerText = exchangeRateExplainer,
     )
 }
