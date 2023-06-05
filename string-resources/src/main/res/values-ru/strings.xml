@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="buy_now">Купить сейчас</string>
     <string name="deposit_enter_amount_limit_title">Лимит</string>
     <string name="no_fees_title">Без комиссий</string>
@@ -1159,7 +1159,7 @@
     <string name="fiat_funds_detail_withdraw_details">Обналичивание в вашем банке</string>
     <string name="fiat_funds_detail_pending_withdrawal">У вас уже идет процесс вывода средств, пожалуйста, дождитесь его завершения, прежде чем начинать новый.</string>
     <string name="withdraw_title">Вывести средства</string>
-    <string name="withdraw_to">Вывести в</string>
+    <string name="withdraw_to">Вывести средства в</string>
     <string name="withdraw_confirmation_cta_button">Вывести средства сейчас</string>
     <string name="withdraw_confirmation_progress_message">Мы завершаем вывод ваших средств.</string>
     <string name="withdraw_confirmation_progress_title">Вывод %1$s</string>
@@ -1322,7 +1322,7 @@
     <string name="send_enter_unexpected_error">Произошла непредвиденная ошибка. Попробуйте еще раз.</string>
     <string name="send_enter_insufficient_gas">У вас недостаточно ETH для обработки этой транзакции.</string>
     <string name="send_select_a_wallet_title">или выберите Кошелек</string>
-    <string name="send_select_a_wallet_warning"><![CDATA[Отправляйте %1$s только на кошельки в сети (%2$s).\n<annotation link=\"send_network_options\">Подробнее</annotation>]]></string>
+    <string name="send_select_a_wallet_warning">Отправляйте %1$s только на кошельки в сети (%2$s).\n<annotation link="send_network_options">Подробнее</annotation></string>
     <string name="send_select_wallet_warning_sheet_desc">%1$s (%2$s) – это токен, который может быть доступен в нескольких сетях. Перед отправкой убедитесь, что вы знаете сеть адреса кошелька, на который отправляете.</string>
     <string name="send_transfer_accounts_title">Перевод между вашими счетами</string>
     <string name="send_domain_alert_title">Отправить на крипто-домен</string>
@@ -1593,7 +1593,7 @@
     <string name="kyc_country_selection_search_hint_1">Выберите свою страну</string>
     <string name="kyc_country_selection_title_1">Выберите свою страну</string>
     <string name="security_check">Проверка безопасности</string>
-    <string name="success_email_veriff">Готово! Ваша электронная почта подтверждена.</string>
+    <string name="success_email_veriff">Готово! Ваш адрес электронной почты подтвержден.</string>
     <string name="error_email_veriff_title">Ой! Что-то пошло не так.</string>
     <string name="error_email_veriff">Нам не удалось подтвердить ваш адрес электронной почты. Пожалуйста, попробуйте еще раз, или мы можем отправить вам новое письмо.</string>
     <string name="email_verified">Электронная почта верифицирована</string>
@@ -1646,7 +1646,7 @@
     <string name="yapily_agreement_blurb_3_1">%1$s уполномочен и регулируется Банком Литвы в соответствии с Законом о платежах (LB002045) для предоставления информации о счете и услуг инициирования платежей.</string>
     <string name="yapily_agreement_title_4">О доступе</string>
     <string name="yapily_agreement_blurb_4_1">%1$s будет использовать эти данные с Blockchain исключительно для целей покупки криптовалют. Этот доступ действителен до %2$s, вы можете отменить согласие в любое время в настройках блокчейна или через свой банк. Этот запрос не является одноразовым, вы будете продолжать получать запросы на согласие по мере истечения срока действия более старых версий.</string>
-    <string name="yapily_agreement_blurb_4_2"><![CDATA[%1$s Условия и положения доступны по следующей ссылке <a>https://yapi.ly/GDNT</a>]]></string>
+    <string name="yapily_agreement_blurb_4_2">%1$s Условия и положения доступны по следующей ссылке <a>https://yapi.ly/GDNT</a></string>
     <string name="yapily_agreement_blurb_5">Чтобы поделиться своими данными %1$s с Blockchain, вы будете безопасно перенаправлены в свой банк, чтобы подтвердить свое согласие на чтение YapilyConnect следующей информации: \n\n • Идентификационные данные \n\n • Информация аккаунта(-ов)</string>
     <string name="yapily_agreement_blurb_5_1">Чтобы поделиться своими данными %1$s с Blockchain.com, вы будете безопасно перенаправлены в свой банк, чтобы подтвердить свое согласие на чтение YapilyConnect следующей информации: \n\n • Идентификационные данные \n\n • Информация аккаунта(-ов)</string>
     <string name="yapily_linking_pending_title">Переходим к %1$s</string>
@@ -1812,7 +1812,7 @@
     <string name="resend_email_cta">Отправить еще раз</string>
     <string name="login_wallet_id_text">Кошелек: %s</string>
     <string name="login_password_hint">Пароль</string>
-    <string name="forgot_password_label">Не удается войти в систему?</string>
+    <string name="forgot_password_label">Забыли свой пароль?</string>
     <string name="two_factor_auth_title">Авторизовать логин</string>
     <string name="two_factor_code_hint">Код двухфакторной аутентификации</string>
     <string name="invalid_two_fa_code">Неверный код двухфакторной аутентификации</string>
@@ -2128,7 +2128,7 @@
     <string name="code_verification_title">Подтвердите свой номер телефона</string>
     <string name="notifications_toolbar">Уведомления</string>
     <string name="email_notifications_title">Уведомления по электронной почте</string>
-    <string name="push_notifications_title">Всплывающие уведомления</string>
+    <string name="push_notifications_title">Push-уведомления</string>
     <string name="notifications_email_update_error">Ошибка обновления настроек электронной почты. Попробуйте еще раз.</string>
     <string name="notifications_push_update_error">Ошибка обновления настроек push-уведомлений. Попробуйте еще раз.</string>
     <string name="notifications_info_load_error">Ошибка получения настроек уведомлений. Попробуйте еще раз.</string>
@@ -2216,7 +2216,7 @@
     <string name="ui_tour_prices_subtitle">Отслеживайте текущую цену более 1200 монет и находите новые для добавления в свой кошелек.</string>
     <string name="ui_tour_middle_button_subtitle">Если вы хотите быстро обменять средства или отправить их другу — мы всегда готовы помочь!</string>
     <string name="ui_tour_activity_subtitle">Всегда будьте в курсе того, что и когда вы купили, продали или обменяли, а также по какой цене.</string>
-    <string name="pin_title_create">Выберите PIN-код для Wallet.</string>
+    <string name="pin_title_create">Создайте свой PIN-код</string>
     <string name="pin_subtitle">Он будет использоваться для резервного копирования данных биометрической разблокировки.</string>
     <string name="pin_title_confirm">Подтвердите свой PIN-код.</string>
     <string name="pin_mismatch_error_msg">PIN-коды не совпадают. Попробуйте еще раз.</string>
@@ -2634,7 +2634,7 @@
     <string name="common_monthly">Ежемесячно</string>
     <string name="common_per_transaction">За транзакцию</string>
     <string name="bc_card_daily_transaction_limit_description">30 транзакций в течение 24 часов</string>
-    <string name="common_withdrawal">Вывод</string>
+    <string name="common_withdrawal">Вывод средств</string>
     <string name="common_get_started">Начать</string>
     <string name="bc_card_how_to_order_title">Как заказать карту</string>
     <string name="bc_card_how_to_order_secondary_title">Прежде чем продолжить, ознакомьтесь с описанными ниже шагами заказа карты.</string>
@@ -2802,7 +2802,7 @@
     <string name="staking_confirmation_bonding_period_3"> Я понимаю, что не смогу выводить средства из стейка, пока функция снятия не станет доступна в сети %1$s.</string>
     <string name="staking_confirmation_bonding_period_4"> На средства распространяется период удержания в</string>
     <plurals name="staking_confirmation_bonding_period_6">
-        <item quantity="one" tools:ignore="ImpliedQuantity">день</item>
+        <item quantity="one">день</item>
         <item quantity="few">дня</item>
         <item quantity="many">дней</item>
         <item quantity="other">день</item>
@@ -2875,7 +2875,7 @@
     <string name="prices_filter_tradable">Доступно для торговли</string>
     <string name="common_more">Больше</string>
     <string name="transfer_to_other_wallets">Переводите криптовалюту на другие кошельки</string>
-    <string name="add_cash_from_your_bank_or_card">Добавляйте наличные из своего банка или со своей карты</string>
+    <string name="add_cash_from_your_bank_or_card">Внесите наличные со своего банка</string>
     <string name="cash_out_bank">Обналичивайте средства в своем банке</string>
     <string name="exchange_campaign_announcement_title">Повысьте уровень своей торговли</string>
     <string name="exchange_campaign_announcement_description">Получайте более низкие комиссии, больше торговых пар и круглосуточную поддержку на Blockchain.com Exchange.</string>
@@ -2942,7 +2942,7 @@
     <string name="intro_swipe_hint">Проведите, чтобы продолжить -&gt;</string>
     <string name="common_other">Другое</string>
     <string name="buy_different_crypto">Купить другую криптовалюту</string>
-    <string name="common_swap_from">Обменять из</string>
+    <string name="common_swap_from">Обменять с</string>
     <string name="common_swap_to">Обменять на</string>
     <string name="announcement_recovery_title">Никогда не теряйте доступ к своему DeFi Wallet</string>
     <string name="announcement_recovery_subtitle">Создайте резервную копию своего DeFi Wallet</string>
@@ -3103,9 +3103,6 @@
     <string name="swap_failed">Обмен не удался</string>
     <string name="swap_failed_message">Ваш баланс не пострадал. Вы можете попробовать еще раз или отменить.</string>
     <string name="swap_confirmation_navbar">Подтвердить Swap</string>
-    <string name="tx_confirmation_quote_refresh_timer">Новое предложение в</string>
-    <string name="tx_confirmation_exchange_rate_label">Ставка</string>
-    <string name="tx_confirmation_exchange_rate_value">1 %1$s = %2$s</string>
     <string name="price_updated">Цена обновлена</string>
     <string name="accept">Принять</string>
     <string name="common_max_arg">Макс.: %1$s</string>
@@ -3128,6 +3125,30 @@
     <string name="minimum_amount_extra_info">Минимальная сумма, которую вы гарантированно получите. Если цена изменится более чем на %1$s, ваша транзакция будет отменена.</string>
     <string name="network_fee_info_description">Комиссия за обработку вашей транзакции. Она должна быть оплачена в %1$s.</string>
     <string name="bcdc_fee_extra_info_description">Это небольшая комиссия за использование сервиса Blockchain.com DEX.</string>
+    <string name="common_swap_select_account">Вібрать счет %1$s</string>
     <string name="common_http_error_description">Что-то пошло не так.</string>
     <string name="common_http_error_title">К сожалению!</string>
+    <string name="dapp_network_not_supported">Децентрализованное приложение запросило использование неподдерживаемой сети.</string>
+    <string name="select_network">Выбрать сеть</string>
+    <string name="news_author">Опубликовано %1$s</string>
+    <string name="news_home_title">Последние новости</string>
+    <string name="news_title">Новости</string>
+    <string name="dapps_list_title">Подключенные приложения</string>
+    <string name="common_disconnect_all">Отключить все</string>
+    <string name="walletconnect_dapp_list_scan_cta">Подключить децентрализованное приложение</string>
+    <string name="walletconnect_session_approved_title">Вы подключены к %1$s</string>
+    <string name="walletconnect_session_rejected_title">Ваше соединение %1$s было отклонено</string>
+    <string name="tx_confirmation_quote_refresh_timer">Новое предложение в</string>
+    <string name="tx_confirmation_exchange_rate_label">Ставка</string>
+    <string name="tx_confirmation_exchange_rate_value">1 %1$s = %2$s</string>
+    <string name="sell_targetasset_sell_for">Продать за</string>
+    <string name="sell_enteramount_for">За</string>
+    <string name="sell_confirmation_navbar">Подтверждение</string>
+    <string name="sell_neworderstate_pending_deposit_title">Продажа %1$s</string>
+    <string name="sell_neworderstate_pending_deposit_description">Ваша продажа %1$s из %2$s обрабатывается (обычно %3$s минуты). Ваш баланс будет обновлен после его завершения.</string>
+    <string name="sell_neworderstate_pending_deposit_l2_description">Ваша продажа %1$s из %2$s %3$sобрабатывается (обычно %4$s минуты). Ваш баланс будет обновлен после его завершения.</string>
+    <string name="sell_neworderstate_succeeded_title">Продажа выполнена!</string>
+    <string name="sell_neworderstate_succeeded_description">Вы продали %1$s за %2$s.</string>
+    <string name="sell_asset_upsell_title">Хотите купить актив?</string>
+    <string name="sell_asset_upsell_subtitle">Со всеми этими свежими деньгами вы могли бы купить еще  одну криптовалюту.</string>
 </resources>
