@@ -1,6 +1,5 @@
 package com.blockchain.componentlib.button.common
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -14,7 +13,6 @@ internal fun FilledButton(
     textColor: Color,
     backgroundColor: Color,
     disabledBackgroundColor: Color,
-    contentPadding: PaddingValues,
     state: ButtonState = ButtonState.Enabled,
     style: ButtonStyle,
     icon: ImageResource.Local? = null,
@@ -25,7 +23,7 @@ internal fun FilledButton(
         state = state,
         backgroundColor = backgroundColor,
         disabledBackgroundColor = disabledBackgroundColor,
-        contentPadding = contentPadding,
+        contentPadding = style.contentPadding,
         onClick = onClick,
         buttonContent = {
             DefaultButtonContent(

@@ -2,6 +2,7 @@ package com.blockchain.componentlib.button.common
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
@@ -35,14 +36,27 @@ internal sealed interface ButtonStyle {
     @get:Composable
     val textStyle: TextStyle
 
+    @get:Composable
+    val contentPadding: PaddingValues
+
     object Default : ButtonStyle {
         override val iconSize @Composable get() = AppTheme.dimensions.standardSpacing
         override val textStyle @Composable get() = AppTheme.typography.body2
+        override val contentPadding
+            @Composable get() = PaddingValues(
+                horizontal = AppTheme.dimensions.smallSpacing,
+                vertical = AppTheme.dimensions.verySmallSpacing
+            )
     }
 
     object Small : ButtonStyle {
         override val iconSize @Composable get() = AppTheme.dimensions.smallSpacing
         override val textStyle @Composable get() = AppTheme.typography.paragraph2
+        override val contentPadding
+            @Composable get() = PaddingValues(
+                horizontal = AppTheme.dimensions.verySmallSpacing,
+                vertical = AppTheme.dimensions.tinySpacing
+            )
     }
 }
 
