@@ -22,6 +22,9 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
+import com.blockchain.componentlib.basic.MaskableText
+import com.blockchain.componentlib.basic.MaskableTextWithToggle
+import com.blockchain.componentlib.basic.MaskedTextFormat
 import com.blockchain.componentlib.chrome.BALANCE_OFFSET_ANIM_DURATION
 import com.blockchain.componentlib.chrome.BALANCE_OFFSET_TARGET
 import com.blockchain.componentlib.system.ShimmerLoadingBox
@@ -37,7 +40,7 @@ fun BalanceScreen(
     modifier: Modifier = Modifier,
     walletBalance: WalletBalance,
     balanceAlphaProvider: () -> Float,
-    hideBalance: Boolean
+    hideBalance: Boolean,
 ) {
     Column(
         modifier = modifier
@@ -49,11 +52,13 @@ fun BalanceScreen(
         TotalBalance(
             balance = walletBalance.balance,
             balanceAlphaProvider = balanceAlphaProvider,
-            hide = hideBalance
+            hide = hideBalance,
         )
-        BalanceDifference(
-            balanceDifference = walletBalance.balanceDifference
-        )
+        walletBalance.balanceDifference?.let { balanceDifference ->
+            BalanceDifference(
+                balanceDifference = balanceDifference
+            )
+        }
     }
 }
 
@@ -84,7 +89,7 @@ fun TotalBalance(
         }
 
         is DataResource.Data -> {
-            Text(
+            MaskableTextWithToggle(
                 modifier = Modifier
                     .clipToBounds()
                     .offset {
@@ -99,7 +104,9 @@ fun TotalBalance(
                         scaleX = scale
                         scaleY = scale
                     },
-                text = balance.data.toStringWithSymbol(),
+                clearText = balance.data.symbol,
+                maskableText = balance.data.toStringWithoutSymbol(),
+                format = MaskedTextFormat.ClearThenMasked,
                 style = AppTheme.typography.title1,
                 color = AppTheme.colors.title
             )
@@ -115,12 +122,26 @@ fun TotalBalance(
 fun BalanceDifference(
     balanceDifference: BalanceDifferenceConfig
 ) {
-    if (balanceDifference.text.isNotEmpty()) {
+    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+    Row {
+        Text(
+            text = balanceDifference.valueChange.indicator,
+            style = AppTheme.typography.paragraph2,
+            color = balanceDifference.valueChange.color
+        )
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+        MaskableText(
+            clearText = balanceDifference.differenceSymbol,
+            maskableText = balanceDifference.differenceAmount,
+            format = MaskedTextFormat.ClearThenMasked,
+            style = AppTheme.typography.paragraph2,
+            color = balanceDifference.valueChange.color
+        )
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
         Text(
-            text = balanceDifference.text,
+            text = "(${balanceDifference.valueChange.value}%)",
             style = AppTheme.typography.paragraph2,
-            color = balanceDifference.color
+            color = balanceDifference.valueChange.color
         )
     }
 }
@@ -139,7 +160,7 @@ fun PreviewBalanceScreen() {
                 cryptoBalanceNow = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal()))
             ),
             balanceAlphaProvider = { 1F },
-            hideBalance = false
+            hideBalance = false,
         )
     }
 }
@@ -154,6 +175,6 @@ fun PreviewBalanceScreenLoading() {
             cryptoBalanceNow = DataResource.Data(Money.fromMajor(CryptoCurrency.ETHER, 1234.toBigDecimal()))
         ),
         balanceAlphaProvider = { 1F },
-        hideBalance = false
+        hideBalance = false,
     )
 }

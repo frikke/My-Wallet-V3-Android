@@ -28,6 +28,7 @@ import com.blockchain.preferences.DexPrefs
 import com.blockchain.preferences.ExchangeCampaignPrefs
 import com.blockchain.preferences.IterableAnnouncementsPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
+import com.blockchain.preferences.MaskedValuePrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
@@ -93,7 +94,8 @@ class PrefsUtil(
     CowboysPrefs,
     CountryPrefs,
     ExchangeCampaignPrefs,
-    IterableAnnouncementsPrefs {
+    IterableAnnouncementsPrefs,
+    MaskedValuePrefs {
 
     private var isUnderAutomationTesting = false // Don't persist!
 
@@ -832,6 +834,10 @@ class PrefsUtil(
         local.removeIf { !allAnnouncements.contains(it) }
     }
 
+    override var shouldMaskValues: Boolean
+        get() = getValue(MASK_VALUES, false)
+        set(value) = setValue(MASK_VALUES, value)
+
     companion object {
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
 
@@ -993,6 +999,9 @@ class PrefsUtil(
         // iterable announcements
         private const val ITERABLE_SEEN_ANNOUNCEMENTS = "ITERABLE_SEEN_ANNOUNCEMENTS"
         private const val ITERABLE_DELETED_ANNOUNCEMENTS = "ITERABLE_DELETED_ANNOUNCEMENTS"
+
+        // masked values
+        private const val MASK_VALUES = "MASK_VALUES"
     }
 
     override val legacyWalletMode: String

@@ -211,12 +211,13 @@ fun HomeScreen(
             )
     ) {
         stickyHeader {
+            val balance = (assetsViewState.balance.balance as? DataResource.Data)?.data
             MenuOptionsScreen(
                 modifier = Modifier.onGloballyPositioned {
                     menuOptionsHeight = it.size.height
                 },
-                walletBalance = (assetsViewState.balance.balance as? DataResource.Data)?.data?.toStringWithSymbol()
-                    ?: "",
+                walletBalanceCurrency = balance?.symbol.orEmpty(),
+                walletBalance = balance?.toStringWithoutSymbol().orEmpty(),
                 openSettings = openSettings,
                 launchQrScanner = launchQrScanner,
                 showBackground = balanceOffsetToMenuOption <= 0F && menuOptionsHeight > 0F,
@@ -238,8 +239,7 @@ fun HomeScreen(
                 },
                 balanceAlphaProvider = { balanceScrollRange },
                 hideBalance = balanceScrollRange <= 0.5 && menuOptionsHeight > 0F,
-                walletBalance = assetsViewState.balance
-
+                walletBalance = assetsViewState.balance,
             )
         }
 
@@ -395,6 +395,7 @@ fun HomeScreen(
             )
         }
 
+        // referral
         (referralState.referralInfo as? DataResource.Data)?.data?.let {
             (it as? ReferralInfo.Data)?.let {
                 homeReferral(
@@ -404,6 +405,7 @@ fun HomeScreen(
             }
         }
 
+        // news
         homeNews(
             data = newsViewState.newsArticles?.toImmutableList(),
             seeAllOnClick = {

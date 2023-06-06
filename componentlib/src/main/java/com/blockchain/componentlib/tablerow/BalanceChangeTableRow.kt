@@ -33,6 +33,8 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.basic.MaskStateConfig
+import com.blockchain.componentlib.basic.MaskableText
 import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.icons.ChevronRight
 import com.blockchain.componentlib.icons.Fire
@@ -55,6 +57,7 @@ data class BalanceChange(
     val showRisingFastTag: Boolean
 )
 
+// with data: BalanceChange, spread into multiple params
 @Composable
 fun BalanceChangeTableRow(
     modifier: Modifier = Modifier,
@@ -78,6 +81,38 @@ fun BalanceChangeTableRow(
     )
 }
 
+// maskable with imageResource
+@Composable
+fun MaskableBalanceChangeTableRow(
+    modifier: Modifier = Modifier,
+    name: String,
+    subtitle: String? = null,
+    networkTag: String? = null,
+    value: DataResource<String>,
+    valueChange: DataResource<ValueChange>? = null,
+    showRisingFastTag: Boolean = false,
+    imageResource: ImageResource = ImageResource.None,
+    defaultIconSize: Dp = AppTheme.dimensions.standardSpacing,
+    withChevron: Boolean = false,
+    onClick: () -> Unit
+) {
+    BalanceChangeTableRow(
+        modifier = modifier,
+        maskState = MaskStateConfig.Default,
+        name = name,
+        subtitle = subtitle,
+        networkTag = networkTag,
+        value = value,
+        valueChange = valueChange,
+        showRisingFastTag = showRisingFastTag,
+        imageResource = imageResource,
+        defaultIconSize = defaultIconSize,
+        withChevron = withChevron,
+        onClick = onClick
+    )
+}
+
+// normal wth ImageResource
 @Composable
 fun BalanceChangeTableRow(
     modifier: Modifier = Modifier,
@@ -94,6 +129,40 @@ fun BalanceChangeTableRow(
 ) {
     BalanceChangeTableRow(
         modifier = modifier,
+        maskState = MaskStateConfig.Override(maskEnabled = false),
+        name = name,
+        subtitle = subtitle,
+        networkTag = networkTag,
+        value = value,
+        valueChange = valueChange,
+        showRisingFastTag = showRisingFastTag,
+        imageResource = imageResource,
+        defaultIconSize = defaultIconSize,
+        withChevron = withChevron,
+        onClick = onClick
+    )
+}
+
+// ImageResource to StackedIcon
+// with maskState
+@Composable
+private fun BalanceChangeTableRow(
+    modifier: Modifier = Modifier,
+    maskState: MaskStateConfig,
+    name: String,
+    subtitle: String? = null,
+    networkTag: String? = null,
+    value: DataResource<String>,
+    valueChange: DataResource<ValueChange>? = null,
+    showRisingFastTag: Boolean = false,
+    imageResource: ImageResource = ImageResource.None,
+    defaultIconSize: Dp = AppTheme.dimensions.standardSpacing,
+    withChevron: Boolean = false,
+    onClick: () -> Unit
+) {
+    BalanceChangeTableRow(
+        modifier = modifier,
+        maskState = maskState,
         name = name,
         subtitle = subtitle,
         networkTag = networkTag,
@@ -105,6 +174,36 @@ fun BalanceChangeTableRow(
         } else {
             StackedIcon.SingleIcon(imageResource)
         },
+        defaultIconSize = defaultIconSize,
+        withChevron = withChevron,
+        onClick = onClick
+    )
+}
+
+@Composable
+fun MaskedBalanceChangeTableRow(
+    modifier: Modifier = Modifier,
+    name: String,
+    subtitle: String? = null,
+    networkTag: String? = null,
+    value: DataResource<String>,
+    valueChange: DataResource<ValueChange>? = null,
+    showRisingFastTag: Boolean = false,
+    icon: StackedIcon = StackedIcon.None,
+    defaultIconSize: Dp = AppTheme.dimensions.standardSpacing,
+    withChevron: Boolean = false,
+    onClick: () -> Unit
+) {
+    BalanceChangeTableRow(
+        modifier = modifier,
+        maskState = MaskStateConfig.Default,
+        name = name,
+        subtitle = subtitle,
+        networkTag = networkTag,
+        value = value,
+        valueChange = valueChange,
+        showRisingFastTag = showRisingFastTag,
+        icon = icon,
         defaultIconSize = defaultIconSize,
         withChevron = withChevron,
         onClick = onClick
@@ -125,9 +224,42 @@ fun BalanceChangeTableRow(
     withChevron: Boolean = false,
     onClick: () -> Unit
 ) {
+    BalanceChangeTableRow(
+        modifier = modifier,
+        maskState = MaskStateConfig.Override(maskEnabled = false),
+        name = name,
+        subtitle = subtitle,
+        networkTag = networkTag,
+        value = value,
+        valueChange = valueChange,
+        showRisingFastTag = showRisingFastTag,
+        icon = icon,
+        defaultIconSize = defaultIconSize,
+        withChevron = withChevron,
+        onClick = onClick
+    )
+}
+
+// with allowMaskedValue and StackedIcon
+@Composable
+private fun BalanceChangeTableRow(
+    modifier: Modifier = Modifier,
+    maskState: MaskStateConfig,
+    name: String,
+    subtitle: String? = null,
+    networkTag: String? = null,
+    value: DataResource<String>,
+    valueChange: DataResource<ValueChange>? = null,
+    showRisingFastTag: Boolean = false,
+    icon: StackedIcon = StackedIcon.None,
+    defaultIconSize: Dp = AppTheme.dimensions.standardSpacing,
+    withChevron: Boolean = false,
+    onClick: () -> Unit
+) {
     if (withChevron) {
         BalanceChangeTableRowWithChevron(
             modifier = modifier,
+            maskState = maskState,
             name = name,
             subtitle = subtitle,
             networkTag = networkTag,
@@ -145,6 +277,7 @@ fun BalanceChangeTableRow(
     } else {
         BalanceChangeTableRow(
             modifier = modifier,
+            maskState = maskState,
             name = name,
             subtitle = subtitle,
             networkTag = networkTag,
@@ -165,6 +298,7 @@ fun BalanceChangeTableRow(
 @Composable
 private fun BalanceChangeTableRow(
     modifier: Modifier = Modifier,
+    maskState: MaskStateConfig,
     name: String,
     subtitle: String? = null,
     networkTag: String? = null,
@@ -244,9 +378,9 @@ private fun BalanceChangeTableRow(
                         }
 
                         is DataResource.Data -> {
-                            Text(
+                            MaskableText(
+                                maskState = maskState,
                                 text = value.data,
-                                textAlign = TextAlign.End,
                                 style = AppTheme.typography.paragraph2,
                                 color = AppTheme.colors.title
                             )
@@ -289,6 +423,7 @@ private fun BalanceChangeTableRow(
 @Composable
 private fun BalanceChangeTableRowWithChevron(
     modifier: Modifier = Modifier,
+    maskState: MaskStateConfig,
     name: String,
     subtitle: String? = null,
     networkTag: String? = null,
@@ -365,11 +500,11 @@ private fun BalanceChangeTableRowWithChevron(
                         }
 
                         is DataResource.Data -> {
-                            Text(
+                            MaskableText(
+                                maskState = maskState,
                                 text = value.data,
-                                textAlign = TextAlign.End,
                                 style = AppTheme.typography.paragraph1,
-                                color = AppTheme.colors.title
+                                color = AppTheme.colors.title,
                             )
                         }
                     }

@@ -507,7 +507,8 @@ class EarnDashboardViewModel(
 
         return DashboardState.EarningAndDiscover(
             earning = earningList.sortListByFilterAndQuery(earningTabFilterBy, earningTabQueryBy).sortByBalance(),
-            totalEarningBalanceFiat = totalEarningBalanceFiat.toStringWithSymbol(),
+            totalEarningBalanceSymbol = totalEarningBalanceFiat.symbol,
+            totalEarningBalance = totalEarningBalanceFiat.toStringWithoutSymbol(),
             discover = discoverList.sortListByFilterAndQuery(discoverTabFilterBy, discoverTabQueryBy).sortByRate(),
             filterList = filterList
         )

@@ -3668,4 +3668,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="empty_dapp_description">A Dapp wants to connect \nto your wallet</string>
     <string name="empty_dapp_title">the Dapp</string>
     <string name="common_dapp">Dapp</string>
+
+    <string name="total_balance_loading">Loading…</string>
+    <string name="total_balance_error">Failed to load</string>
 </resources>

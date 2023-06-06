@@ -28,7 +28,8 @@ sealed class DashboardState {
     ) : DashboardState()
     data class EarningAndDiscover(
         val earning: List<EarnAsset>,
-        val totalEarningBalanceFiat: String,
+        val totalEarningBalance: String,
+        val totalEarningBalanceSymbol: String,
         val discover: List<EarnAsset>,
         val filterList: List<EarnDashboardListFilter>
     ) : DashboardState()
