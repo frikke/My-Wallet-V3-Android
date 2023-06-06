@@ -1,19 +1,19 @@
 package com.blockchain.home.presentation.activity.list.custodial.mappers
 
-import androidx.annotation.DrawableRes
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityLocalIcon
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.utils.toFormattedDate
 
-@DrawableRes internal fun FiatActivitySummaryItem.iconSummary(): Int {
+internal fun FiatActivitySummaryItem.iconSummary(): ActivityLocalIcon {
     return when (type) {
-        TransactionType.DEPOSIT -> R.drawable.ic_activity_buy
-        TransactionType.WITHDRAWAL -> R.drawable.ic_activity_sell
+        TransactionType.DEPOSIT -> ActivityLocalIcon.Buy
+        TransactionType.WITHDRAWAL -> ActivityLocalIcon.Sell
     }
 }
 

@@ -1,10 +1,6 @@
 package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
-import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.Minus
-import com.blockchain.componentlib.icons.Plus
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
@@ -23,18 +19,19 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityLocalIcon
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
 import com.blockchain.utils.abbreviate
 import com.blockchain.utils.toFormattedString
 import java.util.Currency
 import java.util.Locale
 
-internal fun CustodialTradingActivitySummaryItem.iconDetail(): ImageResource {
+internal fun CustodialTradingActivitySummaryItem.iconDetail(): ActivityLocalIcon {
     return when (type) {
         OrderType.BUY,
-        OrderType.RECURRING_BUY -> Icons.Filled.Plus
+        OrderType.RECURRING_BUY -> ActivityLocalIcon.Buy
 
-        OrderType.SELL -> Icons.Filled.Minus
+        OrderType.SELL -> ActivityLocalIcon.Sell
     }
 }
 

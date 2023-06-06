@@ -105,6 +105,8 @@ object AppTheme : Theme() {
         get() = LocalShapes.current
 }
 
+val AppColors: SemanticColors @Composable get() = AppTheme.colors
+
 object FakeAppThemeProvider : AppThemeProvider {
     override val appTheme: Flow<Theme>
         get() = flow {

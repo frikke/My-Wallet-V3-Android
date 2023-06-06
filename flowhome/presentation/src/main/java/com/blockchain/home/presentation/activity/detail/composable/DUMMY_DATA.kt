@@ -1,8 +1,5 @@
 package com.blockchain.home.presentation.activity.detail.composable
 
-import com.blockchain.componentlib.R
-import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.activity.common.ActivityComponent
@@ -11,6 +8,9 @@ import com.blockchain.home.presentation.activity.detail.ActivityDetail
 import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIcon
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIconSource
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityLocalIcon
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextStyle
@@ -18,9 +18,9 @@ import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextTypo
 
 val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
     ActivityDetail(
-        icon = StackedIcon.SmallTag(
-            main = ImageResource.Local(R.drawable.ic_close_circle_dark),
-            tag = ImageResource.Local(R.drawable.ic_close_circle)
+        icon = ActivityIcon.SmallTag(
+            main = ActivityIconSource.Local(ActivityLocalIcon.Buy),
+            tag = ActivityIconSource.Local(ActivityLocalIcon.Buy)
         ),
         title = TextValue.StringValue("Swapped BTC -> ETH"),
         subtitle = TextValue.StringValue("some subtitle"),

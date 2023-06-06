@@ -1,10 +1,6 @@
 package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
-import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.Minus
-import com.blockchain.componentlib.icons.Plus
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityComponent
@@ -19,14 +15,15 @@ import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityLocalIcon
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
 import com.blockchain.utils.abbreviate
 import com.blockchain.utils.toFormattedString
 
-internal fun CustodialTransferActivitySummaryItem.iconDetail(): ImageResource {
+internal fun CustodialTransferActivitySummaryItem.iconDetail(): ActivityLocalIcon {
     return when (type) {
-        TransactionType.DEPOSIT -> Icons.Filled.Plus
-        TransactionType.WITHDRAWAL -> Icons.Filled.Minus
+        TransactionType.DEPOSIT -> ActivityLocalIcon.Buy
+        TransactionType.WITHDRAWAL -> ActivityLocalIcon.Sell
     }
 }
 

@@ -20,7 +20,7 @@ import com.blockchain.componentlib.theme.AppTheme
 @Composable
 fun CustomStackedIcon(
     icon: StackedIcon,
-    iconBackground: Color = AppTheme.colors.light,
+    iconBackground: Color = AppTheme.colors.background,
     borderColor: Color = AppTheme.colors.backgroundSecondary,
     size: Dp = AppTheme.dimensions.standardSpacing,
     iconShape: Shape = CircleShape,

@@ -1,17 +1,17 @@
 package com.blockchain.home.presentation.activity.detail
 
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
-import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.activity.common.ActivityComponent
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIcon
 
 data class ActivityDetailViewState(
     val activityDetail: DataResource<ActivityDetail>
 ) : ViewState
 
 data class ActivityDetail(
-    val icon: StackedIcon,
+    val icon: ActivityIcon,
     val title: TextValue,
     val subtitle: TextValue,
     val detailItems: List<ActivityDetailGroup>,

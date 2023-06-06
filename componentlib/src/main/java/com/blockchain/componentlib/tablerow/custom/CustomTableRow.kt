@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.tablerow.custom
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -165,6 +166,12 @@ private fun PreviewCustomTableRow_Summary_SmallTag() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewCustomTableRowDark_Summary_SmallTag() {
+    PreviewCustomTableRow_Summary_SmallTag()
+}
+
 @Preview
 @Composable
 private fun PreviewCustomTableRow_Summary_StackedIcon() {
@@ -209,6 +216,12 @@ private fun PreviewCustomTableRow_Summary_StackedIcon() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewCustomTableRowDark_Summary_StackedIcon() {
+    PreviewCustomTableRow_Summary_StackedIcon()
+}
+
 @Preview
 @Composable
 private fun PreviewCustomTableRow_Summary_SingleIcon() {
@@ -250,6 +263,12 @@ private fun PreviewCustomTableRow_Summary_SingleIcon() {
         ),
         onClick = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewCustomTableRowDark_Summary_SingleIcon() {
+    PreviewCustomTableRow_Summary_SingleIcon()
 }
 
 @Preview
@@ -306,6 +325,12 @@ private fun PreviewCustomTableRow() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewCustomTableRowDark() {
+    PreviewCustomTableRow()
+}
+
 @Preview
 @Composable
 private fun PreviewCustomTableRow_Key_MultiValue() {
@@ -339,6 +364,12 @@ private fun PreviewCustomTableRow_Key_MultiValue() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewCustomTableRowDark_Key_MultiValue() {
+    PreviewCustomTableRow_Key_MultiValue()
+}
+
 @Preview
 @Composable
 private fun PreviewCustomTableRow_KeyValue() {
@@ -363,6 +394,12 @@ private fun PreviewCustomTableRow_KeyValue() {
         ),
         onClick = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewCustomTableRowDark_KeyValue() {
+    PreviewCustomTableRow_KeyValue()
 }
 
 @Preview
@@ -393,4 +430,10 @@ private fun PreviewCustomTableRow_Tag() {
         ),
         onClick = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewCustomTableRowDark_Tag() {
+    PreviewCustomTableRow_Tag()
 }

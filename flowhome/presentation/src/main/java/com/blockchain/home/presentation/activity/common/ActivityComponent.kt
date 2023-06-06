@@ -6,14 +6,14 @@ import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.tablerow.custom.CustomTableRow
-import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIcon
 
 /**
  * @property id Some components may want to be identified for later interaction
@@ -23,7 +23,7 @@ sealed interface ActivityComponent {
 
     data class StackView(
         override val id: String,
-        val leadingImage: StackedIcon = StackedIcon.None,
+        val leadingImage: ActivityIcon = ActivityIcon.None,
         val leading: List<ActivityStackView>,
         val trailing: List<ActivityStackView>
     ) : ActivityComponent {
@@ -57,7 +57,7 @@ fun ActivityComponentItem(component: ActivityComponent, onClick: ((ClickAction) 
         }
         is ActivityComponent.StackView -> {
             CustomTableRow(
-                icon = component.leadingImage,
+                icon = component.leadingImage.toStackedIcon(),
                 leadingComponents = component.leading.map { it.toViewType() },
                 trailingComponents = component.trailing.map { it.toViewType() },
                 onClick = { onClick?.invoke(ClickAction.Stack(data = component.id)) }
@@ -87,7 +87,7 @@ fun ActivitySectionCard(
                     ActivityComponentItem(component = transaction, onClick = onClick)
 
                     if (index < components.lastIndex) {
-                        Divider(color = Color(0XFFF1F2F7))
+                        Divider(color = AppColors.background)
                     }
                 }
             }

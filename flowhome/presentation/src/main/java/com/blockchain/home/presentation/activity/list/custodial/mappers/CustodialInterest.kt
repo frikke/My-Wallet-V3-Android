@@ -1,27 +1,27 @@
 package com.blockchain.home.presentation.activity.list.custodial.mappers
 
-import androidx.annotation.DrawableRes
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.toStringWithSymbolOrLessThanOnePenny
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.earn.domain.models.EarnRewardsState
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityLocalIcon
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.FiatValue
 import info.blockchain.wallet.multiaddress.TransactionSummary
 
-@DrawableRes internal fun CustodialInterestActivitySummaryItem.iconSummary(): Int {
+internal fun CustodialInterestActivitySummaryItem.iconSummary(): ActivityLocalIcon {
     return when (state) {
         EarnRewardsState.COMPLETE -> when (type) {
-            TransactionSummary.TransactionType.DEPOSIT -> R.drawable.ic_activity_buy
-            TransactionSummary.TransactionType.INTEREST_EARNED -> R.drawable.ic_activity_rewards
-            TransactionSummary.TransactionType.WITHDRAW -> R.drawable.ic_activity_sell
-            else -> R.drawable.ic_activity_buy
+            TransactionSummary.TransactionType.DEPOSIT -> ActivityLocalIcon.Buy
+            TransactionSummary.TransactionType.INTEREST_EARNED -> ActivityLocalIcon.Reward
+            TransactionSummary.TransactionType.WITHDRAW -> ActivityLocalIcon.Sell
+            else -> ActivityLocalIcon.Buy
         }
 
-        else -> R.drawable.ic_activity_rewards
+        else -> ActivityLocalIcon.Reward
     }
 }
 
