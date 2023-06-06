@@ -16,17 +16,25 @@ internal fun FilledButton(
     disabledBackgroundColor: Color,
     contentPadding: PaddingValues,
     state: ButtonState = ButtonState.Enabled,
-    icon: ImageResource = ImageResource.None,
+    style: ButtonStyle,
+    icon: ImageResource.Local? = null,
     onClick: () -> Unit,
 ) {
     Button(
+        modifier = modifier,
         state = state,
         backgroundColor = backgroundColor,
         disabledBackgroundColor = disabledBackgroundColor,
         contentPadding = contentPadding,
         onClick = onClick,
         buttonContent = {
-
+            DefaultButtonContent(
+                state = state,
+                style = style,
+                text = text,
+                textColor = textColor,
+                icon = icon
+            )
         }
     )
 }
