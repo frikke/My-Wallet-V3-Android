@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.home
 
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
+import com.blockchain.api.NabuApiException
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullFiatAccount
@@ -15,6 +16,10 @@ import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethodsForAc
 import com.blockchain.nabu.BlockedReason
 import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.R
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_DEPOSIT
+import piuk.blockchain.android.ui.base.ErrorButtonCopies
+import piuk.blockchain.android.ui.base.ErrorDialogData
+import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
@@ -150,5 +155,29 @@ class FiatActionsNavigationImpl(
                 )
             }
         }
+    }
+
+    override fun failure(action: AssetAction, error: Exception) {
+        val serverSideErrorInfo = (error as? NabuApiException)?.getServerSideErrorInfo()
+        val sheet = if (serverSideErrorInfo != null) {
+            ErrorSlidingBottomDialog.newInstance(serverSideErrorInfo)
+        } else {
+            ErrorSlidingBottomDialog.newInstance(
+                ErrorDialogData(
+                    title = activity?.getString(com.blockchain.stringResources.R.string.common_error).orEmpty(),
+                    description = (error as? NabuApiException)?.getErrorDescription() ?: error.localizedMessage,
+                    errorButtonCopies = ErrorButtonCopies(
+                        primaryButtonText = activity
+                            ?.getString(com.blockchain.stringResources.R.string.common_ok).orEmpty()
+                    ),
+                    nabuApiException = error as? NabuApiException,
+                    errorDescription = (error as? NabuApiException)?.getErrorDescription(),
+                    action = ACTION_DEPOSIT,
+                    analyticsCategories = emptyList(),
+                )
+            )
+        }
+
+        activity?.showBottomSheet(sheet)
     }
 }

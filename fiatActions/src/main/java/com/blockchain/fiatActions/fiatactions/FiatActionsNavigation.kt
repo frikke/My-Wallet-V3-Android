@@ -52,4 +52,9 @@ interface FiatActionsNavigation {
     fun kycCashBenefits(
         currency: FiatCurrency
     )
+
+    fun failure(
+        action: AssetAction,
+        error: Exception
+    )
 }
