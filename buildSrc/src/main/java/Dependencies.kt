@@ -9,7 +9,7 @@ object Versions {
     const val compileSdk = 33
 
     const val versionCode = 26653
-    const val versionName = "202305.2.0"
+    const val versionName = "202306.1.0"
 
     const val buildTools = "30.0.3"
 
@@ -135,7 +135,7 @@ object Versions {
     // zxing 3.4.0 crashes with:
     //      "java.lang.NoSuchMethodError. No interface method sort(Ljava/util/Comparator;)V in class Ljava/util/List;"
     // List.sort() is not available on Android SDK < 24 so DO NOT UPGRADE until project target min is 24
-    const val zxing = "3.3.0"
+    const val zxing = "3.5.1"
     const val materialDatePicker = "3.6.4"
     const val sparkline = "1.2.0"
 

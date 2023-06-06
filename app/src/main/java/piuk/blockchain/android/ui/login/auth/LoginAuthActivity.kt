@@ -228,6 +228,7 @@ class LoginAuthActivity :
             AuthStatus.VerifyPassword,
             AuthStatus.UpdateMobileSetup -> binding.progressBar.visible()
             AuthStatus.Complete -> {
+                clearKeyboardAndFinish()
                 analytics.logEvent(LoginAnalytics.LoginRequestApproved(analyticsInfo))
                 startActivity(
                     PinActivity.newIntent(

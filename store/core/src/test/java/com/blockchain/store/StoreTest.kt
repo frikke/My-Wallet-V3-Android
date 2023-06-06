@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import com.blockchain.data.DataResource
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.internalnotifications.NotificationReceiver
 import com.blockchain.store.impl.RealStore
 import io.mockk.Called
 import io.mockk.Runs
@@ -18,6 +19,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -25,33 +27,43 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class StoreTest {
 
-    val testScope = TestScope()
+    private val testScope = TestScope()
 
-    val fetcher: Fetcher<Key, Item> = mockk()
+    private val fetcher: Fetcher<Key, Item> = mockk()
+    private val emitter: NotificationReceiver = mockk {
+        coEvery { events } returns flowOf()
+    }
 
-    val cacheReadState = MutableSharedFlow<CachedData<Key, Item>?>(replay = 1)
-    val cache: Cache<Key, Item> = mockk {
+    private val cacheReadState = MutableSharedFlow<CachedData<Key, Item>?>(replay = 1)
+    private val cache: Cache<Key, Item> = mockk {
         every { read(any()) } returns cacheReadState
         coEvery { write(any()) } just Runs
     }
-    val mediator: Mediator<Key, Item> = mockk()
-    val store: KeyedStore<Key, Item> = RealStore(testScope, fetcher, cache, mediator)
+    private val mediator: Mediator<Key, Item> = mockk()
+    private val store: KeyedStore<Key, Item> =
+        RealStore(
+            testScope, fetcher,
+            cache, mediator = mediator,
+            notificationReceiver = emitter,
+            reset = CacheConfiguration.default()
+        )
 
     @Test
-    fun `fresh request on failure should not get the current cached value but still listen for future updates to cache`() = testScope.runTest {
-        val error = IllegalStateException()
-        coEvery { fetcher.fetch(KEY) } returns FetcherResult.Failure(error)
-        cacheReadState.emit(CachedData(KEY, Item(1), 1))
+    fun `fresh request on failure should not get the current cached value but still listen for future updates to cache`() =
+        testScope.runTest {
+            val error = IllegalStateException()
+            coEvery { fetcher.fetch(KEY) } returns FetcherResult.Failure(error)
+            cacheReadState.emit(CachedData(KEY, Item(1), 1))
 
-        store.stream(KeyedFreshnessStrategy.Fresh(KEY)).test {
-            assertEquals(DataResource.Loading, awaitItem())
-            assertEquals(DataResource.Error(error), awaitItem())
-            expectNoEvents()
-            val dataFetchedInTheFuture = Item(123)
-            cacheReadState.emit(CachedData(KEY, dataFetchedInTheFuture, 123))
-            assertEquals(DataResource.Data(dataFetchedInTheFuture), awaitItem())
+            store.stream(KeyedFreshnessStrategy.Fresh(KEY)).test {
+                assertEquals(DataResource.Loading, awaitItem())
+                assertEquals(DataResource.Error(error), awaitItem())
+                expectNoEvents()
+                val dataFetchedInTheFuture = Item(123)
+                cacheReadState.emit(CachedData(KEY, dataFetchedInTheFuture, 123))
+                assertEquals(DataResource.Data(dataFetchedInTheFuture), awaitItem())
+            }
         }
-    }
 
     @Test
     fun `fresh request success`() = testScope.runTest {
@@ -291,4 +303,5 @@ class StoreTest {
 
 data class Key(val value: String)
 data class Item(val value: Int)
+
 val KEY = Key("456")

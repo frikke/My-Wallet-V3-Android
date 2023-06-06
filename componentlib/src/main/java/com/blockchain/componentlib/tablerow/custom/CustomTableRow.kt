@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
@@ -31,6 +32,8 @@ private fun StyledText(
 ) {
     Text(
         text = text,
+        overflow = TextOverflow.Ellipsis,
+        maxLines = 1,
         style = style.style.copy(
             textDecoration = style.textDecoration()
         ),

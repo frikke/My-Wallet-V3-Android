@@ -44,7 +44,6 @@ import com.blockchain.componentlib.icons.Alert
 import com.blockchain.componentlib.icons.Check
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.sheets.SheetHeader
-import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.LargeVerticalSpacer
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
@@ -118,34 +117,31 @@ fun WalletConnectSessionProposal(
                 )
             }
 
-            if (sessionProposalViewState.dappName.isEmpty()) {
-                CircularProgressBar()
-            } else {
-                AnimatedStateIndicatorImage(
-                    imageResource = ImageResource.Remote(
-                        sessionProposalViewState.dappLogoUrl,
-                        shape = AppTheme.shapes.veryLarge
-                    ),
-                    state = targetState
-                )
+            AnimatedStateIndicatorImage(
+                imageResource = sessionProposalViewState.dappLogoUrl.takeIf { it.isNotEmpty() }?.let {
+                    ImageResource.Remote(it, shape = AppTheme.shapes.veryLarge)
+                } ?: ImageResource.Local(R.drawable.ic_walletconnect_logo),
+                state = targetState
+            )
 
-                SmallVerticalSpacer()
+            SmallVerticalSpacer()
 
-                AnimatedSessionProposalContent(
-                    dappName = sessionProposalViewState.dappName,
-                    dappDescription = sessionProposalViewState.dappDescription,
-                    shortWalletAddress = "${walletAddress.take(4)}...${walletAddress.takeLast(4)}",
-                    onApprove = {
-                        analytics.logEvent(WalletConnectAnalytics.DappConnectionConfirmed)
-                        sessionProposalViewModel.onIntent(WalletConnectSessionProposalIntent.ApproveSession)
-                    },
-                    onReject = {
-                        analytics.logEvent(WalletConnectAnalytics.DappConnectionRejected)
-                        sessionProposalViewModel.onIntent(WalletConnectSessionProposalIntent.RejectSession)
-                    },
-                    state = targetState
-                )
-            }
+            AnimatedSessionProposalContent(
+                dappName = sessionProposalViewState.dappName,
+                dappDescription = sessionProposalViewState.dappDescription.ifEmpty {
+                    stringResource(string.empty_dapp_description)
+                },
+                shortWalletAddress = "${walletAddress.take(4)}...${walletAddress.takeLast(4)}",
+                onApprove = {
+                    analytics.logEvent(WalletConnectAnalytics.DappConnectionConfirmed)
+                    sessionProposalViewModel.onIntent(WalletConnectSessionProposalIntent.ApproveSession)
+                },
+                onReject = {
+                    analytics.logEvent(WalletConnectAnalytics.DappConnectionRejected)
+                    sessionProposalViewModel.onIntent(WalletConnectSessionProposalIntent.RejectSession)
+                },
+                state = targetState
+            )
         }
     }
 }
@@ -178,7 +174,11 @@ fun WalletConnectSessionNotSupported(
                 )
             ) {
                 Image(
-                    imageResource = ImageResource.Remote(dappLogoUrl),
+                    imageResource = if (dappLogoUrl.isNotEmpty())
+                        ImageResource.Remote(dappLogoUrl)
+                    else ImageResource.Local(
+                        R.drawable.ic_walletconnect_logo
+                    ),
                     modifier = Modifier
                         .size(88.dp)
                         .clip(AppTheme.shapes.veryLarge)
@@ -203,7 +203,12 @@ fun WalletConnectSessionNotSupported(
             StandardVerticalSpacer()
 
             SimpleText(
-                text = stringResource(string.walletconnect_session_rejected_title, dappName),
+                text = stringResource(
+                    string.walletconnect_session_rejected_title,
+                    dappName.ifEmpty {
+                        stringResource(string.empty_dapp_title)
+                    }
+                ),
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
@@ -341,14 +346,17 @@ fun AnimatedSessionProposalContent(
         ) {
             when (targetState) {
                 TargetState.UNDEFINED -> {
-                    SimpleText(
-                        text = dappName,
-                        style = ComposeTypographies.Title3,
-                        color = ComposeColors.Title,
-                        gravity = ComposeGravities.Centre
-                    )
 
-                    SmallVerticalSpacer()
+                    if (dappName.isNotEmpty()) {
+                        SimpleText(
+                            text = dappName,
+                            style = ComposeTypographies.Title3,
+                            color = ComposeColors.Title,
+                            gravity = ComposeGravities.Centre
+                        )
+
+                        SmallVerticalSpacer()
+                    }
 
                     SimpleText(
                         text = dappDescription,
@@ -378,7 +386,7 @@ fun AnimatedSessionProposalContent(
 
                         Column(horizontalAlignment = Alignment.End) {
                             SimpleText(
-                                text = "Network",
+                                text = stringResource(string.common_network),
                                 style = ComposeTypographies.Caption1,
                                 color = ComposeColors.Body,
                                 gravity = ComposeGravities.End
@@ -415,7 +423,14 @@ fun AnimatedSessionProposalContent(
                 }
                 TargetState.SUCCESS -> {
                     SimpleText(
-                        text = stringResource(id = string.walletconnect_session_approved_title, dappName),
+                        text = stringResource(
+                            id = string.walletconnect_session_approved_title,
+                            dappName.ifEmpty {
+                                stringResource(
+                                    id = string.empty_dapp_title
+                                )
+                            }
+                        ),
                         style = ComposeTypographies.Title3,
                         color = ComposeColors.Title,
                         gravity = ComposeGravities.Centre
@@ -425,7 +440,14 @@ fun AnimatedSessionProposalContent(
                 }
                 TargetState.FAILURE -> {
                     SimpleText(
-                        text = stringResource(id = string.walletconnect_session_rejected_title, dappName),
+                        text = stringResource(
+                            id = string.walletconnect_session_rejected_title,
+                            dappName.ifEmpty {
+                                stringResource(
+                                    id = string.empty_dapp_title
+                                )
+                            }
+                        ),
                         style = ComposeTypographies.Title3,
                         color = ComposeColors.Title,
                         gravity = ComposeGravities.Centre
@@ -434,7 +456,7 @@ fun AnimatedSessionProposalContent(
                     SmallVerticalSpacer()
 
                     SimpleText(
-                        text = stringResource(id = string.go_back_to_your_browser, dappName),
+                        text = stringResource(id = string.go_back_to_your_browser),
                         style = ComposeTypographies.Body1,
                         color = ComposeColors.Body,
                         gravity = ComposeGravities.Centre

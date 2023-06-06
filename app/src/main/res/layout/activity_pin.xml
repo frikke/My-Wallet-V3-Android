@@ -7,16 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".ui.settings.security.pin.PinActivity">
 
-    <androidx.appcompat.widget.AppCompatEditText
-        android:id="@+id/keyboard"
-        android:layout_width="1dp"
-        android:layout_height="0dp"
-        android:imeOptions="actionDone"
-        android:inputType="number"
-        android:maxLength="4"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <include
         android:id="@+id/toolbar"
         layout="@layout/toolbar_general"
@@ -39,17 +29,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.blockchain.componentlib.basic.SimpleImageView
-        android:id="@+id/pin_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottie_progress"
+        android:layout_width="@dimen/animated_loader_view"
+        android:layout_height="@dimen/animated_loader_view"
+        android:layout_gravity="center"
         android:layout_marginTop="@dimen/small_spacing"
-        android:contentDescription="@string/app_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
+        app:layout_constraintTop_toTopOf="parent"
+        app:lottie_autoPlay="false"
+        app:lottie_fileName="lottie/loader_with_rotation.json"
+        app:lottie_imageAssetsFolder="lottie/loader_with_rotation.json"
+        app:lottie_loop="true"
+        app:lottie_repeatMode="restart"
+        tools:visibility="visible" />
 
     <ImageView
         android:id="@+id/customer_support"
@@ -74,7 +68,7 @@
         android:layout_marginTop="120dp"
         android:layout_marginEnd="@dimen/standard_spacing"
         android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@id/pin_icon"
+        app:layout_constraintTop_toBottomOf="@id/lottie_progress"
         tools:text="@string/pin_title_create" />
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -143,20 +137,6 @@
         app:layout_constraintTop_toTopOf="@id/pinBox0"
         app:srcCompat="@drawable/pin_box_square_default_empty" />
 
-    <com.blockchain.componentlib.basic.SimpleImageView
-        android:id="@+id/fingerprint_logo"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginBottom="24dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/fingerprint_logo"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/text_view_version_code"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:tint="@color/primary_navy_dark"
-        tools:visibility="visible" />
-
     <TextView
         android:id="@+id/text_view_version_code"
         android:layout_width="wrap_content"
@@ -195,27 +175,13 @@
         app:layout_constraintTop_toBottomOf="@id/pinBox0"
         tools:visibility="visible" />
 
-    <androidx.appcompat.widget.LinearLayoutCompat
-        android:id="@+id/progress"
+    <com.blockchain.componentlib.keyboard.PinKeyboardView
+        android:id="@+id/pinKeyboard"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clickable="true"
-        android:focusable="true"
-        android:gravity="center"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/xhuge_spacing"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0">
-
-        <ProgressBar
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="@dimen/large_spacing"
-            tools:visibility="visible" />
-
-    </androidx.appcompat.widget.LinearLayoutCompat>
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

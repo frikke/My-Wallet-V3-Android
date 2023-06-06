@@ -256,6 +256,8 @@
 -keep public class piuk.blockchain.android.ui.auth.newlogin.** { *; }
 -keep public class piuk.blockchain.android.ui.login.auth.** { *; }
 
+#trustwallet
+-keep public class com.trustwallet.walletconnect.** { *; }
 
 # Sardine
 -keep public class com.google.android.gms.** { *; }

@@ -6,6 +6,8 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.commonarch.presentation.base.BlockchainActivity.Companion.LOGOUT_ACTION
+import com.blockchain.internalnotifications.NotificationEvent
+import com.blockchain.internalnotifications.NotificationTransmitter
 import com.blockchain.presentation.koin.scopedInject
 import java.io.Serializable
 import org.koin.android.ext.android.inject
@@ -14,6 +16,7 @@ import piuk.blockchain.android.util.wiper.DataWiper
 class LogoutActivity : AppCompatActivity() {
 
     private val analytics: Analytics by inject()
+    private val notificationTransmitter: NotificationTransmitter by inject()
     private val dataWiper: DataWiper by scopedInject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,6 +31,7 @@ class LogoutActivity : AppCompatActivity() {
     private fun clearData() {
         dataWiper.clearData()
         finishAffinity()
+        notificationTransmitter.postEvent(NotificationEvent.Logout)
     }
 }
 

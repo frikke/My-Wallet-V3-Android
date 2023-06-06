@@ -88,14 +88,16 @@ val dexPresentation = module {
                 evmNetworkSigner = get(),
                 unifiedActivityService = get(),
                 dexTransactionService = get(),
-                balanceService = get()
+                balanceService = get(),
+                notificationTransmitter = get()
             )
         }
 
         factory {
             AllowanceTransactionProcessor(
                 allowanceService = get(),
-                evmNetworkSigner = get()
+                evmNetworkSigner = get(),
+                notificationTransmitter = get()
             )
         }
     }

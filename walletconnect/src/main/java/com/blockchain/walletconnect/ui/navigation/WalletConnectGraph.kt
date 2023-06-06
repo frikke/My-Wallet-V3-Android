@@ -2,6 +2,7 @@ package com.blockchain.walletconnect.ui.navigation
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.chrome.composable.ChromeSingleScreen
 import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
 import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
@@ -44,13 +45,15 @@ fun NavGraphBuilder.walletConnectGraph(
         val isV2 = backStackEntry.arguments?.getComposeArgument(WalletConnectDestination.ARG_IS_V2_SESSION)
             .orEmpty().toBoolean()
 
-        WalletConnectDappSessionDetail(
-            sessionId = sessionId,
-            isV2 = isV2,
-            onDismiss = {
-                navController.popBackStack()
-            }
-        )
+        ChromeBottomSheet(onClose = onBackPressed) {
+            WalletConnectDappSessionDetail(
+                sessionId = sessionId,
+                isV2 = isV2,
+                onDismiss = {
+                    navController.popBackStack()
+                }
+            )
+        }
     }
 
     bottomSheet(navigationEvent = WalletConnectDestination.WalletConnectSessionProposal) { backStackEntry ->
@@ -60,13 +63,15 @@ fun NavGraphBuilder.walletConnectGraph(
         val walletAddress = backStackEntry.arguments
             ?.getComposeArgument(WalletConnectDestination.ARG_WALLET_ADDRESS).orEmpty()
 
-        WalletConnectSessionProposal(
-            sessionId = sessionId,
-            walletAddress = walletAddress,
-            onDismiss = {
-                navController.popBackStack()
-            }
-        )
+        ChromeBottomSheet(onClose = onBackPressed) {
+            WalletConnectSessionProposal(
+                sessionId = sessionId,
+                walletAddress = walletAddress,
+                onDismiss = {
+                    navController.popBackStack()
+                }
+            )
+        }
     }
 
     bottomSheet(navigationEvent = WalletConnectDestination.WalletConnectSessionNotSupported) { backStackEntry ->
@@ -76,12 +81,14 @@ fun NavGraphBuilder.walletConnectGraph(
         val dappLogoUrl = backStackEntry.arguments
             ?.getComposeArgument(WalletConnectDestination.ARG_DAPP_LOGO_URL).orEmpty()
 
-        WalletConnectSessionNotSupported(
-            dappName = dappName,
-            dappLogoUrl = dappLogoUrl,
-            onDismiss = {
-                navController.popBackStack()
-            }
-        )
+        ChromeBottomSheet(onClose = onBackPressed) {
+            WalletConnectSessionNotSupported(
+                dappName = dappName,
+                dappLogoUrl = dappLogoUrl,
+                onDismiss = {
+                    navController.popBackStack()
+                }
+            )
+        }
     }
 }

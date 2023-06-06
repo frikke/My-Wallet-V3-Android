@@ -2,6 +2,8 @@ package com.blockchain.earn.data.dataresources.interest
 
 import com.blockchain.api.earn.passive.InterestApiService
 import com.blockchain.api.earn.passive.data.InterestAccountBalanceDto
+import com.blockchain.internalnotifications.NotificationEvent
+import com.blockchain.store.CacheConfiguration
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Store
 import com.blockchain.store.impl.Freshness
@@ -15,6 +17,7 @@ class InterestBalancesStore(
     private val interestApiService: InterestApiService
 ) : Store<Map<String, InterestAccountBalanceDto>> by PersistedJsonSqlDelightStoreBuilder()
     .build(
+        reset = CacheConfiguration.on(listOf(NotificationEvent.RewardsTransaction)),
         storeId = STORE_ID,
         fetcher = Fetcher.ofSingle(
             mapper = {

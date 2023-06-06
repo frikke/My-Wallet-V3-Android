@@ -1321,7 +1321,7 @@
     <string name="send_enter_unexpected_error">Une erreur inattendue s\'est produite. Veuillez réessayer.</string>
     <string name="send_enter_insufficient_gas">Votre solde d\'ETH est insuffisant pour traiter cette transaction.</string>
     <string name="send_select_a_wallet_title">ou sélectionnez un portefeuille</string>
-    <string name="send_select_a_wallet_warning"><![CDATA[N\'envoyez %1$s qu\'aux portefeuilles du réseau (%2$s).\n <annotation link=\"send_network_options\">En savoir plus</annotation>]]></string>
+    <string name="send_select_a_wallet_warning">N\'envoyez %1$s qu\'aux portefeuilles du réseau (%2$s).\n <annotation link="send_network_options">En savoir plus</annotation></string>
     <string name="send_select_wallet_warning_sheet_desc">%1$s (%2$s) est un jeton qui peut être disponible sur plusieurs réseaux. Assurez-vous au préalable de connaître le réseau de l\'adresse du portefeuille sur lequel vous effectuez votre envoi.</string>
     <string name="send_transfer_accounts_title">Transfert entre vos comptes</string>
     <string name="send_domain_alert_title">Envoyer à un domaine crypto</string>
@@ -1645,7 +1645,7 @@
     <string name="yapily_agreement_blurb_3_1">%1$s est autorisée et réglementée par la Banque centrale de Lituanie en vertu de la Payments Law (LB002045) pour la fourniture de services d\'informations sur les comptes et d\'initiation de paiement.</string>
     <string name="yapily_agreement_title_4">À propos de l\'accès</string>
     <string name="yapily_agreement_blurb_4_1">%1$s utilisera ensuite ces informations avec Blockchain uniquement dans le but d\'acheter des cryptomonnaies. Cet accès est valable jusqu\'au %2$s, vous pouvez annuler votre consentement quand bon vous semble via les paramètres Blockchain ou via votre banque. Cette demande n\'est pas ponctuelle, vous continuerez à recevoir des demandes de consentement à mesure que les anciennes versions expireront.</string>
-    <string name="yapily_agreement_blurb_4_2"><![CDATA[%1$s Les conditions générales peuvent être consultés sous le lien suivant<a>https://yapi.ly/GDNT</a>]]></string>
+    <string name="yapily_agreement_blurb_4_2">%1$s Les conditions générales peuvent être consultés sous le lien suivant<a>https://yapi.ly/GDNT</a></string>
     <string name="yapily_agreement_blurb_5">Afin de partager vos données %1$s avec Blockchain, vous allez maintenant être redirigé(e) en toute sécurité vers votre banque pour confirmer votre consentement à ce que YapilyConnect lise les informations suivantes :\n\n• Détails d\'identification\n\n• Détails du/des compte(s)</string>
     <string name="yapily_agreement_blurb_5_1">Afin de partager vos données %1$s avec Blockchain.com, vous allez maintenant être redirigé(e) en toute sécurité vers votre banque pour confirmer votre consentement à ce que YapilyConnect lise les informations suivantes :\n\n• Détails d\'identification\n\n• Détails du/des compte(s)</string>
     <string name="yapily_linking_pending_title">Redirection vers %1$s</string>
@@ -2214,7 +2214,7 @@
     <string name="ui_tour_prices_subtitle">Suivez le prix en direct de plus de 1 200 jetons et trouvez-en de nouveaux à ajouter à votre portefeuille.</string>
     <string name="ui_tour_middle_button_subtitle">Que vous souhaitiez échanger rapidement ou envoyer à un ami, nous avons ce qu\'il vous faut !</string>
     <string name="ui_tour_activity_subtitle">Sachez exactement quand vous avez acheté, vendu ou échangé et à quel prix.</string>
-    <string name="pin_title_create">Choisissez un code PIN de portefeuille.</string>
+    <string name="pin_title_create">Créez votre code PIN</string>
     <string name="pin_subtitle">Ce code sera utilisé pour la sauvegarde de déverrouillage biométrique.</string>
     <string name="pin_title_confirm">Confirmez votre code PIN.</string>
     <string name="pin_mismatch_error_msg">Les codes PIN ne correspondent pas. Veuillez réessayer.</string>
@@ -2872,7 +2872,7 @@
     <string name="prices_filter_tradable">Peut être tradé</string>
     <string name="common_more">Plus</string>
     <string name="transfer_to_other_wallets">Transférez votre crypto vers d\'autres portefeuilles</string>
-    <string name="add_cash_from_your_bank_or_card">Ajouter de l\'argent à partir de votre banque ou de votre carte</string>
+    <string name="add_cash_from_your_bank_or_card">Ajouter de l\'argent à partir de votre banque</string>
     <string name="cash_out_bank">Retrait vers votre banque</string>
     <string name="exchange_campaign_announcement_title">Passez au trading du niveau supérieur</string>
     <string name="exchange_campaign_announcement_description">Bénéficiez de frais réduits, de plus de paires de trading et d\'une assistance en direct 24 h/24 et 7 j/7 sur Blockchain.com Exchange.</string>
@@ -3100,9 +3100,6 @@
     <string name="swap_failed">Échec de l\'échange</string>
     <string name="swap_failed_message">Votre solde n\'a pas été impacté. Vous pouvez réessayer ou annuler.</string>
     <string name="swap_confirmation_navbar">Confirmer l\'échange</string>
-    <string name="tx_confirmation_quote_refresh_timer">Nouvelle cotation dans</string>
-    <string name="tx_confirmation_exchange_rate_label">Taux</string>
-    <string name="tx_confirmation_exchange_rate_value">1 %1$s = %2$s</string>
     <string name="price_updated">Prix mis à jour</string>
     <string name="accept">Accepter</string>
     <string name="common_max_arg">Max. : %1$s</string>
@@ -3125,6 +3122,28 @@
     <string name="minimum_amount_extra_info">Le montant minimum à recevoir de manière garantie. Si le prix varie de plus de %1$s, votre transaction sera annulée.</string>
     <string name="network_fee_info_description">Des frais payés pour le traitement de votre transaction, à régler en %1$s.</string>
     <string name="bcdc_fee_extra_info_description">Il s\'agit de frais peu élevés pour l\'utilisation du service Blockchain.com DEX.</string>
+    <string name="common_swap_select_account">Sélectionner le compte %1$s</string>
     <string name="common_http_error_description">Un problème est survenu.</string>
     <string name="common_http_error_title">Oups!</string>
+    <string name="dapp_network_not_supported">La dApp a demandé l\'utilisation d\'un réseau non pris en charge</string>
+    <string name="select_network">Sélectionner un réseau</string>
+    <string name="news_author">Publié par %1$s</string>
+    <string name="news_home_title">Dernières actualités</string>
+    <string name="news_title">Actualités</string>
+    <string name="dapps_list_title">Applications connectées</string>
+    <string name="common_disconnect_all">Tout déconnecter</string>
+    <string name="walletconnect_dapp_list_scan_cta">Connecter une Dapp</string>
+    <string name="walletconnect_session_approved_title">Vous êtes connecté(e) à %1$s</string>
+    <string name="walletconnect_session_rejected_title">Votre connexion à %1$s a été rejetée</string>
+    <string name="tx_confirmation_quote_refresh_timer">Nouvelle cotation dans</string>
+    <string name="tx_confirmation_exchange_rate_label">Taux</string>
+    <string name="tx_confirmation_exchange_rate_value">1 %1$s = %2$s</string>
+    <string name="sell_targetasset_sell_for">Vendre pour</string>
+    <string name="sell_enteramount_for">Pour</string>
+    <string name="sell_confirmation_navbar">Confirmer</string>
+    <string name="sell_neworderstate_pending_deposit_title">Vente de %1$s</string>
+    <string name="sell_neworderstate_pending_deposit_description">Votre vente de %1$s de %2$s est en cours de traitement (cette opération prend en général %3$s minutes). Votre solde sera mis à jour une fois l\'opération terminée.</string>
+    <string name="sell_neworderstate_pending_deposit_l2_description">Votre vente de %1$s de %2$s le %3$s est en cours de traitement (cette opération prend en général %4$s minutes). Votre solde sera mis à jour une fois l\'opération terminée.</string>
+    <string name="sell_neworderstate_succeeded_title">Vente terminée !</string>
+    <string name="sell_neworderstate_succeeded_description">Vous avez vendu %1$s contre %2$s</string>
 </resources>

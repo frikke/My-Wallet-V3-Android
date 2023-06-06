@@ -39,6 +39,7 @@ class AuthDataManagerTest : RxTest() {
     private val walletAuthService: WalletAuthService = mock()
     private val pinRepository: PinRepository = mock()
     private val aesUtilWrapper: AESUtilWrapper = mock()
+    private val verifyCloudBackupStorage: VerifyCloudBackupStorage = mock()
     private val remoteLogger: RemoteLogger = mock()
     private val authPrefs: AuthPrefs = mock()
     private val walletStatusPrefs: WalletStatusPrefs = mock()
@@ -52,6 +53,7 @@ class AuthDataManagerTest : RxTest() {
             authApiService = authApiService,
             walletAuthService = walletAuthService,
             pinRepository = pinRepository,
+            verifyCloudBackupStorage = verifyCloudBackupStorage,
             aesUtilWrapper = aesUtilWrapper,
             remoteLogger = remoteLogger,
             authPrefs = authPrefs,

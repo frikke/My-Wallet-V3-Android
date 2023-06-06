@@ -2,6 +2,7 @@ package com.blockchain.koin.modules
 
 import com.blockchain.AppVersion
 import com.blockchain.api.services.NonCustodialBitcoinService
+import com.blockchain.internalnotifications.NotificationTransmitter
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.walletModule
 import com.blockchain.logging.RemoteLogger
@@ -10,6 +11,7 @@ import info.blockchain.wallet.Device
 import info.blockchain.wallet.api.WalletApi
 import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.payload.PayloadScopeWiper
+import info.blockchain.wallet.payload.store.PayloadDataStore
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should not be`
 import org.junit.After
@@ -34,6 +36,8 @@ class PayloadManagerWipingTest : KoinTest {
                     walletModule,
                     module {
                         single { mock<WalletApi>() }
+                        single { mock<PayloadDataStore>() }
+                        single { mock<NotificationTransmitter>() }
                         single { mock<RemoteLogger>() }
                         single { mock<NonCustodialBitcoinService>() }
                         single { mock<Device>() }

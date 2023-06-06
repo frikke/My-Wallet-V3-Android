@@ -537,7 +537,7 @@ class TransactionInteractor(
         when (action) {
             AssetAction.Swap -> rxSingleOutcome { tradeDataService.getQuickFillRoundingForSwap() }
             AssetAction.Sell -> rxSingleOutcome { tradeDataService.getQuickFillRoundingForSell() }
-            else -> throw UnsupportedOperationException()
+            else -> Single.just(emptyList())
         }
 
     fun isImprovedPaymentUxFFEnabled() = improvedPaymentUxFF.enabled

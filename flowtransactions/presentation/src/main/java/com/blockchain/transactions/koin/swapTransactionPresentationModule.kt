@@ -1,12 +1,13 @@
 package com.blockchain.transactions.koin
 
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.transactions.swap.confirmation.ConfirmationViewModel
 import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
-import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
-import com.blockchain.transactions.swap.sourceaccounts.SourceAccountsViewModel
-import com.blockchain.transactions.swap.targetaccounts.TargetAccountsViewModel
-import com.blockchain.transactions.swap.targetassets.TargetAssetsViewModel
+import com.blockchain.transactions.swap.confirmation.SwapConfirmationViewModel
+import com.blockchain.transactions.swap.enteramount.SwapEnterAmountArgs
+import com.blockchain.transactions.swap.enteramount.SwapEnterAmountViewModel
+import com.blockchain.transactions.swap.sourceaccounts.SwapSourceAccountsViewModel
+import com.blockchain.transactions.swap.targetaccounts.SwapTargetAccountsViewModel
+import com.blockchain.transactions.swap.targetassets.SwapTargetAssetsViewModel
 import com.blockchain.walletmode.WalletMode
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -14,25 +15,27 @@ import org.koin.dsl.module
 val swapTransactionsPresentationModule = module {
     scope(payloadScopeQualifier) {
         viewModel {
-            SourceAccountsViewModel(
+            SwapSourceAccountsViewModel(
                 swapService = get(),
                 assetCatalogue = get()
             )
         }
 
-        viewModel {
-            EnterAmountViewModel(
+        viewModel { (args: SwapEnterAmountArgs) ->
+            SwapEnterAmountViewModel(
+                args = args,
                 swapService = get(),
                 exchangeRates = get(),
                 walletModeService = get(),
                 tradeDataService = get(),
+                assetCatalogue = get(),
                 onChainDepositEngineInteractor = get(),
                 fiatCurrenciesService = get(),
             )
         }
 
         viewModel { (args: SwapConfirmationArgs) ->
-            ConfirmationViewModel(
+            SwapConfirmationViewModel(
                 args = args,
                 brokerageDataManager = get(),
                 exchangeRatesDataManager = get(),
@@ -43,7 +46,7 @@ val swapTransactionsPresentationModule = module {
         }
 
         viewModel { (sourceTicker: String) ->
-            TargetAssetsViewModel(
+            SwapTargetAssetsViewModel(
                 sourceTicker = sourceTicker,
                 swapService = get(),
                 pricesService = get(),
@@ -53,7 +56,7 @@ val swapTransactionsPresentationModule = module {
         }
 
         viewModel { (sourceTicker: String, targetTicker: String, mode: WalletMode) ->
-            TargetAccountsViewModel(
+            SwapTargetAccountsViewModel(
                 sourceTicker = sourceTicker,
                 targetTicker = targetTicker,
                 mode = mode,

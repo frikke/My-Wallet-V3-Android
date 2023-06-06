@@ -15,11 +15,11 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class CacheTest {
 
-    val persister: SqlDelightStoreIdScopedPersister = mockk()
-    val keyParser: Parser<Key> = mockk()
-    val dataParser: Parser<Item> = mockk()
+    private val persister: SqlDelightStoreIdScopedPersister = mockk()
+    private val keyParser: Parser<Key> = mockk()
+    private val dataParser: Parser<Item> = mockk()
 
-    val cache: Cache<Key, Item> = PersistedJsonSqlDelightCache(persister, keyParser, dataParser)
+    private val cache: Cache<Key, Item> = PersistedJsonSqlDelightCache(persister, keyParser, dataParser)
 
     @Test
     fun `read`() = runTest {
@@ -73,4 +73,5 @@ class CacheTest {
 
 data class Key(val value: String)
 data class Item(val value: Int)
+
 val KEY = Key("456")

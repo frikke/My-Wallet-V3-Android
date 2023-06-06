@@ -5,6 +5,8 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.domain.paymentmethods.model.BankPaymentApproval
 import com.blockchain.extensions.replace
+import com.blockchain.internalnotifications.NotificationEvent
+import com.blockchain.internalnotifications.NotificationTransmitter
 import com.blockchain.koin.payloadScope
 import com.blockchain.logging.Logger
 import com.blockchain.nabu.datamanagers.TransactionError
@@ -25,6 +27,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 
 open class TransferError(msg: String) : Exception(msg)
 
@@ -339,9 +342,12 @@ abstract class TxEngine : KoinComponent {
 class TransactionProcessor(
     private val sourceAccount: BlockchainAccount,
     private val txTarget: TransactionTarget,
-    private val exchangeRates: ExchangeRatesDataManager,
-    private val engine: TxEngine
-) : TxEngine.RefreshTrigger {
+    exchangeRates: ExchangeRatesDataManager,
+    private val engine: TxEngine,
+) : TxEngine.RefreshTrigger, KoinComponent {
+
+    private val notificationEmitter: NotificationTransmitter
+        get() = get()
 
     init {
         engine.start(
@@ -479,8 +485,12 @@ class TransactionProcessor(
                     updatePendingTx(updatedPendingTransaction)
                     engine.doPostExecute(updatedPendingTransaction, result)
                         .doOnComplete { engine.doOnTransactionComplete() }
+                        .doOnComplete {
+                            notificationEmitter.postEvents(postExecuteNotifications(sourceAccount, txTarget))
+                        }
                 }
             }
+
             ValidationState.UNINITIALISED -> Completable.error(IllegalStateException("Transaction is not initialised"))
             ValidationState.HAS_TX_IN_FLIGHT -> Completable.error(TransactionError.OrderLimitReached)
             ValidationState.INVALID_AMOUNT -> Completable.error(TransactionError.InvalidDestinationAmount)
@@ -494,15 +504,33 @@ class TransactionProcessor(
             -> Completable.error(
                 IllegalStateException("Transaction cannot be executed with an invalid memo")
             )
+
             ValidationState.UNDER_MIN_LIMIT -> Completable.error(TransactionError.OrderBelowMin)
             ValidationState.PENDING_ORDERS_LIMIT_REACHED ->
                 Completable.error(TransactionError.OrderLimitReached)
+
             ValidationState.ABOVE_PAYMENT_METHOD_LIMIT,
             ValidationState.OVER_SILVER_TIER_LIMIT,
             ValidationState.OVER_GOLD_TIER_LIMIT
             -> Completable.error(TransactionError.OrderAboveMax)
+
             ValidationState.INVOICE_EXPIRED -> Completable.error(TransactionError.InvalidOrExpiredQuote)
         }
+
+    private fun postExecuteNotifications(
+        sourceAccount: BlockchainAccount,
+        txTarget: TransactionTarget
+    ): List<NotificationEvent> {
+        val events = mutableListOf<NotificationEvent>()
+        if (sourceAccount is NonCustodialAccount || txTarget is NonCustodialAccount)
+            events.add(NotificationEvent.NonCustodialTransaction)
+        if (sourceAccount is TradingAccount || txTarget is TradingAccount)
+            events.add(NotificationEvent.TradingTransaction)
+        if (sourceAccount is EarnRewardsAccount || txTarget is EarnRewardsAccount) {
+            events.add(NotificationEvent.RewardsTransaction)
+        }
+        return events
+    }
 
     // If the source and target assets are not the same this MAY return a stream of the exchange rates
     // between them. Or it may simply complete. This is not used yet in the UI, but it may be when

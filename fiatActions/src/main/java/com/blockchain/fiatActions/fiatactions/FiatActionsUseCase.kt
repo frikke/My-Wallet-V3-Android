@@ -23,6 +23,7 @@ import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Singles
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.Optional
 import kotlinx.coroutines.CoroutineScope
@@ -145,11 +146,18 @@ class FiatActionsUseCase(
         }
     }.map {
         handlePaymentMethodsUpdate(it, account, action)
-    }.subscribe { result ->
-        scope.launch {
-            _result.emit(result)
+    }.subscribeBy(
+        onSuccess = { result ->
+            scope.launch {
+                _result.emit(result)
+            }
+        },
+        onError = { error ->
+            scope.launch {
+                _result.emit(FiatActionsResult.Failure(action, (error as? Exception) ?: Exception()))
+            }
         }
-    }
+    )
 
     private fun handleWithdraw(
         account: FiatAccount,
@@ -219,11 +227,18 @@ class FiatActionsUseCase(
             }
         }.map {
             handlePaymentMethodsUpdate(it, account, action)
-        }.subscribe { result ->
-            scope.launch {
-                _result.emit(result)
+        }.subscribeBy(
+            onSuccess = { result ->
+                scope.launch {
+                    _result.emit(result)
+                }
+            },
+            onError = { error ->
+                scope.launch {
+                    _result.emit(FiatActionsResult.Failure(action, (error as? Exception) ?: Exception()))
+                }
             }
-        }
+        )
     }
 
     private fun getQuestionnaireIfNeeded(

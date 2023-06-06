@@ -69,4 +69,12 @@ sealed interface FiatActionsResult : NavigationEvent {
         override val action: AssetAction
             get() = AssetAction.FiatDeposit
     }
+
+    data class Failure(
+        override val action: AssetAction,
+        val error: Exception,
+    ) : FiatActionsResult {
+        override val account: FiatAccount
+            get() = NullFiatAccount
+    }
 }

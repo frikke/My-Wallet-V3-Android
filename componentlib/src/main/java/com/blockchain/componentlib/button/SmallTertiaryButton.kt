@@ -15,7 +15,6 @@ import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue000
-import com.blockchain.componentlib.theme.Blue600
 
 @Composable
 fun SmallTertiaryButton(

@@ -2,11 +2,8 @@ package com.blockchain.componentlib.utils
 
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.Interest
-import com.blockchain.componentlib.icons.Lock
 import com.blockchain.componentlib.icons.Minus
 import com.blockchain.componentlib.icons.Plus
-import com.blockchain.componentlib.icons.Prices
 import com.blockchain.componentlib.icons.Receive
 import com.blockchain.componentlib.icons.Rewards
 import com.blockchain.componentlib.icons.Send

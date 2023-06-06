@@ -88,6 +88,12 @@ class FiatActionsNavigator(
                             currency = result.currency
                         )
                     )
+                    is FiatActionsResult.Failure -> navigate(
+                        FiatActionsNavEvent.Failure(
+                            action = result.action,
+                            error = result.error
+                        )
+                    )
                 }
             }
         }

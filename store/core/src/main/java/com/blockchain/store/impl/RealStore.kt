@@ -3,7 +3,9 @@ package com.blockchain.store.impl
 import com.blockchain.data.DataResource
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.internalnotifications.NotificationReceiver
 import com.blockchain.store.Cache
+import com.blockchain.store.CacheConfiguration
 import com.blockchain.store.CachedData
 import com.blockchain.store.Fetcher
 import com.blockchain.store.FetcherResult
@@ -24,8 +26,20 @@ class RealStore<K : Any, T : Any>(
     private val scope: CoroutineScope,
     private val fetcher: Fetcher<K, T>,
     private val cache: Cache<K, T>,
-    private val mediator: Mediator<K, T>
+    private val mediator: Mediator<K, T>,
+    private val reset: CacheConfiguration,
+    private val notificationReceiver: NotificationReceiver
 ) : KeyedStore<K, T> {
+
+    init {
+        scope.launch {
+            notificationReceiver.events.collect { event ->
+                if (event in reset.flushEvents)
+                    markStoreAsStale()
+            }
+        }
+    }
+
     override fun stream(request: KeyedFreshnessStrategy<K>): Flow<DataResource<T>> =
         when (request) {
             is KeyedFreshnessStrategy.Cached -> buildCachedFlow(request)
@@ -43,6 +57,7 @@ class RealStore<K : Any, T : Any>(
                     // we're relying on the cache to emit the new value
                     cache.write(CachedData(request.key, result.value, System.currentTimeMillis()))
                 }
+
                 is FetcherResult.Failure -> send(DataResource.Error(result.error))
             }
         }
@@ -86,6 +101,7 @@ class RealStore<K : Any, T : Any>(
                 cache.write(CachedData(request.key, result.value, System.currentTimeMillis()))
                 send(DataResource.Data(result.value))
             }
+
             is FetcherResult.Failure -> send(DataResource.Error(result.error))
         }
 

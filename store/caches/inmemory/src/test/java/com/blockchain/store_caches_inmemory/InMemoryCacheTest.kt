@@ -7,11 +7,12 @@ import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
+import org.koin.test.KoinTest
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class InMemoryCacheTest {
+class InMemoryCacheTest : KoinTest {
 
-    val cache: Cache<Key, Item> = InMemoryCache()
+    private val cache: Cache<Key, Item> = InMemoryCache()
 
     @Test
     fun `reading for the first time should return null`() = runTest {
@@ -63,5 +64,6 @@ class InMemoryCacheTest {
 
 data class Key(val value: String)
 data class Item(val value: Int)
+
 val KEY = Key("456")
 val KEY2 = Key("987")

@@ -6,14 +6,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Divider
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.analytics.Analytics
@@ -21,22 +17,17 @@ import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.componentlib.alert.AlertType
 import com.blockchain.componentlib.alert.CardAlert
 import com.blockchain.componentlib.basic.AppDivider
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.Lock
 import com.blockchain.componentlib.icons.Sync
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.ActionTableRow
 import com.blockchain.componentlib.tablerow.ButtonTableRow
-import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.tablerow.TableRowHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.utils.LogoValue
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.previewAnalytics
-import com.blockchain.componentlib.utils.toImageResource
 import com.blockchain.componentlib.utils.value
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.recurringbuy.RecurringBuysAnalyticsEvents
@@ -210,7 +201,6 @@ fun PreviewRecurringBuys_Loading() {
 private fun PreviewRecurringBuys_LoadingDark() {
     PreviewRecurringBuys_Loading()
 }
-
 
 @Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable

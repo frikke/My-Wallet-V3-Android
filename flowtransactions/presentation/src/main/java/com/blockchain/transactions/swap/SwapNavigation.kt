@@ -14,24 +14,27 @@ import com.blockchain.betternavigation.typedComposable
 import com.blockchain.betternavigation.utils.Bindable
 import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.chrome.composable.ChromeSingleScreen
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.common.entersecondpassword.EnterSecondPasswordArgs
 import com.blockchain.transactions.common.entersecondpassword.composable.EnterSecondPasswordScreen
 import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
-import com.blockchain.transactions.swap.confirmation.composable.ConfirmationScreen
-import com.blockchain.transactions.swap.enteramount.EnterAmountIntent
-import com.blockchain.transactions.swap.enteramount.EnterAmountViewModel
+import com.blockchain.transactions.swap.confirmation.composable.SwapConfirmationScreen
+import com.blockchain.transactions.swap.enteramount.SwapEnterAmountArgs
 import com.blockchain.transactions.swap.enteramount.SwapEnterAmountInputError
-import com.blockchain.transactions.swap.enteramount.composable.EnterAmount
-import com.blockchain.transactions.swap.enteramount.composable.InputErrorScreen
-import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateArgs
-import com.blockchain.transactions.swap.neworderstate.composable.NewOrderStateScreen
-import com.blockchain.transactions.swap.sourceaccounts.composable.SourceAccounts
-import com.blockchain.transactions.swap.targetaccounts.composable.TargetAccounts
-import com.blockchain.transactions.swap.targetaccounts.composable.TargetAccountsArgs
-import com.blockchain.transactions.swap.targetassets.composable.TargetAssets
+import com.blockchain.transactions.swap.enteramount.SwapEnterAmountIntent
+import com.blockchain.transactions.swap.enteramount.SwapEnterAmountViewModel
+import com.blockchain.transactions.swap.enteramount.composable.SwapEnterAmount
+import com.blockchain.transactions.swap.enteramount.composable.SwapInputErrorScreen
+import com.blockchain.transactions.swap.neworderstate.composable.SwapNewOrderStateArgs
+import com.blockchain.transactions.swap.neworderstate.composable.SwapNewOrderStateScreen
+import com.blockchain.transactions.swap.sourceaccounts.composable.SwapSourceAccounts
+import com.blockchain.transactions.swap.targetaccounts.composable.SwapTargetAccounts
+import com.blockchain.transactions.swap.targetaccounts.composable.SwapTargetAccountsArgs
+import com.blockchain.transactions.swap.targetassets.composable.SwapTargetAssets
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import org.koin.androidx.compose.getViewModel
+import org.koin.core.parameter.parametersOf
 
 object SwapGraph : NavGraph() {
     object EnterAmount : Destination()
@@ -39,17 +42,23 @@ object SwapGraph : NavGraph() {
     object SourceAccounts : Destination()
     object EnterSecondPassword : DestinationWithArgs<EnterSecondPasswordArgs>()
     object TargetAsset : DestinationWithArgs<String>()
-    object TargetAccount : DestinationWithArgs<TargetAccountsArgs>()
+    object TargetAccount : DestinationWithArgs<SwapTargetAccountsArgs>()
     object Confirmation : DestinationWithArgs<SwapConfirmationArgs>()
-    object NewOrderState : DestinationWithArgs<NewOrderStateArgs>()
+    object NewOrderState : DestinationWithArgs<SwapNewOrderStateArgs>()
 }
 
 @ExperimentalMaterialNavigationApi
 @Composable
 fun SwapGraphHost(
+    initialSourceAccount: CryptoAccount?,
     exitFlow: () -> Unit,
 ) {
-    val viewModel: EnterAmountViewModel = getViewModel(scope = payloadScope)
+    val viewModel: SwapEnterAmountViewModel = getViewModel(
+        scope = payloadScope,
+        parameters = {
+            parametersOf(SwapEnterAmountArgs(Bindable(initialSourceAccount)))
+        }
+    )
 
     TypedNavHost(
         graph = SwapGraph,
@@ -57,7 +66,7 @@ fun SwapGraphHost(
     ) {
         typedComposable(SwapGraph.EnterAmount) {
             ChromeSingleScreen {
-                EnterAmount(
+                SwapEnterAmount(
                     viewModel = viewModel,
                     navContextProvider = { this },
                     onBackPressed = exitFlow
@@ -67,7 +76,7 @@ fun SwapGraphHost(
 
         typedBottomSheet(SwapGraph.InputError) { args ->
             ChromeBottomSheet(onClose = ::navigateUp) {
-                InputErrorScreen(
+                SwapInputErrorScreen(
                     inputError = args,
                     closeClicked = ::navigateUp,
                 )
@@ -76,9 +85,9 @@ fun SwapGraphHost(
 
         typedBottomSheet(SwapGraph.SourceAccounts) {
             ChromeBottomSheet(fillMaxHeight = true, onClose = ::navigateUp) {
-                SourceAccounts(
+                SwapSourceAccounts(
                     accountSelected = {
-                        viewModel.onIntent(EnterAmountIntent.FromAccountChanged(it, null))
+                        viewModel.onIntent(SwapEnterAmountIntent.FromAccountChanged(it, null))
                     },
                     navigateToEnterSecondPassword = { account ->
                         navigateTo(
@@ -96,7 +105,7 @@ fun SwapGraphHost(
                 EnterSecondPasswordScreen(
                     args = args,
                     onAccountSecondPasswordValidated = { account, secondPassword ->
-                        viewModel.onIntent(EnterAmountIntent.FromAccountChanged(account, secondPassword))
+                        viewModel.onIntent(SwapEnterAmountIntent.FromAccountChanged(account, secondPassword))
                         popBackStack(SwapGraph.EnterAmount, false)
                     },
                     onBackPressed = ::navigateUp
@@ -107,10 +116,10 @@ fun SwapGraphHost(
         // support nested graph navigation(...)
         typedBottomSheet(SwapGraph.TargetAsset) { sourceTicker ->
             ChromeBottomSheet(fillMaxHeight = true, onClose = ::navigateUp) {
-                TargetAssets(
+                SwapTargetAssets(
                     sourceTicker = sourceTicker,
                     accountSelected = {
-                        viewModel.onIntent(EnterAmountIntent.ToAccountChanged(it))
+                        viewModel.onIntent(SwapEnterAmountIntent.ToAccountChanged(it))
                     },
                     navContextProvider = { this },
                     onClosePressed = ::navigateUp
@@ -120,12 +129,12 @@ fun SwapGraphHost(
 
         typedBottomSheet(SwapGraph.TargetAccount) { args ->
             ChromeBottomSheet(fillMaxHeight = true, onClose = ::navigateUp) {
-                TargetAccounts(
+                SwapTargetAccounts(
                     sourceTicker = args.sourceTicker,
                     targetTicker = args.targetTicker,
                     mode = args.mode,
                     accountSelected = {
-                        viewModel.onIntent(EnterAmountIntent.ToAccountChanged(it))
+                        viewModel.onIntent(SwapEnterAmountIntent.ToAccountChanged(it))
                     },
                     onClosePressed = {
                         popBackStack(SwapGraph.EnterAmount, false)
@@ -137,7 +146,7 @@ fun SwapGraphHost(
 
         typedComposable(SwapGraph.Confirmation) { args ->
             ChromeSingleScreen {
-                ConfirmationScreen(
+                SwapConfirmationScreen(
                     args = args,
                     openNewOrderState = { args ->
                         navigateTo(SwapGraph.NewOrderState, args) {
@@ -151,7 +160,7 @@ fun SwapGraphHost(
 
         typedComposable(SwapGraph.NewOrderState) { args ->
             ChromeSingleScreen {
-                NewOrderStateScreen(
+                SwapNewOrderStateScreen(
                     args = args,
                     exitFlow = exitFlow
                 )
