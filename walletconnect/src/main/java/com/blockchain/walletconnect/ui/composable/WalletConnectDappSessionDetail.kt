@@ -59,6 +59,7 @@ fun WalletConnectDappSessionDetail(
     when (sessionDetailViewState) {
         is WalletConnectSessionDetailViewState.Loading -> {
             ShimmerLoadingCard()
+            LargeVerticalSpacer()
         }
 
         is WalletConnectSessionDetailViewState.WalletConnectSessionLoaded -> {
@@ -102,27 +103,33 @@ fun WalletConnectDappSessionManage(
                 closeButtonBackground = AppTheme.colors.backgroundSecondary
             )
 
-            Image(imageResource = ImageResource.Remote(session.dappLogoUrl, size = 88.dp))
+            Image(
+                imageResource = session.dappLogoUrl.takeIf { it.isNotEmpty() }?.let {
+                    ImageResource.Remote(it, size = 88.dp)
+                } ?: ImageResource.Local(com.blockchain.walletconnect.R.drawable.ic_walletconnect_logo, size = 88.dp)
+            )
 
             StandardVerticalSpacer()
 
-            SimpleText(
-                text = session.dappName,
-                style = ComposeTypographies.Title3,
-                color = ComposeColors.Title,
-                gravity = ComposeGravities.Centre
-            )
+            if (session.dappName.isNotEmpty()) {
+                SimpleText(
+                    text = session.dappName,
+                    style = ComposeTypographies.Title3,
+                    color = ComposeColors.Title,
+                    gravity = ComposeGravities.Centre
+                )
 
-            SmallVerticalSpacer()
+                SmallVerticalSpacer()
 
-            SimpleText(
-                text = session.dappDescription,
-                style = ComposeTypographies.Body1,
-                color = ComposeColors.Body,
-                gravity = ComposeGravities.Centre
-            )
+                SimpleText(
+                    text = session.dappDescription,
+                    style = ComposeTypographies.Body1,
+                    color = ComposeColors.Body,
+                    gravity = ComposeGravities.Centre
+                )
 
-            LargeVerticalSpacer()
+                LargeVerticalSpacer()
+            }
 
             TertiaryButton(
                 text = stringResource(id = R.string.common_disconnect),

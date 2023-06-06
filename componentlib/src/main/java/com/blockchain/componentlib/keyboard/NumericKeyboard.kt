@@ -1,8 +1,10 @@
 package com.blockchain.componentlib.keyboard
 
 import android.content.res.Configuration
+import android.view.KeyEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,10 +16,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.ComposeColors
@@ -31,8 +39,11 @@ import com.blockchain.componentlib.icons.Fingerprint
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.conditional
+import com.blockchain.enviroment.EnvironmentConfig
 import java.text.DecimalFormatSymbols
 import java.util.Locale
+import kotlinx.coroutines.delay
+import org.koin.androidx.compose.get
 
 sealed interface KeyboardButton {
     data class Value(val value: String) : KeyboardButton
@@ -90,6 +101,47 @@ private fun Keyboard(
     type: KeyboardType,
     onClick: (KeyboardButton) -> Unit
 ) {
+    // Add physical keyboard support for debug builds so it's easier for us to interact with the emulator
+    if (!LocalInspectionMode.current) {
+        val environmentConfig: EnvironmentConfig = get()
+        if (environmentConfig.isRunningInDebugMode()) {
+            val decimalSeparator = DecimalFormatSymbols(Locale.getDefault()).decimalSeparator.toString()
+            val focusRequester = remember { FocusRequester() }
+            Box(
+                Modifier
+                    .focusRequester(focusRequester)
+                    .focusable()
+                    .onKeyEvent {
+                        if (it.nativeKeyEvent.action != KeyEvent.ACTION_DOWN) return@onKeyEvent false
+                        val button = when (it.nativeKeyEvent.keyCode) {
+                            KeyEvent.KEYCODE_0 -> KeyboardButton.Value("0")
+                            KeyEvent.KEYCODE_1 -> KeyboardButton.Value("1")
+                            KeyEvent.KEYCODE_2 -> KeyboardButton.Value("2")
+                            KeyEvent.KEYCODE_3 -> KeyboardButton.Value("3")
+                            KeyEvent.KEYCODE_4 -> KeyboardButton.Value("4")
+                            KeyEvent.KEYCODE_5 -> KeyboardButton.Value("5")
+                            KeyEvent.KEYCODE_6 -> KeyboardButton.Value("6")
+                            KeyEvent.KEYCODE_7 -> KeyboardButton.Value("7")
+                            KeyEvent.KEYCODE_8 -> KeyboardButton.Value("8")
+                            KeyEvent.KEYCODE_9 -> KeyboardButton.Value("9")
+                            KeyEvent.KEYCODE_DEL -> KeyboardButton.Backspace
+                            KeyEvent.KEYCODE_COMMA,
+                            KeyEvent.KEYCODE_PERIOD -> KeyboardButton.Value(decimalSeparator)
+
+                            else -> return@onKeyEvent false
+                        }
+                        onClick(button)
+                        true
+                    }
+            ) {
+            }
+            LaunchedEffect(Unit) {
+                delay(100)
+                focusRequester.requestFocus()
+            }
+        }
+    }
+
     val keyboard = listOf(
         listOf(KeyboardButton.Value("1"), KeyboardButton.Value("2"), KeyboardButton.Value("3")),
         listOf(KeyboardButton.Value("4"), KeyboardButton.Value("5"), KeyboardButton.Value("6")),

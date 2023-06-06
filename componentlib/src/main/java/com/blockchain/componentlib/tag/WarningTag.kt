@@ -1,14 +1,9 @@
 package com.blockchain.componentlib.tag
 
-import androidx.compose.foundation.isSystemInDarkTheme
+import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.componentlib.theme.AppSurface
-import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Dark900
-import com.blockchain.componentlib.theme.Orange100
-import com.blockchain.componentlib.theme.Orange400
-import com.blockchain.componentlib.theme.Orange600
+import com.blockchain.componentlib.theme.AppColors
 
 @Composable
 fun WarningTag(
@@ -16,23 +11,11 @@ fun WarningTag(
     size: TagSize = TagSize.Primary,
     onClick: (() -> Unit)? = null
 ) {
-    val defaultBackgroundColor = if (!isSystemInDarkTheme()) {
-        Orange100
-    } else {
-        Orange400
-    }
-
-    val defaultTextColor = if (!isSystemInDarkTheme()) {
-        Orange600
-    } else {
-        Dark900
-    }
-
     Tag(
         text = text,
         size = size,
-        defaultBackgroundColor = defaultBackgroundColor,
-        defaultTextColor = defaultTextColor,
+        defaultBackgroundColor = AppColors.warningLight,
+        defaultTextColor = AppColors.warning,
         onClick = onClick
     )
 }
@@ -40,19 +23,23 @@ fun WarningTag(
 @Preview
 @Composable
 fun WarningTag_Basic() {
-    AppTheme {
-        AppSurface {
-            WarningTag(text = "Default", onClick = null)
-        }
-    }
+    WarningTag(text = "Default", onClick = null)
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun WarningTag_BasicDark() {
+    WarningTag_Basic()
 }
 
 @Preview
 @Composable
-fun WarningTag_Dark() {
-    AppTheme(darkTheme = true) {
-        AppSurface {
-            WarningTag(text = "Default", onClick = null)
-        }
-    }
+fun WarningTag_clickable() {
+    WarningTag(text = "Click me", onClick = { })
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun WarningTag_clickableDark() {
+    WarningTag_clickable()
 }

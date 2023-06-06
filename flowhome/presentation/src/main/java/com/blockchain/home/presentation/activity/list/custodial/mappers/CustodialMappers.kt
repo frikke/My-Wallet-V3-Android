@@ -1,6 +1,5 @@
 package com.blockchain.home.presentation.activity.list.custodial.mappers
 
-import androidx.annotation.DrawableRes
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.CustodialActiveRewardsActivitySummaryItem
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
@@ -10,10 +9,10 @@ import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
-import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivityStackView
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIcon
+import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIconSource
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextStyle
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextTypography
@@ -32,7 +31,7 @@ internal val basicSubtitleStyle = ActivityTextStyle(
 
 internal fun ActivityTextStyle.muted() = copy(color = ActivityTextColor.Muted)
 
-@DrawableRes internal fun ActivitySummaryItem.iconSummary() = when (this) {
+internal fun ActivitySummaryItem.iconSummary() = when (this) {
     is CustodialTradingActivitySummaryItem -> iconSummary()
     is CustodialTransferActivitySummaryItem -> iconSummary()
     is CustodialInterestActivitySummaryItem -> iconSummary()
@@ -77,7 +76,7 @@ fun ActivitySummaryItem.toActivityComponent(): ActivityComponent {
         // hack for now - when interacting with interest there are 2 activities with the same txid
         // but e.g. one is SEND the other is INTEREST DEPOSIT
         id = "$txId|${this::class}",
-        leadingImage = StackedIcon.SingleIcon(ImageResource.Local(iconSummary())),
+        leadingImage = ActivityIcon.SingleIcon(ActivityIconSource.Local(iconSummary())),
         leading = leading(),
         trailing = trailing()
     )

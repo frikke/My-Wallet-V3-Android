@@ -45,6 +45,7 @@ sealed class ClientErrorAnalytics(
         const val ACTION_BUY = "BUY"
         const val ACTION_SELL = "SELL"
         const val ACTION_SWAP = "SWAP"
+        const val ACTION_DEPOSIT = "DEPOSIT"
         const val ACTION_UNKNOWN = "UNKNOWN"
 
         const val OOPS_ERROR = "OOPS_ERROR"

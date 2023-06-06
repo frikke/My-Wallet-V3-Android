@@ -26,7 +26,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
@@ -145,7 +144,7 @@ fun ActivityScreen(
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
         skipHalfExpanded = true,
-        confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded }
+        confirmValueChange = { it != ModalBottomSheetValue.HalfExpanded }
     )
     val coroutineScope = rememberCoroutineScope()
 
@@ -185,7 +184,7 @@ fun ActivityScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = Color(0XFFF1F2F7))
+                .background(color = AppTheme.colors.background)
         ) {
             NavigationBar(
                 title = stringResource(com.blockchain.stringResources.R.string.ma_home_activity_title),
@@ -212,9 +211,11 @@ fun ActivityScreen(
                                             sheetState.show()
                                         }
                                     }
+
                                     is ClickAction.Button -> {
                                         // n/a nothing expected for now
                                     }
+
                                     ClickAction.None -> {
                                         // n/a
                                     }
@@ -222,6 +223,7 @@ fun ActivityScreen(
                             }
                         )
                     }
+
                     else -> {}
                 }
             }
@@ -284,13 +286,14 @@ private fun TransactionRow(group: TransactionGroup) {
             TransactionGroup.Group.Pending -> stringResource(
                 id = com.blockchain.stringResources.R.string.common_pending
             )
+
             is TransactionGroup.Group.Date -> group.date.format()
             TransactionGroup.Combined -> error("not allowed")
         }
         Text(
             text = name,
             style = AppTheme.typography.body2,
-            color = AppTheme.colors.muted
+            color = AppTheme.colors.body
         )
 
         if (group is TransactionGroup.Group.Pending) {

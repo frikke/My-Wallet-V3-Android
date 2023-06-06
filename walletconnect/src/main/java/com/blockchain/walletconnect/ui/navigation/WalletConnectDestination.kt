@@ -11,7 +11,8 @@ sealed class WalletConnectDestination(
     )
 
     object WalletConnectSessionNotSupported : WalletConnectDestination(
-        "WalletConnectSessionNotSupported/${ARG_DAPP_NAME.wrappedArg()}/${ARG_DAPP_LOGO_URL.wrappedArg()}"
+        "WalletConnectSessionNotSupported?" +
+            "dappName=${ARG_DAPP_NAME.wrappedArg()}&dappLogoUrl=${ARG_DAPP_LOGO_URL.wrappedArg()}"
     )
     object WalletConnectDappList : WalletConnectDestination("WalletConnectDappList")
     object WalletConnectManageSession : WalletConnectDestination(

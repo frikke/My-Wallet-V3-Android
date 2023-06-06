@@ -433,6 +433,8 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
             hints.putAll(it)
         }
 
+        hints[DecodeHintType.ALSO_INVERTED] = true
+
         // The prefs can't change while the thread is running, so pick them up once here.
         hints[DecodeHintType.POSSIBLE_FORMATS] =
             if (decodeFormats.isNullOrEmpty()) {

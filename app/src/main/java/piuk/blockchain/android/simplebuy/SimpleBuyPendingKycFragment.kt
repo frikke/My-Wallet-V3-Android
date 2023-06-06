@@ -194,6 +194,9 @@ class SimpleBuyPendingKycFragment :
                     )
                 )
                 navigator().goToCheckOutScreen()
+            } else if (resultCode == CardDetailsActivity.RESULT_CODE_RELAUNCH) {
+                val intent = Intent(activity, CardDetailsActivity::class.java)
+                startActivityForResult(intent, CardDetailsActivity.ADD_CARD_REQUEST_CODE)
             } else {
                 model.process(SimpleBuyIntent.ClearState)
                 navigator().exitSimpleBuyFlow()

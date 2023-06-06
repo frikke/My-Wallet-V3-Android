@@ -19,18 +19,18 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.common.entersecondpassword.EnterSecondPasswordArgs
 import com.blockchain.transactions.common.entersecondpassword.composable.EnterSecondPasswordScreen
 import com.blockchain.transactions.sell.confirmation.SellConfirmationArgs
-import com.blockchain.transactions.sell.confirmation.composable.ConfirmationScreen
-import com.blockchain.transactions.sell.enteramount.EnterAmountIntent
-import com.blockchain.transactions.sell.enteramount.EnterAmountViewModel
+import com.blockchain.transactions.sell.confirmation.composable.SellConfirmationScreen
 import com.blockchain.transactions.sell.enteramount.SellEnterAmountArgs
 import com.blockchain.transactions.sell.enteramount.SellEnterAmountInputError
-import com.blockchain.transactions.sell.enteramount.composable.InputErrorScreen
+import com.blockchain.transactions.sell.enteramount.SellEnterAmountIntent
+import com.blockchain.transactions.sell.enteramount.SellEnterAmountViewModel
 import com.blockchain.transactions.sell.enteramount.composable.SellEnterAmount
-import com.blockchain.transactions.sell.neworderstate.composable.NewOrderStateArgs
-import com.blockchain.transactions.sell.neworderstate.composable.NewOrderStateScreen
-import com.blockchain.transactions.sell.sourceaccounts.composable.SourceAccounts
-import com.blockchain.transactions.sell.targetassets.TargetAssetsArgs
-import com.blockchain.transactions.sell.targetassets.composable.TargetAssets
+import com.blockchain.transactions.sell.enteramount.composable.SellInputErrorScreen
+import com.blockchain.transactions.sell.neworderstate.composable.SellNewOrderStateArgs
+import com.blockchain.transactions.sell.neworderstate.composable.SellNewOrderStateScreen
+import com.blockchain.transactions.sell.sourceaccounts.composable.SellSourceAccounts
+import com.blockchain.transactions.sell.targetassets.SellTargetAssetsArgs
+import com.blockchain.transactions.sell.targetassets.composable.SellTargetAssets
 import com.blockchain.transactions.sell.upsell.SellUpsellAnotherAssetScreen
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import info.blockchain.balance.AssetInfo
@@ -42,9 +42,9 @@ object SellGraph : NavGraph() {
     object InputError : DestinationWithArgs<SellEnterAmountInputError>()
     object SourceAccounts : Destination()
     object EnterSecondPassword : DestinationWithArgs<EnterSecondPasswordArgs>()
-    object TargetAsset : DestinationWithArgs<TargetAssetsArgs>()
+    object TargetAsset : DestinationWithArgs<SellTargetAssetsArgs>()
     object Confirmation : DestinationWithArgs<SellConfirmationArgs>()
-    object NewOrderState : DestinationWithArgs<NewOrderStateArgs>()
+    object NewOrderState : DestinationWithArgs<SellNewOrderStateArgs>()
     object UpsellAnotherAsset : DestinationWithArgs<String>()
 }
 
@@ -55,7 +55,7 @@ fun SellGraphHost(
     navigateToBuy: (AssetInfo) -> Unit,
     exitFlow: () -> Unit,
 ) {
-    val viewModel: EnterAmountViewModel = getViewModel(
+    val viewModel: SellEnterAmountViewModel = getViewModel(
         scope = payloadScope,
         parameters = {
             parametersOf(SellEnterAmountArgs(Bindable(initialSourceAccount)))
@@ -77,7 +77,7 @@ fun SellGraphHost(
 
         typedBottomSheet(SellGraph.InputError) { args ->
             ChromeBottomSheet(onClose = ::navigateUp) {
-                InputErrorScreen(
+                SellInputErrorScreen(
                     inputError = args,
                     closeClicked = ::navigateUp,
                 )
@@ -86,9 +86,9 @@ fun SellGraphHost(
 
         typedBottomSheet(SellGraph.SourceAccounts) {
             ChromeBottomSheet(fillMaxHeight = true, onClose = ::navigateUp) {
-                SourceAccounts(
+                SellSourceAccounts(
                     accountSelected = {
-                        viewModel.onIntent(EnterAmountIntent.FromAccountChanged(it, null))
+                        viewModel.onIntent(SellEnterAmountIntent.FromAccountChanged(it, null))
                     },
                     navigateToEnterSecondPassword = { account ->
                         navigateTo(
@@ -106,7 +106,7 @@ fun SellGraphHost(
                 EnterSecondPasswordScreen(
                     args = args,
                     onAccountSecondPasswordValidated = { account, secondPassword ->
-                        viewModel.onIntent(EnterAmountIntent.FromAccountChanged(account, secondPassword))
+                        viewModel.onIntent(SellEnterAmountIntent.FromAccountChanged(account, secondPassword))
                         popBackStack(SellGraph.EnterAmount, false)
                     },
                     onBackPressed = ::navigateUp
@@ -117,11 +117,11 @@ fun SellGraphHost(
         // support nested graph navigation(...)
         typedBottomSheet(SellGraph.TargetAsset) { args ->
             ChromeBottomSheet(fillMaxHeight = true, onClose = ::navigateUp) {
-                TargetAssets(
+                SellTargetAssets(
                     args = args,
                     accountSelected = { fromAccount, secondPassword, toAccount ->
                         viewModel.onIntent(
-                            EnterAmountIntent.FromAndToAccountsChanged(
+                            SellEnterAmountIntent.FromAndToAccountsChanged(
                                 fromAccount = fromAccount,
                                 secondPassword = secondPassword,
                                 toAccount = toAccount,
@@ -135,7 +135,7 @@ fun SellGraphHost(
 
         typedComposable(SellGraph.Confirmation) { args ->
             ChromeSingleScreen {
-                ConfirmationScreen(
+                SellConfirmationScreen(
                     args = args,
                     openNewOrderState = { args ->
                         navigateTo(SellGraph.NewOrderState, args) {
@@ -149,7 +149,7 @@ fun SellGraphHost(
 
         typedComposable(SellGraph.NewOrderState) { args ->
             ChromeSingleScreen {
-                NewOrderStateScreen(
+                SellNewOrderStateScreen(
                     args = args,
                     exitFlow = exitFlow,
                 )
