@@ -54,6 +54,11 @@ class CardDetailsActivity : BlockchainActivity(), AddCardNavigator, CardDetailsP
         onBackPressedDispatcher.onBackPressed()
     }
 
+    override fun restartFlow() {
+        setResult(RESULT_CODE_RELAUNCH)
+        finish()
+    }
+
     override fun navigateToCardDetails() {
         simpleBuyPrefs.clearCardState()
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
@@ -109,6 +114,7 @@ class CardDetailsActivity : BlockchainActivity(), AddCardNavigator, CardDetailsP
     companion object {
         const val CARD_KEY = "card_key"
         const val ADD_CARD_REQUEST_CODE = 3245
+        const val RESULT_CODE_RELAUNCH = 1234
 
         fun newIntent(context: Context): Intent = Intent(context, CardDetailsActivity::class.java)
     }

@@ -84,6 +84,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.cards.CardDetailsActivity
 import piuk.blockchain.android.cards.CardDetailsActivity.Companion.ADD_CARD_REQUEST_CODE
+import piuk.blockchain.android.cards.CardDetailsActivity.Companion.RESULT_CODE_RELAUNCH
 import piuk.blockchain.android.cards.mapper.icon
 import piuk.blockchain.android.databinding.FragmentSimpleBuyBuyCryptoBinding
 import piuk.blockchain.android.fraud.domain.service.FraudFlow
@@ -1427,6 +1428,10 @@ class SimpleBuyCryptoFragment :
             val preselectedId =
                 (data?.extras?.getSerializable(CardDetailsActivity.CARD_KEY) as? PaymentMethod.Card)?.id
             updatePaymentMethods(preselectedId)
+        }
+        if (requestCode == ADD_CARD_REQUEST_CODE && resultCode == RESULT_CODE_RELAUNCH) {
+            val intent = Intent(activity, CardDetailsActivity::class.java)
+            startActivityForResult(intent, ADD_CARD_REQUEST_CODE)
         }
         if (requestCode == BankAuthActivity.LINK_BANK_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             val preselectedId = data?.extras?.getString(LINKED_BANK_ID_KEY)
