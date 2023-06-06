@@ -13,14 +13,10 @@ import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vie
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ColorsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ControlsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DatePickerActivity
-import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DefaultTableRowActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DialogueActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DividerActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DoubleMinimalButtonsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DoublePrimaryButtonsActivity
-import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ExchangeBuyButtonActivity
-import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ExchangeSellButtonActivity
-import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ExchangeSplitButtonsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ExpandablesActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.MinimalButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.NavigationActivity
@@ -84,15 +80,6 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.alert_button).setOnClickListener {
             startActivity(Intent(this@MainActivity, AlertButtonActivity::class.java))
-        }
-        findViewById<MaterialButton>(R.id.exchange_buy_button).setOnClickListener {
-            startActivity(Intent(this@MainActivity, ExchangeBuyButtonActivity::class.java))
-        }
-        findViewById<MaterialButton>(R.id.exchange_sell_button).setOnClickListener {
-            startActivity(Intent(this@MainActivity, ExchangeSellButtonActivity::class.java))
-        }
-        findViewById<MaterialButton>(R.id.exchange_split_button).setOnClickListener {
-            startActivity(Intent(this@MainActivity, ExchangeSplitButtonsActivity::class.java))
         }
         findViewById<MaterialButton>(R.id.minimal_button).setOnClickListener {
             startActivity(Intent(this@MainActivity, MinimalButtonActivity::class.java))

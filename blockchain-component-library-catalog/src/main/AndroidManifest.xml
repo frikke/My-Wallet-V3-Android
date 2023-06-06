@@ -55,15 +55,6 @@
             android:name=".abstract_compose_view.MinimalButtonActivity"
             android:exported="false" />
         <activity
-            android:name=".abstract_compose_view.ExchangeSplitButtonsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.ExchangeSellButtonActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.ExchangeBuyButtonActivity"
-            android:exported="false" />
-        <activity
             android:name=".abstract_compose_view.AlertButtonActivity"
             android:exported="false" />
         <activity
