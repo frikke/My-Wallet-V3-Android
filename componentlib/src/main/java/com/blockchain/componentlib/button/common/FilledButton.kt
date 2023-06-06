@@ -6,6 +6,8 @@ import androidx.compose.ui.graphics.Color
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 
+// Creates a filled button like primary button
+// Do not use as a standalone composable, use it as a factory
 @Composable
 internal fun FilledButton(
     modifier: Modifier = Modifier,
