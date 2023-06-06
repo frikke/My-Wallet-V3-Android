@@ -3,6 +3,12 @@ package info.blockchain.wallet.payload
 import com.blockchain.AppVersion
 import com.blockchain.api.ApiException
 import com.blockchain.api.services.NonCustodialBitcoinService
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.asSingle
+import com.blockchain.internalnotifications.NotificationEvent
+import com.blockchain.internalnotifications.NotificationTransmitter
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.serialization.JsonSerializableAccount
 import com.blockchain.utils.thenSingle
@@ -37,6 +43,8 @@ import info.blockchain.wallet.payload.data.activeXpubs
 import info.blockchain.wallet.payload.data.nonArchivedImportedAddressStrings
 import info.blockchain.wallet.payload.model.Balance
 import info.blockchain.wallet.payload.model.toBalanceMap
+import info.blockchain.wallet.payload.store.PayloadDataStore
+import info.blockchain.wallet.payload.store.WalletPayloadCredentials
 import info.blockchain.wallet.util.DoubleEncryptionFactory
 import info.blockchain.wallet.util.Tools
 import io.reactivex.rxjava3.core.Completable
@@ -53,9 +61,11 @@ import org.spongycastle.crypto.InvalidCipherTextException
 import org.spongycastle.util.encoders.Hex
 import retrofit2.HttpException
 
-class PayloadManager(
+class PayloadManager constructor(
     private val walletApi: WalletApi,
+    private val payloadDataStore: PayloadDataStore,
     private val bitcoinApi: NonCustodialBitcoinService,
+    private val notificationTransmitter: NotificationTransmitter,
     private val multiAddressFactory: MultiAddressFactory,
     private val balanceManagerBtc: BalanceManagerBtc,
     private val balanceManagerBch: BalanceManagerBch,
@@ -130,6 +140,8 @@ class PayloadManager(
                     ServerConnectionException(it.code().toString() + " - " + it.response()?.errorBody()!!.string())
                 )
             } else Completable.error(it)
+        }.doFinally {
+            notificationTransmitter.postEvent(NotificationEvent.PayloadUpdated)
         }
     }
 
@@ -182,7 +194,15 @@ class PayloadManager(
         sessionId: String
     ): Completable {
         this.password = password
-        return walletApi.fetchWalletData(guid, sharedKey, sessionId).doOnSuccess {
+        return payloadDataStore.stream(
+            request = FreshnessStrategy.Cached(refreshStrategy = RefreshStrategy.RefreshIfStale).withKey(
+                WalletPayloadCredentials(
+                    guid,
+                    sharedKey,
+                    sessionId
+                )
+            )
+        ).asSingle().doOnSuccess {
             walletBase = WalletBase(it).withDecryptedPayload(this.password)
         }.ignoreElement().onErrorResumeNext {
             if (it is HttpException) {
@@ -194,6 +214,8 @@ class PayloadManager(
                 }
             }
             return@onErrorResumeNext Completable.error(it)
+        }.doOnError {
+            notificationTransmitter.postEvent(NotificationEvent.PayloadUpdated)
         }
     }
 
@@ -404,6 +426,8 @@ class PayloadManager(
         ).doOnComplete {
             val updatedWalletBase = newWalletBase.withUpdatedChecksum(newPayloadChecksum)
             updatePayload(updatedWalletBase)
+        }.doFinally {
+            notificationTransmitter.postEvent(NotificationEvent.PayloadUpdated)
         }
     }
 

@@ -77,6 +77,9 @@ class WalletConnectV2ServiceImpl(
     override suspend fun pair(pairingUrl: String) {
         Timber.d("WalletConnect V2: pairing with $pairingUrl")
         withContext(Dispatchers.IO) {
+
+            clearSessionProposals()
+
             val pairingParams = Wallet.Params.Pair(pairingUrl)
             Web3Wallet.pair(
                 pairingParams,

@@ -13,6 +13,7 @@ import com.blockchain.walletconnect.domain.WalletConnectV2Service
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class WalletConnectSessionProposalViewModel(
     private val walletConnectV2Service: WalletConnectV2Service
@@ -62,6 +63,8 @@ class WalletConnectSessionProposalViewModel(
                             dappLogoUrl = sessionProposal.icons.firstOrNull()?.toString().orEmpty()
                         )
                     }
+                } ?: run {
+                    Timber.e("WalletConnectV2: Session proposal not found")
                 }
 
                 loadSessionProposalJob = viewModelScope.launch {

@@ -28,7 +28,7 @@ interface WalletExplorerEndpoints {
         @Field("payload") payload: String,
         @Field("length") length: Int,
         @Field("api_code") apiCode: String
-    ): Observable<ResponseBody>
+    ): Single<ResponseBody>
 
     @FormUrlEncoded
     @POST("wallet")

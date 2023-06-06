@@ -3,6 +3,7 @@ package info.blockchain.wallet.payload
 import com.blockchain.AppVersion
 import com.blockchain.api.blockchainApiModule
 import com.blockchain.api.services.NonCustodialBitcoinService
+import com.blockchain.data.DataResource
 import com.blockchain.testutils.KoinTestRule
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
@@ -23,9 +24,10 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payload.data.walletdto.WalletBaseDto
+import info.blockchain.wallet.payload.store.PayloadDataStore
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
@@ -50,6 +52,7 @@ class PayloadManagerTest : WalletApiMockedResponseTest(), KoinTest {
         NonCustodialBitcoinService::class.java
     )
     private val walletApi: WalletApi = mock()
+    private val payloadDataStore: PayloadDataStore = mock()
 
     private lateinit var payloadManager: PayloadManager
 
@@ -91,7 +94,9 @@ class PayloadManagerTest : WalletApiMockedResponseTest(), KoinTest {
 
         payloadManager = PayloadManager(
             walletApi,
+            payloadDataStore,
             bitcoinApi,
+            mock(),
             MultiAddressFactoryBtc(bitcoinApi),
             BalanceManagerBtc(bitcoinApi),
             BalanceManagerBch(bitcoinApi),
@@ -271,14 +276,12 @@ class PayloadManagerTest : WalletApiMockedResponseTest(), KoinTest {
     fun initializeAndDecrypt_unsupported_version_v4() {
         val walletBase = loadResourceContent("wallet_v5_unsupported.txt")
         whenever(
-            walletApi.fetchWalletData(
-                "any_guid",
-                "any_shared_key",
-                "sid"
+            payloadDataStore.stream(
+                any()
             )
         ).thenReturn(
-            Single.just(
-                json.decodeFromString(WalletBaseDto.serializer(), walletBase)
+            flowOf(
+                DataResource.Data(json.decodeFromString(WalletBaseDto.serializer(), walletBase))
             )
         )
         payloadManager.initializeAndDecrypt(
@@ -293,17 +296,17 @@ class PayloadManagerTest : WalletApiMockedResponseTest(), KoinTest {
     fun initializeAndDecrypt_v4() {
         val walletBase = loadResourceContent("wallet_v4_encrypted.txt")
         mockEmptyBalance(bitcoinApi)
+
         whenever(
-            walletApi.fetchWalletData(
-                "any",
-                "any",
-                "sid"
+            payloadDataStore.stream(
+                any()
             )
         ).thenReturn(
-            Single.just(
-                json.decodeFromString(WalletBaseDto.serializer(), walletBase)
+            flowOf(
+                DataResource.Data(json.decodeFromString(WalletBaseDto.serializer(), walletBase))
             )
         )
+
         payloadManager.initializeAndDecrypt(
             "any",
             "any",
@@ -403,10 +406,12 @@ class PayloadManagerTest : WalletApiMockedResponseTest(), KoinTest {
     @Test
     fun initializeAndDecrypt_invalidGuid() {
         val walletBase = loadResourceContent("invalid_guid.txt")
-        whenever(walletApi.fetchWalletData("any", "any", "sid")).thenReturn(
-            Single.error(
-                HttpException(
-                    Response.error<String>(500, walletBase.toResponseBody("application/json".toMediaTypeOrNull()))
+        whenever(payloadDataStore.stream(any())).thenReturn(
+            flowOf(
+                DataResource.Error(
+                    HttpException(
+                        Response.error<String>(500, walletBase.toResponseBody("application/json".toMediaTypeOrNull()))
+                    )
                 )
             )
         )
@@ -584,14 +589,14 @@ class PayloadManagerTest : WalletApiMockedResponseTest(), KoinTest {
             .thenReturn(multiResponse4)
 
         whenever(
-            walletApi.fetchWalletData(
-                "4750d125-5344-4b79-9cf9-6e3c97bc9523",
-                "06f6fa9c-d0fe-403d-815a-111ee26888e2",
-                "sid"
+            payloadDataStore.stream(
+                any()
             )
         ).thenReturn(
-            Single.just(
-                json.decodeFromString(WalletBaseDto.serializer(), walletBase)
+            flowOf(
+                DataResource.Data(
+                    json.decodeFromString(WalletBaseDto.serializer(), walletBase)
+                )
             )
         )
 
@@ -634,15 +639,14 @@ class PayloadManagerTest : WalletApiMockedResponseTest(), KoinTest {
 
     @Test fun balance() {
         val walletBase = loadResourceContent("wallet_v3_6.txt")
+
         whenever(
-            walletApi.fetchWalletData(
-                "any",
-                "any",
-                "sid"
+            payloadDataStore.stream(
+                any()
             )
         ).thenReturn(
-            Single.just(
-                json.decodeFromString(WalletBaseDto.serializer(), walletBase)
+            flowOf(
+                DataResource.Data(json.decodeFromString(WalletBaseDto.serializer(), walletBase))
             )
         )
 
@@ -745,14 +749,14 @@ class PayloadManagerTest : WalletApiMockedResponseTest(), KoinTest {
 
         val walletBase = loadResourceContent("wallet_v3_6.txt")
         whenever(
-            walletApi.fetchWalletData(
-                "5350e5d5-bd65-456f-b150-e6cc089f0b26",
-                "0f28735d-0b89-405d-a40f-ee3e85c3c78c",
-                "sid"
+            payloadDataStore.stream(
+                any()
             )
         ).thenReturn(
-            Single.just(
-                json.decodeFromString(WalletBaseDto.serializer(), walletBase)
+            flowOf(
+                DataResource.Data(
+                    json.decodeFromString(WalletBaseDto.serializer(), walletBase)
+                )
             )
         )
 

@@ -28,7 +28,7 @@ class WalletApi(
         token: String,
         guid: String,
         sharedKey: String
-    ): Observable<ResponseBody> {
+    ): Completable {
         return explorerInstance.postToWallet(
             "update-firebase",
             guid,
@@ -36,7 +36,7 @@ class WalletApi(
             token,
             token.length,
             api.apiCode
-        )
+        ).ignoreElement()
     }
 
     fun removeFirebaseNotificationToken(
@@ -50,7 +50,7 @@ class WalletApi(
             payload = "",
             length = 0,
             apiCode = api.apiCode
-        ).ignoreElements()
+        ).ignoreElement()
 
     fun sendSecureChannel(
         message: String

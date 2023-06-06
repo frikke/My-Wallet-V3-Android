@@ -1,12 +1,12 @@
 package piuk.blockchain.android.ui.settings.security.pin
 
-import androidx.annotation.StringRes
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.ProviderSpecificAnalytics
 import com.blockchain.analytics.events.WalletUpgradeEvent
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.utils.thenSingle
 import info.blockchain.wallet.exceptions.AccountLockedException
 import info.blockchain.wallet.exceptions.DecryptionException
 import info.blockchain.wallet.exceptions.HDWalletException
@@ -66,12 +66,22 @@ class PinModel(
 
             is PinIntent.CreatePIN -> {
                 interactor.getTempPassword()?.let { tempPassword ->
-                    interactor.createPin(tempPassword, intent.pin)
-                        .handleProgress(com.blockchain.stringResources.R.string.creating_pin)
+                    interactor.createPin(tempPassword, intent.pin).thenSingle {
+                        interactor.updatePayload(tempPassword).toSingle {
+                            listOf(
+                                handlePayloadUpdateComplete(true),
+                                PinIntent.SetCanShowFingerprint(true)
+                            )
+                        }.onErrorResumeNext {
+                            Single.just(listOf(handlePayloadUpdateError(it)))
+                        }
+                    }
+                        .handleProgress()
                         .subscribeBy(
-                            onComplete = {
-                                process(PinIntent.CreatePINSucceeded)
-                                process(PinIntent.UpdatePayload(tempPassword, true))
+                            onSuccess = { intents ->
+                                intents.forEach {
+                                    process(it)
+                                }
                                 interactor.resetPinFailureCount()
                             },
                             onError = {
@@ -91,13 +101,25 @@ class PinModel(
 
             is PinIntent.ValidatePIN -> {
                 interactor.validatePIN(intent.pin, intent.isForValidatingPinForResult, previousState.isIntercomEnabled)
-                    .handleProgress(com.blockchain.stringResources.R.string.validating_pin)
+                    .flatMap { passw ->
+                        if (intent.isForValidatingPinForResult || intent.isChangingPin) {
+                            Single.just(listOf(PinIntent.ValidatePINSucceeded))
+                        } else {
+                            interactor.updatePayload(passw).toSingle {
+                                listOf(
+                                    PinIntent.SetCanShowFingerprint(true),
+                                    handlePayloadUpdateComplete(false)
+                                )
+                            }.onErrorResumeNext {
+                                Single.just(listOf(handlePayloadUpdateError(it)))
+                            }
+                        }
+                    }
+                    .handleProgress()
                     .subscribeBy(
-                        onSuccess = { password ->
-                            if (intent.isForValidatingPinForResult || intent.isChangingPin) {
-                                process(PinIntent.ValidatePINSucceeded)
-                            } else {
-                                process(PinIntent.UpdatePayload(password, false))
+                        onSuccess = { intents ->
+                            intents.forEach {
+                                process(it)
                             }
                             interactor.resetPinFailureCount()
                         },
@@ -128,7 +150,7 @@ class PinModel(
 
             is PinIntent.ValidatePassword -> {
                 interactor.validatePassword(intent.password)
-                    .handleProgress(com.blockchain.stringResources.R.string.validating_password)
+                    .handleProgress()
                     .subscribeBy(
                         onComplete = {
                             process(PinIntent.UpdatePasswordErrorState(true))
@@ -167,23 +189,9 @@ class PinModel(
                     )
             }
 
-            is PinIntent.UpdatePayload -> {
-                interactor.updatePayload(intent.password)
-                    .handleProgress(com.blockchain.stringResources.R.string.decrypting_wallet)
-                    .subscribeBy(
-                        onComplete = {
-                            process(PinIntent.SetCanShowFingerprint(true))
-                            handlePayloadUpdateComplete(intent.isFromPinCreation)
-                        },
-                        onError = {
-                            handlePayloadUpdateError(it)
-                        }
-                    )
-            }
-
             is PinIntent.UpgradeWallet -> {
                 interactor.doUpgradeWallet(intent.secondPassword)
-                    .handleProgress(com.blockchain.stringResources.R.string.upgrading)
+                    .handleProgress()
                     .subscribeBy(
                         onComplete = {
                             process(PinIntent.UpgradeWalletResponse(true))
@@ -221,11 +229,11 @@ class PinModel(
             is PinIntent.UpdatePasswordErrorState,
             is PinIntent.UpdatePayloadErrorState,
             is PinIntent.UpgradeRequired,
-            is PinIntent.HandleProgressDialog,
             is PinIntent.UpgradeWalletResponse,
-            is PinIntent.CreatePINSucceeded,
             is PinIntent.SetShowFingerprint,
             PinIntent.DialogShown,
+            PinIntent.CreatePINSucceeded,
+            is PinIntent.UpdateLoading,
             is PinIntent.UpdateIntercomStatus -> null
         }
 
@@ -251,63 +259,60 @@ class PinModel(
         }
     }
 
-    private fun handlePayloadUpdateComplete(isFromPinCreation: Boolean = false) {
+    private fun handlePayloadUpdateComplete(isFromPinCreation: Boolean = false): PinIntent {
         interactor.updateShareKeyInPrefs()
         specificAnalytics.logLogin(true)
 
-        if (interactor.isWalletUpgradeRequired()) {
-            process(PinIntent.UpgradeRequired(true, isFromPinCreation, SECOND_PASSWORD_ATTEMPTS))
+        return if (interactor.isWalletUpgradeRequired()) {
+            PinIntent.UpgradeRequired(true, isFromPinCreation, SECOND_PASSWORD_ATTEMPTS)
         } else {
-            process(PinIntent.PayloadSucceeded(isFromPinCreation))
+            PinIntent.PayloadSucceeded(isFromPinCreation)
         }
     }
 
-    private fun handlePayloadUpdateError(throwable: Throwable) {
+    private fun handlePayloadUpdateError(throwable: Throwable): PinIntent {
         specificAnalytics.logLogin(false)
         remoteLogger.logException(throwable, "Pin Model")
-        when (throwable) {
+        return when (throwable) {
             is InvalidCredentialsException ->
-                process(PinIntent.UpdatePayloadErrorState(PayloadError.CREDENTIALS_INVALID))
+                PinIntent.UpdatePayloadErrorState(PayloadError.CREDENTIALS_INVALID)
 
             is ServerConnectionException ->
-                process(PinIntent.UpdatePayloadErrorState(PayloadError.SERVER_CONNECTION_EXCEPTION))
+                PinIntent.UpdatePayloadErrorState(PayloadError.SERVER_CONNECTION_EXCEPTION)
 
             is SocketTimeoutException ->
-                process(PinIntent.UpdatePayloadErrorState(PayloadError.SERVER_TIMEOUT))
+                PinIntent.UpdatePayloadErrorState(PayloadError.SERVER_TIMEOUT)
 
             is UnsupportedVersionException ->
-                process(PinIntent.UpdatePayloadErrorState(PayloadError.UNSUPPORTED_VERSION_EXCEPTION))
+                PinIntent.UpdatePayloadErrorState(PayloadError.UNSUPPORTED_VERSION_EXCEPTION)
 
             is DecryptionException ->
-                process(PinIntent.UpdatePayloadErrorState(PayloadError.DECRYPTION_EXCEPTION))
+                PinIntent.UpdatePayloadErrorState(PayloadError.DECRYPTION_EXCEPTION)
 
             is HDWalletException -> {
-                process(PinIntent.UpdatePayloadErrorState(PayloadError.HD_WALLET_EXCEPTION))
+                PinIntent.UpdatePayloadErrorState(PayloadError.HD_WALLET_EXCEPTION)
             }
 
             is InvalidCipherTextException -> {
-                process(PinIntent.UpdatePayloadErrorState(PayloadError.INVALID_CIPHER_TEXT))
-                interactor.clearPin()
+                PinIntent.UpdatePayloadErrorState(PayloadError.INVALID_CIPHER_TEXT).also {
+                    interactor.clearPin()
+                }
             }
 
-            is AccountLockedException -> process(PinIntent.UpdatePayloadErrorState(PayloadError.ACCOUNT_LOCKED))
+            is AccountLockedException -> PinIntent.UpdatePayloadErrorState(PayloadError.ACCOUNT_LOCKED)
             else -> {
-                process(PinIntent.UpdatePayloadErrorState(PayloadError.UNKNOWN))
+                PinIntent.UpdatePayloadErrorState(PayloadError.UNKNOWN)
             }
         }
     }
 
-    private fun Completable.handleProgress(@StringRes msg: Int) =
-        this.doOnSubscribe {
-            process(PinIntent.HandleProgressDialog(true, msg))
-        }.doFinally {
-            // This is what causes the render being call again and trigge biometrics bottomSheet second time.
-            process(PinIntent.HandleProgressDialog(false))
-        }
+    private fun Completable.handleProgress() =
+        this.doOnSubscribe { process(PinIntent.UpdateLoading(true)) }
+            .doFinally { process(PinIntent.UpdateLoading(false)) }
 
-    private fun <T : Any> Single<T>.handleProgress(@StringRes msg: Int) =
-        this.doOnSubscribe { process(PinIntent.HandleProgressDialog(true, msg)) }
-            .doFinally { process(PinIntent.HandleProgressDialog(false)) }
+    private fun <T : Any> Single<T>.handleProgress() =
+        this.doOnSubscribe { process(PinIntent.UpdateLoading(true)) }
+            .doFinally { process(PinIntent.UpdateLoading(false)) }
 
     companion object {
         const val SECOND_PASSWORD_ATTEMPTS = 5

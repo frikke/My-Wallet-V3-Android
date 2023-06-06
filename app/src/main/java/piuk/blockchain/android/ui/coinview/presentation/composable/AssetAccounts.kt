@@ -36,8 +36,8 @@ import com.blockchain.componentlib.basic.SmallInfoWithIcon
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Lock
 import com.blockchain.componentlib.icons.withBackground
-import com.blockchain.componentlib.tablerow.BalanceFiatAndCryptoTableRow
 import com.blockchain.componentlib.tablerow.ActionTableRow
+import com.blockchain.componentlib.tablerow.BalanceFiatAndCryptoTableRow
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme

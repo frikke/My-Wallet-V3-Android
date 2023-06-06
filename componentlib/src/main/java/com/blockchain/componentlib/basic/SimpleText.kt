@@ -34,13 +34,15 @@ fun SimpleText(
     style: ComposeTypographies,
     color: ComposeColors,
     gravity: ComposeGravities,
-    isMultiline: Boolean = true
+    overflow: TextOverflow = TextOverflow.Clip,
+    isMultiline: Boolean = true,
 ) {
     Text(
         modifier = modifier,
         text = text,
         style = style.toComposeTypography(),
         color = color.toComposeColor(),
+        overflow = overflow,
         textAlign = gravity.toTextAlignment(),
         maxLines = if (isMultiline) {
             Integer.MAX_VALUE

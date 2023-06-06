@@ -5,8 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.NullCryptoAccount
-import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.setContent
@@ -25,13 +25,13 @@ import org.koin.core.parameter.parametersOf
 class NewTransactionFlowActivity : BlockchainActivity() {
     override val alwaysDisableScreenshots: Boolean = false
 
-    // TODO(aromano): use source and target to initialise the models
-    private val sourceAccount: SingleAccount by lazy {
-        intent.extras?.getAccount(SOURCE) as SingleAccount
+    private val sourceAccount: CryptoAccount? by lazy {
+        val account = intent.extras?.getAccount(SOURCE) as? CryptoAccount
+        account.takeIf { it !is NullCryptoAccount }
     }
 
-    private val transactionTarget: TransactionTarget by lazy {
-        intent.extras?.getTarget(TARGET)!!
+    private val transactionTarget: TransactionTarget? by lazy {
+        intent.extras?.getTarget(TARGET)
     }
 
     private val action: AssetAction by lazy {
@@ -49,8 +49,12 @@ class NewTransactionFlowActivity : BlockchainActivity() {
 
         setContent {
             when (action) {
-                AssetAction.Swap -> SwapGraphHost(exitFlow = ::finish)
+                AssetAction.Swap -> SwapGraphHost(
+                    initialSourceAccount = sourceAccount,
+                    exitFlow = ::finish
+                )
                 AssetAction.Sell -> SellGraphHost(
+                    initialSourceAccount = sourceAccount,
                     navigateToBuy = { asset ->
                         assetActionsNavigation.buyCrypto(asset)
                     },

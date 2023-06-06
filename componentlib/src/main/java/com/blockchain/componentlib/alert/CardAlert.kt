@@ -3,7 +3,6 @@ package com.blockchain.componentlib.alert
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,8 +29,6 @@ import com.blockchain.componentlib.card.CardButton
 import com.blockchain.componentlib.icons.Image
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Dark600
-import com.blockchain.componentlib.theme.Grey300
 
 enum class AlertType {
     Default, Success, Warning, Error

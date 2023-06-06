@@ -233,26 +233,20 @@ class PinModelTest {
     @Test
     fun `UpdatePayload succeeded and isWalletUpgradeRequired then UpgradeRequired`() {
         val password = "Test1234!"
+        val pin = "1234"
         val isFromPinCreation = false
         val SECOND_PASSWORD_ATTEMPTS = 5
 
         whenever(interactor.isWalletUpgradeRequired()).thenReturn(true)
+        whenever(interactor.validatePIN(pin, isFromPinCreation, false)).thenReturn(Single.just(password))
         whenever(interactor.updatePayload(password)).thenReturn(Completable.complete())
 
         val testState = model.state.test()
-        model.process(PinIntent.UpdatePayload(password, isFromPinCreation))
+        model.process(PinIntent.ValidatePIN(pin, isFromPinCreation))
 
-        testState.assertValueAt(0) {
-            it == PinState()
-        }.assertValueAt(1) {
+        testState.assertValueAt(2) {
             it == PinState(
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
-            )
-        }.assertValueAt(2) {
-            it == PinState(
+                isLoading = true,
                 upgradeWalletStatus = UpgradeWalletStatus(
                     isWalletUpgradeRequired = true,
                     upgradeAppSucceeded = it.upgradeWalletStatus?.upgradeAppSucceeded ?: false
@@ -271,7 +265,6 @@ class PinModelTest {
                     shouldShowFingerprint = it.biometricStatus.shouldShowFingerprint,
                     canShowFingerprint = true
                 ),
-                progressDialog = it.progressDialog
             )
         }.assertValueAt(3) {
             it == PinState(
@@ -279,10 +272,6 @@ class PinModelTest {
                 pinStatus = it.pinStatus,
                 passwordStatus = it.passwordStatus,
                 biometricStatus = it.biometricStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
             )
         }
     }
@@ -290,26 +279,25 @@ class PinModelTest {
     @Test
     fun `UpdatePayload succeeded and isWalletUpgradeRequired is not required then PayloadSucceeded`() {
         val password = "Test1234!"
+        val pin = "1234"
         val isFromPinCreation = false
-        val SECOND_PASSWORD_ATTEMPTS = 5
 
         whenever(interactor.isWalletUpgradeRequired()).thenReturn(false)
+        whenever(interactor.validatePIN(pin, false, false)).thenReturn(Single.just(password))
         whenever(interactor.updatePayload(password)).thenReturn(Completable.complete())
 
         val testState = model.state.test()
-        model.process(PinIntent.UpdatePayload(password, isFromPinCreation))
+        model.process(PinIntent.ValidatePIN(pin, isFromPinCreation))
 
         testState.assertValueAt(0) {
             it == PinState()
         }.assertValueAt(1) {
             it == PinState(
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
+                isLoading = true
             )
         }.assertValueAt(2) {
             it == PinState(
+                isLoading = true,
                 payloadStatus = PayloadStatus(
                     isPayloadCompleted = true,
                     payloadError = PayloadError.NONE
@@ -323,7 +311,6 @@ class PinModelTest {
                     shouldShowFingerprint = it.biometricStatus.shouldShowFingerprint,
                     canShowFingerprint = true
                 ),
-                progressDialog = it.progressDialog
             )
         }.assertValueAt(3) {
             it == PinState(
@@ -331,10 +318,6 @@ class PinModelTest {
                 pinStatus = it.pinStatus,
                 passwordStatus = it.passwordStatus,
                 biometricStatus = it.biometricStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
             )
         }
     }
@@ -342,21 +325,20 @@ class PinModelTest {
     @Test
     fun `UpdatePayload fails due to InvalidCredentialsException then update passwordError to CREDENTIALS_INVALID`() {
         val password = "Test1234!"
+        val pin = "1234"
         val isFromPinCreation = false
 
         whenever(interactor.updatePayload(password)).thenReturn(Completable.error(InvalidCredentialsException()))
+        whenever(interactor.validatePIN(pin, false, false)).thenReturn(Single.just(password))
 
         val testState = model.state.test()
-        model.process(PinIntent.UpdatePayload(password, isFromPinCreation))
+        model.process(PinIntent.ValidatePIN(pin, isFromPinCreation))
 
         testState.assertValueAt(0) {
             it == PinState()
         }.assertValueAt(1) {
             it == PinState(
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
+                isLoading = true
             )
         }.assertValueAt(2) {
             it == PinState(
@@ -364,15 +346,11 @@ class PinModelTest {
                     isPayloadCompleted = false,
                     payloadError = PayloadError.CREDENTIALS_INVALID
                 ),
-                progressDialog = it.progressDialog
+                isLoading = true
             )
         }.assertValueAt(3) {
             it == PinState(
                 payloadStatus = it.payloadStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
             )
         }
     }
@@ -380,37 +358,33 @@ class PinModelTest {
     @Test
     fun `UpdatePayload fails due to ServerConnectionException then update passwordError to SERVER_CONNECTION_EXCEPTION`() {
         val password = "Test1234!"
+        val pin = "1234"
         val isFromPinCreation = false
 
         whenever(interactor.updatePayload(password)).thenReturn(Completable.error(ServerConnectionException()))
+        whenever(interactor.validatePIN(pin, false, false)).thenReturn(Single.just(password))
 
         val testState = model.state.test()
-        model.process(PinIntent.UpdatePayload(password, isFromPinCreation))
+        model.process(PinIntent.ValidatePIN(pin, isFromPinCreation))
 
         testState.assertValueAt(0) {
             it == PinState()
         }.assertValueAt(1) {
             it == PinState(
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
+                isLoading = true
             )
         }.assertValueAt(2) {
             it == PinState(
+                isLoading = true,
                 payloadStatus = PayloadStatus(
                     isPayloadCompleted = false,
                     payloadError = PayloadError.SERVER_CONNECTION_EXCEPTION
                 ),
-                progressDialog = it.progressDialog
             )
         }.assertValueAt(3) {
             it == PinState(
                 payloadStatus = it.payloadStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
+                isLoading = false
             )
         }
     }
@@ -418,37 +392,34 @@ class PinModelTest {
     @Test
     fun `UpdatePayload fails due to SocketTimeoutException then update passwordError to SERVER_TIMEOUT`() {
         val password = "Test1234!"
+        val pin = "1234"
         val isFromPinCreation = false
-
+        whenever(interactor.validatePIN(pin, false, false)).thenReturn(Single.just(password))
         whenever(interactor.updatePayload(password)).thenReturn(Completable.error(SocketTimeoutException()))
 
         val testState = model.state.test()
-        model.process(PinIntent.UpdatePayload(password, isFromPinCreation))
+        model.process(PinIntent.ValidatePIN(pin, isFromPinCreation))
 
         testState.assertValueAt(0) {
             it == PinState()
         }.assertValueAt(1) {
             it == PinState(
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
+                isLoading = true
             )
         }.assertValueAt(2) {
+            it == PinState(
+                isLoading = true,
+                payloadStatus = PayloadStatus(
+                    isPayloadCompleted = false,
+                    payloadError = PayloadError.SERVER_TIMEOUT
+                ),
+            )
+        }.assertValueAt(3) {
             it == PinState(
                 payloadStatus = PayloadStatus(
                     isPayloadCompleted = false,
                     payloadError = PayloadError.SERVER_TIMEOUT
                 ),
-                progressDialog = it.progressDialog
-            )
-        }.assertValueAt(3) {
-            it == PinState(
-                payloadStatus = it.payloadStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
             )
         }
     }
@@ -456,37 +427,33 @@ class PinModelTest {
     @Test
     fun `UpdatePayload fails due to UnsupportedVersionException then update passwordError to UNSUPORTTED_VERSION_EXCEPTION`() {
         val password = "Test1234!"
+        val pin = "1234"
         val isFromPinCreation = false
-
         whenever(interactor.updatePayload(password)).thenReturn(Completable.error(UnsupportedVersionException()))
 
+        whenever(interactor.validatePIN(pin, false, false)).thenReturn(Single.just(password))
+
         val testState = model.state.test()
-        model.process(PinIntent.UpdatePayload(password, isFromPinCreation))
+        model.process(PinIntent.ValidatePIN(pin, isFromPinCreation))
 
         testState.assertValueAt(0) {
             it == PinState()
         }.assertValueAt(1) {
             it == PinState(
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
+                isLoading = true
             )
         }.assertValueAt(2) {
             it == PinState(
+                isLoading = true,
                 payloadStatus = PayloadStatus(
                     isPayloadCompleted = false,
                     payloadError = PayloadError.UNSUPPORTED_VERSION_EXCEPTION
                 ),
-                progressDialog = it.progressDialog
             )
         }.assertValueAt(3) {
             it == PinState(
                 payloadStatus = it.payloadStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
+                isLoading = false
             )
         }
     }
@@ -494,21 +461,18 @@ class PinModelTest {
     @Test
     fun `UpdatePayload fails due to DecryptionException then update passwordError to DECRYPTION_EXCEPTION`() {
         val password = "Test1234!"
+        val pin = "1234"
         val isFromPinCreation = false
-
         whenever(interactor.updatePayload(password)).thenReturn(Completable.error(DecryptionException()))
 
+        whenever(interactor.validatePIN(pin, isFromPinCreation, false)).thenReturn(Single.just(password))
         val testState = model.state.test()
-        model.process(PinIntent.UpdatePayload(password, isFromPinCreation))
-
+        model.process(PinIntent.ValidatePIN(pin, isFromPinCreation))
         testState.assertValueAt(0) {
             it == PinState()
         }.assertValueAt(1) {
             it == PinState(
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
+                isLoading = true
             )
         }.assertValueAt(2) {
             it == PinState(
@@ -516,15 +480,13 @@ class PinModelTest {
                     isPayloadCompleted = false,
                     payloadError = PayloadError.DECRYPTION_EXCEPTION
                 ),
-                progressDialog = it.progressDialog
+                isLoading = true
             )
         }.assertValueAt(3) {
             it == PinState(
                 payloadStatus = it.payloadStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
+                isLoading = false
+
             )
         }
     }
@@ -532,21 +494,19 @@ class PinModelTest {
     @Test
     fun `UpdatePayload fails due to HDWalletException then update passwordError to HD_WALLET_EXCEPTION`() {
         val password = "Test1234!"
+        val pin = "1234"
         val isFromPinCreation = false
-
         whenever(interactor.updatePayload(password)).thenReturn(Completable.error(HDWalletException()))
 
+        whenever(interactor.validatePIN(pin, isFromPinCreation, false)).thenReturn(Single.just(password))
         val testState = model.state.test()
-        model.process(PinIntent.UpdatePayload(password, isFromPinCreation))
+        model.process(PinIntent.ValidatePIN(pin, isFromPinCreation))
 
         testState.assertValueAt(0) {
             it == PinState()
         }.assertValueAt(1) {
             it == PinState(
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
+                isLoading = true
             )
         }.assertValueAt(2) {
             it == PinState(
@@ -554,15 +514,12 @@ class PinModelTest {
                     isPayloadCompleted = false,
                     payloadError = PayloadError.HD_WALLET_EXCEPTION
                 ),
-                progressDialog = it.progressDialog
+                isLoading = true
             )
         }.assertValueAt(3) {
             it == PinState(
                 payloadStatus = it.payloadStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
+                isLoading = false
             )
         }
     }
@@ -570,21 +527,19 @@ class PinModelTest {
     @Test
     fun `UpdatePayload fails due to InvalidCipherTextException then update passwordError to INVALID_CIPHER_TEXT`() {
         val password = "Test1234!"
+        val pin = "1234"
         val isFromPinCreation = false
-
         whenever(interactor.updatePayload(password)).thenReturn(Completable.error(InvalidCipherTextException()))
 
+        whenever(interactor.validatePIN(pin, isFromPinCreation, false)).thenReturn(Single.just(password))
         val testState = model.state.test()
-        model.process(PinIntent.UpdatePayload(password, isFromPinCreation))
+        model.process(PinIntent.ValidatePIN(pin, isFromPinCreation))
 
         testState.assertValueAt(0) {
             it == PinState()
         }.assertValueAt(1) {
             it == PinState(
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
+                isLoading = true
             )
         }.assertValueAt(2) {
             it == PinState(
@@ -592,15 +547,11 @@ class PinModelTest {
                     isPayloadCompleted = false,
                     payloadError = PayloadError.INVALID_CIPHER_TEXT
                 ),
-                progressDialog = it.progressDialog
+                isLoading = true
             )
         }.assertValueAt(3) {
             it == PinState(
                 payloadStatus = it.payloadStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
             )
         }
     }
@@ -608,21 +559,19 @@ class PinModelTest {
     @Test
     fun `UpdatePayload fails due to AccountLockedException then update passwordError to ACCOUNT_LOCKED`() {
         val password = "Test1234!"
+        val pin = "1234"
         val isFromPinCreation = false
-
         whenever(interactor.updatePayload(password)).thenReturn(Completable.error(AccountLockedException()))
 
+        whenever(interactor.validatePIN(pin, isFromPinCreation, false)).thenReturn(Single.just(password))
         val testState = model.state.test()
-        model.process(PinIntent.UpdatePayload(password, isFromPinCreation))
+        model.process(PinIntent.ValidatePIN(pin, isFromPinCreation))
 
         testState.assertValueAt(0) {
             it == PinState()
         }.assertValueAt(1) {
             it == PinState(
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
+                isLoading = true
             )
         }.assertValueAt(2) {
             it == PinState(
@@ -630,15 +579,11 @@ class PinModelTest {
                     isPayloadCompleted = false,
                     payloadError = PayloadError.ACCOUNT_LOCKED
                 ),
-                progressDialog = it.progressDialog
+                isLoading = true
             )
         }.assertValueAt(3) {
             it == PinState(
                 payloadStatus = it.payloadStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
             )
         }
     }
@@ -646,21 +591,20 @@ class PinModelTest {
     @Test
     fun `UpdatePayload fails due to Unknown issue then update passwordError to UNKNOWN`() {
         val password = "Test1234!"
+        val pin = "1234"
         val isFromPinCreation = false
 
         whenever(interactor.updatePayload(password)).thenReturn(Completable.error(Throwable()))
+        whenever(interactor.validatePIN(pin, isFromPinCreation, false)).thenReturn(Single.just(password))
 
         val testState = model.state.test()
-        model.process(PinIntent.UpdatePayload(password, isFromPinCreation))
+        model.process(PinIntent.ValidatePIN(pin, isFromPinCreation))
 
         testState.assertValueAt(0) {
             it == PinState()
         }.assertValueAt(1) {
             it == PinState(
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
+                isLoading = true
             )
         }.assertValueAt(2) {
             it == PinState(
@@ -668,15 +612,12 @@ class PinModelTest {
                     isPayloadCompleted = false,
                     payloadError = PayloadError.UNKNOWN
                 ),
-                progressDialog = it.progressDialog
+                isLoading = true
             )
         }.assertValueAt(3) {
             it == PinState(
                 payloadStatus = it.payloadStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
+                isLoading = false
             )
         }
     }
@@ -701,23 +642,14 @@ class PinModelTest {
             )
         }.assertValueAt(2) {
             it == PinState(
-                isLoading = it.isLoading,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
+                isLoading = true,
+                payloadStatus = PayloadStatus(true),
+                pinStatus = PinStatus(isFromPinCreation = true)
             )
         }.assertValueAt(3) {
             it == PinState(
-                isLoading = false,
-                progressDialog = it.progressDialog
-            )
-        }.assertValueAt(4) {
-            it == PinState(
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
+                payloadStatus = PayloadStatus(true),
+                pinStatus = PinStatus(isFromPinCreation = true)
             )
         }
     }
@@ -742,25 +674,12 @@ class PinModelTest {
             )
         }.assertValueAt(2) {
             it == PinState(
-                isLoading = it.isLoading,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
+                isLoading = true,
+                error = PinError.CREATE_PIN_FAILED,
             )
         }.assertValueAt(3) {
             it == PinState(
-                isLoading = false,
-                error = PinError.CREATE_PIN_FAILED,
-                progressDialog = it.progressDialog
-            )
-        }.assertValueAt(4) {
-            it == PinState(
                 error = it.error,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
             )
         }
     }
@@ -777,14 +696,11 @@ class PinModelTest {
             it == PinState()
         }.assertValueAt(1) {
             it == PinState(
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
+                isLoading = true
             )
         }.assertValueAt(2) {
             it == PinState(
-                progressDialog = it.progressDialog,
+                isLoading = true,
                 passwordStatus = PasswordStatus(
                     isPasswordValid = true,
                     passwordError = PasswordError.NONE
@@ -793,10 +709,6 @@ class PinModelTest {
         }.assertValueAt(3) {
             it == PinState(
                 passwordStatus = it.passwordStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
             )
         }
     }
@@ -813,14 +725,11 @@ class PinModelTest {
             it == PinState()
         }.assertValueAt(1) {
             it == PinState(
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
+                isLoading = true
             )
         }.assertValueAt(2) {
             it == PinState(
-                progressDialog = it.progressDialog,
+                isLoading = true,
                 passwordStatus = PasswordStatus(
                     isPasswordValid = false,
                     passwordError = PasswordError.SERVER_CONNECTION_EXCEPTION
@@ -829,10 +738,6 @@ class PinModelTest {
         }.assertValueAt(3) {
             it == PinState(
                 passwordStatus = it.passwordStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
             )
         }
     }
@@ -849,14 +754,11 @@ class PinModelTest {
             it == PinState()
         }.assertValueAt(1) {
             it == PinState(
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
+                isLoading = true
             )
         }.assertValueAt(2) {
             it == PinState(
-                progressDialog = it.progressDialog,
+                isLoading = true,
                 passwordStatus = PasswordStatus(
                     isPasswordValid = false,
                     passwordError = PasswordError.SERVER_TIMEOUT
@@ -865,10 +767,6 @@ class PinModelTest {
         }.assertValueAt(3) {
             it == PinState(
                 passwordStatus = it.passwordStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
             )
         }
     }
@@ -885,14 +783,11 @@ class PinModelTest {
             it == PinState()
         }.assertValueAt(1) {
             it == PinState(
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
+                isLoading = true,
             )
         }.assertValueAt(2) {
             it == PinState(
-                progressDialog = it.progressDialog,
+                isLoading = true,
                 passwordStatus = PasswordStatus(
                     isPasswordValid = false,
                     passwordError = PasswordError.HD_WALLET_EXCEPTION
@@ -901,10 +796,6 @@ class PinModelTest {
         }.assertValueAt(3) {
             it == PinState(
                 passwordStatus = it.passwordStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
             )
         }
     }
@@ -921,14 +812,11 @@ class PinModelTest {
             it == PinState()
         }.assertValueAt(1) {
             it == PinState(
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
+                isLoading = true,
             )
         }.assertValueAt(2) {
             it == PinState(
-                progressDialog = it.progressDialog,
+                isLoading = true,
                 passwordStatus = PasswordStatus(
                     isPasswordValid = false,
                     passwordError = PasswordError.ACCOUNT_LOCKED
@@ -937,10 +825,6 @@ class PinModelTest {
         }.assertValueAt(3) {
             it == PinState(
                 passwordStatus = it.passwordStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
             )
         }
     }
@@ -957,14 +841,11 @@ class PinModelTest {
             it == PinState()
         }.assertValueAt(1) {
             it == PinState(
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
+                isLoading = true,
             )
         }.assertValueAt(2) {
             it == PinState(
-                progressDialog = it.progressDialog,
+                isLoading = true,
                 passwordStatus = PasswordStatus(
                     isPasswordValid = false,
                     passwordError = PasswordError.UNKNOWN
@@ -973,10 +854,6 @@ class PinModelTest {
         }.assertValueAt(3) {
             it == PinState(
                 passwordStatus = it.passwordStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
             )
         }
     }
@@ -995,14 +872,11 @@ class PinModelTest {
             it == PinState()
         }.assertValueAt(1) {
             it == PinState(
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
+                isLoading = true
             )
         }.assertValueAt(2) {
             it == PinState(
-                progressDialog = it.progressDialog,
+                isLoading = true,
                 upgradeWalletStatus = UpgradeWalletStatus(
                     isWalletUpgradeRequired = it.upgradeWalletStatus?.isWalletUpgradeRequired ?: false,
                     upgradeAppSucceeded = true
@@ -1011,10 +885,6 @@ class PinModelTest {
         }.assertValueAt(3) {
             it == PinState(
                 upgradeWalletStatus = it.upgradeWalletStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
             )
         }
     }
@@ -1033,26 +903,20 @@ class PinModelTest {
             it == PinState()
         }.assertValueAt(1) {
             it == PinState(
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
+                isLoading = true
             )
         }.assertValueAt(2) {
             it == PinState(
-                progressDialog = it.progressDialog,
                 upgradeWalletStatus = UpgradeWalletStatus(
                     isWalletUpgradeRequired = it.upgradeWalletStatus?.isWalletUpgradeRequired ?: false,
                     upgradeAppSucceeded = false
-                )
+                ),
+                isLoading = true
             )
         }.assertValueAt(3) {
             it == PinState(
                 upgradeWalletStatus = it.upgradeWalletStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
+                isLoading = false
             )
         }
     }
@@ -1081,30 +945,21 @@ class PinModelTest {
             it == PinState(
                 isLoading = true,
                 biometricStatus = it.biometricStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
-            )
-        }.assertValueAt(3) {
-            it == PinState(
-                isLoading = false,
-                biometricStatus = it.biometricStatus,
-                progressDialog = it.progressDialog,
                 pinStatus = PinStatus(
                     isPinValidated = true,
                     currentPin = it.pinStatus.currentPin,
                     isFromPinCreation = it.pinStatus.isFromPinCreation
                 )
             )
-        }.assertValueAt(4) {
+        }.assertValueAt(3) {
+
             it == PinState(
                 isLoading = false,
                 biometricStatus = it.biometricStatus,
-                pinStatus = it.pinStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
+                pinStatus = PinStatus(
+                    isPinValidated = true,
+                    currentPin = it.pinStatus.currentPin,
+                    isFromPinCreation = it.pinStatus.isFromPinCreation
                 )
             )
         }
@@ -1136,19 +991,13 @@ class PinModelTest {
             it == PinState(
                 isLoading = true,
                 biometricStatus = it.biometricStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
+                payloadStatus = PayloadStatus(isPayloadCompleted = true)
             )
         }.assertValueAt(3) {
             it == PinState(
-                isLoading = true,
+                isLoading = false,
                 biometricStatus = it.biometricStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
+                payloadStatus = PayloadStatus(isPayloadCompleted = true)
             )
         }
     }
@@ -1163,7 +1012,7 @@ class PinModelTest {
 
         val testState = model.state.test()
         model.process(PinIntent.ValidatePIN(pin, isForValidatingPinForResult))
-
+        println(testState.values().size)
         testState.assertValueAt(0) {
             it == PinState()
         }.assertValueAt(1) {
@@ -1178,27 +1027,13 @@ class PinModelTest {
             it == PinState(
                 isLoading = true,
                 biometricStatus = it.biometricStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
+                error = PinError.INVALID_CREDENTIALS
             )
         }.assertValueAt(3) {
             it == PinState(
                 isLoading = false,
                 biometricStatus = it.biometricStatus,
-                progressDialog = it.progressDialog,
                 error = PinError.INVALID_CREDENTIALS
-            )
-        }.assertValueAt(4) {
-            it == PinState(
-                isLoading = false,
-                error = it.error,
-                biometricStatus = it.biometricStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
             )
         }
     }
@@ -1221,34 +1056,26 @@ class PinModelTest {
                 isLoading = true,
                 biometricStatus = BiometricStatus(
                     shouldShowFingerprint = false,
-                    canShowFingerprint = it.biometricStatus.canShowFingerprint
+                    canShowFingerprint = true
                 )
             )
         }.assertValueAt(2) {
             it == PinState(
                 isLoading = true,
-                biometricStatus = it.biometricStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = true,
-                    messageToShow = it.progressDialog?.messageToShow ?: 0
-                )
+                biometricStatus = BiometricStatus(
+                    shouldShowFingerprint = false,
+                    canShowFingerprint = true
+                ),
+                error = PinError.ERROR_CONNECTION
             )
         }.assertValueAt(3) {
             it == PinState(
                 isLoading = false,
-                biometricStatus = it.biometricStatus,
-                progressDialog = it.progressDialog,
+                biometricStatus = BiometricStatus(
+                    shouldShowFingerprint = false,
+                    canShowFingerprint = true
+                ),
                 error = PinError.ERROR_CONNECTION
-            )
-        }.assertValueAt(4) {
-            it == PinState(
-                error = it.error,
-                isLoading = false,
-                biometricStatus = it.biometricStatus,
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = false,
-                    messageToShow = 0
-                )
             )
         }
     }

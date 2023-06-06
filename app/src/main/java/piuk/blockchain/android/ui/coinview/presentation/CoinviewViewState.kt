@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.coinview.presentation
 
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.blockchain.charts.ChartEntry
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState

@@ -5,18 +5,15 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.text.Editable
 import android.text.InputType
-import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.activity.addCallback
-import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.graphics.Color
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.biometrics.BiometricAuthError
 import com.blockchain.biometrics.BiometricsCallback
@@ -24,13 +21,10 @@ import com.blockchain.biometrics.BiometricsType
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
-import com.blockchain.componentlib.legacy.MaterialProgressDialog
+import com.blockchain.componentlib.keyboard.KeyboardButton
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
-import com.blockchain.componentlib.viewextensions.gone
-import com.blockchain.componentlib.viewextensions.showKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.EnvironmentConfig
@@ -57,7 +51,6 @@ import piuk.blockchain.android.ui.auth.MobileNoticeDialog
 import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
 import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
 import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
-import piuk.blockchain.android.ui.debug.FeatureFlagsHandlingActivity
 import piuk.blockchain.android.ui.home.MobileNoticeDialogFragment
 import piuk.blockchain.android.ui.launcher.loader.LoaderActivity
 import piuk.blockchain.android.ui.launcher.loader.LoginMethod
@@ -76,8 +69,7 @@ class PinActivity :
         PinState,
         ActivityPinBinding
         >(),
-    BiometricsEnrollmentBottomSheet.Host,
-    TextWatcher {
+    BiometricsEnrollmentBottomSheet.Host {
 
     override val model: PinModel by scopedInject()
     private val fraudService: FraudService by inject()
@@ -115,9 +107,8 @@ class PinActivity :
 
     private val pinBoxList = mutableListOf<AppCompatImageView>()
     private var tempNewPin = ""
-    private var pinLastLength = 0
+    private var pinUserInput = ""
 
-    private var materialProgressDialog: MaterialProgressDialog? = null
     private lateinit var lastState: PinState
     private lateinit var appUpdateManager: AppUpdateManager
 
@@ -133,13 +124,37 @@ class PinActivity :
         init()
 
         with(binding) {
-            keyboard.addTextChangedListener(this@PinActivity)
             pinLogout.apply {
                 text = getString(com.blockchain.stringResources.R.string.logout)
                 setOnClickListener { model.process(PinIntent.PinLogout) }
             }
-            root.setOnClickListener {
-                this@PinActivity.showKeyboard()
+            pinKeyboard.apply {
+                bgColor = Color.White // todo dark mode when doing xml
+                onClick = { button ->
+                    if (::lastState.isInitialized) {
+                        when (button) {
+                            is KeyboardButton.Value -> {
+                                pinUserInput += button.value
+                                onPadClicked()
+                            }
+
+                            KeyboardButton.Backspace -> {
+                                if (pinUserInput.isNotEmpty()) {
+                                    pinUserInput = pinUserInput.dropLast(1)
+                                    onDeleteClicked()
+                                }
+                            }
+
+                            KeyboardButton.Biometrics -> {
+                                model.process(PinIntent.CheckFingerprint)
+                            }
+
+                            KeyboardButton.None -> {
+                                // no-op
+                            }
+                        }
+                    }
+                }
             }
             customerSupport.setOnClickListener {
                 analytics.logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
@@ -149,10 +164,6 @@ class PinActivity :
             customerSupport.visible()
         }
     }
-
-    override fun showLoading() = binding.progress.visible()
-
-    override fun hideLoading() = binding.progress.gone()
 
     override fun render(newState: PinState) {
         lastState = newState
@@ -237,14 +248,7 @@ class PinActivity :
             model.process(PinIntent.ClearStateAlreadyHandled)
         }
 
-        newState.progressDialog?.let {
-            if (it.hasToShow) {
-                showProgressDialog(it.messageToShow)
-            } else {
-                dismissDialog()
-            }
-            model.process(PinIntent.ClearStateAlreadyHandled)
-        }
+        updateLoading(newState.isLoading)
     }
 
     override fun cancel() {
@@ -255,25 +259,6 @@ class PinActivity :
         finishSignupProcess()
     }
 
-    override fun beforeTextChanged(previousPin: CharSequence?, start: Int, count: Int, after: Int) {
-        previousPin?.let { pinLastLength = it.length }
-    }
-
-    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
-    override fun afterTextChanged(currentPin: Editable?) {
-        if (::lastState.isInitialized.not()) return
-        currentPin?.let {
-            when {
-                it.length > pinLastLength -> onPadClicked()
-                it.length < pinLastLength -> onDeleteClicked()
-                else -> {
-                    // do nothing (enter key pressed)
-                }
-            }
-        }
-    }
-
     private fun loadComposableData() {
         with(binding) {
             pinBoxList.apply {
@@ -281,15 +266,6 @@ class PinActivity :
                 add(pinBox1)
                 add(pinBox2)
                 add(pinBox3)
-            }
-            pinIcon.apply {
-                image = ImageResource.Local(id = R.drawable.ic_blockchain_logo, size = Dp(40f))
-
-                if (environmentConfig.isRunningInDebugMode()) {
-                    onClick = {
-                        startActivity(FeatureFlagsHandlingActivity.newIntent(this@PinActivity))
-                    }
-                }
             }
         }
     }
@@ -357,8 +333,6 @@ class PinActivity :
         if (lastState.biometricStatus.shouldShowFingerprint && !isChangingPin) {
             showFingerprintDialog()
             model.process(PinIntent.DialogShown)
-        } else {
-            binding.keyboard.requestFocus()
         }
     }
 
@@ -618,10 +592,10 @@ class PinActivity :
             }.show()
     }
 
-    private fun getIntroducedPin(): String = binding.keyboard.text.toString()
+    private fun getIntroducedPin(): String = pinUserInput
 
     private fun clearPin() {
-        binding.keyboard.setText("")
+        pinUserInput = ""
         clearPinBoxes()
         setCursorPinBoxAtIndex(0)
         checkFingerprintStatus()
@@ -696,22 +670,17 @@ class PinActivity :
         }
     }
 
-    private fun showProgressDialog(@StringRes messageId: Int) {
-        dismissDialog()
-        materialProgressDialog = MaterialProgressDialog(this).apply {
-            setCancelable(false)
-            setMessage(getString(messageId))
+    private fun updateLoading(loading: Boolean) {
+        if (loading) {
+            with(binding.lottieProgress) {
+                resumeAnimation()
+            }
+        } else {
+            binding.lottieProgress.let {
+                it.cancelAnimation()
+                it.progress = 0f
+            }
         }
-        if (!isFinishing) {
-            materialProgressDialog?.show()
-        }
-    }
-
-    private fun dismissDialog() {
-        if (materialProgressDialog?.isShowing == true) {
-            materialProgressDialog?.dismiss()
-        }
-        materialProgressDialog = null
     }
 
     private fun handlePasswordValidated() {
@@ -1015,10 +984,8 @@ class PinActivity :
     }
 
     private fun showFingerprintDialog() {
-        binding.fingerprintLogo.apply {
-            image = ImageResource.Local(id = R.drawable.vector_fingerprint, size = Dp(24f))
-            visible()
-            onClick = { checkFingerprintStatus() }
+        binding.pinKeyboard.apply {
+            withBiometrics = true
         }
 
         if (lastState.biometricStatus.canShowFingerprint) {
@@ -1038,7 +1005,6 @@ class PinActivity :
                     }
 
                     override fun onAuthFailed(error: BiometricAuthError) {
-                        binding.keyboard.requestFocus()
                         when (error) {
                             is BiometricAuthError.BiometricAuthLockout -> BiometricPromptUtil.showAuthLockoutDialog(
                                 this@PinActivity
@@ -1066,7 +1032,6 @@ class PinActivity :
                     }
 
                     override fun onAuthCancelled() {
-                        binding.keyboard.requestFocus()
                     }
                 }
             )
@@ -1126,8 +1091,7 @@ class PinActivity :
     }
 
     private fun hideBiometricsUi() {
-        binding.keyboard.requestFocus()
-        binding.fingerprintLogo.gone()
+        binding.pinKeyboard.withBiometrics = false
     }
 
     private fun showCustomerSupportSheet() {

@@ -123,6 +123,7 @@ class PasswordRequiredActivity :
     }
 
     override fun goToPinPage() {
+        hideKeyboard()
         startActivity(
             PinActivity.newIntent(
                 context = this,

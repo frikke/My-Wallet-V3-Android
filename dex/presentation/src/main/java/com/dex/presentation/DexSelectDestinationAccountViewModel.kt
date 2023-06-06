@@ -11,8 +11,10 @@ import com.dex.domain.DexAccount
 import com.dex.domain.DexAccountsService
 import com.dex.domain.DexNetworkService
 import com.dex.domain.DexTransactionProcessor
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.zip
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class DexSelectDestinationAccountViewModel(
@@ -44,14 +46,17 @@ class DexSelectDestinationAccountViewModel(
         )
     )
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun handleIntent(modelState: DestinationAccountModelState, intent: DestinationAccountIntent) {
         when (intent) {
             DestinationAccountIntent.LoadAccounts -> {
                 viewModelScope.launch {
                     dexService.destinationAccounts(chainId = dexNetworkService.selectedChainId())
-                        .zip(transactionProcessor.transaction) { accounts, tx ->
-                            accounts.filter {
-                                it.currency.networkTicker != tx.sourceAccount.currency.networkTicker
+                        .flatMapLatest { accounts ->
+                            transactionProcessor.transaction.map { tx ->
+                                accounts.filter {
+                                    it.currency.networkTicker != tx.sourceAccount.currency.networkTicker
+                                }
                             }
                         }.collectLatest { dexAccounts ->
                             updateState {

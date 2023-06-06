@@ -39,10 +39,10 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.impl.toDatePattern
 import com.blockchain.data.DataResource
 import com.github.mikephil.charting.data.Entry
+import kotlin.random.Random
 import org.koin.androidx.compose.get
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
-import kotlin.random.Random
 
 @Composable
 fun AssetPrice(

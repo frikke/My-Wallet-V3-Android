@@ -43,19 +43,13 @@ fun AccountList(
                             valueCrypto = account.valueCrypto,
                             valueFiat = account.valueFiat,
                             onClick = { onAccountClick(account) },
-                            icon = when {
-                                account.icon.size == 1 -> {
-                                    StackedIcon.SingleIcon(
-                                        ImageResource.Remote(account.icon[0])
-                                    )
-                                }
-                                account.icon.size > 1 -> {
-                                    StackedIcon.SmallTag(
-                                        ImageResource.Remote(account.icon[0]),
-                                        ImageResource.Remote(account.icon[1])
-                                    )
-                                }
-                                else -> StackedIcon.None
+                            icon = if (account.nativeAssetIcon != null) {
+                                StackedIcon.SmallTag(
+                                    ImageResource.Remote(account.icon),
+                                    ImageResource.Remote(account.nativeAssetIcon)
+                                )
+                            } else {
+                                StackedIcon.SingleIcon(ImageResource.Remote(account.icon))
                             }
                         )
                     }

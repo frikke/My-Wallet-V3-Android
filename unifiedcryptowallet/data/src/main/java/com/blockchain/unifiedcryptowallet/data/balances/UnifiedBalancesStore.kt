@@ -4,8 +4,10 @@ import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.api.selfcustody.CommonResponse
 import com.blockchain.api.selfcustody.SubscriptionInfo
 import com.blockchain.api.services.DynamicSelfCustodyService
+import com.blockchain.internalnotifications.NotificationEvent
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.store.CacheConfiguration
 import com.blockchain.store.CachedData
 import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
@@ -18,9 +20,10 @@ import kotlinx.serialization.builtins.ListSerializer
 
 class UnifiedBalancesStore(
     private val selfCustodyService: DynamicSelfCustodyService,
-    private val currencyPrefs: CurrencyPrefs
+    private val currencyPrefs: CurrencyPrefs,
 ) : Store<BalancesResponse> by PersistedJsonSqlDelightStoreBuilder()
     .build(
+        reset = CacheConfiguration.on(listOf(NotificationEvent.NonCustodialTransaction)),
         storeId = STORE_ID,
         fetcher = Fetcher.ofOutcome(
             mapper = {

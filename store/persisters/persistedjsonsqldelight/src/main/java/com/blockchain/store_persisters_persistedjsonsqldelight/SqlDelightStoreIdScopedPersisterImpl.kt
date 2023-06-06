@@ -15,6 +15,7 @@ internal class SqlDelightStoreIdScopedPersisterImpl(
     private val storeId: StoreId,
     private val storePersisterDataQueries: StorePersisterDataQueries
 ) : SqlDelightStoreIdScopedPersister {
+
     override fun read(key: String?, logs: Boolean): Flow<PersisterData?> =
         storePersisterDataQueries.selectByStoreIdAndKey(storeId, key)
             .asFlow()

@@ -47,4 +47,9 @@ sealed interface FiatActionsNavEvent {
     data class KycCashBenefits(
         val currency: FiatCurrency
     ) : FiatActionsNavEvent
+
+    data class Failure(
+        val action: AssetAction,
+        val error: Exception
+    ) : FiatActionsNavEvent
 }

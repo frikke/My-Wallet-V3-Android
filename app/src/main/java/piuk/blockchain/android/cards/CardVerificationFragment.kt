@@ -208,15 +208,15 @@ class CardVerificationFragment :
                         currencyCode = currencyPrefs.selectedFiatCurrency.networkTicker,
                         onActionsClickedCallback = object : TransactionProgressView.TransactionProgressActions {
                             override fun onPrimaryButtonClicked() {
-                                activity.finish()
+                                navigator.restartFlow()
                             }
 
                             override fun onSecondaryButtonClicked() {
-                                activity.finish()
+                                navigator.restartFlow()
                             }
 
                             override fun onTertiaryButtonClicked() {
-                                activity.finish()
+                                navigator.restartFlow()
                             }
                         }
                     )
@@ -305,7 +305,7 @@ class CardVerificationFragment :
         with(binding.transactionProgressView) {
             setupPrimaryCta(
                 text = getString(com.blockchain.stringResources.R.string.common_ok),
-                onClick = { requireActivity().finish() }
+                onClick = { navigator.restartFlow() }
             )
             showTxError(
                 title = getString(title),

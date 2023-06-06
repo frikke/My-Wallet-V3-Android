@@ -5,6 +5,7 @@ import android.content.Context
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.notifications.FirebaseNotificationTokenProvider
 import com.blockchain.notifications.NotificationService
+import com.blockchain.notifications.NotificationStorage
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.NotificationTokenProvider
 import com.blockchain.notifications.links.DynamicLinkHandler
@@ -36,7 +37,13 @@ val notificationModule = module {
         }.bind(NotificationTokenProvider::class)
     }
 
-    factory { NotificationService(get()) }
+    single {
+        NotificationStorage(
+            walletApi = get()
+        )
+    }
+
+    factory { NotificationService(get(), get()) }
 
     factory { get<Context>().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
 

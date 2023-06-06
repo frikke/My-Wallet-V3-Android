@@ -4,7 +4,10 @@ import com.blockchain.core.chains.ethereum.EvmNetworkPreImageSigner
 import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrElse
 import com.blockchain.extensions.safeLet
+import com.blockchain.internalnotifications.NotificationEvent
+import com.blockchain.internalnotifications.NotificationTransmitter
 import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.getOrNull
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
@@ -44,7 +47,8 @@ class DexTransactionProcessor(
     private val unifiedActivityService: UnifiedActivityService,
     private val dexTransactionService: DexTransactionService,
     private val evmNetworkSigner: EvmNetworkPreImageSigner,
-    private val allowanceService: AllowanceService
+    private val allowanceService: AllowanceService,
+    private val notificationTransmitter: NotificationTransmitter
 ) {
 
     private val _isFetchingQuote: MutableStateFlow<Boolean> = MutableStateFlow(
@@ -195,7 +199,9 @@ class DexTransactionProcessor(
                             signatures = builtTx.preImages.map { unsignedPreImage ->
                                 evmNetworkSigner.signPreImage(unsignedPreImage)
                             }
-                        )
+                        ).doOnSuccess {
+                            notificationTransmitter.postEvent(NotificationEvent.NonCustodialTransaction)
+                        }
                     }
                 )
             }

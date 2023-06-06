@@ -1,4 +1,5 @@
 apply from: rootProject.file('gradle/local/common-feature-android-data.gradle')
+apply plugin: 'kotlinx-serialization'
 
 android {
     buildTypes {

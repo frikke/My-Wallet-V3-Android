@@ -2,12 +2,14 @@ package com.blockchain.home.presentation.dashboard.composable
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.ui.res.stringResource
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
 import com.blockchain.componentlib.tablerow.TableRowHeader
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.home.presentation.dapps.HomeDappsViewState
 import com.blockchain.home.presentation.dapps.composable.WalletConnectDashboardCTA
+import com.blockchain.stringResources.R
 import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
 import com.blockchain.walletconnect.ui.composable.common.WalletConnectDappTableRow
 import timber.log.Timber
@@ -31,10 +33,10 @@ internal fun LazyListScope.homeDapps(
             }
         ) {
             TableRowHeader(
-                title = "Connected Apps",
+                title = stringResource(id = R.string.dapps_list_title),
                 actionOnClick = onWalletConnectSeeAllSessionsClicked,
                 actionTitle = if (homeDappsState is HomeDappsViewState.HomeDappsSessions) {
-                    "See All"
+                    stringResource(id = R.string.see_all)
                 } else {
                     null
                 },
@@ -67,6 +69,7 @@ internal fun LazyListScope.homeDapps(
         ) { session ->
             WalletConnectDappTableRow(
                 session = session,
+                shouldEllipse = true,
                 onSessionClicked = {
                     Timber.d("Session clicked: $session")
                     onDappSessionClicked(session)

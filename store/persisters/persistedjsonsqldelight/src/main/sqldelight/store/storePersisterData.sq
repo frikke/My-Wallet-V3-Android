@@ -6,6 +6,10 @@ CREATE TABLE storePersisterData(
     PRIMARY KEY (store_id, key)
 );
 
+CREATE INDEX index_storePersisterData_key ON storePersisterData (key);
+CREATE INDEX index_storePersisterData_store_id ON storePersisterData (store_id);
+
+
 selectByStoreIdAndKey:
 SELECT
     key,

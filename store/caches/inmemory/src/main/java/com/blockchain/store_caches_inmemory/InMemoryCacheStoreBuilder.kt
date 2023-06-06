@@ -3,6 +3,7 @@ package com.blockchain.store_caches_inmemory
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.KeyedFreshnessStrategy
+import com.blockchain.store.CacheConfiguration
 import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
 import com.blockchain.store.Mediator
@@ -14,11 +15,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 
-class InMemoryCacheStoreBuilder {
+class InMemoryCacheStoreBuilder : KoinComponent {
     @OptIn(DelicateCoroutinesApi::class)
     fun <T : Any> build(
         storeId: StoreId,
+        reset: CacheConfiguration = CacheConfiguration.default(),
         fetcher: Fetcher<Unit, T>,
         mediator: Mediator<Unit, T>,
         scope: CoroutineScope = GlobalScope
@@ -26,6 +30,7 @@ class InMemoryCacheStoreBuilder {
         private val backingStore = buildKeyed(
             storeId = storeId,
             fetcher = fetcher,
+            reset = reset,
             mediator = mediator,
             scope = scope
         )
@@ -43,6 +48,7 @@ class InMemoryCacheStoreBuilder {
     @OptIn(DelicateCoroutinesApi::class)
     fun <K : Any, T : Any> buildKeyed(
         storeId: StoreId,
+        reset: CacheConfiguration = CacheConfiguration.default(),
         fetcher: Fetcher<K, T>,
         mediator: Mediator<K, T>,
         scope: CoroutineScope = GlobalScope
@@ -50,6 +56,8 @@ class InMemoryCacheStoreBuilder {
         scope,
         MulticasterFetcher(fetcher, scope),
         InMemoryCacheProvider.provide(storeId),
-        mediator
+        mediator,
+        reset,
+        notificationReceiver = get()
     )
 }

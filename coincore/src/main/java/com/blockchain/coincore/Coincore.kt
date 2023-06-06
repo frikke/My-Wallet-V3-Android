@@ -74,6 +74,7 @@ class Coincore internal constructor(
                     freshnessStrategy = freshnessStrategy,
                     localCurrency = localCurrency
                 )
+
                 else -> flowOf(DataResource.Data(null))
             }
         }
@@ -157,6 +158,7 @@ class Coincore internal constructor(
                 defaultLabels,
                 currencyPrefs.selectedFiatCurrency
             )
+
             WalletMode.CUSTODIAL -> AllCustodialWalletsAccount(
                 accounts,
                 defaultLabels,
@@ -189,11 +191,13 @@ class Coincore internal constructor(
             AssetAction.Send -> activeWalletsInMode().map {
                 it.accounts
             }
+
             AssetAction.StakingDeposit,
             AssetAction.InterestDeposit,
             AssetAction.ActiveRewardsDeposit -> allActiveWallets().firstOrError().map {
                 it.accounts
             }
+
             AssetAction.ViewActivity,
             AssetAction.ViewStatement,
             AssetAction.Buy,
@@ -259,15 +263,19 @@ class Coincore internal constructor(
             AssetAction.InterestDeposit -> sameCurrencyTransactionTargets.map {
                 it.filterIsInstance<CustodialInterestAccount>()
             }
+
             AssetAction.StakingDeposit -> sameCurrencyTransactionTargets.map {
                 it.filterIsInstance<CustodialStakingAccount>()
             }
+
             AssetAction.ActiveRewardsDeposit -> sameCurrencyTransactionTargets.map {
                 it.filterIsInstance<CustodialActiveRewardsAccount>()
             }
+
             AssetAction.InterestWithdraw -> sameCurrencyTransactionTargets.map {
                 it.filterIsInstance<CustodialTradingAccount>()
             }
+
             AssetAction.Swap -> allWallets().map { it.accounts }
                 .map {
                     it.filterIsInstance<CryptoAccount>()
@@ -282,6 +290,7 @@ class Coincore internal constructor(
                             )
                         }
                 }
+
             else -> Single.just(emptyList())
         }
     }

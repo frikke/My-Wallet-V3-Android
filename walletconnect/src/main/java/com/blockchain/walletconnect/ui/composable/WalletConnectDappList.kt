@@ -152,6 +152,7 @@ fun WalletConnectDappList(
                 ) { session ->
                     WalletConnectDappTableRow(
                         session = session,
+                        shouldEllipse = false,
                         onSessionClicked = {
                             Timber.d("Session clicked: $session")
                             onSessionClicked(session)
@@ -171,13 +172,16 @@ fun WalletConnectDappList(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                .background(AppTheme.colors.light).align(Alignment.BottomCenter),
+                .background(AppTheme.colors.light)
+                .align(Alignment.BottomCenter),
             contentAlignment = Alignment.Center,
         ) {
             PrimaryButton(
                 text = stringResource(string.walletconnect_dapp_list_scan_cta), onClick = onLaunchQrCodeScan,
                 icon = Icons.Filled.Viewfinder.withTint(Color.White),
-                modifier = Modifier.fillMaxWidth().padding(AppTheme.dimensions.smallSpacing),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(AppTheme.dimensions.smallSpacing),
                 minHeight = 56.dp
             )
         }

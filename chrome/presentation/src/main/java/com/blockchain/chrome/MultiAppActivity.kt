@@ -627,6 +627,13 @@ class MultiAppActivity :
                             currency = it.currency
                         )
                     }
+
+                    is FiatActionsNavEvent.Failure -> {
+                        fiatActionsNavigation.failure(
+                            action = it.action,
+                            error = it.error
+                        )
+                    }
                 }
             }
         }
