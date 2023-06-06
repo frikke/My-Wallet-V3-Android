@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.tablerow
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
@@ -121,4 +122,10 @@ fun PreviewButtonTableRow_ImageResource() {
         actionText = "GO",
         onClick = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewButtonTableRow_ImageResourceDark() {
+    PreviewButtonTableRow_ImageResource()
 }

@@ -6,6 +6,9 @@ import com.blockchain.charts.ChartEntry
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.tablerow.ValueChange
+import com.blockchain.componentlib.utils.LocalLogo
+import com.blockchain.componentlib.utils.LogoValue
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
@@ -17,7 +20,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 
 data class CoinviewViewState(
     val asset: DataResource<CoinviewAssetState>,
-    val assetPrice: CoinviewPriceState,
+    val assetPrice: DataResource<CoinviewPriceState>,
     val tradeable: CoinviewAssetTradeableState,
     val watchlist: DataResource<Boolean>,
     val accounts: DataResource<CoinviewAccountsState?>,
@@ -42,24 +45,20 @@ data class CoinViewNetwork(
 )
 
 // Price
-sealed interface CoinviewPriceState {
-    object Loading : CoinviewPriceState
-    object Error : CoinviewPriceState
-    data class Data(
-        val assetName: String,
-        val assetLogo: String,
-        val fiatSymbol: String,
-        val price: String,
-        val priceChange: String,
-        val percentChange: Double,
-        @StringRes val intervalName: Int,
-        val chartData: CoinviewChartState,
-        val selectedTimeSpan: HistoricalTimeSpan
-    ) : CoinviewPriceState {
-        sealed interface CoinviewChartState {
-            object Loading : CoinviewChartState
-            data class Data(val chartData: List<ChartEntry>) : CoinviewChartState
-        }
+data class CoinviewPriceState(
+    val assetName: String,
+    val assetLogo: String,
+    val fiatSymbol: String,
+    val price: String,
+    val priceChange: String,
+    val valueChange: ValueChange,
+    @StringRes val intervalName: Int,
+    val chartData: CoinviewChartState,
+    val selectedTimeSpan: HistoricalTimeSpan
+) {
+    sealed interface CoinviewChartState {
+        object Loading : CoinviewChartState
+        data class Data(val chartData: List<ChartEntry>) : CoinviewChartState
     }
 }
 
@@ -100,7 +99,7 @@ data class CoinviewAccountsState(
             val subtitle: TextValue?,
             val cryptoBalance: String,
             val fiatBalance: String,
-            val logo: LogoSource,
+            val logo: LogoValue,
             val assetColor: String
         ) : CoinviewAccountState
 
@@ -108,7 +107,7 @@ data class CoinviewAccountsState(
             override val cvAccount: CoinviewAccount,
             val title: String,
             val subtitle: TextValue,
-            val logo: LogoSource
+            val logo: LogoValue
         ) : CoinviewAccountState
     }
 }
@@ -131,31 +130,31 @@ sealed interface CoinviewRecurringBuysState {
 // Quick actions
 sealed interface CoinviewQuickActionState {
     val name: TextValue
-    val logo: LogoSource.Resource
+    val logo: LocalLogo
 
     object Buy : CoinviewQuickActionState {
         override val name = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_buy)
-        override val logo = LogoSource.Resource(R.drawable.ic_cta_buy)
+        override val logo = LocalLogo.Buy
     }
 
     object Sell : CoinviewQuickActionState {
         override val name = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_sell)
-        override val logo = LogoSource.Resource(R.drawable.ic_cta_sell)
+        override val logo = LocalLogo.Sell
     }
 
     object Send : CoinviewQuickActionState {
         override val name = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_send)
-        override val logo = LogoSource.Resource(R.drawable.ic_cta_send)
+        override val logo = LocalLogo.Send
     }
 
     object Receive : CoinviewQuickActionState {
         override val name = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_receive)
-        override val logo = LogoSource.Resource(R.drawable.ic_cta_receive)
+        override val logo = LocalLogo.Receive
     }
 
     object Swap : CoinviewQuickActionState {
         override val name = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_swap)
-        override val logo = LogoSource.Resource(R.drawable.ic_cta_swap)
+        override val logo = LocalLogo.Swap
     }
 }
 
@@ -244,12 +243,4 @@ sealed interface CoinviewSnackbarAlertState {
 sealed interface ValueAvailability {
     data class Available(val value: String) : ValueAvailability
     object NotAvailable : ValueAvailability
-}
-
-/**
- * Logo can either be Remote with a String URL - or Local with a drawable resource
- */
-sealed interface LogoSource {
-    data class Remote(val value: String) : LogoSource
-    data class Resource(@DrawableRes val value: Int) : LogoSource
 }

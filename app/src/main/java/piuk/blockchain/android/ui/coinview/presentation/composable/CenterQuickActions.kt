@@ -12,7 +12,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.TertiaryButton
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.toImageResource
 import com.blockchain.componentlib.utils.value
 import com.blockchain.data.DataResource
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
@@ -51,12 +53,8 @@ fun CenterQuickActionsData(
                         .then(if (index < 2) Modifier.weight(1F) else Modifier)
                         .then(if (index < 2) Modifier else Modifier.requiredWidthIn(min = 48.dp)),
                     text = action.name.value().takeIf { index < 2 } ?: "",
-                    textColor = AppTheme.colors.title,
-                    icon = ImageResource.Local(
-                        action.logo.value,
-                        colorFilter = ColorFilter.tint(AppTheme.colors.title),
-                        size = AppTheme.dimensions.standardSpacing
-                    ),
+                    textColor = AppColors.title,
+                    icon = action.logo.toImageResource().withTint(AppColors.title),
                     onClick = { onQuickActionClick(action) }
                 )
 

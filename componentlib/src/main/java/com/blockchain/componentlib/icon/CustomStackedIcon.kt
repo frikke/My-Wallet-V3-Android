@@ -56,8 +56,7 @@ fun CustomStackedIcon(
             ) {
                 AsyncMediaItem(
                     modifier = Modifier
-                        .size(size)
-                        .background(iconBackground),
+                        .size(size),
                     imageResource = icon.icon,
                     onErrorDrawable = com.blockchain.componentlib.icons.R.drawable.coins_on
                 )

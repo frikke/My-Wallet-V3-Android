@@ -43,8 +43,7 @@ fun CardAlert(
     subtitle: String,
     alertType: AlertType = AlertType.Default,
     isBordered: Boolean = true,
-    backgroundColor: Color = Color.White,
-    isDarkTheme: Boolean = isSystemInDarkTheme(),
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary,
     isDismissable: Boolean = true,
     onClose: () -> Unit = {},
     primaryCta: CardButton? = null,
@@ -57,21 +56,11 @@ fun CardAlert(
         AlertType.Error -> AppTheme.colors.error
     }
 
-    val borderColor = if (alertType == AlertType.Default) {
-        if (!isDarkTheme) {
-            Grey300
-        } else {
-            Dark600
-        }
-    } else {
-        typeColor
-    }
-
     Surface(
         modifier = Modifier.defaultMinSize(minWidth = 340.dp),
         shape = AppTheme.shapes.large,
         color = backgroundColor,
-        border = BorderStroke(1.dp, borderColor).takeIf { isBordered }
+        border = BorderStroke(1.dp, typeColor).takeIf { isBordered }
     ) {
         Column(
             modifier = Modifier

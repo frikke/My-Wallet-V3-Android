@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.tablerow
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,52 +23,50 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.icon.CustomStackedIcon
+import com.blockchain.componentlib.icons.ChevronRight
 import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.Verified
+import com.blockchain.componentlib.icons.Lock
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tag.DefaultTag
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallHorizontalSpacer
-import com.blockchain.componentlib.theme.SmallestVerticalSpacer
 
 @Composable
-fun BalanceFiatAndCryptoTableRow(
+fun ActionTableRow(
     title: String,
     titleIcon: ImageResource? = null,
     subtitle: String? = null,
     tag: String = "",
-    valueCrypto: String,
-    valueFiat: String,
     icon: StackedIcon = StackedIcon.None,
     defaultIconSize: Dp = AppTheme.dimensions.standardSpacing,
+    actionIcon: ImageResource.Local = Icons.ChevronRight,
     onClick: () -> Unit
 ) {
-    BalanceFiatAndCryptoTableRow(
+    ActionTableRow(
         title = title,
         subtitle = subtitle,
         tag = tag,
         titleIcon = titleIcon,
-        valueCrypto = valueCrypto,
-        valueFiat = valueFiat,
         contentStart = {
             CustomStackedIcon(
                 icon = icon,
                 size = defaultIconSize
             )
         },
+        actionIcon = actionIcon,
         onClick = onClick
     )
 }
 
 @Composable
-private fun BalanceFiatAndCryptoTableRow(
+private fun ActionTableRow(
     title: String,
     subtitle: String? = null,
     tag: String = "",
-    valueCrypto: String,
     titleIcon: ImageResource?,
-    valueFiat: String,
     contentStart: @Composable (RowScope.() -> Unit)? = null,
+    actionIcon: ImageResource.Local = Icons.ChevronRight,
     onClick: () -> Unit
 ) {
     TableRow(
@@ -135,19 +134,7 @@ private fun BalanceFiatAndCryptoTableRow(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.End
                 ) {
-                    SimpleText(
-                        text = valueFiat,
-                        gravity = ComposeGravities.End,
-                        style = ComposeTypographies.Paragraph2,
-                        color = ComposeColors.Title
-                    )
-                    SmallestVerticalSpacer()
-                    SimpleText(
-                        text = valueCrypto,
-                        gravity = ComposeGravities.End,
-                        style = ComposeTypographies.Paragraph1,
-                        color = ComposeColors.Body
-                    )
+                    Image(actionIcon.withTint(AppColors.muted))
                 }
             }
         }
@@ -156,43 +143,16 @@ private fun BalanceFiatAndCryptoTableRow(
 
 @Preview
 @Composable
-fun PreviewBalanceFiatAndCryptoTableRow() {
-    AppTheme {
-        BalanceFiatAndCryptoTableRow(
-            title = "Bitcoin",
-            titleIcon = Icons.Verified,
-            valueCrypto = "1",
-            valueFiat = "1232222",
-            onClick = {}
-        )
-    }
+private fun ActionTableRow() {
+    ActionTableRow(
+        title = "Bitcoin",
+        subtitle = "BTC",
+        onClick = {}
+    )
 }
 
-@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun PreviewBalanceFiatAndCryptoTableRow_Subtitle() {
-    AppTheme {
-        BalanceFiatAndCryptoTableRow(
-            title = "Bitcoin",
-            subtitle = "BTC",
-            valueCrypto = "1",
-            valueFiat = "1232222",
-            onClick = {}
-        )
-    }
-}
-
-@Preview
-@Composable
-fun PreviewBalanceFiatAndCryptoTableRow_SubtitleTag() {
-    AppTheme {
-        BalanceFiatAndCryptoTableRow(
-            title = "USDC",
-            subtitle = "BTC",
-            tag = "Polygon",
-            valueCrypto = "1",
-            valueFiat = "1232222",
-            onClick = {}
-        )
-    }
+private fun BalanceLockedTableRowDark() {
+    ActionTableRow()
 }

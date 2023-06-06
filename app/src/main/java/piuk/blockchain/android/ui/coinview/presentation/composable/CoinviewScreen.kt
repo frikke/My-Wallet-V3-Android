@@ -129,7 +129,7 @@ fun CoinviewScreen(
     asset: DataResource<CoinviewAssetState>,
     onContactSupportClick: () -> Unit,
 
-    price: CoinviewPriceState,
+    price: DataResource<CoinviewPriceState>,
     onChartEntryHighlighted: (Entry) -> Unit,
     resetPriceInformation: () -> Unit,
     onNewTimeSpanSelected: (HistoricalTimeSpan) -> Unit,
@@ -265,16 +265,22 @@ fun CoinviewScreen(
                                 )
                             }
 
-                            Box(
-                                modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
-                            ) {
-                                RecurringBuys(
-                                    analytics = analytics,
-                                    rBuysState = recurringBuys,
-                                    assetTicker = asset.data.asset.networkTicker,
-                                    onRecurringBuyUpsellClick = onRecurringBuyUpsellClick,
-                                    onRecurringBuyItemClick = onRecurringBuyItemClick
-                                )
+                            val showRecurringBuys = (recurringBuys as? DataResource.Data)?.data?.let {
+                                (it as? CoinviewRecurringBuysState.Data)?.recurringBuys?.isNotEmpty()
+                            } ?: true
+
+                            if (showRecurringBuys) {
+                                Box(
+                                    modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
+                                ) {
+                                    RecurringBuys(
+                                        analytics = analytics,
+                                        rBuysState = recurringBuys,
+                                        assetTicker = asset.data.asset.networkTicker,
+                                        onRecurringBuyUpsellClick = onRecurringBuyUpsellClick,
+                                        onRecurringBuyItemClick = onRecurringBuyItemClick
+                                    )
+                                }
                             }
 
                             Box(
@@ -367,7 +373,7 @@ fun PreviewCoinviewScreen() {
         asset = DataResource.Data(CoinviewAssetState(CryptoCurrency.ETHER, null)),
         onContactSupportClick = {},
 
-        price = CoinviewPriceState.Loading,
+        price = DataResource.Loading,
         onChartEntryHighlighted = {},
         resetPriceInformation = {},
         onNewTimeSpanSelected = {},
@@ -411,7 +417,7 @@ fun PreviewCoinviewScreen_Unknown() {
         asset = DataResource.Error(Exception()),
         onContactSupportClick = {},
 
-        price = CoinviewPriceState.Loading,
+        price = DataResource.Loading,
         onChartEntryHighlighted = {},
         resetPriceInformation = {},
         onNewTimeSpanSelected = {},
