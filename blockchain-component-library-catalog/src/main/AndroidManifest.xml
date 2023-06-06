@@ -31,19 +31,7 @@
             android:name=".abstract_compose_view.ControlsActivity"
             android:exported="false" />
         <activity
-            android:name=".abstract_compose_view.DoublePrimaryButtonsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.DoubleMinimalButtonsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.SplitButtonsActivity"
-            android:exported="false" />
-        <activity
             android:name=".abstract_compose_view.SmallSecondaryButtonActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.SmallPrimaryButtonActivity"
             android:exported="false" />
         <activity
             android:name=".abstract_compose_view.SmallMinimalButtonActivity"

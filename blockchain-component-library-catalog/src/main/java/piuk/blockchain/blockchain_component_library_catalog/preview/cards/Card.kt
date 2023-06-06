@@ -6,7 +6,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.card.AnnouncementCard
-import com.blockchain.componentlib.card.CallOutCard
 import com.blockchain.componentlib.card.CardButton
 import com.blockchain.componentlib.card.CtaAnnouncementCard
 import com.blockchain.componentlib.card.DefaultCard
@@ -44,21 +43,6 @@ fun DefaultCard_Cta() {
                 onClose = {
 
                 }
-            )
-        }
-    }
-}
-
-@Preview(name = "Call Out Card", group = "Card")
-@Composable
-fun CallOutCard_Example() {
-    AppTheme {
-        AppSurface {
-            CallOutCard(
-                title = "Buy More Crypto",
-                subtitle = "Upgrade Your Wallet",
-                iconResource = ImageResource.Local(R.drawable.logo_bitcoin, null),
-                callToActionButton = CardButton("GO")
             )
         }
     }

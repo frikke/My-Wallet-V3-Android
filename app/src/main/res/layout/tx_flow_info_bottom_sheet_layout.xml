@@ -112,7 +112,7 @@
             android:orientation="horizontal"
             app:layout_constraintGuide_percent="0.5" />
 
-        <com.blockchain.componentlib.button.SmallPrimaryButtonView
+        <com.blockchain.componentlib.button.PrimaryButtonView
             android:id="@+id/action_cta"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

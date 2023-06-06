@@ -121,38 +121,10 @@
             android:textAllCaps="false" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/small_primary_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Small Primary Button"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
             android:id="@+id/small_secondary_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Small Secondary Button"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/split_buttons"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Split Button"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/double_primary_buttons"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Double Primary Button"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/double_minimal_buttons"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Double Minimal Button"
             android:textAllCaps="false" />
 
         <com.google.android.material.button.MaterialButton

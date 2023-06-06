@@ -15,8 +15,6 @@ import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vie
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DatePickerActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DialogueActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DividerActivity
-import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DoubleMinimalButtonsActivity
-import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DoublePrimaryButtonsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ExpandablesActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.MinimalButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.NavigationActivity
@@ -29,11 +27,9 @@ import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vie
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SimpleImageViewActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SimpleTextViewActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SmallMinimalButtonActivity
-import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SmallPrimaryButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SmallSecondaryButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SnackbarsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SpacingActivity
-import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SplitButtonsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SwitcherActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TabLayoutActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TagsActivity
@@ -90,20 +86,8 @@ class MainActivity : ComponentActivity() {
         findViewById<MaterialButton>(R.id.small_minimal_button).setOnClickListener {
             startActivity(Intent(this@MainActivity, SmallMinimalButtonActivity::class.java))
         }
-        findViewById<MaterialButton>(R.id.small_primary_button).setOnClickListener {
-            startActivity(Intent(this@MainActivity, SmallPrimaryButtonActivity::class.java))
-        }
         findViewById<MaterialButton>(R.id.small_secondary_button).setOnClickListener {
             startActivity(Intent(this@MainActivity, SmallSecondaryButtonActivity::class.java))
-        }
-        findViewById<MaterialButton>(R.id.split_buttons).setOnClickListener {
-            startActivity(Intent(this@MainActivity, SplitButtonsActivity::class.java))
-        }
-        findViewById<MaterialButton>(R.id.double_primary_buttons).setOnClickListener {
-            startActivity(Intent(this@MainActivity, DoublePrimaryButtonsActivity::class.java))
-        }
-        findViewById<MaterialButton>(R.id.double_minimal_buttons).setOnClickListener {
-            startActivity(Intent(this@MainActivity, DoubleMinimalButtonsActivity::class.java))
         }
         findViewById<MaterialButton>(R.id.controls).setOnClickListener {
             startActivity(Intent(this@MainActivity, ControlsActivity::class.java))

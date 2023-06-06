@@ -9,7 +9,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.core.view.isVisible
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.card.AnnouncementCardView
-import com.blockchain.componentlib.card.CallOutCardView
 import com.blockchain.componentlib.card.CardButton
 import com.blockchain.componentlib.card.CtaAnnouncementCardView
 import com.blockchain.componentlib.card.CustomBackgroundCardView
@@ -38,13 +37,6 @@ class CardActivity : AppCompatActivity() {
             onClose = {
                 this.isVisible = false
             }
-        }
-
-        findViewById<CallOutCardView>(R.id.call_out_card).apply {
-            title = "Buy More Crypto"
-            subtitle = "Upgrade Your Wallet"
-            iconResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.logo_bitcoin, null)
-            callToActionButton = CardButton("GO")
         }
 
         findViewById<AnnouncementCardView>(R.id.announcement_card).apply {
