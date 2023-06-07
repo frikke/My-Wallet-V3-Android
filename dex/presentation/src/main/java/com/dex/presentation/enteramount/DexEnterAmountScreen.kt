@@ -78,6 +78,7 @@ import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Green700
 import com.blockchain.componentlib.theme.Grey000
@@ -226,6 +227,7 @@ fun DexEnterAmountScreen(
         state = listState,
         modifier = Modifier
             .fillMaxWidth()
+            .background(AppColors.background)
             .clip(RoundedCornerShape(AppTheme.dimensions.mediumSpacing))
     ) {
         item {

@@ -18,6 +18,7 @@ internal fun FilledButton(
     state: ButtonState = ButtonState.Enabled,
     style: ButtonStyle,
     icon: ImageResource.Local? = null,
+    customIconTint: Color? = null,
     onClick: () -> Unit,
 ) {
     Button(
@@ -33,7 +34,8 @@ internal fun FilledButton(
                 style = style,
                 text = text,
                 textColor = textColor,
-                icon = icon
+                icon = icon,
+                customIconTint = customIconTint
             )
         }
     )

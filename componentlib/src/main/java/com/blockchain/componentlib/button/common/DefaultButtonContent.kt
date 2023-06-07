@@ -17,15 +17,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.Interest
-import com.blockchain.componentlib.icons.Minus
 import com.blockchain.componentlib.icons.Plus
-import com.blockchain.componentlib.icons.Prices
 import com.blockchain.componentlib.theme.AppTheme
 
 @Stable
@@ -66,7 +62,8 @@ internal fun DefaultButtonContent(
     style: ButtonStyle,
     text: String,
     textColor: Color,
-    icon: ImageResource.Local? = null
+    icon: ImageResource.Local? = null,
+    customIconTint: Color? = null
 ) {
     Box {
         if (state == ButtonState.Loading) {
@@ -89,7 +86,7 @@ internal fun DefaultButtonContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             icon?.let {
-                Image(imageResource = icon.withSize(style.iconSize).withTint(textColor))
+                Image(imageResource = icon.withSize(style.iconSize).withTint(customIconTint ?: textColor))
 
                 if (text.isNotEmpty()) Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
             }
