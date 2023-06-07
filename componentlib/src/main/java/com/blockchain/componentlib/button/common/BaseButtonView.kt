@@ -1,4 +1,4 @@
-package com.blockchain.componentlib.button
+package com.blockchain.componentlib.button.common
 
 import android.content.Context
 import android.util.AttributeSet
@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
 
 abstract class BaseButtonView @JvmOverloads constructor(
