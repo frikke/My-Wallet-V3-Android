@@ -2,8 +2,7 @@ package com.dex.data
 
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.SingleAccountList
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.preferences.CurrencyPrefs
@@ -106,8 +105,10 @@ class DexAccountsRepository(
     private var destinationAccountsCache: MutableMap<Int, List<DexAccount>> = mutableMapOf()
     private var sourceAccountsCache: MutableMap<Int, List<DexAccount>> = mutableMapOf()
 
-    private val allAccounts: Flow<SingleAccountList>
-        get() = coincore.allWalletsInMode(WalletMode.NON_CUSTODIAL).map { it.accounts }.asFlow()
+    private val allAccounts: Flow<List<CryptoNonCustodialAccount>>
+        get() = coincore.allWalletsInMode(WalletMode.NON_CUSTODIAL).map { it.accounts }
+            .map { it.filterIsInstance<CryptoNonCustodialAccount>() }
+            .asFlow()
 
     private fun dexDestinationAccounts(
         chainId: Int
@@ -120,7 +121,6 @@ class DexAccountsRepository(
 
         val all = allAccounts.map {
             it.filter { account -> (account.currency as? AssetInfo)?.coinNetwork?.chainId == chainId }
-                .filterIsInstance<CryptoAccount>()
         }
 
         return active.flatMapLatest { activeAcc ->
@@ -171,15 +171,14 @@ class DexAccountsRepository(
         ).map {
             it.accounts
         }.map {
-            it.filterIsInstance<CryptoAccount>()
+            it.filterIsInstance<CryptoNonCustodialAccount>()
         }.distinctUntilChanged { old, new ->
             old.map { it.currency.networkTicker }.toSet() == new.map { it.currency.networkTicker }.toSet()
         }.flatMapLatest { cryptoAccounts ->
             cryptoAccounts.map { account ->
                 account.balance().map { balance -> account to balance }
-            }.merge().scan(emptyMap<CryptoAccount, AccountBalance>()) { acc, (account, balance) ->
-                acc
-                    .filterKeys { it.currency.networkTicker != account.currency.networkTicker }
+            }.merge().scan(emptyMap<CryptoNonCustodialAccount, AccountBalance>()) { acc, (account, balance) ->
+                acc.filterKeys { it.currency.networkTicker != account.currency.networkTicker }
                     .plus(account to balance)
             }.filter {
                 it.keys.map { acc -> acc.currency.networkTicker }.toSet() ==

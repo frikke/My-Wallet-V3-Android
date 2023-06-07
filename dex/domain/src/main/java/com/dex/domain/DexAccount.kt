@@ -1,11 +1,11 @@
 package com.dex.domain
 
-import com.blockchain.coincore.SingleAccount
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 
 data class DexAccount(
-    val account: SingleAccount,
+    val account: CryptoNonCustodialAccount,
     val currency: DexCurrency,
     val balance: Money,
     val fiatBalance: Money

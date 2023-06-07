@@ -25,6 +25,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
 import com.blockchain.commonarch.presentation.mvi_v2.compose.rememberBottomSheetNavigator
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.earn.navigation.EarnNavigation
+import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.navigation.ARG_ACTIVITY_TX_ID
 import com.blockchain.home.presentation.navigation.ARG_FIAT_TICKER
 import com.blockchain.home.presentation.navigation.ARG_IS_FROM_MODE_SWITCH
@@ -252,6 +253,7 @@ private fun NavGraphBuilder.chrome(
             },
             openActivity = {
                 navController.navigate(HomeDestination.Activity)
+                analytics.logEvent(DashboardAnalyticsEvents.ActivitySeeAllClicked)
             },
             openActivityDetail = { txId: String, walletMode: WalletMode ->
                 navController.navigate(

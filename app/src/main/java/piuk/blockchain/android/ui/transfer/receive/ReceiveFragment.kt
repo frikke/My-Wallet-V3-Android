@@ -13,12 +13,12 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.earn.TxFlowAnalyticsAccountType
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.stringResources.R
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
-import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentReceiveBinding
 import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
@@ -97,7 +97,7 @@ class ReceiveFragment :
 
     private fun setupSearchBox() {
         with(binding.searchBoxLayout) {
-            placeholder = getString(com.blockchain.stringResources.R.string.search_coins_hint)
+            placeholder = getString(R.string.search_coins_hint)
             onValueChange = { term ->
                 model.process(ReceiveIntent.FilterAssets(term))
             }

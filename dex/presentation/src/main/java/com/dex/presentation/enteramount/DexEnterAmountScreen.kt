@@ -47,6 +47,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavController
 import com.blockchain.analytics.Analytics
 import com.blockchain.chrome.LocalChromePillProvider
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
 import com.blockchain.componentlib.alert.PillAlert
 import com.blockchain.componentlib.alert.PillAlertType
@@ -91,6 +92,7 @@ import com.blockchain.componentlib.utils.conditional
 import com.blockchain.data.DataResource
 import com.blockchain.koin.payloadScope
 import com.blockchain.preferences.DexPrefs
+import com.blockchain.stringResources.R
 import com.dex.presentation.ALLOWANCE_TRANSACTION_APPROVED
 import com.dex.presentation.AmountFieldConfig
 import com.dex.presentation.DexAnalyticsEvents
@@ -99,6 +101,7 @@ import com.dex.presentation.SendAndReceiveAmountFields
 import com.dex.presentation.graph.ARG_ALLOWANCE_TX
 import com.dex.presentation.graph.DexDestination
 import com.dex.presentation.network.DexNetworkViewState
+import com.dex.presentation.uierrors.DexUiError
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
@@ -114,6 +117,7 @@ fun DexEnterAmountScreen(
     listState: LazyListState,
     navController: NavController,
     startReceiving: () -> Unit,
+    receiveOnAccount: (CryptoNonCustodialAccount) -> Unit,
     savedStateHandle: SavedStateHandle?,
     viewModel: DexEnterAmountViewModel = getViewModel(scope = payloadScope),
     dexIntroPrefs: DexPrefs = get(),
@@ -188,7 +192,7 @@ fun DexEnterAmountScreen(
                             PillAlert(
                                 text = TextValue.StringValue(
                                     context.getString(
-                                        com.blockchain.stringResources.R.string.approval_for_token_failed,
+                                        R.string.approval_for_token_failed,
                                         event.currencyTicker
                                     )
                                 ),
@@ -205,7 +209,7 @@ fun DexEnterAmountScreen(
                             PillAlert(
                                 text = TextValue.StringValue(
                                     context.getString(
-                                        com.blockchain.stringResources.R.string.approval_for_token_completed,
+                                        R.string.approval_for_token_completed,
                                         event.currencyTicker
                                     )
                                 ),
@@ -281,7 +285,8 @@ fun DexEnterAmountScreen(
                     },
                     onTokenAllowanceApproveButPending = {
                         viewModel.onIntent(InputAmountIntent.PollForPendingAllowance)
-                    }
+                    },
+                    receive = receiveOnAccount
                 )
             }
         }
@@ -348,14 +353,14 @@ private fun NoInputScreen(
                     imageResource = ImageResource.Local(
                         id = com.blockchain.componentlib.R.drawable.ic_empty_state_deposit,
                         contentDescription = stringResource(
-                            id = com.blockchain.stringResources.R.string.dex_no_input_title
+                            id = R.string.dex_no_input_title
                         )
                     )
                 )
                 StandardVerticalSpacer()
 
                 SimpleText(
-                    text = stringResource(id = com.blockchain.stringResources.R.string.dex_no_input_title),
+                    text = stringResource(id = R.string.dex_no_input_title),
                     style = ComposeTypographies.Title3,
                     color = ComposeColors.Title,
                     gravity = ComposeGravities.Centre
@@ -363,7 +368,7 @@ private fun NoInputScreen(
 
                 SimpleText(
                     text = stringResource(
-                        id = com.blockchain.stringResources.R.string.transfer_from_your_trading_account
+                        id = R.string.transfer_from_your_trading_account
                     ),
                     style = ComposeTypographies.Body1,
                     color = ComposeColors.Body,
@@ -380,7 +385,7 @@ private fun NoInputScreen(
                             vertical = AppTheme.dimensions.standardSpacing,
                             horizontal = AppTheme.dimensions.smallSpacing
                         ),
-                    text = stringResource(id = com.blockchain.stringResources.R.string.common_receive),
+                    text = stringResource(id = R.string.common_receive),
                     onClick = receive
                 )
             }
@@ -399,6 +404,7 @@ fun InputScreen(
     onValueChanged: (TextFieldValue) -> Unit,
     settingsOnClick: () -> Unit,
     selectNetworkOnClick: () -> Unit,
+    receive: (CryptoNonCustodialAccount) -> Unit,
     txInProgressDismiss: () -> Unit,
     viewState: InputAmountViewState.TransactionInputState
 ) {
@@ -419,10 +425,10 @@ fun InputScreen(
             UiError(
                 modifier = Modifier.padding(bottom = AppTheme.dimensions.smallSpacing),
                 title = it.title ?: stringResource(
-                    id = com.blockchain.stringResources.R.string.common_http_error_title
+                    id = R.string.common_http_error_title
                 ),
                 description = it.description ?: stringResource(
-                    id = com.blockchain.stringResources.R.string.common_http_error_description
+                    id = R.string.common_http_error_description
                 ),
                 close = null
             )
@@ -431,8 +437,8 @@ fun InputScreen(
         viewState.txInProgressWarning?.let {
             UiError(
                 modifier = Modifier.padding(bottom = AppTheme.dimensions.smallSpacing),
-                title = stringResource(id = com.blockchain.stringResources.R.string.tx_in_process),
-                description = stringResource(id = com.blockchain.stringResources.R.string.not_accurate_balance),
+                title = stringResource(id = R.string.tx_in_process),
+                description = stringResource(id = R.string.not_accurate_balance),
                 close = txInProgressDismiss
             )
         }
@@ -506,6 +512,20 @@ fun InputScreen(
             )
         }
 
+        (viewState.alertError as? DexUiError.InsufficientFunds)?.let {
+            MinimalButton(
+                modifier = Modifier
+                    .padding(top = dimensionResource(id = com.blockchain.componentlib.R.dimen.smallest_spacing))
+                    .background(Color.White, shape = AppTheme.shapes.extraLarge)
+                    .fillMaxWidth(),
+                minHeight = 56.dp,
+                text = stringResource(id = R.string.deposit_more, it.account.currency.displayTicker),
+                onClick = {
+                    receive(it.account)
+                }
+            )
+        }
+
         viewState.previewActionButtonState.takeIf { it != ActionButtonState.INVISIBLE }?.let { state ->
             PreviewSwapButton(
                 state = if (state == ActionButtonState.ENABLED) ButtonState.Enabled else ButtonState.Disabled,
@@ -522,7 +542,7 @@ private fun PreviewSwapButton(onClick: () -> Unit, state: ButtonState) {
             .padding(top = dimensionResource(id = com.blockchain.componentlib.R.dimen.small_spacing))
             .fillMaxWidth(),
         state = state,
-        text = stringResource(id = com.blockchain.stringResources.R.string.preview_swap),
+        text = stringResource(id = R.string.preview_swap),
         onClick = onClick
     )
 }
@@ -537,7 +557,7 @@ private fun TokenAllowance(onClick: () -> Unit, currency: Currency, txInProgress
         state = if (txInProgress) ButtonState.Loading else ButtonState.Enabled,
         minHeight = 56.dp,
         icon = Icons.Question.withTint(AppTheme.colors.primary),
-        text = stringResource(id = com.blockchain.stringResources.R.string.approve_token, currency.displayTicker),
+        text = stringResource(id = R.string.approve_token, currency.displayTicker),
         onClick = onClick
     )
 }
@@ -606,7 +626,7 @@ private fun Fee(uiFee: UiNetworkFee) {
             Text(
                 modifier = Modifier
                     .padding(start = dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing)),
-                text = stringResource(id = com.blockchain.stringResources.R.string.estimated_fees),
+                text = stringResource(id = R.string.estimated_fees),
                 style = AppTheme.typography.paragraph2,
                 color = AppTheme.colors.title
             )
@@ -637,7 +657,7 @@ private fun PriceFetching() {
             Text(
                 modifier = Modifier
                     .padding(start = dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing)),
-                text = stringResource(id = com.blockchain.stringResources.R.string.fetching_quote),
+                text = stringResource(id = R.string.fetching_quote),
                 style = AppTheme.typography.paragraph2,
                 color = AppTheme.colors.title
             )
@@ -699,7 +719,7 @@ private fun NetworkSelection(
 
                 Text(
                     modifier = Modifier.weight(1F),
-                    text = stringResource(com.blockchain.stringResources.R.string.common_network),
+                    text = stringResource(R.string.common_network),
                     style = AppTheme.typography.paragraph2,
                     color = AppTheme.colors.title
                 )
@@ -779,7 +799,7 @@ private fun PreviewNetworkSelection_Loading() {
 @Composable
 private fun PreviewInputScreen_NetworkSelection() {
     InputScreen(
-        {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         InputAmountViewState.TransactionInputState(
             selectedNetwork = DataResource.Data(
                 DexNetworkViewState(

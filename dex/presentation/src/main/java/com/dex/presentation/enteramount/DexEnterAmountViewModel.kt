@@ -28,6 +28,7 @@ import com.dex.domain.DexTransactionProcessor
 import com.dex.domain.DexTxError
 import com.dex.domain.SlippageService
 import com.dex.presentation.network.DexNetworkViewState
+import com.dex.presentation.uierrors.ActionRequiredError
 import com.dex.presentation.uierrors.AlertError
 import com.dex.presentation.uierrors.DexUiError
 import com.dex.presentation.uierrors.toUiErrors
@@ -125,7 +126,8 @@ class DexEnterAmountViewModel(
             destinationCurrency = transaction?.destinationAccount?.currency,
             maxAmount = transaction?.sourceAccount?.takeIf { !it.currency.isNetworkNativeAsset() }?.balance,
             txAmount = transaction?.amount,
-            errors = state.transaction?.toUiErrors()?.filter { it !in state.ignoredTxErrors } ?: emptyList(),
+            errors = state.transaction?.toUiErrors()?.filter { it !in state.ignoredTxErrors }
+                ?.withOnlyTopPriorityActionRequired() ?: emptyList(),
             inputExchangeAmount = safeLet(transaction?.amount, state.inputToFiatExchangeRate) { amount, rate ->
                 fiatAmount(amount, rate)
             } ?: Money.zero(currencyPrefs.selectedFiatCurrency),
@@ -146,6 +148,14 @@ class DexEnterAmountViewModel(
             previewActionButtonState = actionButtonState(state),
             allowanceCanBeRevoked = state.canRevokeAllowance
         )
+    }
+
+    private fun List<DexUiError>.withOnlyTopPriorityActionRequired(): List<DexUiError> {
+        val nonActionRequiredErrors = filter { it !is ActionRequiredError }
+        val topPriorityActionError = filterIsInstance<ActionRequiredError>().minByOrNull { it.priority }
+        return (topPriorityActionError as? DexUiError)?.let {
+            nonActionRequiredErrors + it
+        } ?: nonActionRequiredErrors
     }
 
     private fun actionButtonState(modelState: AmountModelState): ActionButtonState {
