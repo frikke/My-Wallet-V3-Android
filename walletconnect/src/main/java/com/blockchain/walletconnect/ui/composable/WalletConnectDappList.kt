@@ -182,7 +182,6 @@ fun WalletConnectDappList(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(AppTheme.dimensions.smallSpacing),
-                minHeight = 56.dp
             )
         }
     }

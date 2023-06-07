@@ -40,7 +40,7 @@ fun SplitButtons(
                     onClick = primaryButtonOnClick,
                     state = primaryButtonState,
                     modifier = Modifier.weight(1f),
-                    icon = primaryButtonIcon
+                    icon = primaryButtonIcon as? ImageResource.Local
                 )
             }
             Alignment.START -> {
@@ -49,7 +49,7 @@ fun SplitButtons(
                     onClick = primaryButtonOnClick,
                     state = primaryButtonState,
                     modifier = Modifier.weight(1f),
-                    icon = primaryButtonIcon
+                    icon = primaryButtonIcon as? ImageResource.Local
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 SecondaryButton(
