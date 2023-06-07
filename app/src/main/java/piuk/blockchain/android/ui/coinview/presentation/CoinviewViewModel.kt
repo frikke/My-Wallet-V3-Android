@@ -45,6 +45,8 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Job
@@ -205,7 +207,7 @@ class CoinviewViewModel(
                 priceChange = (interactiveAssetPrice ?: it.priceDetail)
                     .changeDifference.toStringWithSymbol(),
                 valueChange = (interactiveAssetPrice ?: it.priceDetail).percentChange.run {
-                    ValueChange.fromValue(String.format("%.2f", this).toDouble())
+                    ValueChange.fromValue(BigDecimal(this).setScale(2, RoundingMode.FLOOR).toDouble())
                 },
                 intervalName = if (interactiveAssetPrice != null) {
                     com.blockchain.stringResources.R.string.empty
