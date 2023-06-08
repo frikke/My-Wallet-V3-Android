@@ -14,7 +14,10 @@ val transactionsDataModule = module {
                 coincore = get(),
                 custodialRepository = get(),
                 limitsDataManager = get(),
-                walletManager = get()
+                walletManager = get(),
+                remoteConfigService = get(),
+                interestService = get(),
+                dismissRecorder = get(),
             )
         }
 

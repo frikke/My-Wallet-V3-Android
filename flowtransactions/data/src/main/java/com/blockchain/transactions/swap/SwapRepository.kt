@@ -6,7 +6,9 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.core.announcements.DismissRecorder
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.data.DataResource
@@ -16,19 +18,24 @@ import com.blockchain.data.firstOutcome
 import com.blockchain.data.flatMapData
 import com.blockchain.data.mapData
 import com.blockchain.data.mapListData
+import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.domain.transactions.TransferDirection
+import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.getOrDefault
 import com.blockchain.outcome.map
 import com.blockchain.transactions.common.CryptoAccountWithBalance
+import com.blockchain.transactions.swap.model.ShouldUpsellPassiveRewardsResult
 import com.blockchain.utils.awaitOutcome
 import com.blockchain.utils.toFlowDataResource
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetCategory
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.CurrencyPair
@@ -50,7 +57,10 @@ internal class SwapRepository(
     private val coincore: Coincore,
     private val custodialRepository: CustodialRepository,
     private val limitsDataManager: LimitsDataManager,
-    private val walletManager: CustodialWalletManager
+    private val walletManager: CustodialWalletManager,
+    private val remoteConfigService: RemoteConfigService,
+    private val interestService: InterestService,
+    private val dismissRecorder: DismissRecorder
 ) : SwapService {
 
     private fun Flow<DataResource<List<CryptoAccount>>>.withBalance() = flatMapData {
@@ -220,8 +230,56 @@ internal class SwapRepository(
         ).awaitOutcome()
     }
 
+    override suspend fun shouldUpsellPassiveRewardsAfterSwap(
+        targetCurrency: AssetInfo
+    ): Outcome<Exception, ShouldUpsellPassiveRewardsResult> =
+        if (dismissRecorder.isDismissed(UPSELL_PASSIVE_REWARDS_AFTER_SWAP_DISMISS_KEY)) {
+            Outcome.Success(ShouldUpsellPassiveRewardsResult.ShouldNot)
+        } else {
+            remoteConfigService.getRawJson(KEY_UPSELL_PASSIVE_REWARDS_AFTER_SWAP)
+                .awaitOutcome()
+                .flatMap { tickerListStr ->
+                    val tickers = tickerListStr.split(KEY_UPSELL_PASSIVE_REWARDS_AFTER_SWAP_SEPARATOR)
+                        .map { it.trim() }
+
+                    if (targetCurrency.networkTicker in tickers) {
+                        interestService.isAssetAvailableForInterestFlow(targetCurrency).firstOutcome()
+                            .flatMap { interestService.getInterestRateFlow(targetCurrency).firstOutcome() }
+                            .flatMap { interestRate ->
+                                coincore.walletsWithAction(
+                                    tickers = setOf(targetCurrency),
+                                    action = AssetAction.InterestDeposit,
+                                ).awaitOutcome().map { accounts ->
+                                    val account = accounts.filterIsInstance<CustodialInterestAccount>()
+                                        .firstOrNull()
+                                    if (account != null) {
+                                        ShouldUpsellPassiveRewardsResult.ShouldLaunch(account, interestRate)
+                                    } else {
+                                        ShouldUpsellPassiveRewardsResult.ShouldNot
+                                    }
+                                }
+                            }
+                    } else {
+                        Outcome.Success(ShouldUpsellPassiveRewardsResult.ShouldNot)
+                    }
+                }
+        }
+
+    override fun dismissUpsellPassiveRewardsAfterSwap() = dismissRecorder.dismissPeriodic(
+        UPSELL_PASSIVE_REWARDS_AFTER_SWAP_DISMISS_KEY,
+        DismissRecorder.ONE_MONTH
+    )
+
     private fun CryptoAccount.isAvailableToSwapFrom(pairs: List<CurrencyPair>): Boolean =
         pairs.any { it.source == this.currency }
+
+    companion object {
+        private const val KEY_UPSELL_PASSIVE_REWARDS_AFTER_SWAP =
+            "blockchain_app_configuration_upsell_passive_rewards_after_swap"
+        private const val KEY_UPSELL_PASSIVE_REWARDS_AFTER_SWAP_SEPARATOR = ","
+        private const val UPSELL_PASSIVE_REWARDS_AFTER_SWAP_DISMISS_KEY =
+            "UPSELL_PASSIVE_REWARDS_AFTER_SWAP_DISMISS_KEY"
+    }
 }
 
 private fun TransferDirection.sourceAccountType(): AssetCategory {

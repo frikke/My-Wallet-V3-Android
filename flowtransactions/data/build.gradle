@@ -10,6 +10,7 @@ dependencies {
     implementation project(':core')
     implementation project(':store:core')
     implementation project(':unifiedcryptowallet:domain')
+    implementation project(':earn:domain')
 
     implementation Libraries.rxKotlin
     implementation Libraries.rxjava3Coroutines

@@ -8,7 +8,9 @@ import com.blockchain.data.DataResource
 import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.outcome.Outcome
 import com.blockchain.transactions.common.CryptoAccountWithBalance
+import com.blockchain.transactions.swap.model.ShouldUpsellPassiveRewardsResult
 import com.blockchain.walletmode.WalletMode
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatCurrency
 import kotlinx.coroutines.flow.Flow
@@ -67,4 +69,10 @@ interface SwapService {
         fiat: FiatCurrency,
         direction: TransferDirection,
     ): Outcome<Exception, TxLimits>
+
+    suspend fun shouldUpsellPassiveRewardsAfterSwap(
+        targetCurrency: AssetInfo
+    ): Outcome<Exception, ShouldUpsellPassiveRewardsResult>
+
+    fun dismissUpsellPassiveRewardsAfterSwap()
 }

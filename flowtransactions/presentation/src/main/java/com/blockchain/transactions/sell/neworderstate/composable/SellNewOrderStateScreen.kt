@@ -115,8 +115,8 @@ fun NavContext.SellNewOrderStateScreen(
             handleDeeplinkUrl = deeplinkUrl
         },
         doneClicked = {
-            if (simpleBuyService.shouldShowUpsellAnotherAsset()) {
-                navigateTo(SellGraph.UpsellAnotherAsset, args.sourceAmount.currency.networkTicker)
+            if (simpleBuyService.shouldShowUpsellBuy()) {
+                navigateTo(SellGraph.UpsellBuy, args.sourceAmount.currency.networkTicker)
             } else {
                 exitFlow()
             }

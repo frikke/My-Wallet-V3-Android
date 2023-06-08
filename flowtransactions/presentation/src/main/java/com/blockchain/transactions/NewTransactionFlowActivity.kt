@@ -51,6 +51,9 @@ class NewTransactionFlowActivity : BlockchainActivity() {
             when (action) {
                 AssetAction.Swap -> SwapGraphHost(
                     initialSourceAccount = sourceAccount,
+                    navigateToInterestDeposit = { source, target ->
+                        assetActionsNavigation.interestDeposit(source, target)
+                    },
                     exitFlow = ::finish
                 )
                 AssetAction.Sell -> SellGraphHost(

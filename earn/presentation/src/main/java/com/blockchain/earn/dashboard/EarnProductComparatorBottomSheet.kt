@@ -4,9 +4,7 @@ import androidx.compose.runtime.Composable
 import com.blockchain.commonarch.presentation.base.ComposeModalBottomDialog
 import com.blockchain.earn.dashboard.viewmodel.EarnType
 import com.blockchain.presentation.openUrl
-
-const val EARN_LEARN_MORE_URL =
-    "https://support.blockchain.com/hc/en-us/sections/5969256857244-Earn-Rewards"
+import com.blockchain.presentation.urllinks.EARN_LEARN_MORE_URL
 
 class EarnProductComparatorBottomSheet(private val earnProducts: List<EarnType>) : ComposeModalBottomDialog() {
 

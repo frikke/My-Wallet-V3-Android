@@ -13,14 +13,14 @@ import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.koin.payloadScope
 import com.blockchain.stringResources.R
-import com.blockchain.transactions.upsell.UpSellAnotherAssetDismissed
-import com.blockchain.transactions.upsell.UpsellAnotherAssetScreen
+import com.blockchain.transactions.upsell.buy.UpsellBuyDismissed
+import com.blockchain.transactions.upsell.buy.UpsellBuyScreen
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import org.koin.androidx.compose.get
 
 @Composable
-fun SellUpsellAnotherAssetScreen(
+fun UpsellBuyAfterSellScreen(
     assetCatalogue: AssetCatalogue = get(scope = payloadScope),
     analytics: Analytics = get(scope = payloadScope),
     assetJustSoldTicker: String,
@@ -32,14 +32,14 @@ fun SellUpsellAnotherAssetScreen(
             icon = StackedIcon.None,
             title = "",
             onCloseClick = {
-                analytics.logEvent(UpSellAnotherAssetDismissed)
+                analytics.logEvent(UpsellBuyDismissed)
                 exitFlow()
             }
         )
 
         Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
 
-        UpsellAnotherAssetScreen(
+        UpsellBuyScreen(
             title = stringResource(R.string.sell_asset_upsell_title),
             description = stringResource(R.string.sell_asset_upsell_subtitle),
             assetJustTransactedTicker = assetJustSoldTicker,
@@ -59,7 +59,7 @@ fun SellUpsellAnotherAssetScreen(
 @Preview
 @Composable
 private fun Preview() {
-    SellUpsellAnotherAssetScreen(
+    UpsellBuyAfterSellScreen(
         assetJustSoldTicker = "BTC",
         navigateToBuy = {},
         exitFlow = {}

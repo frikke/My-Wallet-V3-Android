@@ -196,16 +196,16 @@ class SimpleBuyRepository(
         }
     }
 
-    override fun shouldShowUpsellAnotherAsset(): Boolean =
-        !dismissRecorder.isDismissed(UPSELL_ANOTHER_ASSET_DISMISS_KEY)
+    override fun shouldShowUpsellBuy(): Boolean =
+        !dismissRecorder.isDismissed(UPSELL_BUY_DISMISS_KEY)
 
-    override fun dismissUpsellAnotherAsset() = dismissRecorder.dismissPeriodic(
-        UPSELL_ANOTHER_ASSET_DISMISS_KEY,
+    override fun dismissUpsellBuy() = dismissRecorder.dismissPeriodic(
+        UPSELL_BUY_DISMISS_KEY,
         DismissRecorder.ONE_MONTH
     )
 
     companion object {
-        private const val UPSELL_ANOTHER_ASSET_DISMISS_KEY = "UPSELL_ANOTHER_ASSET_DISMISSED"
+        private const val UPSELL_BUY_DISMISS_KEY = "UPSELL_ANOTHER_ASSET_DISMISSED"
     }
 }
 

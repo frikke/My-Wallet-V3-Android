@@ -7,6 +7,7 @@ import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.domain.paymentmethods.model.FundsLocks
@@ -86,7 +87,7 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
     }
 
     override fun navigate(assetAction: AssetAction) {
-        return actionsResultContract!!.launch(ActionActivity.ActivityArgs(action = assetAction, null))
+        return actionsResultContract!!.launch(ActionActivity.ActivityArgs(action = assetAction))
     }
 
     override fun buyCryptoWithRecurringBuy() {
@@ -141,6 +142,17 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
 
     override fun interestSummary(account: CryptoAccount) {
         activity?.showBottomSheet(InterestSummaryBottomSheet.newInstance(account.currency.networkTicker))
+    }
+
+    override fun interestDeposit(source: CryptoAccount, target: CustodialInterestAccount) {
+        activity!!.startActivity(
+            TransactionFlowActivity.newIntent(
+                context = activity,
+                action = AssetAction.InterestDeposit,
+                sourceAccount = source,
+                target = target
+            )
+        )
     }
 
     override fun stakingSummary(networkTicker: String) {

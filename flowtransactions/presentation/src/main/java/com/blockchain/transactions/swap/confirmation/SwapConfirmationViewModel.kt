@@ -1,6 +1,7 @@
 package com.blockchain.transactions.swap.confirmation
 
 import androidx.lifecycle.viewModelScope
+import com.blockchain.betternavigation.utils.Bindable
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.NonCustodialAccount
@@ -253,12 +254,11 @@ class SwapConfirmationViewModel(
                     if (transferDirection == TransferDirection.INTERNAL) {
                         tradingStore.invalidate()
                     }
-                    // TODO(aromano): SWAP ANALYTICS
-                    //                    analyticsHooks.onTransactionSuccess(newState)
 
                     val newOrderStateArgs = SwapNewOrderStateArgs(
                         sourceAmount = order.inputMoney as CryptoValue,
                         targetAmount = order.outputMoney as CryptoValue,
+                        targetAccount = Bindable(targetAccount),
                         orderState = if (sourceAccount is NonCustodialAccount) {
                             SwapNewOrderState.PendingDeposit
                         } else {
@@ -320,6 +320,7 @@ class SwapConfirmationViewModel(
     private fun Exception.toNewOrderStateArgs(): SwapNewOrderStateArgs = SwapNewOrderStateArgs(
         sourceAmount = sourceCryptoAmount,
         targetAmount = modelState.targetCryptoAmount ?: CryptoValue.zero(targetAccount.currency),
+        targetAccount = Bindable(targetAccount),
         orderState = SwapNewOrderState.Error(this)
     )
 
