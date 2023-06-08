@@ -24,5 +24,6 @@ val urls = mapOf(
     "nabu-api" to "${BuildConfig.API_URL}nabu-gateway/",
     "dex-api" to "${BuildConfig.API_URL}dex-gateway/$DEX_API_VERSION/",
     "wallet-helper-url" to BuildConfig.WALLET_HELPER_URL,
-    CHECKMARKET_URL to BuildConfig.CHECKMARKET_URL
+    CHECKMARKET_URL to BuildConfig.CHECKMARKET_URL,
+    "iterable-api" to "https://api.iterable.com/"
 )

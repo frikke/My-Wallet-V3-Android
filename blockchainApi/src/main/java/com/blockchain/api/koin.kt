@@ -193,6 +193,16 @@ val blockchainApiModule = module {
             .build()
     }
 
+    single(iterableRetrofit) {
+        Retrofit.Builder()
+            .baseUrl(getBaseUrl("iterable-api"))
+            .client(get())
+            .addConverterFactory(get(kotlinJsonConverterFactory))
+            .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
+            .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
+            .build()
+    }
+
     single(kotlinXCoinApiRetrofit) {
         val builder: OkHttpClient.Builder = get()
         get<OkHttpLoggingInterceptors>().forEach {
