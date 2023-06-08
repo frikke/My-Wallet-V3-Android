@@ -4,8 +4,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.PrimaryButtonView
-import com.blockchain.componentlib.button.SecondaryButtonView
 import com.blockchain.componentlib.button.SmallMinimalButtonView
 import piuk.blockchain.blockchain_component_library_catalog.R
 

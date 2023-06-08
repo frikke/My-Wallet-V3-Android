@@ -7,7 +7,6 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.DestructiveMinimalButtonView
 import com.blockchain.componentlib.button.MinimalButtonView
-import com.blockchain.componentlib.button.SecondaryButtonView
 import piuk.blockchain.blockchain_component_library_catalog.R
 
 class MinimalButtonActivity : AppCompatActivity() {
