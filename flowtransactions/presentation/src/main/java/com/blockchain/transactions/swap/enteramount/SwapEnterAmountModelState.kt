@@ -6,6 +6,7 @@ import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrNull
+import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.extensions.safeLet
 import com.blockchain.transactions.common.CombinedSourceNetworkFees
 import com.blockchain.transactions.common.CryptoAccountWithBalance
@@ -99,7 +100,7 @@ data class EnterAmountConfig(
 )
 
 sealed interface SwapEnterAmountInputError : Serializable {
-    data class BelowMinimum(val minValue: String) : SwapEnterAmountInputError
+    data class BelowMinimum(val minValue: String, val direction: TransferDirection) : SwapEnterAmountInputError
     data class AboveMaximum(val maxValue: String) : SwapEnterAmountInputError
     data class AboveBalance(
         val displayTicker: String,

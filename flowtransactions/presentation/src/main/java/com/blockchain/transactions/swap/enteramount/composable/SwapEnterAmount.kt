@@ -48,6 +48,7 @@ import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.extensions.safeLet
 import com.blockchain.stringResources.R
 import com.blockchain.transactions.swap.SwapAnalyticsEvents
@@ -332,7 +333,10 @@ private fun PreviewEnterAmountScreen() {
             ),
             keyboardClicked = {},
             onFlipInputs = {},
-            inputError = SwapEnterAmountInputError.BelowMinimum("éjdzjjdz"),
+            inputError = SwapEnterAmountInputError.BelowMinimum(
+                "$5.00",
+                TransferDirection.INTERNAL
+            ),
             inputErrorClicked = {},
             openSourceAccounts = {},
             openTargetAccounts = {},

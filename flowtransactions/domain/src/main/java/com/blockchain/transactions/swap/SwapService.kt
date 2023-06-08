@@ -27,7 +27,8 @@ interface SwapService {
 
     /**
      * returns the highest balance account of [targetTicker]
-     * that is eligible for swap with [sourceTicker]
+     * that is eligible for swap with [sourceTicker], if [targetTicker] is null
+     * it will get the account with the most balance that's eligible
      *
      * [mode] defines which account type: [CustodialTradingAccount] or [CryptoNonCustodialAccount]
      *
@@ -37,7 +38,7 @@ interface SwapService {
      */
     suspend fun bestTargetAccountForMode(
         sourceTicker: String,
-        targetTicker: String,
+        targetTicker: String?,
         mode: WalletMode
     ): CryptoAccount?
 

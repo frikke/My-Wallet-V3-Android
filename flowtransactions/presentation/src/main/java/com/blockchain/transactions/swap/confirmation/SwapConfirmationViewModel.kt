@@ -34,10 +34,12 @@ import com.blockchain.outcome.zipOutcomes
 import com.blockchain.transactions.swap.neworderstate.composable.SwapNewOrderState
 import com.blockchain.transactions.swap.neworderstate.composable.SwapNewOrderStateArgs
 import com.blockchain.utils.awaitOutcome
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
+import info.blockchain.balance.isLayer2Token
 import io.reactivex.rxjava3.core.Completable
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -55,7 +57,8 @@ class SwapConfirmationViewModel(
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val custodialWalletManager: CustodialWalletManager,
     private val swapTransactionsStore: SwapTransactionsStore,
-    private val tradingStore: TradingStore
+    private val tradingStore: TradingStore,
+    private val assetCatalogue: AssetCatalogue
 ) : MviViewModel<
     SwapConfirmationIntent,
     SwapConfirmationViewState,
@@ -197,7 +200,25 @@ class SwapConfirmationViewModel(
     override fun SwapConfirmationModelState.reduce(): SwapConfirmationViewState = SwapConfirmationViewState(
         isFetchQuoteLoading = isFetchQuoteLoading,
         sourceAsset = sourceAccount.currency,
+        sourceNativeAssetIconUrl = sourceAccount.currency
+            .takeIf { it.isLayer2Token }
+            ?.coinNetwork?.nativeAssetTicker
+            ?.let { assetCatalogue.fromNetworkTicker(it)?.logo },
+        sourceAssetDescription = if (sourceAccount is CryptoNonCustodialAccount) {
+            sourceAccount.label
+        } else {
+            sourceAccount.currency.displayTicker
+        },
         targetAsset = targetAccount.currency,
+        targetNativeAssetIconUrl = targetAccount.currency
+            .takeIf { it.isLayer2Token }
+            ?.coinNetwork?.nativeAssetTicker
+            ?.let { assetCatalogue.fromNetworkTicker(it)?.logo },
+        targetAssetDescription = if (targetAccount is CryptoNonCustodialAccount) {
+            targetAccount.label
+        } else {
+            targetAccount.currency.displayTicker
+        },
         sourceCryptoAmount = sourceCryptoAmount,
         sourceFiatAmount = sourceCryptoAmount.toUserFiat(),
         targetCryptoAmount = targetCryptoAmount,

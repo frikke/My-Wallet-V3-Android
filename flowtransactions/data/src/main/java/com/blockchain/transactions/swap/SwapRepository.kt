@@ -152,17 +152,17 @@ internal class SwapRepository(
 
     override suspend fun bestTargetAccountForMode(
         sourceTicker: String,
-        targetTicker: String,
+        targetTicker: String?,
         mode: WalletMode
     ): CryptoAccount? {
         // 1. get all target accounts of sourceTicker for mode
-        // 2. filter only accounts of targetTicker
+        // 2. filter only accounts of targetTicker if present
         // 3. get their balances
         // 4. ignore loading/error
         // 5. get highest balance
         // 6. return or null if nothing found
         return targetAccountsForMode(sourceTicker = sourceTicker, mode = mode)
-            .filterListData { it.currency.networkTicker == targetTicker }
+            .filterListData { targetTicker == null || it.currency.networkTicker == targetTicker }
             .withBalance()
             .filterIsInstance<DataResource.Data<List<CryptoAccountWithBalance>>>()
             .map { it.data.maxBy { it.balanceCrypto.toBigDecimal() }.account }
