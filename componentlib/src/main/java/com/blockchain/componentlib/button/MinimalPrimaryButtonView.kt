@@ -7,29 +7,27 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.common.BaseButtonView
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue600
 
-class MinimalButtonView @JvmOverloads constructor(
+class MinimalPrimaryButtonView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : BaseButtonView(context, attrs, defStyleAttr) {
 
-    var textColor: Color by mutableStateOf(Blue600)
-
     @Composable
     override fun Content() {
         AppTheme(setSystemColors = false) {
             AppSurface {
-                MinimalButton(
+                MinimalPrimaryButton(
                     onClick = onClick,
                     text = text,
-                    textColor = textColor,
                     state = buttonState,
-                    icon = icon
+                    icon = icon as? ImageResource.Local
                 )
             }
         }

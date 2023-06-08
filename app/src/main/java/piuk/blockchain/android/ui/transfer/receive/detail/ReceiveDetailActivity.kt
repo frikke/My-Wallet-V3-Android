@@ -110,8 +110,7 @@ class ReceiveDetailActivity :
 
                 copyButton.apply {
                     text = getString(com.blockchain.stringResources.R.string.receive_copy)
-                    textColor = Grey900
-                    this@apply.icon = Icons.Copy.withTint(textColor).withSize(24.dp)
+                    this@apply.icon = Icons.Copy
                     buttonState = ButtonState.Disabled
                 }
                 qrImage.invisible()

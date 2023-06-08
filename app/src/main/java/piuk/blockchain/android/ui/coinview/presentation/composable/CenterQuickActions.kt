@@ -9,7 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.MinimalPrimaryButton
+import com.blockchain.componentlib.button.MinimalSecondaryButton
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.toImageResource
@@ -46,13 +47,12 @@ fun CenterQuickActionsData(
             modifier = Modifier.fillMaxWidth()
         ) {
             data.data.forEachIndexed { index, action ->
-                MinimalButton(
+                MinimalSecondaryButton(
                     modifier = Modifier
                         .then(if (index < 2) Modifier.weight(1F) else Modifier)
                         .then(if (index < 2) Modifier else Modifier.requiredWidthIn(min = 48.dp)),
                     text = action.name.value().takeIf { index < 2 } ?: "",
-                    textColor = AppColors.title,
-                    icon = action.logo.toImageResource().withTint(AppColors.title),
+                    icon = action.logo.toImageResource(),
                     onClick = { onQuickActionClick(action) }
                 )
 

@@ -29,7 +29,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.SecondaryButton
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.icon.SmallTagIcon
 import com.blockchain.componentlib.icons.Alert
 import com.blockchain.componentlib.icons.Check
@@ -297,7 +297,7 @@ private fun ErrorCtaButtons(
             when (index) {
                 0 -> PrimaryButton(modifier = modifier, text = title, onClick = onClick)
                 1 -> SecondaryButton(modifier = modifier, text = title, onClick = onClick)
-                2 -> MinimalButton(modifier = modifier, text = title, onClick = onClick)
+                2 -> MinimalPrimaryButton(modifier = modifier, text = title, onClick = onClick)
             }
         }
     } else {

@@ -20,7 +20,9 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.MinimalErrorButton
+import com.blockchain.componentlib.button.MinimalPrimaryButton
+import com.blockchain.componentlib.button.common.MinimalButton
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.theme.AppTheme
@@ -130,9 +132,8 @@ fun WalletConnectDappSessionManage(
                 LargeVerticalSpacer()
             }
 
-            MinimalButton(
+            MinimalErrorButton(
                 text = stringResource(id = R.string.common_disconnect),
-                textColor = Pink700,
                 onClick = onDisconnectClicked,
                 modifier = Modifier.fillMaxWidth()
             )

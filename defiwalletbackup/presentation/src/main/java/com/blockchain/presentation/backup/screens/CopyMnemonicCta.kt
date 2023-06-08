@@ -18,7 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.icons.Check
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.theme.AppTheme
@@ -44,7 +44,7 @@ fun CopyMnemonicCta(
 
     when (copyState) {
         is CopyState.Idle -> {
-            MinimalButton(
+            MinimalPrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = com.blockchain.stringResources.R.string.common_copy),
                 onClick = { copyMnemonic = true }
