@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.dashboard.coinview.interstitials
+package piuk.blockchain.android.ui.coinview.presentation.interstitials
 
 import android.app.Dialog
 import android.os.Bundle
@@ -25,7 +25,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
-import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewAnalytics
 
 class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
 

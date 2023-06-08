@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.dashboard.coinview.interstitials
+package piuk.blockchain.android.ui.coinview.presentation.interstitials
 
 import android.app.Dialog
 import android.os.Bundle
@@ -57,9 +57,10 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.coinview.presentation.interstitials.AccountActionsBottomSheet
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.assetActionEvent
-import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewAnalytics
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 
 class AccountActionsBottomSheet : BottomSheetDialogFragment() {
@@ -524,10 +525,13 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             when (selectedAccount) {
                 is EarnRewardsAccount.Interest ->
                     com.blockchain.stringResources.R.string.dashboard_asset_actions_summary_title_1
+
                 is EarnRewardsAccount.Staking ->
                     com.blockchain.stringResources.R.string.dashboard_asset_actions_summary_staking_title
+
                 is EarnRewardsAccount.Active ->
                     com.blockchain.stringResources.R.string.dashboard_asset_actions_summary_active_rewards_title
+
                 else -> com.blockchain.stringResources.R.string.empty
             }
         )

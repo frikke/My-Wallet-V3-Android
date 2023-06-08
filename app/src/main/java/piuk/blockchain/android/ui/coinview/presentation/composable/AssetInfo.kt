@@ -15,9 +15,8 @@ import com.blockchain.componentlib.expandables.ExpandableItem
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.previewAnalytics
 import org.koin.androidx.compose.get
-import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewAnalytics
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
-import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 
 @Composable
 fun AssetInfo(

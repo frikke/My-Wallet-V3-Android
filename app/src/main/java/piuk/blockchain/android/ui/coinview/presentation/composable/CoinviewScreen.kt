@@ -57,7 +57,7 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewSnackbarAlertSta
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewModel
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewState
 import piuk.blockchain.android.ui.coinview.presentation.toModelState
-import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewAnalytics
 
 @Composable
 fun Coinview(

@@ -42,7 +42,7 @@ import com.github.mikephil.charting.data.Entry
 import kotlin.random.Random
 import org.koin.androidx.compose.get
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
-import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewAnalytics
 
 @Composable
 fun AssetPrice(

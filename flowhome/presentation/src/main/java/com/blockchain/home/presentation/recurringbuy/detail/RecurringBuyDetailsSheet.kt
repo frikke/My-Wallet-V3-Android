@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.dashboard.coinview.recurringbuy
+package com.blockchain.home.presentation.recurringbuy.detail
 
 import android.app.Dialog
 import android.os.Bundle
