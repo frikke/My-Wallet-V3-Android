@@ -154,7 +154,11 @@ class FiatActionsUseCase(
         },
         onError = { error ->
             scope.launch {
-                _result.emit(FiatActionsResult.Failure(action, (error as? Exception) ?: Exception()))
+                _result.emit(
+                    FiatActionsResult.Failure(
+                        action, (error as? Exception) ?: Exception(error.localizedMessage.orEmpty())
+                    )
+                )
             }
         }
     )
