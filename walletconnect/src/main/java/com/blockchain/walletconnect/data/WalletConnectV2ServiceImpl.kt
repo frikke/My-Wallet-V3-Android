@@ -4,17 +4,20 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.TxResult
 import com.blockchain.core.chains.ethereum.EthDataManager
+import com.blockchain.core.chains.ethereum.EthMessageSigner
 import com.blockchain.utils.asFlow
 import com.blockchain.walletconnect.domain.ClientMeta
 import com.blockchain.walletconnect.domain.DAppInfo
 import com.blockchain.walletconnect.domain.EthRequestSign
 import com.blockchain.walletconnect.domain.EthSendTransactionRequest
+import com.blockchain.walletconnect.domain.WalletConnectAuthSigningPayload
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.domain.WalletConnectSessionProposalState
 import com.blockchain.walletconnect.domain.WalletConnectUserEvent
 import com.blockchain.walletconnect.domain.WalletConnectV2Service
 import com.blockchain.walletconnect.domain.WalletConnectV2Service.Companion.EVM_CHAIN_ROOT
 import com.blockchain.walletconnect.domain.WalletConnectV2Service.Companion.EVM_CHAIN_ROOT_PREFIX
+import com.blockchain.walletconnect.domain.WalletConnectV2Service.Companion.ISS_DID_PREFIX
 import com.blockchain.walletconnect.domain.WalletConnectV2Service.Companion.WC_METHOD_ETH_SEND_RAW_TRANSACTION
 import com.blockchain.walletconnect.domain.WalletConnectV2Service.Companion.WC_METHOD_ETH_SEND_TRANSACTION
 import com.blockchain.walletconnect.domain.WalletConnectV2Service.Companion.WC_METHOD_ETH_SIGN
@@ -25,7 +28,11 @@ import com.blockchain.walletconnect.domain.WalletConnectV2UrlValidator
 import com.blockchain.walletconnect.domain.WalletInfo
 import com.blockchain.walletconnect.ui.networks.ETH_CHAIN_ID
 import com.blockchain.walletmode.WalletMode
+import com.walletconnect.android.cacao.signature.SignatureType
 import com.walletconnect.android.internal.common.scope
+import com.walletconnect.android.internal.common.signing.cacao.Cacao
+import com.walletconnect.android.internal.common.signing.signature.Signature
+import com.walletconnect.android.internal.common.signing.signature.toCacaoSignature
 import com.walletconnect.web3.wallet.client.Wallet
 import com.walletconnect.web3.wallet.client.Web3Wallet
 import info.blockchain.balance.CryptoCurrency
@@ -49,6 +56,7 @@ import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.rxCompletable
 import kotlinx.coroutines.withContext
+import org.bouncycastle.util.encoders.Hex
 import timber.log.Timber
 
 class WalletConnectV2ServiceImpl(
@@ -56,7 +64,8 @@ class WalletConnectV2ServiceImpl(
     private val ethDataManager: EthDataManager,
     private val coincore: Coincore,
     private val ethRequestSign: EthRequestSign,
-    private val ethRequestSend: EthSendTransactionRequest
+    private val ethRequestSend: EthSendTransactionRequest,
+    private val ethMessageSigner: EthMessageSigner,
 ) : WalletConnectV2Service, WalletConnectV2UrlValidator, Web3Wallet.WalletDelegate {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -334,6 +343,103 @@ class WalletConnectV2ServiceImpl(
         }
     }
 
+    override suspend fun getAuthRequest(authId: String): Wallet.Model.PendingAuthRequest? =
+        withContext(Dispatchers.IO) {
+            Web3Wallet.getPendingAuthRequests().firstOrNull { it.id == authId.toLong() }
+        }
+
+    override suspend fun approveAuthRequest(authSigningPayload: WalletConnectAuthSigningPayload) {
+        withContext(Dispatchers.IO) {
+
+            val messageHex = Hex.toHexString(authSigningPayload.authMessage.toByteArray(Charsets.UTF_8))
+
+            // Sign the Ethereum message
+            ethMessageSigner.signEthMessage(messageHex).asFlow().collectLatest { signature ->
+                val r = signature.copyOfRange(0, 32)
+                val s = signature.copyOfRange(32, 64)
+                val v = signature.copyOfRange(64, 65)
+
+                val web3WalletSignature = Signature(v, r, s)
+                val cacaoSignature = Cacao.Signature(
+                    SignatureType.EIP191.header,
+                    web3WalletSignature.toCacaoSignature()
+                )
+                Web3Wallet.respondAuthRequest(
+                    params = Wallet.Params.AuthRequestResponse.Result(
+                        id = authSigningPayload.authId.toLong(),
+                        signature = Wallet.Model.Cacao.Signature(
+                            t = cacaoSignature.t,
+                            s = cacaoSignature.s,
+                            m = cacaoSignature.m
+                        ),
+                        issuer = authSigningPayload.issuer
+                    ),
+                    onSuccess = {
+                        Timber.d("Auth request response: $it")
+                    },
+                    onError = { error ->
+                        Timber.e("Auth request response error: $error")
+                    }
+                )
+            }
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override suspend fun buildAuthSigningPayload(authId: String): Flow<WalletConnectAuthSigningPayload> =
+        withContext(Dispatchers.IO) {
+            // Retrieve the authentication request with the given ID
+            getAuthRequest(authId)?.let { authRequest ->
+                // Retrieve the supported EVMs networks as a flow
+                getSupportedEvmNetworks().asFlow()
+                    .map { coinNetworks ->
+                        // Find the EVM network with the matching chain ID from the authentication request
+                        coinNetworks.first {
+                            it.chainId == authRequest.payloadParams.chainId.substringAfter(":").toInt()
+                        }.networkTicker
+                    }.flatMapLatest { networkTicker ->
+                        // Retrieve the DeFi account associated with the network ticker
+                        getDeFiAccountFromTicker(networkTicker)
+                    }.flatMapLatest { accountList ->
+                        // Retrieve the receive address for the default account in the account list
+                        accountList.first { it.isDefault }.receiveAddress.asFlow()
+                    }.map { receiveAddress ->
+                        val issuer = "$ISS_DID_PREFIX${authRequest.payloadParams.chainId}:${receiveAddress.address}"
+                        val message = authRequest.getAuthMessage(issuer)
+
+                        WalletConnectAuthSigningPayload(
+                            authId = authId,
+                            authMessage = message,
+                            issuer = issuer,
+                            domain = authRequest.payloadParams.domain
+                        )
+                    }
+            } ?: throw Exception("Auth request not found")
+        }
+
+    override suspend fun rejectAuthRequest(authId: String) {
+        withContext(Dispatchers.IO) {
+            Web3Wallet.respondAuthRequest(
+                params = Wallet.Params.AuthRequestResponse.Error(
+                    id = authId.toLong(),
+                    code = 500,
+                    message = "User rejected the request"
+                ),
+                onSuccess = {
+                    Timber.d("Auth request response: $it")
+                },
+                onError = { error ->
+                    Timber.e("Auth request response error: $error")
+                }
+            )
+        }
+    }
+
+    override fun Wallet.Model.PendingAuthRequest.getAuthMessage(issuer: String) =
+        Web3Wallet.formatMessage(
+            Wallet.Params.FormatMessage(this.payloadParams, issuer)
+        ) ?: throw Exception("Error formatting message")
+
     override fun validateURI(uri: String): Boolean {
         val regex = Regex("^wc:[0-9a-fA-F]+@2\\?(.*)")
         return regex.matches(uri)
@@ -351,6 +457,19 @@ class WalletConnectV2ServiceImpl(
         }.map { accounts ->
             accounts.filter { account ->
                 account.currency == CryptoCurrency.ETHER
+            }
+        }.distinctUntilChanged()
+
+    private fun getDeFiAccountFromTicker(networkTicker: String) =
+        coincore.activeWalletsInMode(
+            walletMode = WalletMode.NON_CUSTODIAL,
+        ).map {
+            it.accounts
+        }.map {
+            it.filterIsInstance<CryptoAccount>()
+        }.map { accounts ->
+            accounts.filter { account ->
+                account.currency.networkTicker == networkTicker
             }
         }.distinctUntilChanged()
 
@@ -393,6 +512,9 @@ class WalletConnectV2ServiceImpl(
     override fun onAuthRequest(authRequest: Wallet.Model.AuthRequest) {
         // Triggered when Dapp / Requester makes an authorization request
         Timber.d("(WalletConnect) Auth request: $authRequest")
+        scope.launch {
+            _walletEvents.emit(authRequest)
+        }
     }
 
     override fun onSessionDelete(sessionDelete: Wallet.Model.SessionDelete) {

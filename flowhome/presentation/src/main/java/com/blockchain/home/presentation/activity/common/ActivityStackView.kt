@@ -67,6 +67,7 @@ fun ActivityStackView.toViewType() = when (this) {
             style = style.toTagType()
         )
     }
+
     is ActivityStackView.Text -> {
         ViewType.Text(
             value = value.value(),

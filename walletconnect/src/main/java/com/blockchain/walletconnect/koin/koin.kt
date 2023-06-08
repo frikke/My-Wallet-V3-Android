@@ -18,6 +18,7 @@ import com.blockchain.walletconnect.domain.WalletConnectUrlValidator
 import com.blockchain.walletconnect.domain.WalletConnectV2Service
 import com.blockchain.walletconnect.domain.WalletConnectV2UrlValidator
 import com.blockchain.walletconnect.ui.dapps.DappsListModel
+import com.blockchain.walletconnect.ui.dapps.v2.WalletConnectAuthRequestViewModel
 import com.blockchain.walletconnect.ui.dapps.v2.WalletConnectDappListViewModel
 import com.blockchain.walletconnect.ui.dapps.v2.WalletConnectSessionDetailViewModel
 import com.blockchain.walletconnect.ui.dapps.v2.WalletConnectSessionProposalViewModel
@@ -53,6 +54,7 @@ val walletConnectModule = module {
                 coincore = get(),
                 ethRequestSign = get(),
                 ethRequestSend = get(),
+                ethMessageSigner = get()
             )
         }.apply {
             bind(WalletConnectV2Service::class)
@@ -128,6 +130,12 @@ val walletConnectModule = module {
 
         viewModel {
             WalletConnectSessionProposalViewModel(
+                walletConnectV2Service = get(),
+            )
+        }
+
+        viewModel {
+            WalletConnectAuthRequestViewModel(
                 walletConnectV2Service = get(),
             )
         }

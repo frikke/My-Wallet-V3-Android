@@ -44,6 +44,8 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.basic.MaskableTextWithToggle
+import com.blockchain.componentlib.basic.MaskedTextFormat
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
@@ -53,9 +55,11 @@ import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.control.NonCancelableOutlinedSearch
 import com.blockchain.componentlib.control.TabSwitcher
 import com.blockchain.componentlib.lazylist.roundedCornersItems
-import com.blockchain.componentlib.system.ShimmerLoadingTableRow
+import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.BalanceTableRow
+import com.blockchain.componentlib.tablerow.MaskedBalanceFiatAndCryptoTableRow
 import com.blockchain.componentlib.tablerow.TableRow
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.tag.button.TagButtonRow
@@ -268,7 +272,8 @@ fun EarningAndDiscover(
             SelectedTab.Earning -> {
                 EarningScreen(
                     earningAssetList = state.earning.toImmutableList(),
-                    totalEarningBalanceFiat = state.totalEarningBalanceFiat,
+                    totalEarningBalanceSymbol = state.totalEarningBalanceSymbol,
+                    totalEarningBalance = state.totalEarningBalance,
                     onItemClicked = onEarningItemClicked,
                     investNowClicked = {
                         selectedTab = SelectedTab.Discover
@@ -596,16 +601,18 @@ private fun LearningCarousel(
 @Composable
 private fun EarningScreen(
     earningAssetList: List<EarnAsset>,
-    totalEarningBalanceFiat: String,
+    totalEarningBalanceSymbol: String,
+    totalEarningBalance: String,
     onItemClicked: (EarnAsset) -> Unit,
     investNowClicked: () -> Unit
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        SimpleText(
-            text = totalEarningBalanceFiat,
-            style = ComposeTypographies.Title1,
-            color = ComposeColors.Title,
-            gravity = ComposeGravities.Centre
+        MaskableTextWithToggle(
+            clearText = totalEarningBalanceSymbol,
+            maskableText = totalEarningBalance,
+            format = MaskedTextFormat.ClearThenMasked,
+            style = AppTheme.typography.title1,
+            color = AppTheme.colors.title
         )
 
         SmallestVerticalSpacer()
@@ -638,45 +645,18 @@ private fun EarningScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 roundedCornersItems(earningAssetList) { asset ->
-                    Column {
-                        BalanceTableRow(
-                            titleStart = buildAnnotatedString { append(asset.assetName) },
-                            titleEnd = buildAnnotatedString { append(asset.balanceFiat.toStringWithSymbol()) },
-                            startImageResource = ImageResource.Remote(asset.iconUrl),
-                            bodyStart = buildAnnotatedString {
-                                append(
-                                    stringResource(
-                                        id = com.blockchain.stringResources.R.string.staking_summary_rate_value,
-                                        asset.rate.toString()
-                                    )
-                                )
-                            },
-                            tags = listOf(
-                                TagViewState(
-                                    when (asset.type) {
-                                        EarnType.Passive -> stringResource(
-                                            id =
-                                            com.blockchain.stringResources.R.string.earn_rewards_label_passive_short
-                                        )
-
-                                        EarnType.Staking -> stringResource(
-                                            id =
-                                            com.blockchain.stringResources.R.string.earn_rewards_label_staking_short
-                                        )
-
-                                        EarnType.Active -> stringResource(
-                                            id =
-                                            com.blockchain.stringResources.R.string.earn_rewards_label_active_short
-                                        )
-                                    },
-                                    TagType.Default()
-                                )
-                            ),
-                            isInlineTags = true,
-                            bodyEnd = buildAnnotatedString { append(asset.balanceCrypto.toStringWithSymbol()) },
-                            onClick = { onItemClicked(asset) }
-                        )
-                    }
+                    MaskedBalanceFiatAndCryptoTableRow(
+                        title = asset.assetName,
+                        subtitle = stringResource(
+                            id = com.blockchain.stringResources.R.string.staking_summary_rate_value,
+                            asset.rate.toString()
+                        ),
+                        tag = asset.type.description(),
+                        valueCrypto = asset.balanceCrypto.toStringWithSymbol(),
+                        valueFiat = asset.balanceFiat.toStringWithSymbol(),
+                        icon = StackedIcon.SingleIcon(ImageResource.Remote(asset.iconUrl)),
+                        onClick = { onItemClicked(asset) }
+                    )
                 }
 
                 item {
@@ -686,6 +666,15 @@ private fun EarningScreen(
         }
     }
 }
+
+@Composable
+private fun EarnType.description() = stringResource(
+    when (this) {
+        EarnType.Passive -> com.blockchain.stringResources.R.string.earn_rewards_label_passive_short
+        EarnType.Staking -> com.blockchain.stringResources.R.string.earn_rewards_label_staking_short
+        EarnType.Active -> com.blockchain.stringResources.R.string.earn_rewards_label_active_short
+    }
+)
 
 private fun EarnDashboardListFilter.title(): Int =
     when (this) {
@@ -706,22 +695,7 @@ private enum class SelectedTab(val index: Int) {
 
 @Composable
 fun EarnDashboardLoading() {
-    Column(modifier = Modifier.padding(AppTheme.dimensions.standardSpacing)) {
-        ShimmerLoadingTableRow(false)
-        Spacer(modifier = Modifier.height(AppTheme.dimensions.standardSpacing))
-
-        ShimmerLoadingTableRow(false)
-        Spacer(modifier = Modifier.height(AppTheme.dimensions.standardSpacing))
-
-        ShimmerLoadingTableRow(true)
-        Spacer(modifier = Modifier.height(AppTheme.dimensions.standardSpacing))
-
-        ShimmerLoadingTableRow(true)
-        Spacer(modifier = Modifier.height(AppTheme.dimensions.standardSpacing))
-
-        ShimmerLoadingTableRow(true)
-        Spacer(modifier = Modifier.height(AppTheme.dimensions.standardSpacing))
-    }
+    ShimmerLoadingCard()
 }
 
 @Composable

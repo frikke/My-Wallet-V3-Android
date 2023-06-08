@@ -1,7 +1,5 @@
 package com.blockchain.presentation.balance
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.data.DataResource
 import info.blockchain.balance.Money
@@ -13,8 +11,8 @@ data class WalletBalance(
     private val cryptoBalanceNow: DataResource<Money>
 ) {
 
-    val balanceDifference: BalanceDifferenceConfig
-        @Composable get() {
+    val balanceDifference: BalanceDifferenceConfig?
+        get() {
             return when {
                 cryptoBalanceNow is DataResource.Data && cryptoBalanceDifference24h is DataResource.Data -> {
                     val now = cryptoBalanceNow.data
@@ -22,27 +20,27 @@ data class WalletBalance(
 
                     val difference = now.minus(yesterday)
                     if (now.isZero && difference.isZero) {
-                        BalanceDifferenceConfig()
+                        null
                     } else
                         ValueChange.fromValue(now.percentageDelta(yesterday)).takeIf { !it.value.isNaN() }
                             ?.let { valueChange ->
                                 BalanceDifferenceConfig(
-                                    text = "${valueChange.indicator} " +
-                                        difference.toStringWithSymbol() +
-                                        " (${valueChange.value}%)",
-                                    color = valueChange.color
+                                    differenceSymbol = difference.symbol,
+                                    differenceAmount = difference.toStringWithoutSymbol(),
+                                    valueChange = valueChange
                                 )
-                            } ?: BalanceDifferenceConfig()
+                            }
                 }
 
                 else -> {
-                    BalanceDifferenceConfig()
+                    null
                 }
             }
         }
 }
 
 data class BalanceDifferenceConfig(
-    val text: String = "",
-    val color: Color = Color.Transparent
+    val differenceSymbol: String,
+    val differenceAmount: String,
+    val valueChange: ValueChange
 )

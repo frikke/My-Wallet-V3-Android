@@ -3,6 +3,7 @@ package com.blockchain.home.presentation.navigation
 import androidx.compose.runtime.Stable
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.navigation.ActivityResultNavigation
@@ -12,6 +13,7 @@ import info.blockchain.balance.AssetInfo
 interface AssetActionsNavigation : ActivityResultNavigation {
     fun navigate(assetAction: AssetAction)
     fun receive(currency: String)
+    fun receive(account: CryptoNonCustodialAccount)
     fun buyCrypto(
         currency: AssetInfo,
         amount: String? = null,

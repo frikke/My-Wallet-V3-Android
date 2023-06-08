@@ -6,6 +6,7 @@ import androidx.lifecycle.lifecycleScope
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.domain.paymentmethods.model.FundsLocks
@@ -28,6 +29,7 @@ import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.locks.LocksDetailsActivity
 import piuk.blockchain.android.ui.settings.SettingsActivity
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
+import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
 
 class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : AssetActionsNavigation, PricesNavigation {
 
@@ -95,6 +97,14 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
 
     override fun receive(currency: String) {
         actionsResultContract!!.launch(ActionActivity.ActivityArgs(AssetAction.Receive, cryptoTicker = currency))
+    }
+    override fun receive(account: CryptoNonCustodialAccount) {
+        activity?.startActivity(
+            ReceiveDetailActivity.newIntent(
+                context = activity,
+                account = account
+            )
+        )
     }
 
     override fun buyCrypto(

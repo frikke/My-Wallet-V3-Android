@@ -15,16 +15,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blockchain.chrome.R
+import com.blockchain.componentlib.basic.MaskableText
+import com.blockchain.componentlib.basic.MaskedTextFormat
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
+import com.blockchain.data.dataOrElse
+import com.blockchain.data.map
+import com.blockchain.stringResources.R
+import info.blockchain.balance.FiatCurrency
+import info.blockchain.balance.Money
 
 @Composable
 fun TotalBalance(
     modifier: Modifier = Modifier,
-    balance: DataResource<String>
+    balance: DataResource<Money>
 ) {
     Box(modifier = modifier.fillMaxWidth()) {
         Box(
@@ -48,21 +55,22 @@ fun TotalBalance(
             ) {
                 Text(
                     modifier = Modifier,
-                    text = "Total Balance",
+                    text = stringResource(R.string.common_total_balance),
                     color = Color.White.copy(alpha = 0.8F),
                     style = AppTheme.typography.paragraph1
                 )
 
                 Spacer(modifier = Modifier.size(8.dp))
 
-                Text(
+                MaskableText(
                     modifier = Modifier,
-                    text = when (balance) {
-                        // todo(othman) check with Ethan about different states
-                        DataResource.Loading -> "Loading.."
-                        is DataResource.Error -> "Error.."
-                        is DataResource.Data -> balance.data
+                    clearText = balance.map { it.symbol }.dataOrElse(""),
+                    maskableText = when (balance) {
+                        DataResource.Loading -> stringResource(R.string.total_balance_loading)
+                        is DataResource.Error -> stringResource(R.string.total_balance_error)
+                        is DataResource.Data -> balance.data.toStringWithoutSymbol()
                     },
+                    format = MaskedTextFormat.ClearThenMasked,
                     color = Color.White,
                     style = AppTheme.typography.paragraph2
                 )
@@ -74,5 +82,5 @@ fun TotalBalance(
 @Preview
 @Composable
 fun PreviewTotalBalance() {
-    TotalBalance(balance = DataResource.Data("$278,031.12"))
+    TotalBalance(balance = DataResource.Data(Money.fromMajor(FiatCurrency.Dollars, "123".toBigDecimal())))
 }

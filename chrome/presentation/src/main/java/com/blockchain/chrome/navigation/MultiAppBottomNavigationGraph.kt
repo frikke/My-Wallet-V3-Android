@@ -155,6 +155,9 @@ fun MultiAppBottomNavigationHost(
                         startReceiving = { assetActionsNavigation.navigate(AssetAction.Receive) },
                         openSettings = openSettings,
                         launchQrScanner = launchQrScanner,
+                        receiveOnAccount = {
+                            assetActionsNavigation.receive(it)
+                        }
                     )
                 },
                 refreshComplete = refreshComplete,

@@ -5,12 +5,13 @@ import androidx.annotation.StringRes
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.data.DataResource
 import com.blockchain.walletmode.WalletMode
+import info.blockchain.balance.Money
 
 data class MultiAppViewState(
     val modeSwitcherOptions: ChromeModeOptions?,
     val selectedMode: WalletMode?,
     val backgroundColors: ChromeBackgroundColors?,
-    val totalBalance: DataResource<String>,
+    val totalBalance: DataResource<Money>,
     val shouldRevealBalance: Boolean,
     val bottomNavigationItems: List<ChromeBottomNavigationItem>?,
     val selectedBottomNavigationItem: ChromeBottomNavigationItem

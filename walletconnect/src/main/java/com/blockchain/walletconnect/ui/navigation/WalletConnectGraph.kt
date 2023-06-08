@@ -9,6 +9,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.commonarch.presentation.mvi_v2.compose.getComposeArgument
 import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
+import com.blockchain.walletconnect.ui.composable.WalletConnectAuthRequest
 import com.blockchain.walletconnect.ui.composable.WalletConnectDappListScreen
 import com.blockchain.walletconnect.ui.composable.WalletConnectDappSessionDetail
 import com.blockchain.walletconnect.ui.composable.WalletConnectSessionNotSupported
@@ -88,6 +89,17 @@ fun NavGraphBuilder.walletConnectGraph(
                 onDismiss = {
                     navController.popBackStack()
                 }
+            )
+        }
+    }
+
+    bottomSheet(navigationEvent = WalletConnectDestination.WalletConnectAuthRequest) {
+        val authId = it.arguments?.getComposeArgument(WalletConnectDestination.ARG_AUTH_ID).orEmpty()
+
+        ChromeBottomSheet(onClose = onBackPressed) {
+            WalletConnectAuthRequest(
+                authId = authId,
+                onDismiss = { navController.popBackStack() }
             )
         }
     }

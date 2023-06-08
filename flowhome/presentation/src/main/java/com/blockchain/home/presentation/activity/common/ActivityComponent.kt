@@ -7,7 +7,7 @@ import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.tablerow.custom.CustomTableRow
+import com.blockchain.componentlib.tablerow.custom.MaskedCustomTableRow
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.TextValue
@@ -27,8 +27,25 @@ sealed interface ActivityComponent {
         val leading: List<ActivityStackView>,
         val trailing: List<ActivityStackView>
     ) : ActivityComponent {
-        override fun equals(other: Any?) = id == (other as? StackView)?.id
-        override fun hashCode() = id.hashCode()
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as StackView
+
+            if (id != other.id) return false
+            if (leading != other.leading) return false
+            if (trailing != other.trailing) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = id.hashCode()
+            result = 31 * result + leading.hashCode()
+            result = 31 * result + trailing.hashCode()
+            return result
+        }
     }
 
     data class Button(
@@ -36,10 +53,7 @@ sealed interface ActivityComponent {
         val value: TextValue,
         val style: ActivityButtonStyle,
         val action: ActivityButtonAction
-    ) : ActivityComponent {
-        override fun equals(other: Any?) = id == (other as? Button)?.id
-        override fun hashCode() = id.hashCode()
-    }
+    ) : ActivityComponent
 }
 
 /**
@@ -55,8 +69,9 @@ fun ActivityComponentItem(component: ActivityComponent, onClick: ((ClickAction) 
                 onClick = { onClick?.invoke(ClickAction.Button(component.action)) }
             )
         }
+
         is ActivityComponent.StackView -> {
-            CustomTableRow(
+            MaskedCustomTableRow(
                 icon = component.leadingImage.toStackedIcon(),
                 leadingComponents = component.leading.map { it.toViewType() },
                 trailingComponents = component.trailing.map { it.toViewType() },

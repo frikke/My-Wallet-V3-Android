@@ -1,26 +1,43 @@
 package com.dex.presentation.uierrors
 
 import android.content.Context
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.dex.presentation.R
 import com.dex.domain.DexTransaction
 import com.dex.domain.DexTxError
 import info.blockchain.balance.Currency
 
 sealed class DexUiError {
-    data class InsufficientFunds(val currency: Currency) : DexUiError(), AlertError {
+    data class InsufficientFunds(val account: CryptoNonCustodialAccount) :
+        DexUiError(),
+        AlertError,
+        ActionRequiredError {
         override fun message(context: Context): String =
-            context.getString(com.blockchain.stringResources.R.string.not_enough_funds, currency.displayTicker)
+            context.getString(com.blockchain.stringResources.R.string.not_enough_funds, account.currency.displayTicker)
+
+        override val priority: Int
+            get() = 1
     }
 
-    object LiquidityError : DexUiError(), AlertError {
+    object LiquidityError : DexUiError(), AlertError, ActionRequiredError {
         override fun message(context: Context): String =
             context.getString(com.blockchain.stringResources.R.string.unable_to_swap_tokens)
+
+        override val priority: Int
+            get() = 0
     }
 
-    data class TokenNotAllowed(val token: Currency, val hasBeenApproved: Boolean) : DexUiError()
-    data class NotEnoughGas(val gasCurrency: Currency) : DexUiError(), AlertError {
+    data class TokenNotAllowed(val token: Currency, val hasBeenApproved: Boolean) : DexUiError(), ActionRequiredError {
+        override val priority: Int
+            get() = 2
+    }
+
+    data class NotEnoughGas(val gasCurrency: Currency) : DexUiError(), AlertError, ActionRequiredError {
         override fun message(context: Context): String =
             context.getString(com.blockchain.stringResources.R.string.not_enough_gas, gasCurrency.displayTicker)
+
+        override val priority: Int
+            get() = 3
     }
 
     /**
@@ -35,10 +52,14 @@ interface AlertError {
     fun message(context: Context): String
 }
 
+interface ActionRequiredError {
+    val priority: Int
+}
+
 fun DexTransaction.toUiErrors(): List<DexUiError> {
     return txErrors.map {
         when (it) {
-            DexTxError.NotEnoughFunds -> DexUiError.InsufficientFunds(sourceAccount.currency)
+            DexTxError.NotEnoughFunds -> DexUiError.InsufficientFunds(sourceAccount.account)
             DexTxError.NotEnoughGas -> {
                 val feeCurrency = quote?.networkFees?.currency
                 check(feeCurrency != null)

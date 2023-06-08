@@ -90,6 +90,17 @@ class WalletConnectV2NavigationImpl(
                         approveOrRejectSession(event.pairingTopic, event.proposerPublicKey)
                     }
             }
+            is Wallet.Model.AuthRequest -> {
+                navController.navigate(
+                    WalletConnectDestination.WalletConnectAuthRequest,
+                    listOfNotNull(
+                        NavArgument(
+                            key = WalletConnectDestination.ARG_AUTH_ID,
+                            value = event.id
+                        )
+                    )
+                )
+            }
             else -> {
                 Timber.e("Unknown event $event")
             }

@@ -26,6 +26,14 @@ interface WalletConnectV2Service {
 
     suspend fun getSessionProposal(sessionId: String): Wallet.Model.SessionProposal?
     fun clearSessionProposals()
+
+    suspend fun getAuthRequest(authId: String): Wallet.Model.PendingAuthRequest?
+
+    suspend fun buildAuthSigningPayload(authId: String): Flow<WalletConnectAuthSigningPayload>
+    suspend fun approveAuthRequest(authSigningPayload: WalletConnectAuthSigningPayload)
+    suspend fun rejectAuthRequest(authId: String)
+
+    fun Wallet.Model.PendingAuthRequest.getAuthMessage(issuer: String): String
     suspend fun sessionRequestComplete(
         sessionRequest: Wallet.Model.SessionRequest,
         hashedTxResult: TxResult.HashedTxResult
@@ -45,6 +53,8 @@ interface WalletConnectV2Service {
 
         const val EVM_CHAIN_ROOT = "eip155"
         const val EVM_CHAIN_ROOT_PREFIX = "$EVM_CHAIN_ROOT:"
+
+        const val ISS_DID_PREFIX = "did:pkh:"
     }
 }
 
@@ -56,3 +66,10 @@ enum class WalletConnectSessionProposalState {
     APPROVED,
     REJECTED
 }
+
+data class WalletConnectAuthSigningPayload(
+    val authId: String,
+    val authMessage: String,
+    val issuer: String,
+    val domain: String,
+)

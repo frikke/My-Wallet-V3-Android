@@ -88,7 +88,7 @@ fun WalletConnectSessionProposal(
         }
     }
 
-    Box(modifier = Modifier.background(Color.White)) {
+    Box(modifier = Modifier.background(AppTheme.colors.background)) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
