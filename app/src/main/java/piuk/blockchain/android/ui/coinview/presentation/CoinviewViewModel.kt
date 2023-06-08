@@ -13,6 +13,9 @@ import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Star
+import com.blockchain.componentlib.tablerow.ValueChange
+import com.blockchain.componentlib.utils.LocalLogo
+import com.blockchain.componentlib.utils.LogoValue
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -42,6 +45,8 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Job
@@ -50,7 +55,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
 import piuk.blockchain.android.ui.coinview.domain.GetAccountActionsUseCase
 import piuk.blockchain.android.ui.coinview.domain.GetAssetPriceUseCase
@@ -185,69 +189,59 @@ class CoinviewViewModel(
         }
     }
 
-    private fun reduceAssetPrice(state: CoinviewModelState): CoinviewPriceState = state.run {
-        when (assetPriceHistory) {
-            DataResource.Loading -> {
-                CoinviewPriceState.Loading
-            }
+    private fun reduceAssetPrice(state: CoinviewModelState): DataResource<CoinviewPriceState> = state.run {
+        assetPriceHistory.map {
+            // price, priceChange, percentChange
+            // will contain values from interactiveAssetPrice to correspond with user interaction
 
-            is DataResource.Error -> {
-                CoinviewPriceState.Error
-            }
+            // intervalName will be empty if user is interacting with the chart
 
-            is DataResource.Data -> {
-                // price, priceChange, percentChange
-                // will contain values from interactiveAssetPrice to correspond with user interaction
+            check(asset != null) { "asset not initialized" }
 
-                // intervalName will be empty if user is interacting with the chart
+            CoinviewPriceState(
+                assetName = asset.currency.name,
+                assetLogo = asset.currency.logo,
+                fiatSymbol = fiatCurrency.symbol,
+                price = (interactiveAssetPrice ?: it.priceDetail)
+                    .price.toStringWithSymbol(),
+                priceChange = (interactiveAssetPrice ?: it.priceDetail)
+                    .changeDifference.toStringWithSymbol(),
+                valueChange = (interactiveAssetPrice ?: it.priceDetail).percentChange.run {
+                    ValueChange.fromValue(BigDecimal(this).setScale(2, RoundingMode.FLOOR).toDouble())
+                },
+                intervalName = if (interactiveAssetPrice != null) {
+                    com.blockchain.stringResources.R.string.empty
+                } else {
+                    when ((it.priceDetail).timeSpan) {
+                        HistoricalTimeSpan.DAY -> com.blockchain.stringResources.R.string.coinview_price_day
+                        HistoricalTimeSpan.WEEK -> com.blockchain.stringResources.R.string.coinview_price_week
+                        HistoricalTimeSpan.MONTH ->
+                            com.blockchain.stringResources.R.string.coinview_price_month
 
-                check(asset != null) { "asset not initialized" }
+                        HistoricalTimeSpan.YEAR -> com.blockchain.stringResources.R.string.coinview_price_year
+                        HistoricalTimeSpan.ALL_TIME ->
+                            com.blockchain.stringResources.R.string.coinview_price_all
+                    }
+                },
+                chartData = when {
+                    isChartDataLoading &&
+                        requestedTimeSpan != null &&
+                        it.priceDetail.timeSpan != requestedTimeSpan -> {
+                        // show chart loading when data is loading and a new timespan is selected
+                        CoinviewPriceState.CoinviewChartState.Loading
+                    }
 
-                with(assetPriceHistory.data) {
-                    CoinviewPriceState.Data(
-                        assetName = asset.currency.name,
-                        assetLogo = asset.currency.logo,
-                        fiatSymbol = fiatCurrency.symbol,
-                        price = (interactiveAssetPrice ?: priceDetail)
-                            .price.toStringWithSymbol(),
-                        priceChange = (interactiveAssetPrice ?: priceDetail)
-                            .changeDifference.toStringWithSymbol(),
-                        percentChange = (interactiveAssetPrice ?: priceDetail).percentChange,
-                        intervalName = if (interactiveAssetPrice != null) {
-                            com.blockchain.stringResources.R.string.empty
-                        } else {
-                            when ((priceDetail).timeSpan) {
-                                HistoricalTimeSpan.DAY -> com.blockchain.stringResources.R.string.coinview_price_day
-                                HistoricalTimeSpan.WEEK -> com.blockchain.stringResources.R.string.coinview_price_week
-                                HistoricalTimeSpan.MONTH ->
-                                    com.blockchain.stringResources.R.string.coinview_price_month
-
-                                HistoricalTimeSpan.YEAR -> com.blockchain.stringResources.R.string.coinview_price_year
-                                HistoricalTimeSpan.ALL_TIME ->
-                                    com.blockchain.stringResources.R.string.coinview_price_all
-                            }
-                        },
-                        chartData = when {
-                            isChartDataLoading &&
-                                requestedTimeSpan != null &&
-                                priceDetail.timeSpan != requestedTimeSpan -> {
-                                // show chart loading when data is loading and a new timespan is selected
-                                CoinviewPriceState.Data.CoinviewChartState.Loading
-                            }
-
-                            else -> CoinviewPriceState.Data.CoinviewChartState.Data(
-                                historicRates.map { point ->
-                                    ChartEntry(
-                                        point.timestamp.toFloat(),
-                                        point.rate.toFloat()
-                                    )
-                                }
+                    else -> CoinviewPriceState.CoinviewChartState.Data(
+                        it.historicRates.map { point ->
+                            ChartEntry(
+                                point.timestamp.toFloat(),
+                                point.rate.toFloat()
                             )
-                        },
-                        selectedTimeSpan = requestedTimeSpan ?: (interactiveAssetPrice ?: priceDetail).timeSpan
+                        }
                     )
-                }
-            }
+                },
+                selectedTimeSpan = requestedTimeSpan ?: (interactiveAssetPrice ?: it.priceDetail).timeSpan
+            )
         }
     }
 
@@ -346,7 +340,7 @@ class CoinviewViewModel(
         cvAccount = cvAccount,
         title = account.currency.name,
         subtitle = TextValue.IntResValue(com.blockchain.stringResources.R.string.coinview_nc_desc),
-        logo = LogoSource.Remote(account.currency.logo)
+        logo = LogoValue.Remote(account.currency.logo)
     )
 
     private fun makeUnavailableStakingAccount(cvAccount: CoinviewAccount.Custodial.Staking) =
@@ -357,7 +351,7 @@ class CoinviewViewModel(
                 com.blockchain.stringResources.R.string.coinview_interest_no_balance,
                 listOf(DecimalFormat("0.#").format(cvAccount.stakingRate))
             ),
-            logo = LogoSource.Resource(R.drawable.ic_staking_account_indicator)
+            logo = LogoValue.Local(LocalLogo.Rewards)
         )
 
     private fun makeUnavailableActiveRewardsAccount(cvAccount: CoinviewAccount.Custodial.ActiveRewards) =
@@ -368,7 +362,7 @@ class CoinviewViewModel(
                 com.blockchain.stringResources.R.string.coinview_interest_no_balance,
                 listOf(DecimalFormat("0.#").format(cvAccount.activeRewardsRate))
             ),
-            logo = LogoSource.Resource(R.drawable.ic_active_rewards_account_indicator)
+            logo = LogoValue.Local(LocalLogo.Rewards)
         )
 
     private fun makeUnavailableInterestAccount(cvAccount: CoinviewAccount.Custodial.Interest) =
@@ -379,7 +373,7 @@ class CoinviewViewModel(
                 com.blockchain.stringResources.R.string.coinview_interest_no_balance,
                 listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
             ),
-            logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator)
+            logo = LogoValue.Local(LocalLogo.Rewards)
         )
 
     private fun makeUnavailableTradingAccount(
@@ -392,7 +386,7 @@ class CoinviewViewModel(
             com.blockchain.stringResources.R.string.coinview_c_unavailable_desc,
             listOf(asset.currency.name)
         ),
-        logo = LogoSource.Resource(R.drawable.ic_custodial_account_indicator)
+        logo = LogoValue.Remote(asset.currency.logo)
     )
 
     private fun makeAvailablePrivateKeyAccount(
@@ -405,7 +399,7 @@ class CoinviewViewModel(
         subtitle = TextValue.StringValue(account.currency.displayTicker),
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
-        logo = LogoSource.Remote(account.currency.logo),
+        logo = LogoValue.Remote(account.currency.logo),
         assetColor = asset.currency.colour
     )
 
@@ -421,7 +415,7 @@ class CoinviewViewModel(
         ),
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
-        logo = LogoSource.Resource(R.drawable.ic_staking_account_indicator),
+        logo = LogoValue.Local(LocalLogo.Rewards),
         assetColor = asset.currency.colour
     )
 
@@ -437,7 +431,7 @@ class CoinviewViewModel(
         ),
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
-        logo = LogoSource.Resource(R.drawable.ic_active_rewards_account_indicator),
+        logo = LogoValue.Local(LocalLogo.Rewards),
         assetColor = asset.currency.colour
     )
 
@@ -453,7 +447,7 @@ class CoinviewViewModel(
         ),
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
-        logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator),
+        logo = LogoValue.Local(LocalLogo.Rewards),
         assetColor = asset.currency.colour
     )
 
@@ -466,7 +460,7 @@ class CoinviewViewModel(
         subtitle = null,
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
-        logo = LogoSource.Resource(R.drawable.ic_custodial_account_indicator),
+        logo = LogoValue.Remote(asset.currency.logo),
         assetColor = asset.currency.colour
     )
 

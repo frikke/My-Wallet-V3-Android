@@ -11,10 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.system.ShimmerLoadingCard
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
@@ -50,7 +50,7 @@ private fun NewsArticles(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color(0XFFF1F2F7))
+            .background(color = AppColors.background)
     ) {
         NavigationBar(
             title = stringResource(R.string.news_title),

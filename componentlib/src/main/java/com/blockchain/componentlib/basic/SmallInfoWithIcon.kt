@@ -12,10 +12,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Info
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
@@ -23,14 +23,14 @@ fun SmallInfoWithIcon(
     iconUrl: String?,
     text: String,
     trailingIcon: ImageResource = Icons.Filled.Info.copy(
-        colorFilter = ColorFilter.tint(AppTheme.colors.dark)
+        colorFilter = ColorFilter.tint(AppTheme.colors.muted)
     )
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = Color.White,
+                color = AppColors.backgroundSecondary,
                 shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
             )
             .padding(AppTheme.dimensions.tinySpacing),
@@ -52,7 +52,7 @@ fun SmallInfoWithIcon(
             modifier = Modifier.weight(1F),
             text = text,
             style = AppTheme.typography.paragraph2,
-            color = AppTheme.colors.muted
+            color = AppTheme.colors.body
         )
 
         if (trailingIcon != ImageResource.None) {

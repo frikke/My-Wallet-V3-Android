@@ -7,6 +7,8 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.componentlib.tablerow.ValueChange
+import com.blockchain.componentlib.utils.LogoValue
 import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -87,7 +89,7 @@ class CoinviewViewModelTest {
 
     private val money: Money = mockk()
     private val balanceFormatted = "balanceFormatted"
-    private val percentChange = 1.1
+    private val percentChange = ValueChange.fromValue(1.1)
     private val timeSpan = HistoricalTimeSpan.DAY
     private val totalBalance: CoinviewAssetTotalBalance = mockk()
     private val totalCryptoBalance: Map<AssetFilter, Money> = mapOf(AssetFilter.All to money)
@@ -149,7 +151,7 @@ class CoinviewViewModelTest {
 
         every { coinviewAssetPrice.price } returns money
         every { coinviewAssetPrice.changeDifference } returns money
-        every { coinviewAssetPrice.percentChange } returns percentChange
+        every { coinviewAssetPrice.percentChange } returns percentChange.value
         every { coinviewAssetPrice.timeSpan } returns HistoricalTimeSpan.DAY
 
         every { labels.getDefaultTradingWalletLabel() } returns tradingWalletLabel
@@ -235,16 +237,18 @@ class CoinviewViewModelTest {
                 DataResource.Data(CoinviewAssetPriceHistory(listOf(HistoricalRate(1L, 1.1)), coinviewAssetPrice))
             )
             awaitItem().run {
-                val expected = CoinviewPriceState.Data(
-                    assetName = networkTicker,
-                    assetLogo = logo,
-                    fiatSymbol = fiatCurrencySymbol,
-                    price = balanceFormatted,
-                    priceChange = balanceFormatted,
-                    percentChange = percentChange,
-                    intervalName = com.blockchain.stringResources.R.string.coinview_price_day,
-                    chartData = CoinviewPriceState.Data.CoinviewChartState.Data(listOf(ChartEntry(1.0F, 1.1F))),
-                    selectedTimeSpan = timeSpan
+                val expected = DataResource.Data(
+                    CoinviewPriceState(
+                        assetName = networkTicker,
+                        assetLogo = logo,
+                        fiatSymbol = fiatCurrencySymbol,
+                        price = balanceFormatted,
+                        priceChange = balanceFormatted,
+                        valueChange = percentChange,
+                        intervalName = com.blockchain.stringResources.R.string.coinview_price_day,
+                        chartData = CoinviewPriceState.CoinviewChartState.Data(listOf(ChartEntry(1.0F, 1.1F))),
+                        selectedTimeSpan = timeSpan
+                    )
                 )
                 assertEquals(expected, assetPrice)
             }
@@ -263,7 +267,7 @@ class CoinviewViewModelTest {
             viewModel.onIntent(CoinviewIntent.LoadPriceData)
             dataResource.emit(DataResource.Data(CoinviewAssetPriceHistory(listOf(), coinviewAssetPrice)))
             awaitItem().run {
-                assertEquals(CoinviewPriceState.Error, assetPrice)
+                assert(assetPrice is DataResource.Error)
             }
         }
     }
@@ -340,7 +344,7 @@ class CoinviewViewModelTest {
                                     subtitle = null,
                                     cryptoBalance = balanceFormatted,
                                     fiatBalance = balanceFormatted,
-                                    logo = LogoSource.Resource(R.drawable.ic_custodial_account_indicator),
+                                    logo = LogoValue.Remote(logo),
                                     assetColor = color
                                 )
                             )

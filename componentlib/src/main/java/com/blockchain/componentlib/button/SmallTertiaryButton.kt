@@ -11,10 +11,10 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue000
-import com.blockchain.componentlib.theme.Blue600
 
 @Composable
 fun SmallTertiaryButton(
@@ -43,13 +43,13 @@ fun SmallTertiaryButton(
         onClick = onClick,
         state = state,
         shape = AppTheme.shapes.extraLarge,
-        defaultTextColor = Blue600,
-        defaultBackgroundLightColor = Color.White,
-        defaultBackgroundDarkColor = Color.White,
+        defaultTextColor = AppColors.primary,
+        defaultBackgroundLightColor = AppColors.backgroundSecondary,
+        defaultBackgroundDarkColor = AppColors.backgroundSecondary,
         disabledTextLightAlpha = 0.7f,
         disabledTextDarkAlpha = 0.4f,
-        disabledBackgroundLightColor = Color.White,
-        disabledBackgroundDarkColor = Color.White,
+        disabledBackgroundLightColor = AppColors.backgroundSecondary,
+        disabledBackgroundDarkColor = AppColors.backgroundSecondary,
         pressedBackgroundColor = Blue000,
         modifier = modifier.requiredHeightIn(
             min = dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)

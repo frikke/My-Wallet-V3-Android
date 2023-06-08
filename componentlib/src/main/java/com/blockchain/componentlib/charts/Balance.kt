@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -31,19 +32,8 @@ fun Balance(
 
         PercentageChange(
             priceChange = percentageChangeData.priceChange,
-            percentChange = percentageChangeData.percentChange,
-            interval = percentageChangeData.interval,
-            state = when {
-                percentageChangeData.percentChange < 0.0 -> {
-                    PercentageChangeState.Negative
-                }
-                percentageChangeData.percentChange > 0.0 -> {
-                    PercentageChangeState.Positive
-                }
-                else -> {
-                    PercentageChangeState.Neutral
-                }
-            }
+            valueChange = percentageChangeData.valueChange,
+            interval = percentageChangeData.interval
         )
     }
 }
@@ -57,7 +47,7 @@ private fun DefaultBalance_Preview() {
                 price = "$2574.37",
                 percentageChangeData = PercentageChangeData(
                     priceChange = "$50.00",
-                    percentChange = 0.24,
+                    valueChange = ValueChange.fromValue(0.24),
                     interval = "Past Hour"
                 )
             )

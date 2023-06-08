@@ -3,7 +3,6 @@ package com.blockchain.componentlib.alert
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,8 +29,6 @@ import com.blockchain.componentlib.card.CardButton
 import com.blockchain.componentlib.icons.Image
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Dark600
-import com.blockchain.componentlib.theme.Grey300
 
 enum class AlertType {
     Default, Success, Warning, Error
@@ -43,8 +40,7 @@ fun CardAlert(
     subtitle: String,
     alertType: AlertType = AlertType.Default,
     isBordered: Boolean = true,
-    backgroundColor: Color = Color.White,
-    isDarkTheme: Boolean = isSystemInDarkTheme(),
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary,
     isDismissable: Boolean = true,
     onClose: () -> Unit = {},
     primaryCta: CardButton? = null,
@@ -57,21 +53,11 @@ fun CardAlert(
         AlertType.Error -> AppTheme.colors.error
     }
 
-    val borderColor = if (alertType == AlertType.Default) {
-        if (!isDarkTheme) {
-            Grey300
-        } else {
-            Dark600
-        }
-    } else {
-        typeColor
-    }
-
     Surface(
         modifier = Modifier.defaultMinSize(minWidth = 340.dp),
         shape = AppTheme.shapes.large,
         color = backgroundColor,
-        border = BorderStroke(1.dp, borderColor).takeIf { isBordered }
+        border = BorderStroke(1.dp, typeColor).takeIf { isBordered }
     ) {
         Column(
             modifier = Modifier
