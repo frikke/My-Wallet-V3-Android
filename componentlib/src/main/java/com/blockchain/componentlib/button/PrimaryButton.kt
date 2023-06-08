@@ -19,15 +19,12 @@ fun PrimaryButton(
     icon: ImageResource.Local? = null,
     onClick: () -> Unit
 ) {
-    FilledButton(
+    PrimaryButton(
         modifier = modifier,
         text = text,
-        textColor = AppColors.backgroundSecondary,
-        backgroundColor = AppColors.primary,
-        disabledBackgroundColor = AppColors.primaryMuted,
         state = state,
-        style = ButtonStyle.Default,
         icon = icon,
+        style = ButtonStyle.Default,
         onClick = onClick
     )
 }
@@ -40,6 +37,25 @@ fun SmallPrimaryButton(
     icon: ImageResource.Local? = null,
     onClick: () -> Unit
 ) {
+    PrimaryButton(
+        modifier = modifier,
+        text = text,
+        state = state,
+        icon = icon,
+        style = ButtonStyle.Small,
+        onClick = onClick
+    )
+}
+
+@Composable
+private fun PrimaryButton(
+    modifier: Modifier = Modifier,
+    text: String,
+    state: ButtonState = ButtonState.Enabled,
+    icon: ImageResource.Local? = null,
+    style: ButtonStyle,
+    onClick: () -> Unit
+) {
     FilledButton(
         modifier = modifier,
         text = text,
@@ -47,7 +63,7 @@ fun SmallPrimaryButton(
         backgroundColor = AppColors.primary,
         disabledBackgroundColor = AppColors.primaryMuted,
         state = state,
-        style = ButtonStyle.Small,
+        style = style,
         icon = icon,
         onClick = onClick
     )
