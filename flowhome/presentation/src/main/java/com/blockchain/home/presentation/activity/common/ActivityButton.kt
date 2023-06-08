@@ -6,7 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.SecondaryButton
-import com.blockchain.componentlib.button.TertiaryButton
+import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.value
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
@@ -38,7 +38,7 @@ fun ActivityDetailButton(
             )
         }
         ActivityButtonStyle.Tertiary -> {
-            TertiaryButton(
+            MinimalButton(
                 modifier = modifier,
                 text = text.value(),
                 onClick = onClick

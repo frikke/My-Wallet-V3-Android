@@ -31,7 +31,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.AlertButton
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.SmallTertiaryButton
+import com.blockchain.componentlib.button.SmallMinimalButton
 import com.blockchain.componentlib.card.HorizontalAssetAction
 import com.blockchain.componentlib.card.TwoAssetActionHorizontal
 import com.blockchain.componentlib.card.TwoAssetActionHorizontalLoading
@@ -210,7 +210,7 @@ private fun EnterAmountScreen(
         maxAmount?.let {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
 
-            SmallTertiaryButton(
+            SmallMinimalButton(
                 modifier = Modifier.widthIn(min = 130.dp),
                 text = stringResource(R.string.common_max_arg, maxAmount),
                 onClick = setMaxOnClick,

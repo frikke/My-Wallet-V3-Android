@@ -26,7 +26,7 @@ import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.TertiaryButton
+import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Sync
 import com.blockchain.componentlib.lazylist.roundedCornersItems
@@ -166,7 +166,7 @@ private fun RecurringBuyDetailData(
             }
         }
 
-        TertiaryButton(
+        MinimalButton(
             modifier = Modifier
                 .padding(AppTheme.dimensions.standardSpacing)
                 .fillMaxWidth(),

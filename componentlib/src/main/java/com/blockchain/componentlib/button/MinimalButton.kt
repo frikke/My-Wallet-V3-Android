@@ -17,7 +17,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue000
 
 @Composable
-fun TertiaryButton(
+fun MinimalButton(
     modifier: Modifier = Modifier,
     text: String,
     onClick: () -> Unit,
@@ -59,7 +59,7 @@ fun TertiaryButton(
 private fun TertiaryButtonPreview() {
     AppTheme {
         AppSurface {
-            TertiaryButton(
+            MinimalButton(
                 text = "Click me",
                 onClick = { },
                 state = ButtonState.Enabled
@@ -73,7 +73,7 @@ private fun TertiaryButtonPreview() {
 private fun TertiaryButtonDisabledPreview() {
     AppTheme {
         AppSurface {
-            TertiaryButton(
+            MinimalButton(
                 text = "Click me",
                 onClick = { },
                 state = ButtonState.Disabled
@@ -87,7 +87,7 @@ private fun TertiaryButtonDisabledPreview() {
 private fun TertiaryButtonLoadingPreview() {
     AppTheme {
         AppSurface {
-            TertiaryButton(
+            MinimalButton(
                 text = "Click me",
                 onClick = { },
                 state = ButtonState.Loading
@@ -101,7 +101,7 @@ private fun TertiaryButtonLoadingPreview() {
 private fun TertiaryButtonWithImagePreview() {
     AppTheme {
         AppSurface {
-            TertiaryButton(
+            MinimalButton(
                 text = "Click me",
                 onClick = { },
                 state = ButtonState.Enabled,
@@ -116,7 +116,7 @@ private fun TertiaryButtonWithImagePreview() {
 private fun TertiaryButtonPreview_Dark() {
     AppTheme {
         AppSurface {
-            TertiaryButton(
+            MinimalButton(
                 text = "Click me",
                 onClick = { },
                 state = ButtonState.Enabled
@@ -130,7 +130,7 @@ private fun TertiaryButtonPreview_Dark() {
 private fun TertiaryButtonDisabledPreview_Dark() {
     AppTheme {
         AppSurface {
-            TertiaryButton(
+            MinimalButton(
                 text = "Click me",
                 onClick = { },
                 state = ButtonState.Disabled
@@ -144,7 +144,7 @@ private fun TertiaryButtonDisabledPreview_Dark() {
 private fun TertiaryButtonLoadingPreview_Dark() {
     AppTheme {
         AppSurface {
-            TertiaryButton(
+            MinimalButton(
                 text = "Click me",
                 onClick = { },
                 state = ButtonState.Loading

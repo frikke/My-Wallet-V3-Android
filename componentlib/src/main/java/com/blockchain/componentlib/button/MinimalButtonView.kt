@@ -12,7 +12,7 @@ import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue600
 
-class TertiaryButtonView @JvmOverloads constructor(
+class MinimalButtonView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
@@ -24,7 +24,7 @@ class TertiaryButtonView @JvmOverloads constructor(
     override fun Content() {
         AppTheme(setSystemColors = false) {
             AppSurface {
-                TertiaryButton(
+                MinimalButton(
                     onClick = onClick,
                     text = text,
                     textColor = textColor,

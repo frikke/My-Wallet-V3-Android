@@ -27,7 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.TextAnimatedBrush
-import com.blockchain.componentlib.button.TertiaryButton
+import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SystemColors
 import com.blockchain.home.presentation.onboarding.introduction.IntroScreensViewModel
@@ -135,7 +135,7 @@ fun IntroductionScreensData(
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
-                TertiaryButton(
+                MinimalButton(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(com.blockchain.stringResources.R.string.done),
                     onClick = {
