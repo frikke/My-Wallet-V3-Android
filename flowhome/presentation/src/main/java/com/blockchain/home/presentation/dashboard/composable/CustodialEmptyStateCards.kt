@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.PrimaryOutlinedButton
 import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
@@ -209,7 +209,7 @@ fun CustodialEmptyStateCardsScreen(
                     )
                 }
 
-                MinimalButton(
+                PrimaryOutlinedButton(
                     modifier = Modifier
                         .padding(
                             vertical = AppTheme.dimensions.standardSpacing,

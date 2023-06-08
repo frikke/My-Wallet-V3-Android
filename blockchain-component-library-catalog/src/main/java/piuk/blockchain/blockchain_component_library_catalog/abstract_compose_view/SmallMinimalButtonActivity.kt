@@ -4,7 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.SmallMinimalButtonView
+import com.blockchain.componentlib.button.SmallOutlinedButtonView
 import piuk.blockchain.blockchain_component_library_catalog.R
 
 class SmallMinimalButtonActivity : AppCompatActivity() {
@@ -12,7 +12,7 @@ class SmallMinimalButtonActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_small_minimal_button)
 
-        findViewById<SmallMinimalButtonView>(R.id.enabled).apply {
+        findViewById<SmallOutlinedButtonView>(R.id.enabled).apply {
             onClick = {
                 Toast
                     .makeText(
@@ -26,7 +26,7 @@ class SmallMinimalButtonActivity : AppCompatActivity() {
             buttonState = ButtonState.Enabled
         }
 
-        findViewById<SmallMinimalButtonView>(R.id.disabled).apply {
+        findViewById<SmallOutlinedButtonView>(R.id.disabled).apply {
             onClick = {
                 Toast
                     .makeText(
@@ -40,7 +40,7 @@ class SmallMinimalButtonActivity : AppCompatActivity() {
             buttonState = ButtonState.Disabled
         }
 
-        findViewById<SmallMinimalButtonView>(R.id.loading).apply {
+        findViewById<SmallOutlinedButtonView>(R.id.loading).apply {
             onClick = {
                 Toast
                     .makeText(

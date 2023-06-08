@@ -16,7 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.SmallMinimalButton
+import com.blockchain.componentlib.button.SmallOutlinedButton
 import com.blockchain.componentlib.controls.RatingBar
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey600
@@ -88,7 +88,7 @@ fun AppRatingStarsScreen(
 
         Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)))
 
-        SmallMinimalButton(
+        SmallOutlinedButton(
             text = stringResource(com.blockchain.stringResources.R.string.common_cancel),
             onClick = onCanceled,
             state = ButtonState.Enabled

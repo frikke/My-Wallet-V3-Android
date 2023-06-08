@@ -9,7 +9,6 @@ import androidx.compose.material.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -20,7 +19,7 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.PrimaryOutlinedButton
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.BalanceChange
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
@@ -135,7 +134,7 @@ private fun Content(
 
         LargeVerticalSpacer()
 
-        MinimalButton(
+        PrimaryOutlinedButton(
             text = stringResource(com.blockchain.stringResources.R.string.common_maybe_later),
             onClick = onMaybeLater,
             modifier = Modifier.fillMaxWidth(),

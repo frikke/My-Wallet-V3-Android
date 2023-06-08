@@ -19,7 +19,7 @@
             android:text="Enabled"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
-        <com.blockchain.componentlib.button.SmallMinimalButtonView
+        <com.blockchain.componentlib.button.SmallOutlinedButtonView
             android:id="@+id/enabled"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -31,7 +31,7 @@
             android:text="Disabled"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
-        <com.blockchain.componentlib.button.SmallMinimalButtonView
+        <com.blockchain.componentlib.button.SmallOutlinedButtonView
             android:id="@+id/disabled"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -43,7 +43,7 @@
             android:text="Loading"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
-        <com.blockchain.componentlib.button.SmallMinimalButtonView
+        <com.blockchain.componentlib.button.SmallOutlinedButtonView
             android:id="@+id/loading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />

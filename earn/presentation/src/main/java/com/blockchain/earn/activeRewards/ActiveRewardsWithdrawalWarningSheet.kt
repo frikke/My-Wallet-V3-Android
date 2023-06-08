@@ -31,7 +31,7 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.SmallMinimalButton
+import com.blockchain.componentlib.button.SmallOutlinedButton
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -152,7 +152,7 @@ fun ActiveRewardsWithdrawalWarning(
 
             StandardVerticalSpacer()
 
-            SmallMinimalButton(
+            SmallOutlinedButton(
                 text = stringResource(com.blockchain.stringResources.R.string.common_learn_more),
                 onClick = onLearnMoreClicked
             )

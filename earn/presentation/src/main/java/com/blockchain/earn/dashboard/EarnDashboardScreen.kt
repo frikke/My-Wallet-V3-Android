@@ -49,7 +49,7 @@ import com.blockchain.componentlib.basic.MaskedTextFormat
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.SmallMinimalButton
+import com.blockchain.componentlib.button.SmallOutlinedButton
 import com.blockchain.componentlib.button.SmallSecondaryButton
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.control.NonCancelableOutlinedSearch
@@ -583,7 +583,7 @@ private fun LearningCarousel(
                             color = AppTheme.colors.title
                         )
 
-                        SmallMinimalButton(
+                        SmallOutlinedButton(
                             text = stringResource(com.blockchain.stringResources.R.string.common_learn_more),
                             onClick = {
                                 onLearnMoreClicked(it.learnMoreUrl)

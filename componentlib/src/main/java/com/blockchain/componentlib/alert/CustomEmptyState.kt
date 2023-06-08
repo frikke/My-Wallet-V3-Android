@@ -21,7 +21,7 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.PrimaryOutlinedButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.icon.SmallTagIcon
 import com.blockchain.componentlib.icons.Alert
@@ -95,7 +95,7 @@ fun CustomEmptyState(
             onClick = ctaAction
         )
         if (secondaryText != null && secondaryAction != null) {
-            MinimalButton(
+            PrimaryOutlinedButton(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = AppTheme.dimensions.smallSpacing),

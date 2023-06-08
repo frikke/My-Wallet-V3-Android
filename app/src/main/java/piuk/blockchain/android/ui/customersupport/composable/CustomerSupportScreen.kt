@@ -20,7 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.PrimaryOutlinedButton
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
@@ -100,7 +100,7 @@ fun CustomerSupportScreen(
 
         Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
-        MinimalButton(
+        PrimaryOutlinedButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
@@ -113,7 +113,7 @@ fun CustomerSupportScreen(
 
         Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
-        MinimalButton(
+        PrimaryOutlinedButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(

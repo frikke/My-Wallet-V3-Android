@@ -61,7 +61,7 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.AlertButton
 import com.blockchain.componentlib.button.ButtonLoadingIndicator
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.PrimaryOutlinedButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.icon.SmallTagIcon
@@ -515,7 +515,7 @@ fun InputScreen(
         }
 
         (viewState.alertError as? DexUiError.InsufficientFunds)?.let {
-            MinimalButton(
+            PrimaryOutlinedButton(
                 modifier = Modifier
                     .padding(top = dimensionResource(id = com.blockchain.componentlib.R.dimen.smallest_spacing))
                     .background(Color.White, shape = AppTheme.shapes.extraLarge)
@@ -551,7 +551,7 @@ private fun PreviewSwapButton(onClick: () -> Unit, state: ButtonState) {
 
 @Composable
 private fun TokenAllowance(onClick: () -> Unit, currency: Currency, txInProgress: Boolean) {
-    MinimalButton(
+    PrimaryOutlinedButton(
         modifier = Modifier
             .padding(top = dimensionResource(id = com.blockchain.componentlib.R.dimen.small_spacing))
             .background(Color.White, shape = AppTheme.shapes.extraLarge)

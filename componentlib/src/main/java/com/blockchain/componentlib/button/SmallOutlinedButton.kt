@@ -16,7 +16,7 @@ import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
-fun SmallMinimalButton(
+fun SmallOutlinedButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -83,7 +83,7 @@ fun SmallMinimalButton(
 private fun SmallMinimalButton_Basic() {
     AppTheme {
         AppSurface {
-            SmallMinimalButton(
+            SmallOutlinedButton(
                 onClick = { },
                 text = "Small Minimal button"
             )
@@ -96,7 +96,7 @@ private fun SmallMinimalButton_Basic() {
 private fun SmallMinimalButton_Basic_Icon() {
     AppTheme {
         AppSurface {
-            SmallMinimalButton(
+            SmallOutlinedButton(
                 onClick = { },
                 text = "Small Minimal button",
                 icon = ImageResource.Local(R.drawable.ic_bottom_nav_prices)
@@ -110,7 +110,7 @@ private fun SmallMinimalButton_Basic_Icon() {
 private fun SmallMinimalButton_Loading() {
     AppTheme {
         AppSurface {
-            SmallMinimalButton(
+            SmallOutlinedButton(
                 onClick = { },
                 text = "Small Minimal button",
                 state = ButtonState.Loading
@@ -124,7 +124,7 @@ private fun SmallMinimalButton_Loading() {
 private fun SmallMinimalButton_Disabled() {
     AppTheme {
         AppSurface {
-            SmallMinimalButton(
+            SmallOutlinedButton(
                 onClick = { },
                 text = "Small Minimal button",
                 state = ButtonState.Disabled
@@ -138,7 +138,7 @@ private fun SmallMinimalButton_Disabled() {
 private fun SmallMinimalButton_DarkBasic() {
     AppTheme {
         AppSurface {
-            SmallMinimalButton(
+            SmallOutlinedButton(
                 onClick = { },
                 text = "Small Minimal button"
             )
@@ -151,7 +151,7 @@ private fun SmallMinimalButton_DarkBasic() {
 private fun SmallMinimalButton_DarkLoading() {
     AppTheme {
         AppSurface {
-            SmallMinimalButton(
+            SmallOutlinedButton(
                 onClick = { },
                 text = "Small Minimal button",
                 state = ButtonState.Loading
@@ -165,7 +165,7 @@ private fun SmallMinimalButton_DarkLoading() {
 private fun SmallMinimalButton_DarkDisabled() {
     AppTheme {
         AppSurface {
-            SmallMinimalButton(
+            SmallOutlinedButton(
                 onClick = { },
                 text = "Small Minimal Button",
                 state = ButtonState.Disabled
@@ -179,7 +179,7 @@ private fun SmallMinimalButton_DarkDisabled() {
 private fun SmallMinimalButton_Non_Transparent() {
     AppTheme {
         AppSurface {
-            SmallMinimalButton(
+            SmallOutlinedButton(
                 onClick = { },
                 text = "Small Minimal Button",
                 state = ButtonState.Enabled,

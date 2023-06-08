@@ -17,9 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.common.R
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.SmallMinimalButton
+import com.blockchain.componentlib.button.SmallOutlinedButton
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
@@ -77,7 +76,7 @@ fun QuickFillRow(
                 items(
                     items = quickFillButtonData.quickFillButtons,
                     itemContent = { item ->
-                        SmallMinimalButton(
+                        SmallOutlinedButton(
                             text = item.displayValue,
                             onClick = {
                                 onQuickFillItemClick(item)
@@ -92,7 +91,7 @@ fun QuickFillRow(
             }
         }
         if (quickFillButtonData.maxAmount.isPositive) {
-            SmallMinimalButton(
+            SmallOutlinedButton(
                 text = maxButtonText,
                 onClick = {
                     onMaxItemClick(quickFillButtonData.maxAmount)

@@ -7,7 +7,7 @@ import com.blockchain.componentlib.button.common.BaseButtonView
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
-class DestructiveMinimalButtonView @JvmOverloads constructor(
+class PrimaryOutlinedButtonView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
@@ -17,7 +17,7 @@ class DestructiveMinimalButtonView @JvmOverloads constructor(
     override fun Content() {
         AppTheme(setSystemColors = false) {
             AppSurface {
-                DestructiveMinimalButton(
+                PrimaryOutlinedButton(
                     onClick = onClick,
                     text = text,
                     state = buttonState,

@@ -22,7 +22,7 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.PrimaryOutlinedButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
@@ -115,7 +115,7 @@ fun EmailVerificationScreen(
                 )
             }
             assets.secondaryCta()?.let { text ->
-                MinimalButton(
+                PrimaryOutlinedButton(
                     modifier = Modifier.fillMaxWidth(),
                     text = text,
                     onClick = {

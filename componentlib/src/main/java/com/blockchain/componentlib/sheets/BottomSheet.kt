@@ -25,10 +25,10 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.DestructiveMinimalButton
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.DestructiveOutlinedButton
+import com.blockchain.componentlib.button.PrimaryOutlinedButton
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.SmallMinimalButton
+import com.blockchain.componentlib.button.SmallOutlinedButton
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
@@ -209,17 +209,17 @@ private fun BottomSheetButton.toBottomSheetButtonComposable(modifier: Modifier):
                 onClick = onClick,
                 modifier = modifier.fillMaxWidth()
             )
-            ButtonType.MINIMAL -> MinimalButton(
+            ButtonType.MINIMAL -> PrimaryOutlinedButton(
                 text = text,
                 onClick = onClick,
                 modifier = modifier.fillMaxWidth()
             )
-            ButtonType.SMALL_MINIMAL -> SmallMinimalButton(
+            ButtonType.SMALL_MINIMAL -> SmallOutlinedButton(
                 text = text,
                 onClick = onClick,
                 modifier = modifier
             )
-            ButtonType.DESTRUCTIVE_MINIMAL -> DestructiveMinimalButton(
+            ButtonType.DESTRUCTIVE_MINIMAL -> DestructiveOutlinedButton(
                 text = text,
                 onClick = onClick,
                 modifier = modifier.fillMaxWidth()

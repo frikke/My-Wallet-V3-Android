@@ -5,38 +5,38 @@ import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Red000
 
 @Composable
-fun MinimalButton(
+fun DestructiveOutlinedButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     state: ButtonState = ButtonState.Enabled,
-    shape: Shape = AppTheme.shapes.extraLarge,
-    icon: ImageResource = ImageResource.None,
-    minHeight: Dp = 48.dp,
-    isTransparent: Boolean = true,
-    backgroundColour: Color = AppTheme.colors.backgroundSecondary
+    icon: ImageResource = ImageResource.None
 ) {
+    val textColor = when (state) {
+        ButtonState.Enabled, ButtonState.Disabled -> AppTheme.colors.error
+        ButtonState.Loading -> Color.Unspecified
+    }
+
     OutlinedButton(
         text = text,
         onClick = onClick,
-        modifier = modifier.requiredHeightIn(min = minHeight),
+        modifier = modifier.requiredHeightIn(min = 48.dp),
         state = state,
-        shape = shape,
         icon = icon,
-        backgroundColour = if (isTransparent) {
-            Color.Unspecified
-        } else {
-            backgroundColour
-        },
+        pressedButtonLightColor = Red000,
+        pressedBorderLightColor = textColor,
+        pressedBorderDarkColor = textColor,
+        defaultTextColor = textColor,
+        defaultLoadingIconResId = R.drawable.ic_destructive_loading,
         buttonContent = {
                 state: ButtonState,
                 text: String,
@@ -57,12 +57,12 @@ fun MinimalButton(
     )
 }
 
-@Preview(name = "Default", group = "Minimal button")
+@Preview(name = "Default", group = "Destructive Minimal button")
 @Composable
-private fun MinimalButton_Basic() {
+private fun DestructiveMinimalButton_Basic() {
     AppTheme {
         AppSurface {
-            MinimalButton(
+            DestructiveOutlinedButton(
                 onClick = { },
                 text = "Button"
             )
@@ -70,12 +70,12 @@ private fun MinimalButton_Basic() {
     }
 }
 
-@Preview(name = "Loading", group = "Minimal button")
+@Preview(name = "Loading", group = "Destructive Minimal button")
 @Composable
-private fun MinimalButton_Loading() {
+private fun DestructiveMinimalButton_Loading() {
     AppTheme {
         AppSurface {
-            MinimalButton(
+            DestructiveOutlinedButton(
                 onClick = { },
                 text = "Button",
                 state = ButtonState.Loading
@@ -84,12 +84,12 @@ private fun MinimalButton_Loading() {
     }
 }
 
-@Preview(name = "Disabled", group = "Minimal button")
+@Preview(name = "Disabled", group = "Destructive Minimal button")
 @Composable
-private fun MinimalButton_Disabled() {
+private fun DestructiveMinimalButton_Disabled() {
     AppTheme {
         AppSurface {
-            MinimalButton(
+            DestructiveOutlinedButton(
                 onClick = { },
                 text = "Button",
                 state = ButtonState.Disabled
@@ -100,10 +100,10 @@ private fun MinimalButton_Disabled() {
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun MinimalButton_DarkBasic() {
+private fun DestructiveMinimalButton_DarkBasic() {
     AppTheme {
         AppSurface {
-            MinimalButton(
+            DestructiveOutlinedButton(
                 onClick = { },
                 text = "Button"
             )
@@ -113,10 +113,10 @@ private fun MinimalButton_DarkBasic() {
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun MinimalButton_DarkLoading() {
+private fun DestructiveMinimalButton_DarkLoading() {
     AppTheme {
         AppSurface {
-            MinimalButton(
+            DestructiveOutlinedButton(
                 onClick = { },
                 text = "Button",
                 state = ButtonState.Loading
@@ -127,10 +127,10 @@ private fun MinimalButton_DarkLoading() {
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun MinimalButton_DarkDisabled() {
+private fun DestructiveMinimalButton_DarkDisabled() {
     AppTheme {
         AppSurface {
-            MinimalButton(
+            DestructiveOutlinedButton(
                 onClick = { },
                 text = "Button",
                 state = ButtonState.Disabled

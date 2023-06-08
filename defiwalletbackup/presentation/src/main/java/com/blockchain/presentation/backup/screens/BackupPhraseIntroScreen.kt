@@ -36,7 +36,7 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.PrimaryOutlinedButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.control.RadioButtonState
 import com.blockchain.componentlib.control.RadioCheckMark
@@ -140,7 +140,7 @@ fun BackupPhraseIntroScreen(
             if (showSkipBackup) {
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
-                MinimalButton(
+                PrimaryOutlinedButton(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(id = com.blockchain.stringResources.R.string.common_skip),
                     onClick = skipOnClick

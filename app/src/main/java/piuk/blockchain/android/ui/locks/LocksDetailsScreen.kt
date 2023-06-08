@@ -21,9 +21,9 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.PrimaryOutlinedButton
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.SmallMinimalButton
+import com.blockchain.componentlib.button.SmallOutlinedButton
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
@@ -40,7 +40,6 @@ import info.blockchain.balance.Money
 import java.math.BigInteger
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import piuk.blockchain.android.R
 
 @Composable
 fun LocksDetailsScreen(
@@ -136,7 +135,7 @@ private fun LocksDetailsScreen(
                 gravity = ComposeGravities.Start
             )
 
-            SmallMinimalButton(
+            SmallOutlinedButton(
                 modifier = Modifier.padding(AppTheme.dimensions.smallSpacing),
                 text = stringResource(com.blockchain.stringResources.R.string.common_learn_more),
                 onClick = learnMoreClicked
@@ -144,7 +143,7 @@ private fun LocksDetailsScreen(
         }
 
         Column(Modifier.fillMaxWidth()) {
-            MinimalButton(
+            PrimaryOutlinedButton(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = AppTheme.dimensions.standardSpacing),

@@ -32,7 +32,7 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.SmallMinimalButton
+import com.blockchain.componentlib.button.SmallOutlinedButton
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.icons.Copy
 import com.blockchain.componentlib.icons.Icons
@@ -165,7 +165,7 @@ fun Footer(footer: WireTransferDetailsFooter) {
 
         val context = LocalContext.current
         footer.actions.forEach { action ->
-            SmallMinimalButton(
+            SmallOutlinedButton(
                 text = action.title,
                 onClick = {
                     if (!action.url.isNullOrEmpty()) {

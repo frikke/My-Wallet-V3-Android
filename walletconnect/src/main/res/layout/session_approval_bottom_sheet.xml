@@ -82,7 +82,7 @@
         app:layout_constraintTop_toBottomOf="@+id/description"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <com.blockchain.componentlib.button.DestructiveMinimalButtonView
+    <com.blockchain.componentlib.button.DestructiveOutlinedButtonView
         android:id="@+id/cancel_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -90,7 +90,7 @@
         android:background="@color/grey_000"
         app:layout_constraintTop_toBottomOf="@+id/available_title" />
 
-    <com.blockchain.componentlib.button.MinimalButtonView
+    <com.blockchain.componentlib.button.PrimaryOutlinedButtonView
         android:id="@+id/see_details"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

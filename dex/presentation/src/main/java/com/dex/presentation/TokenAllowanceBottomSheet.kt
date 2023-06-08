@@ -26,7 +26,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.SavedStateHandle
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.PrimaryOutlinedButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.icons.Gas
 import com.blockchain.componentlib.icons.Icons
@@ -34,7 +34,6 @@ import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
-import com.blockchain.dex.presentation.R
 import com.blockchain.extensions.safeLet
 import com.blockchain.koin.payloadScope
 import com.dex.presentation.enteramount.AllowanceTxUiData
@@ -179,7 +178,7 @@ fun ApproveAndDenyButtons(onApprove: () -> Unit, onDecline: () -> Unit) {
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.tinySpacing)
     ) {
-        MinimalButton(
+        PrimaryOutlinedButton(
             text = stringResource(id = com.blockchain.stringResources.R.string.common_decline),
             onClick = onDecline,
             isTransparent = false,

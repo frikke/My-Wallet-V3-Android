@@ -19,7 +19,7 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.PrimaryOutlinedButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
@@ -105,7 +105,7 @@ fun SkipBackupScreen(
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
-            MinimalButton(
+            PrimaryOutlinedButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = com.blockchain.stringResources.R.string.skip_backup_cta_backup),
                 onClick = backUpNowOnClick

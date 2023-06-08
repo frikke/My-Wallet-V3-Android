@@ -5,8 +5,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.DestructiveMinimalButtonView
-import com.blockchain.componentlib.button.MinimalButtonView
+import com.blockchain.componentlib.button.DestructiveOutlinedButtonView
+import com.blockchain.componentlib.button.PrimaryOutlinedButtonView
 import piuk.blockchain.blockchain_component_library_catalog.R
 
 class MinimalButtonActivity : AppCompatActivity() {
@@ -14,7 +14,7 @@ class MinimalButtonActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_minimal_button)
 
-        findViewById<MinimalButtonView>(R.id.enabled).apply {
+        findViewById<PrimaryOutlinedButtonView>(R.id.enabled).apply {
             onClick = {
                 Toast
                     .makeText(
@@ -28,7 +28,7 @@ class MinimalButtonActivity : AppCompatActivity() {
             buttonState = ButtonState.Enabled
         }
 
-        findViewById<MinimalButtonView>(R.id.icon).apply {
+        findViewById<PrimaryOutlinedButtonView>(R.id.icon).apply {
             onClick = {
                 Toast
                     .makeText(
@@ -46,7 +46,7 @@ class MinimalButtonActivity : AppCompatActivity() {
             )
         }
 
-        findViewById<MinimalButtonView>(R.id.disabled).apply {
+        findViewById<PrimaryOutlinedButtonView>(R.id.disabled).apply {
             onClick = {
                 Toast
                     .makeText(
@@ -60,7 +60,7 @@ class MinimalButtonActivity : AppCompatActivity() {
             buttonState = ButtonState.Disabled
         }
 
-        findViewById<MinimalButtonView>(R.id.loading).apply {
+        findViewById<PrimaryOutlinedButtonView>(R.id.loading).apply {
             onClick = {
                 Toast
                     .makeText(
@@ -74,7 +74,7 @@ class MinimalButtonActivity : AppCompatActivity() {
             buttonState = ButtonState.Loading
         }
 
-        findViewById<DestructiveMinimalButtonView>(R.id.destructive_enabled).apply {
+        findViewById<DestructiveOutlinedButtonView>(R.id.destructive_enabled).apply {
             onClick = {
                 Toast
                     .makeText(
@@ -88,7 +88,7 @@ class MinimalButtonActivity : AppCompatActivity() {
             buttonState = ButtonState.Enabled
         }
 
-        findViewById<DestructiveMinimalButtonView>(R.id.destructive_disabled).apply {
+        findViewById<DestructiveOutlinedButtonView>(R.id.destructive_disabled).apply {
             onClick = {
                 Toast
                     .makeText(
@@ -102,7 +102,7 @@ class MinimalButtonActivity : AppCompatActivity() {
             buttonState = ButtonState.Disabled
         }
 
-        findViewById<DestructiveMinimalButtonView>(R.id.destructive_loading).apply {
+        findViewById<DestructiveOutlinedButtonView>(R.id.destructive_loading).apply {
             onClick = {
                 Toast
                     .makeText(
