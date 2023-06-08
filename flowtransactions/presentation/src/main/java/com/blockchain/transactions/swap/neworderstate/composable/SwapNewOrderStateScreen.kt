@@ -42,13 +42,13 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.TinyHorizontalSpacer
 import com.blockchain.componentlib.theme.White
+import com.blockchain.componentlib.utils.checkValidUrlAndOpen
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.koin.payloadScope
 import com.blockchain.outcome.doOnSuccess
-import com.blockchain.presentation.checkValidUrlAndOpen
 import com.blockchain.transactions.swap.SwapAnalyticsEvents
 import com.blockchain.utils.awaitOutcome
 import info.blockchain.balance.CryptoCurrency

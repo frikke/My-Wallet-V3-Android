@@ -5,10 +5,11 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.webkit.URLUtil
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.blockchain.stringResources.R
 
 fun Context.copyToClipboard(label: String, text: String) {
     (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).apply {
@@ -29,12 +30,23 @@ fun CopyText(
     )
 }
 
+// url
 fun Context.openUrl(url: String) {
     openUrl(Uri.parse(url))
 }
 
 fun Context.openUrl(url: Uri) {
-    startActivity(Intent(Intent.ACTION_VIEW, url))
+    CustomTabsIntent.Builder()
+        .build()
+        .run {
+            launchUrl(this@openUrl, url)
+        }
+}
+
+fun Context.checkValidUrlAndOpen(url: Uri) {
+    if (URLUtil.isHttpsUrl(url.toString())) {
+        openUrl(url)
+    }
 }
 
 @Composable
@@ -44,6 +56,7 @@ fun OpenUrl(
     LocalContext.current.openUrl(url = url)
 }
 
+// share
 fun Context.shareTextWithSubject(text: String, subject: String) {
     val sendIntent: Intent = Intent().apply {
         action = Intent.ACTION_SEND

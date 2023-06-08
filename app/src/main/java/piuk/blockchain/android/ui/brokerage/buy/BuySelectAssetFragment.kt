@@ -10,10 +10,10 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.home.presentation.navigation.HomeLaunch
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.BlockedReason
-import com.blockchain.presentation.openUrl
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
