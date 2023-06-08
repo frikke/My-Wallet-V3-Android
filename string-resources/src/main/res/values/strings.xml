@@ -3672,4 +3672,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="total_balance_loading">Loading…</string>
     <string name="total_balance_error">Failed to load</string>
 
+    <string name="walletconnect_auth_request_title">Message signing request</string>
+    <string name="common_message">Message</string>
 </resources>

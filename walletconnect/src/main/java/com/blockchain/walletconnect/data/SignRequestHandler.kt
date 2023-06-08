@@ -26,7 +26,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import timber.log.Timber
 
 class SignRequestHandler(
     private val accountProvider: WalletConnectEthAccountProvider
@@ -186,8 +185,6 @@ private fun Wallet.Model.SessionRequest.JSONRPCRequest.toEthSignedMessage(): Eth
     val jsonParams = Json.parseToJsonElement(this.params).jsonArray
     // convert JsonArray to List<String>
     val rawMessage = jsonParams.map { it.jsonPrimitive.content }
-
-    Timber.e("rawMessage: $rawMessage")
 
     return EthSignMessage(
         raw = rawMessage,

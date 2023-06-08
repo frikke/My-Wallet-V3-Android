@@ -18,6 +18,7 @@ sealed class WalletConnectDestination(
     object WalletConnectManageSession : WalletConnectDestination(
         "WalletConnectManageSession/${ARG_SESSION_ID.wrappedArg()}/${ARG_IS_V2_SESSION.wrappedArg()}"
     )
+    object WalletConnectAuthRequest : WalletConnectDestination("WalletConnectAuthRequest/${ARG_AUTH_ID.wrappedArg()}")
 
     companion object {
         const val ARG_SESSION_ID = "sessionId"
@@ -25,5 +26,6 @@ sealed class WalletConnectDestination(
         const val ARG_DAPP_NAME = "dappName"
         const val ARG_DAPP_LOGO_URL = "dappLogoUrl"
         const val ARG_WALLET_ADDRESS = "walletAddress"
+        const val ARG_AUTH_ID = "authId"
     }
 }
