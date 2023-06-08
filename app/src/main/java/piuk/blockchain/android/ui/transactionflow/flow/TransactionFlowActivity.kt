@@ -23,6 +23,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
@@ -40,13 +41,11 @@ import com.blockchain.presentation.extensions.getTarget
 import com.blockchain.presentation.extensions.putAccount
 import com.blockchain.presentation.extensions.putTarget
 import com.blockchain.presentation.koin.scopedInject
-import com.blockchain.presentation.openUrl
 import com.blockchain.transactions.NewTransactionFlowActivity
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.isLayer2Token
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.plusAssign
 import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
 import org.koin.java.KoinJavaComponent

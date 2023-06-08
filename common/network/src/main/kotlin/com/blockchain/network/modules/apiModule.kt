@@ -4,7 +4,6 @@ import com.blockchain.enviroment.EnvironmentUrls
 import com.blockchain.koin.apiRetrofit
 import com.blockchain.koin.everypayRetrofit
 import com.blockchain.koin.explorerRetrofit
-import com.blockchain.koin.iterableRetrofit
 import com.blockchain.koin.kotlinApiRetrofit
 import com.blockchain.koin.kotlinJsonConverterFactory
 import com.blockchain.koin.serializerExplorerRetrofit
@@ -88,15 +87,6 @@ val apiModule = module {
     single(everypayRetrofit) {
         Retrofit.Builder()
             .baseUrl(get<EnvironmentUrls>().everypayHostUrl)
-            .client(get())
-            .addConverterFactory(get(kotlinJsonConverterFactory))
-            .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
-            .build()
-    }
-
-    single(iterableRetrofit) {
-        Retrofit.Builder()
-            .baseUrl("https://api.iterable.com/")
             .client(get())
             .addConverterFactory(get(kotlinJsonConverterFactory))
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
