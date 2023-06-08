@@ -31,7 +31,7 @@ import com.blockchain.transactions.sell.neworderstate.composable.SellNewOrderSta
 import com.blockchain.transactions.sell.sourceaccounts.composable.SellSourceAccounts
 import com.blockchain.transactions.sell.targetassets.SellTargetAssetsArgs
 import com.blockchain.transactions.sell.targetassets.composable.SellTargetAssets
-import com.blockchain.transactions.sell.upsell.SellUpsellAnotherAssetScreen
+import com.blockchain.transactions.sell.upsell.UpsellBuyAfterSellScreen
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import info.blockchain.balance.AssetInfo
 import org.koin.androidx.compose.getViewModel
@@ -45,7 +45,7 @@ object SellGraph : NavGraph() {
     object TargetAsset : DestinationWithArgs<SellTargetAssetsArgs>()
     object Confirmation : DestinationWithArgs<SellConfirmationArgs>()
     object NewOrderState : DestinationWithArgs<SellNewOrderStateArgs>()
-    object UpsellAnotherAsset : DestinationWithArgs<String>()
+    object UpsellBuy : DestinationWithArgs<String>()
 }
 
 @ExperimentalMaterialNavigationApi
@@ -156,9 +156,9 @@ fun SellGraphHost(
             }
         }
 
-        typedBottomSheet(SellGraph.UpsellAnotherAsset) { assetJustSoldTicker ->
+        typedBottomSheet(SellGraph.UpsellBuy) { assetJustSoldTicker ->
             ChromeBottomSheet(fillMaxHeight = true, onClose = exitFlow) {
-                SellUpsellAnotherAssetScreen(
+                UpsellBuyAfterSellScreen(
                     assetJustSoldTicker = assetJustSoldTicker,
                     navigateToBuy = { asset ->
                         navigateToBuy(asset)

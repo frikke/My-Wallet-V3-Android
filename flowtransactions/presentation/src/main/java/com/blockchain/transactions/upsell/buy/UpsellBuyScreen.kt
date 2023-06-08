@@ -1,4 +1,4 @@
-package com.blockchain.transactions.upsell
+package com.blockchain.transactions.upsell.buy
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -9,7 +9,6 @@ import androidx.compose.material.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -34,9 +33,9 @@ import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.koin.payloadScope
 import com.blockchain.prices.prices.PriceItemViewState
-import com.blockchain.transactions.upsell.viewmodel.UpSellAnotherAssetIntent
-import com.blockchain.transactions.upsell.viewmodel.UpSellAnotherAssetViewModel
-import com.blockchain.transactions.upsell.viewmodel.UpsellAnotherAssetViewState
+import com.blockchain.transactions.upsell.buy.viewmodel.UpsellBuyIntent
+import com.blockchain.transactions.upsell.buy.viewmodel.UpsellBuyViewModel
+import com.blockchain.transactions.upsell.buy.viewmodel.UpsellBuyViewState
 import info.blockchain.balance.CryptoCurrency
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -45,11 +44,11 @@ import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
-fun UpsellAnotherAssetScreen(
+fun UpsellBuyScreen(
     assetJustTransactedTicker: String,
     title: String,
     description: String,
-    viewModel: UpSellAnotherAssetViewModel = getViewModel(
+    viewModel: UpsellBuyViewModel = getViewModel(
         scope = payloadScope,
         parameters = { parametersOf(assetJustTransactedTicker) }
     ),
@@ -57,12 +56,12 @@ fun UpsellAnotherAssetScreen(
     onBuyMostPopularAsset: (String) -> Unit,
     onClose: () -> Unit
 ) {
-    val viewState: UpsellAnotherAssetViewState by viewModel.viewState.collectAsStateLifecycleAware()
+    val viewState: UpsellBuyViewState by viewModel.viewState.collectAsStateLifecycleAware()
     val state = viewState
 
     LaunchedEffect(Unit) {
-        viewModel.onIntent(UpSellAnotherAssetIntent.LoadData)
-        analytics.logEvent(UpSellAnotherAssetViewed)
+        viewModel.onIntent(UpsellBuyIntent.LoadData)
+        analytics.logEvent(UpsellBuyViewed)
     }
 
     Column {
@@ -80,12 +79,12 @@ fun UpsellAnotherAssetScreen(
                     description = description,
                     assets = state.assetsToUpSell.data,
                     onBuyMostPopularAsset = { currency ->
-                        analytics.logEvent(UpSellAnotherAssetMostPopularClicked(currency = currency))
+                        analytics.logEvent(UpsellBuyMostPopularClicked(currency = currency))
                         onBuyMostPopularAsset(currency)
                     },
                     onMaybeLater = {
-                        analytics.logEvent(UpSellAnotherAssetMaybeLaterClicked)
-                        viewModel.onIntent(UpSellAnotherAssetIntent.DismissUpsell)
+                        analytics.logEvent(UpsellBuyMaybeLaterClicked)
+                        viewModel.onIntent(UpsellBuyIntent.DismissUpsell)
                         onClose()
                     },
                 )

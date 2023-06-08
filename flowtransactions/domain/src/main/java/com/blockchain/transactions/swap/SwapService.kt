@@ -8,7 +8,9 @@ import com.blockchain.data.DataResource
 import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.outcome.Outcome
 import com.blockchain.transactions.common.CryptoAccountWithBalance
+import com.blockchain.transactions.swap.model.ShouldUpsellPassiveRewardsResult
 import com.blockchain.walletmode.WalletMode
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatCurrency
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +27,8 @@ interface SwapService {
 
     /**
      * returns the highest balance account of [targetTicker]
-     * that is eligible for swap with [sourceTicker]
+     * that is eligible for swap with [sourceTicker], if [targetTicker] is null
+     * it will get the account with the most balance that's eligible
      *
      * [mode] defines which account type: [CustodialTradingAccount] or [CryptoNonCustodialAccount]
      *
@@ -35,7 +38,7 @@ interface SwapService {
      */
     suspend fun bestTargetAccountForMode(
         sourceTicker: String,
-        targetTicker: String,
+        targetTicker: String?,
         mode: WalletMode
     ): CryptoAccount?
 
@@ -67,4 +70,10 @@ interface SwapService {
         fiat: FiatCurrency,
         direction: TransferDirection,
     ): Outcome<Exception, TxLimits>
+
+    suspend fun shouldUpsellPassiveRewardsAfterSwap(
+        targetCurrency: AssetInfo
+    ): Outcome<Exception, ShouldUpsellPassiveRewardsResult>
+
+    fun dismissUpsellPassiveRewardsAfterSwap()
 }

@@ -46,7 +46,7 @@ import com.blockchain.payments.googlepay.interceptor.OnGooglePayDataReceivedList
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.koin.scopedInject
-import com.blockchain.transactions.upsell.UpsellAnotherAssetBottomSheet
+import com.blockchain.transactions.upsell.buy.UpsellBuyBottomSheet
 import com.blockchain.utils.consume
 import com.blockchain.utils.unsafeLazy
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -84,7 +84,7 @@ class SimpleBuyActivity :
     RecurringBuyCreatedBottomSheet.Host,
     ErrorSlidingBottomDialog.Host,
     CurrencySelectionSheet.Host,
-    UpsellAnotherAssetBottomSheet.Host {
+    UpsellBuyBottomSheet.Host {
     override val alwaysDisableScreenshots: Boolean
         get() = false
 
@@ -624,7 +624,7 @@ class SimpleBuyActivity :
 
     override fun launchUpSellBottomSheet(assetBoughtTicker: String) {
         showBottomSheet(
-            UpsellAnotherAssetBottomSheet.newInstance(
+            UpsellBuyBottomSheet.newInstance(
                 assetTransactedTicker = assetBoughtTicker,
                 title = getString(com.blockchain.stringResources.R.string.asset_upsell_title),
                 description = getString(com.blockchain.stringResources.R.string.asset_upsell_subtitle)

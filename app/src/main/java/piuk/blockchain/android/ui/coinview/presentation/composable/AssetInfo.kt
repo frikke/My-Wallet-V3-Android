@@ -89,17 +89,6 @@ fun AssetInfoData(
 
 @Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
-fun PreviewAssetInfo_Loading() {
-    AssetInfo(
-        analytics = previewAnalytics,
-        data = CoinviewAssetInfoState.Loading,
-        assetTicker = "ETH",
-        onWebsiteClick = {}
-    )
-}
-
-@Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
-@Composable
 fun PreviewAssetInfo_Data() {
     AssetInfo(
         analytics = previewAnalytics,

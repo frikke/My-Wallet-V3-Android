@@ -32,7 +32,11 @@ data class SwapConfirmationViewState(
     val isFetchQuoteLoading: Boolean,
 
     val sourceAsset: AssetInfo,
+    val sourceNativeAssetIconUrl: String?,
+    val sourceAssetDescription: String,
     val targetAsset: AssetInfo,
+    val targetNativeAssetIconUrl: String?,
+    val targetAssetDescription: String,
 
     val sourceCryptoAmount: CryptoValue,
     val sourceFiatAmount: FiatValue?,

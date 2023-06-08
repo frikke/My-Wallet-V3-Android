@@ -805,7 +805,7 @@ class SimpleBuyInteractor(
     }
 
     fun shouldShowUpsellAnotherAsset(): Boolean =
-        simpleBuyService.shouldShowUpsellAnotherAsset()
+        simpleBuyService.shouldShowUpsellBuy()
 
     companion object {
         private const val WEEKLY = "WEEKLY"

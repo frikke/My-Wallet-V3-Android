@@ -1,4 +1,4 @@
-package com.blockchain.transactions.upsell
+package com.blockchain.transactions.upsell.buy
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -16,16 +16,16 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.koin.payloadScope
-import com.blockchain.transactions.upsell.viewmodel.UpsellAnotherAssetNavigationEvent
-import com.blockchain.transactions.upsell.viewmodel.UpsellAnotherAssetViewState
+import com.blockchain.transactions.upsell.buy.viewmodel.UpsellBuyNavigationEvent
+import com.blockchain.transactions.upsell.buy.viewmodel.UpsellBuyViewState
 import org.koin.android.ext.android.inject
 import org.koin.core.component.KoinScopeComponent
 import org.koin.core.scope.Scope
 
-class UpsellAnotherAssetBottomSheet :
-    MVIBottomSheet<UpsellAnotherAssetViewState>(),
+class UpsellBuyBottomSheet :
+    MVIBottomSheet<UpsellBuyViewState>(),
     KoinScopeComponent,
-    NavigationRouter<UpsellAnotherAssetNavigationEvent> {
+    NavigationRouter<UpsellBuyNavigationEvent> {
 
     interface Host : MVIBottomSheet.Host {
         fun launchBuyForAsset(networkTicker: String)
@@ -65,13 +65,13 @@ class UpsellAnotherAssetBottomSheet :
                             shouldShowDivider = false,
                             onClosePress = {
                                 host.onCloseUpsellAnotherAsset()
-                                analytics.logEvent(UpSellAnotherAssetDismissed)
+                                analytics.logEvent(UpsellBuyDismissed)
                                 dismiss()
                             },
                             modifier = Modifier.background(color = AppTheme.colors.light)
                         )
 
-                        UpsellAnotherAssetScreen(
+                        UpsellBuyScreen(
                             title = title,
                             description = description,
                             assetJustTransactedTicker = assetJustBoughtTicker,
@@ -90,9 +90,9 @@ class UpsellAnotherAssetBottomSheet :
         }
     }
 
-    override fun onStateUpdated(state: UpsellAnotherAssetViewState) {}
+    override fun onStateUpdated(state: UpsellBuyViewState) {}
 
-    override fun route(navigationEvent: UpsellAnotherAssetNavigationEvent) {}
+    override fun route(navigationEvent: UpsellBuyNavigationEvent) {}
 
     companion object {
 
@@ -104,8 +104,8 @@ class UpsellAnotherAssetBottomSheet :
             assetTransactedTicker: String,
             title: String,
             description: String,
-        ): UpsellAnotherAssetBottomSheet =
-            UpsellAnotherAssetBottomSheet()
+        ): UpsellBuyBottomSheet =
+            UpsellBuyBottomSheet()
                 .apply {
                     arguments = Bundle().apply {
                         putString(ASSET_TICKER, assetTransactedTicker)

@@ -107,6 +107,9 @@ enum class AnalyticsNames(val eventName: String) {
     BUY_ASSET_UPSELL_PAGE_DISMISSED("Buy Flow Buy Other Crypto Page Dismissed"),
     BUY_ASSET_UPSELL_MAYBE_LATER_CLICKED("Buy Flow Buy Other Crypto Maybe Later Clicked"),
     BUY_ASSET_UPSELL_MOST_POPULAR_ASSET_CLICKED("Buy Flow Buy Other Crypto Most Popular Asset Clicked"),
+    INTEREST_UPSELL_AFTER_SWAP_PAGE_VIEWED("Wallet Swap Earn Upsell shown"),
+    INTEREST_UPSELL_AFTER_SWAP_MAYBE_LATER_CLICKED("Wallet Swap Earn Upsell Start Earning Clicked"),
+    INTEREST_UPSELL_AFTER_SWAP_START_EARNING_CLICKED("Wallet Swap Earn Upsell Maybe Later Clicked"),
 
     // BUY ENTRY
     FAB_BUY_CLICKED("FAB Buy Clicked"),

@@ -22,6 +22,11 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.Analytics
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.isInternetConnectionError
+import com.blockchain.betternavigation.NavContext
+import com.blockchain.betternavigation.navigateTo
+import com.blockchain.betternavigation.utils.Bindable
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -49,7 +54,12 @@ import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.koin.payloadScope
 import com.blockchain.outcome.doOnSuccess
+import com.blockchain.outcome.getOrNull
 import com.blockchain.transactions.swap.SwapAnalyticsEvents
+import com.blockchain.transactions.swap.SwapGraph
+import com.blockchain.transactions.swap.SwapService
+import com.blockchain.transactions.swap.model.ShouldUpsellPassiveRewardsResult
+import com.blockchain.transactions.upsell.interest.UpsellInterestArgs
 import com.blockchain.utils.awaitOutcome
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -65,16 +75,19 @@ sealed interface SwapNewOrderState {
 data class SwapNewOrderStateArgs(
     val sourceAmount: CryptoValue,
     val targetAmount: CryptoValue,
+    val targetAccount: Bindable<CryptoAccount>,
     val orderState: SwapNewOrderState
 ) : Serializable
 
 @Composable
-fun SwapNewOrderStateScreen(
+fun NavContext.SwapNewOrderStateScreen(
     analytics: Analytics = get(),
+    swapService: SwapService = get(scope = payloadScope),
     args: SwapNewOrderStateArgs,
     deeplinkRedirector: DeeplinkRedirector = get(scope = payloadScope),
     exitFlow: () -> Unit
 ) {
+    val targetAccount = args.targetAccount.data ?: return
     val context = LocalContext.current
     var handleDeeplinkUrl by remember { mutableStateOf<String?>(null) }
 
@@ -94,6 +107,14 @@ fun SwapNewOrderStateScreen(
         }
     }
 
+    var shouldShowUpsellInterestResult by remember { mutableStateOf<ShouldUpsellPassiveRewardsResult?>(null) }
+    if (targetAccount is CustodialTradingAccount && args.orderState is SwapNewOrderState.Succeeded) {
+        LaunchedEffect(Unit) {
+            shouldShowUpsellInterestResult =
+                swapService.shouldUpsellPassiveRewardsAfterSwap(args.targetAmount.currency).getOrNull()
+        }
+    }
+
     LaunchedEffect(args.orderState) {
         when (args.orderState) {
             SwapNewOrderState.PendingDeposit -> analytics.logEvent(SwapAnalyticsEvents.PendingViewed)
@@ -109,7 +130,20 @@ fun SwapNewOrderStateScreen(
         handleDeeplinkUrlAndExit = { deeplinkUrl ->
             handleDeeplinkUrl = deeplinkUrl
         },
-        exitSwap = exitFlow
+        doneClicked = {
+            when (val result = shouldShowUpsellInterestResult) {
+                is ShouldUpsellPassiveRewardsResult.ShouldLaunch -> {
+                    val upsellArgs = UpsellInterestArgs(
+                        sourceAccount = Bindable(targetAccount),
+                        targetAccount = Bindable(result.interestAccount),
+                        interestRate = result.interestRate,
+                    )
+                    navigateTo(SwapGraph.UpsellInterest, upsellArgs)
+                }
+                ShouldUpsellPassiveRewardsResult.ShouldNot,
+                null -> exitFlow()
+            }
+        }
     )
 }
 
@@ -119,7 +153,7 @@ private fun NewOrderStateContent(
     targetAmount: CryptoValue,
     orderState: SwapNewOrderState,
     handleDeeplinkUrlAndExit: (String) -> Unit,
-    exitSwap: () -> Unit
+    doneClicked: () -> Unit
 ) {
     Column(
         modifier = Modifier.background(AppTheme.colors.light)
@@ -229,7 +263,7 @@ private fun NewOrderStateContent(
                     .fillMaxWidth()
                     .padding(AppTheme.dimensions.smallSpacing),
                 text = stringResource(com.blockchain.stringResources.R.string.common_done),
-                onClick = exitSwap
+                onClick = doneClicked
             )
         }
     }
@@ -320,7 +354,7 @@ private fun PreviewPendingDeposit() {
         targetAmount = CryptoValue.fromMajor(CryptoCurrency.BTC, 0.05.toBigDecimal()),
         orderState = SwapNewOrderState.PendingDeposit,
         handleDeeplinkUrlAndExit = {},
-        exitSwap = {}
+        doneClicked = {}
     )
 }
 
@@ -332,7 +366,7 @@ private fun PreviewSucceeded() {
         targetAmount = CryptoValue.fromMajor(CryptoCurrency.BTC, 0.05.toBigDecimal()),
         orderState = SwapNewOrderState.Succeeded,
         handleDeeplinkUrlAndExit = {},
-        exitSwap = {}
+        doneClicked = {}
     )
 }
 
@@ -366,6 +400,6 @@ private fun PreviewError() {
         targetAmount = CryptoValue.fromMajor(CryptoCurrency.BTC, 0.05.toBigDecimal()),
         orderState = SwapNewOrderState.Error(apiException),
         handleDeeplinkUrlAndExit = {},
-        exitSwap = {}
+        doneClicked = {}
     )
 }
