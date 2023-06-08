@@ -3,6 +3,7 @@ package com.blockchain.componentlib.button
 import android.content.Context
 import android.util.AttributeSet
 import androidx.compose.runtime.Composable
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.common.BaseButtonView
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -21,7 +22,7 @@ class SecondaryButtonView @JvmOverloads constructor(
                     onClick = onClick,
                     text = text,
                     state = buttonState,
-                    icon = icon
+                    icon = icon as? ImageResource.Local
                 )
             }
         }

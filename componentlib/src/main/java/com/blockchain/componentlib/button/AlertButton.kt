@@ -20,7 +20,6 @@ import com.blockchain.componentlib.button.common.Button
 import com.blockchain.componentlib.button.common.ButtonStyle
 import com.blockchain.componentlib.theme.AppTheme
 
-// this button seems like an exception for light dark colors are it is using special colors and always white text
 private val bgColorLight = Color(0XFF121D33)
 private val bgColorDark = Color(0XFF20242C)
 private val bgColor @Composable get() = if (isSystemInDarkTheme()) bgColorDark else bgColorLight

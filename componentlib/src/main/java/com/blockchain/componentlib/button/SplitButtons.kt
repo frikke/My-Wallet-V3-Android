@@ -32,7 +32,7 @@ fun SplitButtons(
                     onClick = secondaryButtonOnClick,
                     state = secondaryButtonState,
                     modifier = Modifier.weight(1f),
-                    icon = secondaryButtonIcon
+                    icon = secondaryButtonIcon as? ImageResource.Local
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 PrimaryButton(
@@ -57,7 +57,7 @@ fun SplitButtons(
                     onClick = secondaryButtonOnClick,
                     state = secondaryButtonState,
                     modifier = Modifier.weight(1f),
-                    icon = secondaryButtonIcon
+                    icon = secondaryButtonIcon as? ImageResource.Local
                 )
             }
         }
