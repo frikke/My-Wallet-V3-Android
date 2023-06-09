@@ -1,15 +1,24 @@
 package com.blockchain.componentlib.button
 
 import android.content.res.Configuration
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.common.ButtonStyle
-import com.blockchain.componentlib.button.common.FilledButton
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Plus
 import com.blockchain.componentlib.theme.AppColors
+
+private val bgColorLight = Color(0XFFFFFFFF)
+private val bgColorDark = Color(0XFF07080D)
+private val bgColor @Composable get() = if (isSystemInDarkTheme()) bgColorDark else bgColorLight
+
+private val borderColorLight = Color(0XFFF0F2F7)
+private val borderColorDark = Color(0XFF2C3038)
+private val borderColor @Composable get() = if (isSystemInDarkTheme()) borderColorDark else borderColorLight
 
 @Composable
 fun MinimalSecondaryButton(
@@ -56,12 +65,13 @@ private fun MinimalSecondaryButton(
     style: ButtonStyle,
     onClick: () -> Unit
 ) {
-    FilledButton(
+    com.blockchain.componentlib.button.common.OutlinedButton(
         modifier = modifier,
         text = text,
         textColor = AppColors.title,
-        backgroundColor = AppColors.backgroundSecondary,
-        disabledBackgroundColor = AppColors.backgroundSecondary,
+        backgroundColor = bgColor,
+        disabledBackgroundColor = bgColor,
+        borderColor = borderColor,
         state = state,
         style = style,
         icon = icon,

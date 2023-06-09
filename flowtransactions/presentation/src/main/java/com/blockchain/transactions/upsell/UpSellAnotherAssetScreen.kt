@@ -19,6 +19,7 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryOutlinedButton
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.BalanceChange
@@ -134,11 +135,10 @@ private fun Content(
 
         LargeVerticalSpacer()
 
-        PrimaryOutlinedButton(
+        MinimalPrimaryButton(
             text = stringResource(com.blockchain.stringResources.R.string.common_maybe_later),
             onClick = onMaybeLater,
-            modifier = Modifier.fillMaxWidth(),
-            isTransparent = false
+            modifier = Modifier.fillMaxWidth()
         )
 
         StandardVerticalSpacer()

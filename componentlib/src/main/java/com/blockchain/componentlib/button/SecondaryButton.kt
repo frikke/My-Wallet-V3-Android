@@ -2,25 +2,16 @@ package com.blockchain.componentlib.button
 
 import android.content.res.Configuration
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.common.ButtonStyle
-import com.blockchain.componentlib.button.common.FilledButton
+import com.blockchain.componentlib.button.common.Button
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Plus
 import com.blockchain.componentlib.theme.AppColors
-import com.blockchain.componentlib.theme.AppSurface
-import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Dark800
-import com.blockchain.componentlib.theme.Grey500
-import com.blockchain.componentlib.theme.Grey800
-import com.blockchain.componentlib.theme.Grey900
 
 private val bgColorLight = Color(0XFF353F52)
 private val bgColorDark = Color(0XFF677184)
@@ -75,7 +66,7 @@ private fun SecondaryButton(
     style: ButtonStyle,
     onClick: () -> Unit
 ) {
-    FilledButton(
+    Button(
         modifier = modifier,
         text = text,
         textColor = AppColors.backgroundSecondary,

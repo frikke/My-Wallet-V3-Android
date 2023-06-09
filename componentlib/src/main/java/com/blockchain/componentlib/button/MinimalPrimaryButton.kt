@@ -6,7 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.common.ButtonStyle
-import com.blockchain.componentlib.button.common.FilledButton
+import com.blockchain.componentlib.button.common.Button
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Plus
 import com.blockchain.componentlib.theme.AppColors
@@ -56,7 +56,7 @@ private fun MinimalPrimaryButton(
     style: ButtonStyle,
     onClick: () -> Unit
 ) {
-    FilledButton(
+    Button(
         modifier = modifier,
         text = text,
         textColor = AppColors.primary,

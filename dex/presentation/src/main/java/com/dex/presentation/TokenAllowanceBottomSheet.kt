@@ -20,12 +20,14 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.SavedStateHandle
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryOutlinedButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.icons.Gas
@@ -178,10 +180,9 @@ fun ApproveAndDenyButtons(onApprove: () -> Unit, onDecline: () -> Unit) {
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.tinySpacing)
     ) {
-        PrimaryOutlinedButton(
+        MinimalPrimaryButton(
             text = stringResource(id = com.blockchain.stringResources.R.string.common_decline),
             onClick = onDecline,
-            isTransparent = false,
             modifier = Modifier.weight(.5f)
         )
         PrimaryButton(
@@ -190,6 +191,12 @@ fun ApproveAndDenyButtons(onApprove: () -> Unit, onDecline: () -> Unit) {
             modifier = Modifier.weight(.5f)
         )
     }
+}
+
+@Preview
+@Composable
+private fun PreviewApproveAndDenyButtons() {
+    ApproveAndDenyButtons({}, {})
 }
 
 @Composable
