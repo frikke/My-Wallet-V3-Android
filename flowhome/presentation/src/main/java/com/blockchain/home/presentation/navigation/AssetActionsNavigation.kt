@@ -4,6 +4,7 @@ import androidx.compose.runtime.Stable
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.navigation.ActivityResultNavigation
@@ -30,6 +31,7 @@ interface AssetActionsNavigation : ActivityResultNavigation {
     fun coinview(asset: AssetInfo, recurringBuyId: String?, originScreen: String)
     fun onBoardingNavigation(initialSteps: List<CompletableDashboardOnboardingStep>)
     fun interestSummary(account: CryptoAccount)
+    fun interestDeposit(source: CryptoAccount, target: CustodialInterestAccount)
     fun stakingSummary(networkTicker: String)
     fun activeRewardsSummary(networkTicker: String)
     fun startKyc()

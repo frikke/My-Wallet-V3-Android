@@ -20,8 +20,8 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.news.NewsArticle
-import com.blockchain.presentation.customtabs.openUrlCustomTabs
 import com.blockchain.utils.toFormattedDate
 import java.util.Date
 
@@ -39,7 +39,7 @@ fun NewsArticle(
         Row(
             modifier = Modifier
                 .clickable(
-                    onClick = { context.openUrlCustomTabs(newsArticle.link) }
+                    onClick = { context.openUrl(newsArticle.link) }
                 )
                 .fillMaxWidth()
                 .padding(AppTheme.dimensions.smallSpacing)

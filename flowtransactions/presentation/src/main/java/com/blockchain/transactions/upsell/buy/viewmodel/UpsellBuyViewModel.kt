@@ -1,4 +1,4 @@
-package com.blockchain.transactions.upsell.viewmodel
+package com.blockchain.transactions.upsell.buy.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
@@ -17,39 +17,39 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class UpSellAnotherAssetViewModel(
+class UpsellBuyViewModel(
     private val assetJustTransactedTicker: String,
     private val pricesService: PricesService,
     private val simpleBuyService: SimpleBuyService,
 ) : MviViewModel<
-    UpSellAnotherAssetIntent,
-    UpsellAnotherAssetViewState,
-    UpsellAnotherAssetModelState,
-    UpsellAnotherAssetNavigationEvent,
+    UpsellBuyIntent,
+    UpsellBuyViewState,
+    UpsellBuyModelState,
+    UpsellBuyNavigationEvent,
     ModelConfigArgs.NoArgs
     >(
-    initialState = UpsellAnotherAssetModelState()
+    initialState = UpsellBuyModelState()
 ) {
     private var mostPopularJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
-    override fun UpsellAnotherAssetModelState.reduce() = UpsellAnotherAssetViewState(
+    override fun UpsellBuyModelState.reduce() = UpsellBuyViewState(
         assetsToUpSell = assetsToUpSell.mapList {
             it.toPriceItemViewState()
         }.toImmutableList(),
         isLoading = isLoading
     )
 
-    override suspend fun handleIntent(modelState: UpsellAnotherAssetModelState, intent: UpSellAnotherAssetIntent) {
+    override suspend fun handleIntent(modelState: UpsellBuyModelState, intent: UpsellBuyIntent) {
         when (intent) {
-            is UpSellAnotherAssetIntent.LoadData -> {
+            is UpsellBuyIntent.LoadData -> {
                 loadMostPopularAssets()
             }
 
-            is UpSellAnotherAssetIntent.DismissUpsell -> {
-                simpleBuyService.dismissUpsellAnotherAsset()
+            is UpsellBuyIntent.DismissUpsell -> {
+                simpleBuyService.dismissUpsellBuy()
             }
         }
     }

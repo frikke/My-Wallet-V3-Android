@@ -14,7 +14,9 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,9 +24,13 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.expandables.ExpandableItem
@@ -36,16 +42,19 @@ import com.blockchain.componentlib.sheets.SheetNub
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.data.DataResource
 import com.blockchain.koin.payloadScope
 import com.blockchain.nfts.R
 import com.blockchain.nfts.detail.NftDetailIntent
 import com.blockchain.nfts.detail.NftDetailViewModel
 import com.blockchain.nfts.detail.NftDetailViewState
+import com.blockchain.nfts.detail.navigation.NftDetailNavigationEvent
 import com.blockchain.nfts.domain.models.NftAsset
 import com.blockchain.nfts.domain.models.NftContract
 import com.blockchain.nfts.domain.models.NftCreator
 import com.blockchain.nfts.domain.models.NftTrait
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -65,8 +74,22 @@ fun NftDetail(
         onDispose { }
     }
 
-    val viewState: NftDetailViewState by viewModel.viewState.collectAsStateLifecycleAware()
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val navEventsFlowLifecycleAware = remember(viewModel.navigationEventFlow, lifecycleOwner) {
+        viewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
+    LaunchedEffect(key1 = viewModel) {
+        navEventsFlowLifecycleAware.collectLatest { event ->
+            when (event) {
+                is NftDetailNavigationEvent.ExternalView -> {
+                    context.openUrl(event.url)
+                }
+            }
+        }
+    }
 
+    val viewState: NftDetailViewState by viewModel.viewState.collectAsStateLifecycleAware()
     NftDetailScreen(
         viewState.nftAsset,
         onExternalViewClick = { nftAsset ->

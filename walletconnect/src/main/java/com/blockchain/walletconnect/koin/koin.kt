@@ -30,6 +30,13 @@ import org.koin.dsl.module
 
 val walletConnectModule = module {
 
+    single {
+        WalletConnectV2ServiceImpl()
+    }.apply {
+        bind(WalletConnectV2Service::class)
+        bind(WalletConnectV2UrlValidator::class)
+    }
+
     scope(payloadScopeQualifier) {
 
         scoped {
@@ -45,20 +52,6 @@ val walletConnectModule = module {
         }.apply {
             bind(WalletConnectServiceAPI::class)
             bind(WalletConnectUrlValidator::class)
-        }
-
-        scoped {
-            WalletConnectV2ServiceImpl(
-                application = get(),
-                ethDataManager = get(),
-                coincore = get(),
-                ethRequestSign = get(),
-                ethRequestSend = get(),
-                ethMessageSigner = get()
-            )
-        }.apply {
-            bind(WalletConnectV2Service::class)
-            bind(WalletConnectV2UrlValidator::class)
         }
 
         factory {

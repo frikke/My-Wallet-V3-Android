@@ -18,6 +18,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.earn.activeRewards.ActiveRewardsSummaryBottomSheet
 import com.blockchain.earn.activeRewards.viewmodel.ActiveRewardsError
 import com.blockchain.earn.interest.InterestSummaryBottomSheet
@@ -30,7 +31,6 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.extensions.putAccount
-import com.blockchain.presentation.openUrl
 import com.blockchain.presentation.sheets.NoBalanceActionBottomSheet
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo

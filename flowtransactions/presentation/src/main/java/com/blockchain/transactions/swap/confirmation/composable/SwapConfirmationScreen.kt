@@ -139,17 +139,35 @@ private fun ConfirmationContent(
                 .padding(AppTheme.dimensions.smallSpacing)
                 .verticalScroll(rememberScrollState())
         ) {
+            val topIcon = if (state.sourceNativeAssetIconUrl != null) {
+                StackedIcon.SmallTag(
+                    ImageResource.Remote(state.sourceAsset.logo),
+                    ImageResource.Remote(state.sourceNativeAssetIconUrl)
+                )
+            } else {
+                StackedIcon.SingleIcon(ImageResource.Remote(state.sourceAsset.logo))
+            }
+
+            val bottomIcon = if (state.targetNativeAssetIconUrl != null) {
+                StackedIcon.SmallTag(
+                    ImageResource.Remote(state.targetAsset.logo),
+                    ImageResource.Remote(state.targetNativeAssetIconUrl)
+                )
+            } else {
+                StackedIcon.SingleIcon(ImageResource.Remote(state.targetAsset.logo))
+            }
+
             TwoAssetAction(
                 topTitle = state.sourceAsset.name,
-                topSubtitle = state.sourceAsset.displayTicker,
+                topSubtitle = state.sourceAssetDescription,
                 topEndTitle = state.sourceCryptoAmount.toStringWithSymbol(),
                 topEndSubtitle = state.sourceFiatAmount?.toStringWithSymbol().orEmpty(),
-                topIcon = StackedIcon.SingleIcon(ImageResource.Remote(state.sourceAsset.logo)),
+                topIcon = topIcon,
                 bottomTitle = state.targetAsset.name,
-                bottomSubtitle = state.targetAsset.displayTicker,
+                bottomSubtitle = state.targetAssetDescription,
                 bottomEndTitle = state.targetCryptoAmount?.toStringWithSymbol().orEmpty(),
                 bottomEndSubtitle = state.targetFiatAmount?.toStringWithSymbol().orEmpty(),
-                bottomIcon = StackedIcon.SingleIcon(ImageResource.Remote(state.targetAsset.logo))
+                bottomIcon = bottomIcon
             )
 
             StandardVerticalSpacer()
@@ -186,7 +204,8 @@ private fun ConfirmationContent(
         }
 
         PrimaryButton(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(AppTheme.dimensions.smallSpacing)
                 .align(Alignment.BottomCenter),
             text = stringResource(com.blockchain.stringResources.R.string.common_swap),
@@ -403,7 +422,11 @@ private fun PreviewInitialState() {
     val state = SwapConfirmationViewState(
         isFetchQuoteLoading = true,
         sourceAsset = CryptoCurrency.ETHER,
+        sourceNativeAssetIconUrl = null,
+        sourceAssetDescription = "DeFi Wallet",
         targetAsset = CryptoCurrency.BTC,
+        targetNativeAssetIconUrl = null,
+        targetAssetDescription = "BTC",
         sourceCryptoAmount = CryptoValue.fromMajor(CryptoCurrency.ETHER, 0.05.toBigDecimal()),
         sourceFiatAmount = null,
         targetCryptoAmount = null,
@@ -431,7 +454,11 @@ private fun PreviewLoadedState() {
     val state = SwapConfirmationViewState(
         isFetchQuoteLoading = false,
         sourceAsset = CryptoCurrency.ETHER,
+        sourceNativeAssetIconUrl = null,
+        sourceAssetDescription = "DeFi Wallet",
         targetAsset = CryptoCurrency.BTC,
+        targetNativeAssetIconUrl = null,
+        targetAssetDescription = "BTC",
         sourceCryptoAmount = CryptoValue.fromMinor(CryptoCurrency.ETHER, 1234567890.toBigDecimal()),
         sourceFiatAmount = FiatValue.fromMajor(FiatCurrency.Dollars, 100.0.toBigDecimal()),
         targetCryptoAmount = CryptoValue.fromMinor(CryptoCurrency.BTC, 1234567.toBigInteger()),

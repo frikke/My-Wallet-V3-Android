@@ -12,10 +12,10 @@ import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.withArgs
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.domain.paymentmethods.model.BankAuthSource
 import com.blockchain.domain.paymentmethods.model.YapilyInstitution
 import com.blockchain.koin.payloadScope
-import com.blockchain.presentation.openUrl
 import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.scope.Scope
@@ -75,7 +75,7 @@ class OpenBankingPermissionFragment :
     override fun onStateUpdated(state: OpenBankingPermissionViewState) {}
 
     private fun openUrl(url: String) {
-        context.openUrl(url)
+        context?.openUrl(url)
     }
 
     private fun approveOnClick() {

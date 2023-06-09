@@ -10,6 +10,7 @@ import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import info.blockchain.wallet.payload.PayloadScopeWiper
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
+import piuk.blockchain.android.ui.launcher.GlobalEventHandler
 
 class DataWiperImpl constructor(
     private val ethDataManager: EthDataManager,
@@ -21,7 +22,8 @@ class DataWiperImpl constructor(
     private val walletPrefs: WalletStatusPrefs,
     private val payloadScopeWiper: PayloadScopeWiper,
     private val sessionInfo: SessionInfo,
-    private val remoteLogger: RemoteLogger
+    private val remoteLogger: RemoteLogger,
+    private val globalEventHandler: GlobalEventHandler
 ) : DataWiper {
     /***
      * App locked
@@ -37,5 +39,6 @@ class DataWiperImpl constructor(
         payloadScopeWiper.wipe()
         sessionInfo.clearUserId()
         walletPrefs.isAppUnlocked = false
+        globalEventHandler.clear()
     }
 }

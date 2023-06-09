@@ -22,6 +22,7 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Network
 import com.blockchain.componentlib.icons.User
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -46,7 +47,6 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.koin.scopedInject
-import com.blockchain.presentation.openUrl
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers

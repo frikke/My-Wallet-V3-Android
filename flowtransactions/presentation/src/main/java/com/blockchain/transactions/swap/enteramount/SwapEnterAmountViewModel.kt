@@ -18,7 +18,6 @@ import com.blockchain.data.dataOrElse
 import com.blockchain.data.dataOrNull
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
-import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.trade.TradeDataService
 import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.extensions.safeLet
@@ -27,6 +26,7 @@ import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.toDataResource
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.transactions.common.CombinedSourceNetworkFees
 import com.blockchain.transactions.common.CryptoAccountWithBalance
 import com.blockchain.transactions.common.OnChainDepositEngineInteractor
@@ -67,7 +67,7 @@ class SwapEnterAmountViewModel(
     private val tradeDataService: TradeDataService,
     private val assetCatalogue: AssetCatalogue,
     private val onChainDepositEngineInteractor: OnChainDepositEngineInteractor,
-    fiatCurrenciesService: FiatCurrenciesService,
+    currencyPrefs: CurrencyPrefs
 ) : MviViewModel<
     SwapEnterAmountIntent,
     SwapEnterAmountViewState,
@@ -83,7 +83,7 @@ class SwapEnterAmountViewModel(
     private val cryptoInputChanges = MutableSharedFlow<CryptoValue>()
 
     private val fiatCurrency: FiatCurrency by lazy {
-        fiatCurrenciesService.selectedTradingCurrency
+        currencyPrefs.selectedFiatCurrency
     }
 
     init {
@@ -300,6 +300,9 @@ class SwapEnterAmountViewModel(
 
             is SwapEnterAmountIntent.FromAccountChanged -> {
                 check(modelState.walletMode != null)
+                updateState {
+                    copy(config = DataResource.Loading)
+                }
 
                 // verify if current TO account is still valid
                 val isToAccountStillValid = modelState.toAccount?.let {
@@ -310,13 +313,17 @@ class SwapEnterAmountViewModel(
                     )
                 } ?: false
                 val toAccount = modelState.toAccount?.takeIf { isToAccountStillValid }
+                    ?: swapService.bestTargetAccountForMode(
+                        sourceTicker = intent.account.account.currency.networkTicker,
+                        targetTicker = null,
+                        mode = modelState.walletMode
+                    )
 
                 updateState {
                     copy(
                         fromAccount = intent.account,
                         secondPassword = intent.secondPassword,
                         toAccount = toAccount,
-                        config = DataResource.Loading,
                         fiatAmount = null,
                         fiatAmountUserInput = "",
                         cryptoAmount = null,
@@ -345,17 +352,10 @@ class SwapEnterAmountViewModel(
             }
 
             SwapEnterAmountIntent.MaxSelected -> {
-                val userInputBalance = modelState.currencyAwareMaxAmount.toInputString()
-
-                when (modelState.selectedInput) {
-                    CurrencyType.FIAT -> {
-                        fiatInputChanged(userInputBalance)
-                    }
-
-                    CurrencyType.CRYPTO -> {
-                        cryptoInputChanged(userInputBalance)
-                    }
-                }
+                // We're ignore the [selectedInput] and always changing the cryptoInput so we make sure to swap everything the user has
+                // and not leave the user with 0.0000000012 of some currency, this is because the Fiat currency has lower precision and
+                // will never be converted correctly back to crypto and match the true max.
+                cryptoInputChanged(modelState.maxLimit.toInputString())
             }
 
             SwapEnterAmountIntent.PreviewClicked -> {
@@ -618,7 +618,15 @@ class SwapEnterAmountViewModel(
             }
 
             minLimit != null && cryptoAmount < minLimit -> {
-                SwapEnterAmountInputError.BelowMinimum(minValue = minLimitString)
+                SwapEnterAmountInputError.BelowMinimum(
+                    minValue = minLimitString,
+                    direction = safeLet(
+                        fromAccount?.account,
+                        toAccount
+                    ) { source, target ->
+                        getTransferDirection(source, target)
+                    } ?: TransferDirection.INTERNAL
+                )
             }
 
             maxLimit != null && cryptoAmount > maxLimit -> {

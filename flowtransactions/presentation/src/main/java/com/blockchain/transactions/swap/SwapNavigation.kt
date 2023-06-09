@@ -15,6 +15,7 @@ import com.blockchain.betternavigation.utils.Bindable
 import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.chrome.composable.ChromeSingleScreen
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.common.entersecondpassword.EnterSecondPasswordArgs
 import com.blockchain.transactions.common.entersecondpassword.composable.EnterSecondPasswordScreen
@@ -32,6 +33,8 @@ import com.blockchain.transactions.swap.sourceaccounts.composable.SwapSourceAcco
 import com.blockchain.transactions.swap.targetaccounts.composable.SwapTargetAccounts
 import com.blockchain.transactions.swap.targetaccounts.composable.SwapTargetAccountsArgs
 import com.blockchain.transactions.swap.targetassets.composable.SwapTargetAssets
+import com.blockchain.transactions.upsell.interest.UpsellInterestAfterSwapScreen
+import com.blockchain.transactions.upsell.interest.UpsellInterestArgs
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
@@ -45,12 +48,14 @@ object SwapGraph : NavGraph() {
     object TargetAccount : DestinationWithArgs<SwapTargetAccountsArgs>()
     object Confirmation : DestinationWithArgs<SwapConfirmationArgs>()
     object NewOrderState : DestinationWithArgs<SwapNewOrderStateArgs>()
+    object UpsellInterest : DestinationWithArgs<UpsellInterestArgs>()
 }
 
 @ExperimentalMaterialNavigationApi
 @Composable
 fun SwapGraphHost(
     initialSourceAccount: CryptoAccount?,
+    navigateToInterestDeposit: (source: CryptoAccount, target: CustodialInterestAccount) -> Unit,
     exitFlow: () -> Unit,
 ) {
     val viewModel: SwapEnterAmountViewModel = getViewModel(
@@ -163,6 +168,19 @@ fun SwapGraphHost(
                 SwapNewOrderStateScreen(
                     args = args,
                     exitFlow = exitFlow
+                )
+            }
+        }
+
+        typedBottomSheet(SwapGraph.UpsellInterest) { args ->
+            ChromeBottomSheet(fillMaxHeight = true, onClose = exitFlow) {
+                UpsellInterestAfterSwapScreen(
+                    args = args,
+                    navigateToInterestDeposit = { source, target ->
+                        navigateToInterestDeposit(source, target)
+                        exitFlow()
+                    },
+                    exitFlow = exitFlow,
                 )
             }
         }

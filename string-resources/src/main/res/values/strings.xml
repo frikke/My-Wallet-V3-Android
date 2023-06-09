@@ -1878,6 +1878,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="minimum_withdraw_error_message">To offset fees, the minimum amount for any withdrawal is %1$s.</string>
     <string name="over_your_limit">Over Your Limit</string>
     <string name="minimum_swap_error_message">To avoid unnecessary fees and network slippage, the minimum amount for this pair is %1$s.</string>
+    <string name="minimum_swap_custodial_error_message">The minimum amount you can swap is %1$s.</string>
     <string name="minimum_buy_error_message">To offset fees and market volatility, the minimum amount for any buy is %1$s.</string>
     <string name="minimum_sell_error_message">The minimum amount for you can sell is %1$s.</string>
     <string name="minimum_deposit_error_message">The minimum amount for you can deposit is %1$s. </string>
@@ -3629,6 +3630,9 @@ If you want to know more about our verification process visit our <annotation li
     <string name="asset_upsell_subtitle">People who bought Bitcoin often buy these assets as well.</string>
     <string name="sell_asset_upsell_title">Would you like to buy an asset?</string>
     <string name="sell_asset_upsell_subtitle">With all that fresh cash, you could buy another crypto.</string>
+    <string name="interest_upsell_after_swap_title">Put your %1$s to work</string>
+    <string name="interest_upsell_after_swap_subtitle">With Passive Rewards, you can earn up to %1$s%% on your %2$s.</string>
+    <string name="interest_upsell_after_swap_cta">Start earning</string>
     <string name="confirm_swap">Confirm Swap</string>
     <string name="min_amount">Min. amount</string>
     <string name="minimum_amount">Minimum amount</string>

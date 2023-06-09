@@ -25,6 +25,8 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
 import com.blockchain.preferences.BankLinkingPrefs
+import com.blockchain.walletconnect.domain.WalletConnectV2Service
+import com.blockchain.walletconnect.domain.WalletConnectV2UrlValidator
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
@@ -51,7 +53,9 @@ class DeeplinkNavigationHandler(
     private val cancelOrderUseCase: CancelOrderService,
     private val bankService: BankService,
     private val bankBuyNavigation: BankBuyNavigation,
-    private val bankLinkingPrefs: BankLinkingPrefs
+    private val bankLinkingPrefs: BankLinkingPrefs,
+    private val walletConnectV2Service: WalletConnectV2Service,
+    private val walletConnectV2UrlValidator: WalletConnectV2UrlValidator
 ) : ViewModel() {
     private val _step: MutableSharedFlow<DeeplinkNavigationStep> = MutableSharedFlow()
     private val compositeDisposable = CompositeDisposable()
@@ -86,12 +90,21 @@ class DeeplinkNavigationHandler(
                 it != Uri.EMPTY &&
                     (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0
             }?.let {
-                deeplinkRedirector.processDeeplinkURL(it).toMaybe()
-                    .flatMap { result ->
-                        if (result is DeepLinkResult.DeepLinkResultUnknownLink) {
-                            deeplinkService.getLink(intent)
-                        } else Maybe.empty()
+
+                // A WalletConnect session pair deeplink must be handled by the WalletConnect service directly
+                if (walletConnectV2UrlValidator.validateURI(it.toString())) {
+                    viewModelScope.launch {
+                        walletConnectV2Service.pair(it.toString())
                     }
+                    Maybe.empty()
+                } else {
+                    deeplinkRedirector.processDeeplinkURL(it).toMaybe()
+                        .flatMap { result ->
+                            if (result is DeepLinkResult.DeepLinkResultUnknownLink) {
+                                deeplinkService.getLink(intent)
+                            } else Maybe.empty()
+                        }
+                }
             } ?: Maybe.empty()
             )
     }

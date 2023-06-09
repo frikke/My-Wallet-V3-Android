@@ -38,6 +38,7 @@ dependencies {
     implementation Libraries.design
     implementation Libraries.glide
     implementation Libraries.constraintLayout
+    implementation Libraries.customTabs
 
     implementation Libraries.lifecycleViewModel
     implementation Libraries.lifecycleViewModelExtensions

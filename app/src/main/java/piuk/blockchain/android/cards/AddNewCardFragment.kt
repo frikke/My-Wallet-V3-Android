@@ -13,6 +13,7 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.card.CardButton
 import com.blockchain.componentlib.utils.VibrationManager
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -21,7 +22,6 @@ import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.payments.vgs.VgsCardTokenizerService
 import com.blockchain.presentation.koin.scopedInject
-import com.blockchain.presentation.openUrl
 import com.braintreepayments.cardform.utils.CardType
 import com.verygoodsecurity.vgscollect.core.model.state.FieldState
 import com.verygoodsecurity.vgscollect.core.storage.OnFieldStateChangeListener

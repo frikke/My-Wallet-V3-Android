@@ -24,7 +24,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.subjects.MaybeSubject
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.rx3.asObservable
-import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivity
 import piuk.blockchain.android.ui.home.HomeActivityLauncher
@@ -44,7 +43,9 @@ class GlobalEventHandler(
     private val compositeDisposable = CompositeDisposable()
 
     fun init() {
-        compositeDisposable.clear()
+
+        clear()
+
         compositeDisposable += walletConnectServiceAPI.userEvents.subscribe { event ->
             startTransactionFlowForSigning(event)
         }
@@ -59,6 +60,10 @@ class GlobalEventHandler(
             .subscribe { deeplinkResult ->
                 navigateToDeeplinkDestination(deeplinkResult)
             }
+    }
+
+    fun clear() {
+        compositeDisposable.clear()
     }
 
     private fun navigateToDeeplinkDestination(deeplinkResult: DeepLinkResult) {

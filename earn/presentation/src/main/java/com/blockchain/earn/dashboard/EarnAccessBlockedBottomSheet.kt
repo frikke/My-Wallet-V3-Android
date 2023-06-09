@@ -8,8 +8,8 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.BottomSheetTwoButtons
 import com.blockchain.componentlib.sheets.ButtonType
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.earn.R
-import com.blockchain.presentation.openUrl
 
 class EarnAccessBlockedBottomSheet : ComposeModalBottomDialog() {
 
@@ -34,7 +34,7 @@ class EarnAccessBlockedBottomSheet : ComposeModalBottomDialog() {
             button1 = BottomSheetButton(
                 type = ButtonType.SMALL_MINIMAL,
                 onClick = {
-                    context.openUrl(LEARN_MORE_URL)
+                    context?.openUrl(LEARN_MORE_URL)
                 },
                 text = getString(com.blockchain.stringResources.R.string.common_learn_more)
             ),

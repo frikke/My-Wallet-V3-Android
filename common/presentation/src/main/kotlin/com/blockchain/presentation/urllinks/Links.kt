@@ -15,6 +15,9 @@ const val URL_PRIVACY_POLICY = "https://blockchain.com/privacy"
 const val MODULAR_TERMS_AND_CONDITIONS =
     "https://exchange.blockchain.com/legal#modulr"
 
+const val EARN_LEARN_MORE_URL =
+    "https://support.blockchain.com/hc/en-us/sections/5969256857244-Earn-Rewards"
+
 const val INTEREST_TERMS_OF_SERVICE = "https://www.blockchain.com/legal/borrow-terms"
 const val INTEREST_PRIVACY_POLICY = "https://blockchain.com/legal/privacy"
 

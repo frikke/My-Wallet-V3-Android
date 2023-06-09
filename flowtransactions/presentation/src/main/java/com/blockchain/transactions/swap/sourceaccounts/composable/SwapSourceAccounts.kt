@@ -67,7 +67,7 @@ fun SwapSourceAccounts(
     ) {
         SheetFlatHeader(
             icon = StackedIcon.None,
-            title = stringResource(R.string.common_sell),
+            title = stringResource(R.string.common_swap),
             onCloseClick = onBackPressed
         )
 

@@ -30,7 +30,7 @@ val swapTransactionsPresentationModule = module {
                 tradeDataService = get(),
                 assetCatalogue = get(),
                 onChainDepositEngineInteractor = get(),
-                fiatCurrenciesService = get(),
+                currencyPrefs = get(),
             )
         }
 
@@ -42,6 +42,7 @@ val swapTransactionsPresentationModule = module {
                 custodialWalletManager = get(),
                 swapTransactionsStore = get(),
                 tradingStore = get(),
+                assetCatalogue = get()
             )
         }
 

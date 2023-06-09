@@ -13,6 +13,7 @@ import com.blockchain.commonarch.presentation.base.addTransactionAnimation
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.componentlib.databinding.FragmentActivityBinding
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.utils.checkValidUrlAndOpen
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
@@ -43,10 +44,9 @@ import com.blockchain.outcome.doOnSuccess
 import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptor
 import com.blockchain.payments.googlepay.interceptor.OnGooglePayDataReceivedListener
 import com.blockchain.preferences.BankLinkingPrefs
-import com.blockchain.presentation.checkValidUrlAndOpen
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.koin.scopedInject
-import com.blockchain.transactions.upsell.UpsellAnotherAssetBottomSheet
+import com.blockchain.transactions.upsell.buy.UpsellBuyBottomSheet
 import com.blockchain.utils.consume
 import com.blockchain.utils.unsafeLazy
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -84,7 +84,7 @@ class SimpleBuyActivity :
     RecurringBuyCreatedBottomSheet.Host,
     ErrorSlidingBottomDialog.Host,
     CurrencySelectionSheet.Host,
-    UpsellAnotherAssetBottomSheet.Host {
+    UpsellBuyBottomSheet.Host {
     override val alwaysDisableScreenshots: Boolean
         get() = false
 
@@ -624,7 +624,7 @@ class SimpleBuyActivity :
 
     override fun launchUpSellBottomSheet(assetBoughtTicker: String) {
         showBottomSheet(
-            UpsellAnotherAssetBottomSheet.newInstance(
+            UpsellBuyBottomSheet.newInstance(
                 assetTransactedTicker = assetBoughtTicker,
                 title = getString(com.blockchain.stringResources.R.string.asset_upsell_title),
                 description = getString(com.blockchain.stringResources.R.string.asset_upsell_subtitle)

@@ -10,8 +10,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.MVIBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.presentation.copyToClipboard
-import com.blockchain.presentation.openUrl
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.java.KoinJavaComponent.get
 import piuk.blockchain.android.ui.customersupport.composable.CustomerSupportScreen
@@ -62,7 +62,7 @@ class CustomerSupportSheet :
     }
 
     private fun viewUrl(url: String) {
-        context.openUrl(url)
+        context?.openUrl(url)
     }
 
     override fun route(navigationEvent: CustomerSupportNavigationEvent) {

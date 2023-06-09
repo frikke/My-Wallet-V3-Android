@@ -19,6 +19,7 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.User
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
@@ -31,7 +32,6 @@ import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
-import com.blockchain.presentation.openUrl
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 import org.koin.android.ext.android.inject

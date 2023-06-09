@@ -76,7 +76,7 @@ import com.blockchain.payments.stripe.StripeCardProcessor
 import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.presentation.navigation.DefiBackupNavigation
 import com.blockchain.prices.navigation.PricesNavigation
-import com.blockchain.transactions.upsell.viewmodel.UpSellAnotherAssetViewModel
+import com.blockchain.transactions.upsell.buy.viewmodel.UpsellBuyViewModel
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.BackupWallet
 import com.blockchain.wallet.DefaultLabels
@@ -867,7 +867,8 @@ val applicationModule = module {
                 walletPrefs = get(),
                 payloadScopeWiper = get(),
                 sessionInfo = SessionInfo,
-                remoteLogger = get()
+                remoteLogger = get(),
+                globalEventHandler = get(),
             )
         }.bind(DataWiper::class)
 
@@ -879,7 +880,7 @@ val applicationModule = module {
         }
 
         viewModel { (assetJustTransactedTicker: String) ->
-            UpSellAnotherAssetViewModel(
+            UpsellBuyViewModel(
                 assetJustTransactedTicker = assetJustTransactedTicker,
                 pricesService = get(),
                 simpleBuyService = get()

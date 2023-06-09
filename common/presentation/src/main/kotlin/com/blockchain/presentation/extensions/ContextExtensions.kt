@@ -4,11 +4,8 @@ import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.view.View
-import android.webkit.URLUtil
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
@@ -18,7 +15,6 @@ import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
-import com.blockchain.common.R
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 
@@ -39,20 +35,6 @@ fun Fragment.getResolvedColor(@ColorRes color: Int): Int =
  */
 fun Context.getResolvedDrawable(@DrawableRes drawable: Int): Drawable? =
     ContextCompat.getDrawable(this, drawable)
-
-fun Context?.openUrl(url: String) {
-    openUrl(Uri.parse(url))
-}
-
-fun Context?.openUrl(url: Uri) {
-    this?.run { startActivity(Intent(Intent.ACTION_VIEW, url)) }
-}
-
-fun Context.checkValidUrlAndOpen(url: Uri) {
-    if (URLUtil.isHttpsUrl(url.toString())) {
-        openUrl(url.toString())
-    }
-}
 
 fun Context.copyToClipboard(label: String, text: String) {
     (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).apply {
