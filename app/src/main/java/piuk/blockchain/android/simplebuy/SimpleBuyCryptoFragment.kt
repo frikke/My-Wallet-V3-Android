@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.api.NabuApiException
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.fiat.isOpenBankingCurrency
 import com.blockchain.commonarch.presentation.mvi.MviFragment
@@ -658,40 +659,65 @@ class SimpleBuyCryptoFragment :
     }
 
     private fun showError(state: SimpleBuyState) {
-        with(binding) {
-            btnContinue.gone()
-            with(btnError) {
+        binding.btnContinue.gone()
+        binding.inputAmount.canEdit(true)
+
+        if (state.quoteError != null) {
+            val error = (state.quoteError as? NabuApiException)?.getServerSideErrorInfo() ?: ServerSideUxErrorInfo(
+                id = null,
+                title = getString(com.blockchain.stringResources.R.string.buy_enter_amount_quote_error),
+                description = getString(com.blockchain.stringResources.R.string.common_error),
+                iconUrl = "",
+                statusUrl = "",
+                actions = emptyList(),
+                categories = emptyList()
+            )
+
+            with(binding.btnError) {
+                text = error.title
+                onClick = {
+                    navigator().showErrorInBottomSheet(
+                        title = error.title,
+                        description = error.description,
+                        error = error.id.orEmpty(),
+                        serverSideUxErrorInfo = error
+                    )
+                }
+                visible()
+            }
+        } else {
+            with(binding.btnError) {
                 text = state.errorState.message(state)
                 visible()
             }
-        }
 
-        val infoType = when (state.errorState) {
-            TransactionErrorState.INSUFFICIENT_FUNDS -> InfoBottomSheetType.INSUFFICIENT_FUNDS
-            TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT,
-            TransactionErrorState.BELOW_MIN_LIMIT -> InfoBottomSheetType.BELOW_MIN_LIMIT
-            // we need to keep those for working with the feature flag off, otherwise we would be based only on the
-            // suggested upgrade
-            TransactionErrorState.OVER_GOLD_TIER_LIMIT,
-            TransactionErrorState.OVER_SILVER_TIER_LIMIT -> InfoBottomSheetType.OVER_MAX_LIMIT
+            val infoType = when (state.errorState) {
+                TransactionErrorState.INSUFFICIENT_FUNDS -> InfoBottomSheetType.INSUFFICIENT_FUNDS
+                TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT,
+                TransactionErrorState.BELOW_MIN_LIMIT -> InfoBottomSheetType.BELOW_MIN_LIMIT
+                // we need to keep those for working with the feature flag off, otherwise we would be based only on the
+                // suggested upgrade
+                TransactionErrorState.OVER_GOLD_TIER_LIMIT,
+                TransactionErrorState.OVER_SILVER_TIER_LIMIT -> InfoBottomSheetType.OVER_MAX_LIMIT
 
-            TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT -> InfoBottomSheetType.ABOVE_MAX_PAYMENT_METHOD_LIMIT
-            else -> null
-        }
-
-        val bottomSheetInfo = infoType?.let { type ->
-            bottomSheetInfoCustomiser.info(type, state, state.fiatCurrency.type)
-        }
-        bottomSheetInfo?.let { info ->
-            binding.btnError.onClick = {
-                showBottomSheet(TransactionFlowInfoBottomSheet.newInstance(info))
-                infoActionCallback =
-                    handlePossibleInfoAction(info)
+                TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT ->
+                    InfoBottomSheetType.ABOVE_MAX_PAYMENT_METHOD_LIMIT
+                else -> null
             }
-        } ?: run { binding.btnError.onClick = {} }
 
-        model.process(SimpleBuyIntent.ClearError)
-        binding.inputAmount.canEdit(true)
+            val bottomSheetInfo = infoType?.let { type ->
+                bottomSheetInfoCustomiser.info(type, state, state.fiatCurrency.type)
+            }
+            bottomSheetInfo?.let { info ->
+                binding.btnError.onClick = {
+                    showBottomSheet(TransactionFlowInfoBottomSheet.newInstance(info))
+                    infoActionCallback =
+                        handlePossibleInfoAction(info)
+                }
+            } ?: run { binding.btnError.onClick = {} }
+
+            model.process(SimpleBuyIntent.ClearError)
+        }
     }
 
     private fun handlePossibleInfoAction(
@@ -795,7 +821,10 @@ class SimpleBuyCryptoFragment :
     }
 
     private fun canContinue(state: SimpleBuyState): Boolean =
-        if (state.amount.isZero || (state.featureFlagSet.feynmanCheckoutFF && state.quotePrice == null)
+        if (
+            state.amount.isZero ||
+            (state.featureFlagSet.feynmanCheckoutFF && state.quotePrice == null) ||
+            state.quoteError != null
         ) {
             false
         } else {
@@ -1555,7 +1584,7 @@ class SimpleBuyCryptoFragment :
         }
 
     private fun SimpleBuyState.errorStateShouldBeIndicated() =
-        errorState != TransactionErrorState.NONE && amount.isPositive
+        (errorState != TransactionErrorState.NONE || quoteError != null) && amount.isPositive
 }
 
 fun RecurringBuyFrequency.toRecurringBuySuggestionTitle(context: Context): String {

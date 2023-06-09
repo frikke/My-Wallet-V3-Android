@@ -80,6 +80,7 @@ data class SimpleBuyState constructor(
     @Transient val paymentOptions: PaymentOptions = PaymentOptions(),
     @Transient override val errorState: TransactionErrorState = TransactionErrorState.NONE,
     @Transient val buyErrorState: ErrorState? = null,
+    @Transient val quoteError: Exception? = null,
     @Transient override val fiatRate: ExchangeRate? = null,
     @Transient val isLoading: Boolean = false,
     @Transient val cardAcquirerCredentials: CardAcquirerCredentials? = null,
