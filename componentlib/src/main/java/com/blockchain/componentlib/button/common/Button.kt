@@ -13,8 +13,8 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.theme.AppTheme
 
-// Creates a filled button like primary button
-// Do not use as a standalone composable, use it as a factory
+// Do not use as a standalone composable, use it as a factory for new button style
+// if the button is a one-off discuss with Ethan if it should be added to the collection or just use existing ones
 @Composable
 internal fun Button(
     modifier: Modifier = Modifier,
@@ -25,7 +25,7 @@ internal fun Button(
     state: ButtonState = ButtonState.Enabled,
     style: ButtonStyle,
     icon: ImageResource.Local? = null,
-    customIconTint: Color? = null,
+    iconColor: ButtonIconColor = ButtonIconColor.Default,
     onClick: () -> Unit,
 ) {
     Button(
@@ -42,14 +42,14 @@ internal fun Button(
                 text = text,
                 textColor = textColor,
                 icon = icon,
-                customIconTint = customIconTint
+                iconColor = iconColor
             )
         }
     )
 }
 
 @Composable
-internal fun Button(
+private fun Button(
     modifier: Modifier = Modifier,
     state: ButtonState,
     shape: Shape = AppTheme.shapes.extraLarge,

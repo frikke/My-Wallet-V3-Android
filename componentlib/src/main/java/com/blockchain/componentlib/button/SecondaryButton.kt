@@ -9,6 +9,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.common.ButtonStyle
 import com.blockchain.componentlib.button.common.Button
+import com.blockchain.componentlib.button.common.ButtonIconColor
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Plus
 import com.blockchain.componentlib.theme.AppColors
@@ -27,6 +28,7 @@ fun SecondaryButton(
     text: String,
     state: ButtonState = ButtonState.Enabled,
     icon: ImageResource.Local? = null,
+    iconColor: ButtonIconColor = ButtonIconColor.Default,
     onClick: () -> Unit
 ) {
     SecondaryButton(
@@ -34,6 +36,7 @@ fun SecondaryButton(
         text = text,
         state = state,
         icon = icon,
+        iconColor = iconColor,
         style = ButtonStyle.Default,
         onClick = onClick
     )
@@ -45,6 +48,7 @@ fun SecondarySmallButton(
     text: String,
     state: ButtonState = ButtonState.Enabled,
     icon: ImageResource.Local? = null,
+    iconColor: ButtonIconColor = ButtonIconColor.Default,
     onClick: () -> Unit
 ) {
     SecondaryButton(
@@ -52,6 +56,7 @@ fun SecondarySmallButton(
         text = text,
         state = state,
         icon = icon,
+        iconColor = iconColor,
         style = ButtonStyle.Small,
         onClick = onClick
     )
@@ -63,6 +68,7 @@ private fun SecondaryButton(
     text: String,
     state: ButtonState = ButtonState.Enabled,
     icon: ImageResource.Local? = null,
+    iconColor: ButtonIconColor = ButtonIconColor.Default,
     style: ButtonStyle,
     onClick: () -> Unit
 ) {
@@ -75,6 +81,7 @@ private fun SecondaryButton(
         state = state,
         style = style,
         icon = icon,
+        iconColor = iconColor,
         onClick = onClick
     )
 }

@@ -1,15 +1,26 @@
 package com.blockchain.componentlib.button
 
 import android.content.res.Configuration
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.common.ButtonStyle
 import com.blockchain.componentlib.button.common.Button
+import com.blockchain.componentlib.button.common.ButtonIconColor
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Plus
 import com.blockchain.componentlib.theme.AppColors
+
+private val bgColorLight = Color(0XFF0C6CF2)
+private val bgColorDark = Color(0XFF0C6CF2)
+private val bgColor @Composable get() = if (isSystemInDarkTheme()) bgColorDark else bgColorLight
+
+private val disabledBgColorLight = Color(0XFF65A5FF)
+private val disabledBgColorDark = Color(0XFF1656B9)
+private val disabledBgColor @Composable get() = if (isSystemInDarkTheme()) disabledBgColorDark else disabledBgColorLight
 
 @Composable
 fun PrimaryButton(
@@ -17,6 +28,7 @@ fun PrimaryButton(
     text: String,
     state: ButtonState = ButtonState.Enabled,
     icon: ImageResource.Local? = null,
+    iconColor: ButtonIconColor = ButtonIconColor.Default,
     onClick: () -> Unit
 ) {
     PrimaryButton(
@@ -24,6 +36,7 @@ fun PrimaryButton(
         text = text,
         state = state,
         icon = icon,
+        iconColor = iconColor,
         style = ButtonStyle.Default,
         onClick = onClick
     )
@@ -35,6 +48,7 @@ fun PrimarySmallButton(
     text: String,
     state: ButtonState = ButtonState.Enabled,
     icon: ImageResource.Local? = null,
+    iconColor: ButtonIconColor = ButtonIconColor.Default,
     onClick: () -> Unit
 ) {
     PrimaryButton(
@@ -42,6 +56,7 @@ fun PrimarySmallButton(
         text = text,
         state = state,
         icon = icon,
+        iconColor = iconColor,
         style = ButtonStyle.Small,
         onClick = onClick
     )
@@ -53,6 +68,7 @@ private fun PrimaryButton(
     text: String,
     state: ButtonState = ButtonState.Enabled,
     icon: ImageResource.Local? = null,
+    iconColor: ButtonIconColor = ButtonIconColor.Default,
     style: ButtonStyle,
     onClick: () -> Unit
 ) {
@@ -60,11 +76,12 @@ private fun PrimaryButton(
         modifier = modifier,
         text = text,
         textColor = AppColors.backgroundSecondary,
-        backgroundColor = AppColors.primary,
-        disabledBackgroundColor = AppColors.primaryMuted,
+        backgroundColor = bgColor,
+        disabledBackgroundColor = disabledBgColor,
         state = state,
         style = style,
         icon = icon,
+        iconColor = iconColor,
         onClick = onClick
     )
 }

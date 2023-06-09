@@ -7,8 +7,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.button.common.ButtonIconColor
 import com.blockchain.componentlib.button.common.ButtonStyle
-import com.blockchain.componentlib.button.common.Button
+import com.blockchain.componentlib.button.common.OutlinedButton
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Plus
 import com.blockchain.componentlib.theme.AppColors
@@ -28,6 +29,7 @@ fun MinimalPrimaryButton(
     text: String,
     state: ButtonState = ButtonState.Enabled,
     icon: ImageResource.Local? = null,
+    iconColor: ButtonIconColor = ButtonIconColor.Default,
     onClick: () -> Unit
 ) {
     MinimalPrimaryButton(
@@ -35,6 +37,7 @@ fun MinimalPrimaryButton(
         text = text,
         state = state,
         icon = icon,
+        iconColor = iconColor,
         style = ButtonStyle.Default,
         onClick = onClick
     )
@@ -46,6 +49,7 @@ fun MinimalPrimarySmallButton(
     text: String,
     state: ButtonState = ButtonState.Enabled,
     icon: ImageResource.Local? = null,
+    iconColor: ButtonIconColor = ButtonIconColor.Default,
     onClick: () -> Unit
 ) {
     MinimalPrimaryButton(
@@ -53,6 +57,7 @@ fun MinimalPrimarySmallButton(
         text = text,
         state = state,
         icon = icon,
+        iconColor = iconColor,
         style = ButtonStyle.Small,
         onClick = onClick
     )
@@ -64,10 +69,11 @@ private fun MinimalPrimaryButton(
     text: String,
     state: ButtonState = ButtonState.Enabled,
     icon: ImageResource.Local? = null,
+    iconColor: ButtonIconColor = ButtonIconColor.Default,
     style: ButtonStyle,
     onClick: () -> Unit
 ) {
-    com.blockchain.componentlib.button.common.OutlinedButton(
+    OutlinedButton(
         modifier = modifier,
         text = text,
         textColor = AppColors.primary,
@@ -77,6 +83,7 @@ private fun MinimalPrimaryButton(
         state = state,
         style = style,
         icon = icon,
+        iconColor = iconColor,
         onClick = onClick
     )
 }

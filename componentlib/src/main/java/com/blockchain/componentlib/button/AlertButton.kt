@@ -2,23 +2,15 @@ package com.blockchain.componentlib.button
 
 import android.content.res.Configuration
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.R
-import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.common.Button
+import com.blockchain.componentlib.button.common.ButtonIconColor
 import com.blockchain.componentlib.button.common.ButtonStyle
-import com.blockchain.componentlib.theme.AppTheme
 
 private val bgColorLight = Color(0XFF121D33)
 private val bgColorDark = Color(0XFF20242C)
@@ -34,26 +26,15 @@ fun AlertButton(
 ) {
     Button(
         modifier = modifier,
-        state = state,
+        text = text,
+        textColor = textColor,
         backgroundColor = bgColor,
         disabledBackgroundColor = bgColor,
-        contentPadding = ButtonStyle.Default.contentPadding,
-        onClick = onClick,
-        buttonContent = {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(ImageResource.Local(R.drawable.ic_alert))
-                Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
-                Text(
-                    text = text,
-                    color = textColor,
-                    style = ButtonStyle.Default.textStyle,
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
+        state = state,
+        style = ButtonStyle.Default,
+        icon = ImageResource.Local(R.drawable.ic_alert),
+        iconColor = ButtonIconColor.Ignore,
+        onClick = onClick
     )
 }
 

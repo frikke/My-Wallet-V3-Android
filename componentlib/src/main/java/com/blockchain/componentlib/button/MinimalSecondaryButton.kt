@@ -7,7 +7,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.button.common.ButtonIconColor
 import com.blockchain.componentlib.button.common.ButtonStyle
+import com.blockchain.componentlib.button.common.OutlinedButton
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Plus
 import com.blockchain.componentlib.theme.AppColors
@@ -26,6 +28,7 @@ fun MinimalSecondaryButton(
     text: String,
     state: ButtonState = ButtonState.Enabled,
     icon: ImageResource.Local? = null,
+    iconColor: ButtonIconColor = ButtonIconColor.Default,
     onClick: () -> Unit
 ) {
     MinimalSecondaryButton(
@@ -33,6 +36,7 @@ fun MinimalSecondaryButton(
         text = text,
         state = state,
         icon = icon,
+        iconColor = iconColor,
         style = ButtonStyle.Default,
         onClick = onClick
     )
@@ -44,6 +48,7 @@ fun MinimalSecondarySmallButton(
     text: String,
     state: ButtonState = ButtonState.Enabled,
     icon: ImageResource.Local? = null,
+    iconColor: ButtonIconColor = ButtonIconColor.Default,
     onClick: () -> Unit
 ) {
     MinimalSecondaryButton(
@@ -51,6 +56,7 @@ fun MinimalSecondarySmallButton(
         text = text,
         state = state,
         icon = icon,
+        iconColor = iconColor,
         style = ButtonStyle.Small,
         onClick = onClick
     )
@@ -62,10 +68,11 @@ private fun MinimalSecondaryButton(
     text: String,
     state: ButtonState = ButtonState.Enabled,
     icon: ImageResource.Local? = null,
+    iconColor: ButtonIconColor = ButtonIconColor.Default,
     style: ButtonStyle,
     onClick: () -> Unit
 ) {
-    com.blockchain.componentlib.button.common.OutlinedButton(
+    OutlinedButton(
         modifier = modifier,
         text = text,
         textColor = AppColors.title,
@@ -75,6 +82,7 @@ private fun MinimalSecondaryButton(
         state = state,
         style = style,
         icon = icon,
+        iconColor = iconColor,
         onClick = onClick
     )
 }

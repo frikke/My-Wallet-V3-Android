@@ -5,7 +5,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.SnackbarDefaults.backgroundColor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -15,6 +14,8 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.theme.AppTheme
 
+// Do not use as a standalone composable, use it as a factory for new button style
+// if the button is a one-off discuss with Ethan if it should be added to the collection or just use existing ones
 @Composable
 internal fun OutlinedButton(
     modifier: Modifier = Modifier,
@@ -26,7 +27,7 @@ internal fun OutlinedButton(
     state: ButtonState = ButtonState.Enabled,
     style: ButtonStyle,
     icon: ImageResource.Local? = null,
-    customIconTint: Color? = null,
+    iconColor: ButtonIconColor = ButtonIconColor.Default,
     onClick: () -> Unit,
 ) {
     OutlinedButton(
@@ -44,14 +45,14 @@ internal fun OutlinedButton(
                 text = text,
                 textColor = textColor,
                 icon = icon,
-                customIconTint = customIconTint
+                iconColor = iconColor
             )
         }
     )
 }
 
 @Composable
-internal fun OutlinedButton(
+private fun OutlinedButton(
     modifier: Modifier = Modifier,
     state: ButtonState,
     shape: Shape = AppTheme.shapes.extraLarge,
