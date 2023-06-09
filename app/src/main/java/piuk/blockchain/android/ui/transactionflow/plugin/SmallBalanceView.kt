@@ -39,7 +39,6 @@ class SmallBalanceView @JvmOverloads constructor(
         this.analytics = analytics
 
         with(binding.useMax) {
-            isTransparent = false
             gone()
         }
     }
@@ -74,7 +73,6 @@ class SmallBalanceView @JvmOverloads constructor(
                 analytics.onMaxClicked(state)
                 model.process(TransactionIntent.UseMaxSpendable)
             }
-            isTransparent = false
             visibleIf { !customiser.shouldDisableInput(state.errorState) }
         }
 }

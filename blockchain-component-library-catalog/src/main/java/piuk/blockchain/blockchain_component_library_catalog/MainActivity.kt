@@ -24,7 +24,6 @@ import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vie
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SheetActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SimpleImageViewActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SimpleTextViewActivity
-import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SmallMinimalButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SmallSecondaryButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SnackbarsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SpacingActivity
@@ -74,9 +73,6 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.alert_button).setOnClickListener {
             startActivity(Intent(this@MainActivity, AlertButtonActivity::class.java))
-        }
-        findViewById<MaterialButton>(R.id.small_minimal_button).setOnClickListener {
-            startActivity(Intent(this@MainActivity, SmallMinimalButtonActivity::class.java))
         }
         findViewById<MaterialButton>(R.id.small_secondary_button).setOnClickListener {
             startActivity(Intent(this@MainActivity, SmallSecondaryButtonActivity::class.java))

@@ -22,8 +22,8 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.MinimalPrimaryButton
+import com.blockchain.componentlib.button.MinimalPrimarySmallButton
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.SmallOutlinedButton
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
@@ -136,7 +136,7 @@ private fun LocksDetailsScreen(
                 gravity = ComposeGravities.Start
             )
 
-            SmallOutlinedButton(
+            MinimalPrimarySmallButton(
                 modifier = Modifier.padding(AppTheme.dimensions.smallSpacing),
                 text = stringResource(com.blockchain.stringResources.R.string.common_learn_more),
                 onClick = learnMoreClicked

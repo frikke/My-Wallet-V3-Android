@@ -34,9 +34,6 @@
             android:name=".abstract_compose_view.SmallSecondaryButtonActivity"
             android:exported="false" />
         <activity
-            android:name=".abstract_compose_view.SmallMinimalButtonActivity"
-            android:exported="false" />
-        <activity
             android:name=".abstract_compose_view.AlertButtonActivity"
             android:exported="false" />
         <activity

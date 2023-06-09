@@ -29,3 +29,20 @@ class MinimalPrimaryButtonView @JvmOverloads constructor(
         )
     }
 }
+
+class MinimalPrimarySmallButtonView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : BaseButtonView(context, attrs, defStyleAttr) {
+
+    @Composable
+    override fun Content() {
+        MinimalPrimarySmallButton(
+            onClick = onClick,
+            text = text,
+            state = buttonState,
+            icon = icon as? ImageResource.Local
+        )
+    }
+}

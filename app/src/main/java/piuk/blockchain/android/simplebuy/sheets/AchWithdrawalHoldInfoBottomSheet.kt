@@ -18,7 +18,7 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.SmallOutlinedButton
+import com.blockchain.componentlib.button.MinimalPrimarySmallButton
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -74,7 +74,7 @@ fun AchWithdrawalHoldInfoSheet(
             gravity = ComposeGravities.Start
         )
 
-        SmallOutlinedButton(
+        MinimalPrimarySmallButton(
             modifier = Modifier
                 .padding(
                     horizontal = AppTheme.dimensions.standardSpacing,

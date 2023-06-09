@@ -482,8 +482,7 @@ class SimpleBuyCryptoFragment :
                                 SimpleBuyIntent.PrefillEnterAmount(maxAmount as FiatValue)
                             )
                         },
-                        maxButtonText = stringResource(com.blockchain.stringResources.R.string.buy_max),
-                        areButtonsTransparent = false
+                        maxButtonText = stringResource(com.blockchain.stringResources.R.string.buy_max)
                     )
                 }
             }

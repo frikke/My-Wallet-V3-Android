@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.SmallOutlinedButton
+import com.blockchain.componentlib.button.MinimalPrimarySmallButton
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
@@ -37,7 +37,6 @@ open class QuickFillRowView @JvmOverloads constructor(
     var onQuickFillItemClick by mutableStateOf<(QuickFillDisplayAndAmount) -> Unit>({})
     var onMaxItemClick by mutableStateOf<(Money) -> Unit>({})
     var maxButtonText by mutableStateOf("")
-    var areButtonsTransparent by mutableStateOf(true)
 
     @Composable
     override fun Content() {
@@ -50,7 +49,6 @@ open class QuickFillRowView @JvmOverloads constructor(
                         onQuickFillItemClick = onQuickFillItemClick,
                         onMaxItemClick = onMaxItemClick,
                         maxButtonText = maxButtonText,
-                        areButtonsTransparent = areButtonsTransparent
                     )
                 }
             }
@@ -65,7 +63,6 @@ fun QuickFillRow(
     onQuickFillItemClick: (QuickFillDisplayAndAmount) -> Unit,
     onMaxItemClick: (Money) -> Unit,
     maxButtonText: String,
-    areButtonsTransparent: Boolean
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -76,30 +73,27 @@ fun QuickFillRow(
                 items(
                     items = quickFillButtonData.quickFillButtons,
                     itemContent = { item ->
-                        SmallOutlinedButton(
+                        MinimalPrimarySmallButton(
                             text = item.displayValue,
                             onClick = {
                                 onQuickFillItemClick(item)
                             },
                             modifier = Modifier.padding(
                                 end = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
-                            ),
-                            isTransparent = areButtonsTransparent
+                            )
                         )
                     }
                 )
             }
         }
         if (quickFillButtonData.maxAmount.isPositive) {
-            SmallOutlinedButton(
+            MinimalPrimarySmallButton(
                 text = maxButtonText,
                 onClick = {
                     onMaxItemClick(quickFillButtonData.maxAmount)
                 },
                 state = ButtonState.Enabled,
-                modifier = Modifier
-                    .wrapContentSize(Alignment.Center),
-                isTransparent = areButtonsTransparent
+                modifier = Modifier.wrapContentSize(Alignment.Center)
             )
         }
     }
@@ -136,7 +130,6 @@ private fun Preview() {
         onQuickFillItemClick = {},
         onMaxItemClick = {},
         maxButtonText = "1.1234567890123457 BTC",
-        areButtonsTransparent = false,
     )
 }
 

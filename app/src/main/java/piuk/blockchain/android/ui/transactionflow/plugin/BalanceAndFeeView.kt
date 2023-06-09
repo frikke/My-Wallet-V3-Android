@@ -43,7 +43,6 @@ class BalanceAndFeeView @JvmOverloads constructor(
         this.analytics = analytics
 
         with(binding.useMax) {
-            isTransparent = false
             gone()
         }
     }
@@ -135,7 +134,6 @@ class BalanceAndFeeView @JvmOverloads constructor(
                     analytics.onMaxClicked(state)
                     model.process(TransactionIntent.UseMaxSpendable)
                 }
-                isTransparent = false
                 visibleIf {
                     amountIsZeroOrNoFees && !customiser.shouldDisableInput(state.errorState)
                 }

@@ -16,7 +16,7 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.SmallOutlinedButton
+import com.blockchain.componentlib.button.MinimalPrimarySmallButton
 import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.White
@@ -75,7 +75,7 @@ internal fun WaitingInstantLinkValidation(
             stringResource(com.blockchain.stringResources.R.string.prove_resend_sms_in_seconds, minutes, seconds)
         }
 
-        SmallOutlinedButton(
+        MinimalPrimarySmallButton(
             modifier = Modifier.padding(top = AppTheme.dimensions.standardSpacing),
             text = buttonText,
             state = state.resendSmsButtonState,

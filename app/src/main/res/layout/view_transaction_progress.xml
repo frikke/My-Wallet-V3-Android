@@ -98,7 +98,7 @@
         app:layout_constraintVertical_bias="0"
         tools:text="Note about some stuff" />
 
-    <com.blockchain.componentlib.button.SmallOutlinedButtonView
+    <com.blockchain.componentlib.button.MinimalPrimarySmallButtonView
         android:id="@+id/tx_tertiary_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
