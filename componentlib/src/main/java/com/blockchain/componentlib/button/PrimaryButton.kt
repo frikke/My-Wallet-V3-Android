@@ -1,18 +1,38 @@
 package com.blockchain.componentlib.button
 
+import android.content.Context
 import android.content.res.Configuration
+import android.util.AttributeSet
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.button.common.BaseButtonView
 import com.blockchain.componentlib.button.common.ButtonStyle
 import com.blockchain.componentlib.button.common.Button
 import com.blockchain.componentlib.button.common.ButtonIconColor
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Plus
 import com.blockchain.componentlib.theme.AppColors
+
+class PrimaryButtonView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : BaseButtonView(context, attrs, defStyleAttr) {
+
+    @Composable
+    override fun Content() {
+        PrimaryButton(
+            onClick = onClick,
+            text = text,
+            state = buttonState,
+            icon = icon as? ImageResource.Local
+        )
+    }
+}
 
 private val bgColorLight = Color(0XFF0C6CF2)
 private val bgColorDark = Color(0XFF0C6CF2)

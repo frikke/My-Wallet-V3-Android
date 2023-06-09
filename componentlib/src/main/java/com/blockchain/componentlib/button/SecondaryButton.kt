@@ -1,18 +1,53 @@
 package com.blockchain.componentlib.button
 
+import android.content.Context
 import android.content.res.Configuration
+import android.util.AttributeSet
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.button.common.BaseButtonView
 import com.blockchain.componentlib.button.common.ButtonStyle
 import com.blockchain.componentlib.button.common.Button
 import com.blockchain.componentlib.button.common.ButtonIconColor
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Plus
 import com.blockchain.componentlib.theme.AppColors
+
+class SecondaryButtonView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : BaseButtonView(context, attrs, defStyleAttr) {
+
+    @Composable
+    override fun Content() {
+        SecondaryButton(
+            onClick = onClick,
+            text = text,
+            state = buttonState
+        )
+    }
+}
+
+class SmallSecondaryButtonView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : BaseButtonView(context, attrs, defStyleAttr) {
+
+    @Composable
+    override fun Content() {
+        SecondarySmallButton(
+            onClick = onClick,
+            text = text,
+            state = buttonState
+        )
+    }
+}
 
 private val bgColorLight = Color(0XFF353F52)
 private val bgColorDark = Color(0XFF677184)
