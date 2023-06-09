@@ -24,9 +24,9 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.MinimalPrimaryButton
+import com.blockchain.componentlib.button.MinimalPrimarySmallButton
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.SmallMinimalButton
 import com.blockchain.componentlib.icon.SmallTagIcon
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Rewards
@@ -65,7 +65,7 @@ fun UpsellInterestAfterSwapScreen(
     val targetAccount = args.targetAccount.data ?: return
     val interestRate = args.interestRate
     val assetToUpsell = targetAccount.currency
-
+    
     LaunchedEffect(Unit) {
         analytics.logEvent(UpsellInterestAfterSwapViewed(assetToUpsell.networkTicker))
     }
@@ -171,10 +171,9 @@ private fun Content(
 
         StandardVerticalSpacer()
 
-        SmallMinimalButton(
+        MinimalPrimarySmallButton(
             text = stringResource(R.string.common_learn_more),
-            onClick = onLearnMore,
-            isTransparent = false
+            onClick = onLearnMore
         )
 
         Spacer(Modifier.weight(1f))
@@ -187,11 +186,10 @@ private fun Content(
 
         SmallVerticalSpacer()
 
-        MinimalButton(
+        MinimalPrimaryButton(
             text = stringResource(R.string.common_maybe_later),
             onClick = onMaybeLater,
-            modifier = Modifier.fillMaxWidth(),
-            isTransparent = false
+            modifier = Modifier.fillMaxWidth()
         )
 
         StandardVerticalSpacer()
