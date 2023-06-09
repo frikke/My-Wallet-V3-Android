@@ -165,7 +165,8 @@ class FiatActionsNavigationImpl(
             ErrorSlidingBottomDialog.newInstance(
                 ErrorDialogData(
                     title = activity?.getString(com.blockchain.stringResources.R.string.common_error).orEmpty(),
-                    description = (error as? NabuApiException)?.getErrorDescription() ?: error.localizedMessage,
+                    description = (error as? NabuApiException)?.getErrorDescription()
+                        ?: error.localizedMessage.orEmpty(),
                     errorButtonCopies = ErrorButtonCopies(
                         primaryButtonText = activity
                             ?.getString(com.blockchain.stringResources.R.string.common_ok).orEmpty()
