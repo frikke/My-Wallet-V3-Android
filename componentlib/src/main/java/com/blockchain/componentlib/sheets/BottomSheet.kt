@@ -26,7 +26,6 @@ import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.DestructiveMinimalButton
-import com.blockchain.componentlib.button.DestructivePrimaryButton
 import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.SmallMinimalButton
@@ -225,12 +224,6 @@ private fun BottomSheetButton.toBottomSheetButtonComposable(modifier: Modifier):
                 onClick = onClick,
                 modifier = modifier.fillMaxWidth()
             )
-            ButtonType.DESTRUCTIVE_PRIMARY ->
-                DestructivePrimaryButton(
-                    text = text,
-                    onClick = onClick,
-                    modifier = modifier.fillMaxWidth()
-                )
         }
     }
 }
@@ -242,7 +235,7 @@ data class BottomSheetButton(
 )
 
 enum class ButtonType {
-    PRIMARY, MINIMAL, DESTRUCTIVE_MINIMAL, DESTRUCTIVE_PRIMARY, SMALL_MINIMAL
+    PRIMARY, MINIMAL, DESTRUCTIVE_MINIMAL, SMALL_MINIMAL
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
