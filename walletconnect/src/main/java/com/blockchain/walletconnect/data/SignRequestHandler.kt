@@ -15,12 +15,15 @@ import com.blockchain.walletconnect.domain.WalletConnectV2Service.Companion.WC_M
 import com.blockchain.walletconnect.domain.WalletConnectV2Service.Companion.WC_METHOD_ETH_SIGN_TRANSACTION
 import com.blockchain.walletconnect.domain.WalletConnectV2Service.Companion.WC_METHOD_ETH_SIGN_TYPED_DATA
 import com.blockchain.walletconnect.domain.WalletConnectV2Service.Companion.WC_METHOD_PERSONAL_SIGN
+import com.blockchain.walletconnect.ui.networks.ETH_CHAIN_ID
 import com.trustwallet.walletconnect.models.ethereum.WCEthereumSignMessage
 import com.trustwallet.walletconnect.models.ethereum.WCEthereumTransaction
 import com.walletconnect.web3.wallet.client.Wallet
+import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
@@ -57,52 +60,33 @@ class SignRequestHandler(
         sessionRequest: Wallet.Model.SessionRequest,
         onTxCompleted: (TxResult) -> Completable,
         onTxCancelled: () -> Completable
-    ): Flow<WalletConnectUserEvent.SignMessage> {
-        return accountProvider.ethAccountFlow().map { account ->
-            sessionRequest.peerMetaData?.let { dappMetaData ->
-                val target = EthereumSignMessageTarget(
-                    dAppAddress = dappMetaData.url,
-                    dAppName = dappMetaData.name,
-                    dAppLogoUrl = dappMetaData.icons.firstOrNull().orEmpty(),
-                    message = sessionRequest.request.toEthSignedMessage(),
-                    onTxCompleted = onTxCompleted,
-                    onTxCancelled = onTxCancelled,
-                )
-                WalletConnectUserEvent.SignMessage(
-                    source = account,
-                    target = target
-                )
-            } ?: throw IllegalStateException("No peer metadata found")
-        }
-    }
+    ): Flow<WalletConnectUserEvent.SignMessage> =
+        sessionRequest.chainId?.let { chainId ->
+            val accountFlow = if (chainId.substringAfter(":").toInt() == ETH_CHAIN_ID)
+                accountProvider.ethAccountFlow()
+            else
+                accountProvider.account(chainId)
 
-    // TODO add support for other ERC20 chains
-    /*override fun onEthSignV2(
-        sessionRequest: Wallet.Model.SessionRequest,
-        onTxCompleted: (TxResult) -> Completable,
-        onTxCancelled: () -> Completable
-    ): Flow<WalletConnectUserEvent.SignMessage> {
-        val flow =  accountProvider.account(sessionRequest.chainId ?: "$ETH_CHAIN_ID").map { account ->
-            sessionRequest.peerMetaData?.let { dappMetaData ->
-                val target = WalletConnectV2SignMessageTarget(
-                    dAppAddress = dappMetaData.url,
-                    dAppName = dappMetaData.name,
-                    dAppLogoUrl = dappMetaData.icons.first(),
-                    message = sessionRequest.request.toEthSignedMessage(),
-                    onTxCompleted = onTxCompleted,
-                    onTxCancelled = onTxCancelled,
-                    currency = account.currency,
-                    asset = account.currency as AssetInfo
-                )
-                WalletConnectUserEvent.SignMessage(
-                    source = account,
-                    target = target
-                )
-            } ?: throw IllegalStateException("No peer metadata found")
+            accountFlow.map { account ->
+                sessionRequest.peerMetaData?.let { dappMetaData ->
+                    val target = EthereumSignMessageTarget(
+                        dAppAddress = dappMetaData.url,
+                        dAppName = dappMetaData.name,
+                        dAppLogoUrl = dappMetaData.icons.firstOrNull().orEmpty(),
+                        message = sessionRequest.request.toEthSignedMessage(),
+                        onTxCompleted = onTxCompleted,
+                        onTxCancelled = onTxCancelled,
+                        currency = account.currency
+                    )
+                    WalletConnectUserEvent.SignMessage(
+                        source = account,
+                        target = target
+                    )
+                } ?: throw IllegalStateException("No peer metadata found")
+            }
+        } ?: run {
+            emptyFlow()
         }
-
-        return flow
-    }*/
 
     override fun onSendTransaction(
         transaction: WCEthereumTransaction,
@@ -141,33 +125,44 @@ class SignRequestHandler(
         method: String,
         onTxCompleted: (TxResult) -> Completable,
         onTxCancelled: () -> Completable
-    ): Flow<WalletConnectUserEvent> {
-        return accountProvider.ethAccountFlow().map { account ->
-            sessionRequest.peerMetaData?.let { dappMetaData ->
-                val target = EthereumSendTransactionTarget(
-                    dAppAddress = dappMetaData.url,
-                    dAppName = dappMetaData.name,
-                    dAppLogoURL = dappMetaData.icons.firstOrNull().orEmpty(),
-                    transaction = sessionRequest.request.toEthTransaction(),
-                    onTxCancelled = onTxCancelled,
-                    onTxCompleted = onTxCompleted,
-                    method = method.toEthereumSendTransactionMethod()
-                )
+    ): Flow<WalletConnectUserEvent> =
+        sessionRequest.chainId?.let { chainId ->
+            val accountFlow = if (chainId.substringAfter(":").toInt() == ETH_CHAIN_ID)
+                accountProvider.ethAccountFlow()
+            else
+                accountProvider.account(chainId)
 
-                when (method) {
-                    WC_METHOD_ETH_SEND_TRANSACTION -> WalletConnectUserEvent.SendTransaction(
-                        source = account,
-                        target = target
+            accountFlow.map { account ->
+                sessionRequest.peerMetaData?.let { dappMetaData ->
+                    val target = EthereumSendTransactionTarget(
+                        dAppAddress = dappMetaData.url,
+                        dAppName = dappMetaData.name,
+                        dAppLogoURL = dappMetaData.icons.firstOrNull().orEmpty(),
+                        transaction = sessionRequest.request.toEthTransaction(),
+                        onTxCancelled = onTxCancelled,
+                        onTxCompleted = onTxCompleted,
+                        method = method.toEthereumSendTransactionMethod(),
+                        asset = account.currency as AssetInfo
                     )
-                    WC_METHOD_ETH_SIGN_TRANSACTION -> WalletConnectUserEvent.SignTransaction(
-                        source = account,
-                        target = target
-                    )
-                    else -> throw IllegalStateException("Invalid Wallet Connect v2 method: $method")
-                }
-            } ?: throw IllegalStateException("No peer metadata found")
+
+                    when (method) {
+                        WC_METHOD_ETH_SEND_TRANSACTION -> WalletConnectUserEvent.SendTransaction(
+                            source = account,
+                            target = target
+                        )
+
+                        WC_METHOD_ETH_SIGN_TRANSACTION -> WalletConnectUserEvent.SignTransaction(
+                            source = account,
+                            target = target
+                        )
+
+                        else -> throw IllegalStateException("Invalid Wallet Connect v2 method: $method")
+                    }
+                } ?: throw IllegalStateException("No peer metadata found")
+            }
+        } ?: run {
+            emptyFlow()
         }
-    }
 }
 
 private fun WCEthereumSignMessage.toEthSignedMessage(): EthSignMessage =

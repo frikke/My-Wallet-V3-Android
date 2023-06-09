@@ -9,21 +9,24 @@ import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.eth.EthCryptoWalletAccount
-import com.blockchain.coincore.eth.EthOnChainTxEngine
 import com.blockchain.coincore.eth.EthSignMessage
 import com.blockchain.coincore.eth.EthereumSignMessageTarget
 import com.blockchain.coincore.eth.WalletConnectTarget
+import com.blockchain.coincore.evm.L1EvmNonCustodialAccount
+import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.core.chains.ethereum.EthMessageSigner
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.storedatasource.FlushableDataSource
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
+import info.blockchain.balance.NetworkType
 import info.blockchain.wallet.ethereum.util.EthUtils
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 class WalletConnectSignEngine(
-    private val assetEngine: EthOnChainTxEngine,
+    private val assetEngine: OnChainTxEngineBase,
     private val ethMessageSigner: EthMessageSigner
 ) : TxEngine() {
 
@@ -35,8 +38,8 @@ class WalletConnectSignEngine(
 
     override fun assertInputsValid() {
         check(txTarget is WalletConnectTarget)
-        check(sourceAccount is EthCryptoWalletAccount)
-        check(sourceAsset == CryptoCurrency.ETHER)
+        check(sourceAccount is EthCryptoWalletAccount || sourceAccount is L1EvmNonCustodialAccount)
+        check(sourceAsset is CryptoCurrency.ETHER || (sourceAsset as AssetInfo).coinNetwork?.type == NetworkType.EVM)
     }
 
     override fun doAfterOnStart(
@@ -54,7 +57,7 @@ class WalletConnectSignEngine(
         assetEngine.doInitialiseTx()
             .map { tx ->
                 tx.copy(
-                    amount = Money.zero(CryptoCurrency.ETHER)
+                    amount = Money.zero(sourceAsset)
                 )
             }
 
@@ -71,7 +74,7 @@ class WalletConnectSignEngine(
                     url = ethSignMessageTarget.dAppAddress
                 ),
                 TxConfirmationValue.Chain(
-                    assetInfo = CryptoCurrency.ETHER
+                    assetInfo = (sourceAsset as AssetInfo)
                 ),
                 TxConfirmationValue.SignEthMessage(
                     message = ethSignMessageTarget.message.readableData,
@@ -116,7 +119,7 @@ class WalletConnectSignEngine(
         }.map {
             TxResult.HashedTxResult(
                 txId = EthUtils.decorateAndEncode(it),
-                amount = Money.zero(CryptoCurrency.ETHER)
+                amount = Money.zero(sourceAsset)
             )
         }
 

@@ -15,10 +15,12 @@ import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TransactionProcessor
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TransferError
+import com.blockchain.coincore.eth.EthCryptoWalletAccount
 import com.blockchain.coincore.eth.EthOnChainTxEngine
 import com.blockchain.coincore.eth.EthereumSendTransactionTarget
 import com.blockchain.coincore.eth.EthereumSignMessageTarget
 import com.blockchain.coincore.eth.WalletConnectV2SignMessageTarget
+import com.blockchain.coincore.evm.L1EvmOnChainTxEngine
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.TradingToOnChainTxEngine
@@ -268,7 +270,10 @@ class TxProcessorFactory(
                     sourceAccount = source,
                     txTarget = target,
                     engine = WalletConnectSignEngine(
-                        assetEngine = engine as EthOnChainTxEngine,
+                        assetEngine = if (source is EthCryptoWalletAccount)
+                            engine as EthOnChainTxEngine
+                        else
+                            engine as L1EvmOnChainTxEngine,
                         ethMessageSigner = ethMessageSigner
                     )
                 )
