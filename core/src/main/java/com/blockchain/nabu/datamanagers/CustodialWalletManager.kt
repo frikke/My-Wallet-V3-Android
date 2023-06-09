@@ -5,6 +5,7 @@ import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.domain.common.model.Seconds
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
@@ -161,6 +162,12 @@ interface CustodialWalletManager {
         destinationAddress: String? = null,
         refundAddress: String? = null
     ): Single<CustodialOrder>
+
+    fun pollForCustodialOrderCompletion(
+        orderId: String,
+        pollEvery: Seconds = 1,
+        pollTimes: Int = 5,
+    ): Single<Boolean>
 
     fun createPendingDeposit(
         crypto: AssetInfo,

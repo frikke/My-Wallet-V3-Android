@@ -37,6 +37,7 @@ val swapTransactionsPresentationModule = module {
         viewModel { (args: SwapConfirmationArgs) ->
             SwapConfirmationViewModel(
                 args = args,
+                swapService = get(),
                 brokerageDataManager = get(),
                 exchangeRatesDataManager = get(),
                 custodialWalletManager = get(),

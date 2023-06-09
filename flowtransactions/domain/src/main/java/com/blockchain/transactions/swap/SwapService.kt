@@ -72,6 +72,7 @@ interface SwapService {
     ): Outcome<Exception, TxLimits>
 
     suspend fun shouldUpsellPassiveRewardsAfterSwap(
+        sourceAccount: CryptoAccount,
         targetCurrency: AssetInfo
     ): Outcome<Exception, ShouldUpsellPassiveRewardsResult>
 

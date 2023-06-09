@@ -294,6 +294,11 @@ internal interface Nabu {
         @Query("localisedError") localisedError: String?
     ): Single<CustodialOrderResponse>
 
+    @GET("custodial/trades/{id}")
+    fun getCustodialOrder(
+        @Path("id") id: String
+    ): Single<CustodialOrderResponse>
+
     @GET("trades/limits")
     fun fetchLimits(
         @Query("currency") currency: String,

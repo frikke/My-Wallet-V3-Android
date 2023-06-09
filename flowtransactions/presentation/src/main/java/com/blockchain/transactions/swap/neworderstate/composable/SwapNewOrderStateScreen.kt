@@ -25,8 +25,6 @@ import com.blockchain.api.isInternetConnectionError
 import com.blockchain.betternavigation.NavContext
 import com.blockchain.betternavigation.navigateTo
 import com.blockchain.betternavigation.utils.Bindable
-import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -54,10 +52,8 @@ import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.koin.payloadScope
 import com.blockchain.outcome.doOnSuccess
-import com.blockchain.outcome.getOrNull
 import com.blockchain.transactions.swap.SwapAnalyticsEvents
 import com.blockchain.transactions.swap.SwapGraph
-import com.blockchain.transactions.swap.SwapService
 import com.blockchain.transactions.swap.model.ShouldUpsellPassiveRewardsResult
 import com.blockchain.transactions.upsell.interest.UpsellInterestArgs
 import com.blockchain.utils.awaitOutcome
@@ -66,7 +62,7 @@ import info.blockchain.balance.CryptoValue
 import java.io.Serializable
 import org.koin.androidx.compose.get
 
-sealed interface SwapNewOrderState {
+sealed interface SwapNewOrderState : Serializable {
     object PendingDeposit : SwapNewOrderState
     object Succeeded : SwapNewOrderState
     data class Error(val error: Exception) : SwapNewOrderState
@@ -75,19 +71,18 @@ sealed interface SwapNewOrderState {
 data class SwapNewOrderStateArgs(
     val sourceAmount: CryptoValue,
     val targetAmount: CryptoValue,
-    val targetAccount: Bindable<CryptoAccount>,
+    val shouldLaunchUpsellPassiveRewards: Bindable<ShouldUpsellPassiveRewardsResult>,
     val orderState: SwapNewOrderState
 ) : Serializable
 
 @Composable
 fun NavContext.SwapNewOrderStateScreen(
     analytics: Analytics = get(),
-    swapService: SwapService = get(scope = payloadScope),
     args: SwapNewOrderStateArgs,
     deeplinkRedirector: DeeplinkRedirector = get(scope = payloadScope),
     exitFlow: () -> Unit
 ) {
-    val targetAccount = args.targetAccount.data ?: return
+    val shouldLaunchUpsellPassiveRewards = args.shouldLaunchUpsellPassiveRewards.data ?: return
     val context = LocalContext.current
     var handleDeeplinkUrl by remember { mutableStateOf<String?>(null) }
 
@@ -107,14 +102,6 @@ fun NavContext.SwapNewOrderStateScreen(
         }
     }
 
-    var shouldShowUpsellInterestResult by remember { mutableStateOf<ShouldUpsellPassiveRewardsResult?>(null) }
-    if (targetAccount is CustodialTradingAccount && args.orderState is SwapNewOrderState.Succeeded) {
-        LaunchedEffect(Unit) {
-            shouldShowUpsellInterestResult =
-                swapService.shouldUpsellPassiveRewardsAfterSwap(args.targetAmount.currency).getOrNull()
-        }
-    }
-
     LaunchedEffect(args.orderState) {
         when (args.orderState) {
             SwapNewOrderState.PendingDeposit -> analytics.logEvent(SwapAnalyticsEvents.PendingViewed)
@@ -131,17 +118,16 @@ fun NavContext.SwapNewOrderStateScreen(
             handleDeeplinkUrl = deeplinkUrl
         },
         doneClicked = {
-            when (val result = shouldShowUpsellInterestResult) {
+            when (shouldLaunchUpsellPassiveRewards) {
                 is ShouldUpsellPassiveRewardsResult.ShouldLaunch -> {
                     val upsellArgs = UpsellInterestArgs(
-                        sourceAccount = Bindable(targetAccount),
-                        targetAccount = Bindable(result.interestAccount),
-                        interestRate = result.interestRate,
+                        sourceAccount = Bindable(shouldLaunchUpsellPassiveRewards.sourceAccount),
+                        targetAccount = Bindable(shouldLaunchUpsellPassiveRewards.targetAccount),
+                        interestRate = shouldLaunchUpsellPassiveRewards.interestRate,
                     )
                     navigateTo(SwapGraph.UpsellInterest, upsellArgs)
                 }
-                ShouldUpsellPassiveRewardsResult.ShouldNot,
-                null -> exitFlow()
+                ShouldUpsellPassiveRewardsResult.ShouldNot -> exitFlow()
             }
         }
     )
