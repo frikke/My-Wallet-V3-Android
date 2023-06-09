@@ -28,8 +28,8 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.domain.paymentmethods.model.YapilyInstitution
-import piuk.blockchain.android.urllinks.URL_OPEN_BANKING_PRIVACY_POLICY
 import java.net.URL
+import piuk.blockchain.android.urllinks.URL_OPEN_BANKING_PRIVACY_POLICY
 
 @Composable
 fun OpenBankingPermissionScreen(

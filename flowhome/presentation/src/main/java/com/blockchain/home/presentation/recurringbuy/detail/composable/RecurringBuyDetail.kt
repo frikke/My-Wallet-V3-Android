@@ -27,7 +27,6 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.MinimalErrorButton
-import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Sync
 import com.blockchain.componentlib.lazylist.roundedCornersItems

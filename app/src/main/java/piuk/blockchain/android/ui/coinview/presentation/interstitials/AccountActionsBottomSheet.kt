@@ -57,10 +57,9 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.coinview.presentation.interstitials.AccountActionsBottomSheet
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.assetActionEvent
-import piuk.blockchain.android.ui.coinview.presentation.CoinViewAnalytics
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 
 class AccountActionsBottomSheet : BottomSheetDialogFragment() {

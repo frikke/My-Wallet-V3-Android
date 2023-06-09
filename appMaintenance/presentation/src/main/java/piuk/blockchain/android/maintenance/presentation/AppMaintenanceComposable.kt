@@ -18,8 +18,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.MinimalPrimaryButton
+import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey900
 

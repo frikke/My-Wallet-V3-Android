@@ -10,9 +10,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.common.BaseButtonView
-import com.blockchain.componentlib.button.common.ButtonStyle
-import com.blockchain.componentlib.button.common.Button
 import com.blockchain.componentlib.button.common.ButtonIconColor
+import com.blockchain.componentlib.button.common.ButtonStyle
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Plus
 import com.blockchain.componentlib.theme.AppColors

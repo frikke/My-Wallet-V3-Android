@@ -5,7 +5,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
@@ -17,7 +16,6 @@ import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.icons.Copy
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
-import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.visible

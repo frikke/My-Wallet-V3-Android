@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -25,7 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -44,7 +41,6 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey400
-import com.blockchain.componentlib.theme.Grey800
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware

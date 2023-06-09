@@ -12,6 +12,8 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
+import java.math.BigDecimal
+import kotlin.math.floor
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.PrefillAmounts
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
@@ -19,8 +21,6 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.convertFiatToCrypto
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.EnterAmountCustomisations
-import java.math.BigDecimal
-import kotlin.math.floor
 
 class QuickFillRowView @JvmOverloads constructor(
     ctx: Context,

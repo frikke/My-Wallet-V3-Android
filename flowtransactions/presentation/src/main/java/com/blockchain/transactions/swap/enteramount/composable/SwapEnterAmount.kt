@@ -30,8 +30,8 @@ import com.blockchain.componentlib.alert.CustomEmptyState
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.AlertButton
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.MinimalPrimarySmallButton
+import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.card.HorizontalAssetAction
 import com.blockchain.componentlib.card.TwoAssetActionHorizontal
 import com.blockchain.componentlib.card.TwoAssetActionHorizontalLoading

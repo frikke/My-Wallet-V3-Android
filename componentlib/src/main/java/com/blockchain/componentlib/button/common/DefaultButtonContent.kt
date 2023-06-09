@@ -92,13 +92,15 @@ internal fun DefaultButtonContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             icon?.let {
-                Image(imageResource = icon.withSize(style.iconSize).run {
-                    when (iconColor) {
-                        ButtonIconColor.Default -> withTint(textColor)
-                        ButtonIconColor.Ignore -> this
-                        is ButtonIconColor.Custom -> withTint(iconColor.color)
+                Image(
+                    imageResource = icon.withSize(style.iconSize).run {
+                        when (iconColor) {
+                            ButtonIconColor.Default -> withTint(textColor)
+                            ButtonIconColor.Ignore -> this
+                            is ButtonIconColor.Custom -> withTint(iconColor.color)
+                        }
                     }
-                })
+                )
 
                 if (text.isNotEmpty()) Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
             }

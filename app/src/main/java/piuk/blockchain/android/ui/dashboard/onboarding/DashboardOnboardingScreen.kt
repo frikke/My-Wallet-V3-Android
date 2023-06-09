@@ -173,7 +173,7 @@ fun DashboardOnboardingScreen(
                 val ctaColors = remember(firstIncompleteStep) {
                     ContextCompat.getColor(context, firstIncompleteStep.colorRes).ctaButtonTint
                 }
-                
+
                 PrimaryButton(
                     modifier = Modifier
                         .fillMaxWidth()

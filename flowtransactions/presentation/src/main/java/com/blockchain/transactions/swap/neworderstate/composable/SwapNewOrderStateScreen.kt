@@ -32,9 +32,9 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.SecondaryButton
-import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.icon.SmallTagIcon
 import com.blockchain.componentlib.icons.Alert
 import com.blockchain.componentlib.icons.Check

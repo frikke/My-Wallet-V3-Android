@@ -9,9 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.MinimalSecondaryButton
-import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.toImageResource
 import com.blockchain.componentlib.utils.value

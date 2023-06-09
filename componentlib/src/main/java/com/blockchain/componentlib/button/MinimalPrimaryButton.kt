@@ -51,7 +51,6 @@ class MinimalPrimarySmallButtonView @JvmOverloads constructor(
     }
 }
 
-
 private val bgColorLight = Color(0XFFFFFFFF)
 private val bgColorDark = Color(0XFF07080D)
 private val bgColor @Composable get() = if (isSystemInDarkTheme()) bgColorDark else bgColorLight
@@ -59,7 +58,6 @@ private val bgColor @Composable get() = if (isSystemInDarkTheme()) bgColorDark e
 private val borderColorLight = Color(0XFFF0F2F7)
 private val borderColorDark = Color(0XFF2C3038)
 private val borderColor @Composable get() = if (isSystemInDarkTheme()) borderColorDark else borderColorLight
-
 
 @Composable
 fun MinimalPrimaryButton(

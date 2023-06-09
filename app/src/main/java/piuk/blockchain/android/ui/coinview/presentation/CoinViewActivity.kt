@@ -43,9 +43,9 @@ import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.presentation.composable.Coinview
-import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.coinview.presentation.interstitials.AccountActionsBottomSheet
 import piuk.blockchain.android.ui.coinview.presentation.interstitials.AccountExplainerBottomSheet
+import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.CoinViewSellClickedEvent
