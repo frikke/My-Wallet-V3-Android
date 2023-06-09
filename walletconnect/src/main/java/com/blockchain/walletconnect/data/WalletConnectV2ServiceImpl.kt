@@ -5,6 +5,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.TxResult
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.chains.ethereum.EthMessageSigner
+import com.blockchain.koin.payloadScope
 import com.blockchain.utils.asFlow
 import com.blockchain.walletconnect.domain.ClientMeta
 import com.blockchain.walletconnect.domain.DAppInfo
@@ -28,11 +29,14 @@ import com.blockchain.walletconnect.domain.WalletConnectV2UrlValidator
 import com.blockchain.walletconnect.domain.WalletInfo
 import com.blockchain.walletconnect.ui.networks.ETH_CHAIN_ID
 import com.blockchain.walletmode.WalletMode
+import com.walletconnect.android.Core
+import com.walletconnect.android.CoreClient
 import com.walletconnect.android.cacao.signature.SignatureType
 import com.walletconnect.android.internal.common.scope
 import com.walletconnect.android.internal.common.signing.cacao.Cacao
 import com.walletconnect.android.internal.common.signing.signature.Signature
 import com.walletconnect.android.internal.common.signing.signature.toCacaoSignature
+import com.walletconnect.android.relay.ConnectionType
 import com.walletconnect.web3.wallet.client.Wallet
 import com.walletconnect.web3.wallet.client.Web3Wallet
 import info.blockchain.balance.CryptoCurrency
@@ -59,14 +63,7 @@ import kotlinx.coroutines.withContext
 import org.bouncycastle.util.encoders.Hex
 import timber.log.Timber
 
-class WalletConnectV2ServiceImpl(
-    private val application: Application,
-    private val ethDataManager: EthDataManager,
-    private val coincore: Coincore,
-    private val ethRequestSign: EthRequestSign,
-    private val ethRequestSend: EthSendTransactionRequest,
-    private val ethMessageSigner: EthMessageSigner,
-) : WalletConnectV2Service, WalletConnectV2UrlValidator, Web3Wallet.WalletDelegate {
+class WalletConnectV2ServiceImpl : WalletConnectV2Service, WalletConnectV2UrlValidator, Web3Wallet.WalletDelegate {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -76,11 +73,58 @@ class WalletConnectV2ServiceImpl(
     private val _walletConnectUserEvents: MutableSharedFlow<WalletConnectUserEvent> = MutableSharedFlow()
     override val userEvents: SharedFlow<WalletConnectUserEvent> = _walletConnectUserEvents.asSharedFlow()
 
-    init {
-        val delegate = this
-        scope.launch {
-            Web3Wallet.setWalletDelegate(delegate)
-        }
+    private val ethDataManager: EthDataManager
+        get() = payloadScope.get()
+
+    private val coincore: Coincore
+        get() = payloadScope.get()
+
+    private val ethRequestSign: EthRequestSign
+        get() = payloadScope.get()
+
+    private val ethRequestSend: EthSendTransactionRequest
+        get() = payloadScope.get()
+
+    private val ethMessageSigner: EthMessageSigner
+        get() = payloadScope.get()
+
+    override fun initWalletConnect(application: Application, projectId: String, relayUrl: String) {
+        // WalletConnect V2 Initialization
+        val serverUrl = "wss://$relayUrl?projectId=$projectId"
+        val connectionType = ConnectionType.AUTOMATIC
+
+        CoreClient.initialize(
+            relayServerUrl = serverUrl,
+            connectionType = connectionType,
+            application = application,
+            metaData = Core.Model.AppMetaData(
+                name = "Blockchain.com",
+                description = "",
+                url = "https://www.blockchain.com",
+                icons = listOf("https://www.blockchain.com/static/apple-touch-icon.png"),
+                redirect = null,
+                verifyUrl = null
+            ),
+            relay = null,
+            keyServerUrl = null,
+            networkClientTimeout = null,
+            onError = { error ->
+                Timber.e("WalletConnect V2: Core error: $error")
+            },
+
+        )
+
+        val initParams = Wallet.Params.Init(CoreClient)
+        Web3Wallet.initialize(
+            initParams,
+            onSuccess = {
+                Timber.d("WalletConnect V2: Web3Wallet init success")
+                Web3Wallet.setWalletDelegate(this)
+            },
+            onError = { error ->
+                Timber.e("WalletConnect V2: Web3Wallet init error: $error")
+            }
+        )
     }
 
     override suspend fun pair(pairingUrl: String) {

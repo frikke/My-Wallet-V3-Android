@@ -1,5 +1,6 @@
 package com.blockchain.walletconnect.domain
 
+import android.app.Application
 import com.blockchain.coincore.TxResult
 import com.walletconnect.web3.wallet.client.Wallet
 import kotlinx.coroutines.flow.Flow
@@ -9,6 +10,8 @@ interface WalletConnectV2Service {
 
     val walletEvents: SharedFlow<Wallet.Model>
     val userEvents: SharedFlow<WalletConnectUserEvent>
+
+    fun initWalletConnect(application: Application, projectId: String, relayUrl: String)
 
     suspend fun pair(pairingUrl: String)
 

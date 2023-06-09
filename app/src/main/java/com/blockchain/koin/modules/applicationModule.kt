@@ -867,7 +867,8 @@ val applicationModule = module {
                 walletPrefs = get(),
                 payloadScopeWiper = get(),
                 sessionInfo = SessionInfo,
-                remoteLogger = get()
+                remoteLogger = get(),
+                globalEventHandler = get(),
             )
         }.bind(DataWiper::class)
 

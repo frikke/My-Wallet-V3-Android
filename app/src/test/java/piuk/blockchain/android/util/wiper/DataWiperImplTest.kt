@@ -15,6 +15,7 @@ import org.junit.Test
 import org.mockito.Mockito.anyString
 import org.mockito.Mockito.verify
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
+import piuk.blockchain.android.ui.launcher.GlobalEventHandler
 
 class DataWiperImplTest {
 
@@ -27,6 +28,7 @@ class DataWiperImplTest {
     private val payloadScopeWiper: PayloadScopeWiper = mock()
     private val sessionInfo: SessionInfo = mock()
     private val remoteLogger: RemoteLogger = mock()
+    private val globalEventHandler: GlobalEventHandler = mock()
 
     private lateinit var subject: DataWiper
 
@@ -42,7 +44,8 @@ class DataWiperImplTest {
             walletPrefs,
             payloadScopeWiper,
             sessionInfo,
-            remoteLogger
+            remoteLogger,
+            globalEventHandler
         )
     }
 
