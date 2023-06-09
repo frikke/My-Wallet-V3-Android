@@ -21,7 +21,7 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.PrimaryOutlinedButton
+import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
@@ -121,7 +121,7 @@ fun BackedUpPhraseScreen(
 
             Spacer(modifier = Modifier.weight(1F))
 
-            PrimaryOutlinedButton(
+            MinimalPrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = com.blockchain.stringResources.R.string.recovery_phrase_backup_again),
                 onClick = nextOnClick

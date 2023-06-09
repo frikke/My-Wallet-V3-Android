@@ -30,7 +30,7 @@ fun PrimaryButton(
 }
 
 @Composable
-fun SmallPrimaryButton(
+fun PrimarySmallButton(
     modifier: Modifier = Modifier,
     text: String,
     state: ButtonState = ButtonState.Enabled,
@@ -88,7 +88,7 @@ private fun PreviewPrimaryButtonDark() {
 @Preview
 @Composable
 private fun PreviewPrimaryButtonSmall() {
-    SmallPrimaryButton(
+    PrimarySmallButton(
         text = "Button Text", state = ButtonState.Enabled, icon = Icons.Plus, onClick = {}
     )
 }
@@ -116,7 +116,7 @@ private fun PreviewPrimaryButtonDisabledDark() {
 @Preview
 @Composable
 private fun PreviewPrimaryButtonSmallDisabled() {
-    SmallPrimaryButton(
+    PrimarySmallButton(
         text = "Button Text", state = ButtonState.Disabled, icon = Icons.Plus, onClick = {}
     )
 }
@@ -144,7 +144,7 @@ private fun PreviewPrimaryButtonLoadingDark() {
 @Preview
 @Composable
 private fun PreviewPrimaryButtonSmallLoading() {
-    SmallPrimaryButton(
+    PrimarySmallButton(
         text = "Button Text", state = ButtonState.Loading, icon = Icons.Plus, onClick = {}
     )
 }

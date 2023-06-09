@@ -15,7 +15,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import com.blockchain.componentlib.button.MinimalPrimaryButton
-import com.blockchain.componentlib.button.PrimaryOutlinedButton
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.tablerow.SingleIconTableRow
 import com.blockchain.componentlib.theme.AppTheme

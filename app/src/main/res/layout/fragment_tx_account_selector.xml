@@ -118,7 +118,7 @@
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/add_method" />
 
-    <com.blockchain.componentlib.button.PrimaryOutlinedButtonView
+    <com.blockchain.componentlib.button.MinimalPrimaryButtonView
         android:id="@+id/add_method"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

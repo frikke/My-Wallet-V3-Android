@@ -47,7 +47,7 @@
         app:layout_constraintTop_toBottomOf="@id/biometrics_blurb"
         tools:text="@string/code_verification_verify_code" />
 
-    <com.blockchain.componentlib.button.PrimaryOutlinedButtonView
+    <com.blockchain.componentlib.button.MinimalPrimaryButtonView
         android:id="@+id/negative_cta"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -50,7 +50,7 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.SmallOutlinedButton
-import com.blockchain.componentlib.button.SmallSecondaryButton
+import com.blockchain.componentlib.button.SecondarySmallButton
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.control.NonCancelableOutlinedSearch
 import com.blockchain.componentlib.control.TabSwitcher
@@ -468,7 +468,7 @@ private fun ProductComparatorCta(onOpenProductComparator: () -> Unit) {
                 }
             },
             contentEnd = {
-                SmallSecondaryButton(
+                SecondarySmallButton(
                     text = stringResource(id = com.blockchain.stringResources.R.string.common_go),
                     onClick = onOpenProductComparator,
                     state = ButtonState.Enabled,

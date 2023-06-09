@@ -21,7 +21,7 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.PrimaryOutlinedButton
+import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.SmallOutlinedButton
 import com.blockchain.componentlib.divider.HorizontalDivider
@@ -32,6 +32,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.White
 import com.blockchain.domain.paymentmethods.model.FundsLock
 import com.blockchain.domain.paymentmethods.model.FundsLocks
+import com.blockchain.stringResources.R
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CurrencyType
@@ -143,11 +144,11 @@ private fun LocksDetailsScreen(
         }
 
         Column(Modifier.fillMaxWidth()) {
-            PrimaryOutlinedButton(
+            MinimalPrimaryButton(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = AppTheme.dimensions.standardSpacing),
-                text = stringResource(com.blockchain.stringResources.R.string.contact_support),
+                text = stringResource(R.string.contact_support),
                 onClick = contactSupportClicked
             )
 

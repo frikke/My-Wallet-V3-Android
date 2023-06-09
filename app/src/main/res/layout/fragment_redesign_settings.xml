@@ -112,7 +112,7 @@
                 android:layout_height="wrap_content"
                 android:visibility="gone" />
 
-            <com.blockchain.componentlib.button.PrimaryOutlinedButtonView
+            <com.blockchain.componentlib.button.MinimalPrimaryButtonView
                 android:id="@+id/add_payment_method"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -193,7 +193,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@+id/about_app_group" />
 
-        <com.blockchain.componentlib.button.DestructiveOutlinedButtonView
+        <com.blockchain.componentlib.button.MinimalErrorButtonView
             android:id="@+id/sign_out_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

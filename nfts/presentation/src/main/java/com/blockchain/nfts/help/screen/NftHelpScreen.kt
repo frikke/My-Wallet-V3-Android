@@ -26,7 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.PrimaryOutlinedButton
+import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.sheets.SheetNub
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey400
@@ -88,13 +88,10 @@ fun NftHelpScreen(onBuyClick: () -> Unit) {
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
-            PrimaryOutlinedButton(
+            MinimalPrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(com.blockchain.stringResources.R.string.nft_help_buy_cta_opensea),
-                icon = ImageResource.Local(
-                    id = R.drawable.ic_opensea,
-                    size = AppTheme.dimensions.standardSpacing
-                ),
+                icon = ImageResource.Local(R.drawable.ic_opensea),
                 onClick = onBuyClick
             )
 

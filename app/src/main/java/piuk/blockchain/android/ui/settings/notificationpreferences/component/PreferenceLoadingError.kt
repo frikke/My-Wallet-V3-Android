@@ -17,7 +17,7 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.PrimaryOutlinedButton
+import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -69,7 +69,7 @@ fun PreferenceLoadingError(onRetryClicked: () -> Unit, onBackClicked: () -> Unit
 
             Spacer(Modifier.size(AppTheme.dimensions.tinySpacing))
 
-            PrimaryOutlinedButton(
+            MinimalPrimaryButton(
                 text = stringResource(id = com.blockchain.stringResources.R.string.settings_notification_error_back),
                 onClick = onBackClicked,
                 modifier = Modifier.fillMaxWidth()

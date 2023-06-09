@@ -16,12 +16,10 @@ import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vie
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DialogueActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DividerActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ExpandablesActivity
-import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.MinimalButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.NavigationActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.PagerActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.PrimaryButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ProgressActivity
-import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SecondaryButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SectionHeadersActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SheetActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SimpleImageViewActivity
@@ -76,12 +74,6 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.alert_button).setOnClickListener {
             startActivity(Intent(this@MainActivity, AlertButtonActivity::class.java))
-        }
-        findViewById<MaterialButton>(R.id.minimal_button).setOnClickListener {
-            startActivity(Intent(this@MainActivity, MinimalButtonActivity::class.java))
-        }
-        findViewById<MaterialButton>(R.id.secondary_button).setOnClickListener {
-            startActivity(Intent(this@MainActivity, SecondaryButtonActivity::class.java))
         }
         findViewById<MaterialButton>(R.id.small_minimal_button).setOnClickListener {
             startActivity(Intent(this@MainActivity, SmallMinimalButtonActivity::class.java))

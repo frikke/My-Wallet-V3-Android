@@ -22,14 +22,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.DestructiveOutlinedButton
+import com.blockchain.componentlib.button.MinimalErrorButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.domain.paymentmethods.model.YapilyInstitution
-import java.net.URL
 import piuk.blockchain.android.urllinks.URL_OPEN_BANKING_PRIVACY_POLICY
+import java.net.URL
 
 @Composable
 fun OpenBankingPermissionScreen(
@@ -88,7 +88,7 @@ fun OpenBankingPermissionScreen(
 
         Spacer(modifier = Modifier.height(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
-        DestructiveOutlinedButton(
+        MinimalErrorButton(
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(id = com.blockchain.stringResources.R.string.common_deny),
             onClick = denyOnClick

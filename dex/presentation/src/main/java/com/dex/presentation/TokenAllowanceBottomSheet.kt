@@ -28,7 +28,6 @@ import androidx.lifecycle.SavedStateHandle
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.MinimalPrimaryButton
-import com.blockchain.componentlib.button.PrimaryOutlinedButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.icons.Gas
 import com.blockchain.componentlib.icons.Icons

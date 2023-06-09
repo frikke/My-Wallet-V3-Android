@@ -35,7 +35,8 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.PrimaryOutlinedButton
+import com.blockchain.componentlib.button.MinimalPrimaryButton
+import com.blockchain.componentlib.button.SecondarySmallButton
 import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
@@ -55,6 +56,7 @@ import com.blockchain.home.presentation.dashboard.CustodialEmptyCardViewState
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
+import com.blockchain.stringResources.R
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
@@ -173,50 +175,33 @@ fun CustodialEmptyStateCardsScreen(
                         .padding(horizontal = AppTheme.dimensions.smallSpacing)
                 ) {
                     amounts.map { amount ->
-                        Button(
-                            content = {
-                                Text(
-                                    text = amount.toStringWithSymbol(false),
-                                    color = Color.White,
-                                    style = AppTheme.typography.paragraphMono
-                                )
-                            },
+                        SecondarySmallButton(
+                            modifier = Modifier.weight(1f),
+                            text = amount.toStringWithSymbol(false),
                             onClick = {
                                 onBuyAmountClick(amount)
                             },
-                            shape = RoundedCornerShape(50),
-                            colors = ButtonDefaults.buttonColors(backgroundColor = Grey800),
-                            modifier = Modifier.weight(1f)
                         )
-
                         SmallHorizontalSpacer()
                     }
 
-                    Button(
-                        content = {
-                            Text(
-                                text = stringResource(id = com.blockchain.stringResources.R.string.common_other),
-                                color = Color.White,
-                                style = AppTheme.typography.paragraphMono
-                            )
-                        },
+                    SecondarySmallButton(
+                        modifier = Modifier.weight(1f),
+                        text = stringResource(id = com.blockchain.stringResources.R.string.common_other),
                         onClick = {
                             onBuyAmountClick(null)
                         },
-                        shape = RoundedCornerShape(50),
-                        colors = ButtonDefaults.buttonColors(backgroundColor = Grey800),
-                        modifier = Modifier.weight(1f)
                     )
                 }
 
-                PrimaryOutlinedButton(
+                MinimalPrimaryButton(
                     modifier = Modifier
                         .padding(
                             vertical = AppTheme.dimensions.standardSpacing,
                             horizontal = AppTheme.dimensions.smallSpacing
                         )
                         .fillMaxWidth(),
-                    text = stringResource(id = com.blockchain.stringResources.R.string.buy_different_crypto),
+                    text = stringResource(id = R.string.buy_different_crypto),
                     onClick = onCryptoClick
                 )
             }

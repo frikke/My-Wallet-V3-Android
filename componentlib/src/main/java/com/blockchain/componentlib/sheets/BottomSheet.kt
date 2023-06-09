@@ -2,7 +2,6 @@ package com.blockchain.componentlib.sheets
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -17,7 +16,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,13 +23,13 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.DestructiveOutlinedButton
-import com.blockchain.componentlib.button.PrimaryOutlinedButton
+import com.blockchain.componentlib.button.MinimalErrorButton
+import com.blockchain.componentlib.button.MinimalPrimaryButton
+import com.blockchain.componentlib.button.MinimalPrimarySmallButton
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.SmallOutlinedButton
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Dark800
 
 @Composable
 fun BottomSheetTwoButtons(
@@ -43,7 +41,6 @@ fun BottomSheetTwoButtons(
     button1: BottomSheetButton,
     button2: BottomSheetButton,
     subtitleAlign: TextAlign = TextAlign.Center,
-    isDarkTheme: Boolean = isSystemInDarkTheme(),
     shouldShowHeaderDivider: Boolean = true
 ) {
     BottomSheet(
@@ -57,7 +54,6 @@ fun BottomSheetTwoButtons(
             button1.toBottomSheetButtonComposable(Modifier.wrapContentWidth()).invoke()
             button2.toBottomSheetButtonComposable(Modifier.wrapContentWidth()).invoke()
         },
-        isDarkTheme = isDarkTheme,
         shouldShowHeaderDivider = shouldShowHeaderDivider
     )
 }
@@ -71,7 +67,6 @@ fun BottomSheetOneButton(
     subtitle: String = "",
     subtitleAlign: TextAlign = TextAlign.Center,
     button: BottomSheetButton,
-    isDarkTheme: Boolean = isSystemInDarkTheme(),
     shouldShowHeaderDivider: Boolean = true
 ) {
     BottomSheet(
@@ -84,7 +79,6 @@ fun BottomSheetOneButton(
         buttonsContent = {
             button.toBottomSheetButtonComposable(Modifier.wrapContentWidth()).invoke()
         },
-        isDarkTheme = isDarkTheme,
         shouldShowHeaderDivider = shouldShowHeaderDivider
     )
 }
@@ -97,7 +91,6 @@ fun BottomSheetNoButtons(
     textAlign: TextAlign = TextAlign.Center,
     showTitleInHeader: Boolean = false,
     subtitle: String = "",
-    isDarkTheme: Boolean = isSystemInDarkTheme(),
     shouldShowHeaderDivider: Boolean = true
 ) {
     BottomSheet(
@@ -108,7 +101,6 @@ fun BottomSheetNoButtons(
         showTitleInHeader = showTitleInHeader,
         subtitle = subtitle,
         buttonsContent = null,
-        isDarkTheme = isDarkTheme,
         shouldShowHeaderDivider = shouldShowHeaderDivider
     )
 }
@@ -122,20 +114,14 @@ private fun BottomSheet(
     showTitleInHeader: Boolean = false,
     subtitle: String = "",
     buttonsContent: (@Composable ColumnScope.() -> Unit)? = null,
-    isDarkTheme: Boolean = isSystemInDarkTheme(),
     shouldShowHeaderDivider: Boolean = true
 ) {
-    val backgroundColor = if (!isDarkTheme) {
-        Color.White
-    } else {
-        Dark800
-    }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                backgroundColor,
+                AppColors.background,
                 RoundedCornerShape(dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing))
             ),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -209,17 +195,17 @@ private fun BottomSheetButton.toBottomSheetButtonComposable(modifier: Modifier):
                 onClick = onClick,
                 modifier = modifier.fillMaxWidth()
             )
-            ButtonType.MINIMAL -> PrimaryOutlinedButton(
+            ButtonType.MINIMAL -> MinimalPrimaryButton(
                 text = text,
                 onClick = onClick,
                 modifier = modifier.fillMaxWidth()
             )
-            ButtonType.SMALL_MINIMAL -> SmallOutlinedButton(
+            ButtonType.SMALL_MINIMAL -> MinimalPrimarySmallButton(
                 text = text,
                 onClick = onClick,
                 modifier = modifier
             )
-            ButtonType.DESTRUCTIVE_MINIMAL -> DestructiveOutlinedButton(
+            ButtonType.DESTRUCTIVE_MINIMAL -> MinimalErrorButton(
                 text = text,
                 onClick = onClick,
                 modifier = modifier.fillMaxWidth()

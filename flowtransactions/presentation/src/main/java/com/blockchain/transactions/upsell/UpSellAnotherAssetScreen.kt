@@ -20,7 +20,6 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.MinimalPrimaryButton
-import com.blockchain.componentlib.button.PrimaryOutlinedButton
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.BalanceChange
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow

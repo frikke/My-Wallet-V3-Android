@@ -82,7 +82,7 @@
         android:layout_marginEnd="@dimen/standard_spacing"
         app:layout_constraintTop_toBottomOf="@id/tertiary_cta_button" />
 
-    <com.blockchain.componentlib.button.PrimaryOutlinedButtonView
+    <com.blockchain.componentlib.button.MinimalPrimaryButtonView
         android:id="@+id/secondary_cta_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

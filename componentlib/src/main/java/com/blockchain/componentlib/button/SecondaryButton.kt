@@ -40,7 +40,7 @@ fun SecondaryButton(
 }
 
 @Composable
-fun SmallSecondaryButton(
+fun SecondarySmallButton(
     modifier: Modifier = Modifier,
     text: String,
     state: ButtonState = ButtonState.Enabled,
@@ -97,7 +97,7 @@ private fun PreviewSecondaryButtonDark() {
 @Preview
 @Composable
 private fun PreviewSecondaryButtonSmall() {
-    SmallSecondaryButton(
+    SecondarySmallButton(
         text = "Button Text", state = ButtonState.Enabled, icon = Icons.Plus, onClick = {}
     )
 }
@@ -125,7 +125,7 @@ private fun PreviewSecondaryButtonDisabledDark() {
 @Preview
 @Composable
 private fun PreviewSecondaryButtonSmallDisabled() {
-    SmallSecondaryButton(
+    SecondarySmallButton(
         text = "Button Text", state = ButtonState.Disabled, icon = Icons.Plus, onClick = {}
     )
 }
@@ -153,7 +153,7 @@ private fun PreviewSecondaryButtonLoadingDark() {
 @Preview
 @Composable
 private fun PreviewSecondaryButtonSmallLoading() {
-    SmallSecondaryButton(
+    SecondarySmallButton(
         text = "Button Text", state = ButtonState.Loading, icon = Icons.Plus, onClick = {}
     )
 }

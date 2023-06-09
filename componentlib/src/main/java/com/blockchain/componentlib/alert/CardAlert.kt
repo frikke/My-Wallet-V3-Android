@@ -1,7 +1,6 @@
 package com.blockchain.componentlib.alert
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,9 +23,8 @@ import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.SmallSecondaryButton
+import com.blockchain.componentlib.button.SecondarySmallButton
 import com.blockchain.componentlib.card.CardButton
-import com.blockchain.componentlib.icons.Image
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -98,7 +96,7 @@ fun CardAlert(
                     modifier = Modifier
                         .padding(top = dimensionResource(id = com.blockchain.componentlib.R.dimen.small_spacing))
                 ) {
-                    SmallSecondaryButton(
+                    SecondarySmallButton(
                         text = primaryCta.text,
                         onClick = primaryCta.onClick,
                         state = ButtonState.Enabled
@@ -111,7 +109,7 @@ fun CardAlert(
                             )
                         )
 
-                        SmallSecondaryButton(
+                        SecondarySmallButton(
                             text = secondaryCta.text,
                             onClick = secondaryCta.onClick,
                             state = ButtonState.Enabled

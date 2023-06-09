@@ -13,7 +13,7 @@ import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue600
 
-class MinimalPrimaryButtonView @JvmOverloads constructor(
+class MinimalErrorButtonView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
@@ -21,7 +21,7 @@ class MinimalPrimaryButtonView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        MinimalPrimaryButton(
+        MinimalErrorButton(
             onClick = onClick,
             text = text,
             state = buttonState,
