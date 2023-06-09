@@ -65,7 +65,7 @@ fun UpsellInterestAfterSwapScreen(
     val targetAccount = args.targetAccount.data ?: return
     val interestRate = args.interestRate
     val assetToUpsell = targetAccount.currency
-    
+
     LaunchedEffect(Unit) {
         analytics.logEvent(UpsellInterestAfterSwapViewed(assetToUpsell.networkTicker))
     }
