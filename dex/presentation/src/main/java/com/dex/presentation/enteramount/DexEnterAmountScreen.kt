@@ -59,10 +59,10 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.AlertButton
-import com.blockchain.componentlib.button.ButtonLoadingIndicator
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.button.common.LoadingIndicator
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.icon.SmallTagIcon
 import com.blockchain.componentlib.icons.Alert
@@ -661,10 +661,7 @@ private fun PriceFetching() {
             )
         },
         contentStart = {
-            ButtonLoadingIndicator(
-                modifier = Modifier.size(24.dp),
-                loadingIconResId = com.blockchain.componentlib.R.drawable.ic_loading_minimal_light
-            )
+            LoadingIndicator(color = AppColors.primary)
         }
     )
 }

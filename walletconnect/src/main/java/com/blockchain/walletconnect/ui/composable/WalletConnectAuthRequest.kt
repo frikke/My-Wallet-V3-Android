@@ -3,6 +3,8 @@ package com.blockchain.walletconnect.ui.composable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,7 +27,8 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.SplitButtons
+import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.theme.AppTheme
@@ -87,6 +90,7 @@ fun WalletConnectAuthRequest(
                 is WalletConnectAuthRequestViewState.WalletConnectAuthRequestLoading -> {
                     CircularProgressBar()
                 }
+
                 is WalletConnectAuthRequestViewState.WalletConnectAuthRequestData -> {
 
                     (
@@ -94,78 +98,83 @@ fun WalletConnectAuthRequest(
                             as WalletConnectAuthRequestViewState.WalletConnectAuthRequestData
                         ).let { viewState ->
 
-                        Image(
-                            imageResource = ImageResource.Local(R.drawable.ic_walletconnect_logo),
-                            modifier = Modifier
-                                .size(88.dp)
-                                .clip(AppTheme.shapes.veryLarge)
-                        )
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-
-                            SimpleText(
-                                text = stringResource(string.walletconnect_auth_request_title),
-                                style = ComposeTypographies.Title3,
-                                color = ComposeColors.Title,
-                                gravity = ComposeGravities.Centre
+                            Image(
+                                imageResource = ImageResource.Local(R.drawable.ic_walletconnect_logo),
+                                modifier = Modifier
+                                    .size(88.dp)
+                                    .clip(AppTheme.shapes.veryLarge)
                             )
 
-                            SmallVerticalSpacer()
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
 
-                            SimpleText(
-                                text = viewState.domain,
-                                style = ComposeTypographies.Body1,
-                                color = ComposeColors.Body,
-                                gravity = ComposeGravities.Centre
-                            )
-
-                            StandardVerticalSpacer()
-
-                            Column {
                                 SimpleText(
-                                    text = stringResource(string.common_message),
-                                    style = ComposeTypographies.Caption1,
-                                    color = ComposeColors.Body,
-                                    gravity = ComposeGravities.Start
+                                    text = stringResource(string.walletconnect_auth_request_title),
+                                    style = ComposeTypographies.Title3,
+                                    color = ComposeColors.Title,
+                                    gravity = ComposeGravities.Centre
                                 )
 
-                                TinyVerticalSpacer()
+                                SmallVerticalSpacer()
 
-                                Box(modifier = Modifier.background(Color.White, AppTheme.shapes.medium)) {
+                                SimpleText(
+                                    text = viewState.domain,
+                                    style = ComposeTypographies.Body1,
+                                    color = ComposeColors.Body,
+                                    gravity = ComposeGravities.Centre
+                                )
+
+                                StandardVerticalSpacer()
+
+                                Column {
                                     SimpleText(
-                                        text = viewState.authMessage,
-                                        style = ComposeTypographies.Body1,
+                                        text = stringResource(string.common_message),
+                                        style = ComposeTypographies.Caption1,
                                         color = ComposeColors.Body,
-                                        gravity = ComposeGravities.Start,
-                                        modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
+                                        gravity = ComposeGravities.Start
+                                    )
+
+                                    TinyVerticalSpacer()
+
+                                    Box(modifier = Modifier.background(Color.White, AppTheme.shapes.medium)) {
+                                        SimpleText(
+                                            text = viewState.authMessage,
+                                            style = ComposeTypographies.Body1,
+                                            color = ComposeColors.Body,
+                                            gravity = ComposeGravities.Start,
+                                            modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
+                                        )
+                                    }
+                                }
+
+                                LargeVerticalSpacer()
+
+                                Row(modifier = Modifier.fillMaxWidth()) {
+                                    PrimaryButton(
+                                        modifier = Modifier.weight(1f),
+                                        text = stringResource(string.common_connect),
+                                        onClick = {
+                                            authRequestViewModel.onIntent(WalletConnectAuthRequestIntent.ApproveAuth)
+                                            onDismiss()
+                                        }
+                                    )
+
+                                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+                                    SecondaryButton(
+                                        modifier = Modifier.weight(1f),
+                                        text = stringResource(string.common_cancel),
+                                        onClick = {
+                                            authRequestViewModel.onIntent(WalletConnectAuthRequestIntent.ApproveAuth)
+                                            onDismiss()
+                                        }
                                     )
                                 }
                             }
-
-                            LargeVerticalSpacer()
-
-                            SplitButtons(
-                                primaryButtonText = stringResource(
-                                    id = string.common_connect
-                                ),
-                                primaryButtonOnClick = {
-                                    authRequestViewModel.onIntent(WalletConnectAuthRequestIntent.ApproveAuth)
-                                    onDismiss()
-                                },
-                                secondaryButtonText = stringResource(
-                                    id = string.common_cancel
-                                ),
-                                secondaryButtonOnClick = {
-                                    authRequestViewModel.onIntent(WalletConnectAuthRequestIntent.RejectAuth)
-                                    onDismiss()
-                                }
-                            )
                         }
-                    }
                 }
             }
         }

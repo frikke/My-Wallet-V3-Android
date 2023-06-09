@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -39,7 +40,7 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.SplitButtons
+import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.icons.Alert
 import com.blockchain.componentlib.icons.Check
 import com.blockchain.componentlib.icons.Icons
@@ -414,12 +415,21 @@ fun AnimatedSessionProposalContent(
 
                     SmallVerticalSpacer()
 
-                    SplitButtons(
-                        primaryButtonText = stringResource(id = string.common_connect),
-                        primaryButtonOnClick = onApprove,
-                        secondaryButtonText = stringResource(id = string.common_cancel),
-                        secondaryButtonOnClick = onReject
-                    )
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        PrimaryButton(
+                            modifier = Modifier.weight(1f),
+                            text = stringResource(string.common_connect),
+                            onClick = onApprove
+                        )
+
+                        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+                        SecondaryButton(
+                            modifier = Modifier.weight(1f),
+                            text = stringResource(string.common_cancel),
+                            onClick = onReject
+                        )
+                    }
                 }
                 TargetState.SUCCESS -> {
                     SimpleText(

@@ -21,7 +21,6 @@ private val borderColorLight = Color(0XFFF0F2F7)
 private val borderColorDark = Color(0XFF2C3038)
 private val borderColor @Composable get() = if (isSystemInDarkTheme()) borderColorDark else borderColorLight
 
-
 @Composable
 fun MinimalErrorButton(
     modifier: Modifier = Modifier,
