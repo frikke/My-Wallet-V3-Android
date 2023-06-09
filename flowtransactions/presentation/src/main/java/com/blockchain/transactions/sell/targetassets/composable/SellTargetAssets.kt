@@ -1,5 +1,6 @@
 package com.blockchain.transactions.sell.targetassets.composable
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +19,7 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.componentlib.sheets.SheetFlatHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
 import com.blockchain.data.updateDataWith
@@ -70,7 +72,9 @@ fun TargetAssetsScreen(
     onBackPressed: () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(AppColors.background)
     ) {
         SheetFlatHeader(
             icon = StackedIcon.None,
@@ -97,24 +101,24 @@ private fun PreviewSelectTargetScreen() {
     TargetAssetsScreen(
         accounts = DataResource.Data(
             listOf(
-//                BalanceChange(
-//                    name = "Bitcoin",
-//                    ticker = "BTC",
-//                    network = null,
-//                    logo = "",
-//                    delta = DataResource.Data(ValueChange.fromValue(12.9)),
-//                    currentPrice = DataResource.Data("122922"),
-//                    showRisingFastTag = false
-//                ),
-//                BalanceChange(
-//                    name = "Ethereum",
-//                    ticker = "ETH",
-//                    network = "Ethereum",
-//                    logo = "",
-//                    delta = DataResource.Data(ValueChange.fromValue(-2.9)),
-//                    currentPrice = DataResource.Data("1222"),
-//                    showRisingFastTag = false
-//                )
+                //                BalanceChange(
+                //                    name = "Bitcoin",
+                //                    ticker = "BTC",
+                //                    network = null,
+                //                    logo = "",
+                //                    delta = DataResource.Data(ValueChange.fromValue(12.9)),
+                //                    currentPrice = DataResource.Data("122922"),
+                //                    showRisingFastTag = false
+                //                ),
+                //                BalanceChange(
+                //                    name = "Ethereum",
+                //                    ticker = "ETH",
+                //                    network = "Ethereum",
+                //                    logo = "",
+                //                    delta = DataResource.Data(ValueChange.fromValue(-2.9)),
+                //                    currentPrice = DataResource.Data("1222"),
+                //                    showRisingFastTag = false
+                //                )
             )
         ),
         accountOnClick = {},
@@ -128,24 +132,24 @@ private fun PreviewSelectTargetScreen_WithFilter() {
     TargetAssetsScreen(
         accounts = DataResource.Data(
             listOf(
-//                BalanceChange(
-//                    name = "Bitcoin",
-//                    ticker = "BTC",
-//                    network = null,
-//                    logo = "",
-//                    delta = DataResource.Data(ValueChange.fromValue(12.9)),
-//                    currentPrice = DataResource.Data("122922"),
-//                    showRisingFastTag = false
-//                ),
-//                BalanceChange(
-//                    name = "Ethereum",
-//                    ticker = "ETH",
-//                    network = "Ethereum",
-//                    logo = "",
-//                    delta = DataResource.Data(ValueChange.fromValue(-2.9)),
-//                    currentPrice = DataResource.Data("1222"),
-//                    showRisingFastTag = false
-//                )
+                //                BalanceChange(
+                //                    name = "Bitcoin",
+                //                    ticker = "BTC",
+                //                    network = null,
+                //                    logo = "",
+                //                    delta = DataResource.Data(ValueChange.fromValue(12.9)),
+                //                    currentPrice = DataResource.Data("122922"),
+                //                    showRisingFastTag = false
+                //                ),
+                //                BalanceChange(
+                //                    name = "Ethereum",
+                //                    ticker = "ETH",
+                //                    network = "Ethereum",
+                //                    logo = "",
+                //                    delta = DataResource.Data(ValueChange.fromValue(-2.9)),
+                //                    currentPrice = DataResource.Data("1222"),
+                //                    showRisingFastTag = false
+                //                )
             )
         ),
         accountOnClick = {},

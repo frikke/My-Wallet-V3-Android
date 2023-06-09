@@ -1,5 +1,6 @@
 package com.blockchain.transactions.sell.neworderstate.composable
 
+import android.content.res.Configuration
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -57,8 +58,8 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.isLayer2Token
-import java.io.Serializable
 import org.koin.androidx.compose.get
+import java.io.Serializable
 
 sealed interface SellNewOrderState {
     object PendingDeposit : SellNewOrderState
@@ -354,6 +355,12 @@ private fun PreviewPendingDeposit() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun NewOrderStateContentDark() {
+    PreviewPendingDeposit()
+}
+
 @Preview
 @Composable
 private fun PreviewSucceeded() {
@@ -364,6 +371,12 @@ private fun PreviewSucceeded() {
         handleDeeplinkUrlAndExit = {},
         doneClicked = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewSucceededDark() {
+    PreviewSucceeded()
 }
 
 @Preview
@@ -398,4 +411,10 @@ private fun PreviewError() {
         handleDeeplinkUrlAndExit = {},
         doneClicked = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewErrorDark() {
+    PreviewError()
 }
