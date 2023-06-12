@@ -176,6 +176,7 @@ private fun PreviewSelectTargetScreen() {
                     ticker = "BTC",
                     network = null,
                     logo = "",
+                    nativeAssetLogo = null,
                     delta = DataResource.Data(ValueChange.fromValue(12.9)),
                     currentPrice = DataResource.Data("122922"),
                     showRisingFastTag = false
@@ -185,6 +186,7 @@ private fun PreviewSelectTargetScreen() {
                     ticker = "ETH",
                     network = "Ethereum",
                     logo = "",
+                    nativeAssetLogo = null,
                     delta = DataResource.Data(ValueChange.fromValue(-2.9)),
                     currentPrice = DataResource.Data("1222"),
                     showRisingFastTag = false
@@ -211,6 +213,7 @@ private fun PreviewSelectTargetScreen_WithFilter() {
                     ticker = "BTC",
                     network = null,
                     logo = "",
+                    nativeAssetLogo = null,
                     delta = DataResource.Data(ValueChange.fromValue(12.9)),
                     currentPrice = DataResource.Data("122922"),
                     showRisingFastTag = false
@@ -220,6 +223,7 @@ private fun PreviewSelectTargetScreen_WithFilter() {
                     ticker = "ETH",
                     network = "Ethereum",
                     logo = "",
+                    nativeAssetLogo = null,
                     delta = DataResource.Data(ValueChange.fromValue(-2.9)),
                     currentPrice = DataResource.Data("1222"),
                     showRisingFastTag = false

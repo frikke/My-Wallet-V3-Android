@@ -207,20 +207,20 @@ class SwapConfirmationViewModel(
             .takeIf { it.isLayer2Token }
             ?.coinNetwork?.nativeAssetTicker
             ?.let { assetCatalogue.fromNetworkTicker(it)?.logo },
-        sourceAssetDescription = if (sourceAccount is CryptoNonCustodialAccount) {
-            sourceAccount.label
-        } else {
+        sourceAssetDescription = if (transferDirection == TransferDirection.INTERNAL) {
             sourceAccount.currency.displayTicker
+        } else {
+            sourceAccount.label
         },
         targetAsset = targetAccount.currency,
         targetNativeAssetIconUrl = targetAccount.currency
             .takeIf { it.isLayer2Token }
             ?.coinNetwork?.nativeAssetTicker
             ?.let { assetCatalogue.fromNetworkTicker(it)?.logo },
-        targetAssetDescription = if (targetAccount is CryptoNonCustodialAccount) {
-            targetAccount.label
-        } else {
+        targetAssetDescription = if (transferDirection == TransferDirection.INTERNAL) {
             targetAccount.currency.displayTicker
+        } else {
+            targetAccount.label
         },
         sourceCryptoAmount = sourceCryptoAmount,
         sourceFiatAmount = sourceCryptoAmount.toUserFiat(),

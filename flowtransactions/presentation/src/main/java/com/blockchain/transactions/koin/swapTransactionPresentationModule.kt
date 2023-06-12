@@ -53,7 +53,8 @@ val swapTransactionsPresentationModule = module {
                 swapService = get(),
                 pricesService = get(),
                 currencyPrefs = get(),
-                walletModeService = get()
+                walletModeService = get(),
+                assetCatalogue = get()
             )
         }
 

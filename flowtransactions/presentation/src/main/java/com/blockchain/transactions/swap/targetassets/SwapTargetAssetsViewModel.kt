@@ -18,6 +18,7 @@ import com.blockchain.transactions.common.CryptoAccountWithBalance
 import com.blockchain.transactions.swap.SwapService
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
@@ -32,7 +33,8 @@ class SwapTargetAssetsViewModel(
     private val swapService: SwapService,
     private val pricesService: PricesService,
     private val currencyPrefs: CurrencyPrefs,
-    private val walletModeService: WalletModeService
+    private val walletModeService: WalletModeService,
+    private val assetCatalogue: AssetCatalogue
 ) : MviViewModel<
     SwapTargetAssetsIntent,
     SwapTargetAssetsViewState,
@@ -161,6 +163,10 @@ class SwapTargetAssetsViewModel(
             ticker = assetInfo.networkTicker,
             network = assetInfo.takeIf { it.isLayer2Token }?.coinNetwork?.shortName?.takeIf { withNetwork },
             logo = assetInfo.logo,
+            nativeAssetLogo = assetInfo
+                .takeIf { it.isLayer2Token }
+                ?.coinNetwork?.nativeAssetTicker
+                ?.let { assetCatalogue.fromNetworkTicker(it)?.logo },
             delta = price.map { ValueChange.fromValue(it.delta24h) },
             currentPrice = price.map {
                 it.currentRate.price.format(currencyPrefs.selectedFiatCurrency)
