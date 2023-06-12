@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="background">#FFF1F2F7</color>
+    <color name="backgroundSecondary">#FFFFFFFF</color>
+
+    <color name="title">#FF121D33</color>
+    <color name="body">#FF50596B</color>
 
     <color name="paletteBaseWhite">#FFFFFF</color>
     <color name="paletteBaseBlack">#000000</color>

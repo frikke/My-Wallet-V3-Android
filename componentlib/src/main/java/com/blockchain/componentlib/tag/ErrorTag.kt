@@ -1,9 +1,19 @@
 package com.blockchain.componentlib.tag
 
 import android.content.res.Configuration
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.theme.AppColors
+
+private val bgColorLight = Color(0XFFFFD9D6)
+private val bgColorDark = Color(0XFFFF3344)
+private val bgColor @Composable get() = if (isSystemInDarkTheme()) bgColorDark else bgColorLight
+
+private val textColorLight = Color(0XFFCF1726)
+private val textColorDark = Color(0XFF07080D)
+private val textColor @Composable get() = if (isSystemInDarkTheme()) textColorDark else textColorLight
 
 @Composable
 fun ErrorTag(
@@ -14,8 +24,8 @@ fun ErrorTag(
     Tag(
         text = text,
         size = size,
-        defaultBackgroundColor = AppColors.errorLight,
-        defaultTextColor = AppColors.error,
+        defaultBackgroundColor = bgColor,
+        defaultTextColor = textColor,
         onClick = onClick
     )
 }
