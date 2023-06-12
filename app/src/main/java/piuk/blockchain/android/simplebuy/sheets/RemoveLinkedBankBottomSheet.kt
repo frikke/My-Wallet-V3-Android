@@ -63,11 +63,13 @@ class RemoveLinkedBankBottomSheet : SlidingModalBottomDialog<RemoveBankBottomShe
                 bank.toHumanReadableAccount(),
                 ""
             )
-            rmvBankBtn.setOnClickListener {
-                showConfirmation()
+            rmvBankBtn.apply {
+                text = getString(com.blockchain.stringResources.R.string.remove_bank)
+                onClick = ::showConfirmation
             }
-            rmvBankCancel.setOnClickListener {
-                dismiss()
+            rmvBankCancel.apply {
+                text = getString(com.blockchain.stringResources.R.string.common_cancel)
+                onClick = ::dismiss
             }
         }
     }

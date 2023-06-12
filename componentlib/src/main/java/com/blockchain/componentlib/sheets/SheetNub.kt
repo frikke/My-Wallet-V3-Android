@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark300
@@ -17,8 +18,7 @@ import com.blockchain.componentlib.theme.Grey100
 
 @Composable
 fun SheetNub(
-    modifier: Modifier = Modifier,
-    isDarkMode: Boolean = isSystemInDarkTheme()
+    modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
@@ -27,7 +27,7 @@ fun SheetNub(
                 height = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
             )
             .background(
-                color = if (isDarkMode) Dark300 else Grey100,
+                color = AppColors.dark,
                 shape = RoundedCornerShape(
                     size = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
                 )
