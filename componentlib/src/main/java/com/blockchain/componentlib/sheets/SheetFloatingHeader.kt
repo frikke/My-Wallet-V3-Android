@@ -124,7 +124,7 @@ fun SheetFlatHeader(
 
 @Preview(backgroundColor = 0xF0F2F7CC, showBackground = true)
 @Composable
-fun PreviewSheetFloatingHeader_Overlap() {
+private fun PreviewSheetFloatingHeader_Overlap() {
     SheetFloatingHeader(
         icon = StackedIcon.OverlappingPair(
             front = ImageResource.Local(R.drawable.ic_close_circle_dark),
@@ -138,7 +138,7 @@ fun PreviewSheetFloatingHeader_Overlap() {
 
 @Preview(backgroundColor = 0xF0F2F7CC, showBackground = true)
 @Composable
-fun PreviewSheetFloatingHeader_SmallTag() {
+private fun PreviewSheetFloatingHeader_SmallTag() {
     SheetFloatingHeader(
         icon = StackedIcon.SmallTag(
             main = ImageResource.Local(R.drawable.ic_close_circle_dark),
@@ -151,7 +151,7 @@ fun PreviewSheetFloatingHeader_SmallTag() {
 
 @Preview(backgroundColor = 0xF0F2F7CC, showBackground = true)
 @Composable
-fun PreviewSheetFloatingHeader_Single() {
+private fun PreviewSheetFloatingHeader_Single() {
     SheetFloatingHeader(
         icon = StackedIcon.SingleIcon(
             ImageResource.Local(R.drawable.ic_close_circle_dark)
@@ -163,7 +163,7 @@ fun PreviewSheetFloatingHeader_Single() {
 
 @Preview(backgroundColor = 0xF0F2F7CC, showBackground = true)
 @Composable
-fun PreviewSheetFlatHeader_Single() {
+private fun PreviewSheetFlatHeader_Single() {
     SheetFlatHeader(
         icon = StackedIcon.SingleIcon(
             ImageResource.Local(R.drawable.ic_close_circle_dark)

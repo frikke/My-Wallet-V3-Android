@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Divider
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,11 +41,13 @@ import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey300
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Grey900
+import com.blockchain.componentlib.theme.topOnly
 import com.blockchain.earn.EarnAnalytics
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.presentation.extensions.getAccount
@@ -111,59 +114,63 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         dialog.setContentView(
             ComposeView(requireContext()).apply {
                 setContent {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color.White, AppTheme.shapes.veryLarge),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                    Surface(
+                        color = AppColors.background,
+                        shape = AppTheme.shapes.large.topOnly()
                     ) {
-                        SheetHeader(
-                            title = selectedAccount.label,
-                            onClosePress = { dismiss() },
-                            startImageResource = getToolbarIcon(selectedAccount, assetColor),
-                            shouldShowDivider = false
-                        )
-                        DefaultTableRow(
-                            primaryText = balanceFiat.toStringWithSymbol(),
-                            secondaryText = balanceCrypto.toStringWithSymbol(),
-                            endTag = when (selectedAccount) {
-                                is EarnRewardsAccount.Interest -> {
-                                    TagViewState(
-                                        getString(
-                                            com.blockchain.stringResources.R.string.actions_sheet_percentage_rate,
-                                            interestRate.toString()
-                                        ),
-                                        TagType.Success()
-                                    )
-                                }
+                        Column(
+                            modifier = Modifier  .fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            SheetHeader(
+                                title = selectedAccount.label,
+                                onClosePress = { dismiss() },
+                                startImageResource = getToolbarIcon(selectedAccount, assetColor),
+                                shouldShowDivider = false
+                            )
+                            DefaultTableRow(
+                                primaryText = balanceFiat.toStringWithSymbol(),
+                                secondaryText = balanceCrypto.toStringWithSymbol(),
+                                backgroundColor = AppColors.background,
+                                endTag = when (selectedAccount) {
+                                    is EarnRewardsAccount.Interest -> {
+                                        TagViewState(
+                                            getString(
+                                                com.blockchain.stringResources.R.string.actions_sheet_percentage_rate,
+                                                interestRate.toString()
+                                            ),
+                                            TagType.Success()
+                                        )
+                                    }
 
-                                is EarnRewardsAccount.Staking -> {
-                                    TagViewState(
-                                        getString(
-                                            com.blockchain.stringResources.R.string.actions_sheet_percentage_rate,
-                                            stakingRate.toString()
-                                        ),
-                                        TagType.Success()
-                                    )
-                                }
+                                    is EarnRewardsAccount.Staking -> {
+                                        TagViewState(
+                                            getString(
+                                                com.blockchain.stringResources.R.string.actions_sheet_percentage_rate,
+                                                stakingRate.toString()
+                                            ),
+                                            TagType.Success()
+                                        )
+                                    }
 
-                                is EarnRewardsAccount.Active -> {
-                                    TagViewState(
-                                        getString(
-                                            com.blockchain.stringResources.R.string.actions_sheet_percentage_rate,
-                                            activeRewardsRate.toString()
-                                        ),
-                                        TagType.Success()
-                                    )
-                                }
+                                    is EarnRewardsAccount.Active -> {
+                                        TagViewState(
+                                            getString(
+                                                com.blockchain.stringResources.R.string.actions_sheet_percentage_rate,
+                                                activeRewardsRate.toString()
+                                            ),
+                                            TagType.Success()
+                                        )
+                                    }
 
-                                else -> null
-                            },
-                            endImageResource = ImageResource.None,
-                            onClick = { }
-                        )
-                        Divider(color = AppTheme.colors.light, thickness = 1.dp)
-                        ActionsList(items)
+                                    else -> null
+                                },
+                                endImageResource = ImageResource.None,
+                                onClick = { }
+                            )
+                            Divider(color = AppTheme.colors.light, thickness = 1.dp)
+                            ActionsList(items)
+                        }
                     }
                 }
             }
@@ -266,14 +273,15 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         }
     }
 
+    @Composable
     private fun getStartImagePerState(
         state: ActionState,
         @DrawableRes icon: Int
     ): ImageResource {
         return ImageResource.LocalWithBackground(
             id = icon,
-            backgroundColor = Grey000,
-            iconColor = Grey900,
+            backgroundColor = AppColors.background,
+            iconColor = AppColors.title,
             alpha = if (state == ActionState.Available) 1F else 0.5F
         )
     }

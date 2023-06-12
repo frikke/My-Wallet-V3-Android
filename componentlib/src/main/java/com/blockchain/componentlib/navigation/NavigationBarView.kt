@@ -30,28 +30,24 @@ class NavigationBarView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme(setSystemColors = false) {
-            AppSurface {
-                if (startNavigationButton != null) {
-                    NavigationBar(
-                        modeColor = modeColor,
-                        mutedBackground = mutedBackground,
-                        title = title,
-                        icon = icon,
-                        startNavigationBarButton = startNavigationButton,
-                        endNavigationBarButtons = endNavigationBarButtons
-                    )
-                } else {
-                    NavigationBar(
-                        modeColor = modeColor,
-                        mutedBackground = mutedBackground,
-                        title = title,
-                        icon = icon,
-                        onBackButtonClick = onBackButtonClick,
-                        navigationBarButtons = endNavigationBarButtons
-                    )
-                }
-            }
+        if (startNavigationButton != null) {
+            NavigationBar(
+                modeColor = modeColor,
+                mutedBackground = mutedBackground,
+                title = title,
+                icon = icon,
+                startNavigationBarButton = startNavigationButton,
+                endNavigationBarButtons = endNavigationBarButtons
+            )
+        } else {
+            NavigationBar(
+                modeColor = modeColor,
+                mutedBackground = mutedBackground,
+                title = title,
+                icon = icon,
+                onBackButtonClick = onBackButtonClick,
+                navigationBarButtons = endNavigationBarButtons
+            )
         }
     }
 

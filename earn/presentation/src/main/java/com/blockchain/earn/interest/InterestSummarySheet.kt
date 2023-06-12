@@ -1,5 +1,6 @@
 package com.blockchain.earn.interest
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,10 +32,12 @@ import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.tablerow.custom.TextWithTooltipTableRow
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.LargeVerticalSpacer
 import com.blockchain.componentlib.theme.TinyHorizontalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
+import com.blockchain.componentlib.theme.topOnly
 import com.blockchain.earn.common.EarnFieldExplainer
 import com.blockchain.earn.domain.models.EarnRewardsFrequency
 import com.blockchain.earn.interest.viewmodel.InterestError
@@ -55,7 +59,10 @@ fun InterestSummarySheet(
     onExplainerClicked: (EarnFieldExplainer) -> Unit,
     onClosePressed: () -> Unit
 ) {
-    Box {
+    Surface(
+        color = AppColors.background,
+        shape = AppTheme.shapes.large.topOnly()
+    ) {
         Column {
             SheetHeader(
                 title = stringResource(
@@ -69,7 +76,6 @@ fun InterestSummarySheet(
 
             Column(
                 modifier = Modifier
-                    .background(color = AppTheme.colors.light)
                     .fillMaxWidth()
                     .padding(horizontal = AppTheme.dimensions.standardSpacing)
                     .verticalScroll(rememberScrollState()),
@@ -254,34 +260,38 @@ fun InterestSummarySheet(
 
 @Preview(showBackground = true)
 @Composable
-fun InterestSummarySheetPreview() {
-    AppTheme {
-        InterestSummarySheet(
-            state = InterestSummaryViewState(
-                balanceFiat = FiatValue.fromMinor(FiatCurrency.Dollars, BigInteger("1000000")),
-                balanceCrypto = CryptoValue.fromMinor(CryptoCurrency.BTC, BigInteger("1000000")),
-                totalEarnedFiat = FiatValue.fromMinor(FiatCurrency.Dollars, BigInteger("1000000")),
-                totalEarnedCrypto = CryptoValue.fromMinor(CryptoCurrency.BTC, BigInteger("1000000")),
-                pendingInterestFiat = FiatValue.fromMinor(FiatCurrency.Dollars, BigInteger("10000")),
-                pendingInterestCrypto = CryptoValue.fromMinor(CryptoCurrency.BTC, BigInteger("10000")),
-                interestRate = 0.1,
-                nextPaymentDate = Calendar.getInstance().apply {
-                    set(Calendar.DAY_OF_MONTH, 1)
-                    add(Calendar.MONTH, 3)
-                }.time,
-                initialHoldPeriod = 7,
-                earnFrequency = EarnRewardsFrequency.Monthly,
-                account = null,
-                errorState = InterestError.None,
-                isLoading = false,
-                interestCommission = 0.0,
-                canWithdraw = false,
-                canDeposit = true
-            ),
-            onWithdrawPressed = {},
-            onDepositPressed = {},
-            onClosePressed = {},
-            onExplainerClicked = {}
-        )
-    }
+private fun InterestSummarySheetPreview() {
+    InterestSummarySheet(
+        state = InterestSummaryViewState(
+            balanceFiat = FiatValue.fromMinor(FiatCurrency.Dollars, BigInteger("1000000")),
+            balanceCrypto = CryptoValue.fromMinor(CryptoCurrency.BTC, BigInteger("1000000")),
+            totalEarnedFiat = FiatValue.fromMinor(FiatCurrency.Dollars, BigInteger("1000000")),
+            totalEarnedCrypto = CryptoValue.fromMinor(CryptoCurrency.BTC, BigInteger("1000000")),
+            pendingInterestFiat = FiatValue.fromMinor(FiatCurrency.Dollars, BigInteger("10000")),
+            pendingInterestCrypto = CryptoValue.fromMinor(CryptoCurrency.BTC, BigInteger("10000")),
+            interestRate = 0.1,
+            nextPaymentDate = Calendar.getInstance().apply {
+                set(Calendar.DAY_OF_MONTH, 1)
+                add(Calendar.MONTH, 3)
+            }.time,
+            initialHoldPeriod = 7,
+            earnFrequency = EarnRewardsFrequency.Monthly,
+            account = null,
+            errorState = InterestError.None,
+            isLoading = false,
+            interestCommission = 0.0,
+            canWithdraw = false,
+            canDeposit = true
+        ),
+        onWithdrawPressed = {},
+        onDepositPressed = {},
+        onClosePressed = {},
+        onExplainerClicked = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun InterestSummarySheetPreviewDark() {
+    InterestSummarySheetPreview()
 }

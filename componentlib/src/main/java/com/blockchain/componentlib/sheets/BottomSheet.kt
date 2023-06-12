@@ -195,16 +195,19 @@ private fun BottomSheetButton.toBottomSheetButtonComposable(modifier: Modifier):
                 onClick = onClick,
                 modifier = modifier.fillMaxWidth()
             )
+
             ButtonType.MINIMAL -> MinimalPrimaryButton(
                 text = text,
                 onClick = onClick,
                 modifier = modifier.fillMaxWidth()
             )
+
             ButtonType.SMALL_MINIMAL -> MinimalPrimarySmallButton(
                 text = text,
                 onClick = onClick,
                 modifier = modifier
             )
+
             ButtonType.DESTRUCTIVE_MINIMAL -> MinimalErrorButton(
                 text = text,
                 onClick = onClick,
@@ -227,108 +230,43 @@ enum class ButtonType {
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Composable
 fun NoButtonBottomSheet() {
-    AppTheme {
-        AppSurface {
-            BottomSheetNoButtons(
-                onCloseClick = {},
-                title = "NoButtonBottomSheet",
-                headerImageResource = ImageResource.None,
-                subtitle = " NoButtonBottomSheetSubtitle"
-            )
-        }
-    }
+    BottomSheetNoButtons(
+        onCloseClick = {},
+        title = "Failed to load some balances",
+        headerImageResource = ImageResource.None,
+        subtitle = " We couldn’t load the balances and activity of the Ethereum network at this time."
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun NoButtonBottomSheetDark() {
+    NoButtonBottomSheet()
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Composable
 fun OnlyPrimaryTopButtonBottomSheet() {
-    AppTheme {
-        AppSurface {
-            BottomSheetOneButton(
-                onCloseClick = {},
-                title = "NoButtonBottomSheet",
-                headerImageResource = ImageResource.Local(R.drawable.ic_blockchain),
-                subtitle = " NoButtonBottomSheetSubtitle",
-                button = BottomSheetButton(
-                    type = ButtonType.PRIMARY,
-                    onClick = {},
-                    text = "OK"
-                )
-            )
-        }
-    }
+    BottomSheetOneButton(
+        onCloseClick = {},
+        title = "Failed to load some balances",
+        headerImageResource = ImageResource.Local(R.drawable.ic_blockchain),
+        subtitle = " We couldn’t load the balances and activity of the Ethereum network at this time.",
+        button = BottomSheetButton(
+            type = ButtonType.PRIMARY,
+            onClick = {},
+            text = "OK"
+        )
+    )
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun OnlyPrimaryTopButtonBottomSheetWithNoSubtitle() {
-    AppTheme {
-        AppSurface {
-            BottomSheetOneButton(
-                onCloseClick = {},
-                title = "NoButtonBottomSheet",
-                headerImageResource = ImageResource.Local(R.drawable.ic_blockchain),
-                button = BottomSheetButton(
-                    type = ButtonType.PRIMARY,
-                    onClick = {},
-                    text = "OK"
-                )
-            )
-        }
-    }
+private fun OnlyPrimaryTopButtonBottomSheetDark() {
+    OnlyPrimaryTopButtonBottomSheet()
 }
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun TopAndBottomButtonsSheet() {
-    AppTheme {
-        AppSurface {
-            BottomSheetTwoButtons(
-                onCloseClick = {},
-                title = "NoButtonBottomSheet",
-                headerImageResource = ImageResource.Local(R.drawable.ic_blockchain),
-                subtitle = "NoButtonBottomSheetSubtitle",
-                button1 = BottomSheetButton(
-                    type = ButtonType.PRIMARY,
-                    onClick = {},
-                    text = "OK"
-                ),
-                button2 = BottomSheetButton(
-                    type = ButtonType.DESTRUCTIVE_MINIMAL,
-                    onClick = {},
-                    text = "Cancel"
-                )
-            )
-        }
-    }
-}
-
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun PrimaryAndMinimalButtonSheet() {
-    AppTheme {
-        AppSurface {
-            BottomSheetTwoButtons(
-                onCloseClick = {},
-                title = "NoButtonBottomSheet",
-                headerImageResource = ImageResource.Local(R.drawable.ic_blockchain),
-                subtitle = "NoButtonBottomSheetSubtitle",
-                button1 = BottomSheetButton(
-                    type = ButtonType.MINIMAL,
-                    onClick = {},
-                    text = "Learn More"
-                ),
-                button2 = BottomSheetButton(
-                    type = ButtonType.PRIMARY,
-                    onClick = {},
-                    text = "Ok"
-                )
-            )
-        }
-    }
-}
-
-@Preview()
+@Preview
 @Composable
 fun PrimaryAndSmallMinimalButtonSheet() {
     AppTheme {
@@ -351,4 +289,10 @@ fun PrimaryAndSmallMinimalButtonSheet() {
             )
         }
     }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PrimaryAndSmallMinimalButtonSheetDark() {
+    PrimaryAndSmallMinimalButtonSheet()
 }
