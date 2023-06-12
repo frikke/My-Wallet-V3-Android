@@ -19,7 +19,8 @@
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/icon"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
+        android:adjustViewBounds="true"
         android:layout_marginTop="@dimen/large_spacing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -65,19 +66,15 @@
         app:layout_constraintTop_toBottomOf="@+id/title"
         tools:text="2345" />
 
-    <androidx.appcompat.widget.AppCompatButton
+    <com.blockchain.componentlib.button.MinimalErrorButtonView
         android:id="@+id/rmv_card_btn"
-        style="@style/CtaButton.White"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/large_spacing"
         android:layout_marginBottom="@dimen/standard_spacing"
-        android:text="@string/remove_card"
-        android:textColor="@color/red_600"
+        android:layout_marginHorizontal="@dimen/small_spacing"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/end_digits" />
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>
