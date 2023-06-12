@@ -34,10 +34,11 @@ import com.blockchain.coincore.NullFiatAccount
 import com.blockchain.componentlib.alert.SnackbarAlert
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.ButtonLoadingIndicator
+import com.blockchain.componentlib.button.common.LoadingIndicator
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.DefaultTableRow
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
@@ -53,7 +54,6 @@ import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailViewStat
 import com.blockchain.koin.payloadScope
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
-import java.lang.Exception
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
@@ -175,6 +175,7 @@ fun FiatFundDetailScreenData(
                     DataResource.Loading -> {
                         ShimmerLoadingCard(showEndBlocks = false)
                     }
+
                     is DataResource.Data -> {
                         Text(
                             modifier = Modifier.padding(start = AppTheme.dimensions.smallSpacing),
@@ -231,13 +232,14 @@ fun FiatFundDetailScreenData(
                             )
 
                             if (showWithdrawChecksLoading) {
-                                ButtonLoadingIndicator(
+                                LoadingIndicator(
                                     modifier = Modifier.align(Alignment.Center),
-                                    loadingIconResId = com.blockchain.componentlib.R.drawable.ic_loading_minimal_light
+                                    color = AppColors.primary
                                 )
                             }
                         }
                     }
+
                     is DataResource.Error -> {
                         SnackbarAlert(
                             message = stringResource(com.blockchain.stringResources.R.string.common_error),

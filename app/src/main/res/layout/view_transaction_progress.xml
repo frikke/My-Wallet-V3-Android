@@ -98,7 +98,7 @@
         app:layout_constraintVertical_bias="0"
         tools:text="Note about some stuff" />
 
-    <com.blockchain.componentlib.button.SmallMinimalButtonView
+    <com.blockchain.componentlib.button.MinimalPrimarySmallButtonView
         android:id="@+id/tx_tertiary_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -144,7 +144,7 @@
         app:layout_constraintBottom_toTopOf="@+id/tx_secondary_btn"
         tools:visibility="visible" />
 
-    <com.blockchain.componentlib.button.MinimalButtonView
+    <com.blockchain.componentlib.button.MinimalPrimaryButtonView
         android:id="@+id/tx_secondary_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

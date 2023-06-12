@@ -20,7 +20,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.blockchain.componentlib.button.SmallMinimalButton
+import com.blockchain.componentlib.button.MinimalPrimarySmallButton
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
@@ -67,7 +67,7 @@ fun ExpandableItem(
             )
 
             if (isExpandable && !isExpanded || !isExpandable && isExpanded) {
-                SmallMinimalButton(
+                MinimalPrimarySmallButton(
                     modifier = modifier.padding(top = 18.dp),
                     text = if (isExpanded) textButtonToCollapse else textButtonToExpand,
                     onClick = { isExpanded = !isExpanded }

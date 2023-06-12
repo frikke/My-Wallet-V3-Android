@@ -59,10 +59,10 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.AlertButton
-import com.blockchain.componentlib.button.ButtonLoadingIndicator
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.button.common.LoadingIndicator
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.icon.SmallTagIcon
 import com.blockchain.componentlib.icons.Alert
@@ -515,12 +515,10 @@ fun InputScreen(
         }
 
         (viewState.alertError as? DexUiError.InsufficientFunds)?.let {
-            MinimalButton(
+            MinimalPrimaryButton(
                 modifier = Modifier
                     .padding(top = dimensionResource(id = com.blockchain.componentlib.R.dimen.smallest_spacing))
-                    .background(Color.White, shape = AppTheme.shapes.extraLarge)
                     .fillMaxWidth(),
-                minHeight = 56.dp,
                 text = stringResource(id = R.string.deposit_more, it.account.currency.displayTicker),
                 onClick = {
                     receive(it.account)
@@ -551,14 +549,12 @@ private fun PreviewSwapButton(onClick: () -> Unit, state: ButtonState) {
 
 @Composable
 private fun TokenAllowance(onClick: () -> Unit, currency: Currency, txInProgress: Boolean) {
-    MinimalButton(
+    MinimalPrimaryButton(
         modifier = Modifier
             .padding(top = dimensionResource(id = com.blockchain.componentlib.R.dimen.small_spacing))
-            .background(Color.White, shape = AppTheme.shapes.extraLarge)
             .fillMaxWidth(),
         state = if (txInProgress) ButtonState.Loading else ButtonState.Enabled,
-        minHeight = 56.dp,
-        icon = Icons.Question.withTint(AppTheme.colors.primary),
+        icon = Icons.Question,
         text = stringResource(id = R.string.approve_token, currency.displayTicker),
         onClick = onClick
     )
@@ -665,10 +661,7 @@ private fun PriceFetching() {
             )
         },
         contentStart = {
-            ButtonLoadingIndicator(
-                modifier = Modifier.size(24.dp),
-                loadingIconResId = com.blockchain.componentlib.R.drawable.ic_loading_minimal_light
-            )
+            LoadingIndicator(color = AppColors.primary)
         }
     )
 }
@@ -825,6 +818,9 @@ private fun PreviewInputScreen_NetworkSelection() {
                 Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
             ),
             previewActionButtonState = ActionButtonState.ENABLED,
+            errors = listOf(
+                DexUiError.TokenNotAllowed(CryptoCurrency.ETHER, false)
+            )
         )
     )
 }

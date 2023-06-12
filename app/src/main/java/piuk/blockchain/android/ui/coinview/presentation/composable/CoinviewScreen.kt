@@ -43,6 +43,7 @@ import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.CryptoCurrency
 import org.koin.androidx.compose.get
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewAnalytics
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetState
@@ -57,7 +58,6 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewSnackbarAlertSta
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewModel
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewState
 import piuk.blockchain.android.ui.coinview.presentation.toModelState
-import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 
 @Composable
 fun Coinview(

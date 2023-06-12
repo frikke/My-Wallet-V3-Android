@@ -28,7 +28,7 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.icons.Close
 import com.blockchain.componentlib.icons.Icons
@@ -144,7 +144,7 @@ private fun ColumnScope.FailureScreen(
         modifier = Modifier
             .align(Alignment.End)
     ) {
-        MinimalButton(
+        MinimalPrimaryButton(
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(id = com.blockchain.stringResources.R.string.common_cancel),
             onClick = cancelClicked
@@ -202,7 +202,7 @@ private fun ColumnScope.SuccessScreen(
         modifier = Modifier
             .align(Alignment.End)
     ) {
-        MinimalButton(
+        MinimalPrimaryButton(
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(id = com.blockchain.stringResources.R.string.view_on_explorer),
             onClick = {

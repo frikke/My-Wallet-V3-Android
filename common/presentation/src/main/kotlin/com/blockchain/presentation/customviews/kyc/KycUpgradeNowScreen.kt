@@ -5,30 +5,22 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import com.blockchain.analytics.Analytics
-import com.blockchain.common.R
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.Button
-import com.blockchain.componentlib.button.ButtonContent
-import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.icons.Check
 import com.blockchain.componentlib.icons.Icons
@@ -256,32 +248,12 @@ private fun Verified(ctaClicked: () -> Unit) {
                 onClick = null
             )
 
-            Button(
+            MinimalPrimaryButton(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(AppTheme.dimensions.standardSpacing)
-                    .requiredHeightIn(min = 48.dp),
+                    .padding(AppTheme.dimensions.standardSpacing),
                 text = stringResource(com.blockchain.stringResources.R.string.kyc_upgrade_now_verified_cta),
-                onClick = ctaClicked,
-                state = ButtonState.Enabled,
-                defaultTextColor = AppTheme.colors.primary,
-                defaultBackgroundLightColor = White,
-                defaultBackgroundDarkColor = White,
-                disabledTextLightAlpha = 0.7f,
-                disabledTextDarkAlpha = 0.4f,
-                disabledBackgroundLightColor = White,
-                disabledBackgroundDarkColor = White,
-                pressedBackgroundColor = White,
-                buttonContent = { state: ButtonState, text: String, textColor: Color,
-                    textAlpha: Float, icon: ImageResource ->
-                    ButtonContent(
-                        state = state,
-                        text = text,
-                        textColor = textColor,
-                        contentAlpha = textAlpha,
-                        icon = icon
-                    )
-                }
+                onClick = ctaClicked
             )
         }
     }

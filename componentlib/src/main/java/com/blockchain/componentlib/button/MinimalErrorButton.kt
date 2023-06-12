@@ -10,14 +10,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.common.BaseButtonView
-import com.blockchain.componentlib.button.common.Button
 import com.blockchain.componentlib.button.common.ButtonIconColor
 import com.blockchain.componentlib.button.common.ButtonStyle
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Plus
 import com.blockchain.componentlib.theme.AppColors
 
-class SecondaryButtonView @JvmOverloads constructor(
+class MinimalErrorButtonView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
@@ -25,40 +24,25 @@ class SecondaryButtonView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        SecondaryButton(
+        MinimalErrorButton(
             onClick = onClick,
             text = text,
-            state = buttonState
+            state = buttonState,
+            icon = icon as? ImageResource.Local
         )
     }
 }
 
-class SmallSecondaryButtonView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : BaseButtonView(context, attrs, defStyleAttr) {
-
-    @Composable
-    override fun Content() {
-        SecondarySmallButton(
-            onClick = onClick,
-            text = text,
-            state = buttonState
-        )
-    }
-}
-
-private val bgColorLight = Color(0XFF353F52)
-private val bgColorDark = Color(0XFF677184)
+private val bgColorLight = Color(0XFFFFFFFF)
+private val bgColorDark = Color(0XFF07080D)
 private val bgColor @Composable get() = if (isSystemInDarkTheme()) bgColorDark else bgColorLight
 
-private val disabledBgColorLight = Color(0XFF828B9E)
-private val disabledBgColorDark = Color(0XFF50596B)
-private val disabledBgColor @Composable get() = if (isSystemInDarkTheme()) disabledBgColorDark else disabledBgColorLight
+private val borderColorLight = Color(0XFFF0F2F7)
+private val borderColorDark = Color(0XFF2C3038)
+private val borderColor @Composable get() = if (isSystemInDarkTheme()) borderColorDark else borderColorLight
 
 @Composable
-fun SecondaryButton(
+fun MinimalErrorButton(
     modifier: Modifier = Modifier,
     text: String,
     state: ButtonState = ButtonState.Enabled,
@@ -66,7 +50,7 @@ fun SecondaryButton(
     iconColor: ButtonIconColor = ButtonIconColor.Default,
     onClick: () -> Unit
 ) {
-    SecondaryButton(
+    MinimalErrorButton(
         modifier = modifier,
         text = text,
         state = state,
@@ -78,7 +62,7 @@ fun SecondaryButton(
 }
 
 @Composable
-fun SecondarySmallButton(
+fun MinimalErrorSmallButton(
     modifier: Modifier = Modifier,
     text: String,
     state: ButtonState = ButtonState.Enabled,
@@ -86,7 +70,7 @@ fun SecondarySmallButton(
     iconColor: ButtonIconColor = ButtonIconColor.Default,
     onClick: () -> Unit
 ) {
-    SecondaryButton(
+    MinimalErrorButton(
         modifier = modifier,
         text = text,
         state = state,
@@ -98,7 +82,7 @@ fun SecondarySmallButton(
 }
 
 @Composable
-private fun SecondaryButton(
+private fun MinimalErrorButton(
     modifier: Modifier = Modifier,
     text: String,
     state: ButtonState = ButtonState.Enabled,
@@ -107,12 +91,13 @@ private fun SecondaryButton(
     style: ButtonStyle,
     onClick: () -> Unit
 ) {
-    Button(
+    com.blockchain.componentlib.button.common.OutlinedButton(
         modifier = modifier,
         text = text,
-        textColor = AppColors.backgroundSecondary,
+        textColor = AppColors.error,
         backgroundColor = bgColor,
-        disabledBackgroundColor = disabledBgColor,
+        disabledBackgroundColor = bgColor,
+        borderColor = borderColor,
         state = state,
         style = style,
         icon = icon,
@@ -120,88 +105,89 @@ private fun SecondaryButton(
         onClick = onClick
     )
 }
+
 // ------------ preview
 
 @Preview
 @Composable
-private fun PreviewSecondaryButton() {
-    SecondaryButton(
+private fun PreviewButton() {
+    MinimalErrorButton(
         text = "Button Text", state = ButtonState.Enabled, icon = Icons.Plus, onClick = {}
     )
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun PreviewSecondaryButtonDark() {
-    PreviewSecondaryButton()
+private fun PreviewButtonDark() {
+    PreviewButton()
 }
 
 @Preview
 @Composable
-private fun PreviewSecondaryButtonSmall() {
-    SecondarySmallButton(
+private fun PreviewButtonSmall() {
+    MinimalErrorSmallButton(
         text = "Button Text", state = ButtonState.Enabled, icon = Icons.Plus, onClick = {}
     )
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun PreviewSecondaryButtonSmallDark() {
-    PreviewSecondaryButtonSmall()
+private fun PreviewButtonSmallDark() {
+    PreviewButtonSmall()
 }
 
 @Preview
 @Composable
-private fun PreviewSecondaryButtonDisabled() {
-    SecondaryButton(
+private fun PreviewButtonDisabled() {
+    MinimalErrorButton(
         text = "Button Text", state = ButtonState.Disabled, icon = Icons.Plus, onClick = {}
     )
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun PreviewSecondaryButtonDisabledDark() {
-    PreviewSecondaryButtonDisabled()
+private fun PreviewButtonDisabledDark() {
+    PreviewButtonDisabled()
 }
 
 @Preview
 @Composable
-private fun PreviewSecondaryButtonSmallDisabled() {
-    SecondarySmallButton(
+private fun PreviewButtonSmallDisabled() {
+    MinimalErrorSmallButton(
         text = "Button Text", state = ButtonState.Disabled, icon = Icons.Plus, onClick = {}
     )
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun PreviewSecondaryButtonSmallDisabledDark() {
-    PreviewSecondaryButtonSmallDisabled()
+private fun PreviewButtonSmallDisabledDark() {
+    PreviewButtonSmallDisabled()
 }
 
 @Preview
 @Composable
-private fun PreviewSecondaryButtonLoading() {
-    SecondaryButton(
+private fun PreviewButtonLoading() {
+    MinimalErrorButton(
         text = "Button Text", state = ButtonState.Loading, icon = Icons.Plus, onClick = {}
     )
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun PreviewSecondaryButtonLoadingDark() {
-    PreviewSecondaryButtonLoading()
+private fun PreviewButtonLoadingDark() {
+    PreviewButtonLoading()
 }
 
 @Preview
 @Composable
-private fun PreviewSecondaryButtonSmallLoading() {
-    SecondarySmallButton(
+private fun PreviewButtonSmallLoading() {
+    MinimalErrorSmallButton(
         text = "Button Text", state = ButtonState.Loading, icon = Icons.Plus, onClick = {}
     )
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun PreviewSecondaryButtonSmallLoadingDark() {
-    PreviewSecondaryButtonSmallLoading()
+private fun PreviewButtonSmallLoadingDark() {
+    PreviewButtonSmallLoading()
 }

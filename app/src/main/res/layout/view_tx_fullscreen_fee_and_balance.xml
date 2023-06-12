@@ -35,7 +35,7 @@
         app:layout_constraintTop_toBottomOf="@id/max_available_label"
         tools:text="Max: 1.00000 BTC" />
 
-    <com.blockchain.componentlib.button.SmallMinimalButtonView
+    <com.blockchain.componentlib.button.MinimalPrimarySmallButtonView
         android:id="@+id/use_max"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

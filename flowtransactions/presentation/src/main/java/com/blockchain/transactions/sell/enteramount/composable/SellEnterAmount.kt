@@ -216,7 +216,6 @@ private fun EnterAmountScreen(
                 onQuickFillItemClick = quickFillEntryClicked,
                 onMaxItemClick = { setMaxOnClick() },
                 maxButtonText = stringResource(R.string.sell_enter_amount_max),
-                areButtonsTransparent = false,
             )
 
             SmallVerticalSpacer()

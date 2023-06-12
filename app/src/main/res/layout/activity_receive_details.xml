@@ -109,7 +109,7 @@
             android:layout_gravity="center" />
     </FrameLayout>
 
-    <com.blockchain.componentlib.button.TertiaryButtonView
+    <com.blockchain.componentlib.button.MinimalSecondaryButtonView
         android:id="@+id/copy_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

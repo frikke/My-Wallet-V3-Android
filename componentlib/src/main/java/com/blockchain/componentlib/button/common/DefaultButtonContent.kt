@@ -56,6 +56,12 @@ internal sealed interface ButtonStyle {
     }
 }
 
+sealed interface ButtonIconColor {
+    object Default : ButtonIconColor
+    object Ignore : ButtonIconColor
+    data class Custom(val color: Color) : ButtonIconColor
+}
+
 @Composable
 internal fun DefaultButtonContent(
     state: ButtonState,
@@ -63,7 +69,7 @@ internal fun DefaultButtonContent(
     text: String,
     textColor: Color,
     icon: ImageResource.Local? = null,
-    customIconTint: Color? = null
+    iconColor: ButtonIconColor = ButtonIconColor.Default
 ) {
     Box {
         if (state == ButtonState.Loading) {
@@ -86,7 +92,15 @@ internal fun DefaultButtonContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             icon?.let {
-                Image(imageResource = icon.withSize(style.iconSize).withTint(customIconTint ?: textColor))
+                Image(
+                    imageResource = icon.withSize(style.iconSize).run {
+                        when (iconColor) {
+                            ButtonIconColor.Default -> withTint(textColor)
+                            ButtonIconColor.Ignore -> this
+                            is ButtonIconColor.Custom -> withTint(iconColor.color)
+                        }
+                    }
+                )
 
                 if (text.isNotEmpty()) Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
             }

@@ -1,6 +1,7 @@
 package com.blockchain.componentlib.button.common
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.ButtonDefaults
@@ -16,23 +17,25 @@ import com.blockchain.componentlib.theme.AppTheme
 // Do not use as a standalone composable, use it as a factory for new button style
 // if the button is a one-off discuss with Ethan if it should be added to the collection or just use existing ones
 @Composable
-internal fun Button(
+internal fun OutlinedButton(
     modifier: Modifier = Modifier,
     text: String,
     textColor: Color,
     backgroundColor: Color,
     disabledBackgroundColor: Color,
+    borderColor: Color,
     state: ButtonState = ButtonState.Enabled,
     style: ButtonStyle,
     icon: ImageResource.Local? = null,
     iconColor: ButtonIconColor = ButtonIconColor.Default,
     onClick: () -> Unit,
 ) {
-    Button(
+    OutlinedButton(
         modifier = modifier,
         state = state,
         backgroundColor = backgroundColor,
         disabledBackgroundColor = disabledBackgroundColor,
+        borderColor = borderColor,
         contentPadding = style.contentPadding,
         onClick = onClick,
         buttonContent = {
@@ -49,17 +52,18 @@ internal fun Button(
 }
 
 @Composable
-private fun Button(
+private fun OutlinedButton(
     modifier: Modifier = Modifier,
     state: ButtonState,
     shape: Shape = AppTheme.shapes.extraLarge,
     backgroundColor: Color,
     disabledBackgroundColor: Color,
+    borderColor: Color,
     contentPadding: PaddingValues,
     onClick: () -> Unit,
     buttonContent: @Composable RowScope.() -> Unit,
 ) {
-    androidx.compose.material.Button(
+    androidx.compose.material.OutlinedButton(
         onClick = onClick,
         modifier = modifier,
         enabled = state != ButtonState.Disabled,
@@ -69,6 +73,10 @@ private fun Button(
             contentColor = Color.Unspecified,
             disabledBackgroundColor = animateColorAsState(targetValue = disabledBackgroundColor).value,
             disabledContentColor = Color.Unspecified
+        ),
+        border = BorderStroke(
+            width = 1.dp,
+            color = animateColorAsState(targetValue = borderColor).value
         ),
         contentPadding = contentPadding,
         elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),

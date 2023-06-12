@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -18,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -32,9 +30,7 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.Button
-import com.blockchain.componentlib.button.ButtonContent
-import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.tablerow.DefaultTableRow
@@ -177,38 +173,19 @@ fun DashboardOnboardingScreen(
                 val ctaColors = remember(firstIncompleteStep) {
                     ContextCompat.getColor(context, firstIncompleteStep.colorRes).ctaButtonTint
                 }
-                Button(
+
+                PrimaryButton(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
                             horizontal = AppTheme.dimensions.tinySpacing,
                             vertical = AppTheme.dimensions.smallSpacing
-                        )
-                        .requiredHeightIn(min = 48.dp),
+                        ),
                     text = stringResource(firstIncompleteStep.titleRes),
                     onClick = {
                         analyticsNextStepButtonClicked(true)
                         onIntent(DashboardOnboardingIntent.StepClicked(firstIncompleteStep))
                     },
-                    state = ButtonState.Enabled,
-                    defaultTextColor = Color.White,
-                    defaultBackgroundLightColor = Color(ctaColors.enabled),
-                    defaultBackgroundDarkColor = Color(ctaColors.enabled),
-                    disabledTextLightAlpha = 0.7f,
-                    disabledTextDarkAlpha = 0.4f,
-                    disabledBackgroundLightColor = Color(ctaColors.disabled),
-                    disabledBackgroundDarkColor = Color(ctaColors.disabled),
-                    pressedBackgroundColor = Color(ctaColors.pressed),
-                    buttonContent = { state: ButtonState, text: String, textColor: Color,
-                        textAlpha: Float, icon: ImageResource ->
-                        ButtonContent(
-                            state = state,
-                            text = text,
-                            textColor = textColor,
-                            contentAlpha = textAlpha,
-                            icon = icon
-                        )
-                    }
                 )
             }
         }

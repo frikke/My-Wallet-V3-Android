@@ -26,6 +26,7 @@ import com.blockchain.earn.interest.viewmodel.InterestError
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.earn.staking.viewmodel.StakingError
 import com.blockchain.extensions.enumValueOfOrNull
+import com.blockchain.home.presentation.recurringbuy.detail.RecurringBuyDetailsSheet
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
@@ -37,17 +38,14 @@ import info.blockchain.balance.Money
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
 import org.koin.core.scope.Scope
-import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.presentation.composable.Coinview
+import piuk.blockchain.android.ui.coinview.presentation.interstitials.AccountActionsBottomSheet
+import piuk.blockchain.android.ui.coinview.presentation.interstitials.AccountExplainerBottomSheet
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
-import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
-import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountActionsBottomSheet
-import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountExplainerBottomSheet
-import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyDetailsSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.CoinViewSellClickedEvent

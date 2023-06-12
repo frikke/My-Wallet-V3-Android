@@ -26,7 +26,7 @@ import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.TertiaryButton
+import com.blockchain.componentlib.button.MinimalErrorButton
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Sync
 import com.blockchain.componentlib.lazylist.roundedCornersItems
@@ -166,12 +166,11 @@ private fun RecurringBuyDetailData(
             }
         }
 
-        TertiaryButton(
+        MinimalErrorButton(
             modifier = Modifier
                 .padding(AppTheme.dimensions.standardSpacing)
                 .fillMaxWidth(),
             text = stringResource(com.blockchain.stringResources.R.string.common_remove),
-            textColor = AppTheme.colors.error,
             onClick = {
                 removeOnClick()
                 analytics.logEvent(RecurringBuysAnalyticsEvents.CancelClicked(recurringBuy.assetTicker))

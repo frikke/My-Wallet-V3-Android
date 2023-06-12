@@ -27,12 +27,14 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -146,25 +148,7 @@ fun NavigationBar(
     startNavigationBarButton: NavigationBarButton? = null,
     endNavigationBarButtons: List<NavigationBarButton> = emptyList()
 ) {
-    val walletMode: WalletMode? by when (modeColor) {
-        ModeBackgroundColor.Current -> {
-            val isLoggedIn = get<AuthPrefs>().run { walletGuid.isNotEmpty() && pinId.isNotEmpty() }
-
-            if (isLoggedIn) {
-                get<WalletModeService>(
-                    scope = payloadScope
-                ).walletMode.collectAsStateLifecycleAware(initial = null)
-            } else {
-                remember { mutableStateOf(null) }
-            }
-        }
-        is ModeBackgroundColor.Override -> {
-            remember { mutableStateOf(modeColor.walletMode) }
-        }
-        ModeBackgroundColor.None -> {
-            remember { mutableStateOf(null) }
-        }
-    }
+    val walletMode: WalletMode? = walletModeProvider(modeColor)
 
     NavigationBar(
         walletMode = walletMode,
@@ -198,12 +182,14 @@ fun NavigationBar(
                             colors = listOf(START_TRADING, END_TRADING)
                         )
                     )
+
                     WalletMode.NON_CUSTODIAL -> Modifier.background(
                         brush = Brush.horizontalGradient(
                             colors = listOf(START_DEFI, END_DEFI)
 
                         )
                     )
+
                     else -> Modifier.background(AppTheme.colors.backgroundSecondary)
                 }
             )
@@ -225,9 +211,11 @@ fun NavigationBar(
                     is NavigationBarButton.Icon -> {
                         StartButton(button = button)
                     }
+
                     is NavigationBarButton.IconResource -> {
                         StartButtonResource(button = button)
                     }
+
                     is NavigationBarButton.DropdownMenu,
                     is NavigationBarButton.Text,
                     is NavigationBarButton.TextWithColorInt -> {
@@ -272,9 +260,11 @@ fun NavigationBar(
                                 colorFilter = if (it.color != null) ColorFilter.tint(it.color) else null
                             )
                         }
+
                         is NavigationBarButton.IconResource -> {
                             com.blockchain.componentlib.basic.Image(imageResource = it.image)
                         }
+
                         is NavigationBarButton.Text -> {
                             Text(
                                 modifier = Modifier.wrapContentWidth(),
@@ -283,6 +273,7 @@ fun NavigationBar(
                                 style = AppTheme.typography.body2
                             )
                         }
+
                         is NavigationBarButton.TextWithColorInt -> {
                             Text(
                                 text = it.text,
@@ -290,6 +281,7 @@ fun NavigationBar(
                                 style = AppTheme.typography.body2
                             )
                         }
+
                         is NavigationBarButton.DropdownMenu -> {
                             com.blockchain.componentlib.basic.Image(imageResource = Icons.MenuKebabVertical)
 
@@ -351,6 +343,67 @@ fun RowScope.StartButtonResource(button: NavigationBarButton.IconResource) {
         com.blockchain.componentlib.basic.Image(imageResource = button.image)
     }
     Spacer(modifier = Modifier.width(dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)))
+}
+
+@Composable
+private fun isLoggedInProvider(): Boolean {
+    var isLoggedIn: Boolean by remember { mutableStateOf(true) }
+    if (!LocalInspectionMode.current) {
+        isLoggedIn = get<AuthPrefs>().run { walletGuid.isNotEmpty() && pinId.isNotEmpty() }
+    }
+    return isLoggedIn
+}
+
+@Composable
+private fun walletModeProvider(modeColor: ModeBackgroundColor): WalletMode? {
+    return if (LocalInspectionMode.current) {
+        WalletMode.CUSTODIAL
+    } else {
+        val walletMode: WalletMode? by when (modeColor) {
+            ModeBackgroundColor.Current -> {
+                if (isLoggedInProvider()) {
+                    get<WalletModeService>(
+                        scope = payloadScope
+                    ).walletMode.collectAsStateLifecycleAware(initial = null)
+                } else {
+                    remember { mutableStateOf(null) }
+                }
+            }
+
+            is ModeBackgroundColor.Override -> {
+                remember { mutableStateOf(modeColor.walletMode) }
+            }
+
+            ModeBackgroundColor.None -> {
+                remember { mutableStateOf(null) }
+            }
+        }
+        walletMode
+    }
+    //    var walletMode: WalletMode? by remember { mutableStateOf(WalletMode.CUSTODIAL) }
+    //
+    //    if (!LocalInspectionMode.current) {
+    //        val byWalletMode: WalletMode? by when (modeColor) {
+    //            ModeBackgroundColor.Current -> {
+    //                if (isLoggedInProvider()) {
+    //                    get<WalletModeService>(
+    //                        scope = payloadScope
+    //                    ).walletMode.collectAsStateLifecycleAware(initial = null)
+    //                } else {
+    //                    remember { mutableStateOf(null) }
+    //                }
+    //            }
+    //            is ModeBackgroundColor.Override -> {
+    //                remember { mutableStateOf(modeColor.walletMode) }
+    //            }
+    //            ModeBackgroundColor.None -> {
+    //                remember { mutableStateOf(null) }
+    //            }
+    //        }
+    //        walletMode = byWalletMode
+    //    }
+    //
+    //    return walletMode
 }
 
 @Preview(showBackground = true)

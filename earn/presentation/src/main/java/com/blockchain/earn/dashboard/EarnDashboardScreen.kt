@@ -48,9 +48,9 @@ import com.blockchain.componentlib.basic.MaskableTextWithToggle
 import com.blockchain.componentlib.basic.MaskedTextFormat
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.componentlib.button.MinimalPrimarySmallButton
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.SmallMinimalButton
-import com.blockchain.componentlib.button.SmallSecondaryButton
+import com.blockchain.componentlib.button.SecondarySmallButton
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.control.NonCancelableOutlinedSearch
 import com.blockchain.componentlib.control.TabSwitcher
@@ -468,7 +468,7 @@ private fun ProductComparatorCta(onOpenProductComparator: () -> Unit) {
                 }
             },
             contentEnd = {
-                SmallSecondaryButton(
+                SecondarySmallButton(
                     text = stringResource(id = com.blockchain.stringResources.R.string.common_go),
                     onClick = onOpenProductComparator,
                     state = ButtonState.Enabled,
@@ -583,13 +583,12 @@ private fun LearningCarousel(
                             color = AppTheme.colors.title
                         )
 
-                        SmallMinimalButton(
+                        MinimalPrimarySmallButton(
                             text = stringResource(com.blockchain.stringResources.R.string.common_learn_more),
                             onClick = {
                                 onLearnMoreClicked(it.learnMoreUrl)
                                 analytics.logEvent(EarnAnalytics.LearnMoreClicked(product = it.type))
-                            },
-                            isTransparent = false
+                            }
                         )
                     }
                 }

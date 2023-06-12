@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -21,12 +20,11 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.TertiaryButton
+import com.blockchain.componentlib.button.MinimalErrorButton
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.LargeVerticalSpacer
-import com.blockchain.componentlib.theme.Pink700
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
@@ -131,9 +129,8 @@ fun WalletConnectDappSessionManage(
                 LargeVerticalSpacer()
             }
 
-            TertiaryButton(
+            MinimalErrorButton(
                 text = stringResource(id = R.string.common_disconnect),
-                textColor = Pink700,
                 onClick = onDisconnectClicked,
                 modifier = Modifier.fillMaxWidth()
             )

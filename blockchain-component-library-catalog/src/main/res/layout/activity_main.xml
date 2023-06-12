@@ -100,27 +100,6 @@
             android:textAllCaps="false" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/minimal_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Minimal Button"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/secondary_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Secondary Button"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/small_minimal_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Small Minimal Button"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
             android:id="@+id/small_secondary_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

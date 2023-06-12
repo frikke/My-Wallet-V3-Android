@@ -30,8 +30,8 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
@@ -214,7 +214,7 @@ fun VerifyPhraseIncorrect(resetOnClick: () -> Unit) {
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TertiaryButton(
+        MinimalPrimaryButton(
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(com.blockchain.stringResources.R.string.verify_phrase_incorrect_button),
             onClick = resetOnClick

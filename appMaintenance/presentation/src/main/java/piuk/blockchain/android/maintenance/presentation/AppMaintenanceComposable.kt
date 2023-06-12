@@ -18,8 +18,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey900
 
@@ -91,7 +91,7 @@ fun AppMaintenanceScreen(
                 Spacer(modifier = Modifier.weight(1f))
 
                 if (isDebugBuild) {
-                    TertiaryButton(
+                    MinimalPrimaryButton(
                         modifier = Modifier.fillMaxWidth(),
                         text = "Debug Build - Click to skip",
                         onClick = debugSkip
@@ -100,7 +100,7 @@ fun AppMaintenanceScreen(
                 }
 
                 button1?.let { buttonSettings ->
-                    TertiaryButton(
+                    MinimalPrimaryButton(
                         modifier = Modifier.fillMaxWidth(),
                         text = stringResource(id = buttonSettings.buttonText),
                         onClick = { button1OnClick(buttonSettings.intent) }

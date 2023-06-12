@@ -18,9 +18,10 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
@@ -100,12 +101,12 @@ fun CustomerSupportScreen(
 
         Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
-        MinimalButton(
+        MinimalPrimaryButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
-                    end = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
+                    start = dimensionResource(R.dimen.standard_spacing),
+                    end = dimensionResource(R.dimen.standard_spacing)
                 ),
             text = stringResource(id = com.blockchain.stringResources.R.string.customer_support_contact_us),
             onClick = contactUsClicked
@@ -113,7 +114,7 @@ fun CustomerSupportScreen(
 
         Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
-        MinimalButton(
+        MinimalPrimaryButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(

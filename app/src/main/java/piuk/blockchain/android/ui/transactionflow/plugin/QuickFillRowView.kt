@@ -14,7 +14,6 @@ import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import java.math.BigDecimal
 import kotlin.math.floor
-import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.PrefillAmounts
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
@@ -44,8 +43,6 @@ class QuickFillRowView @JvmOverloads constructor(
         this.model = model
         this.customiser = customiser
         this.analytics = analytics
-
-        areButtonsTransparent = false
     }
 
     override fun update(state: TransactionState) {

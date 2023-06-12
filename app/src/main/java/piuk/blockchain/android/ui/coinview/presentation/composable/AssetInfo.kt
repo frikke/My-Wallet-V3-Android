@@ -10,14 +10,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
-import com.blockchain.componentlib.button.SmallTertiaryButton
+import com.blockchain.componentlib.button.MinimalPrimarySmallButton
 import com.blockchain.componentlib.expandables.ExpandableItem
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.previewAnalytics
 import org.koin.androidx.compose.get
-import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewAnalytics
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
-import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 
 @Composable
 fun AssetInfo(
@@ -69,7 +68,7 @@ fun AssetInfoData(
         data.website?.let {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
-            SmallTertiaryButton(
+            MinimalPrimarySmallButton(
                 text = stringResource(com.blockchain.stringResources.R.string.coinview_asset_info_cta),
                 onClick = {
                     analytics.logEvent(

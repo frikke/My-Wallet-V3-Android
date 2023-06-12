@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.dashboard.coinview
+package piuk.blockchain.android.ui.coinview.presentation
 
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames

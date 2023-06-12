@@ -18,11 +18,10 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.SmallMinimalButton
+import com.blockchain.componentlib.button.MinimalPrimarySmallButton
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import piuk.blockchain.android.R
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
 import piuk.blockchain.android.util.launchUrlInBrowser
 
@@ -75,7 +74,7 @@ fun AchWithdrawalHoldInfoSheet(
             gravity = ComposeGravities.Start
         )
 
-        SmallMinimalButton(
+        MinimalPrimarySmallButton(
             modifier = Modifier
                 .padding(
                     horizontal = AppTheme.dimensions.standardSpacing,

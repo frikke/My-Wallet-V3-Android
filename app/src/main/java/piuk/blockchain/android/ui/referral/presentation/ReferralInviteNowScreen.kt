@@ -17,8 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue600
@@ -75,7 +75,7 @@ fun ReferralInviteNowScreen(
 
             Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)))
 
-            TertiaryButton(
+            MinimalPrimaryButton(
                 text = stringResource(com.blockchain.stringResources.R.string.referral_invite_now),
                 onClick = onPositiveAction,
                 modifier = Modifier.fillMaxWidth()

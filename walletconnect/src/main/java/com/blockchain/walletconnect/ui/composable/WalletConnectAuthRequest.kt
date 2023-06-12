@@ -3,6 +3,8 @@ package com.blockchain.walletconnect.ui.composable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,7 +27,8 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.SplitButtons
+import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.theme.AppTheme
@@ -87,6 +90,7 @@ fun WalletConnectAuthRequest(
                 is WalletConnectAuthRequestViewState.WalletConnectAuthRequestLoading -> {
                     CircularProgressBar()
                 }
+
                 is WalletConnectAuthRequestViewState.WalletConnectAuthRequestData -> {
 
                     (
@@ -148,22 +152,27 @@ fun WalletConnectAuthRequest(
 
                             LargeVerticalSpacer()
 
-                            SplitButtons(
-                                primaryButtonText = stringResource(
-                                    id = string.common_connect
-                                ),
-                                primaryButtonOnClick = {
-                                    authRequestViewModel.onIntent(WalletConnectAuthRequestIntent.ApproveAuth)
-                                    onDismiss()
-                                },
-                                secondaryButtonText = stringResource(
-                                    id = string.common_cancel
-                                ),
-                                secondaryButtonOnClick = {
-                                    authRequestViewModel.onIntent(WalletConnectAuthRequestIntent.RejectAuth)
-                                    onDismiss()
-                                }
-                            )
+                            Row(modifier = Modifier.fillMaxWidth()) {
+                                PrimaryButton(
+                                    modifier = Modifier.weight(1f),
+                                    text = stringResource(string.common_connect),
+                                    onClick = {
+                                        authRequestViewModel.onIntent(WalletConnectAuthRequestIntent.ApproveAuth)
+                                        onDismiss()
+                                    }
+                                )
+
+                                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+                                SecondaryButton(
+                                    modifier = Modifier.weight(1f),
+                                    text = stringResource(string.common_cancel),
+                                    onClick = {
+                                        authRequestViewModel.onIntent(WalletConnectAuthRequestIntent.ApproveAuth)
+                                        onDismiss()
+                                    }
+                                )
+                            }
                         }
                     }
                 }

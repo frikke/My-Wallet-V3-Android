@@ -5,11 +5,11 @@ package com.blockchain.componentlib.media
 import android.os.Build
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -30,6 +30,7 @@ import com.airbnb.lottie.compose.rememberLottieRetrySignal
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.skydoves.landscapist.ImageOptions
@@ -130,11 +131,7 @@ fun AsyncMediaItem(
     when (imageResource) {
         is ImageResource.Remote -> {
             if (LocalInspectionMode.current) {
-                Text(
-                    modifier = modifier.background(Color.Magenta),
-                    color = Color.White,
-                    text = "DEBUG",
-                )
+                Box(modifier = modifier.fillMaxSize().background(AppColors.title))
             } else {
                 AsyncMediaItem(
                     modifier = modifier,

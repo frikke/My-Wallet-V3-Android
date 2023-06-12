@@ -49,7 +49,7 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.control.Checkbox
 import com.blockchain.componentlib.control.CheckboxState
@@ -534,7 +534,7 @@ private fun CreateWalletFailed(
             )
         }
 
-        MinimalButton(
+        MinimalPrimaryButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
@@ -542,7 +542,6 @@ private fun CreateWalletFailed(
                     vertical = AppTheme.dimensions.standardSpacing
                 ),
             text = stringResource(com.blockchain.stringResources.R.string.common_go_back),
-
             onClick = backOnClick
         )
     }

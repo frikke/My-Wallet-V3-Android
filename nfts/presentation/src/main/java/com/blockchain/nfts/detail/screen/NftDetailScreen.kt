@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.TertiaryButton
+import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.expandables.ExpandableItem
 import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.lazylist.roundedCornersItems
@@ -194,7 +194,7 @@ fun NftBasicInfo(
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
-        TertiaryButton(
+        MinimalPrimaryButton(
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(com.blockchain.stringResources.R.string.nft_cta_view),
             icon = ImageResource.Local(

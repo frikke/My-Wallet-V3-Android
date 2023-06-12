@@ -21,9 +21,9 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.MinimalPrimaryButton
+import com.blockchain.componentlib.button.MinimalPrimarySmallButton
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.SmallMinimalButton
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
@@ -32,6 +32,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.White
 import com.blockchain.domain.paymentmethods.model.FundsLock
 import com.blockchain.domain.paymentmethods.model.FundsLocks
+import com.blockchain.stringResources.R
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CurrencyType
@@ -40,7 +41,6 @@ import info.blockchain.balance.Money
 import java.math.BigInteger
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import piuk.blockchain.android.R
 
 @Composable
 fun LocksDetailsScreen(
@@ -136,7 +136,7 @@ private fun LocksDetailsScreen(
                 gravity = ComposeGravities.Start
             )
 
-            SmallMinimalButton(
+            MinimalPrimarySmallButton(
                 modifier = Modifier.padding(AppTheme.dimensions.smallSpacing),
                 text = stringResource(com.blockchain.stringResources.R.string.common_learn_more),
                 onClick = learnMoreClicked
@@ -144,11 +144,11 @@ private fun LocksDetailsScreen(
         }
 
         Column(Modifier.fillMaxWidth()) {
-            MinimalButton(
+            MinimalPrimaryButton(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = AppTheme.dimensions.standardSpacing),
-                text = stringResource(com.blockchain.stringResources.R.string.contact_support),
+                text = stringResource(R.string.contact_support),
                 onClick = contactSupportClicked
             )
 

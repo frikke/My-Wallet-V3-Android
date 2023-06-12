@@ -50,7 +50,7 @@
         tools:text="Disclaimer blurb that spans several lines that spans several lines"
         tools:visibility="visible" />
 
-    <com.blockchain.componentlib.button.DestructiveMinimalButtonView
+    <com.blockchain.componentlib.button.MinimalErrorButtonView
         android:id="@+id/button_cancel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
