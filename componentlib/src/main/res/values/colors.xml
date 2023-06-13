@@ -5,6 +5,8 @@
 
     <color name="title">#FF121D33</color>
     <color name="body">#FF50596B</color>
+    <color name="error">#FFCF1726</color>
+
 
     <color name="paletteBaseWhite">#FFFFFF</color>
     <color name="paletteBaseBlack">#000000</color>

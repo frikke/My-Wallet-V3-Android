@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="@color/backgroundSecondary"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true">
 
@@ -291,6 +292,7 @@
         android:layout_marginStart="@dimen/standard_spacing"
         android:layout_marginTop="@dimen/standard_spacing"
         android:layout_marginBottom="@dimen/standard_spacing"
+        android:tint="@color/body"
         app:layout_constraintBottom_toTopOf="@id/same_card_error"
         app:layout_constraintEnd_toStartOf="@id/security_text"
         app:layout_constraintHorizontal_chainStyle="packed"
@@ -304,7 +306,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/tiny_spacing"
         android:text="@string/privacy_protected_ssl"
-        android:textColor="@color/grey_800"
+        android:textColor="@color/body"
         app:layout_constraintBottom_toBottomOf="@id/lock_icon"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0"
@@ -318,7 +320,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/medium_spacing"
         android:text="@string/card_already_saved"
-        android:textColor="@color/red_400"
+        android:textColor="@color/error"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/btn_next"
         app:layout_constraintEnd_toEndOf="parent"

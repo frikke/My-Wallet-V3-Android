@@ -25,6 +25,7 @@ import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.tag.TagsRow
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey400
@@ -43,7 +44,7 @@ fun DefaultTableRow(
     tags: List<TagViewState>? = null,
     endTag: TagViewState? = null,
     startImageResource: ImageResource = ImageResource.None,
-    endImageResource: ImageResource = Icons.ChevronRight.withTint(Grey400),
+    endImageResource: ImageResource = Icons.ChevronRight.withTint(AppColors.body),
     backgroundColor: Color = AppTheme.colors.backgroundSecondary,
     primaryTextColor: Color = AppTheme.colors.title,
     secondaryTextColor: Color = AppTheme.colors.body

@@ -5,8 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/standard_spacing"
-    android:background="@color/white">
+    android:background="@color/backgroundSecondary"
+    android:padding="@dimen/standard_spacing">
 
     <TextView
         android:id="@+id/verify_phone_msg"
@@ -14,12 +14,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/profile_verify_phone_msg"
+        android:textColor="@color/title"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/dial_code_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/body"
         app:layout_constraintBottom_toBottomOf="@+id/phone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/phone" />
@@ -28,6 +30,7 @@
         android:id="@+id/dial_code"
         android:layout_width="100dp"
         android:layout_height="0dp"
+        android:backgroundTint="@color/body"
         app:layout_constraintBottom_toBottomOf="@+id/phone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/phone" />
@@ -46,8 +49,8 @@
         android:id="@+id/verify_phone_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
         android:layout_marginTop="@dimen/standard_spacing"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/phone" />
 
