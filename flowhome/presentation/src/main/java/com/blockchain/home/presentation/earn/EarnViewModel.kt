@@ -315,13 +315,14 @@ class EarnViewModel(
         }
 
         val activeRewardsRates = if (activeRewardsFeatureFlag.coEnabled()) {
-            activeRewardsService.getRatesForAllAssets().doOnData { rates ->
-                updateState {
-                    copy(
-                        activeRewardsRates = rates
-                    )
+            activeRewardsService.getRatesForAllAssets(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
+                .doOnData { rates ->
+                    updateState {
+                        copy(
+                            activeRewardsRates = rates
+                        )
+                    }
                 }
-            }
         } else {
             flow {
                 updateState {

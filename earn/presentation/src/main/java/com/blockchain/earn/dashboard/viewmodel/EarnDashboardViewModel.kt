@@ -64,7 +64,7 @@ class EarnDashboardViewModel(
     EarnDashboardModelState()
 ) {
 
-    override fun viewCreated(args: ModelConfigArgs.NoArgs) { }
+    override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
     override fun EarnDashboardModelState.reduce(): EarnDashboardViewState = EarnDashboardViewState(
         dashboardState = reduceDashboardState(
@@ -93,41 +93,49 @@ class EarnDashboardViewModel(
                     earningTabFilterBy = intent.filter
                 )
             }
+
             is EarnDashboardIntent.UpdateEarningTabSearchQuery -> updateState {
                 copy(
                     earningTabQueryBy = intent.searchTerm
                 )
             }
+
             is EarnDashboardIntent.UpdateDiscoverTabListFilter -> updateState {
                 copy(
                     discoverTabFilterBy = intent.filter
                 )
             }
+
             is EarnDashboardIntent.UpdateDiscoverTabSearchQuery -> updateState {
                 copy(
                     discoverTabQueryBy = intent.searchTerm
                 )
             }
+
             is EarnDashboardIntent.DiscoverItemSelected -> {
                 when (intent.earnAsset.eligibility) {
                     EarnRewardsEligibility.Eligible -> showAcquireOrSummaryForEarnType(
                         earnType = intent.earnAsset.type,
                         assetTicker = intent.earnAsset.assetTicker
                     )
+
                     is EarnRewardsEligibility.Ineligible -> when (intent.earnAsset.eligibility) {
                         EarnRewardsEligibility.Ineligible.KYC_TIER ->
                             navigate(EarnDashboardNavigationEvent.OpenKycUpgradeNowSheet)
+
                         EarnRewardsEligibility.Ineligible.REGION,
                         EarnRewardsEligibility.Ineligible.OTHER ->
                             navigate(EarnDashboardNavigationEvent.OpenBlockedForRegionSheet(intent.earnAsset.type))
                     }
                 }
             }
+
             is EarnDashboardIntent.EarningItemSelected ->
                 showAcquireOrSummaryForEarnType(
                     earnType = intent.earnAsset.type,
                     assetTicker = intent.earnAsset.assetTicker
                 )
+
             is EarnDashboardIntent.LaunchProductComparator -> {
                 modelState.earnData?.let {
                     val earnProducts = mutableListOf<EarnType>().apply {
@@ -155,6 +163,7 @@ class EarnDashboardViewModel(
                     AssetAction.Receive -> navigate(
                         EarnDashboardNavigationEvent.OpenReceive(intent.assetInfo.networkTicker)
                     )
+
                     else -> throw IllegalStateException("Earn dashboard: ${intent.action} not valid for navigation")
                 }
             }
@@ -189,6 +198,7 @@ class EarnDashboardViewModel(
                 filterList,
                 hasSeenEarnIntro
             )
+
             isLoading -> DashboardState.Loading
             error != EarnDashboardError.None -> DashboardState.ShowError(error)
             else -> earnData?.loadEarn(
@@ -274,9 +284,11 @@ class EarnDashboardViewModel(
                     EarnType.Passive -> navigate(
                         EarnDashboardNavigationEvent.OpenInterestSummarySheet(currency.networkTicker)
                     )
+
                     EarnType.Staking -> navigate(
                         EarnDashboardNavigationEvent.OpenStakingSummarySheet(currency.networkTicker)
                     )
+
                     EarnType.Active -> navigate(
                         EarnDashboardNavigationEvent.OpenActiveRewardsSummarySheet(currency.networkTicker)
                     )
@@ -671,7 +683,9 @@ class EarnDashboardViewModel(
 
         val activeRewardsBalanceWithFiatFlow =
             if (activeRewardsFeatureFlag.coEnabled()) {
-                activeRewardsService.getBalanceForAllAssets().flatMapData { balancesMap ->
+                activeRewardsService.getBalanceForAllAssets(
+                    FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+                ).flatMapData { balancesMap ->
                     if (balancesMap.isEmpty()) {
                         return@flatMapData flowOf(DataResource.Data(emptyMap()))
                     }
@@ -701,14 +715,14 @@ class EarnDashboardViewModel(
 
         val activeRewardsEligibilityFlow =
             if (activeRewardsFeatureFlag.coEnabled()) {
-                activeRewardsService.getEligibilityForAssets()
+                activeRewardsService.getEligibilityForAssets(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             } else {
                 flowOf(DataResource.Data(emptyMap()))
             }
 
         val activeRewardsRatesFlow =
             if (activeRewardsFeatureFlag.coEnabled()) {
-                activeRewardsService.getRatesForAllAssets()
+                activeRewardsService.getRatesForAllAssets(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             } else {
                 flowOf(DataResource.Data(emptyMap()))
             }
@@ -753,6 +767,7 @@ class EarnDashboardViewModel(
                         )
                     }
                 }
+
                 is DataResource.Error -> {
                     updateState {
                         copy(
@@ -761,6 +776,7 @@ class EarnDashboardViewModel(
                         )
                     }
                 }
+
                 DataResource.Loading -> {
                     updateState {
                         copy(isLoading = showLoading)

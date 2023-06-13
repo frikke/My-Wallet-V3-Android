@@ -53,7 +53,9 @@ fun dashboardState(
     val hasAnyAssets =
         (assetsViewState.assets as? DataResource.Data)?.data?.isNotEmpty() ?: return DashboardState.UNKNOWN
 
-    return if (hasAnyActivity || hasAnyAssets) {
-        DashboardState.NON_EMPTY
-    } else DashboardState.EMPTY
+    val shouldShowEmptyStateForAssets = assetsViewState.showNoResults
+
+    return if (!hasAnyActivity && !hasAnyAssets && shouldShowEmptyStateForAssets) {
+        DashboardState.EMPTY
+    } else DashboardState.NON_EMPTY
 }
