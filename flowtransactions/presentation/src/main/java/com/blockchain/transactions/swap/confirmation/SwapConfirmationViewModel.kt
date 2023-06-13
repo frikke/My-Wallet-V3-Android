@@ -31,6 +31,8 @@ import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
 import com.blockchain.outcome.zipOutcomes
+import com.blockchain.transactions.swap.SwapService
+import com.blockchain.transactions.swap.model.ShouldUpsellPassiveRewardsResult
 import com.blockchain.transactions.swap.neworderstate.composable.SwapNewOrderState
 import com.blockchain.transactions.swap.neworderstate.composable.SwapNewOrderStateArgs
 import com.blockchain.utils.awaitOutcome
@@ -53,6 +55,7 @@ sealed interface SwapConfirmationNavigation : NavigationEvent {
 
 class SwapConfirmationViewModel(
     private val args: SwapConfirmationArgs,
+    private val swapService: SwapService,
     private val brokerageDataManager: BrokerageDataManager,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val custodialWalletManager: CustodialWalletManager,
@@ -204,20 +207,20 @@ class SwapConfirmationViewModel(
             .takeIf { it.isLayer2Token }
             ?.coinNetwork?.nativeAssetTicker
             ?.let { assetCatalogue.fromNetworkTicker(it)?.logo },
-        sourceAssetDescription = if (sourceAccount is CryptoNonCustodialAccount) {
-            sourceAccount.label
-        } else {
+        sourceAssetDescription = if (transferDirection == TransferDirection.INTERNAL) {
             sourceAccount.currency.displayTicker
+        } else {
+            sourceAccount.label
         },
         targetAsset = targetAccount.currency,
         targetNativeAssetIconUrl = targetAccount.currency
             .takeIf { it.isLayer2Token }
             ?.coinNetwork?.nativeAssetTicker
             ?.let { assetCatalogue.fromNetworkTicker(it)?.logo },
-        targetAssetDescription = if (targetAccount is CryptoNonCustodialAccount) {
-            targetAccount.label
-        } else {
+        targetAssetDescription = if (transferDirection == TransferDirection.INTERNAL) {
             targetAccount.currency.displayTicker
+        } else {
+            targetAccount.label
         },
         sourceCryptoAmount = sourceCryptoAmount,
         sourceFiatAmount = sourceCryptoAmount.toUserFiat(),
@@ -267,9 +270,25 @@ class SwapConfirmationViewModel(
                     ).awaitOutcome()
                 }.flatMap { order ->
                     if (sourceAccount is NonCustodialAccount) {
-                        submitDepositTx(order)
-                    } else Outcome.Success(order)
-                }.doOnSuccess { order ->
+                        submitDepositTx(order).map { order -> order to ShouldUpsellPassiveRewardsResult.ShouldNot }
+                    } else {
+                        // C-C, as C-NC isn't supported
+                        custodialWalletManager.pollForCustodialOrderCompletion(order.id)
+                            .awaitOutcome()
+                            .flatMap { hasCompleted ->
+                                if (hasCompleted) {
+                                    swapService.shouldUpsellPassiveRewardsAfterSwap(
+                                        targetAccount,
+                                        targetAccount.currency
+                                    ).map { result ->
+                                        order to result
+                                    }
+                                } else {
+                                    Outcome.Success(order to ShouldUpsellPassiveRewardsResult.ShouldNot)
+                                }
+                            }
+                    }
+                }.doOnSuccess { (order, shouldUpsellResult) ->
                     quoteRefreshingJob?.cancel()
                     swapTransactionsStore.invalidate()
                     if (transferDirection == TransferDirection.INTERNAL) {
@@ -279,7 +298,7 @@ class SwapConfirmationViewModel(
                     val newOrderStateArgs = SwapNewOrderStateArgs(
                         sourceAmount = order.inputMoney as CryptoValue,
                         targetAmount = order.outputMoney as CryptoValue,
-                        targetAccount = Bindable(targetAccount),
+                        shouldLaunchUpsellPassiveRewards = Bindable(shouldUpsellResult),
                         orderState = if (sourceAccount is NonCustodialAccount) {
                             SwapNewOrderState.PendingDeposit
                         } else {
@@ -341,7 +360,7 @@ class SwapConfirmationViewModel(
     private fun Exception.toNewOrderStateArgs(): SwapNewOrderStateArgs = SwapNewOrderStateArgs(
         sourceAmount = sourceCryptoAmount,
         targetAmount = modelState.targetCryptoAmount ?: CryptoValue.zero(targetAccount.currency),
-        targetAccount = Bindable(targetAccount),
+        shouldLaunchUpsellPassiveRewards = Bindable(ShouldUpsellPassiveRewardsResult.ShouldNot),
         orderState = SwapNewOrderState.Error(this)
     )
 

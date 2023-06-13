@@ -25,6 +25,8 @@ import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
 import com.blockchain.core.announcements.DismissRecorder
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.asMaybe
 import com.blockchain.data.asSingle
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
@@ -158,6 +160,7 @@ class TransactionInteractor(
             AssetAction.Sell -> sellTargets(sourceAccount as CryptoAccount)
             AssetAction.Send -> coincore[(sourceAccount as SingleAccount).currency]
                 .transactionTargets(sourceAccount)
+
             AssetAction.FiatDeposit -> linkedBanksFactory.getNonWireTransferBanks().mapList { it }
             AssetAction.FiatWithdraw -> linkedBanksFactory.getAllLinkedBanks().mapList { it }
             else -> coincore.getTransactionTargets(sourceAccount as CryptoAccount, action)
@@ -250,6 +253,7 @@ class TransactionInteractor(
                     }
                 }
             }
+
             AssetAction.InterestDeposit -> {
                 require(targetAccount is EarnRewardsAccount.Interest)
                 require(targetAccount is CryptoAccount)
@@ -265,6 +269,7 @@ class TransactionInteractor(
                     }
                 }
             }
+
             AssetAction.StakingDeposit -> {
                 require(targetAccount is EarnRewardsAccount.Staking)
                 require(targetAccount is CryptoAccount)
@@ -280,6 +285,7 @@ class TransactionInteractor(
                     }
                 }
             }
+
             AssetAction.ActiveRewardsDeposit -> {
                 require(targetAccount is EarnRewardsAccount.Active)
                 require(targetAccount is CryptoAccount)
@@ -295,9 +301,11 @@ class TransactionInteractor(
                     }
                 }
             }
+
             AssetAction.FiatDeposit -> {
                 linkedBanksFactory.getNonWireTransferBanks().map { it }
             }
+
             AssetAction.Sell -> sellSourceAccounts()
             else -> throw IllegalStateException("Source account should be preselected for action $action")
         }
@@ -438,21 +446,25 @@ class TransactionInteractor(
                         )
                     )
                 }
+
                 availableBankPaymentMethodTypes.size == 1 -> {
                     when {
                         availableBankPaymentMethodTypes.first() == PaymentMethodType.BANK_TRANSFER -> {
                             TransactionIntent.FiatDepositOptionSelected(DepositOptionsState.LaunchLinkBank)
                         }
+
                         availableBankPaymentMethodTypes.first() == PaymentMethodType.BANK_ACCOUNT -> {
                             TransactionIntent.FiatDepositOptionSelected(
                                 DepositOptionsState.LaunchWireTransfer(fiatCurrency)
                             )
                         }
+
                         else -> {
                             TransactionIntent.FiatDepositOptionSelected(DepositOptionsState.None)
                         }
                     }
                 }
+
                 else -> {
                     TransactionIntent.FiatDepositOptionSelected(DepositOptionsState.None)
                 }
@@ -503,8 +515,11 @@ class TransactionInteractor(
                         }
                     }
                 }
+
                 AssetAction.ActiveRewardsDeposit -> {
-                    activeRewardsService.getBalanceForAsset(asset).asSingle().map { accountBalance ->
+                    activeRewardsService.getBalanceForAsset(
+                        asset, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                    ).asSingle().map { accountBalance ->
                         if (accountBalance.totalBalance.isZero) {
                             FeatureAccess.Blocked(
                                 BlockedReason.ShouldAcknowledgeActiveRewardsWithdrawalWarning
@@ -512,6 +527,7 @@ class TransactionInteractor(
                         } else FeatureAccess.Granted()
                     }
                 }
+
                 else -> Single.just(FeatureAccess.Granted())
             }
         }

@@ -8,7 +8,6 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import info.blockchain.wallet.keys.MasterKey
 import info.blockchain.wallet.metadata.MetadataDerivation
-import info.blockchain.wallet.metadata.MetadataInteractor
 import info.blockchain.wallet.metadata.data.RemoteMetadataNodes
 import info.blockchain.wallet.payload.WalletPayloadService
 import io.reactivex.rxjava3.core.Completable

@@ -40,7 +40,6 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Question
 import com.blockchain.componentlib.navigation.NavigationBar
@@ -49,7 +48,6 @@ import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
-import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.utils.AnnotatedStringUtils
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.koin.payloadScope

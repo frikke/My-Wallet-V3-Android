@@ -142,6 +142,7 @@ class PricesViewModel(
                 ticker = assetInfo.displayTicker,
                 network = assetInfo.takeIf { it.isLayer2Token }?.coinNetwork?.shortName?.takeIf { withNetwork },
                 logo = assetInfo.logo,
+                nativeAssetLogo = null,
                 delta = price.map { ValueChange.fromValue(it.delta24h) },
                 currentPrice = price.map {
                     it.currentRate.price.format(currencyPrefs.selectedFiatCurrency)

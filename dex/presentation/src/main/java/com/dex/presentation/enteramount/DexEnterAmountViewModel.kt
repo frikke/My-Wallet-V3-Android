@@ -100,7 +100,7 @@ class DexEnterAmountViewModel(
             DexNetworkViewState(
                 chainId = selectedChain!!,
                 logo = assetInfo.logo,
-                name = coinNetwork.name,
+                name = coinNetwork.shortName,
                 selected = true
             )
         }

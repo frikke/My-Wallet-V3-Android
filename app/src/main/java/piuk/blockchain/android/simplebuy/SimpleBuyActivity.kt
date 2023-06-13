@@ -38,6 +38,7 @@ import com.blockchain.extensions.exhaustive
 import com.blockchain.fiatActions.QuestionnaireSheetHost
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
+import com.blockchain.koin.payloadScopeOrNull
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.outcome.doOnSuccess
@@ -273,7 +274,7 @@ class SimpleBuyActivity :
         )
         compositeDisposable.clear()
         googlePayResponseInterceptor.clear()
-        payloadScope.get<CreateBuyOrderUseCase>().stopQuoteFetching(true)
+        payloadScopeOrNull?.get<CreateBuyOrderUseCase>()?.stopQuoteFetching(true)
     }
     private val homeActivityLauncher: HomeActivityLauncher by inject()
 

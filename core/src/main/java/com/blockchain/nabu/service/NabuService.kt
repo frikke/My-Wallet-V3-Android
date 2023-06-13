@@ -237,6 +237,12 @@ class NabuService internal constructor(
         localisedError = getLocalisedErrorIfEnabled()
     ).wrapErrorMessage()
 
+    internal fun getCustodialOrder(
+        id: String
+    ): Single<CustodialOrderResponse> = nabu.getCustodialOrder(
+        id = id,
+    ).wrapErrorMessage()
+
     internal fun fetchProductLimits(
         currency: String,
         product: String,

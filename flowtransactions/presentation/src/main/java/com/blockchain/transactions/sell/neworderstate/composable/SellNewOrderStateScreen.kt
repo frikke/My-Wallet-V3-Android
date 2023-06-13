@@ -58,8 +58,8 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.isLayer2Token
-import org.koin.androidx.compose.get
 import java.io.Serializable
+import org.koin.androidx.compose.get
 
 sealed interface SellNewOrderState {
     object PendingDeposit : SellNewOrderState

@@ -10,6 +10,8 @@ import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.core.user.NabuUserDataManager
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.featureflag.FeatureFlag
@@ -123,9 +125,16 @@ class LoaderInteractor(
             }
             .then {
                 WalletMode.values().map {
-                    coincore.activeWalletsInModeRx(it)
+                    coincore.activeWalletsInModeRx(
+                        walletMode = it,
+                        freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                    )
                         .firstOrError()
-                        .flatMap { it.balanceRx().firstOrError() }
+                        .flatMap { accounts ->
+                            accounts.balanceRx(
+                                freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                            ).firstOrError()
+                        }
                 }.zipSingles()
                     .onErrorComplete()
                     .ignoreElement()
@@ -180,6 +189,7 @@ class LoaderInteractor(
                 currencyPrefs.selectedFiatCurrency =
                     assetCatalogue.fiatFromNetworkTicker(settings.currency) ?: Dollars
             }
+
             else -> Completable.complete()
         }
 

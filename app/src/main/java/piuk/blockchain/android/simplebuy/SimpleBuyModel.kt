@@ -48,6 +48,7 @@ import com.blockchain.outcome.getOrElse
 import com.blockchain.payments.core.CardAcquirer
 import com.blockchain.preferences.RecurringBuyPrefs
 import com.blockchain.utils.rxSingleOutcome
+import com.blockchain.utils.toException
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -136,8 +137,8 @@ class SimpleBuyModel(
                             )
                         )
                     },
-                    onError = {
-                        // don't do anything
+                    onError = { error ->
+                        process(SimpleBuyIntent.GetQuotePriceFailed(error.toException()))
                     }
                 )
             }

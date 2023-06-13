@@ -70,8 +70,16 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
                     amountInCrypto = amountInCrypto,
                     fee = dynamicFee as FiatValue,
                     fiatPrice = fiatPrice as FiatValue
-                )
+                ),
+                quoteError = null
             )
+    }
+
+    class GetQuotePriceFailed(
+        val error: Exception
+    ) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(quoteError = error)
     }
 
     object StopPollingQuotePrice : SimpleBuyIntent()

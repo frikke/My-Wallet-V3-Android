@@ -1,4 +1,5 @@
 package com.blockchain.walletconnect.data
+
 import android.app.Application
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
@@ -241,9 +242,11 @@ class WalletConnectV2ServiceImpl : WalletConnectV2Service, WalletConnectV2UrlVal
                 is Wallet.Model.SettledSessionResponse.Result -> {
                     emit(WalletConnectSessionProposalState.APPROVED)
                 }
+
                 is Wallet.Model.SettledSessionResponse.Error -> {
                     emit(WalletConnectSessionProposalState.REJECTED)
                 }
+
                 else -> emit(null)
             }
         }.onStart {
@@ -544,9 +547,11 @@ class WalletConnectV2ServiceImpl : WalletConnectV2Service, WalletConnectV2UrlVal
             when (sessionRequest.request.method) {
                 WC_METHOD_PERSONAL_SIGN,
                 WC_METHOD_ETH_SIGN -> ethSign(sessionRequest)
+
                 WC_METHOD_ETH_SIGN_TYPED_DATA -> {
                     Timber.e("Typed data not supported yet")
                 }
+
                 WC_METHOD_ETH_SIGN_TRANSACTION,
                 WC_METHOD_ETH_SEND_TRANSACTION -> ethSend(sessionRequest, sessionRequest.request.method)
             }

@@ -99,8 +99,6 @@ class FiatActionsUseCase(
 
         val eligibleBanks = linkedBanks.filter { paymentMethods.contains(it.type) }
 
-        //        analytics.logEvent(DepositMethodOptionsViewed(paymentMethods.map { it.name }))
-
         when {
             eligibility is FeatureAccess.Blocked && eligibility.reason is BlockedReason.Sanctions ->
                 Single.just(
@@ -108,12 +106,14 @@ class FiatActionsUseCase(
                         eligibility.reason as BlockedReason.Sanctions
                     )
                 )
+
             questionnaireOpt.isPresent ->
                 Single.just(
                     FiatTransactionRequestResult.LaunchQuestionnaire(
                         questionnaire = questionnaireOpt.get()
                     )
                 )
+
             eligibleBanks.isEmpty() -> {
                 handleNoLinkedBanks(
                     account,
@@ -126,6 +126,7 @@ class FiatActionsUseCase(
                     )
                 )
             }
+
             eligibleBanks.size == 1 -> {
                 Single.just(
                     FiatTransactionRequestResult.LaunchDepositFlow(
@@ -135,6 +136,7 @@ class FiatActionsUseCase(
                     )
                 )
             }
+
             else -> {
                 Single.just(
                     FiatTransactionRequestResult.LaunchDepositFlowWithMultipleAccounts(
@@ -194,11 +196,13 @@ class FiatActionsUseCase(
                             eligibility.reason as BlockedReason.Sanctions
                         )
                     )
+
                 questionnaireOpt.isPresent -> Single.just(
                     FiatTransactionRequestResult.LaunchQuestionnaire(
                         questionnaire = questionnaireOpt.get()
                     )
                 )
+
                 linkedBanks.isEmpty() -> {
                     handleNoLinkedBanks(
                         account,
@@ -211,6 +215,7 @@ class FiatActionsUseCase(
                         )
                     )
                 }
+
                 linkedBanks.size == 1 -> {
                     Single.just(
                         FiatTransactionRequestResult.LaunchWithdrawalFlow(
@@ -220,6 +225,7 @@ class FiatActionsUseCase(
                         )
                     )
                 }
+
                 else -> {
                     Single.just(
                         FiatTransactionRequestResult.LaunchWithdrawalFlowWithMultipleAccounts(
@@ -273,6 +279,7 @@ class FiatActionsUseCase(
                     )
                 )
             }
+
             paymentMethodForAction.linkablePaymentMethods.linkMethods.contains(PaymentMethodType.BANK_TRANSFER) -> {
                 linkBankTransfer(targetAccount.currency).map {
                     FiatTransactionRequestResult.LaunchBankLink(
@@ -283,6 +290,7 @@ class FiatActionsUseCase(
                     FiatTransactionRequestResult.NotSupportedPartner
                 }
             }
+
             paymentMethodForAction.linkablePaymentMethods.linkMethods.contains(PaymentMethodType.BANK_ACCOUNT) -> {
                 userIdentity.isArgentinian().flatMap { isArgentinian ->
                     if (isArgentinian && action == AssetAction.FiatWithdraw) {
@@ -294,6 +302,7 @@ class FiatActionsUseCase(
                     }
                 }
             }
+
             else -> {
                 Single.just(FiatTransactionRequestResult.NotSupportedPartner)
             }
@@ -315,6 +324,7 @@ class FiatActionsUseCase(
                     action = action
                 )
             }
+
             is FiatTransactionRequestResult.LaunchDepositFlow -> {
                 FiatActionsResult.TransactionFlow(
                     account = fiatTxRequestResult.preselectedBankAccount,
@@ -322,12 +332,14 @@ class FiatActionsUseCase(
                     target = fiatAccount
                 )
             }
+
             is FiatTransactionRequestResult.LaunchWithdrawalFlowWithMultipleAccounts -> {
                 FiatActionsResult.TransactionFlow(
                     account = fiatAccount,
                     action = action
                 )
             }
+
             is FiatTransactionRequestResult.LaunchWithdrawalFlow -> {
                 FiatActionsResult.TransactionFlow(
                     account = fiatAccount,
@@ -335,6 +347,7 @@ class FiatActionsUseCase(
                     target = fiatTxRequestResult.preselectedBankAccount
                 )
             }
+
             is FiatTransactionRequestResult.LaunchBankLink -> {
                 FiatActionsResult.BankLinkFlow(
                     account = fiatAccount,
@@ -342,10 +355,11 @@ class FiatActionsUseCase(
                     linkBankTransfer = fiatTxRequestResult.linkBankTransfer
                 )
             }
+
             is FiatTransactionRequestResult.NotSupportedPartner -> {
-                // TODO Show an error
-                TODO()
+                FiatActionsResult.KycDepositCashBenefits(fiatAccount.currency)
             }
+
             is FiatTransactionRequestResult.BlockedDueToSanctions -> {
                 FiatActionsResult.BlockedDueToSanctions(
                     account = fiatAccount,
@@ -353,6 +367,7 @@ class FiatActionsUseCase(
                     reason = fiatTxRequestResult.reason
                 )
             }
+
             is FiatTransactionRequestResult.LaunchQuestionnaire -> {
                 FiatActionsResult.LaunchQuestionnaire(
                     account = fiatAccount,
@@ -360,6 +375,7 @@ class FiatActionsUseCase(
                     questionnaire = fiatTxRequestResult.questionnaire
                 )
             }
+
             is FiatTransactionRequestResult.LaunchPaymentMethodChooser -> {
                 FiatActionsResult.LinkBankMethod(
                     account = fiatAccount,
@@ -367,6 +383,7 @@ class FiatActionsUseCase(
                     paymentMethodsForAction = fiatTxRequestResult.paymentMethodForAction
                 )
             }
+
             is FiatTransactionRequestResult.LaunchDepositDetailsSheet -> {
                 FiatActionsResult.WireTransferAccountDetails(
                     account = fiatAccount,
@@ -374,6 +391,7 @@ class FiatActionsUseCase(
                     accountIsFunded = fiatTxRequestResult.accountIsFunded
                 )
             }
+
             is FiatTransactionRequestResult.LaunchAliasWithdrawal -> {
                 FiatActionsResult.LinkBankWithAlias(
                     account = fiatAccount,

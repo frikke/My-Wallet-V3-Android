@@ -11,8 +11,7 @@ import info.blockchain.wallet.api.session.SessionIdRepository
 import info.blockchain.wallet.ethereum.EthAccountApi
 import info.blockchain.wallet.ethereum.EthEndpoints
 import info.blockchain.wallet.ethereum.node.EthNodeEndpoints
-import info.blockchain.wallet.metadata.MetadataInteractor
-import info.blockchain.wallet.metadata.MetadataService
+import info.blockchain.wallet.metadata.MetadataApiService
 import info.blockchain.wallet.multiaddress.MultiAddressFactory
 import info.blockchain.wallet.multiaddress.MultiAddressFactoryBtc
 import info.blockchain.wallet.payload.BalanceManagerBch
@@ -58,14 +57,8 @@ val walletModule = module {
         )
     }
 
-    factory {
-        MetadataInteractor(
-            metadataService = get()
-        )
-    }
-
     single {
-        get<Retrofit>(apiRetrofit).create(MetadataService::class.java)
+        get<Retrofit>(apiRetrofit).create(MetadataApiService::class.java)
     }
 
     factory {

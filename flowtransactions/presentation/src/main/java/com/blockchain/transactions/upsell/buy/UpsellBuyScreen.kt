@@ -177,6 +177,7 @@ private fun UpSellAnotherAssetScreenPreview() {
                         ticker = "BTC",
                         network = null,
                         logo = "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
+                        nativeAssetLogo = null,
                         delta = DataResource.Data(ValueChange.fromValue(2.5)),
                         currentPrice = DataResource.Data("$10,000"),
                         showRisingFastTag = false
@@ -189,6 +190,7 @@ private fun UpSellAnotherAssetScreenPreview() {
                         ticker = "ETH",
                         network = null,
                         logo = "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
+                        nativeAssetLogo = null,
                         delta = DataResource.Data(ValueChange.fromValue(2.5)),
                         currentPrice = DataResource.Data("$10,000"),
                         showRisingFastTag = false
@@ -201,6 +203,7 @@ private fun UpSellAnotherAssetScreenPreview() {
                         ticker = "LTC",
                         network = null,
                         logo = "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
+                        nativeAssetLogo = null,
                         delta = DataResource.Data(ValueChange.fromValue(2.5)),
                         currentPrice = DataResource.Data("$10,000"),
                         showRisingFastTag = false
@@ -213,6 +216,7 @@ private fun UpSellAnotherAssetScreenPreview() {
                         ticker = "LTC",
                         network = null,
                         logo = "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
+                        nativeAssetLogo = null,
                         delta = DataResource.Data(ValueChange.fromValue(2.5)),
                         currentPrice = DataResource.Data("$10,000"),
                         showRisingFastTag = false
