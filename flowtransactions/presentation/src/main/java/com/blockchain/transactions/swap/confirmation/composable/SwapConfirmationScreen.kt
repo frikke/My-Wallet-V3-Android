@@ -51,7 +51,6 @@ import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
-import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.utils.AnnotatedStringUtils
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.koin.payloadScope
@@ -217,7 +216,6 @@ private fun ConfirmationContent(
                 onClick = submitOnClick
             )
         }
-
     }
 }
 

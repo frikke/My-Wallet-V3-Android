@@ -18,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,7 +28,6 @@ import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.icons.ArrowRight
 import com.blockchain.componentlib.icons.Coins
 import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.Receive
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
@@ -261,4 +259,3 @@ private fun PreviewTwoAssetActionLoading() {
 private fun PreviewTwoAssetActionLoadingDark() {
     PreviewTwoAssetActionLoading()
 }
-
