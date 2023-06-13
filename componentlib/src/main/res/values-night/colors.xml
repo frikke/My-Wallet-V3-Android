@@ -5,6 +5,7 @@
 
     <color name="title">#FFFFFFFF</color>
     <color name="body">#FF989BA1</color>
+    <color name="light">#FF2C3038</color>
     <color name="error">#FFFF3344</color>
 
     <color name="calendarAccent">#619FF7</color>

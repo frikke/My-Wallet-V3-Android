@@ -64,9 +64,11 @@ private class HeaderItemViewHolder(
                 Header.NEW_KYC -> context.getString(
                     com.blockchain.stringResources.R.string.feature_limits_header_bronze_title
                 )
+
                 Header.UPGRADE_TO_GOLD -> context.getString(
                     com.blockchain.stringResources.R.string.feature_limits_header_silver_title
                 )
+
                 Header.MAX_TIER_REACHED,
                 Header.HIDDEN -> null
             }
@@ -76,28 +78,35 @@ private class HeaderItemViewHolder(
                 Header.NEW_KYC -> context.getString(
                     com.blockchain.stringResources.R.string.feature_limits_header_bronze_description
                 )
+
                 Header.UPGRADE_TO_GOLD -> context.getString(
                     com.blockchain.stringResources.R.string.feature_limits_header_silver_description
                 )
+
                 Header.MAX_TIER_REACHED -> context.getString(
                     com.blockchain.stringResources.R.string.feature_limits_header_denied_description
                 )
+
                 Header.HIDDEN -> null
             }
 
-            btnCta.text = when (item.header) {
-                Header.NEW_KYC -> context.getString(
-                    com.blockchain.stringResources.R.string.feature_limits_header_bronze_cta
-                )
-                Header.UPGRADE_TO_GOLD -> context.getString(
-                    com.blockchain.stringResources.R.string.feature_limits_header_silver_cta
-                )
-                Header.MAX_TIER_REACHED -> null
-                Header.HIDDEN -> null
-            }
-            btnCta.visibleIf { item.header != Header.MAX_TIER_REACHED }
-            btnCta.setOnClickListener {
-                onHeaderCtaClicked(item.header)
+            btnCta.apply {
+                text = when (item.header) {
+                    Header.NEW_KYC -> context.getString(
+                        com.blockchain.stringResources.R.string.feature_limits_header_bronze_cta
+                    )
+
+                    Header.UPGRADE_TO_GOLD -> context.getString(
+                        com.blockchain.stringResources.R.string.feature_limits_header_silver_cta
+                    )
+
+                    Header.MAX_TIER_REACHED -> ""
+                    Header.HIDDEN -> ""
+                }
+                visibleIf { item.header != Header.MAX_TIER_REACHED }
+                onClick = {
+                    onHeaderCtaClicked(item.header)
+                }
             }
         }
     }
@@ -160,9 +169,16 @@ private class CurrentTierItemViewHolder(
                 KycTier.SILVER -> context.getString(
                     com.blockchain.stringResources.R.string.feature_limits_silver_limits
                 )
+
                 KycTier.GOLD -> context.getString(com.blockchain.stringResources.R.string.feature_limits_gold_limits)
             }
             textGoldTierDescription.visibleIf { item.tier == KycTier.GOLD }
+
+            textTierState.apply {
+                text = context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_tier_state_approved
+                )
+            }
         }
     }
 }
@@ -206,20 +222,25 @@ class FeatureWithLimitItemViewHolder(
                 Feature.SEND_FROM_TRADING_TO_PRIVATE -> context.getString(
                     com.blockchain.stringResources.R.string.feature_limits_send_crypto
                 )
+
                 Feature.RECEIVE_TO_TRADING -> context.getString(
                     com.blockchain.stringResources.R.string.feature_limits_receive_crypto
                 )
+
                 Feature.SWAP -> context.getString(com.blockchain.stringResources.R.string.feature_limits_swap_crypto)
                 Feature.BUY_SELL -> context.getString(com.blockchain.stringResources.R.string.feature_limits_buy_sell)
                 Feature.CARD_PURCHASES -> context.getString(
                     com.blockchain.stringResources.R.string.feature_limits_card_purchases
                 )
+
                 Feature.FIAT_DEPOSIT -> context.getString(
                     com.blockchain.stringResources.R.string.feature_limits_deposits
                 )
+
                 Feature.FIAT_WITHDRAWAL -> context.getString(
                     com.blockchain.stringResources.R.string.feature_limits_withdrawals
                 )
+
                 Feature.REWARDS -> context.getString(
                     com.blockchain.stringResources.R.string.feature_limits_earn_rewards
                 )
@@ -228,22 +249,28 @@ class FeatureWithLimitItemViewHolder(
                 Feature.SEND_FROM_TRADING_TO_PRIVATE -> context.getString(
                     com.blockchain.stringResources.R.string.feature_limits_from_trading_accounts
                 )
+
                 Feature.RECEIVE_TO_TRADING -> context.getString(
                     com.blockchain.stringResources.R.string.feature_limits_to_trading_accounts
                 )
+
                 Feature.SWAP -> context.getString(
                     com.blockchain.stringResources.R.string.feature_limits_swap_description
                 )
+
                 Feature.BUY_SELL -> context.getString(
                     com.blockchain.stringResources.R.string.feature_limits_buy_sell_description
                 )
+
                 Feature.CARD_PURCHASES -> context.getString(
                     com.blockchain.stringResources.R.string.feature_limits_card_purchases_description
                 )
+
                 Feature.FIAT_DEPOSIT -> null
                 Feature.FIAT_WITHDRAWAL -> context.getString(
                     com.blockchain.stringResources.R.string.feature_limits_withdrawals_description
                 )
+
                 Feature.REWARDS -> context.getString(
                     com.blockchain.stringResources.R.string.feature_limits_earn_rewards_description
                 )
@@ -255,9 +282,11 @@ class FeatureWithLimitItemViewHolder(
                 FeatureLimit.Disabled -> context.getString(
                     com.blockchain.stringResources.R.string.feature_limits_disabled
                 )
+
                 FeatureLimit.Infinite -> context.getString(
                     com.blockchain.stringResources.R.string.feature_limits_no_limit
                 )
+
                 is FeatureLimit.Limited -> featureLimit.limit.amount.formatOrSymbolForZero()
                 FeatureLimit.Unspecified -> context.getString(
                     com.blockchain.stringResources.R.string.feature_limits_enabled
@@ -270,9 +299,11 @@ class FeatureWithLimitItemViewHolder(
                     TxLimitPeriod.DAILY -> context.getString(
                         com.blockchain.stringResources.R.string.feature_limits_daily_limit_period
                     )
+
                     TxLimitPeriod.MONTHLY -> context.getString(
                         com.blockchain.stringResources.R.string.feature_limits_monthly_limit_period
                     )
+
                     TxLimitPeriod.YEARLY -> context.getString(
                         com.blockchain.stringResources.R.string.feature_limits_yearly_limit_period
                     )

@@ -20,11 +20,7 @@ class SmallSectionHeaderView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme(setSystemColors = false) {
-            AppSurface {
-                SmallSectionHeader(title)
-            }
-        }
+        SmallSectionHeader(title)
     }
 
     fun clearState() {

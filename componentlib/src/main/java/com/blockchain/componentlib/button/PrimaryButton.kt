@@ -25,6 +25,10 @@ class PrimaryButtonView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
+        if (isInEditMode) {
+            text = "dummy text"
+        }
+
         PrimaryButton(
             onClick = onClick,
             text = text,
