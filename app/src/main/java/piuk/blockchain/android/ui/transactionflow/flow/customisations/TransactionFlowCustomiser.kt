@@ -36,6 +36,7 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
 import com.blockchain.walletmode.WalletMode
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
@@ -877,7 +878,7 @@ class TransactionFlowCustomiserImpl(
                 if (state.sendingAccount is NonCustodialAccount) {
                     resources.getString(
                         com.blockchain.stringResources.R.string.send_progress_awaiting_subtitle,
-                        state.sendingAsset.name
+                        (state.sendingAsset as? AssetInfo)?.coinNetwork?.shortName ?: state.sendingAsset.name
                     )
                 } else {
                     resources.getString(

@@ -111,11 +111,14 @@ open class BlockchainApplication : Application() {
             .subscribeBy(onNext = ::onConnectionEvent)
 
         // Init WalletConnect
-        walletConnectV2Service.initWalletConnect(
-            application = this,
-            projectId = BuildConfig.WALLETCONNECT_PROJECT_ID,
-            relayUrl = BuildConfig.WALLETCONNECT_RELAY_URL,
-        )
+        try {
+            walletConnectV2Service.initWalletConnect(
+                application = this,
+                projectId = BuildConfig.WALLETCONNECT_PROJECT_ID,
+                relayUrl = BuildConfig.WALLETCONNECT_RELAY_URL,
+            )
+        } catch (_: Exception) {
+        }
 
         AppVersioningChecks(
             context = this,
@@ -358,9 +361,11 @@ private class AppVersioningChecks(
                                     referrerClient.endConnection()
                                 }
                             }
+
                             InstallReferrerClient.InstallReferrerResponse.FEATURE_NOT_SUPPORTED -> {
                                 referrerClient.endConnection()
                             }
+
                             InstallReferrerClient.InstallReferrerResponse.SERVICE_UNAVAILABLE -> {
                                 referrerClient.endConnection()
                             }

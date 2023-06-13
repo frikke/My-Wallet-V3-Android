@@ -72,7 +72,7 @@ class SelectNetworkViewModel(
         return DexNetworkViewState(
             chainId = chainId,
             logo = assetInfo.logo,
-            name = name,
+            name = shortName,
             selected = chainId == selectedChainId
         )
     }

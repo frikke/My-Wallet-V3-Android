@@ -7,6 +7,7 @@ import android.net.Uri
 import com.blockchain.analytics.Analytics
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.domain.auth.SecureChannelService
+import com.blockchain.koin.payloadScopeOrNull
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.notifications.NotificationTokenManager
@@ -33,7 +34,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.R
+import org.koin.androidx.compose.get
 import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.launcher.LauncherActivityV2
 import timber.log.Timber
@@ -41,7 +42,6 @@ import timber.log.Timber
 class FcmCallbackService : FirebaseMessagingService() {
 
     private val notificationManager: NotificationManager by inject()
-    private val notificationTokenManager: NotificationTokenManager by scopedInject()
     private val analytics: Analytics by inject()
     private val walletPrefs: WalletStatusPrefs by inject()
     private val remoteConfigPrefs: RemoteConfigPrefs by inject()
@@ -115,7 +115,7 @@ class FcmCallbackService : FirebaseMessagingService() {
 
     override fun onNewToken(newToken: String) {
         super.onNewToken(newToken)
-        notificationTokenManager.storeAndUpdateToken(newToken)
+        payloadScopeOrNull?.get<NotificationTokenManager>()?.storeAndUpdateToken(newToken)
         subscribeToRealTimeRemoteConfigUpdates()
     }
 
@@ -190,6 +190,7 @@ class FcmCallbackService : FirebaseMessagingService() {
                     notificationAnalyticsPayload = createCampaignPayload(payload.payload, payload.title)
                 )
             )
+
             else -> Maybe.just(
                 LauncherActivityV2.newInstance(
                     context = applicationContext,

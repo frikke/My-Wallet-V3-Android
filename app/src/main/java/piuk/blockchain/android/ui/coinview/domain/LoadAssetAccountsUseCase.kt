@@ -88,7 +88,9 @@ class LoadAssetAccountsUseCase(
         val activeRewardsFlow =
             activeRewardsService.getAvailabilityForAsset(asset.currency).flatMapData { available ->
                 if (available) {
-                    activeRewardsService.getRatesForAsset(asset.currency)
+                    activeRewardsService.getRatesForAsset(
+                        asset.currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                    )
                 } else {
                     flowOf(DataResource.Data(ActiveRewardsRates(0.0, 0.0, Money.zero(asset.currency))))
                 }
@@ -244,6 +246,7 @@ class LoadAssetAccountsUseCase(
                                 }
                             )
                         }
+
                         is EarnRewardsAccount.Interest -> {
                             CoinviewAccount.Custodial.Interest(
                                 isEnabled = it.isAvailable,
@@ -255,6 +258,7 @@ class LoadAssetAccountsUseCase(
                                 interestRate = interestRate
                             )
                         }
+
                         is EarnRewardsAccount.Staking -> {
                             CoinviewAccount.Custodial.Staking(
                                 isEnabled = it.isAvailable,
@@ -266,6 +270,7 @@ class LoadAssetAccountsUseCase(
                                 stakingRate = stakingRate
                             )
                         }
+
                         is EarnRewardsAccount.Active -> {
                             CoinviewAccount.Custodial.ActiveRewards(
                                 isEnabled = it.isAvailable,

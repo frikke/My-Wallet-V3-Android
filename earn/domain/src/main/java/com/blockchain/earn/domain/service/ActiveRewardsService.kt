@@ -21,47 +21,47 @@ interface ActiveRewardsService {
     ): Flow<DataResource<Boolean>>
 
     fun getActiveAssets(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        refreshStrategy: FreshnessStrategy
     ): Flow<Set<AssetInfo>>
 
     fun getBalanceForAllAssets(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        refreshStrategy: FreshnessStrategy
     ): Flow<DataResource<Map<AssetInfo, ActiveRewardsAccountBalance>>>
 
     fun getBalanceForAsset(
         currency: Currency,
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        refreshStrategy: FreshnessStrategy
     ): Flow<DataResource<ActiveRewardsAccountBalance>>
 
     fun getRatesForAsset(
         currency: Currency,
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        refreshStrategy: FreshnessStrategy
     ): Flow<DataResource<ActiveRewardsRates>>
 
     fun getRatesForAllAssets(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+        refreshStrategy: FreshnessStrategy
     ): Flow<DataResource<Map<AssetInfo, Double>>>
 
     fun getEligibilityForAssets(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        refreshStrategy: FreshnessStrategy
     ): Flow<DataResource<Map<AssetInfo, EarnRewardsEligibility>>>
 
     fun getEligibilityForAsset(
         currency: Currency,
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        refreshStrategy: FreshnessStrategy
     ): Flow<DataResource<EarnRewardsEligibility>>
 
     fun getEarnRewardsEligibility(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        refreshStrategy: FreshnessStrategy
     ): Flow<DataResource<EarnRewardsEligibility>>
 
     fun getActivity(
         asset: AssetInfo,
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        refreshStrategy: FreshnessStrategy
     ): Flow<DataResource<List<EarnRewardsActivity>>>
 
     fun getLimitsForAllAssets(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+        refreshStrategy: FreshnessStrategy
     ): Flow<DataResource<Map<AssetInfo, ActiveRewardsLimits>>>
 
     suspend fun getAccountAddress(currency: Currency): Outcome<Exception, String>

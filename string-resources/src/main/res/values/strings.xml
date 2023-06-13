@@ -1685,6 +1685,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="send_enter_amount_max_limit_info_action_title">Get Unlimited Sends</string>
     <string name="swap_enter_amount_max_limit_info_action_title">Swap More Crypto</string>
     <string name="buy_enter_amount_max_limit_info_action_title">Buy More Crypto</string>
+    <string name="buy_enter_amount_quote_error">Error getting quote</string>
     <string name="tx_enter_amount_transactions_limit_info_title">Verify Now</string>
     <string name="tx_enter_amount_transactions_limit_info_description">You can only complete %1$d transaction with a Limited Access account.</string>
     <string name="tx_enter_amount_transactions_limit_info_action_title">Unlock more when you verify</string>

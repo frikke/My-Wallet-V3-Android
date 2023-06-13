@@ -1,11 +1,18 @@
-package info.blockchain.wallet.metadata
+package com.blockchain.metadata
 
+import com.blockchain.data.DataResource
+import com.blockchain.metadata.data.MetadataStore
 import com.blockchain.testutils.FakeHttpExceptionFactory
 import com.blockchain.testutils.waitForCompletionWithoutErrors
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.wallet.metadata.Metadata
+import info.blockchain.wallet.metadata.MetadataApiService
+import info.blockchain.wallet.metadata.MetadataDerivation
 import info.blockchain.wallet.metadata.data.MetadataResponse
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Test
 import retrofit2.HttpException
@@ -36,18 +43,20 @@ class MetadataInteractorTest {
         metadataDerivation = metadataDerivation
     )
 
-    private lateinit var metadataService: MetadataService
+    private lateinit var metadataApiService: MetadataApiService
+    private lateinit var metadataStore: MetadataStore
 
     @Before
     fun setUp() {
-        metadataService = mock()
-        metadataInteractor = MetadataInteractor(metadataService)
+        metadataApiService = mock()
+        metadataStore = mock()
+        metadataInteractor = MetadataInteractor(metadataApiService, metadataStore, mock())
     }
 
     @Test
     fun `fetchMagic with success`() {
         whenever(
-            metadataService.getMetadata(address)
+            metadataApiService.getMetadata(address)
         ).thenReturn(
             Single.just(fakeMetadataResponse)
         )
@@ -61,7 +70,7 @@ class MetadataInteractorTest {
     @Test
     fun `fetchMagic failure, failure is propagated`() {
         whenever(
-            metadataService.getMetadata(address)
+            metadataApiService.getMetadata(address)
         ).thenReturn(
             Single.error(Error())
         )
@@ -74,12 +83,12 @@ class MetadataInteractorTest {
     @Test
     fun `get metadata with error 404, empty should be returned`() {
         whenever(
-            metadataService.getMetadata(fakeMetadata.address)
+            metadataStore.stream(any())
         ).thenReturn(
-            Single.error(FakeHttpExceptionFactory.httpExceptionWith(404))
+            flowOf(DataResource.Error(FakeHttpExceptionFactory.httpExceptionWith(404)))
         )
 
-        val test = metadataInteractor.loadRemoteMetadata(fakeMetadata).isEmpty.test()
+        val test = metadataInteractor.loadRemoteMetadata(fakeMetadata).isEmpty.test().await()
 
         test.assertValueAt(0, true)
         test.assertComplete()
@@ -88,12 +97,12 @@ class MetadataInteractorTest {
     @Test
     fun `get metadata with error different than 404, error should be returned`() {
         whenever(
-            metadataService.getMetadata(fakeMetadata.address)
+            metadataStore.stream(any())
         ).thenReturn(
-            Single.error(FakeHttpExceptionFactory.httpExceptionWith(400))
+            flowOf(DataResource.Error(FakeHttpExceptionFactory.httpExceptionWith(400)))
         )
 
-        val test = metadataInteractor.loadRemoteMetadata(fakeMetadata).test()
+        val test = metadataInteractor.loadRemoteMetadata(fakeMetadata).test().await()
 
         test.assertError {
             it is HttpException && it.code() == 400
@@ -103,13 +112,16 @@ class MetadataInteractorTest {
 
     @Test
     fun `get metadata with success`() {
+
         whenever(
-            metadataService.getMetadata(fakeMetadata.address)
+            metadataStore.stream(any())
         ).thenReturn(
-            Single.just(fakeMetadataResponse)
+            flowOf(
+                DataResource.Data(fakeMetadataResponse)
+            )
         )
 
-        val test = metadataInteractor.loadRemoteMetadata(fakeMetadata).test()
+        val test = metadataInteractor.loadRemoteMetadata(fakeMetadata).test().await()
             .waitForCompletionWithoutErrors()
 
         test.assertValueAt(0, "{\"trades\":[]}")

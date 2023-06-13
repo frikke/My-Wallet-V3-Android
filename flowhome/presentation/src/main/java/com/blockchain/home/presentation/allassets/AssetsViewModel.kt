@@ -103,7 +103,7 @@ class AssetsViewModel(
         showNoResults = assets.map { assets ->
             assets.none { it.shouldBeFiltered(this) } && assets.isNotEmpty()
         }.dataOrElse(false),
-        showFilterIcon = ! assets.allSmallBalances().dataOrElse(true),
+        showFilterIcon = !assets.allSmallBalances().dataOrElse(true),
         fundsLocks = fundsLocks.map {
             it?.takeIf { it.locks.isNotEmpty() && it.onHoldTotalAmount.isPositive }
         }

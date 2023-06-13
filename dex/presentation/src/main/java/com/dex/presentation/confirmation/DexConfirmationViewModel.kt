@@ -98,7 +98,7 @@ class DexConfirmationViewModel(
              * */
             errors = transaction.toUiErrors().filter { it != DexUiError.TransactionInProgressError },
             newPriceAvailable = priceUpdatedAndNotAccepted,
-            network = transaction.sourceAccount.currency.coinNetwork?.name
+            network = transaction.sourceAccount.currency.coinNetwork?.shortName
         )
     }
 

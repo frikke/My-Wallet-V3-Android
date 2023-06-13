@@ -79,6 +79,7 @@ class UpsellBuyViewModel(
                 ticker = assetInfo.displayTicker,
                 network = null,
                 logo = assetInfo.logo,
+                nativeAssetLogo = null,
                 delta = price.map { ValueChange.fromValue(it.delta24h) },
                 currentPrice = price.map {
                     it.currentRate.price.toStringWithSymbol()

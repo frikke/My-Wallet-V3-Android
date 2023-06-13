@@ -231,6 +231,7 @@ internal class SwapRepository(
     }
 
     override suspend fun shouldUpsellPassiveRewardsAfterSwap(
+        sourceAccount: CryptoAccount,
         targetCurrency: AssetInfo
     ): Outcome<Exception, ShouldUpsellPassiveRewardsResult> =
         if (dismissRecorder.isDismissed(UPSELL_PASSIVE_REWARDS_AFTER_SWAP_DISMISS_KEY)) {
@@ -253,7 +254,11 @@ internal class SwapRepository(
                                     val account = accounts.filterIsInstance<CustodialInterestAccount>()
                                         .firstOrNull()
                                     if (account != null) {
-                                        ShouldUpsellPassiveRewardsResult.ShouldLaunch(account, interestRate)
+                                        ShouldUpsellPassiveRewardsResult.ShouldLaunch(
+                                            sourceAccount,
+                                            account,
+                                            interestRate
+                                        )
                                     } else {
                                         ShouldUpsellPassiveRewardsResult.ShouldNot
                                     }

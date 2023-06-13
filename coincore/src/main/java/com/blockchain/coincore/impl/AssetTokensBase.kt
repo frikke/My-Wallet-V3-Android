@@ -125,9 +125,11 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                 Logger.e("$errorMsg: $it")
                 remoteLogger.logException(it, errorMsg)
             }
+
             AssetFilter.NonCustodial -> loadNonCustodialAccounts(
                 labels
             )
+
             AssetFilter.Custodial,
             AssetFilter.Trading -> {
                 if (currency.isCustodial) {
@@ -145,6 +147,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                     }
                 } else Single.just(emptyList())
             }
+
             AssetFilter.Interest -> loadInterestAccounts()
             AssetFilter.Staking -> loadStakingAccounts()
             AssetFilter.ActiveRewards -> loadActiveRewardsAccounts()
@@ -296,13 +299,16 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
         }
 
     final override fun activeRewardsRate(): Single<Double> =
-        activeRewardsService.getEligibilityForAsset(currency).asSingle().flatMap {
-            if (it is EarnRewardsEligibility.Eligible) {
-                activeRewardsService.getRatesForAsset(currency).asSingle().map { it.rate }
-            } else {
-                Single.just(0.0)
+        activeRewardsService.getEligibilityForAsset(currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
+            .asSingle().flatMap {
+                if (it is EarnRewardsEligibility.Eligible) {
+                    activeRewardsService.getRatesForAsset(
+                        currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                    ).asSingle().map { it.rate }
+                } else {
+                    Single.just(0.0)
+                }
             }
-        }
 
     final override fun accountGroup(filter: AssetFilter): Maybe<AccountGroup> =
         accounts(filter).flatMapMaybe {
@@ -422,6 +428,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             ).toList()
                 .map { ll -> ll.flatten() }
                 .onErrorReturnItem(emptyList())
+
             is NonCustodialAccount ->
                 Maybe.concat(
                     listOf(
@@ -434,11 +441,13 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                 ).toList()
                     .map { ll -> ll.flatten() }
                     .onErrorReturnItem(emptyList())
+
             is EarnRewardsAccount -> {
                 getTradingTargets()
                     .onErrorReturnItem(emptyList())
                     .defaultIfEmpty(emptyList())
             }
+
             else -> Single.just(emptyList())
         }
     }

@@ -10,6 +10,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.combineDataResources
 import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.domain.models.ActiveRewardsRates
@@ -102,11 +104,15 @@ class ActiveRewardsSummaryViewModel(
             coincore[currency].accountGroup(AssetFilter.Trading).toObservable().map {
                 it.accounts.first() as CustodialTradingAccount
             }.asFlow(),
-            activeRewardsService.getBalanceForAsset(currency),
+            activeRewardsService.getBalanceForAsset(
+                currency, FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+            ),
             activeRewardsService.getLimitsForAsset(currency as AssetInfo),
-            activeRewardsService.getRatesForAsset(currency),
+            activeRewardsService.getRatesForAsset(currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)),
             exchangeRatesDataManager.exchangeRate(FiatCurrency.Dollars, currencyPrefs.selectedFiatCurrency),
-            activeRewardsService.getEligibilityForAsset(currency),
+            activeRewardsService.getEligibilityForAsset(
+                currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+            ),
             coincore[currency].getPricesWith24hDelta(),
             activeRewardsService.hasOngoingWithdrawals(currency)
         ) { account,

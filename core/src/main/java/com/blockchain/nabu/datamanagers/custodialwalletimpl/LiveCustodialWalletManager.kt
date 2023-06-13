@@ -17,6 +17,7 @@ import com.blockchain.data.asObservable
 import com.blockchain.data.asSingle
 import com.blockchain.data.getDataOrThrow
 import com.blockchain.data.mapData
+import com.blockchain.domain.common.model.Seconds
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
@@ -64,6 +65,8 @@ import com.blockchain.nabu.models.responses.simplebuy.WireTransferAccountDetails
 import com.blockchain.nabu.models.responses.swap.CreateOrderRequest
 import com.blockchain.nabu.models.responses.swap.CustodialOrderResponse
 import com.blockchain.nabu.service.NabuService
+import com.blockchain.network.PollResult
+import com.blockchain.network.PollService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
@@ -488,6 +491,21 @@ class LiveCustodialWalletManager(
         }.map {
             it.toCustodialOrder() ?: throw IllegalStateException("Invalid order created")
         }
+
+    override fun pollForCustodialOrderCompletion(
+        orderId: String,
+        pollEvery: Seconds,
+        pollTimes: Int,
+    ): Single<Boolean> = PollService(
+        fetcher = nabuService.getCustodialOrder(orderId).map { it.toCustodialOrder()!! },
+        matcher = { order -> !order.state.isPending }
+    ).start(timerInSec = pollEvery, retries = pollTimes).map {
+        when (it) {
+            is PollResult.FinalResult -> it.value.state == CustodialOrderState.FINISHED
+            is PollResult.TimeOut -> false
+            is PollResult.Cancel -> false
+        }
+    }
 
     override fun getProductTransferLimits(
         currency: FiatCurrency,

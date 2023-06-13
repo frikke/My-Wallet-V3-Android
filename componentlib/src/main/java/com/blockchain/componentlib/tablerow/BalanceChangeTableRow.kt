@@ -52,6 +52,7 @@ data class BalanceChange(
     val ticker: String,
     val network: String?,
     val logo: String,
+    val nativeAssetLogo: String?,
     val delta: DataResource<ValueChange>,
     val currentPrice: DataResource<String>,
     val showRisingFastTag: Boolean
@@ -74,7 +75,14 @@ fun BalanceChangeTableRow(
         value = data.currentPrice,
         valueChange = data.delta,
         showRisingFastTag = data.showRisingFastTag,
-        imageResource = ImageResource.Remote(data.logo),
+        icon = if (data.nativeAssetLogo != null) {
+            StackedIcon.SmallTag(
+                main = ImageResource.Remote(data.logo),
+                tag = ImageResource.Remote(data.nativeAssetLogo),
+            )
+        } else {
+            StackedIcon.SingleIcon(ImageResource.Remote(data.logo))
+        },
         defaultIconSize = defaultIconSize,
         withChevron = withChevron,
         onClick = onClick

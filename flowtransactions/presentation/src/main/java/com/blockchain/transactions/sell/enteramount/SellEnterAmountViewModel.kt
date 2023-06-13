@@ -295,6 +295,10 @@ class SellEnterAmountViewModel(
                     is KeyboardButton.Value -> currentInput + intent.button.value
                     KeyboardButton.Biometrics,
                     KeyboardButton.None -> throw UnsupportedOperationException()
+                }.let { newInput ->
+                    val decimalSeparator = DecimalFormatSymbols(Locale.getDefault()).decimalSeparator.toString()
+                    if (newInput.startsWith(decimalSeparator)) "0$newInput"
+                    else newInput
                 }
 
                 if (!validateInput(newInput, currentInputCurrencyMaxFractionDigits)) return
