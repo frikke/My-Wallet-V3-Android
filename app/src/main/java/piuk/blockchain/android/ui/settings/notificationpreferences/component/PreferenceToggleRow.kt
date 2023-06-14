@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.control.PrimarySwitch
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 
 @Preview
@@ -65,6 +66,7 @@ fun PreferenceToggleRow(
         ) {
             Text(
                 text = primaryText,
+                color = AppColors.title,
                 style = AppTheme.typography.body2
             )
 
@@ -76,7 +78,7 @@ fun PreferenceToggleRow(
         if (!enabled) {
             Box(
                 modifier = Modifier
-                    .background(White.copy(alpha = .75f))
+                    .background(AppColors.backgroundSecondary.copy(alpha = .75f))
                     .matchParentSize()
                     .clickable(enabled = true, onClick = { })
             )

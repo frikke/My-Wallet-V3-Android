@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.settings.notificationpreferences.details
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +18,7 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.divider.HorizontalDivider
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.settings.notificationpreferences.component.PreferenceLoadingError
@@ -30,7 +32,7 @@ fun NotificationPreferenceDetailsScreen(
 ) {
     Column(
         modifier = Modifier
-            .background(Color.White)
+            .background(AppColors.backgroundSecondary)
             .fillMaxWidth()
     ) {
         Column(
@@ -63,43 +65,6 @@ fun NotificationPreferenceDetailsScreen(
     }
 }
 
-@Preview
-@Composable
-private fun PreviewLoading() {
-    NotificationPreferenceDetailsScreen(
-        NotificationPreferenceDetailsViewState.Loading
-    ) { _, _ -> }
-}
-
-@Preview
-@Composable
-private fun ErrorLoadingPreview() {
-    NotificationPreferenceDetailsScreen(
-        NotificationPreferenceDetailsViewState.Error(
-            "Price alerts",
-            "Sent when a particular asset increases or decreases in price"
-        )
-    ) { _, _ -> }
-}
-
-@Preview
-@Composable
-private fun PreferencesListPreview() {
-    NotificationPreferenceDetailsScreen(
-        NotificationPreferenceDetailsViewState.Data(
-            "Price alerts",
-            "Sent when a particular asset increases or decreases in price",
-            //
-            listOf(
-                ContactMethod("Emails", "EMAIL", true, true),
-                ContactMethod("Push notifications", "PUSH", true, false),
-                ContactMethod("In-app messages", "IN_APP", false, false),
-                ContactMethod("In-app messages", "IN_APP", false, true)
-            )
-        )
-    ) { _, _ -> }
-}
-
 @Composable
 fun PreferencesList(
     methods: List<ContactMethod>,
@@ -124,4 +89,59 @@ fun PreferencesList(
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
         }
     }
+}
+
+@Preview
+@Composable
+private fun PreviewLoading() {
+    NotificationPreferenceDetailsScreen(
+        NotificationPreferenceDetailsViewState.Loading
+    ) { _, _ -> }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewLoadingDark() {
+    PreviewLoading()
+}
+
+@Preview
+@Composable
+private fun ErrorLoadingPreview() {
+    NotificationPreferenceDetailsScreen(
+        NotificationPreferenceDetailsViewState.Error(
+            "Price alerts",
+            "Sent when a particular asset increases or decreases in price"
+        )
+    ) { _, _ -> }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun ErrorLoadingPreviewDark() {
+    ErrorLoadingPreview()
+}
+
+@Preview
+@Composable
+private fun PreferencesListPreview() {
+    NotificationPreferenceDetailsScreen(
+        NotificationPreferenceDetailsViewState.Data(
+            "Price alerts",
+            "Sent when a particular asset increases or decreases in price",
+            //
+            listOf(
+                ContactMethod("Emails", "EMAIL", true, true),
+                ContactMethod("Push notifications", "PUSH", true, false),
+                ContactMethod("In-app messages", "IN_APP", false, false),
+                ContactMethod("In-app messages", "IN_APP", false, true)
+            )
+        )
+    ) { _, _ -> }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreferencesListPreviewDark() {
+    PreferencesListPreview()
 }

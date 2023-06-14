@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.settings.notificationpreferences
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,10 +17,11 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.button.common.LoadingIndicator
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.tablerow.DefaultTableRow
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.settings.notificationpreferences.component.PreferenceLoadingError
 import piuk.blockchain.android.ui.settings.notificationpreferences.component.PreferenceLoadingProgress
 
@@ -32,8 +34,9 @@ fun NotificationPreferenceScreen(
 ) {
     Column(
         modifier = Modifier
-            .background(Color.White)
-            .fillMaxWidth()
+            .background(AppColors.backgroundSecondary)
+            .fillMaxWidth(),
+
     ) {
         Column(
             modifier = Modifier
@@ -67,33 +70,13 @@ fun NotificationPreferenceScreen(
     }
 }
 
-@Preview
-@Composable
-private fun PreviewLoading() {
-    NotificationPreferenceScreen(NotificationPreferencesViewState.Loading, { }, { }, { })
-}
-
-@Preview
-@Composable
-private fun PreviewPreferenceList() {
-    val categories = listOf(
-        NotificationCategory("Wallet Activity", "Push, Email, SMS & In-App"),
-        NotificationCategory("Security Alerts", "Push, Email, SMS & In-App"),
-        NotificationCategory("Price Alerts", "Push, Email, & In-App"),
-        NotificationCategory("Product News", "Email")
-    )
-    NotificationPreferenceScreen(NotificationPreferencesViewState.Data(categories), { }, { }, { })
-}
-
 @Composable
 private fun PreferenceList(
     categories: List<NotificationCategory>,
     onItemClicked: (preferenceId: Int) -> Unit
 ) {
     Column(
-        Modifier
-            .background(Color.White)
-            .fillMaxWidth()
+        Modifier.fillMaxWidth()
     ) {
         categories.forEachIndexed { index, item ->
             DefaultTableRow(
@@ -108,6 +91,42 @@ private fun PreferenceList(
 
 @Preview
 @Composable
+private fun PreviewLoading() {
+    NotificationPreferenceScreen(NotificationPreferencesViewState.Loading, { }, { }, { })
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewLoadingDark() {
+    PreviewLoading()
+}
+
+@Preview
+@Composable
+private fun PreviewPreferenceList() {
+    val categories = listOf(
+        NotificationCategory("Wallet Activity", "Push, Email, SMS & In-App"),
+        NotificationCategory("Security Alerts", "Push, Email, SMS & In-App"),
+        NotificationCategory("Price Alerts", "Push, Email, & In-App"),
+        NotificationCategory("Product News", "Email")
+    )
+    NotificationPreferenceScreen(NotificationPreferencesViewState.Data(categories), { }, { }, { })
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewPreferenceListDark() {
+    PreviewPreferenceList()
+}
+
+@Preview
+@Composable
 private fun ErrorLoadingPreview() {
     NotificationPreferenceScreen(NotificationPreferencesViewState.Error, { }, { }, { })
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun ErrorLoadingPreviewDark() {
+    ErrorLoadingPreview()
 }
