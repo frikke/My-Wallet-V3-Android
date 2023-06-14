@@ -6,23 +6,19 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.annotation.ColorRes
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.core.content.ContextCompat
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.tag.TagType
+import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.extensions.exhaustive
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.unsafeLazy
-import java.lang.IllegalStateException
-import java.text.DateFormat
-import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.sunriverCampaignName
 import piuk.blockchain.android.databinding.DialogAirdropStatusBinding
 import piuk.blockchain.android.ui.resources.AssetResources
+import java.text.DateFormat
 
 class AirdropStatusSheet : SlidingModalBottomDialog<DialogAirdropStatusBinding>(), AirdropCentreView {
 
@@ -37,7 +33,10 @@ class AirdropStatusSheet : SlidingModalBottomDialog<DialogAirdropStatusBinding>(
         DialogAirdropStatusBinding.inflate(inflater, container, false)
 
     override fun initControls(binding: DialogAirdropStatusBinding) {
-        binding.ctaButton.setOnClickListener { onCtaClick() }
+        binding.ctaButton.apply {
+            text = getString(com.blockchain.stringResources.R.string.airdrop_received_sheet_close_btn)
+            onClick = { onCtaClick() }
+        }
         presenter.attachView(this)
     }
 
@@ -71,47 +70,13 @@ class AirdropStatusSheet : SlidingModalBottomDialog<DialogAirdropStatusBinding>(
 
     private fun renderStatus(airdrop: Airdrop) {
         when (airdrop.status) {
-            AirdropState.UNKNOWN ->
-                setStatusView(
-                    com.blockchain.stringResources.R.string.airdrop_status_unknown,
-                    com.blockchain.common.R.color.black,
-                    R.drawable.bkgd_status_unknown
-                )
-
-            AirdropState.EXPIRED ->
-                setStatusView(
-                    com.blockchain.stringResources.R.string.airdrop_status_expired,
-                    com.blockchain.common.R.color.grey_600,
-                    R.drawable.bkgd_grey_100_rounded
-                )
-
-            AirdropState.PENDING ->
-                setStatusView(
-                    com.blockchain.stringResources.R.string.airdrop_status_pending,
-                    com.blockchain.common.R.color.blue_600,
-                    R.drawable.bkgd_status_pending
-                )
-
-            AirdropState.RECEIVED ->
-                setStatusView(
-                    com.blockchain.stringResources.R.string.airdrop_status_received,
-                    com.blockchain.common.R.color.green_600,
-                    R.drawable.bkgd_green_100_rounded
-                )
-
+            AirdropState.UNKNOWN -> com.blockchain.stringResources.R.string.airdrop_status_unknown to TagType.Default()
+            AirdropState.EXPIRED -> com.blockchain.stringResources.R.string.airdrop_status_expired to TagType.Warning()
+            AirdropState.PENDING -> com.blockchain.stringResources.R.string.airdrop_status_pending to TagType.InfoAlt()
+            AirdropState.RECEIVED -> com.blockchain.stringResources.R.string.airdrop_status_received to TagType.Success()
             AirdropState.REGISTERED -> throw NotImplementedError("AirdropState.REGISTERED")
-        }.exhaustive
-    }
-
-    private fun setStatusView(
-        @StringRes message: Int,
-        @ColorRes textColour: Int,
-        @DrawableRes background: Int
-    ) {
-        with(binding.statusValue) {
-            setText(message)
-            setTextColor(ContextCompat.getColor(context, textColour))
-            setBackground(ContextCompat.getDrawable(context, background))
+        }.also { (text, type) ->
+            binding.statusValue.tag = TagViewState(getString(text), type)
         }
     }
 

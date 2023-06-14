@@ -6,7 +6,7 @@
     android:id="@+id/relative_layout"
     android:layout_width="match_parent"
     android:layout_height="72dp"
-    android:background="@color/white"
+    android:background="@color/backgroundSecondary"
     android:foreground="?attr/selectableItemBackground"
     android:theme="@style/PlainTheme">
 
@@ -16,7 +16,7 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:padding="16dp"
-        android:textColor="@color/primary_navy_medium"
+        android:textColor="@color/primary"
         android:textSize="16sp"
         tools:text="@string/imported_addresses" />
 
@@ -28,6 +28,6 @@
         android:layout_centerVertical="true"
         android:padding="16dp"
         app:srcCompat="@drawable/vector_add"
-        app:tint="@color/primary_navy_medium" />
+        app:tint="@color/primary" />
 
 </RelativeLayout>

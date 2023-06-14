@@ -48,8 +48,13 @@ class KycLimitsFragment :
             recyclerviewFeatures.layoutManager = LinearLayoutManager(requireContext())
             recyclerviewFeatures.adapter = adapter
 
-            errorBtnOk.setOnClickListener {
-                requireActivity().finish()
+            errorBtnOk.apply {
+                text = getString(
+                    com.blockchain.stringResources.R.string.common_ok
+                )
+                onClick = {
+                    requireActivity().finish()
+                }
             }
         }
     }

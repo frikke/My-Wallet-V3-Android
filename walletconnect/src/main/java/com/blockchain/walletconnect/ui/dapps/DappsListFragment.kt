@@ -1,9 +1,11 @@
 package com.blockchain.walletconnect.ui.dapps
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -38,6 +40,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.commonarch.presentation.base.updateToolbar
 import com.blockchain.commonarch.presentation.mvi.MviComposeFragment
+import com.blockchain.componentlib.basic.AppDivider
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheetButton
@@ -46,6 +49,7 @@ import com.blockchain.componentlib.sheets.BottomSheetOneButton
 import com.blockchain.componentlib.sheets.BottomSheetTwoButtons
 import com.blockchain.componentlib.sheets.ButtonType
 import com.blockchain.componentlib.tablerow.DefaultTableRow
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.presentation.koin.scopedInject
@@ -89,11 +93,7 @@ class DappsListFragment :
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                AppTheme(setSystemColors = false) {
-                    AppSurface(color = Color.White) {
-                        Dapps(model)
-                    }
-                }
+                Dapps(model)
             }
         }
     }
@@ -197,6 +197,7 @@ private fun SheetLayout(
             session = bottomSheet.session,
             onDisconnectClick = bottomSheet.onDisconnectClick
         )
+
         is SessionBottomSheet.Confirmation ->
             ConfirmActionBottomSheet(
                 closeSheet = closeSheet,
@@ -255,7 +256,9 @@ private fun DisconnectBottomSheet(
 
 @Composable
 private fun DappsList(sessions: List<WalletConnectSession>, onClick: (WalletConnectSession) -> Unit) {
-    LazyColumn {
+    LazyColumn(
+        modifier = Modifier.background(AppColors.backgroundSecondary)
+    ) {
         items(
             items = sessions,
             itemContent = {
@@ -279,7 +282,7 @@ private fun DappListItem(session: WalletConnectSession, onClick: () -> Unit) {
             endImageResource = ImageResource.Local(R.drawable.ic_more_horizontal),
             onClick = onClick
         )
-        Divider(color = AppTheme.colors.light, thickness = 1.dp)
+        AppDivider()
     }
 }
 
@@ -289,13 +292,14 @@ private fun NoDapps() {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(AppColors.backgroundSecondary)
             .padding(bottom = dimensionResource(com.blockchain.componentlib.R.dimen.size_epic)),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
             contentScale = ContentScale.None,
-            imageResource = ImageResource.Local(R.drawable.ic_world_blue)
+            imageResource = ImageResource.Local(R.drawable.ic_world_blue).withTint(AppColors.primary)
         )
         Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
         Text(
@@ -319,6 +323,12 @@ private fun NoDapps() {
             color = AppTheme.colors.body
         )
     }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewNoDappsDark() {
+    NoDapps()
 }
 
 sealed class SessionBottomSheet {

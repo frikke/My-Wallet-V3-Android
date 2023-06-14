@@ -25,6 +25,10 @@ class MinimalPrimaryButtonView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
+        if (isInEditMode) {
+            text = "dummy text"
+        }
+
         MinimalPrimaryButton(
             onClick = onClick,
             text = text,
@@ -42,6 +46,10 @@ class MinimalPrimarySmallButtonView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
+        if (isInEditMode) {
+            text = "dummy text"
+        }
+
         MinimalPrimarySmallButton(
             onClick = onClick,
             text = text,

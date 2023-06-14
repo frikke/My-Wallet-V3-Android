@@ -3,6 +3,7 @@
     <color name="background">#FFF1F2F7</color>
     <color name="backgroundSecondary">#FFFFFFFF</color>
 
+    <color name="primary">#FF0C6CF2</color>
     <color name="title">#FF121D33</color>
     <color name="body">#FF50596B</color>
     <color name="light">#FFF0F2F7</color>

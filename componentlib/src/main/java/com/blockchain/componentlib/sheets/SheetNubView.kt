@@ -15,10 +15,6 @@ class SheetNubView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme(setSystemColors = false) {
-            AppSurface {
-                SheetNub()
-            }
-        }
+        SheetNub()
     }
 }

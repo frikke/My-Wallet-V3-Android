@@ -25,6 +25,10 @@ class MinimalSecondaryButtonView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
+        if (isInEditMode) {
+            text = "dummy text"
+        }
+
         MinimalSecondaryButton(
             onClick = onClick,
             text = text,
