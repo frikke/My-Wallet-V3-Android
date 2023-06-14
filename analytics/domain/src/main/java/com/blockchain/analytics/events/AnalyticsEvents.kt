@@ -433,6 +433,7 @@ enum class AnalyticsNames(val eventName: String) {
     SWAP_CONFIRMATION_VIEWED("Wallet Swap Confirmation Screen Viewed"),
     SWAP_CONFIRMATION_SWAP_CLICKED("Wallet Swap Confirmation Screen Confirm Swap Clicked"),
     SWAP_CONFIRMATION_PENDING_VIEWED("Wallet Swap Post Confirmation Pending Viewed"),
+    SWAP_CONFIRMATION_ERROR_VIEWED("Wallet Swap Post Confirmation Error Viewed"),
     SWAP_CONFIRMATION_SUCCESS_VIEWED("Wallet Swap Post Confirmation Success Viewed"),
 
     // new sell
@@ -442,7 +443,7 @@ enum class AnalyticsNames(val eventName: String) {
     SELL_ENTER_AMOUNT_PREVIEW_CLICKED("Wallet Sell Amount Screen Preview Sell Clicked"),
     SELL_CONFIRMATION_VIEWED("Wallet Sell Confirmation Screen Viewed"),
     SELL_CONFIRMATION_SELL_CLICKED("Wallet Sell Confirmation Screen Confirm Sell Clicked"),
-    SELL_CONFIRMATION_PENDING_VIEWED("Wallet Swap Post Confirmation Pending Viewed"),
+    SELL_CONFIRMATION_PENDING_VIEWED("Wallet Sell Post Confirmation Pending Viewed"),
     SELL_CONFIRMATION_ERROR_VIEWED("Wallet Sell Post Confirmation Error Viewed"),
     SELL_CONFIRMATION_SUCCESS_VIEWED("Wallet Sell Post Confirmation Success Viewed"),
 

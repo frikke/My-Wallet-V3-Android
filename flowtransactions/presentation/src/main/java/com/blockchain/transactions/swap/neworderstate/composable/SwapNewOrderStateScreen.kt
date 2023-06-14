@@ -106,7 +106,7 @@ fun NavContext.SwapNewOrderStateScreen(
         when (args.orderState) {
             SwapNewOrderState.PendingDeposit -> analytics.logEvent(SwapAnalyticsEvents.PendingViewed)
             SwapNewOrderState.Succeeded -> analytics.logEvent(SwapAnalyticsEvents.SuccessViewed)
-            is SwapNewOrderState.Error -> { /* n/a for now */ }
+            is SwapNewOrderState.Error -> analytics.logEvent(SwapAnalyticsEvents.ErrorViewed)
         }
     }
 

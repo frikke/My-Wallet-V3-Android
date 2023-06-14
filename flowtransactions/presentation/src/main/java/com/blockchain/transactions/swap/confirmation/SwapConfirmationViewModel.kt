@@ -203,8 +203,8 @@ class SwapConfirmationViewModel(
     override fun SwapConfirmationModelState.reduce(): SwapConfirmationViewState = SwapConfirmationViewState(
         isFetchQuoteLoading = isFetchQuoteLoading,
         sourceAsset = sourceAccount.currency,
-        sourceNativeAssetIconUrl = sourceAccount.currency
-            .takeIf { it.isLayer2Token }
+        sourceNativeAssetIconUrl = (sourceAccount as? CryptoNonCustodialAccount)?.currency
+            ?.takeIf { it.isLayer2Token }
             ?.coinNetwork?.nativeAssetTicker
             ?.let { assetCatalogue.fromNetworkTicker(it)?.logo },
         sourceAssetDescription = if (transferDirection == TransferDirection.INTERNAL) {
@@ -213,8 +213,8 @@ class SwapConfirmationViewModel(
             sourceAccount.label
         },
         targetAsset = targetAccount.currency,
-        targetNativeAssetIconUrl = targetAccount.currency
-            .takeIf { it.isLayer2Token }
+        targetNativeAssetIconUrl = (targetAccount as? CryptoNonCustodialAccount)?.currency
+            ?.takeIf { it.isLayer2Token }
             ?.coinNetwork?.nativeAssetTicker
             ?.let { assetCatalogue.fromNetworkTicker(it)?.logo },
         targetAssetDescription = if (transferDirection == TransferDirection.INTERNAL) {

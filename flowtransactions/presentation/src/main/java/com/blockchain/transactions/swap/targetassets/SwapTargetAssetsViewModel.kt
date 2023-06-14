@@ -161,10 +161,10 @@ class SwapTargetAssetsViewModel(
         return BalanceChange(
             name = assetInfo.name,
             ticker = assetInfo.networkTicker,
-            network = assetInfo.takeIf { it.isLayer2Token }?.coinNetwork?.shortName?.takeIf { withNetwork },
+            network = assetInfo.takeIf { it.isLayer2Token && withNetwork }?.coinNetwork?.shortName,
             logo = assetInfo.logo,
             nativeAssetLogo = assetInfo
-                .takeIf { it.isLayer2Token }
+                .takeIf { it.isLayer2Token && withNetwork }
                 ?.coinNetwork?.nativeAssetTicker
                 ?.let { assetCatalogue.fromNetworkTicker(it)?.logo },
             delta = price.map { ValueChange.fromValue(it.delta24h) },
