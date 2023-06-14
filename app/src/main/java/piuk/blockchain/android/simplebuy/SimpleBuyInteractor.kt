@@ -769,7 +769,7 @@ class SimpleBuyInteractor(
             }
 
             val quickFillButtonData = QuickFillButtonData(
-                maxAmount = (limits.max as? TxLimit.Limited)?.amount ?: Money.zero(fiatCurrency),
+                maxAmount = (limits.max as? TxLimit.Limited)?.amount,
                 quickFillButtons = listOfAmounts.distinct().map { amount ->
                     val index = listOfAmounts.indexOf(amount)
                     QuickFillDisplayAndAmount(

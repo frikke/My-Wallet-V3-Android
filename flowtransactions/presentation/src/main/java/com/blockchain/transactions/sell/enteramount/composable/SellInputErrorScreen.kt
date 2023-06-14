@@ -42,7 +42,7 @@ fun SellInputErrorScreen(
             is SellEnterAmountInputError.BelowMinimum ->
                 stringResource(R.string.minimum_with_value, inputError.minValue)
             is SellEnterAmountInputError.InsufficientGas ->
-                stringResource(R.string.not_enough_funds, inputError.displayTicker)
+                stringResource(R.string.confirm_status_msg_insufficient_gas, inputError.displayTicker)
             is SellEnterAmountInputError.Unknown ->
                 stringResource(R.string.common_error)
         }
@@ -59,7 +59,7 @@ fun SellInputErrorScreen(
             is SellEnterAmountInputError.BelowMinimum ->
                 stringResource(R.string.minimum_sell_error_message, inputError.minValue)
             is SellEnterAmountInputError.InsufficientGas ->
-                stringResource(R.string.confirm_status_msg_insufficient_gas, inputError.displayTicker)
+                stringResource(R.string.confirm_status_msg_insufficient_gas_description, inputError.networkName)
             is SellEnterAmountInputError.Unknown ->
                 inputError.error ?: stringResource(R.string.common_error)
         }

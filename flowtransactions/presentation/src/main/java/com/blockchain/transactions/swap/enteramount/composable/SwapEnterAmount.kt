@@ -38,7 +38,6 @@ import com.blockchain.componentlib.card.TwoAssetActionHorizontalLoading
 import com.blockchain.componentlib.control.CurrencyValue
 import com.blockchain.componentlib.control.InputCurrency
 import com.blockchain.componentlib.control.TwoCurrenciesInput
-import com.blockchain.componentlib.control.isEmpty
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Network
 import com.blockchain.componentlib.keyboard.KeyboardButton
@@ -56,6 +55,7 @@ import com.blockchain.transactions.swap.SwapGraph
 import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
 import com.blockchain.transactions.swap.enteramount.EnterAmountAssetState
 import com.blockchain.transactions.swap.enteramount.EnterAmountAssets
+import com.blockchain.transactions.swap.enteramount.PreviewButtonState
 import com.blockchain.transactions.swap.enteramount.SwapEnterAmountFatalError
 import com.blockchain.transactions.swap.enteramount.SwapEnterAmountInputError
 import com.blockchain.transactions.swap.enteramount.SwapEnterAmountIntent
@@ -145,7 +145,7 @@ fun SwapEnterAmount(
                         onFlipInputs = {
                             viewModel.onIntent(SwapEnterAmountIntent.FlipInputs)
                         },
-                        inputError = viewState.inputError,
+                        previewButtonState = viewState.previewButtonState,
                         inputErrorClicked = { error ->
                             navContextProvider().navigateTo(SwapGraph.InputError, error)
                         },
@@ -181,7 +181,7 @@ private fun EnterAmountScreen(
     cryptoAmount: CurrencyValue?,
     keyboardClicked: (KeyboardButton) -> Unit,
     onFlipInputs: () -> Unit,
-    inputError: SwapEnterAmountInputError?,
+    previewButtonState: PreviewButtonState,
     inputErrorClicked: (SwapEnterAmountInputError) -> Unit,
     openSourceAccounts: () -> Unit,
     openTargetAccounts: (sourceTicker: String) -> Unit,
@@ -233,16 +233,29 @@ private fun EnterAmountScreen(
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
-        inputError?.let {
-            AlertButton(
+        when (previewButtonState) {
+            PreviewButtonState.Disabled,
+            PreviewButtonState.Enabled -> PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = when (inputError) {
+                text = stringResource(R.string.preview_swap),
+                state = if (previewButtonState is PreviewButtonState.Enabled) {
+                    ButtonState.Enabled
+                } else {
+                    ButtonState.Disabled
+                },
+                onClick = {
+                    previewClicked()
+                }
+            )
+            is PreviewButtonState.Error -> AlertButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = when (val error = previewButtonState.error) {
                     is SwapEnterAmountInputError.BelowMinimum -> {
-                        stringResource(R.string.minimum_with_value, inputError.minValue)
+                        stringResource(R.string.minimum_with_value, error.minValue)
                     }
 
                     is SwapEnterAmountInputError.AboveMaximum -> {
-                        stringResource(R.string.maximum_with_value, inputError.maxValue)
+                        stringResource(R.string.maximum_with_value, error.maxValue)
                     }
 
                     is SwapEnterAmountInputError.AboveBalance -> {
@@ -254,27 +267,16 @@ private fun EnterAmountScreen(
                     is SwapEnterAmountInputError.InsufficientGas ->
                         stringResource(
                             R.string.confirm_status_msg_insufficient_gas,
-                            inputError.displayTicker
+                            error.displayTicker
                         )
 
                     is SwapEnterAmountInputError.Unknown ->
                         stringResource(R.string.common_error)
                 },
                 state = ButtonState.Enabled,
-                onClick = { inputErrorClicked(inputError) }
+                onClick = { inputErrorClicked(previewButtonState.error) }
             )
-        } ?: PrimaryButton(
-            modifier = Modifier.fillMaxWidth(),
-            text = stringResource(R.string.preview_swap),
-            state = if (fiatAmount?.isEmpty() == false && cryptoAmount?.isEmpty() == false) {
-                ButtonState.Enabled
-            } else {
-                ButtonState.Disabled
-            },
-            onClick = {
-                previewClicked()
-            }
-        )
+        }
 
         SmallVerticalSpacer()
 
@@ -333,9 +335,11 @@ private fun PreviewEnterAmountScreen() {
             ),
             keyboardClicked = {},
             onFlipInputs = {},
-            inputError = SwapEnterAmountInputError.BelowMinimum(
-                "$5.00",
-                TransferDirection.INTERNAL
+            previewButtonState = PreviewButtonState.Error(
+                SwapEnterAmountInputError.BelowMinimum(
+                    "$5.00",
+                    TransferDirection.INTERNAL
+                )
             ),
             inputErrorClicked = {},
             openSourceAccounts = {},

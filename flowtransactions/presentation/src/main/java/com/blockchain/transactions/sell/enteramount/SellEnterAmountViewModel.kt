@@ -199,7 +199,12 @@ class SellEnterAmountViewModel(
             maxLimit: ${try {maxLimit} catch (ex: Exception) {ex}}
             """.trimIndent()
         )
-        val inputError = if (fiatAmountUserInput.isNotEmpty() && cryptoAmountUserInput.isNotEmpty()) {
+        val isInputAmountZero = when (selectedInput) {
+            CurrencyType.CRYPTO -> cryptoAmount == null || cryptoAmount.isZero
+            CurrencyType.FIAT -> fiatAmount == null || fiatAmount.isZero
+        }
+        val shouldValidateInput = !isInputAmountZero && sourceToTargetExchangeRate != null
+        val inputError = if (shouldValidateInput) {
             validateAmount()
         } else {
             null
@@ -257,13 +262,15 @@ class SellEnterAmountViewModel(
                     zeroHint = "0"
                 )
             },
-            inputError = inputError,
+            previewButtonState = when {
+                !shouldValidateInput -> PreviewButtonState.Disabled
+                inputError != null -> PreviewButtonState.Error(inputError)
+                else -> PreviewButtonState.Enabled
+            },
             // If there's an input error, most likely the quote/price endpoint or the deposit engine will fail in some way
             // therefore we're giving preference to showing the inputError rather than the snackbarError
             snackbarError = (getDepositNetworkFeeError ?: getQuotePriceError).takeIf { inputError == null },
             fatalError = fatalError,
-            isConfirmEnabled = fiatAmount != null && cryptoAmount != null &&
-                sourceToTargetExchangeRate != null && inputError == null,
         )
     }
 
@@ -693,6 +700,7 @@ class SellEnterAmountViewModel(
                 OnChainDepositInputValidationError.InsufficientGas -> {
                     val asset = (sourceNetworkFees?.feeForAmount ?: spendableBalance)?.currency
                     SellEnterAmountInputError.InsufficientGas(
+                        networkName = asset?.name ?: "-",
                         displayTicker = asset?.displayTicker ?: "-"
                     )
                 } is OnChainDepositInputValidationError.Unknown -> SellEnterAmountInputError.Unknown(error.error)
@@ -774,7 +782,7 @@ private fun getQuickFillCryptoButtonData(
     }
 
     return QuickFillButtonData(
-        maxAmount = spendableBalanceWithinLimits,
+        maxAmount = spendableBalanceWithinLimits.takeIf { it.isPositive },
         quickFillButtons = quickFillEntries.distinct()
     )
 }
@@ -784,7 +792,7 @@ private fun QuickFillButtonData.toFiat(
     limits: ClosedRange<CryptoValue>,
 ): QuickFillButtonData {
     return QuickFillButtonData(
-        maxAmount = cryptoToFiatExchangeRate.convert(maxAmount),
+        maxAmount = maxAmount?.let { cryptoToFiatExchangeRate.convert(it) },
         quickFillButtons = quickFillButtons.mapNotNull { data ->
             val (prefillFiat, prefillCrypto) = getRoundedFiatAndCryptoValues(
                 data,

@@ -213,7 +213,14 @@ private fun NewOrderStateContent(
                     sourceAmount.toStringWithSymbol(),
                     targetAmount.toStringWithSymbol(),
                     // TODO(aromano): usually X minutes
-                    "5"
+                    if (
+                        sourceAmount.currency.networkTicker == "BTC" ||
+                        targetAmount.currency.networkTicker == "BTC"
+                    ) {
+                        "30"
+                    } else {
+                        "10"
+                    }
                 )
                 SwapNewOrderState.Succeeded -> stringResource(
                     com.blockchain.stringResources.R.string.swap_neworderstate_succeeded_description,

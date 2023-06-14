@@ -106,7 +106,7 @@ sealed interface SwapEnterAmountInputError : Serializable {
         val displayTicker: String,
         val balance: String,
     ) : SwapEnterAmountInputError
-    data class InsufficientGas(val displayTicker: String) : SwapEnterAmountInputError
+    data class InsufficientGas(val networkName: String, val displayTicker: String) : SwapEnterAmountInputError
     data class Unknown(val error: String?) : SwapEnterAmountInputError
 }
 

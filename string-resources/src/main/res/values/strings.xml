@@ -1862,6 +1862,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="swap_neworderstate_succeeded_description">You swapped %1$s for %2$s</string>
 
     <!--  Sell Confirmation  -->
+    <string name="sell_sourceaccounts_available_to_sell">Available to sell</string>
     <string name="sell_targetasset_sell_for">Sell for</string>
     <string name="sell_enteramount_for">For</string>
     <string name="sell_confirmation_navbar">Confirm</string>
@@ -2004,7 +2005,8 @@ If you want to know more about our verification process visit our <annotation li
 
     <!-- Transaction Flow confirmation screen -->
     <string name="confirm_status_msg_insufficient_funds">You have insufficient funds in this account to process this transaction</string>
-    <string name="confirm_status_msg_insufficient_gas">You do not have enough %1$s to process this transaction.</string>
+    <string name="confirm_status_msg_insufficient_gas">Not enough %1$s for gas fees</string>
+    <string name="confirm_status_msg_insufficient_gas_description">You need more %1$s to cover the network fees.</string>
     <string name="confirm_status_msg_option_invalid">Please ensure you\'ve agreed to our Terms.</string>
     <string name="confirm_status_memo_invalid">Please add a memo.</string>
     <string name="confirm_status_msg_invoice_expired">BitPay Invoice Expired</string>

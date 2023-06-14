@@ -84,7 +84,7 @@ sealed interface SellEnterAmountInputError : Serializable {
         val displayTicker: String,
         val balance: String,
     ) : SellEnterAmountInputError
-    data class InsufficientGas(val displayTicker: String) : SellEnterAmountInputError
+    data class InsufficientGas(val networkName: String, val displayTicker: String) : SellEnterAmountInputError
     data class Unknown(val error: String?) : SellEnterAmountInputError
 }
 
