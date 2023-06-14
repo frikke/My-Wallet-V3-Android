@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -20,7 +19,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -106,9 +104,6 @@ fun DexAccountSelection(
                                 )
                             }
                         )
-                        if (accounts.last() != dexAccount) {
-                            Divider(color = Color(0XFFF1F2F7))
-                        }
                     }
                 )
 
@@ -137,9 +132,6 @@ fun DexAccountSelection(
                     },
                     content = { dexAccount ->
                         NoBalanceDexAccountTableRow(dexAccount, onAccountSelected)
-                        if (accounts.last() != dexAccount) {
-                            Divider(color = Color(0XFFF1F2F7))
-                        }
                     }
                 )
             }

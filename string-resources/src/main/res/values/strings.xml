@@ -3681,4 +3681,6 @@ If you want to know more about our verification process visit our <annotation li
 
     <string name="walletconnect_auth_request_title">Message signing request</string>
     <string name="common_message">Message</string>
+    <string name="approving_token">Approving %1$s</string>
+    <string name="could_take_few_seconds">This could take a few seconds.</string>
 </resources>

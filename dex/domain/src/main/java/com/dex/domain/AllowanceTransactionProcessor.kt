@@ -6,6 +6,7 @@ import com.blockchain.internalnotifications.NotificationEvent
 import com.blockchain.internalnotifications.NotificationTransmitter
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnSuccess
+import com.blockchain.outcome.map
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import kotlinx.serialization.json.JsonObject
@@ -27,7 +28,7 @@ class AllowanceTransactionProcessor(
         return transactionOutcome
     }
 
-    suspend fun pushTx(): Outcome<Exception, String> {
+    suspend fun pushTx(): Outcome<Exception, Pair<AssetInfo, String>> {
         check(this::transaction.isInitialized)
         val transactionSignatures = transaction.preImages.map { unsignedPreImage ->
             evmNetworkSigner.signPreImage(unsignedPreImage)
@@ -39,7 +40,9 @@ class AllowanceTransactionProcessor(
             signatures = transactionSignatures,
             assetInfo = transaction.currencyToAllow,
             rawTx = transaction.rawTx
-        ).doOnSuccess {
+        ).map {
+            transaction.currencyToAllow to it
+        }.doOnSuccess {
             notificationTransmitter.postEvent(NotificationEvent.NonCustodialTransaction)
         }
     }

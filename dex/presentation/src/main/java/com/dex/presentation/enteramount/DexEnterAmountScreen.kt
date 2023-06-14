@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
@@ -62,6 +63,7 @@ import com.blockchain.componentlib.button.AlertButton
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.button.PrimarySmallButton
 import com.blockchain.componentlib.button.common.LoadingIndicator
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.icon.SmallTagIcon
@@ -103,6 +105,7 @@ import com.dex.presentation.graph.ARG_ALLOWANCE_TX
 import com.dex.presentation.graph.DexDestination
 import com.dex.presentation.network.DexNetworkViewState
 import com.dex.presentation.uierrors.DexUiError
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
@@ -172,6 +175,7 @@ fun DexEnterAmountScreen(
     val navEventsFlowLifecycleAware = remember(viewModel.navigationEventFlow, lifecycleOwner) {
         viewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
+    val uriHandler = LocalUriHandler.current
 
     LaunchedEffect(key1 = viewModel) {
         navEventsFlowLifecycleAware.collectLatest { event ->
@@ -221,6 +225,8 @@ fun DexEnterAmountScreen(
                     }
                     analytics.logEvent(DexAnalyticsEvents.ApproveTokenConfirmed)
                 }
+
+                is AmountNavigationEvent.AllowanceTxUrl -> uriHandler.openUri(event.url)
             }
         }
     }
@@ -251,6 +257,9 @@ fun DexEnterAmountScreen(
                     selectSourceAccount = {
                         navController.navigate(DexDestination.SelectSourceAccount.route)
                         keyboardController?.hide()
+                    },
+                    viewAllowanceTx = { asset, tx ->
+                        viewModel.onIntent(InputAmountIntent.ViewAllowanceTx(asset, tx))
                     },
                     selectDestinationAccount = {
                         navController.navigate(DexDestination.SelectDestinationAccount.route)
@@ -286,7 +295,7 @@ fun DexEnterAmountScreen(
                         viewModel.onIntent(InputAmountIntent.RevokeSourceCurrencyAllowance)
                     },
                     onTokenAllowanceApproveButPending = {
-                        viewModel.onIntent(InputAmountIntent.PollForPendingAllowance)
+                        viewModel.onIntent(InputAmountIntent.PollForPendingAllowance(it))
                     },
                     receive = receiveOnAccount
                 )
@@ -400,11 +409,12 @@ fun InputScreen(
     selectSourceAccount: () -> Unit,
     selectDestinationAccount: () -> Unit,
     onTokenAllowanceRequested: () -> Unit,
-    onTokenAllowanceApproveButPending: () -> Unit,
+    onTokenAllowanceApproveButPending: (AssetInfo) -> Unit,
     onPreviewClicked: () -> Unit,
     revokeAllowance: () -> Unit,
     onValueChanged: (TextFieldValue) -> Unit,
     settingsOnClick: () -> Unit,
+    viewAllowanceTx: (AssetInfo, String) -> Unit,
     selectNetworkOnClick: () -> Unit,
     receive: (CryptoNonCustodialAccount) -> Unit,
     txInProgressDismiss: () -> Unit,
@@ -461,7 +471,7 @@ fun InputScreen(
             reset = viewState.txAmount == null,
             receiveAmountFieldConfig = AmountFieldConfig(
                 isReadOnly = true,
-                isEnabled = viewState.operationInProgress == DexOperation.NONE,
+                isEnabled = viewState.operationInProgress == DexOperation.None,
                 exchange = viewState.outputExchangeAmount,
                 currency = viewState.destinationCurrency,
                 max = null,
@@ -472,10 +482,10 @@ fun InputScreen(
             )
         )
 
-        viewState.uiFee.takeIf { viewState.operationInProgress == DexOperation.NONE }?.let { uiFee ->
+        viewState.uiFee.takeIf { viewState.operationInProgress == DexOperation.None }?.let { uiFee ->
             Fee(uiFee)
         }
-        viewState.operationInProgress.takeIf { it == DexOperation.PRICE_FETCHING }?.let {
+        viewState.operationInProgress.takeIf { it == DexOperation.PriceFetching }?.let {
             PriceFetching()
         }
 
@@ -483,18 +493,29 @@ fun InputScreen(
             TokenAllowance(
                 onClick = onTokenAllowanceRequested,
                 currency = allowanceError.token,
-                txInProgress = viewState.allowanceTransactionInProgress
+                txInProgress = viewState.allowanceTransactionInProgress,
+                assetApprovedButPending = (viewState.operationInProgress as? DexOperation.PollingAllowance)?.asset,
+                onViewClicked = (viewState.operationInProgress as? DexOperation.PollingAllowance)?.let {
+                    if (it.txId != null) {
+                        {
+                            viewAllowanceTx(
+                                it.asset,
+                                it.txId
+                            )
+                        }
+                    } else null
+                }
             )
             LaunchedEffect(key1 = allowanceError.hasBeenApproved) {
                 if (allowanceError.hasBeenApproved) {
-                    onTokenAllowanceApproveButPending()
+                    onTokenAllowanceApproveButPending(allowanceError.token)
                 }
             }
         }
 
         viewState.allowanceCanBeRevoked.takeIf { it }?.let {
             PrimaryButton(
-                state = if (viewState.operationInProgress == DexOperation.PUSHING_ALLOWANCE_TX) {
+                state = if (viewState.operationInProgress == DexOperation.PushingAllowance) {
                     ButtonState.Loading
                 } else ButtonState.Enabled,
                 modifier = Modifier.padding(all = AppTheme.dimensions.standardSpacing),
@@ -548,7 +569,13 @@ private fun PreviewSwapButton(onClick: () -> Unit, state: ButtonState) {
 }
 
 @Composable
-private fun TokenAllowance(onClick: () -> Unit, currency: Currency, txInProgress: Boolean) {
+private fun TokenAllowance(
+    onClick: () -> Unit,
+    currency: Currency,
+    txInProgress: Boolean,
+    assetApprovedButPending: AssetInfo?,
+    onViewClicked: (() -> Unit)?
+) {
     MinimalPrimaryButton(
         modifier = Modifier
             .padding(top = dimensionResource(id = com.blockchain.componentlib.R.dimen.small_spacing))
@@ -558,6 +585,45 @@ private fun TokenAllowance(onClick: () -> Unit, currency: Currency, txInProgress
         text = stringResource(id = R.string.approve_token, currency.displayTicker),
         onClick = onClick
     )
+
+    if (assetApprovedButPending != null) {
+        ApprovingTokenCard(currency.displayTicker, onViewClicked)
+    }
+}
+
+@Composable
+private fun ApprovingTokenCard(ticker: String, onViewClicked: (() -> Unit)?) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = dimensionResource(id = com.blockchain.common.R.dimen.small_spacing))
+            .background(color = AppTheme.colors.backgroundSecondary, shape = AppTheme.shapes.large)
+            .padding(all = dimensionResource(id = com.blockchain.common.R.dimen.small_spacing))
+    ) {
+        Column {
+            SimpleText(
+                text = stringResource(id = R.string.approving_token, ticker),
+                style = ComposeTypographies.Caption1,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Start
+            )
+            Spacer(modifier = Modifier.height(AppTheme.dimensions.smallestSpacing))
+            SimpleText(
+                text = stringResource(id = R.string.could_take_few_seconds),
+                style = ComposeTypographies.Body1,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Start
+            )
+        }
+        onViewClicked?.let {
+            Spacer(modifier = Modifier.weight(1f))
+            PrimarySmallButton(
+                text = stringResource(id = R.string.view)
+            ) {
+                it()
+            }
+        }
+    }
 }
 
 @Preview
@@ -794,7 +860,7 @@ private fun PreviewNetworkSelection_Loading() {
 @Composable
 private fun PreviewInputScreen_NetworkSelection() {
     InputScreen(
-        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> }, {}, {}, {},
         InputAmountViewState.TransactionInputState(
             selectedNetwork = DataResource.Data(
                 DexNetworkViewState(
@@ -806,7 +872,7 @@ private fun PreviewInputScreen_NetworkSelection() {
             destinationCurrency = CryptoCurrency.BTC,
             maxAmount = Money.fromMajor(CryptoCurrency.ETHER, 100.toBigDecimal()),
             txAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
-            operationInProgress = DexOperation.NONE,
+            operationInProgress = DexOperation.None,
             destinationAccountBalance = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
             sourceAccountBalance = Money.fromMajor(CryptoCurrency.ETHER, 200.toBigDecimal()),
             inputExchangeAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),

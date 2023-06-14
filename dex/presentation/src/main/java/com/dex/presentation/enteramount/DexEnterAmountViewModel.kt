@@ -33,6 +33,7 @@ import com.dex.presentation.uierrors.AlertError
 import com.dex.presentation.uierrors.DexUiError
 import com.dex.presentation.uierrors.toUiErrors
 import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
@@ -161,7 +162,7 @@ class DexEnterAmountViewModel(
     private fun actionButtonState(modelState: AmountModelState): ActionButtonState {
         val transaction = modelState.transaction ?: return ActionButtonState.INVISIBLE
         val hasOperationInProgress =
-            modelState.operationInProgress != DexOperation.NONE
+            modelState.operationInProgress != DexOperation.None
         val hasValidQuote = transaction.quote != null
 
         if ((hasOperationInProgress || !hasValidQuote) && transaction.txErrors.isEmpty()) {
@@ -254,30 +255,36 @@ class DexEnterAmountViewModel(
                 }
             }
 
-            InputAmountIntent.PollForPendingAllowance -> {
-                pollForAllowance()
+            is InputAmountIntent.PollForPendingAllowance -> {
+                pollForAllowance(intent.currency, null)
             }
+
+            is InputAmountIntent.ViewAllowanceTx -> navigate(
+                AmountNavigationEvent.AllowanceTxUrl(
+                    intent.currency.coinNetwork?.explorerUrl?.plus("/${intent.txId}").orEmpty()
+                )
+            )
         }
     }
 
     private suspend fun revokeSourceAllowance(modelState: AmountModelState) {
         modelState.transaction?.sourceAccount?.currency?.let {
             updateState {
-                copy(operationInProgress = DexOperation.PUSHING_ALLOWANCE_TX)
+                copy(operationInProgress = DexOperation.PushingAllowance)
             }
             allowanceProcessor.revokeAllowance(it)
             val result = dexAllowanceService.revokeAllowanceTransactionProgress(it)
             if (result == AllowanceTransactionState.COMPLETED) {
                 updateState {
                     copy(
-                        operationInProgress = DexOperation.NONE,
+                        operationInProgress = DexOperation.None,
                         canRevokeAllowance = false
                     )
                 }
             } else {
                 updateState {
                     copy(
-                        operationInProgress = DexOperation.NONE
+                        operationInProgress = DexOperation.None
                     )
                 }
             }
@@ -289,7 +296,7 @@ class DexEnterAmountViewModel(
             modelState.transaction?.sourceAccount?.currency?.let {
                 updateState {
                     copy(
-                        operationInProgress = DexOperation.BUILDING_ALLOWANCE_TX
+                        operationInProgress = DexOperation.BuildingAllowance
                     )
                 }
 
@@ -310,7 +317,7 @@ class DexEnterAmountViewModel(
 
                 updateState {
                     copy(
-                        operationInProgress = DexOperation.NONE
+                        operationInProgress = DexOperation.None
                     )
                 }
             }
@@ -320,27 +327,30 @@ class DexEnterAmountViewModel(
     private fun approveAllowanceTransaction() {
         viewModelScope.launch {
             updateState {
-                copy(operationInProgress = DexOperation.PUSHING_ALLOWANCE_TX)
+                copy(operationInProgress = DexOperation.PushingAllowance)
             }
 
             val txPushOutcome = allowanceProcessor.pushTx()
             if (txPushOutcome is Outcome.Success) {
-                pollForAllowance()
+                pollForAllowance(
+                    txPushOutcome.value.first,
+                    txPushOutcome.value.second
+                )
             } else {
                 updateState {
                     copy(
-                        operationInProgress = DexOperation.NONE
+                        operationInProgress = DexOperation.None
                     )
                 }
             }
         }
     }
 
-    private suspend fun pollForAllowance() {
+    private suspend fun pollForAllowance(asset: AssetInfo, txId: String?) {
         val currency = modelState.transaction?.sourceAccount?.currency
         check(currency != null)
         updateState {
-            copy(operationInProgress = DexOperation.POLLING_ALLOWANCE_TX)
+            copy(operationInProgress = DexOperation.PollingAllowance(asset, txId))
         }
         val allowanceState = dexAllowanceService.allowanceTransactionProgress(
             assetInfo = currency
@@ -348,7 +358,7 @@ class DexEnterAmountViewModel(
         if (allowanceState == AllowanceTransactionState.COMPLETED) {
             updateState {
                 copy(
-                    operationInProgress = DexOperation.NONE
+                    operationInProgress = DexOperation.None
                 )
             }
             navigate(AmountNavigationEvent.AllowanceTxCompleted(currency.displayTicker))
@@ -356,7 +366,7 @@ class DexEnterAmountViewModel(
         } else {
             updateState {
                 copy(
-                    operationInProgress = DexOperation.NONE
+                    operationInProgress = DexOperation.None
                 )
             }
             navigate(
@@ -433,11 +443,11 @@ class DexEnterAmountViewModel(
                 updateState {
                     copy(
                         operationInProgress = when {
-                            isFetchingQuote && operationInProgress == DexOperation.NONE ->
-                                DexOperation.PRICE_FETCHING
+                            isFetchingQuote && operationInProgress == DexOperation.None ->
+                                DexOperation.PriceFetching
 
-                            !isFetchingQuote && operationInProgress == DexOperation.PRICE_FETCHING ->
-                                DexOperation.NONE
+                            !isFetchingQuote && operationInProgress == DexOperation.PriceFetching ->
+                                DexOperation.None
 
                             else -> operationInProgress
                         }
@@ -567,14 +577,13 @@ sealed class InputAmountViewState : ViewState {
         private val errors: List<DexUiError> = emptyList()
     ) : InputAmountViewState() {
         fun canChangeInputCurrency() =
-            operationInProgress !in listOf(DexOperation.PUSHING_ALLOWANCE_TX, DexOperation.POLLING_ALLOWANCE_TX)
+            operationInProgress != DexOperation.PushingAllowance &&
+                operationInProgress !is DexOperation.PollingAllowance
 
         val allowanceTransactionInProgress: Boolean
-            get() = operationInProgress in listOf(
-                DexOperation.PUSHING_ALLOWANCE_TX,
-                DexOperation.BUILDING_ALLOWANCE_TX,
-                DexOperation.POLLING_ALLOWANCE_TX
-            )
+            get() = operationInProgress == DexOperation.BuildingAllowance ||
+                operationInProgress == DexOperation.PushingAllowance ||
+                operationInProgress is DexOperation.PollingAllowance
 
         val topScreenUiError: DexUiError.CommonUiError?
             get() = errors.filterIsInstance<DexUiError.CommonUiError>().firstOrNull()
@@ -624,7 +633,7 @@ data class AmountModelState(
     val canTransact: DataResource<Boolean> = DataResource.Loading,
     val transaction: DexTransaction?,
     val ignoredTxErrors: List<DexUiError> = emptyList(),
-    val operationInProgress: DexOperation = DexOperation.NONE,
+    val operationInProgress: DexOperation = DexOperation.None,
     val inputToFiatExchangeRate: ExchangeRate?,
     val outputToFiatExchangeRate: ExchangeRate?,
     val feeToFiatExchangeRate: ExchangeRate?,
@@ -637,6 +646,9 @@ sealed class AmountNavigationEvent : NavigationEvent {
         AmountNavigationEvent()
 
     data class AllowanceTxCompleted(val currencyTicker: String) :
+        AmountNavigationEvent()
+
+    data class AllowanceTxUrl(val url: String) :
         AmountNavigationEvent()
 }
 
@@ -654,22 +666,31 @@ sealed class InputAmountIntent : Intent<AmountModelState> {
 
     object SubscribeForTxUpdates : InputAmountIntent()
     object UnSubscribeToTxUpdates : InputAmountIntent()
+    class ViewAllowanceTx(val currency: AssetInfo, val txId: String) : InputAmountIntent()
     object AllowanceTransactionApproved : InputAmountIntent()
     object AllowanceTransactionDeclined : InputAmountIntent()
     object BuildAllowanceTransaction : InputAmountIntent()
     object IgnoreTxInProcessError : InputAmountIntent()
     object RevokeSourceCurrencyAllowance : InputAmountIntent()
-    object PollForPendingAllowance : InputAmountIntent() {
+    data class PollForPendingAllowance(val currency: AssetInfo) : InputAmountIntent() {
         override fun isValidFor(modelState: AmountModelState): Boolean {
-            return modelState.operationInProgress != DexOperation.POLLING_ALLOWANCE_TX
+            return modelState.operationInProgress !is DexOperation.PollingAllowance
         }
     }
 
     class AmountUpdated(val amountString: String) : InputAmountIntent()
 }
 
-enum class DexOperation {
-    NONE, PRICE_FETCHING, PUSHING_ALLOWANCE_TX, POLLING_ALLOWANCE_TX, BUILDING_ALLOWANCE_TX
+sealed class DexOperation {
+    object None : DexOperation()
+    object PriceFetching : DexOperation()
+    object PushingAllowance : DexOperation()
+    data class PollingAllowance(
+        val asset: AssetInfo,
+        val txId: String?
+    ) : DexOperation()
+
+    object BuildingAllowance : DexOperation()
 }
 
 @kotlinx.serialization.Serializable
