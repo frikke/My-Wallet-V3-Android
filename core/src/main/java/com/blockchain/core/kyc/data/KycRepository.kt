@@ -66,7 +66,8 @@ class KycRepository(
     }
 
     override suspend fun shouldLaunchProve(): Outcome<Exception, Boolean> =
-        if (proveFeatureFlag.coEnabled()) {
+        // NOTE(aromano): currently disabled
+        if (false && proveFeatureFlag.coEnabled()) {
             kycApiService.getKycFlow().map { response ->
                 response?.nextFlow == "/kyc/prove"
             }

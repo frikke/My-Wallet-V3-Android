@@ -196,3 +196,5 @@ class CampaignTransactionStateSerializer : KSerializer<CampaignTransactionState>
         private const val FAILED = "FAILED"
     }
 }
+
+const val sunriverCampaignName = "SUNRIVER"

@@ -64,7 +64,6 @@ android {
 
         // Flag to hide or show the Contacts feature
         buildConfigField "boolean", "LOG_KOIN_STARTUP", "false"
-        buildConfigField "boolean", "SKIP_VERIFF_KYC", "false"
         buildConfigField "boolean", "INTERNAL", "true"
 
         buildConfigField "String", "SHAPE_SHIFT_API_KEY", "\"${buildProperties.secrets['shapeShiftApiKey']}\""
@@ -296,7 +295,6 @@ android {
         debug {
             signingConfig null
             multiDexEnabled true
-            buildConfigField "boolean",  "SKIP_VERIFF_KYC", "false"
         }
     }
 

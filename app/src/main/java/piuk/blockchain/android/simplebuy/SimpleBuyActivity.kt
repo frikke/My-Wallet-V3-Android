@@ -61,7 +61,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
 import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.fraud.domain.service.FraudFlow
 import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_BUY
@@ -75,6 +74,7 @@ import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
 import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import piuk.blockchain.android.ui.linkbank.BankAuthRefreshContract
 
 class SimpleBuyActivity :
@@ -389,7 +389,7 @@ class SimpleBuyActivity :
     }
 
     override fun startKyc() {
-        KycNavHostActivity.startForResult(this, CampaignType.SimpleBuy, KYC_STARTED)
+        KycNavHostActivity.startForResult(this, KycEntryPoint.Buy, KYC_STARTED)
     }
 
     override fun pop() = onBackPressedDispatcher.onBackPressed()

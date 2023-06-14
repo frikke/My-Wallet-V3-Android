@@ -26,12 +26,16 @@ internal class KycCountrySelectionPresenter(
 
     private val countriesList by unsafeLazy {
         rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) {
+            // We're requesting with None so the user gets unavailable countries in purpose, so we present
+            // KycInvalidCountryFragment, collect analytics and ask if the user wants to be notified when available
             eligibilityService.getCountriesList(GetRegionScope.None)
         }.cache()
     }
 
     private val usStatesList by unsafeLazy {
         rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) {
+            // We're requesting with None so the user gets unavailable states in purpose, so we present
+            // KycInvalidCountryFragment, collect analytics and ask if the user wants to be notified when available
             eligibilityService.getStatesList(usCountryCode, GetRegionScope.None)
         }.cache()
     }
@@ -73,7 +77,6 @@ internal class KycCountrySelectionPresenter(
                         view.continueFlow(
                             countryDisplayModel.countryCode,
                             countryDisplayModel.state,
-                            if (countryDisplayModel.isState) countryDisplayModel.name else null
                         )
                     },
                     onComplete = {

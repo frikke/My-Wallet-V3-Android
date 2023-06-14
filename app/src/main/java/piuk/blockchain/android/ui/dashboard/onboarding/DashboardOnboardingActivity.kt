@@ -33,7 +33,6 @@ import com.blockchain.presentation.koin.scopedInject
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.core.parameter.parametersOf
 import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.cards.CardDetailsActivity
 import piuk.blockchain.android.databinding.ActivityDashboardOnboardingBinding
 import piuk.blockchain.android.simplebuy.paymentmethods.PaymentMethodChooserBottomSheet
@@ -42,6 +41,7 @@ import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import retrofit2.HttpException
 
@@ -184,7 +184,7 @@ class DashboardOnboardingActivity :
                         )
                     )
                 }
-                KycNavHostActivity.start(this, CampaignType.None)
+                KycNavHostActivity.start(this, KycEntryPoint.Onboarding)
             }
 
             is DashboardOnboardingNavigationAction.AddPaymentMethod -> {

@@ -20,11 +20,11 @@ import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.awaitOutcome
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import timber.log.Timber
 
 class TierCurrentStateFragment : Fragment() {
@@ -85,8 +85,8 @@ class TierCurrentStateFragment : Fragment() {
     }
 
     private fun finish() {
-        when (progressListener.campaignType) {
-            CampaignType.SimpleBuy -> {
+        when (progressListener.entryPoint) {
+            KycEntryPoint.Buy -> {
                 activity?.setResult(SimpleBuyActivity.RESULT_KYC_SIMPLE_BUY_COMPLETE)
                 activity?.finish()
             }

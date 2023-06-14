@@ -31,7 +31,6 @@ import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.extensions.skipFirstUnless
 import piuk.blockchain.android.ui.kyc.mobile.entry.models.PhoneDisplayModel
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
-import piuk.blockchain.android.ui.kyc.navhost.models.KycStep
 import piuk.blockchain.android.ui.kyc.navigate
 import piuk.blockchain.android.util.throttledClicks
 
@@ -124,7 +123,7 @@ class KycMobileEntryFragment :
 
         compositeDisposable +=
             binding.editTextKycMobileNumber
-                .onDelayedChange(KycStep.MobileNumberEntered)
+                .onDelayedChange()
                 .subscribe()
     }
 
@@ -163,9 +162,7 @@ class KycMobileEntryFragment :
         progressDialog = null
     }
 
-    private fun TextView.onDelayedChange(
-        kycStep: KycStep
-    ): Observable<Boolean> =
+    private fun TextView.onDelayedChange(): Observable<Boolean> =
         this.afterTextChangeEvents()
             .debounce(300, TimeUnit.MILLISECONDS)
             .map { it.editable.toString() }

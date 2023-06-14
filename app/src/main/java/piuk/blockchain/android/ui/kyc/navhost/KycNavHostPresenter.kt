@@ -15,8 +15,8 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.ui.base.BasePresenter
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 import piuk.blockchain.android.ui.kyc.reentry.KycNavigator
 import piuk.blockchain.android.ui.kyc.reentry.ReentryDecision
@@ -67,15 +67,15 @@ class KycNavHostPresenter(
 
     private fun redirectUserFlow(user: NabuUser) {
         when {
-            view.campaignType == CampaignType.Resubmission || user.isMarkedForResubmission -> {
+            view.entryPoint == KycEntryPoint.Resubmission || user.isMarkedForResubmission -> {
                 view.navigateToResubmissionSplash()
             }
 
-            view.campaignType == CampaignType.SimpleBuy ||
-                view.campaignType == CampaignType.Interest ||
-                view.campaignType == CampaignType.FiatFunds ||
-                view.campaignType == CampaignType.None ||
-                view.campaignType == CampaignType.Swap -> {
+            view.entryPoint == KycEntryPoint.Buy ||
+                view.entryPoint == KycEntryPoint.Interest ||
+                view.entryPoint == KycEntryPoint.FiatFunds ||
+                view.entryPoint == KycEntryPoint.Other ||
+                view.entryPoint == KycEntryPoint.Swap -> {
                 compositeDisposable += kycNavigator.findNextStep()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeBy(

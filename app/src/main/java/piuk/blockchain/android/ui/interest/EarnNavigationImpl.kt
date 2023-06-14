@@ -19,8 +19,8 @@ import com.blockchain.home.presentation.navigation.HomeLaunch
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.sheets.NoBalanceActionBottomSheet
 import info.blockchain.balance.AssetInfo
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 
 class EarnNavigationImpl(
     private val activity: BlockchainActivity?,
@@ -137,7 +137,7 @@ class EarnNavigationImpl(
 
     override fun startKycClicked() {
         if (activity != null) {
-            KycNavHostActivity.startForResult(activity, CampaignType.None, HomeLaunch.KYC_STARTED)
+            KycNavHostActivity.startForResult(activity, KycEntryPoint.Other, HomeLaunch.KYC_STARTED)
         }
     }
 }

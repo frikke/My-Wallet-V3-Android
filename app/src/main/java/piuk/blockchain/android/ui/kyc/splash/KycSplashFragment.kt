@@ -20,12 +20,11 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentKycSplashBinding
 import piuk.blockchain.android.ui.base.BaseFragment
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import piuk.blockchain.android.ui.kyc.navigate
 import piuk.blockchain.android.util.throttledClicks
 import timber.log.Timber
@@ -62,25 +61,27 @@ class KycSplashFragment : BaseFragment<KycSplashView, KycSplashPresenter>(), Kyc
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val campaignType = progressListener.campaignType
+        val entryPoint = progressListener.entryPoint
         logEvent(
-            when (campaignType) {
-                CampaignType.None,
-                CampaignType.Swap -> AnalyticsEvents.KycWelcome
-                CampaignType.Resubmission -> AnalyticsEvents.KycResubmission
-                CampaignType.SimpleBuy -> AnalyticsEvents.KycSimpleBuyStart
-                CampaignType.FiatFunds -> AnalyticsEvents.KycFiatFundsStart
-                CampaignType.Interest -> AnalyticsEvents.KycFiatFundsStart
+            when (entryPoint) {
+                KycEntryPoint.Other,
+                KycEntryPoint.Swap -> AnalyticsEvents.KycWelcome
+                KycEntryPoint.Resubmission -> AnalyticsEvents.KycResubmission
+                KycEntryPoint.Buy -> AnalyticsEvents.KycSimpleBuyStart
+                KycEntryPoint.FiatFunds -> AnalyticsEvents.KycFiatFundsStart
+                KycEntryPoint.Interest -> AnalyticsEvents.KycFiatFundsStart
+                else -> AnalyticsEvents.KycWelcome
             }
         )
 
-        val title = when (progressListener.campaignType) {
-            CampaignType.SimpleBuy,
-            CampaignType.Resubmission,
-            CampaignType.FiatFunds -> com.blockchain.stringResources.R.string.buy_sell_splash_title
-            CampaignType.Swap -> com.blockchain.stringResources.R.string.kyc_splash_title
-            CampaignType.Interest -> com.blockchain.stringResources.R.string.earn_rewards
-            CampaignType.None -> com.blockchain.stringResources.R.string.identity_verification
+        val title = when (entryPoint) {
+            KycEntryPoint.Buy,
+            KycEntryPoint.Resubmission,
+            KycEntryPoint.FiatFunds -> com.blockchain.stringResources.R.string.buy_sell_splash_title
+            KycEntryPoint.Swap -> com.blockchain.stringResources.R.string.kyc_splash_title
+            KycEntryPoint.Interest -> com.blockchain.stringResources.R.string.earn_rewards
+            KycEntryPoint.Other -> com.blockchain.stringResources.R.string.identity_verification
+            else -> com.blockchain.stringResources.R.string.buy_sell_splash_title
         }
 
         progressListener.setupHostToolbar(title)

@@ -19,12 +19,12 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
 import org.koin.core.scope.Scope
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.brokerage.buy.composable.BuySelectAsset
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU5
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU8
 
@@ -62,7 +62,7 @@ class BuySelectAssetFragment : Fragment(), KoinScopeComponent {
                     startKycClicked = {
                         KycNavHostActivity.startForResult(
                             this@BuySelectAssetFragment,
-                            CampaignType.SimpleBuy,
+                            KycEntryPoint.Buy,
                             HomeLaunch.KYC_STARTED
                         )
                     }

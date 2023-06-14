@@ -22,11 +22,11 @@ import com.blockchain.prices.navigation.PricesNavigation
 import info.blockchain.balance.AssetInfo
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import piuk.blockchain.android.ui.locks.LocksDetailsActivity
 import piuk.blockchain.android.ui.settings.SettingsActivity
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
@@ -79,7 +79,7 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
     }
 
     private fun launchKyc() {
-        KycNavHostActivity.start(activity!!, campaignType = CampaignType.None)
+        KycNavHostActivity.start(activity!!, KycEntryPoint.Other)
     }
 
     private fun launchViewActivity() {
@@ -179,7 +179,7 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
     }
 
     override fun startKyc() {
-        activity!!.startActivity(KycNavHostActivity.newIntent(activity, CampaignType.None))
+        activity!!.startActivity(KycNavHostActivity.newIntent(activity, KycEntryPoint.Other))
     }
 
     override fun coinview(

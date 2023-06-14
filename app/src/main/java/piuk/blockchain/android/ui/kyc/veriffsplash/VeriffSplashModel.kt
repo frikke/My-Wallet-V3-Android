@@ -25,7 +25,6 @@ import com.blockchain.veriff.VeriffApplicantAndToken
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
-import piuk.blockchain.android.BuildConfig
 import timber.log.Timber
 
 sealed class Navigation : NavigationEvent {
@@ -113,11 +112,7 @@ class VeriffSplashModel(
     override suspend fun handleIntent(modelState: VeriffSplashModelState, intent: VeriffSplashIntent) {
         when (intent) {
             VeriffSplashIntent.ContinueClicked -> {
-                if (BuildConfig.DEBUG && BuildConfig.SKIP_VERIFF_KYC) {
-                    navigate(Navigation.TierCurrentState(KycState.Verified))
-                } else {
-                    navigate(Navigation.Veriff(veriffApplicantAndToken))
-                }
+                navigate(Navigation.Veriff(veriffApplicantAndToken))
             }
 
             VeriffSplashIntent.OnVeriffSuccess -> {

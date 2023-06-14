@@ -96,6 +96,9 @@ class QuestionnaireDropdownPickerSheet : ComposeModalBottomDialog() {
             choices = nodes,
             onSelectionClicked = stateMachine::onSelectionClicked,
             onClosePress = {
+                // For ease of use we're also saving the changes when the user clicks the close button, otherwise
+                // the user would have to dismiss the keyboard and press the save button
+                host.selectionChanged(original, questionnaireState.value.filter { it.isChecked })
                 dismiss()
             },
             onSaveClicked = {

@@ -63,7 +63,6 @@ import org.koin.core.logger.Level
 import org.koin.core.logger.Logger
 import org.koin.core.logger.MESSAGE
 import piuk.blockchain.android.BuildConfig
-import piuk.blockchain.android.campaign.campaignModule
 import piuk.blockchain.android.fraud.data.fraudDataModule
 import piuk.blockchain.android.maintenance.data.appMaintenanceDataModule
 import piuk.blockchain.android.maintenance.domain.appMaintenanceDomainModule
@@ -128,7 +127,6 @@ object KoinStarter {
                     coroutinesModule,
                     dashboardModule,
                     walletConnectModule,
-                    campaignModule,
                     bitpayModule,
                     coincoreModule,
                     transactionModule,

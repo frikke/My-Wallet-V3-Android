@@ -81,6 +81,7 @@ class KycAddressVerificationFragment :
                         prefilledAddress = null,
                         allowManualOverride = true
                     ),
+                    isVerifyAddressLoadingOverride = false,
                     host = addressVerificationHost
                 )
             }

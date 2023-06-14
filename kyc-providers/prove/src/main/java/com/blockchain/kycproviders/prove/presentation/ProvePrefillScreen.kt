@@ -82,6 +82,7 @@ fun ProvePrefillScreen(
                 Screen.VIEW_PREFILL_DATA -> ViewPrefillData(state, onIntent)
                 Screen.MANUAL_ADDRESS_ENTRY -> AddressVerificationScreen(
                     Args(countryIso, stateIso, state.manualEntryAddress, true),
+                    isVerifyAddressLoadingOverride = false,
                     addressVerificationHost
                 )
                 Screen.WAITING_PREFILL_DATA_SUBMISSION ->
