@@ -1,20 +1,32 @@
 package com.blockchain.componentlib.control
 
+import android.content.res.Configuration
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Switch
 import androidx.compose.material.SwitchDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.componentlib.theme.AppSurface
-import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue400
-import com.blockchain.componentlib.theme.Blue600
-import com.blockchain.componentlib.theme.Dark600
-import com.blockchain.componentlib.theme.Dark700
-import com.blockchain.componentlib.theme.Grey000
-import com.blockchain.componentlib.theme.Grey300
+import com.blockchain.componentlib.theme.AppColors
+
+private val checkedThumbColorLight = Color(0XFF0C6CF2)
+private val checkedThumbColorDark = Color(0XFF65A5FF)
+private val checkedThumbColor @Composable get() = if (isSystemInDarkTheme()) checkedThumbColorDark else checkedThumbColorLight
+
+private val checkedTrackColorLight = Color(0XFF65A5FF)
+private val checkedTrackColorDark = Color(0XFF0C6CF2)
+private val checkedTrackColor @Composable get() = if (isSystemInDarkTheme()) checkedTrackColorDark else checkedTrackColorLight
+
+private val uncheckedThumbColorLight = Color(0XFFB1B8C7)
+private val uncheckedThumbColorDark = Color(0XFF2C3038)
+private val uncheckedThumbColor @Composable get() = if (isSystemInDarkTheme()) uncheckedThumbColorDark else uncheckedThumbColorLight
+
+private val uncheckedTrackColorLight = Color(0XFFF1F2F7)
+private val uncheckedTrackColorDark = Color(0XFF3B3E46)
+private val uncheckedTrackColor @Composable get() = if (isSystemInDarkTheme()) uncheckedTrackColorDark else uncheckedTrackColorLight
+
 
 @Composable
 fun PrimarySwitch(
@@ -22,13 +34,7 @@ fun PrimarySwitch(
     onCheckChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    isDarkMode: Boolean = isSystemInDarkTheme()
 ) {
-    val checkedThumbColor = if (isDarkMode) Blue400 else Blue600
-    val checkedTrackColor = if (isDarkMode) Blue600 else Blue400
-    val uncheckedThumbColor = if (isDarkMode) Dark700 else Grey300
-    val uncheckedTrackColor = if (isDarkMode) Dark600 else Grey000
-
     Switch(
         checked = isChecked,
         onCheckedChange = { onCheckChanged(it) },
@@ -50,53 +56,64 @@ fun PrimarySwitch(
 @Preview(name = "Not checked", group = "Primary Switch")
 @Composable
 private fun PrimarySwitchPreview_NotChecked() {
-    AppTheme {
-        AppSurface {
-            PrimarySwitch(
-                isChecked = false,
-                onCheckChanged = {}
-            )
-        }
-    }
+    PrimarySwitch(
+        isChecked = false,
+        onCheckChanged = {}
+    )
+}
+
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PrimarySwitchPreview_NotCheckedDark() {
+    PrimarySwitchPreview_NotChecked()
 }
 
 @Preview(name = "Checked", group = "Primary Switch")
 @Composable
 private fun PrimarySwitchPreview_IsChecked() {
-    AppTheme {
-        AppSurface {
-            PrimarySwitch(
-                isChecked = true,
-                onCheckChanged = {}
-            )
-        }
-    }
+    PrimarySwitch(
+        isChecked = true,
+        onCheckChanged = {}
+    )
 }
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PrimarySwitchPreview_IsCheckedDark() {
+    PrimarySwitchPreview_IsChecked()
+}
+
 
 @Preview(name = "Not checked not enabled", group = "Primary Switch")
 @Composable
 private fun PrimarySwitchPreview_NotChecked_NotEnabled() {
-    AppTheme {
-        AppSurface {
-            PrimarySwitch(
-                isChecked = false,
-                onCheckChanged = {},
-                enabled = false
-            )
-        }
-    }
+    PrimarySwitch(
+        isChecked = false,
+        onCheckChanged = {},
+        enabled = false
+    )
 }
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PrimarySwitchPreview_NotChecked_NotEnabledDark() {
+    PrimarySwitchPreview_NotChecked_NotEnabled()
+}
+
 
 @Preview(name = "Checked not enabled", group = "Primary Switch")
 @Composable
 private fun PrimarySwitchPreview_IsChecked_NotEnabled() {
-    AppTheme {
-        AppSurface {
-            PrimarySwitch(
-                isChecked = true,
-                onCheckChanged = {},
-                enabled = false
-            )
-        }
-    }
+    PrimarySwitch(
+        isChecked = true,
+        onCheckChanged = {},
+        enabled = false
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PrimarySwitchPreview_IsChecked_NotEnabledDark() {
+    PrimarySwitchPreview_IsChecked_NotEnabled()
 }

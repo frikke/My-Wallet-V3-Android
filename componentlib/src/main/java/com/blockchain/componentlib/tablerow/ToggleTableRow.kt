@@ -10,7 +10,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.control.PrimarySwitch
-import com.blockchain.componentlib.control.SuccessSwitch
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
@@ -21,7 +20,6 @@ private fun ToggleTableRow(
     secondaryText: String = "",
     isChecked: Boolean = false,
     enabled: Boolean = true,
-    toggleTableRowType: ToggleTableRowType = ToggleTableRowType.Primary,
     backgroundColor: Color = AppTheme.colors.backgroundSecondary
 ) {
     FlexibleTableRow(
@@ -43,22 +41,11 @@ private fun ToggleTableRow(
             }
         },
         contentEnd = {
-            when (toggleTableRowType) {
-                ToggleTableRowType.Primary -> {
-                    PrimarySwitch(
-                        isChecked = isChecked,
-                        onCheckChanged = onCheckedChange,
-                        enabled = enabled
-                    )
-                }
-                ToggleTableRowType.Success -> {
-                    SuccessSwitch(
-                        isChecked = isChecked,
-                        onCheckChanged = onCheckedChange,
-                        enabled = enabled
-                    )
-                }
-            }
+            PrimarySwitch(
+                isChecked = isChecked,
+                onCheckChanged = onCheckedChange,
+                enabled = enabled
+            )
         },
         backgroundColor = backgroundColor
     )
@@ -71,7 +58,6 @@ fun ToggleTableRow(
     secondaryText: String = "",
     isChecked: Boolean = false,
     enabled: Boolean = true,
-    toggleTableRowType: ToggleTableRowType = ToggleTableRowType.Primary,
     backgroundColor: Color = AppTheme.colors.backgroundSecondary
 ) {
     ToggleTableRow(
@@ -87,7 +73,6 @@ fun ToggleTableRow(
         secondaryText = secondaryText,
         isChecked = isChecked,
         enabled = enabled,
-        toggleTableRowType = toggleTableRowType,
         backgroundColor = backgroundColor
     )
 }
@@ -106,7 +91,6 @@ fun FlexibleToggleTableRow(
     secondaryText: String = "",
     isChecked: Boolean = false,
     enabled: Boolean = true,
-    toggleTableRowType: ToggleTableRowType = ToggleTableRowType.Primary,
     backgroundColor: Color = AppTheme.colors.backgroundSecondary
 ) {
     ToggleTableRow(
@@ -116,12 +100,9 @@ fun FlexibleToggleTableRow(
         secondaryText = secondaryText,
         isChecked = isChecked,
         enabled = enabled,
-        toggleTableRowType = toggleTableRowType,
         backgroundColor = backgroundColor
     )
 }
-
-enum class ToggleTableRowType { Primary, Success }
 
 @Preview
 @Composable
