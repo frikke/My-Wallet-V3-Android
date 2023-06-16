@@ -12,6 +12,7 @@ import com.blockchain.home.presentation.dashboard.CustodialEmptyCardViewModel
 import com.blockchain.home.presentation.earn.EarnViewModel
 import com.blockchain.home.presentation.fiat.actions.FiatActionsNavigator
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailViewModel
+import com.blockchain.home.presentation.handhold.HandholdViewModel
 import com.blockchain.home.presentation.news.NewsViewModel
 import com.blockchain.home.presentation.onboarding.defi.DeFiOnboardingViewModel
 import com.blockchain.home.presentation.onboarding.introduction.IntroScreensViewModel
@@ -75,10 +76,10 @@ val homePresentationModule = module {
         }
 
         viewModel { (
-            homeVm: AssetsViewModel,
-            pkwActivityViewModel: PrivateKeyActivityViewModel,
-            custodialActivityViewModel: CustodialActivityViewModel
-        ) ->
+                        homeVm: AssetsViewModel,
+                        pkwActivityViewModel: PrivateKeyActivityViewModel,
+                        custodialActivityViewModel: CustodialActivityViewModel
+                    ) ->
             EmptyScreenViewModel(
                 homeAssetsViewModel = homeVm,
                 walletModeService = get(),
@@ -186,6 +187,12 @@ val homePresentationModule = module {
         viewModel {
             NewsViewModel(
                 newsService = get()
+            )
+        }
+
+        viewModel {
+            HandholdViewModel(
+                handholdService = get()
             )
         }
     }

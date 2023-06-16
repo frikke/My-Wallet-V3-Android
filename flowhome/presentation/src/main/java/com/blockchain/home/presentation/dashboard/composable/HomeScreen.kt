@@ -34,6 +34,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrElse
+import com.blockchain.data.doOnData
 import com.blockchain.data.map
 import com.blockchain.data.toImmutableList
 import com.blockchain.domain.referral.model.ReferralInfo
@@ -58,6 +59,9 @@ import com.blockchain.home.presentation.dapps.HomeDappsIntent
 import com.blockchain.home.presentation.dapps.HomeDappsViewModel
 import com.blockchain.home.presentation.dapps.HomeDappsViewState
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
+import com.blockchain.home.presentation.handhold.HandholdIntent
+import com.blockchain.home.presentation.handhold.HandholdViewModel
+import com.blockchain.home.presentation.handhold.HandholdViewState
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.HomeDestination
 import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
@@ -124,6 +128,9 @@ fun HomeScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
     val navController = LocalNavControllerProvider.current
 
+    val handholdViewModel: HandholdViewModel = getViewModel(scope = payloadScope)
+    val handholdViewState: HandholdViewState by handholdViewModel.viewState.collectAsStateLifecycleAware()
+
     val homeAssetsViewModel: AssetsViewModel = getViewModel(scope = payloadScope)
     val assetsViewState: AssetsViewState by homeAssetsViewModel.viewState.collectAsStateLifecycleAware()
 
@@ -172,6 +179,7 @@ fun HomeScreen(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
+                handholdViewModel.onIntent(HandholdIntent.LoadData)
                 announcementsViewModel.onIntent(AnnouncementsIntent.LoadAnnouncements)
                 homeAssetsViewModel.onIntent(AssetsIntent.LoadFilters)
                 homeAssetsViewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.Limited(MAX_ASSET_COUNT)))
@@ -271,165 +279,179 @@ fun HomeScreen(
             }
         }
 
-        handhold(
-            persistentListOf(
-                HandholdStepStatus(
-                    step = HandholdStep.VerifyEmail, status = HandholStatus.Complete
-                ),
-                HandholdStepStatus(
-                    step = HandholdStep.Kyc, status = HandholStatus.Pending
-                ),
-                HandholdStepStatus(
-                    step = HandholdStep.BuyCrypto, status = HandholStatus.Incomplete
+        handholdViewState.showHandhold.doOnData { showHandhold ->
+            if (showHandhold) {
+                val handholdTasks = (handholdViewState.stepsStatus as DataResource.Data).data.toImmutableList()
+                handhold(
+                    handholdTasks
+//                    persistentListOf(
+//                        HandholdStepStatus(
+//                            step = HandholdStep.VerifyEmail, status = HandholStatus.Complete
+//                        ),
+//                        HandholdStepStatus(
+//                            step = HandholdStep.Kyc, status = HandholStatus.Pending
+//                        ),
+//                        HandholdStepStatus(
+//                            step = HandholdStep.BuyCrypto, status = HandholStatus.Incomplete
+//                        )
+//                    )
                 )
-            )
-        )
-
-        item {
-            (announcementsState.remoteAnnouncements as? DataResource.Data)?.data?.let { announcements ->
-                StackedAnnouncements(
-                    announcements = announcements,
-                    hideConfirmation = announcementsState.hideAnnouncementsConfirmation,
-                    animateHideConfirmation = announcementsState.animateHideAnnouncementsConfirmation,
-                    announcementOnSwiped = { announcement ->
-                        announcementsViewModel.onIntent(AnnouncementsIntent.DeleteAnnouncement(announcement))
-                    },
-                    announcementOnClick = { announcement ->
-                        processAnnouncementUrl(announcement.actionUrl)
-                        announcementsViewModel.onIntent(AnnouncementsIntent.AnnouncementClicked(announcement))
+            } else {
+                item {
+                    (announcementsState.remoteAnnouncements as? DataResource.Data)?.data?.let { announcements ->
+                        StackedAnnouncements(
+                            announcements = announcements,
+                            hideConfirmation = announcementsState.hideAnnouncementsConfirmation,
+                            animateHideConfirmation = announcementsState.animateHideAnnouncementsConfirmation,
+                            announcementOnSwiped = { announcement ->
+                                announcementsViewModel.onIntent(
+                                    AnnouncementsIntent.DeleteAnnouncement(announcement)
+                                )
+                            },
+                            announcementOnClick = { announcement ->
+                                processAnnouncementUrl(announcement.actionUrl)
+                                announcementsViewModel.onIntent(
+                                    AnnouncementsIntent.AnnouncementClicked(announcement)
+                                )
+                            }
+                        )
                     }
-                )
-            }
-        }
+                }
 
-        announcementsState.localAnnouncements.takeIf { it.isNotEmpty() }?.let { localAnnouncements ->
-            paddedItem(
-                paddingValues = { PaddingValues(AppTheme.dimensions.smallSpacing) }
-            ) {
-                LocalAnnouncements(
-                    announcements = localAnnouncements,
-                    onClick = { announcement ->
-                        when (announcement.type) {
-                            LocalAnnouncementType.PHRASE_RECOVERY -> startPhraseRecovery()
+                announcementsState.localAnnouncements.takeIf { it.isNotEmpty() }?.let { localAnnouncements ->
+                    paddedItem(
+                        paddingValues = { PaddingValues(AppTheme.dimensions.smallSpacing) }
+                    ) {
+                        LocalAnnouncements(
+                            announcements = localAnnouncements,
+                            onClick = { announcement ->
+                                when (announcement.type) {
+                                    LocalAnnouncementType.PHRASE_RECOVERY -> startPhraseRecovery()
+                                }
+                            }
+                        )
+                    }
+                }
+
+                walletMode?.let {
+                    emptyCard(
+                        walletMode = it,
+                        assetsViewState = assetsViewState,
+                        actiityViewState = when (it) {
+                            WalletMode.CUSTODIAL -> custodialActivityState
+                            WalletMode.NON_CUSTODIAL -> pkwActivityState
+                        },
+                        assetActionsNavigation = assetActionsNavigation
+                    )
+                }
+
+                val assets = (assetsViewState.assets as? DataResource.Data)?.data
+                val locks = (assetsViewState.fundsLocks as? DataResource.Data)?.data
+
+                assets?.takeIf { it.isNotEmpty() }?.let { data ->
+                    homeAssets(
+                        locks = locks,
+                        data = assets,
+                        openCryptoAssets = {
+                            openCryptoAssets()
+                            analytics.logEvent(
+                                DashboardAnalyticsEvents.AssetsSeeAllClicked(assetsCount = data.size)
+                            )
+                        },
+                        assetOnClick = { asset ->
+                            assetActionsNavigation.coinview(asset)
+                            analytics.logEvent(
+                                DashboardAnalyticsEvents.CryptoAssetClicked(ticker = asset.displayTicker)
+                            )
+                        },
+                        fundsLocksOnClick = { fundsLocks ->
+                            assetActionsNavigation.fundsLocksDetail(fundsLocks)
+                        },
+                        openFiatActionDetail = { ticker ->
+                            openFiatActionDetail(ticker)
+                            analytics.logEvent(DashboardAnalyticsEvents.FiatAssetClicked(ticker = ticker))
+                        }
+                    )
+                }
+
+                if (walletMode == WalletMode.NON_CUSTODIAL) {
+                    homeDapps(
+                        homeDappsState = homeDappsState,
+                        openQrCodeScanner = launchQrScanner,
+                        onDappSessionClicked = onWalletConnectSessionClicked,
+                        onWalletConnectSeeAllSessionsClicked = onWalletConnectSeeAllSessionsClicked,
+                    )
+                }
+
+                // recurring buys
+                if (walletMode == WalletMode.CUSTODIAL) {
+                    rbViewState.recurringBuys
+                        .map { state ->
+                            (state as? RecurringBuyEligibleState.Eligible)?.recurringBuys
+                        }
+                        .dataOrElse(null)
+                        ?.let { recurringBuys ->
+                            homeRecurringBuys(
+                                analytics = analytics,
+                                recurringBuys = recurringBuys,
+                                manageOnclick = openRecurringBuys,
+                                upsellOnClick = recurringBuyNavigation::openOnboarding,
+                                recurringBuyOnClick = openRecurringBuyDetail
+                            )
+                        }
+                }
+
+                // top movers
+                homeTopMovers(
+                    data = pricesViewState.topMovers.toImmutableList(),
+                    assetOnClick = { asset ->
+                        assetActionsNavigation.coinview(asset)
+
+                        pricesViewState.topMovers.percentAndPositionOf(asset)?.let { (percentageMove, position) ->
+                            analytics.logEvent(
+                                DashboardAnalyticsEvents.TopMoverAssetClicked(
+                                    ticker = asset.networkTicker,
+                                    percentageMove = percentageMove,
+                                    position = position
+                                )
+                            )
                         }
                     }
                 )
-            }
-        }
 
-        walletMode?.let {
-            emptyCard(
-                walletMode = it,
-                assetsViewState = assetsViewState,
-                actiityViewState = when (it) {
-                    WalletMode.CUSTODIAL -> custodialActivityState
-                    WalletMode.NON_CUSTODIAL -> pkwActivityState
-                },
-                assetActionsNavigation = assetActionsNavigation
-            )
-        }
-
-        val assets = (assetsViewState.assets as? DataResource.Data)?.data
-        val locks = (assetsViewState.fundsLocks as? DataResource.Data)?.data
-
-        assets?.takeIf { it.isNotEmpty() }?.let { data ->
-            homeAssets(
-                locks = locks,
-                data = assets,
-                openCryptoAssets = {
-                    openCryptoAssets()
-                    analytics.logEvent(DashboardAnalyticsEvents.AssetsSeeAllClicked(assetsCount = data.size))
-                },
-                assetOnClick = { asset ->
-                    assetActionsNavigation.coinview(asset)
-                    analytics.logEvent(DashboardAnalyticsEvents.CryptoAssetClicked(ticker = asset.displayTicker))
-                },
-                fundsLocksOnClick = { fundsLocks ->
-                    assetActionsNavigation.fundsLocksDetail(fundsLocks)
-                },
-                openFiatActionDetail = { ticker ->
-                    openFiatActionDetail(ticker)
-                    analytics.logEvent(DashboardAnalyticsEvents.FiatAssetClicked(ticker = ticker))
-                }
-            )
-        }
-
-        if (walletMode == WalletMode.NON_CUSTODIAL) {
-            homeDapps(
-                homeDappsState = homeDappsState,
-                openQrCodeScanner = launchQrScanner,
-                onDappSessionClicked = onWalletConnectSessionClicked,
-                onWalletConnectSeeAllSessionsClicked = onWalletConnectSeeAllSessionsClicked,
-            )
-        }
-
-        // recurring buys
-        if (walletMode == WalletMode.CUSTODIAL) {
-            rbViewState.recurringBuys
-                .map { state ->
-                    (state as? RecurringBuyEligibleState.Eligible)?.recurringBuys
-                }
-                .dataOrElse(null)
-                ?.let { recurringBuys ->
-                    homeRecurringBuys(
-                        analytics = analytics,
-                        recurringBuys = recurringBuys,
-                        manageOnclick = openRecurringBuys,
-                        upsellOnClick = recurringBuyNavigation::openOnboarding,
-                        recurringBuyOnClick = openRecurringBuyDetail
+                // activity
+                walletMode?.let {
+                    val activityState = when (it) {
+                        WalletMode.CUSTODIAL -> custodialActivityState
+                        WalletMode.NON_CUSTODIAL -> pkwActivityState
+                    }
+                    homeActivityScreen(
+                        activityState,
+                        openActivity,
+                        openActivityDetail,
+                        it
                     )
                 }
-        }
 
-        // top movers
-        homeTopMovers(
-            data = pricesViewState.topMovers.toImmutableList(),
-            assetOnClick = { asset ->
-                assetActionsNavigation.coinview(asset)
-
-                pricesViewState.topMovers.percentAndPositionOf(asset)?.let { (percentageMove, position) ->
-                    analytics.logEvent(
-                        DashboardAnalyticsEvents.TopMoverAssetClicked(
-                            ticker = asset.networkTicker,
-                            percentageMove = percentageMove,
-                            position = position
+                // referral
+                (referralState.referralInfo as? DataResource.Data)?.data?.let {
+                    (it as? ReferralInfo.Data)?.let {
+                        homeReferral(
+                            referralData = it,
+                            openReferral = openReferral
                         )
-                    )
+                    }
                 }
-            }
-        )
 
-        // activity
-        walletMode?.let {
-            val activityState = when (it) {
-                WalletMode.CUSTODIAL -> custodialActivityState
-                WalletMode.NON_CUSTODIAL -> pkwActivityState
-            }
-            homeActivityScreen(
-                activityState,
-                openActivity,
-                openActivityDetail,
-                it
-            )
-        }
-
-        // referral
-        (referralState.referralInfo as? DataResource.Data)?.data?.let {
-            (it as? ReferralInfo.Data)?.let {
-                homeReferral(
-                    referralData = it,
-                    openReferral = openReferral
+                // news
+                homeNews(
+                    data = newsViewState.newsArticles?.toImmutableList(),
+                    seeAllOnClick = {
+                        navController.navigate(HomeDestination.News)
+                    }
                 )
             }
         }
-
-        // news
-        homeNews(
-            data = newsViewState.newsArticles?.toImmutableList(),
-            seeAllOnClick = {
-                navController.navigate(HomeDestination.News)
-            }
-        )
 
         homeHelp(
             openSupportCenter = { supportNavigation.launchSupportCenter() }
