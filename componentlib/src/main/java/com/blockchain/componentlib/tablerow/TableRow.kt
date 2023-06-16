@@ -89,6 +89,7 @@ fun TableRow(
 
 @Composable
 fun FlexibleTableRow(
+    modifier: Modifier = Modifier,
     paddingValues: PaddingValues,
     content: @Composable RowScope.() -> Unit,
     contentStart: @Composable (RowScope.() -> Unit)? = null,
@@ -99,6 +100,7 @@ fun FlexibleTableRow(
     backgroundShape: Shape = RectangleShape
 ) {
     TableRow(
+        modifier = modifier,
         paddingValues = paddingValues,
         content = content,
         contentStart = contentStart,

@@ -1,4 +1,4 @@
-package com.blockchain.componentlib.button.common
+package com.blockchain.componentlib.loader
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.VectorConverter

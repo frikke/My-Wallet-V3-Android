@@ -94,6 +94,7 @@
     <string name="common_go">GO</string>
     <string name="common_important_information">Important information</string>
     <string name="common_crypto">Crypto</string>
+    <string name="common_completed">Completed</string>
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>
@@ -1263,7 +1264,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="get_free_crypto">GET FREE CRYPTO</string>
     <string name="start_arrow">start arrow</string>
     <string name="approved">Approved!</string>
-    <string name="in_review">In Review</string>
+    <string name="in_review">In review</string>
     <string name="available">Available</string>
     <string name="swap_limit">Your Swap Limit is the maximum amount of crypto you can trade</string>
     <string name="swap_unavailable">Swap Currently Unavailable</string>
@@ -2648,7 +2649,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="dashboard_onboarding_step_link_buy_time">10 Seconds</string>
     <string name="dashboard_onboarding_steps_counter">%1$d/%2$d</string>
     <string name="dashboard_onboarding_card_title">Complete Your Profile</string>
-    <string name="dashboard_onboarding_subtitle">Buy Crypto Today</string>
+    <string name="dashboard_onboarding_subtitle">Trade crypto today</string>
     <string name="dashboard_onboarding_error_title">Loading Error</string>
     <string name="dashboard_onboarding_error_description">We encountered an issue while loading the verification screen. Please go back to the previous screen and try again.</string>
     <string name="blockchain_fee">Blockchain.com Fee</string>
@@ -3675,7 +3676,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="empty_dapp_description">A Dapp wants to connect \nto your wallet</string>
     <string name="empty_dapp_title">the Dapp</string>
     <string name="common_dapp">Dapp</string>
-    <string name="deposit_more">Deposit more  %1$s</string>
+    <string name="deposit_more">Deposit more %1$s</string>
     <string name="total_balance_loading">Loading…</string>
     <string name="total_balance_error">Failed to load</string>
 
@@ -3683,4 +3684,12 @@ If you want to know more about our verification process visit our <annotation li
     <string name="common_message">Message</string>
     <string name="approving_token">Approving %1$s</string>
     <string name="could_take_few_seconds">This could take a few seconds.</string>
+
+    <string name="handhold_title">Complete Your Profile</string>
+    <string name="handhold_subtitle">Buy crypto today</string>
+    <string name="handhold_completion_minutes">Complete in around %1$s minutes</string>
+    <string name="handhold_completion_seconds">Complete in around %1$s seconds</string>
+    <string name="handhold_email">Verify your email</string>
+    <string name="handhold_kyc">Verify your identity</string>
+    <string name="handhold_buy">Buy crypto</string>
 </resources>

@@ -14,14 +14,19 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.MaskStateConfig
 import com.blockchain.componentlib.basic.MaskableText
 import com.blockchain.componentlib.icon.CustomStackedIcon
+import com.blockchain.componentlib.icons.Email
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.tablerow.FlexibleTableRow
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.tag.TagsRow
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
@@ -44,18 +49,22 @@ private fun StyledText(
 
 @Composable
 fun MaskedCustomTableRow(
+    modifier: Modifier = Modifier,
     icon: StackedIcon = StackedIcon.None,
     leadingComponents: List<ViewType>,
     trailingComponents: List<ViewType>,
+    endIcon: ImageResource = ImageResource.None,
     onClick: (() -> Unit)? = null,
     backgroundColor: Color = AppTheme.colors.backgroundSecondary,
     backgroundShape: Shape = RectangleShape
 ) {
     CustomTableRow(
+        modifier= modifier,
         maskState = MaskStateConfig.Default,
         icon = icon,
         leadingComponents = leadingComponents,
         trailingComponents = trailingComponents,
+        endIcon = endIcon,
         onClick = onClick,
         backgroundColor = backgroundColor,
         backgroundShape = backgroundShape
@@ -64,18 +73,22 @@ fun MaskedCustomTableRow(
 
 @Composable
 fun CustomTableRow(
+    modifier: Modifier = Modifier,
     icon: StackedIcon = StackedIcon.None,
     leadingComponents: List<ViewType>,
     trailingComponents: List<ViewType>,
+    endIcon: ImageResource = ImageResource.None,
     onClick: (() -> Unit)? = null,
     backgroundColor: Color = AppTheme.colors.backgroundSecondary,
     backgroundShape: Shape = RectangleShape
 ) {
     CustomTableRow(
+        modifier = modifier,
         maskState = MaskStateConfig.Override(maskEnabled = false),
         icon = icon,
         leadingComponents = leadingComponents,
         trailingComponents = trailingComponents,
+        endIcon = endIcon,
         onClick = onClick,
         backgroundColor = backgroundColor,
         backgroundShape = backgroundShape
@@ -84,15 +97,18 @@ fun CustomTableRow(
 
 @Composable
 private fun CustomTableRow(
+    modifier: Modifier = Modifier,
     maskState: MaskStateConfig,
     icon: StackedIcon = StackedIcon.None,
     leadingComponents: List<ViewType>,
     trailingComponents: List<ViewType>,
+    endIcon: ImageResource = ImageResource.None,
     onClick: (() -> Unit)? = null,
     backgroundColor: Color = AppTheme.colors.backgroundSecondary,
     backgroundShape: Shape = RectangleShape
 ) {
     FlexibleTableRow(
+        modifier = modifier,
         paddingValues = PaddingValues(AppTheme.dimensions.smallSpacing),
         contentStart = {
             CustomStackedIcon(icon = icon)
@@ -133,6 +149,12 @@ private fun CustomTableRow(
                         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
                     }
                 }
+            }
+        },
+        contentEnd = {
+            if (endIcon != ImageResource.None) {
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+                Image(endIcon)
             }
         },
         onContentClicked = onClick,
@@ -213,6 +235,7 @@ private fun PreviewCustomTableRow_Summary_SmallTag() {
                 )
             )
         ),
+        endIcon = Icons.Filled.Email.withTint(AppColors.primary),
         onClick = {}
     )
 }

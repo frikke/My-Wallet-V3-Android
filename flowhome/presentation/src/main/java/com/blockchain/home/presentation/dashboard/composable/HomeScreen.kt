@@ -37,6 +37,9 @@ import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
 import com.blockchain.data.toImmutableList
 import com.blockchain.domain.referral.model.ReferralInfo
+import com.blockchain.home.handhold.HandholStatus
+import com.blockchain.home.handhold.HandholdStep
+import com.blockchain.home.handhold.HandholdStepStatus
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.accouncement.AnnouncementsIntent
 import com.blockchain.home.presentation.accouncement.AnnouncementsViewModel
@@ -83,6 +86,7 @@ import com.blockchain.prices.prices.percentAndPositionOf
 import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
@@ -266,6 +270,20 @@ fun HomeScreen(
                 )
             }
         }
+
+        handhold(
+            persistentListOf(
+                HandholdStepStatus(
+                    step = HandholdStep.VerifyEmail, status = HandholStatus.Complete
+                ),
+                HandholdStepStatus(
+                    step = HandholdStep.Kyc, status = HandholStatus.Pending
+                ),
+                HandholdStepStatus(
+                    step = HandholdStep.BuyCrypto, status = HandholStatus.Incomplete
+                )
+            )
+        )
 
         item {
             (announcementsState.remoteAnnouncements as? DataResource.Data)?.data?.let { announcements ->

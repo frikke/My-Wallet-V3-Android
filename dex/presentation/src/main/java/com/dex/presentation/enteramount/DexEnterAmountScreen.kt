@@ -64,7 +64,7 @@ import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.PrimarySmallButton
-import com.blockchain.componentlib.button.common.LoadingIndicator
+import com.blockchain.componentlib.loader.LoadingIndicator
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.icon.SmallTagIcon
 import com.blockchain.componentlib.icons.Alert

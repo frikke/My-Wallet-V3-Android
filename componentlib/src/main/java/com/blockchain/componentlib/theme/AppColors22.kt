@@ -36,6 +36,9 @@ private val ErrorNight = Color(0XFFFF3344)
 private val ErrorLight = Color(0XFFFFD9D6)
 private val ErrorLightNight = Color(0XFFFFD9D6) // missing
 
+private val ExplorerLight = Color(0XFF5322E5)
+private val ExplorerNight = Color(0XFF9080FF) // missing
+
 private val Background = Color(0XFFF1F2F7)
 private val BackgroundNight = Color(0XFF07080D)
 private val BackgroundSecondary = Color(0XFFFFFFFF)
@@ -66,6 +69,7 @@ val defLightColors = SemanticColors(
     negative = Negative, //
     negativeMuted = Negative,
     semidark = Grey400,
+    explorer = ExplorerLight,
     isLight = true
 )
 
@@ -93,6 +97,7 @@ val defDarkColors = SemanticColors(
     errorLight = ErrorLightNight,
     negative = NegativeNight,
     negativeMuted = NegativeNight,
-    isLight = false,
     semidark = Grey800,
+    explorer = ExplorerNight,
+    isLight = false,
 )
