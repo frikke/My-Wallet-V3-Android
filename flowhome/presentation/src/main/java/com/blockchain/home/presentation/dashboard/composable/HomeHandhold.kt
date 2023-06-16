@@ -7,14 +7,15 @@ import com.blockchain.componentlib.card.NextStepCard
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.home.handhold.HandholStatus
+import com.blockchain.home.handhold.HandholdStep
 import com.blockchain.home.handhold.HandholdStepStatus
 import com.blockchain.home.presentation.handhold.composable.HandholdTask
 import com.blockchain.stringResources.R
 import kotlinx.collections.immutable.ImmutableList
 
 internal fun LazyListScope.handhold(
-    data: ImmutableList<HandholdStepStatus>
+    data: ImmutableList<HandholdStepStatus>,
+    onClick: (HandholdStep) -> Unit
 ) {
     paddedItem(
         paddingValues = {
@@ -52,7 +53,10 @@ internal fun LazyListScope.handhold(
 
         HandholdTask(
             stepStatus = stepStatus,
-            enabled = !disabled
+            enabled = !disabled,
+            onClick = {
+                onClick(stepStatus.step)
+            }
         )
     }
 }

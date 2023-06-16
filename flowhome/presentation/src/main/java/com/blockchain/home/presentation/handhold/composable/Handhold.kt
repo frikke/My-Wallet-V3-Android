@@ -1,6 +1,7 @@
 package com.blockchain.home.presentation.handhold.composable
 
 import android.content.res.Configuration
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -21,6 +22,7 @@ import com.blockchain.componentlib.tablerow.custom.ViewStyle
 import com.blockchain.componentlib.tablerow.custom.ViewType
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.conditional
 import com.blockchain.home.handhold.HandholStatus
 import com.blockchain.home.handhold.HandholdStep
 import com.blockchain.home.handhold.HandholdStepStatus
@@ -29,9 +31,14 @@ import com.blockchain.stringResources.R
 @Composable
 fun HandholdTask(
     stepStatus: HandholdStepStatus,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    onClick: () -> Unit
 ) {
-    Box(modifier = Modifier.alpha(if (enabled) 1F else 0.5F)) {
+    Box(
+        modifier = Modifier
+            .alpha(if (enabled) 1F else 0.5F)
+            .conditional(enabled) { clickable(onClick = onClick) },
+    ) {
         CustomTableRow(
             icon = StackedIcon.SingleIcon(
                 stepStatus.step.icon()
@@ -116,6 +123,7 @@ private fun PreviewHandholdScreenEmailIncompleteDisabled() {
             step = HandholdStep.VerifyEmail, status = HandholStatus.Incomplete
         ),
         enabled = false,
+        onClick = {}
     )
 }
 
@@ -125,7 +133,8 @@ private fun PreviewHandholdScreenEmailIncomplete() {
     HandholdTask(
         stepStatus = HandholdStepStatus(
             step = HandholdStep.VerifyEmail, status = HandholStatus.Incomplete
-        )
+        ),
+        onClick = {}
     )
 }
 
@@ -141,7 +150,8 @@ private fun PreviewHandholdScreenEmailComplete() {
     HandholdTask(
         stepStatus = HandholdStepStatus(
             step = HandholdStep.VerifyEmail, status = HandholStatus.Complete
-        )
+        ),
+        onClick = {}
     )
 }
 
@@ -157,7 +167,8 @@ private fun PreviewHandholdScreenKycIncomplete() {
     HandholdTask(
         stepStatus = HandholdStepStatus(
             step = HandholdStep.Kyc, status = HandholStatus.Incomplete
-        )
+        ),
+        onClick = {}
     )
 }
 
@@ -173,7 +184,8 @@ private fun PreviewHandholdScreenKycPending() {
     HandholdTask(
         stepStatus = HandholdStepStatus(
             step = HandholdStep.Kyc, status = HandholStatus.Pending
-        )
+        ),
+        onClick = {}
     )
 }
 
@@ -189,7 +201,8 @@ private fun PreviewHandholdScreenKycComplete() {
     HandholdTask(
         stepStatus = HandholdStepStatus(
             step = HandholdStep.Kyc, status = HandholStatus.Complete
-        )
+        ),
+        onClick = {}
     )
 }
 
@@ -205,7 +218,8 @@ private fun PreviewHandholdScreenBuyIncomplete() {
     HandholdTask(
         stepStatus = HandholdStepStatus(
             step = HandholdStep.BuyCrypto, status = HandholStatus.Incomplete
-        )
+        ),
+        onClick = {}
     )
 }
 
@@ -221,7 +235,8 @@ private fun PreviewHandholdScreenBuyComplete() {
     HandholdTask(
         stepStatus = HandholdStepStatus(
             step = HandholdStep.BuyCrypto, status = HandholStatus.Complete
-        )
+        ),
+        onClick = {}
     )
 }
 

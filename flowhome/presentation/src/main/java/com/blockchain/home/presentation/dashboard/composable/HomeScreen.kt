@@ -283,18 +283,10 @@ fun HomeScreen(
             if (showHandhold) {
                 val handholdTasks = (handholdViewState.stepsStatus as DataResource.Data).data.toImmutableList()
                 handhold(
-                    handholdTasks
-//                    persistentListOf(
-//                        HandholdStepStatus(
-//                            step = HandholdStep.VerifyEmail, status = HandholStatus.Complete
-//                        ),
-//                        HandholdStepStatus(
-//                            step = HandholdStep.Kyc, status = HandholStatus.Pending
-//                        ),
-//                        HandholdStepStatus(
-//                            step = HandholdStep.BuyCrypto, status = HandholStatus.Incomplete
-//                        )
-//                    )
+                    data = handholdTasks,
+                    onClick = {
+
+                    }
                 )
             } else {
                 item {

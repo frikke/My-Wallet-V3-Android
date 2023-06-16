@@ -80,7 +80,8 @@ val homeDataModule = module {
 
         scoped<HandholdService> {
             HandholdRepository(
-                userService = get()
+                userService = get(),
+                kycService = get()
             )
         }
     }
