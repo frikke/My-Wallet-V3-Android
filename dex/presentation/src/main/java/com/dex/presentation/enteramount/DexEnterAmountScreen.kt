@@ -98,10 +98,12 @@ import com.blockchain.preferences.DexPrefs
 import com.blockchain.stringResources.R
 import com.dex.presentation.ALLOWANCE_TRANSACTION_APPROVED
 import com.dex.presentation.AmountFieldConfig
+import com.dex.presentation.DEPOSIT_FOR_ACCOUNT_REQUESTED
 import com.dex.presentation.DexAnalyticsEvents
 import com.dex.presentation.DexTxSubscribeScreen
 import com.dex.presentation.SendAndReceiveAmountFields
 import com.dex.presentation.graph.ARG_ALLOWANCE_TX
+import com.dex.presentation.graph.ARG_CURRENCY_TICKER
 import com.dex.presentation.graph.DexDestination
 import com.dex.presentation.network.DexNetworkViewState
 import com.dex.presentation.uierrors.DexUiError
@@ -152,18 +154,22 @@ fun DexEnterAmountScreen(
             if (event == Lifecycle.Event.ON_CREATE) {
                 viewModel.onIntent(InputAmountIntent.InitTransaction)
             }
-            if (event == Lifecycle.Event.ON_RESUME && savedStateHandle?.contains(
-                    ALLOWANCE_TRANSACTION_APPROVED
-                ) == true
-            ) {
-                savedStateHandle.get<Boolean>(ALLOWANCE_TRANSACTION_APPROVED)?.let {
-                    if (it) {
-                        viewModel.onIntent(InputAmountIntent.AllowanceTransactionApproved)
-                    } else {
-                        viewModel.onIntent(InputAmountIntent.AllowanceTransactionDeclined)
+            if (event == Lifecycle.Event.ON_RESUME) {
+                if (savedStateHandle?.contains(ALLOWANCE_TRANSACTION_APPROVED) == true) {
+                    savedStateHandle.get<Boolean>(ALLOWANCE_TRANSACTION_APPROVED)?.let {
+                        if (it) {
+                            viewModel.onIntent(InputAmountIntent.AllowanceTransactionApproved)
+                        } else {
+                            viewModel.onIntent(InputAmountIntent.AllowanceTransactionDeclined)
+                        }
                     }
+                    savedStateHandle.remove<Boolean>(ALLOWANCE_TRANSACTION_APPROVED)
                 }
-                savedStateHandle.remove<Boolean>(ALLOWANCE_TRANSACTION_APPROVED)
+
+                if (savedStateHandle?.contains(DEPOSIT_FOR_ACCOUNT_REQUESTED) == true) {
+                    viewModel.onIntent(InputAmountIntent.DepositOnSourceAccountRequested(receiveOnAccount))
+                    savedStateHandle.remove<Boolean>(DEPOSIT_FOR_ACCOUNT_REQUESTED)
+                }
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -297,7 +303,20 @@ fun DexEnterAmountScreen(
                     onTokenAllowanceApproveButPending = {
                         viewModel.onIntent(InputAmountIntent.PollForPendingAllowance(it))
                     },
-                    receive = receiveOnAccount
+                    receive = receiveOnAccount,
+                    onNoSourceAccountFunds = {
+                        navController.navigate(
+                            DexDestination.NoFundsForSourceAccount.routeWithArgs(
+                                listOf(
+                                    NavArgument(
+                                        key = ARG_CURRENCY_TICKER,
+                                        value = it.networkTicker
+                                    )
+                                )
+                            )
+                        )
+                        keyboardController?.hide()
+                    }
                 )
             }
         }
@@ -417,9 +436,19 @@ fun InputScreen(
     viewAllowanceTx: (AssetInfo, String) -> Unit,
     selectNetworkOnClick: () -> Unit,
     receive: (CryptoNonCustodialAccount) -> Unit,
+    onNoSourceAccountFunds: (Currency) -> Unit,
     txInProgressDismiss: () -> Unit,
     viewState: InputAmountViewState.TransactionInputState
 ) {
+
+    LaunchedEffect(key1 = viewState.sourceAccountHasNoFunds, block = {
+        if (viewState.sourceAccountHasNoFunds) {
+            viewState.sourceCurrency?.let {
+                onNoSourceAccountFunds(it)
+            }
+        }
+    })
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -860,7 +889,7 @@ private fun PreviewNetworkSelection_Loading() {
 @Composable
 private fun PreviewInputScreen_NetworkSelection() {
     InputScreen(
-        {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> }, {}, {}, {},
+        {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> }, {}, {}, { }, {},
         InputAmountViewState.TransactionInputState(
             selectedNetwork = DataResource.Data(
                 DexNetworkViewState(
@@ -886,7 +915,8 @@ private fun PreviewInputScreen_NetworkSelection() {
             previewActionButtonState = ActionButtonState.ENABLED,
             errors = listOf(
                 DexUiError.TokenNotAllowed(CryptoCurrency.ETHER, false)
-            )
+            ),
+            sourceAccountHasNoFunds = false
         )
     )
 }

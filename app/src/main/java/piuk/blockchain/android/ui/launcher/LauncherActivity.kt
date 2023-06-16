@@ -24,7 +24,6 @@ import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import piuk.blockchain.android.R
 import piuk.blockchain.android.maintenance.presentation.AppMaintenanceFragment
 import piuk.blockchain.android.maintenance.presentation.AppMaintenanceSharedViewModel
 import piuk.blockchain.android.ui.settings.security.pin.PinActivity
@@ -33,8 +32,7 @@ import piuk.blockchain.android.ui.start.PasswordRequiredActivity
 import piuk.blockchain.android.util.wiper.DataWiper
 import timber.log.Timber
 
-class LauncherActivity
-class LauncherActivityV2 :
+class LauncherActivity :
     MVIActivity<LauncherState>(),
     NavigationRouter<LaunchNavigationEvent>,
     ManifestLauncherActivity {
@@ -190,7 +188,7 @@ class LauncherActivityV2 :
             intentFromNotification: Boolean = false,
             notificationAnalyticsPayload: Map<String, String>? = null
         ): Intent =
-            Intent(context, LauncherActivityV2::class.java).apply {
+            Intent(context, LauncherActivity::class.java).apply {
                 putExtra(INTENT_FROM_NOTIFICATION, intentFromNotification)
                 notificationAnalyticsPayload?.keys?.forEach { key ->
                     notificationAnalyticsPayload[key]?.let { value ->

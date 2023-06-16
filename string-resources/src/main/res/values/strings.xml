@@ -3627,7 +3627,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="slippage_explanation">Slippage is the max percentage of price you\'re willing to allow for your swap to go through. If price changes beyond that, the swap will revert and your assets will be returned.</string>
     <string name="approve_token">Approve %1$s</string>
     <string name="allow_bcdc_dex_to_use">Allow Blockchain.com DEX to use your %1$s?</string>
-    <string name="allowance_bcdc_expanation">To complete the swap, give the Blockchain.com Dex smart contracts permission to use your %1$s. You only have to do this once per token.</string>
+    <string name="allowance_bcdc_expanation">To complete the swap, allow permission to use your %1$s. You only have to do this once per token.</string>
     <string name="asset_upsell_buy_another">Buy Another Asset</string>
     <string name="asset_upsell_title">Would you like to buy another asset?</string>
     <string name="asset_upsell_subtitle">People who bought Bitcoin often buy these assets as well.</string>
@@ -3683,4 +3683,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="common_message">Message</string>
     <string name="approving_token">Approving %1$s</string>
     <string name="could_take_few_seconds">This could take a few seconds.</string>
+    <string name="no_assets_on_network">No assets on %1$s</string>
+    <string name="no_assets_on_network_description">You don\'t have any assets on %1$s Network. Deposit %2$s to get started.</string>
 </resources>

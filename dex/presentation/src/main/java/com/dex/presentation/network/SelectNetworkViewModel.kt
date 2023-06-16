@@ -4,13 +4,11 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.EmptyNavEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
-import com.blockchain.data.filterListData
+import com.blockchain.data.DataResource
 import com.blockchain.data.mapList
-import com.blockchain.data.updateDataWith
 import com.dex.domain.DexNetworkService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CoinNetwork
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class SelectNetworkViewModel(
@@ -32,18 +30,16 @@ class SelectNetworkViewModel(
 
     init {
         viewModelScope.launch {
-            dexNetworkService.supportedNetworks()
-                .filterListData {
+            val networks = dexNetworkService.supportedNetworks()
+                .filter {
                     it.chainId != null &&
                         assetCatalogue.assetInfoFromNetworkTicker(it.nativeAssetTicker) != null
                 }
-                .collectLatest { networksDataResource ->
-                    updateState {
-                        copy(
-                            networks = networks.updateDataWith(networksDataResource)
-                        )
-                    }
-                }
+            updateState {
+                copy(
+                    networks = DataResource.Data(networks)
+                )
+            }
         }
     }
 
