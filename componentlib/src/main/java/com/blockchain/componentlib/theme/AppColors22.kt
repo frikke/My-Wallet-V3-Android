@@ -7,7 +7,7 @@ private val TitleNight = Color(0XFFFFFFFF)
 private val Body = Color(0XFF50596B)
 private val BodyNight = Color(0XFF989BA1)
 private val Muted = Color(0XFF98A1B2)
-private val MutedNight = Color(0XFF98A1B2)
+private val MutedNight = Color(0XFF98A1B2) // missing
 
 private val Primary = Color(0XFF0C6CF2)
 private val PrimaryNight = Color(0XFF65A5FF)

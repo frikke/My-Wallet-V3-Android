@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/backgroundSecondary"
     android:fadingEdge="vertical"
     android:fadingEdgeLength="@dimen/very_small_spacing"
     android:fillViewport="true"
