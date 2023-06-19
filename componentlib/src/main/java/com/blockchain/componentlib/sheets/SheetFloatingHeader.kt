@@ -12,6 +12,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
@@ -19,13 +20,17 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.icons.ChevronLeft
+import com.blockchain.componentlib.icons.Close
 import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.clickableNoEffect
 
 @Composable
 private fun SheetHeader(
+    color: Color = AppTheme.colors.background,
     icon: StackedIcon,
     title: String,
     isFloating: Boolean,
@@ -38,7 +43,7 @@ private fun SheetHeader(
             .fillMaxWidth(),
         shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium),
         elevation = if (isFloating) AppTheme.dimensions.borderRadiiSmallest else 0.dp,
-        backgroundColor = AppTheme.colors.light
+        backgroundColor = color
     ) {
         Row(
             modifier = Modifier.padding(
@@ -88,7 +93,13 @@ private fun SheetHeader(
 
             Image(
                 modifier = Modifier.clickableNoEffect { onCloseClick() },
-                imageResource = ImageResource.Local(R.drawable.ic_close_circle_white)
+                imageResource = Icons.Close
+                    .withTint(AppColors.dark)
+                    .withBackground(
+                        backgroundColor = AppColors.backgroundSecondary,
+                        iconSize = AppTheme.dimensions.standardSpacing,
+                        backgroundSize = AppTheme.dimensions.standardSpacing
+                    )
             )
         }
     }
@@ -96,12 +107,14 @@ private fun SheetHeader(
 
 @Composable
 fun SheetFloatingHeader(
+    color: Color = AppTheme.colors.background,
     icon: StackedIcon,
     title: String,
     backOnClick: (() -> Unit)? = null,
     onCloseClick: () -> Unit
 ) {
     SheetHeader(
+        color = color,
         icon = icon,
         title = title,
         isFloating = true,
@@ -112,12 +125,14 @@ fun SheetFloatingHeader(
 
 @Composable
 fun SheetFlatHeader(
+    color: Color = AppTheme.colors.background,
     icon: StackedIcon,
     title: String,
     backOnClick: (() -> Unit)? = null,
     onCloseClick: () -> Unit
 ) {
     SheetHeader(
+        color = color,
         icon = icon,
         title = title,
         isFloating = false,

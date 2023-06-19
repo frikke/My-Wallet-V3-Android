@@ -285,7 +285,17 @@ fun HomeScreen(
                 handhold(
                     data = handholdTasks,
                     onClick = {
+                        when (it) {
+                            HandholdStep.VerifyEmail -> {
+                                navController.navigate(HomeDestination.EmailVerification)
+                            }
 
+                            HandholdStep.Kyc -> {
+                            }
+
+                            HandholdStep.BuyCrypto -> {
+                            }
+                        }
                     }
                 )
             } else {

@@ -78,3 +78,13 @@ fun Context.shareTextWithSubject(text: String, subject: String) {
 fun Share(text: String, subject: String) {
     LocalContext.current.shareTextWithSubject(text = text, subject = subject)
 }
+
+// email client
+fun Context.openEmailClient() {
+    val intent = Intent(Intent.ACTION_MAIN)
+    intent.addCategory(Intent.CATEGORY_APP_EMAIL)
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    startActivity(
+        Intent.createChooser(intent, getString(com.blockchain.stringResources.R.string.security_centre_email_check))
+    )
+}
