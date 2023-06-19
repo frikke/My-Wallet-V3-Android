@@ -33,23 +33,27 @@ class OutlinedTextInputView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme(setSystemColors = false) {
-            AppSurface {
-                OutlinedTextInput(
-                    value = value,
-                    onValueChange = onValueChange,
-                    state = state,
-                    placeholder = placeholderText,
-                    label = labelText,
-                    unfocusedTrailingIcon = unfocusedTrailingIconResource,
-                    focusedTrailingIcon = focusedTrailingIconResource,
-                    leadingIcon = leadingIconResource,
-                    singleLine = singleLine,
-                    keyboardOptions = KeyboardOptions(keyboardType = inputType),
-                    onTrailingIconClicked = onTrailingIconClicked
-                )
-            }
+        if (isInEditMode) {
+            labelText = "dummy label"
+            value = "dummy text"
         }
+
+        OutlinedTextInput(
+            value = value,
+            onValueChange = {
+                value = it
+                onValueChange(it)
+            },
+            state = state,
+            placeholder = placeholderText,
+            label = labelText,
+            unfocusedTrailingIcon = unfocusedTrailingIconResource,
+            focusedTrailingIcon = focusedTrailingIconResource,
+            leadingIcon = leadingIconResource,
+            singleLine = singleLine,
+            keyboardOptions = KeyboardOptions(keyboardType = inputType),
+            onTrailingIconClicked = onTrailingIconClicked
+        )
     }
 
     fun clearState() {

@@ -8,6 +8,10 @@
     <color name="body">#FF989BA1</color>
     <color name="light">#FF2C3038</color>
     <color name="error">#FFFF3344</color>
+    <color name="warning">#FFFFA133</color>
+    <color name="success">#FF69ECCA</color>
+    <color name="medium">#FF3B3E46</color>
+    <color name="dark">#FF98A1B2</color>
 
     <color name="calendarAccent">#619FF7</color>
     <color name="sheetBackgroundColor">#FF20242C</color>
