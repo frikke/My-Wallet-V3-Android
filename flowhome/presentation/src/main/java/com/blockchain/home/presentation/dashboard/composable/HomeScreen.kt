@@ -27,6 +27,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModelStoreOwner
 import com.blockchain.analytics.Analytics
 import com.blockchain.chrome.LocalNavControllerProvider
+import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.lazylist.paddedItem
@@ -292,6 +293,7 @@ fun HomeScreen(
                             }
 
                             HandholdTask.BuyCrypto -> {
+                                assetActionsNavigation.navigate(AssetAction.Buy)
                             }
                         }
                     }

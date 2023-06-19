@@ -8,6 +8,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.home.handhold.HandholdService
+import com.blockchain.home.handhold.HandholdTask
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import kotlinx.coroutines.flow.collectLatest
@@ -25,7 +26,7 @@ class HandholdViewModel(
         tasksStatus = data,
         showHandhold = walletMode?.let { walletMode ->
             data.map {
-                walletMode == WalletMode.CUSTODIAL && it.any { !it.isComplete }
+                walletMode == WalletMode.CUSTODIAL && it.any { it.task.isMandatory() && !it.isComplete }
             }
         } ?: DataResource.Loading
     )
@@ -54,5 +55,11 @@ class HandholdViewModel(
                 }
             }
         }
+    }
+
+    private fun HandholdTask.isMandatory() = when(this){
+        HandholdTask.VerifyEmail -> false
+        HandholdTask.Kyc -> false
+        HandholdTask.BuyCrypto -> true
     }
 }
