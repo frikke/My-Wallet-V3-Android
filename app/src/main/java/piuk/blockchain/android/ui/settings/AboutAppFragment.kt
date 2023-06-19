@@ -1,7 +1,5 @@
 package piuk.blockchain.android.ui.settings
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +8,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.updateToolbar
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.darkModeFeatureFlag
@@ -105,7 +104,7 @@ class AboutAppFragment : Fragment(), SettingsScreen {
                 SettingsAnalytics.AnalyticsHyperlinkDestination.TERMS_OF_SERVICE
             )
         )
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(URL_TOS_POLICY)))
+        requireContext().openUrl(URL_TOS_POLICY)
     }
 
     private fun onPrivacyClicked() {
@@ -114,7 +113,7 @@ class AboutAppFragment : Fragment(), SettingsScreen {
                 SettingsAnalytics.AnalyticsHyperlinkDestination.PRIVACY_POLICY
             )
         )
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(URL_PRIVACY_POLICY)))
+        requireContext().openUrl(URL_PRIVACY_POLICY)
     }
 
     companion object {

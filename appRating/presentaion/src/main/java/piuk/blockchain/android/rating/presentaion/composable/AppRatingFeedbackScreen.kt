@@ -26,8 +26,6 @@ import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.controls.TextInput
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey600
-import com.blockchain.componentlib.theme.Grey900
 import piuk.blockchain.android.rating.presentaion.AppRatingIntents
 import piuk.blockchain.android.rating.presentaion.AppRatingViewModel
 

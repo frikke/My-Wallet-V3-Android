@@ -16,17 +16,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.MinimalPrimarySmallButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.controls.RatingBar
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Star
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey600
-import com.blockchain.componentlib.theme.Grey900
 import piuk.blockchain.android.rating.presentaion.AppRatingIntents
 import piuk.blockchain.android.rating.presentaion.AppRatingViewModel
 import piuk.blockchain.android.rating.presentaion.R

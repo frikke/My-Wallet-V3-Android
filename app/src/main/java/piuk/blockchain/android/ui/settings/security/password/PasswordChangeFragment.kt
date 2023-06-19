@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.settings.security.password
 
 import android.os.Bundle
-import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,7 +18,6 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.stringResources.R
 import piuk.blockchain.android.databinding.FragmentPasswordUpdateBinding
-import piuk.blockchain.android.util.AfterTextChangedWatcher
 
 class PasswordChangeFragment :
     MviFragment<PasswordChangeModel, PasswordChangeIntent, PasswordChangeState, FragmentPasswordUpdateBinding>() {
