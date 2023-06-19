@@ -85,7 +85,8 @@ val homeDataModule = module {
                 tradingService = get(),
                 interestService = get(),
                 stakingService = get(),
-                activeRewardsService  = get()
+                activeRewardsService = get(),
+                handholdPrefs = get()
             )
         }
     }

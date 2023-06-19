@@ -79,6 +79,39 @@
             android:visibility="gone"
             tools:visibility="visible" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="2dp"
+            android:gravity="center"
+            android:text="Handhold" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/handhold_override"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="handhold override" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/handhold_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="handhold email verified" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/handhold_kyc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="handhold kyc verified" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/handhold_buy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="handhold buy verified" />
         <Button
             android:id="@+id/reset_app_rating"
             style="@style/CtaButton.Blue"

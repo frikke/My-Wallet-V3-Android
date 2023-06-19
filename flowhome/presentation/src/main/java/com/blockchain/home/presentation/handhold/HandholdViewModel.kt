@@ -57,7 +57,7 @@ class HandholdViewModel(
         }
     }
 
-    private fun HandholdTask.isMandatory() = when(this){
+    private fun HandholdTask.isMandatory() = when (this) {
         HandholdTask.VerifyEmail -> false
         HandholdTask.Kyc -> false
         HandholdTask.BuyCrypto -> true
