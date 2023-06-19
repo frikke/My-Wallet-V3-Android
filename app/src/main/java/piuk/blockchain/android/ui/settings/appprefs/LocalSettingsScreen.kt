@@ -15,6 +15,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.tablerow.ToggleTableRow
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.koin.payloadScope
@@ -44,7 +45,7 @@ fun LocalSettings(
 @Composable
 fun LocalSettingsScreen(state: LocalSettingsViewState, viewModel: LocalSettingsViewModel) {
     AppTheme {
-        AppSurface(color = Color.White) {
+        AppSurface(color = AppColors.backgroundSecondary) {
             Column(modifier = Modifier.fillMaxSize()) {
                 ToggleTableRow(
                     primaryText = stringResource(com.blockchain.stringResources.R.string.settings_chart_vibration),
