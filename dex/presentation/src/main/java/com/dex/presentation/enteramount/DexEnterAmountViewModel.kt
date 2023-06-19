@@ -1,6 +1,7 @@
 package com.dex.presentation.enteramount
 
 import androidx.lifecycle.viewModelScope
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
@@ -12,7 +13,6 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
-import com.blockchain.data.updateDataWith
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.safeLet
 import com.blockchain.outcome.Outcome
@@ -147,6 +147,7 @@ class DexEnterAmountViewModel(
                 state.feeToFiatExchangeRate
             ),
             previewActionButtonState = actionButtonState(state),
+            sourceAccountHasNoFunds = transaction?.sourceAccount?.fiatBalance?.isZero ?: false,
             allowanceCanBeRevoked = state.canRevokeAllowance
         )
     }
@@ -264,6 +265,12 @@ class DexEnterAmountViewModel(
                     intent.currency.coinNetwork?.explorerUrl?.plus("/${intent.txId}").orEmpty()
                 )
             )
+
+            is InputAmountIntent.DepositOnSourceAccountRequested -> {
+                modelState.transaction?.sourceAccount?.let {
+                    intent.receive(it.account)
+                }
+            }
         }
     }
 
@@ -380,12 +387,11 @@ class DexEnterAmountViewModel(
 
     private fun loadNetworks() {
         viewModelScope.launch {
-            dexNetworkService.supportedNetworks().collectLatest { coinNetworks ->
-                updateState {
-                    copy(
-                        networks = networks.updateDataWith(coinNetworks)
-                    )
-                }
+            val networks = dexNetworkService.supportedNetworks()
+            updateState {
+                copy(
+                    networks = DataResource.Data(networks)
+                )
             }
         }
     }
@@ -393,31 +399,47 @@ class DexEnterAmountViewModel(
     private fun initTransaction() {
         viewModelScope.launch {
             val selectedSlippage = dexSlippageService.selectedSlippage()
-            // collect chain changes and reset transaction when it changes
-            dexNetworkService.chainId.collectLatest { chainId ->
-                val preselectedAccount = dexAccountsService.defSourceAccount(chainId = chainId)
-                preselectedAccount?.let { source ->
-                    val preselectedDestination = dexAccountsService.defDestinationAccount(
-                        chainId = chainId,
-                        source = source
-                    )
+            val networks = dexNetworkService.supportedNetworks()
+
+            val defAccounts = networks.associateWith {
+                dexAccountsService.defSourceAccount(it)
+            }
+
+            if (defAccounts.filter { it.value.fiatBalance.isPositive }.isEmpty()) {
+                dexNetworkService.chainId.collectLatest { chainId ->
                     updateState {
                         copy(
                             selectedChain = chainId,
-                            canTransact = DataResource.Data(true)
+                            canTransact = DataResource.Data(false)
                         )
                     }
-                    txProcessor.initTransaction(
-                        sourceAccount = source,
-                        destinationAccount = preselectedDestination,
-                        slippage = selectedSlippage
-                    )
-                    subscribeForTxUpdates()
-                } ?: updateState {
-                    copy(
-                        selectedChain = chainId,
-                        canTransact = DataResource.Data(false)
-                    )
+                }
+            } else {
+                dexNetworkService.chainId.collectLatest { chainId ->
+                    val preselectedAccount = defAccounts[networks.first { it.chainId == chainId }]
+                    preselectedAccount?.let { source ->
+                        val preselectedDestination = dexAccountsService.defDestinationAccount(
+                            chainId = chainId,
+                            source = source
+                        )
+                        updateState {
+                            copy(
+                                selectedChain = chainId,
+                                canTransact = DataResource.Data(true)
+                            )
+                        }
+                        txProcessor.initTransaction(
+                            sourceAccount = source,
+                            destinationAccount = preselectedDestination,
+                            slippage = selectedSlippage
+                        )
+                        subscribeForTxUpdates()
+                    } ?: updateState {
+                        copy(
+                            selectedChain = chainId,
+                            canTransact = DataResource.Data(false)
+                        )
+                    }
                 }
             }
         }
@@ -574,11 +596,12 @@ sealed class InputAmountViewState : ViewState {
         val allowanceCanBeRevoked: Boolean,
         val uiFee: UiNetworkFee,
         val previewActionButtonState: ActionButtonState,
+        val sourceAccountHasNoFunds: Boolean,
         private val errors: List<DexUiError> = emptyList()
     ) : InputAmountViewState() {
         fun canChangeInputCurrency() =
             operationInProgress != DexOperation.PushingAllowance &&
-                operationInProgress !is DexOperation.PollingAllowance
+                operationInProgress !is DexOperation.PollingAllowance && !sourceAccountHasNoFunds
 
         val allowanceTransactionInProgress: Boolean
             get() = operationInProgress == DexOperation.BuildingAllowance ||
@@ -672,6 +695,8 @@ sealed class InputAmountIntent : Intent<AmountModelState> {
     object BuildAllowanceTransaction : InputAmountIntent()
     object IgnoreTxInProcessError : InputAmountIntent()
     object RevokeSourceCurrencyAllowance : InputAmountIntent()
+
+    data class DepositOnSourceAccountRequested(val receive: (CryptoNonCustodialAccount) -> Unit) : InputAmountIntent()
     data class PollForPendingAllowance(val currency: AssetInfo) : InputAmountIntent() {
         override fun isValidFor(modelState: AmountModelState): Boolean {
             return modelState.operationInProgress !is DexOperation.PollingAllowance

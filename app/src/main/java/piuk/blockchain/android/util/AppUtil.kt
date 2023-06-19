@@ -13,7 +13,7 @@ import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.wallet.payload.PayloadScopeWiper
 import io.intercom.android.sdk.Intercom
 import piuk.blockchain.android.ui.auth.LogoutActivity
-import piuk.blockchain.android.ui.launcher.LauncherActivityV2
+import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.launcher.loader.LoginMethod
 import piuk.blockchain.android.ui.start.LandingActivity
 
@@ -62,7 +62,7 @@ class AppUtil(
 
     override fun restartApp(redirectLandingToLogin: Boolean) {
         context.startActivity(
-            Intent(context, LauncherActivityV2::class.java).apply {
+            Intent(context, LauncherActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
                 putExtra(LandingActivity.REDIRECT_TO_LOGIN, redirectLandingToLogin)
             }

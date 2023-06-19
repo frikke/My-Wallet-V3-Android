@@ -11,6 +11,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.commonarch.presentation.mvi_v2.compose.getComposeArgument
 import com.blockchain.commonarch.presentation.mvi_v2.compose.wrappedArg
 import com.dex.presentation.DexIntroductionScreens
+import com.dex.presentation.NoNetworkFundsBottomSheet
 import com.dex.presentation.SelectDestinationAccountBottomSheet
 import com.dex.presentation.SelectSourceAccountBottomSheet
 import com.dex.presentation.SettingsBottomSheet
@@ -116,6 +117,19 @@ fun NavGraphBuilder.dexGraph(onBackPressed: () -> Unit, navController: NavContro
             )
         }
     }
+    bottomSheet(navigationEvent = DexDestination.NoFundsForSourceAccount) {
+        val data = it.arguments?.getComposeArgument(ARG_CURRENCY_TICKER) ?: throw IllegalArgumentException(
+            "You must provide details"
+        )
+
+        ChromeBottomSheet(onClose = onBackPressed) {
+            NoNetworkFundsBottomSheet(
+                closeClicked = onBackPressed,
+                assetTicker = data,
+                savedStateHandle = navController.previousBackStackEntry?.savedStateHandle
+            )
+        }
+    }
 }
 
 sealed class DexDestination(
@@ -123,6 +137,10 @@ sealed class DexDestination(
 ) : ComposeNavigationDestination {
     object Intro : DexDestination("Intro")
     object SelectSourceAccount : DexDestination("SelectSourceAccount")
+    object NoFundsForSourceAccount : DexDestination(
+        route = "NoFundsForSourceAccountSheet/${ARG_CURRENCY_TICKER.wrappedArg()}}"
+    )
+
     object SelectDestinationAccount : DexDestination("SelectDestinationAccount")
     object Settings : DexDestination("Settings")
     object SelectNetwork : DexDestination("SelectNetwork")
@@ -136,4 +154,5 @@ sealed class DexDestination(
 
 const val ARG_ALLOWANCE_TX = "ARG_ALLOWANCE_TX"
 const val ARG_INFO_TITLE = "ARG_INFO_TITLE"
+const val ARG_CURRENCY_TICKER = "ARG_CURRENCY_TICKER"
 const val ARG_INFO_DESCRIPTION = "ARG_INFO_DESCRIPTION"

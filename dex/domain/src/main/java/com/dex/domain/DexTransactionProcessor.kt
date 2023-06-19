@@ -344,9 +344,12 @@ class DexTransactionProcessor(
     }
 
     private suspend fun DexTransaction.validateSufficientNetworkFees(): DexTransaction {
+        amount ?: return this
         return quote?.networkFees?.let {
             val networkBalance = balanceService.networkBalance(sourceAccount)
-            if (networkBalance >= it) {
+            val availableForFees =
+                if (sourceAccount.currency.isNetworkNativeAsset()) networkBalance.minus(amount) else networkBalance
+            if (availableForFees >= it) {
                 this
             } else copy(
                 txErrors = txErrors.plus(DexTxError.NotEnoughGas)

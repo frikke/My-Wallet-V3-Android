@@ -1,5 +1,6 @@
 package com.blockchain.transactions.sell.sourceaccounts.composable
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,6 +16,7 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.sheets.SheetFlatHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
@@ -63,7 +65,9 @@ fun SellSourceAccounts(
     }
 
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(AppColors.background)
     ) {
         SheetFlatHeader(
             icon = StackedIcon.None,

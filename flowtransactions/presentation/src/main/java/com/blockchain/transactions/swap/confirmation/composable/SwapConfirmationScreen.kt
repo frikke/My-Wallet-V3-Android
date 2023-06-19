@@ -1,6 +1,7 @@
 package com.blockchain.transactions.swap.confirmation.composable
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.net.Uri
 import android.text.format.DateUtils
 import androidx.compose.foundation.background
@@ -47,9 +48,9 @@ import com.blockchain.componentlib.icons.Question
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
-import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.utils.AnnotatedStringUtils
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.koin.payloadScope
@@ -103,115 +104,118 @@ fun SwapConfirmationScreen(
 
     val state by viewModel.viewState.collectAsStateLifecycleAware()
 
-    Column {
-        NavigationBar(
-            title = stringResource(com.blockchain.stringResources.R.string.swap_confirmation_navbar),
-            onBackButtonClick = backClicked
-        )
+    ConfirmationContent(
+        state = state,
+        submitOnClick = {
+            viewModel.onIntent(SwapConfirmationIntent.SubmitClicked)
 
-        ConfirmationContent(
-            state = state,
-            submitOnClick = {
-                viewModel.onIntent(SwapConfirmationIntent.SubmitClicked)
-
-                analytics.logEvent(
-                    SwapAnalyticsEvents.SwapClicked(
-                        fromTicker = sourceAccount.currency.networkTicker,
-                        fromAmount = sourceCryptoAmount.toStringWithSymbol(),
-                        toTicker = targetAccount.currency.networkTicker,
-                        destination = targetAccount.accountType()
-                    )
+            analytics.logEvent(
+                SwapAnalyticsEvents.SwapClicked(
+                    fromTicker = sourceAccount.currency.networkTicker,
+                    fromAmount = sourceCryptoAmount.toStringWithSymbol(),
+                    toTicker = targetAccount.currency.networkTicker,
+                    destination = targetAccount.accountType()
                 )
-            }
-        )
-    }
+            )
+        },
+        backClicked = backClicked
+    )
 }
 
 @Composable
 private fun ConfirmationContent(
     state: SwapConfirmationViewState,
-    submitOnClick: () -> Unit
+    submitOnClick: () -> Unit,
+    backClicked: () -> Unit
 ) {
-    Box(Modifier.fillMaxHeight()) {
-        Column(
-            Modifier
-                .background(AppTheme.colors.light)
-                .padding(AppTheme.dimensions.smallSpacing)
-                .verticalScroll(rememberScrollState())
-        ) {
-            val topIcon = if (state.sourceNativeAssetIconUrl != null) {
-                StackedIcon.SmallTag(
-                    ImageResource.Remote(state.sourceAsset.logo),
-                    ImageResource.Remote(state.sourceNativeAssetIconUrl)
-                )
-            } else {
-                StackedIcon.SingleIcon(ImageResource.Remote(state.sourceAsset.logo))
-            }
+    Column(
+        modifier = Modifier.background(AppColors.background)
+    ) {
+        NavigationBar(
+            title = stringResource(com.blockchain.stringResources.R.string.swap_confirmation_navbar),
+            onBackButtonClick = backClicked
+        )
 
-            val bottomIcon = if (state.targetNativeAssetIconUrl != null) {
-                StackedIcon.SmallTag(
-                    ImageResource.Remote(state.targetAsset.logo),
-                    ImageResource.Remote(state.targetNativeAssetIconUrl)
-                )
-            } else {
-                StackedIcon.SingleIcon(ImageResource.Remote(state.targetAsset.logo))
-            }
-
-            TwoAssetAction(
-                topTitle = state.sourceAsset.name,
-                topSubtitle = state.sourceAssetDescription,
-                topEndTitle = state.sourceCryptoAmount.toStringWithSymbol(),
-                topEndSubtitle = state.sourceFiatAmount?.toStringWithSymbol().orEmpty(),
-                topIcon = topIcon,
-                bottomTitle = state.targetAsset.name,
-                bottomSubtitle = state.targetAssetDescription,
-                bottomEndTitle = state.targetCryptoAmount?.toStringWithSymbol().orEmpty(),
-                bottomEndSubtitle = state.targetFiatAmount?.toStringWithSymbol().orEmpty(),
-                bottomIcon = bottomIcon
-            )
-
-            StandardVerticalSpacer()
-
-            SwapExchangeRate(state.sourceToTargetExchangeRate)
-
-            StandardVerticalSpacer()
-
-            if (
-                (state.sourceNetworkFeeCryptoAmount != null && !state.sourceNetworkFeeCryptoAmount.isZero) ||
-                (state.targetNetworkFeeCryptoAmount != null && !state.targetNetworkFeeCryptoAmount.isZero)
+        Box(Modifier.fillMaxHeight()) {
+            Column(
+                Modifier
+                    .padding(AppTheme.dimensions.smallSpacing)
+                    .verticalScroll(rememberScrollState())
             ) {
-                NetworkFees(
-                    sourceNetworkFeeCryptoAmount = state.sourceNetworkFeeCryptoAmount,
-                    sourceNetworkFeeFiatAmount = state.sourceNetworkFeeFiatAmount,
-                    targetNetworkFeeCryptoAmount = state.targetNetworkFeeCryptoAmount,
-                    targetNetworkFeeFiatAmount = state.targetNetworkFeeFiatAmount
+                val topIcon = if (state.sourceNativeAssetIconUrl != null) {
+                    StackedIcon.SmallTag(
+                        ImageResource.Remote(state.sourceAsset.logo),
+                        ImageResource.Remote(state.sourceNativeAssetIconUrl)
+                    )
+                } else {
+                    StackedIcon.SingleIcon(ImageResource.Remote(state.sourceAsset.logo))
+                }
+
+                val bottomIcon = if (state.targetNativeAssetIconUrl != null) {
+                    StackedIcon.SmallTag(
+                        ImageResource.Remote(state.targetAsset.logo),
+                        ImageResource.Remote(state.targetNativeAssetIconUrl)
+                    )
+                } else {
+                    StackedIcon.SingleIcon(ImageResource.Remote(state.targetAsset.logo))
+                }
+
+                TwoAssetAction(
+                    topTitle = state.sourceAsset.name,
+                    topSubtitle = state.sourceAssetDescription,
+                    topEndTitle = state.sourceCryptoAmount.toStringWithSymbol(),
+                    topEndSubtitle = state.sourceFiatAmount?.toStringWithSymbol().orEmpty(),
+                    topIcon = topIcon,
+                    bottomTitle = state.targetAsset.name,
+                    bottomSubtitle = state.targetAssetDescription,
+                    bottomEndTitle = state.targetCryptoAmount?.toStringWithSymbol().orEmpty(),
+                    bottomEndSubtitle = state.targetFiatAmount?.toStringWithSymbol().orEmpty(),
+                    bottomIcon = bottomIcon
                 )
 
                 StandardVerticalSpacer()
+
+                SwapExchangeRate(state.sourceToTargetExchangeRate)
+
+                StandardVerticalSpacer()
+
+                if (
+                    (state.sourceNetworkFeeCryptoAmount != null && !state.sourceNetworkFeeCryptoAmount.isZero) ||
+                    (state.targetNetworkFeeCryptoAmount != null && !state.targetNetworkFeeCryptoAmount.isZero)
+                ) {
+                    NetworkFees(
+                        sourceNetworkFeeCryptoAmount = state.sourceNetworkFeeCryptoAmount,
+                        sourceNetworkFeeFiatAmount = state.sourceNetworkFeeFiatAmount,
+                        targetNetworkFeeCryptoAmount = state.targetNetworkFeeCryptoAmount,
+                        targetNetworkFeeFiatAmount = state.targetNetworkFeeFiatAmount
+                    )
+
+                    StandardVerticalSpacer()
+                }
+
+                SwapQuoteTimer(
+                    remainingSeconds = state.quoteRefreshRemainingSeconds ?: 90,
+                    remainingPercentage = state.quoteRefreshRemainingPercentage ?: 1f
+                )
+
+                StandardVerticalSpacer()
+
+                SwapDisclaimer()
+
+                // Padding for the CTA
+                Spacer(Modifier.height(AppTheme.dimensions.epicSpacing))
             }
 
-            SwapQuoteTimer(
-                remainingSeconds = state.quoteRefreshRemainingSeconds ?: 90,
-                remainingPercentage = state.quoteRefreshRemainingPercentage ?: 1f
+            PrimaryButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(AppTheme.dimensions.smallSpacing)
+                    .align(Alignment.BottomCenter),
+                text = stringResource(com.blockchain.stringResources.R.string.common_swap),
+                state = state.submitButtonState,
+                onClick = submitOnClick
             )
-
-            StandardVerticalSpacer()
-
-            SwapDisclaimer()
-
-            // Padding for the CTA
-            Spacer(Modifier.height(AppTheme.dimensions.epicSpacing))
         }
-
-        PrimaryButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(AppTheme.dimensions.smallSpacing)
-                .align(Alignment.BottomCenter),
-            text = stringResource(com.blockchain.stringResources.R.string.common_swap),
-            state = state.submitButtonState,
-            onClick = submitOnClick
-        )
     }
 }
 
@@ -245,7 +249,10 @@ fun SwapDisclaimer() {
 fun SwapQuoteTimer(remainingSeconds: Int, remainingPercentage: Float, modifier: Modifier = Modifier) {
     Row(
         modifier
-            .background(White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
+            .background(
+                color = AppColors.backgroundSecondary,
+                shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
+            )
             .padding(AppTheme.dimensions.smallSpacing),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -280,7 +287,10 @@ private fun SwapExchangeRate(rate: ExchangeRate?, modifier: Modifier = Modifier)
     var isExplainerVisible by remember { mutableStateOf(false) }
     Column(
         Modifier
-            .background(White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
+            .background(
+                color = AppColors.backgroundSecondary,
+                shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
+            )
             .clickable {
                 isExplainerVisible = !isExplainerVisible
             }
@@ -440,12 +450,17 @@ private fun PreviewInitialState() {
         quoteRefreshRemainingSeconds = null,
         submitButtonState = ButtonState.Disabled
     )
-    Column {
-        ConfirmationContent(
-            state = state,
-            submitOnClick = {}
-        )
-    }
+    ConfirmationContent(
+        state = state,
+        submitOnClick = {},
+        backClicked = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewInitialStateDark() {
+    PreviewInitialState()
 }
 
 @Preview
@@ -476,10 +491,15 @@ private fun PreviewLoadedState() {
         quoteRefreshRemainingSeconds = 45,
         submitButtonState = ButtonState.Enabled
     )
-    Column {
-        ConfirmationContent(
-            state = state,
-            submitOnClick = {}
-        )
-    }
+    ConfirmationContent(
+        state = state,
+        submitOnClick = {},
+        backClicked = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewLoadedStateDark() {
+    PreviewLoadedState()
 }

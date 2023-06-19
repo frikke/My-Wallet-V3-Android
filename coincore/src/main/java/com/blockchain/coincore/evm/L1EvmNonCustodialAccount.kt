@@ -18,6 +18,7 @@ import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CoinNetwork
 import io.reactivex.rxjava3.core.Single
+import org.koin.core.component.get
 
 class L1EvmNonCustodialAccount(
     asset: AssetInfo,
@@ -32,7 +33,6 @@ class L1EvmNonCustodialAccount(
 ) : CryptoNonCustodialAccount(asset) {
 
     override val isDefault: Boolean = true // Only one account, so always default
-
     override val receiveAddress: Single<ReceiveAddress>
         get() = Single.just(
             L1EvmAddress(

@@ -26,7 +26,7 @@ import piuk.blockchain.android.databinding.ActivityLoaderBinding
 import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailVerificationFragment
-import piuk.blockchain.android.ui.launcher.LauncherActivityV2
+import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.settings.security.pin.PinActivity
 import piuk.blockchain.android.util.AppUtil
 
@@ -65,7 +65,7 @@ class LoaderActivity :
 
     override fun render(newState: LoaderState) {
         when (val loaderStep = newState.nextLoadingStep) {
-            is LoadingStep.Launcher -> startSingleActivity(LauncherActivityV2::class.java)
+            is LoadingStep.Launcher -> startSingleActivity(LauncherActivity::class.java)
             is LoadingStep.RequestPin -> onRequestPin()
             // These below should always come only after a ProgressStep.FINISH has been emitted
             is LoadingStep.EmailVerification -> launchEmailVerification()

@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.card
 
+import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,15 +15,15 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.icons.ArrowDown
 import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.Receive
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 import com.blockchain.componentlib.theme.SmallestVerticalSpacer
@@ -70,7 +71,7 @@ fun TwoAssetAction(
         ) {
             Image(
                 imageResource = Icons.ArrowDown.withBackground(
-                    backgroundColor = Color.White,
+                    backgroundColor = AppColors.backgroundSecondary,
                     backgroundSize = AppTheme.dimensions.standardSpacing,
                     iconSize = AppTheme.dimensions.standardSpacing
                 )
@@ -146,13 +147,19 @@ private fun PreviewTwoAssetAction() {
         topSubtitle = "Ethereum",
         topEndTitle = "0.05459411 ETH",
         topEndSubtitle = "100.00",
-        topIcon = StackedIcon.SingleIcon(Icons.Receive),
+        StackedIcon.SingleIcon(ImageResource.Remote("")),
         bottomTitle = "To",
         bottomSubtitle = "Bitcoin",
         bottomEndTitle = "0.00350795 BTC",
         bottomEndSubtitle = "96.99",
-        bottomIcon = StackedIcon.SingleIcon(Icons.Receive)
+        StackedIcon.SingleIcon(ImageResource.Remote("")),
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true, backgroundColor = 0XFF07080D)
+@Composable
+private fun PreviewTwoAssetActionDark() {
+    PreviewTwoAssetAction()
 }
 
 @Preview
@@ -163,6 +170,12 @@ private fun PreviewAssetStart() {
         subtitle = "ETH",
         endTitle = "0.05459411 ETH",
         endSubtitle = "100.00",
-        icon = StackedIcon.SingleIcon(Icons.Receive)
+        StackedIcon.SingleIcon(ImageResource.Remote("")),
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true, backgroundColor = 0XFF07080D)
+@Composable
+private fun PreviewAssetStartDark() {
+    PreviewAssetStart()
 }

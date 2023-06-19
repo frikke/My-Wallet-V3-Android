@@ -7,8 +7,8 @@ import com.blockchain.componentlib.tablerow.custom.CustomTableRow
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tablerow.custom.ViewStyle
 import com.blockchain.componentlib.tablerow.custom.ViewType
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.White
 
 @Composable
 fun SellConfirmationTableRow(
@@ -61,7 +61,7 @@ fun SellConfirmationTableRow(
             },
         ),
         onClick = onClick,
-        backgroundColor = White,
+        backgroundColor = AppColors.backgroundSecondary,
         backgroundShape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium),
     )
 }

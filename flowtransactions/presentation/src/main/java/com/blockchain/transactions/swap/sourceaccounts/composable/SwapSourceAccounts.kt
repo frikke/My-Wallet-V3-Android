@@ -1,5 +1,6 @@
 package com.blockchain.transactions.swap.sourceaccounts.composable
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +14,7 @@ import androidx.compose.ui.res.stringResource
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.sheets.SheetFlatHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.koin.payloadScope
@@ -63,7 +65,9 @@ fun SwapSourceAccounts(
     }
 
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(AppColors.background)
     ) {
         SheetFlatHeader(
             icon = StackedIcon.None,

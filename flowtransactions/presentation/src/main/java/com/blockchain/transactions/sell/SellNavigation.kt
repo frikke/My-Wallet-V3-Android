@@ -17,7 +17,7 @@ import com.blockchain.chrome.composable.ChromeSingleScreen
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.common.entersecondpassword.EnterSecondPasswordArgs
-import com.blockchain.transactions.common.entersecondpassword.composable.EnterSecondPasswordScreen
+import com.blockchain.transactions.common.entersecondpassword.composable.EnterSecondPassword
 import com.blockchain.transactions.sell.confirmation.SellConfirmationArgs
 import com.blockchain.transactions.sell.confirmation.composable.SellConfirmationScreen
 import com.blockchain.transactions.sell.enteramount.SellEnterAmountArgs
@@ -31,7 +31,7 @@ import com.blockchain.transactions.sell.neworderstate.composable.SellNewOrderSta
 import com.blockchain.transactions.sell.sourceaccounts.composable.SellSourceAccounts
 import com.blockchain.transactions.sell.targetassets.SellTargetAssetsArgs
 import com.blockchain.transactions.sell.targetassets.composable.SellTargetAssets
-import com.blockchain.transactions.sell.upsell.UpsellBuyAfterSellScreen
+import com.blockchain.transactions.sell.upsell.UpsellBuyAfterSell
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import info.blockchain.balance.AssetInfo
 import org.koin.androidx.compose.getViewModel
@@ -103,7 +103,7 @@ fun SellGraphHost(
 
         typedBottomSheet(SellGraph.EnterSecondPassword) { args ->
             ChromeBottomSheet(fillMaxHeight = true, onClose = ::navigateUp) {
-                EnterSecondPasswordScreen(
+                EnterSecondPassword(
                     args = args,
                     onAccountSecondPasswordValidated = { account, secondPassword ->
                         viewModel.onIntent(SellEnterAmountIntent.FromAccountChanged(account, secondPassword))
@@ -158,7 +158,7 @@ fun SellGraphHost(
 
         typedBottomSheet(SellGraph.UpsellBuy) { assetJustSoldTicker ->
             ChromeBottomSheet(fillMaxHeight = true, onClose = exitFlow) {
-                UpsellBuyAfterSellScreen(
+                UpsellBuyAfterSell(
                     assetJustSoldTicker = assetJustSoldTicker,
                     navigateToBuy = { asset ->
                         navigateToBuy(asset)

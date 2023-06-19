@@ -1,25 +1,31 @@
 package com.dex.data
 
 import com.blockchain.coincore.AccountBalance
+import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.outcome.getOrNull
+import com.blockchain.outcome.map
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DexPrefs
 import com.blockchain.utils.asFlow
+import com.blockchain.utils.awaitOutcome
 import com.blockchain.walletmode.WalletMode
 import com.dex.domain.DexAccount
 import com.dex.domain.DexAccountsService
 import com.dex.domain.DexCurrency
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.Money
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -46,11 +52,35 @@ class DexAccountsRepository(
         }
 
     override suspend fun defSourceAccount(
-        chainId: Int
-    ): DexAccount? {
-        return dexSourceAccounts(chainId = chainId).map { accounts ->
+        coinNetwork: CoinNetwork
+    ): DexAccount {
+        val chainId = coinNetwork.chainId
+        require(chainId != null)
+        val defFundedAccount = dexSourceAccounts(chainId = chainId).map { accounts ->
             accounts.maxByOrNull { it.fiatBalance }
         }.firstOrNull()
+        if (defFundedAccount != null)
+            return defFundedAccount
+        val nativeCurrency =
+            assetCatalogue.assetInfoFromNetworkTicker(coinNetwork.nativeAssetTicker) ?: throw IllegalStateException("")
+        val nativeAccount =
+            coincore[nativeCurrency].defaultAccount(
+                AssetFilter.NonCustodial
+            ).awaitOutcome()
+
+        return nativeAccount.getOrNull()?.let {
+            val balance = it.balance().first()
+            DexAccount(
+                account = it as CryptoNonCustodialAccount,
+                balance = balance.total,
+                currency = DexCurrency(
+                    currency = nativeCurrency,
+                    chainId = coinNetwork.chainId!!,
+                    contractAddress = nativeCurrency.l2identifier
+                ),
+                fiatBalance = balance.totalFiat
+            )
+        } ?: throw IllegalStateException("")
     }
 
     override suspend fun defDestinationAccount(
