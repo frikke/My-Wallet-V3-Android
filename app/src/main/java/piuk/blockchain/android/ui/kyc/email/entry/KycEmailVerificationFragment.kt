@@ -15,7 +15,7 @@ import piuk.blockchain.android.EmailVerificationArgs
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 
 class KycEmailVerificationFragment :
-    Fragment() ,
+    Fragment(),
     SlidingModalBottomDialog.Host,
     AndroidScopeComponent {
 

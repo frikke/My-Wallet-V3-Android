@@ -21,7 +21,6 @@ import com.blockchain.componentlib.basic.MaskableText
 import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.icons.Email
 import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.tablerow.FlexibleTableRow
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
@@ -59,7 +58,7 @@ fun MaskedCustomTableRow(
     backgroundShape: Shape = RectangleShape
 ) {
     CustomTableRow(
-        modifier= modifier,
+        modifier = modifier,
         maskState = MaskStateConfig.Default,
         icon = icon,
         leadingComponents = leadingComponents,

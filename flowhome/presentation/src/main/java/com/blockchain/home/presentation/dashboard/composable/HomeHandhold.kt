@@ -45,17 +45,17 @@ internal fun LazyListScope.handhold(
                 bottom = AppTheme.dimensions.smallSpacing
             )
         }
-    ) { stepStatus ->
-        val isAnyPreviousIncomplete = data.subList(0, data.indexOf(stepStatus))
+    ) { taskStatus ->
+        val isAnyPreviousIncomplete = data.subList(0, data.indexOf(taskStatus))
             .any { !it.isComplete }
 
-        val disabled = stepStatus.isIncomplete && isAnyPreviousIncomplete
+        val disabled = taskStatus.isIncomplete && isAnyPreviousIncomplete
 
         HandholdTask(
-            stepStatus = stepStatus,
+            taskStatus = taskStatus,
             enabled = !disabled,
             onClick = {
-                onClick(stepStatus.task)
+                onClick(taskStatus.task)
             }
         )
     }

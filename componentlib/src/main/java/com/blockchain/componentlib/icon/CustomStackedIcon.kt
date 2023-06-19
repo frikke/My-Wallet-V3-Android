@@ -58,7 +58,7 @@ fun CustomStackedIcon(
                 shape = iconShape,
                 color = iconBackground
             ) {
-                Box{
+                Box {
                     AsyncMediaItem(
                         modifier = Modifier
                             .align(Alignment.Center),

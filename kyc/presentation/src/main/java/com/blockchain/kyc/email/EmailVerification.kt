@@ -47,7 +47,8 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun EmailVerification(
     verificationRequired: Boolean,
-    viewModel: EmailVerificationViewModel = getViewModel(scope = payloadScope,
+    viewModel: EmailVerificationViewModel = getViewModel(
+        scope = payloadScope,
         key = verificationRequired.toString(),
         parameters = { parametersOf(verificationRequired) }
     ),
