@@ -47,8 +47,8 @@
         android:layout_marginEnd="@dimen/standard_spacing"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:tint="@color/body"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/vector_arrow_grey_right" />
+        app:srcCompat="@drawable/vector_arrow_grey_right"
+        app:tint="@color/body" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
