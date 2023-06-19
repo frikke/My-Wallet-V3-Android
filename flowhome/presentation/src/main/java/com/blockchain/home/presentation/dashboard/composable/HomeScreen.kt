@@ -291,6 +291,7 @@ fun HomeScreen(
                             }
 
                             HandholdStep.Kyc -> {
+                                assetActionsNavigation.startKyc()
                             }
 
                             HandholdStep.BuyCrypto -> {

@@ -6,7 +6,6 @@ import com.blockchain.data.map
 import com.blockchain.home.handhold.HandholdStepStatus
 
 data class HandholdViewState(
-    val stepsStatus: DataResource<List<HandholdStepStatus>>
-) : ViewState {
-    val showHandhold: DataResource<Boolean> get() = stepsStatus.map { it.any { !it.isComplete } }
-}
+    val stepsStatus: DataResource<List<HandholdStepStatus>>,
+    val showHandhold: DataResource<Boolean>
+) : ViewState

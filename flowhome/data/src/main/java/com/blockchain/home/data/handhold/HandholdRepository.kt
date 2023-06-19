@@ -47,7 +47,7 @@ class HandholdRepository(
         val buyStep = flowOf(
             DataResource.Data(
                 HandholdStepStatus(
-                    step = HandholdStep.BuyCrypto, status = HandholStatus.Incomplete
+                    step = HandholdStep.BuyCrypto, status = HandholStatus.Complete
                 )
             )
         )
