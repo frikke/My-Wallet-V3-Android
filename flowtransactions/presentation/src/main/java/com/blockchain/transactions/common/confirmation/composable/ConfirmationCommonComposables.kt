@@ -9,8 +9,8 @@ import androidx.compose.ui.Modifier
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.tag.TagViewState
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.White
 
 @Composable
 fun ConfirmationSection(
@@ -19,7 +19,10 @@ fun ConfirmationSection(
 ) {
     Column(
         modifier
-            .background(White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
+            .background(
+                color = AppColors.backgroundSecondary,
+                shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
+            )
     ) {
         content()
     }
@@ -51,7 +54,7 @@ fun ConfirmationTableRow(
         endTag = endTag,
         startImageResource = startImageResource,
         endImageResource = endImageResource,
-        backgroundColor = White,
+        backgroundColor = AppColors.backgroundSecondary,
         backgroundShape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium),
         titleColor = AppTheme.colors.title,
         titleStyle = AppTheme.typography.paragraph2,

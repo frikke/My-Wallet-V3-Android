@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.card
 
+import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -17,20 +18,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import com.blockchain.componentlib.basic.Image
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.icons.ArrowRight
 import com.blockchain.componentlib.icons.Coins
 import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.Receive
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.stringResources.R
 
@@ -55,7 +56,7 @@ private fun TwoAssetActionBody(
         ) {
             Image(
                 imageResource = Icons.ArrowRight.withBackground(
-                    backgroundColor = Color.White,
+                    backgroundColor = AppColors.backgroundSecondary,
                     backgroundSize = AppTheme.dimensions.standardSpacing,
                     iconSize = AppTheme.dimensions.standardSpacing
                 )
@@ -172,7 +173,7 @@ fun NoAsset(
         modifier = modifier,
         title = title,
         subtitle = stringResource(R.string.common_select),
-        icon = StackedIcon.SingleIcon(Icons.Filled.Coins),
+        icon = StackedIcon.SingleIcon(Icons.Filled.Coins.withTint(AppColors.title)),
         onClick = onClick
     )
 }
@@ -207,16 +208,22 @@ private fun PreviewTwoAssetAction() {
         startTitle = "From",
         start = HorizontalAssetAction(
             assetName = "ETH",
-            StackedIcon.SingleIcon(Icons.Receive)
+            StackedIcon.SingleIcon(ImageResource.Remote(""))
         ),
         startOnClick = {},
         endTitle = "To",
         end = HorizontalAssetAction(
             assetName = "BTC",
-            StackedIcon.SingleIcon(Icons.Receive)
+            StackedIcon.SingleIcon(ImageResource.Remote(""))
         ),
         endOnClick = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true, backgroundColor = 0XFF07080D)
+@Composable
+private fun PreviewTwoAssetActionDark() {
+    PreviewTwoAssetAction()
 }
 
 @Preview(showBackground = true, backgroundColor = 0XFFF1F2F7)
@@ -226,7 +233,7 @@ private fun PreviewTwoAssetAction_Select() {
         startTitle = "From",
         start = HorizontalAssetAction(
             assetName = "ETH",
-            StackedIcon.SingleIcon(Icons.Receive)
+            StackedIcon.SingleIcon(ImageResource.Remote(""))
         ),
         startOnClick = {},
         endTitle = "To",
@@ -235,8 +242,20 @@ private fun PreviewTwoAssetAction_Select() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true, backgroundColor = 0XFF07080D)
+@Composable
+private fun PreviewTwoAssetAction_SelectDark() {
+    PreviewTwoAssetAction_Select()
+}
+
 @Preview(showBackground = true, backgroundColor = 0XFFF1F2F7)
 @Composable
 private fun PreviewTwoAssetActionLoading() {
     TwoAssetActionHorizontalLoading()
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true, backgroundColor = 0XFF07080D)
+@Composable
+private fun PreviewTwoAssetActionLoadingDark() {
+    PreviewTwoAssetActionLoading()
 }

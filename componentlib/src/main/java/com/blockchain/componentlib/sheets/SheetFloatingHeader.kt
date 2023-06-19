@@ -72,11 +72,7 @@ private fun SheetHeader(
 
                 Text(
                     modifier = Modifier.padding(
-                        vertical = if (isFloating) {
-                            AppTheme.dimensions.verySmallSpacing
-                        } else {
-                            AppTheme.dimensions.mediumSpacing
-                        }
+                        vertical = AppTheme.dimensions.verySmallSpacing
                     ),
                     text = title,
                     style = AppTheme.typography.body2,

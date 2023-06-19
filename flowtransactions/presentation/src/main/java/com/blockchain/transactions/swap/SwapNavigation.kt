@@ -18,7 +18,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.koin.payloadScope
 import com.blockchain.transactions.common.entersecondpassword.EnterSecondPasswordArgs
-import com.blockchain.transactions.common.entersecondpassword.composable.EnterSecondPasswordScreen
+import com.blockchain.transactions.common.entersecondpassword.composable.EnterSecondPassword
 import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
 import com.blockchain.transactions.swap.confirmation.composable.SwapConfirmationScreen
 import com.blockchain.transactions.swap.enteramount.SwapEnterAmountArgs
@@ -107,7 +107,7 @@ fun SwapGraphHost(
 
         typedBottomSheet(SwapGraph.EnterSecondPassword) { args ->
             ChromeBottomSheet(fillMaxHeight = true, onClose = ::navigateUp) {
-                EnterSecondPasswordScreen(
+                EnterSecondPassword(
                     args = args,
                     onAccountSecondPasswordValidated = { account, secondPassword ->
                         viewModel.onIntent(SwapEnterAmountIntent.FromAccountChanged(account, secondPassword))

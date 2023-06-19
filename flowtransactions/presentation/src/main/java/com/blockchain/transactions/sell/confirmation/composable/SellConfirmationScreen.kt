@@ -1,6 +1,7 @@
 package com.blockchain.transactions.sell.confirmation.composable
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.net.Uri
 import android.text.format.DateUtils
 import androidx.compose.foundation.background
@@ -31,6 +32,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.analytics.Analytics
+import com.blockchain.componentlib.basic.AppDivider
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -38,15 +40,14 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Question
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.system.CircularProgressBar
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
-import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.utils.AnnotatedStringUtils
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.koin.payloadScope
@@ -104,122 +105,124 @@ fun SellConfirmationScreen(
 
     val state by viewModel.viewState.collectAsStateLifecycleAware()
 
-    Column {
-        NavigationBar(
-            title = stringResource(R.string.common_confirm),
-            onBackButtonClick = backClicked
-        )
+    ConfirmationContent(
+        state = state,
+        submitOnClick = {
+            viewModel.onIntent(SellConfirmationIntent.SubmitClicked)
 
-        ConfirmationContent(
-            state = state,
-            submitOnClick = {
-                viewModel.onIntent(SellConfirmationIntent.SubmitClicked)
-
-                analytics.logEvent(
-                    SellAnalyticsEvents.ConfirmationSellClicked(
-                        fromTicker = sourceAccount.currency.networkTicker,
-                        fromAmount = sourceCryptoAmount.toStringWithSymbol(),
-                        toTicker = targetAccount.currency.networkTicker,
-                    )
+            analytics.logEvent(
+                SellAnalyticsEvents.ConfirmationSellClicked(
+                    fromTicker = sourceAccount.currency.networkTicker,
+                    fromAmount = sourceCryptoAmount.toStringWithSymbol(),
+                    toTicker = targetAccount.currency.networkTicker,
                 )
-            }
-        )
-    }
+            )
+        },
+        backClicked = backClicked
+    )
 }
 
 @Composable
 private fun ConfirmationContent(
     state: SellConfirmationViewState,
-    submitOnClick: () -> Unit
+    submitOnClick: () -> Unit,
+    backClicked: () -> Unit
 ) {
-    Box(Modifier.fillMaxHeight()) {
-        Column(
-            Modifier
-                .background(AppTheme.colors.light)
-                .padding(AppTheme.dimensions.smallSpacing)
-                .verticalScroll(rememberScrollState())
-        ) {
-            TinyVerticalSpacer()
+    Column(
+        modifier = Modifier.background(AppColors.background)
+    ) {
+        NavigationBar(
+            title = stringResource(R.string.common_confirm),
+            onBackButtonClick = backClicked
+        )
 
-            SimpleText(
-                modifier = Modifier.fillMaxWidth(),
-                text = state.targetFiatAmount?.toStringWithSymbol().orEmpty(),
-                style = ComposeTypographies.Title1,
-                color = ComposeColors.Title,
-                gravity = ComposeGravities.Centre,
-            )
+        Box(Modifier.fillMaxHeight()) {
+            Column(
+                Modifier
+                    .padding(AppTheme.dimensions.smallSpacing)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                TinyVerticalSpacer()
 
-            TinyVerticalSpacer()
-
-            SimpleText(
-                modifier = Modifier.fillMaxWidth(),
-                text = state.sourceCryptoAmount.toStringWithSymbol(),
-                style = ComposeTypographies.Body1,
-                color = ComposeColors.Body,
-                gravity = ComposeGravities.Centre,
-            )
-
-            StandardVerticalSpacer()
-
-            ConfirmationSection {
-                SellExchangeRate(state.sourceToTargetExchangeRate)
-
-                HorizontalDivider(Modifier.fillMaxWidth())
-
-                SellConfirmationTableRow(
-                    startTitle = stringResource(R.string.common_from),
-                    endTitle = state.sourceAsset.name,
-                    onClick = null
+                SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = state.targetFiatAmount?.toStringWithSymbol().orEmpty(),
+                    style = ComposeTypographies.Title1,
+                    color = ComposeColors.Title,
+                    gravity = ComposeGravities.Centre,
                 )
 
-                HorizontalDivider(Modifier.fillMaxWidth())
+                TinyVerticalSpacer()
 
-                SellConfirmationTableRow(
-                    startTitle = stringResource(R.string.common_to),
-                    endTitle = state.targetAsset.name,
-                    onClick = null
+                SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = state.sourceCryptoAmount.toStringWithSymbol(),
+                    style = ComposeTypographies.Body1,
+                    color = ComposeColors.Body,
+                    gravity = ComposeGravities.Centre,
                 )
 
-                HorizontalDivider(Modifier.fillMaxWidth())
+                StandardVerticalSpacer()
 
-                if (state.sourceNetworkFeeFiatAmount != null) {
-                    NetworkFee(state.sourceAsset, state.sourceNetworkFeeFiatAmount)
+                ConfirmationSection {
+                    SellExchangeRate(state.sourceToTargetExchangeRate)
 
-                    HorizontalDivider(Modifier.fillMaxWidth())
+                    AppDivider()
+
+                    SellConfirmationTableRow(
+                        startTitle = stringResource(R.string.common_from),
+                        endTitle = state.sourceAsset.name,
+                        onClick = null
+                    )
+
+                    AppDivider()
+
+                    SellConfirmationTableRow(
+                        startTitle = stringResource(R.string.common_to),
+                        endTitle = state.targetAsset.name,
+                        onClick = null
+                    )
+
+                    AppDivider()
+
+                    if (state.sourceNetworkFeeFiatAmount != null) {
+                        NetworkFee(state.sourceAsset, state.sourceNetworkFeeFiatAmount)
+                        AppDivider()
+                    }
+
+                    SellConfirmationTableRow(
+                        startTitle = stringResource(R.string.common_total),
+                        endTitle = state.totalFiatAmount?.toStringWithSymbol().orEmpty(),
+                        endByline = state.totalCryptoAmount?.toStringWithSymbol().orEmpty(),
+                        onClick = null
+                    )
                 }
 
-                SellConfirmationTableRow(
-                    startTitle = stringResource(R.string.common_total),
-                    endTitle = state.totalFiatAmount?.toStringWithSymbol().orEmpty(),
-                    endByline = state.totalCryptoAmount?.toStringWithSymbol().orEmpty(),
-                    onClick = null
+                StandardVerticalSpacer()
+
+                SellQuoteTimer(
+                    remainingSeconds = state.quoteRefreshRemainingSeconds ?: 90,
+                    remainingPercentage = state.quoteRefreshRemainingPercentage ?: 1f
                 )
+
+                StandardVerticalSpacer()
+
+                SellDisclaimer()
+
+                // Padding for the CTA
+                Spacer(Modifier.height(AppTheme.dimensions.epicSpacing))
             }
 
-            StandardVerticalSpacer()
-
-            SellQuoteTimer(
-                remainingSeconds = state.quoteRefreshRemainingSeconds ?: 90,
-                remainingPercentage = state.quoteRefreshRemainingPercentage ?: 1f
+            PrimaryButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(AppTheme.dimensions.smallSpacing)
+                    .align(Alignment.BottomCenter),
+                text = stringResource(R.string.sell_confirmation_cta_button),
+                state = state.submitButtonState,
+                onClick = submitOnClick
             )
-
-            StandardVerticalSpacer()
-
-            SellDisclaimer()
-
-            // Padding for the CTA
-            Spacer(Modifier.height(AppTheme.dimensions.epicSpacing))
         }
-
-        PrimaryButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(AppTheme.dimensions.smallSpacing)
-                .align(Alignment.BottomCenter),
-            text = stringResource(R.string.sell_confirmation_cta_button),
-            state = state.submitButtonState,
-            onClick = submitOnClick
-        )
     }
 }
 
@@ -253,7 +256,10 @@ fun SellDisclaimer() {
 fun SellQuoteTimer(remainingSeconds: Int, remainingPercentage: Float, modifier: Modifier = Modifier) {
     Row(
         modifier
-            .background(White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
+            .background(
+                color = AppColors.backgroundSecondary,
+                shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
+            )
             .padding(AppTheme.dimensions.smallSpacing),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -458,12 +464,17 @@ private fun PreviewInitialState() {
         quoteRefreshRemainingSeconds = null,
         submitButtonState = ButtonState.Disabled
     )
-    Column {
-        ConfirmationContent(
-            state = state,
-            submitOnClick = {}
-        )
-    }
+    ConfirmationContent(
+        state = state,
+        submitOnClick = {},
+        backClicked = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewInitialStateDark() {
+    PreviewInitialState()
 }
 
 @Preview
@@ -487,10 +498,15 @@ private fun PreviewLoadedState() {
         quoteRefreshRemainingSeconds = 45,
         submitButtonState = ButtonState.Enabled
     )
-    Column {
-        ConfirmationContent(
-            state = state,
-            submitOnClick = {}
-        )
-    }
+    ConfirmationContent(
+        state = state,
+        submitOnClick = {},
+        backClicked = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewLoadedStateDark() {
+    PreviewLoadedState()
 }

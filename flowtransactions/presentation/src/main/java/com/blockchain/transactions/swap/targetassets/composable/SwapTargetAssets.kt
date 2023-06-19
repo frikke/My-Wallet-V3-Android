@@ -1,5 +1,6 @@
 package com.blockchain.transactions.swap.targetassets.composable
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,6 +26,7 @@ import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tag.button.TagButtonRow
 import com.blockchain.componentlib.tag.button.TagButtonValue
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
@@ -119,7 +121,9 @@ fun TargetAssetsScreen(
     onBackPressed: () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(AppColors.background)
     ) {
         SheetFlatHeader(
             icon = StackedIcon.None,
