@@ -42,11 +42,19 @@ import com.blockchain.componentlib.utils.openEmailClient
 import com.blockchain.koin.payloadScope
 import com.blockchain.stringResources.R
 import org.koin.androidx.compose.getViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun EmailVerification(
-    viewModel: EmailVerificationViewModel = getViewModel(scope = payloadScope),
+    verificationRequired: Boolean,
+    viewModel: EmailVerificationViewModel = getViewModel(scope = payloadScope,
+        key = verificationRequired.toString(),
+        parameters = { parametersOf(verificationRequired) }
+    ),
     showHeader: Boolean = true,
+    legacyBackground: Boolean = false,
+    closeOnClick: () -> Unit,
+    nextOnClick: () -> Unit
 ) {
     val viewState by viewModel.viewState.collectAsStateLifecycleAware()
 
@@ -56,9 +64,12 @@ fun EmailVerification(
         showResendingEmailInProgress = viewState.showResendingEmailInProgress,
         snackbarMessage = viewState.snackbarMessage,
         showHeader = showHeader,
+        legacyBackground = legacyBackground,
         resendEmailClicked = {
             viewModel.onIntent(EmailVerificationIntent.ResendEmailClicked)
-        }
+        },
+        closeOnClick = closeOnClick,
+        nextOnClick = nextOnClick
     )
 }
 
@@ -69,7 +80,10 @@ private fun EmailVerificationScreen(
     showResendingEmailInProgress: Boolean,
     snackbarMessage: EmailVerificationNotification?,
     showHeader: Boolean = true,
-    resendEmailClicked: () -> Unit
+    legacyBackground: Boolean = false,
+    resendEmailClicked: () -> Unit,
+    closeOnClick: () -> Unit,
+    nextOnClick: () -> Unit
 ) {
     val context = LocalContext.current
     val scaffoldState = rememberScaffoldState()
@@ -100,13 +114,15 @@ private fun EmailVerificationScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(AppColors.background)
+                .background(if (legacyBackground) AppColors.backgroundSecondary else AppColors.background)
         ) {
-            SheetFlatHeader(
-                icon = StackedIcon.None,
-                title = "",
-                onCloseClick = {}
-            ).takeIf { showHeader }
+            if (showHeader) {
+                SheetFlatHeader(
+                    icon = StackedIcon.None,
+                    title = "",
+                    onCloseClick = closeOnClick
+                )
+            }
 
             Column(
                 modifier = Modifier
@@ -118,7 +134,8 @@ private fun EmailVerificationScreen(
                 Spacer(modifier = Modifier.weight(1F))
 
                 VerificationStatusIcon(
-                    status = status
+                    status = status,
+                    legacyBackground = legacyBackground
                 )
 
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
@@ -178,9 +195,8 @@ private fun EmailVerificationScreen(
                         PrimaryButton(
                             modifier = Modifier.fillMaxWidth(),
                             text = stringResource(R.string.common_next),
-                        ) {
-
-                        }
+                            onClick = nextOnClick
+                        )
                     }
                 }
             }
@@ -190,7 +206,8 @@ private fun EmailVerificationScreen(
 
 @Composable
 private fun VerificationStatusIcon(
-    status: EmailVerificationStatus
+    status: EmailVerificationStatus,
+    legacyBackground: Boolean = false,
 ) {
     CustomStackedIcon(
         icon = when (status) {
@@ -210,8 +227,8 @@ private fun VerificationStatusIcon(
         },
         size = 88.dp,
         tagIconSize = 44.dp,
-        iconBackground = AppTheme.colors.backgroundSecondary,
-        borderColor = AppTheme.colors.background
+        iconBackground = if (legacyBackground) AppColors.background else AppColors.backgroundSecondary,
+        borderColor = if (legacyBackground) AppColors.backgroundSecondary else AppTheme.colors.background
     )
 }
 
@@ -263,7 +280,9 @@ private fun PreviewEmailVerificationScreen() {
         status = EmailVerificationStatus.Default,
         showResendingEmailInProgress = false,
         snackbarMessage = null,
-        resendEmailClicked = {}
+        resendEmailClicked = {},
+        closeOnClick = {},
+        nextOnClick = {}
     )
 }
 
@@ -275,13 +294,36 @@ private fun PreviewEmailVerificationScreenDark() {
 
 @Preview
 @Composable
+private fun PreviewEmailVerificationScreenLegacy() {
+    EmailVerificationScreen(
+        email = "johnsmith@gmail.com",
+        status = EmailVerificationStatus.Default,
+        showResendingEmailInProgress = false,
+        snackbarMessage = null,
+        legacyBackground = true,
+        resendEmailClicked = {},
+        closeOnClick = {},
+        nextOnClick = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewEmailVerificationScreenLegacyDark() {
+    PreviewEmailVerificationScreenLegacy()
+}
+
+@Preview
+@Composable
 private fun PreviewEmailVerificationScreenSuccess() {
     EmailVerificationScreen(
         email = "johnsmith@gmail.com",
         status = EmailVerificationStatus.Success,
         showResendingEmailInProgress = false,
         snackbarMessage = null,
-        resendEmailClicked = {}
+        resendEmailClicked = {},
+        closeOnClick = {},
+        nextOnClick = {}
     )
 }
 

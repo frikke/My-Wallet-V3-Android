@@ -57,7 +57,11 @@ fun NavGraphBuilder.homeGraph(
 
     composable(navigationEvent = HomeDestination.EmailVerification) {
         ChromeSingleScreen {
-            EmailVerification()
+            EmailVerification(
+                verificationRequired = true,
+                closeOnClick = onBackPressed,
+                nextOnClick = onBackPressed
+            )
         }
     }
 

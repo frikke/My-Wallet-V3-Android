@@ -7,9 +7,9 @@ import org.koin.dsl.module
 
 val kycPresentationModule = module {
     scope(payloadScopeQualifier) {
-        viewModel {
+        viewModel { (verificationRequired: Boolean) ->
             EmailVerificationViewModel(
-                verificationRequired = false,
+                verificationRequired = verificationRequired,
                 emailUpdater = get(),
                 notificationTransmitter = get()
             )

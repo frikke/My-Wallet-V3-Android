@@ -37,7 +37,7 @@ fun HandholdTask(
     Box(
         modifier = Modifier
             .alpha(if (enabled) 1F else 0.5F)
-            .conditional(enabled) { clickable(onClick = onClick) },
+            .conditional(enabled && !stepStatus.isComplete) { clickable(onClick = onClick) },
     ) {
         CustomTableRow(
             icon = StackedIcon.SingleIcon(
