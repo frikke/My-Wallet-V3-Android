@@ -5,8 +5,6 @@ import android.util.AttributeSet
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.common.BaseButtonView
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
 

@@ -67,6 +67,10 @@ sealed class SwapAnalyticsEvents(
         event = AnalyticsNames.SWAP_CONFIRMATION_PENDING_VIEWED.eventName
     )
 
+    object ErrorViewed : SwapAnalyticsEvents(
+        event = AnalyticsNames.SWAP_CONFIRMATION_ERROR_VIEWED.eventName
+    )
+
     object SuccessViewed : SwapAnalyticsEvents(
         event = AnalyticsNames.SWAP_CONFIRMATION_SUCCESS_VIEWED.eventName
     )

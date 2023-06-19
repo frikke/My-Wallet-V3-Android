@@ -17,7 +17,6 @@ import com.blockchain.domain.common.model.CountryIso
 import com.blockchain.domain.common.model.StateIso
 import com.blockchain.koin.payloadScope
 import com.blockchain.kycproviders.prove.R
-import com.blockchain.nabu.models.responses.nabu.KycState
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog
 import java.util.Calendar
 import org.koin.android.scope.AndroidScopeComponent
@@ -31,9 +30,7 @@ class ProvePrefillFragment :
 
     interface Host {
         fun launchContactSupport()
-        fun navigateToProfileInfo(countryIso: CountryIso, stateIso: StateIso?)
-        fun navigateToTierStatus(kycState: KycState)
-        fun navigateToVeriff(countryIso: CountryIso)
+        fun getNextStepAndNavigate()
     }
 
     override val scope: Scope = payloadScope
@@ -92,9 +89,7 @@ class ProvePrefillFragment :
                     }
                     .show()
             }
-            Navigation.ExitToProfileInfo -> host.navigateToProfileInfo(countryIso, stateIso)
-            is Navigation.ExitToTierStatus -> host.navigateToTierStatus(navigationEvent.kycState)
-            Navigation.ExitToVeriff -> host.navigateToVeriff(countryIso)
+            Navigation.HostGetNextStepAndNavigate -> host.getNextStepAndNavigate()
         }
     }
 

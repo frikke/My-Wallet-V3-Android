@@ -43,10 +43,8 @@ import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey300
 import com.blockchain.componentlib.theme.Grey400
-import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.theme.topOnly
 import com.blockchain.earn.EarnAnalytics
 import com.blockchain.nabu.BlockedReason
@@ -119,7 +117,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                         shape = AppTheme.shapes.large.topOnly()
                     ) {
                         Column(
-                            modifier = Modifier  .fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             SheetHeader(

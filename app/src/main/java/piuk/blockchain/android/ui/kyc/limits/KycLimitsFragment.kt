@@ -16,13 +16,13 @@ import com.blockchain.core.limits.Feature
 import com.blockchain.core.limits.FeatureLimit
 import com.blockchain.presentation.koin.scopedInject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentKycLimitsBinding
 import piuk.blockchain.android.ui.adapters.Diffable
 import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import retrofit2.HttpException
 
 class KycLimitsFragment :
@@ -148,7 +148,7 @@ class KycLimitsFragment :
         KycLimitsNavigationAction.None -> {
         }
         KycLimitsNavigationAction.StartKyc -> {
-            KycNavHostActivity.start(requireContext(), CampaignType.None)
+            KycNavHostActivity.start(requireContext(), KycEntryPoint.Other)
             model.process(KycLimitsIntent.ClearNavigation)
         }
     }

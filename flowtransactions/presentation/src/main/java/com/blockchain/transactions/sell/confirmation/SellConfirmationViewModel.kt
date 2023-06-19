@@ -9,7 +9,6 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.makeExternalAssetAddress
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
-import com.blockchain.coincore.toUserFiat
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
@@ -173,7 +172,12 @@ class SellConfirmationViewModel(
 
     override fun SellConfirmationModelState.reduce(): SellConfirmationViewState {
         val sourceNetworkFeeFiatAmount = sourceNetworkFeeCryptoAmount?.takeIf { !it.isZero }
-            ?.toUserFiat(exchangeRatesDataManager) as FiatValue?
+            ?.let { feeAmount ->
+                exchangeRatesDataManager.getLastCryptoToFiatRate(
+                    sourceCrypto = feeAmount.currency,
+                    targetFiat = targetAccount.currency
+                ).convert(feeAmount) as FiatValue
+            }
 
         return SellConfirmationViewState(
             isFetchQuoteLoading = isFetchQuoteLoading,

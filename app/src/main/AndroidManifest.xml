@@ -44,7 +44,7 @@
         tools:replace="android:label, android:allowBackup, android:theme">
 
         <activity
-            android:name=".ui.launcher.LauncherActivityV2"
+            android:name=".ui.launcher.LauncherActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:exported="true"
             android:launchMode="singleTask"
@@ -227,9 +227,6 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleTask" />
         <activity
-            android:name=".ui.kyc.status.KycStatusActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
-        <activity
             android:name=".simplebuy.SimpleBuyActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:windowSoftInputMode="adjustResize" />
@@ -293,7 +290,7 @@
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
             android:label="${APP_NAME}"
-            android:targetActivity=".ui.launcher.LauncherActivityV2">
+            android:targetActivity=".ui.launcher.LauncherActivity">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -307,7 +304,7 @@
             android:exported="true"
             android:icon="@drawable/ic_blockchain_blue_circle"
             android:label="${APP_NAME}"
-            android:targetActivity=".ui.launcher.LauncherActivityV2">
+            android:targetActivity=".ui.launcher.LauncherActivity">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -321,7 +318,7 @@
             android:exported="true"
             android:icon="@drawable/ic_blockchain"
             android:label="${APP_NAME}"
-            android:targetActivity=".ui.launcher.LauncherActivityV2">
+            android:targetActivity=".ui.launcher.LauncherActivity">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -54,6 +54,7 @@ import com.blockchain.transactions.sell.SellGraph
 import com.blockchain.transactions.sell.confirmation.SellConfirmationArgs
 import com.blockchain.transactions.sell.enteramount.EnterAmountAssetState
 import com.blockchain.transactions.sell.enteramount.EnterAmountAssets
+import com.blockchain.transactions.sell.enteramount.PreviewButtonState
 import com.blockchain.transactions.sell.enteramount.SellEnterAmountFatalError
 import com.blockchain.transactions.sell.enteramount.SellEnterAmountInputError
 import com.blockchain.transactions.sell.enteramount.SellEnterAmountIntent
@@ -147,8 +148,7 @@ fun NavContext.SellEnterAmount(
                         onFlipInputs = {
                             viewModel.onIntent(SellEnterAmountIntent.FlipInputs)
                         },
-                        isConfirmEnabled = viewState.isConfirmEnabled,
-                        inputError = viewState.inputError,
+                        previewButtonState = viewState.previewButtonState,
                         inputErrorClicked = { error ->
                             navigateTo(SellGraph.InputError, error)
                         },
@@ -180,8 +180,7 @@ private fun EnterAmountScreen(
     cryptoAmount: CurrencyValue?,
     keyboardClicked: (KeyboardButton) -> Unit,
     onFlipInputs: () -> Unit,
-    isConfirmEnabled: Boolean,
-    inputError: SellEnterAmountInputError?,
+    previewButtonState: PreviewButtonState,
     inputErrorClicked: (SellEnterAmountInputError) -> Unit,
     openSourceAccounts: () -> Unit,
     quickFillEntryClicked: (QuickFillDisplayAndAmount) -> Unit,
@@ -234,32 +233,12 @@ private fun EnterAmountScreen(
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
-        if (inputError != null) {
-            AlertButton(
-                modifier = Modifier.fillMaxWidth(),
-                text = when (inputError) {
-                    is SellEnterAmountInputError.BelowMinimum -> {
-                        stringResource(R.string.minimum_with_value, inputError.minValue)
-                    }
-                    is SellEnterAmountInputError.AboveMaximum -> {
-                        stringResource(R.string.maximum_with_value, inputError.maxValue)
-                    }
-                    is SellEnterAmountInputError.AboveBalance -> {
-                        stringResource(R.string.not_enough_funds, assets?.from?.ticker.orEmpty())
-                    }
-                    is SellEnterAmountInputError.InsufficientGas ->
-                        stringResource(R.string.confirm_status_msg_insufficient_gas, inputError.displayTicker)
-                    is SellEnterAmountInputError.Unknown ->
-                        stringResource(R.string.common_error)
-                },
-                state = ButtonState.Enabled,
-                onClick = { inputErrorClicked(inputError) }
-            )
-        } else {
-            PrimaryButton(
+        when (previewButtonState) {
+            PreviewButtonState.Disabled,
+            PreviewButtonState.Enabled -> PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(R.string.tx_enter_amount_sell_cta),
-                state = if (isConfirmEnabled) {
+                state = if (previewButtonState is PreviewButtonState.Enabled) {
                     ButtonState.Enabled
                 } else {
                     ButtonState.Disabled
@@ -267,6 +246,27 @@ private fun EnterAmountScreen(
                 onClick = {
                     previewClicked()
                 }
+            )
+
+            is PreviewButtonState.Error -> AlertButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = when (val error = previewButtonState.error) {
+                    is SellEnterAmountInputError.BelowMinimum -> {
+                        stringResource(R.string.minimum_with_value, error.minValue)
+                    }
+                    is SellEnterAmountInputError.AboveMaximum -> {
+                        stringResource(R.string.maximum_with_value, error.maxValue)
+                    }
+                    is SellEnterAmountInputError.AboveBalance -> {
+                        stringResource(R.string.not_enough_funds, assets?.from?.ticker.orEmpty())
+                    }
+                    is SellEnterAmountInputError.InsufficientGas ->
+                        stringResource(R.string.confirm_status_msg_insufficient_gas, error.displayTicker)
+                    is SellEnterAmountInputError.Unknown ->
+                        stringResource(R.string.common_error)
+                },
+                state = ButtonState.Enabled,
+                onClick = { inputErrorClicked(previewButtonState.error) }
             )
         }
 
@@ -351,8 +351,9 @@ private fun PreviewEnterAmountScreen() {
 
             ),
             onFlipInputs = {},
-            isConfirmEnabled = false,
-            inputError = SellEnterAmountInputError.BelowMinimum("éjdzjjdz"),
+            previewButtonState = PreviewButtonState.Error(
+                SellEnterAmountInputError.BelowMinimum("éjdzjjdz")
+            ),
             inputErrorClicked = {},
             openSourceAccounts = {},
             quickFillEntryClicked = {},

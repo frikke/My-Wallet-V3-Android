@@ -19,7 +19,6 @@ import com.blockchain.kycproviders.prove.domain.model.Address
 import com.blockchain.kycproviders.prove.domain.model.PossessionState
 import com.blockchain.kycproviders.prove.domain.model.PrefillDataSubmission
 import com.blockchain.nabu.api.getuser.domain.UserService
-import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.util.toISO8601DateString
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnFailure
@@ -67,9 +66,7 @@ sealed class ProvePrefillIntent : Intent<ProvePrefillModelState> {
 
 sealed class Navigation : NavigationEvent {
     object Back : Navigation()
-    object ExitToProfileInfo : Navigation()
-    object ExitToVeriff : Navigation()
-    data class ExitToTierStatus(val kycState: KycState) : Navigation()
+    object HostGetNextStepAndNavigate : Navigation()
 }
 
 @Parcelize
@@ -317,11 +314,11 @@ class ProvePrefillModel(
                     .flatMap { userService.getUserResourceFlow(FreshnessStrategy.Fresh).firstOutcome() }
                     .doOnSuccess { user ->
                         kycTiersStore.markAsStale()
-                        navigate(Navigation.ExitToTierStatus(user.kycState))
+                        navigate(Navigation.HostGetNextStepAndNavigate)
                     }
                     .doOnFailure { error ->
                         if (error is ProveRepository.VerificationWrongInfoException) {
-                            navigate(Navigation.ExitToVeriff)
+                            navigate(Navigation.HostGetNextStepAndNavigate)
                         } else {
                             Timber.e(error)
                             updateState {
@@ -353,7 +350,7 @@ class ProvePrefillModel(
                         }
 
                         is PossessionState.Verified -> fetchAndShowPrefillData(dob)
-                        PossessionState.Failed -> navigate(Navigation.ExitToProfileInfo)
+                        PossessionState.Failed -> navigate(Navigation.HostGetNextStepAndNavigate)
                     }
                 }
                 .doOnFailure { error ->

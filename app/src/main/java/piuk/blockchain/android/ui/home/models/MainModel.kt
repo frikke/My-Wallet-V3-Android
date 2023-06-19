@@ -19,14 +19,12 @@ import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.extensions.exhaustive
 import com.blockchain.home.presentation.navigation.ScanResult
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.network.PollResult
-import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.emptySubscribe
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectSession
@@ -39,9 +37,9 @@ import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.serialization.SerializationException
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.simplebuy.SimpleBuyState
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import timber.log.Timber
 
 class MainModel(
@@ -312,16 +310,13 @@ class MainModel(
                     )
                 )
             )
-            is BlockchainLinkState.KycCampaign ->
-                process(
-                    MainIntent.UpdateViewToLaunch(
-                        ViewToLaunch.LaunchKyc(
-                            enumValueOfOrNull<CampaignType>(
-                                link.campaignType.capitalizeFirstChar()
-                            ) ?: CampaignType.None
-                        )
-                    )
-                )
+            is BlockchainLinkState.KycCampaign -> {
+                val entryPoint = when {
+                    link.campaignType.equals("SimpleBuy", ignoreCase = true) -> KycEntryPoint.Buy
+                    else -> KycEntryPoint.Other
+                }
+                process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchKyc(entryPoint)))
+            }
             else -> {
             }
         }
@@ -330,10 +325,10 @@ class MainModel(
     private fun handleKycDeepLink(linkState: LinkState.KycDeepLink) {
         when (linkState.link) {
             is KycLinkState.Resubmit -> process(
-                MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchKyc(CampaignType.Resubmission))
+                MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchKyc(KycEntryPoint.Resubmission))
             )
             is KycLinkState.EmailVerified -> process(
-                MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchKyc(CampaignType.None))
+                MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchKyc(KycEntryPoint.Other))
             )
             is KycLinkState.General -> {
                 val data = (linkState.link as KycLinkState.General).campaignData
@@ -341,7 +336,7 @@ class MainModel(
                     registerForCampaign(data)
                 } else {
                     process(
-                        MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchKyc(CampaignType.None))
+                        MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchKyc(KycEntryPoint.Other))
                     )
                 }
             }

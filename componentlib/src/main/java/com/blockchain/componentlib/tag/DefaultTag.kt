@@ -2,11 +2,9 @@ package com.blockchain.componentlib.tag
 
 import android.content.res.Configuration
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.SnackbarDefaults.backgroundColor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.componentlib.theme.AppTheme
 
 private val bgColorLight = Color(0XFFF0F2F7)
 private val bgColorDark = Color(0XFF3B3E46)

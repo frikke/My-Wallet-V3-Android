@@ -38,7 +38,6 @@ import info.blockchain.balance.Money
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
 import org.koin.core.scope.Scope
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
@@ -47,6 +46,7 @@ import piuk.blockchain.android.ui.coinview.presentation.interstitials.AccountAct
 import piuk.blockchain.android.ui.coinview.presentation.interstitials.AccountExplainerBottomSheet
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.CoinViewSellClickedEvent
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
@@ -435,7 +435,7 @@ class CoinViewActivity :
     }
 
     override fun startKycClicked() {
-        KycNavHostActivity.startForResult(this, CampaignType.SimpleBuy, SimpleBuyActivity.KYC_STARTED)
+        KycNavHostActivity.startForResult(this, KycEntryPoint.Buy, SimpleBuyActivity.KYC_STARTED)
     }
 
     override fun onRecurringBuyDeleted() {

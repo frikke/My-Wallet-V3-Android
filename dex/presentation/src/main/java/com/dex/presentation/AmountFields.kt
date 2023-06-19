@@ -58,7 +58,6 @@ import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.BackgroundMuted
 import com.blockchain.componentlib.theme.Blue600
-import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey300
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.theme.Grey900
@@ -353,10 +352,11 @@ private fun CurrencySelection(
     enabled: Boolean,
     currency: Currency?
 ) {
+    val hasCurrencySelected = currency != null
     Row(
         modifier = Modifier
             .background(
-                color = Grey000,
+                color = if (hasCurrencySelected) AppTheme.colors.light else AppTheme.colors.primary,
                 shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
             )
             .clickable(enabled = enabled) {
@@ -375,7 +375,7 @@ private fun CurrencySelection(
             } ?: ImageResource.Local(
                 id = R.drawable.icon_no_account_selection,
                 size = AppTheme.dimensions.smallSpacing
-            ),
+            ).withTint(AppTheme.colors.backgroundSecondary),
             modifier = Modifier.padding(start = AppTheme.dimensions.tinySpacing)
         )
         Text(
@@ -389,13 +389,18 @@ private fun CurrencySelection(
                 id = com.blockchain.stringResources.R.string.common_select
             ),
             style = AppTheme.typography.body1,
-            color = Grey900
+            color = if (hasCurrencySelected) AppTheme.colors.title else AppTheme.colors.backgroundSecondary
         )
         if (enabled) {
             Image(
                 ImageResource.Local(
                     id = com.blockchain.componentlib.R.drawable.ic_chevron_end,
-                    colorFilter = ColorFilter.tint(Grey700),
+                    colorFilter = ColorFilter.tint(
+                        if (hasCurrencySelected)
+                            AppTheme.colors.body
+                        else
+                            AppTheme.colors.backgroundSecondary
+                    ),
                     size = 10.dp
                 )
             )

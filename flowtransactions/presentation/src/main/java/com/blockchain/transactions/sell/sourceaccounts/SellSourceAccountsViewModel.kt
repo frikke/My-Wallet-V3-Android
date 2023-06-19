@@ -1,5 +1,6 @@
 package com.blockchain.transactions.sell.sourceaccounts
 
+import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
@@ -80,7 +81,11 @@ class SellSourceAccountsViewModel(
             AccountUiElement(
                 id = id,
                 title = account.currency.name,
-                subtitle = account.label.takeIf { includeLabel },
+                subtitle = if (account is NonCustodialAccount) {
+                    if (includeLabel) account.label else account.currency.displayTicker
+                } else {
+                    null
+                },
                 l2Network = (account as? CryptoNonCustodialAccount)?.currency
                     ?.takeIf { it.isLayer2Token }
                     ?.coinNetwork?.shortName,

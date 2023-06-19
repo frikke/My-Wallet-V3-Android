@@ -44,11 +44,13 @@ class ActivityWebSocketService(
                                     }
                             }
                         }
+
                         is ConnectionEvent.Failure,
                         ConnectionEvent.ClientDisconnect -> {
                             isActive = false
                             activityJob?.cancel()
                         }
+
                         ConnectionEvent.Authenticated -> {}
                     }
                 }.collect()
@@ -57,22 +59,15 @@ class ActivityWebSocketService(
             lifecycleObservable.onStateUpdated.asFlow().collectLatest { appState: AppState ->
                 when (appState) {
                     AppState.BACKGROUNDED -> {
-                        onAppForegrounded = if (isActive) {
-                            {
-                                webSocket.open()
-                            }
-                        } else {
-                            {}
-                        }
                         webSocket.close()
                     }
-                    AppState.FOREGROUNDED -> onAppForegrounded()
+                    AppState.FOREGROUNDED -> openSocket()
                 }
             }
         }
     }
 
-    private var onAppForegrounded = {}
+    private var openSocket = {}
 
     private val authInfo: AuthInfo?
         get() = safeLet(
@@ -86,14 +81,17 @@ class ActivityWebSocketService(
         }
 
     fun open(fiatCurrency: String) {
-        if (isActive.not()) {
-            webSocket.open()
-            send(
-                fiatCurrency = fiatCurrency,
-                acceptLanguage = Locale.getDefault().range,
-                timeZone = TimeZone.getDefault().id
-            )
+        openSocket = {
+            if (isActive.not()) {
+                webSocket.open()
+                send(
+                    fiatCurrency = fiatCurrency,
+                    acceptLanguage = Locale.getDefault().range,
+                    timeZone = TimeZone.getDefault().id
+                )
+            }
         }
+        openSocket()
     }
 
     fun send(fiatCurrency: String, acceptLanguage: String, timeZone: String) {

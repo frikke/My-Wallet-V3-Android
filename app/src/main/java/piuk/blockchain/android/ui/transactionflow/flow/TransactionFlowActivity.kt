@@ -50,7 +50,6 @@ import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
 import org.koin.java.KoinJavaComponent
 import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityTransactionFlowBinding
 import piuk.blockchain.android.fraud.domain.service.FraudFlow
 import piuk.blockchain.android.fraud.domain.service.FraudService
@@ -58,6 +57,7 @@ import piuk.blockchain.android.ui.customviews.BlockedDueToNotEligibleSheet
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
@@ -380,11 +380,11 @@ class TransactionFlowActivity :
 
     override fun startKycClicked() {
         val campaign = when (action) {
-            AssetAction.Swap -> CampaignType.Swap
-            AssetAction.Buy -> CampaignType.SimpleBuy
-            AssetAction.InterestDeposit -> CampaignType.Interest
-            AssetAction.InterestWithdraw -> CampaignType.Interest
-            else -> CampaignType.None
+            AssetAction.Swap -> KycEntryPoint.Swap
+            AssetAction.Buy -> KycEntryPoint.Buy
+            AssetAction.InterestDeposit -> KycEntryPoint.Interest
+            AssetAction.InterestWithdraw -> KycEntryPoint.Interest
+            else -> KycEntryPoint.Other
         }
         startKycForResult.launch(KycNavHostActivity.newIntent(this, campaign))
     }

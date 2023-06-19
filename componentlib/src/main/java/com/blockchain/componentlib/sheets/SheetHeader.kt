@@ -25,7 +25,6 @@ import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.AppDivider
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark200

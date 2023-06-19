@@ -9,14 +9,14 @@ import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.domain.paymentmethods.model.BankLinkingInfo
 import info.blockchain.balance.AssetInfo
-import piuk.blockchain.android.campaign.CampaignType
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 
 interface HomeScreenFragment {
     fun navigator(): HomeNavigator
 }
 
 interface HomeNavigator {
-    fun launchKyc(campaignType: CampaignType)
+    fun launchKyc(campaignType: KycEntryPoint)
     fun launchBackupFunds(fragment: Fragment? = null, requestCode: Int = 0)
     fun launchSetup2Fa()
     fun launchOpenExternalEmailApp()
@@ -31,7 +31,6 @@ interface HomeNavigator {
     fun launchTransfer()
     fun launchOpenBankingLinking(bankLinkingInfo: BankLinkingInfo)
     fun launchSimpleBuyFromDeepLinkApproval()
-    fun launchPendingVerificationScreen(campaignType: CampaignType)
 
     fun resumeSimpleBuyKyc()
 }

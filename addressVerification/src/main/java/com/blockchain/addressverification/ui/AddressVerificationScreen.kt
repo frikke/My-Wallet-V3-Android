@@ -70,6 +70,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import org.koin.androidx.compose.getViewModel
 
 abstract class AddressVerificationHost {
+
     // Used by the host to communicate back into AddressVerification that the address was not valid for some reason
     // This will reenable the button that was previously in a loading state and show the error
     open val errorWhileSaving: Flow<AddressVerificationSavingError> = MutableSharedFlow()
@@ -81,6 +82,7 @@ abstract class AddressVerificationHost {
 @Composable
 fun AddressVerificationScreen(
     args: Args,
+    isVerifyAddressLoadingOverride: Boolean,
     host: AddressVerificationHost
 ) {
     val context = LocalContext.current
@@ -112,13 +114,14 @@ fun AddressVerificationScreen(
         }
     }
 
-    Content(state, onIntent)
+    Content(state, isVerifyAddressLoadingOverride, onIntent)
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun Content(
     state: AddressVerificationState,
+    isVerifyAddressLoadingOverride: Boolean,
     onIntent: (AddressVerificationIntent) -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -165,7 +168,7 @@ private fun Content(
         ) {
             when (state.step) {
                 AddressVerificationStep.SEARCH -> SearchStep(state, onIntent)
-                AddressVerificationStep.DETAILS -> DetailsStep(state, onIntent)
+                AddressVerificationStep.DETAILS -> DetailsStep(state, isVerifyAddressLoadingOverride, onIntent)
             }
         }
     }
@@ -281,6 +284,7 @@ private fun ColumnScope.SearchStep(
 @Composable
 private fun ColumnScope.DetailsStep(
     state: AddressVerificationState,
+    isVerifyAddressLoadingOverride: Boolean,
     onIntent: (AddressVerificationIntent) -> Unit
 ) {
     OutlinedTextInput(
@@ -387,7 +391,7 @@ private fun ColumnScope.DetailsStep(
     PrimaryButton(
         modifier = Modifier.fillMaxWidth(),
         text = stringResource(com.blockchain.stringResources.R.string.common_save),
-        state = state.saveButtonState,
+        state = if (isVerifyAddressLoadingOverride) ButtonState.Loading else state.saveButtonState,
         onClick = { onIntent(AddressVerificationIntent.SaveClicked) }
     )
 }
@@ -540,6 +544,7 @@ fun PreviewSearchScreen() {
 
     Content(
         state = state,
+        isVerifyAddressLoadingOverride = false,
         onIntent = {}
     )
 }
@@ -571,6 +576,7 @@ fun PreviewSearchScreenEmptyState() {
 
     Content(
         state = state,
+        isVerifyAddressLoadingOverride = false,
         onIntent = {}
     )
 }
@@ -602,6 +608,7 @@ fun PreviewDetailsScreen() {
 
     Content(
         state = state,
+        isVerifyAddressLoadingOverride = false,
         onIntent = {}
     )
 }

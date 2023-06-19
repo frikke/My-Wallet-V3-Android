@@ -205,7 +205,12 @@ class SwapEnterAmountViewModel(
             }
             """.trimIndent()
         )
-        val inputError = if (fiatAmountUserInput.isNotEmpty() && cryptoAmountUserInput.isNotEmpty()) {
+        val isInputAmountZero = when (selectedInput) {
+            CurrencyType.CRYPTO -> cryptoAmount == null || cryptoAmount.isZero
+            CurrencyType.FIAT -> fiatAmount == null || fiatAmount.isZero
+        }
+        val shouldValidateInput = !isInputAmountZero
+        val inputError = if (shouldValidateInput) {
             validateAmount()
         } else {
             null
@@ -252,7 +257,11 @@ class SwapEnterAmountViewModel(
                     zeroHint = "0"
                 )
             },
-            inputError = inputError,
+            previewButtonState = when {
+                !shouldValidateInput -> PreviewButtonState.Disabled
+                inputError != null -> PreviewButtonState.Error(inputError)
+                else -> PreviewButtonState.Enabled
+            },
             // If there's an input error, most likely the quote/price endpoint or the deposit engine will fail in some way
             // therefore we're giving preference to showing the inputError rather than the snackbarError
             snackbarError = (getDepositNetworkFeeError ?: getTargetNetworkFeeError).takeIf { inputError == null },
@@ -646,6 +655,7 @@ class SwapEnterAmountViewModel(
                 OnChainDepositInputValidationError.InsufficientGas -> {
                     val asset = (sourceNetworkFees?.feeForAmount ?: spendableBalance)?.currency
                     SwapEnterAmountInputError.InsufficientGas(
+                        networkName = asset?.name ?: "-",
                         displayTicker = asset?.displayTicker ?: "-"
                     )
                 }

@@ -106,7 +106,7 @@ fun NavContext.SwapNewOrderStateScreen(
         when (args.orderState) {
             SwapNewOrderState.PendingDeposit -> analytics.logEvent(SwapAnalyticsEvents.PendingViewed)
             SwapNewOrderState.Succeeded -> analytics.logEvent(SwapAnalyticsEvents.SuccessViewed)
-            is SwapNewOrderState.Error -> { /* n/a for now */ }
+            is SwapNewOrderState.Error -> analytics.logEvent(SwapAnalyticsEvents.ErrorViewed)
         }
     }
 
@@ -213,7 +213,14 @@ private fun NewOrderStateContent(
                     sourceAmount.toStringWithSymbol(),
                     targetAmount.toStringWithSymbol(),
                     // TODO(aromano): usually X minutes
-                    "5"
+                    if (
+                        sourceAmount.currency.networkTicker == "BTC" ||
+                        targetAmount.currency.networkTicker == "BTC"
+                    ) {
+                        "30"
+                    } else {
+                        "10"
+                    }
                 )
                 SwapNewOrderState.Succeeded -> stringResource(
                     com.blockchain.stringResources.R.string.swap_neworderstate_succeeded_description,

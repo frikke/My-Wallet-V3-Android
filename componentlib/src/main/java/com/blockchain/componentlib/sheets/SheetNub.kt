@@ -1,7 +1,6 @@
 package com.blockchain.componentlib.sheets
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,8 +12,6 @@ import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Dark300
-import com.blockchain.componentlib.theme.Grey100
 
 @Composable
 fun SheetNub(

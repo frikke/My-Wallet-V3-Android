@@ -168,7 +168,6 @@ import piuk.blockchain.android.ui.home.WalletConnectV2NavigationImpl
 import piuk.blockchain.android.ui.home.WalletLinkAndOpenBankingNavImpl
 import piuk.blockchain.android.ui.interest.EarnNavigationImpl
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
-import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.launcher.GlobalEventHandler
 import piuk.blockchain.android.ui.launcher.LauncherViewModel
@@ -267,12 +266,6 @@ val applicationModule = module {
         factory {
             SecondPasswordDialog(context = androidContext(), payloadManager = get())
         }.bind(SecondPasswordHandler::class)
-
-        factory {
-            KycStatusHelper(
-                kycService = get()
-            )
-        }
 
         factory {
             BankPartnerCallbackProviderImpl()
@@ -793,7 +786,6 @@ val applicationModule = module {
 
         factory {
             AirdropCentrePresenter(
-                nabuToken = get(),
                 nabu = get(),
                 assetCatalogue = get(),
                 remoteLogger = get()

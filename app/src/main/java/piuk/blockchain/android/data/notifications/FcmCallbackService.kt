@@ -34,9 +34,8 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
-import org.koin.androidx.compose.get
 import piuk.blockchain.android.ui.home.HomeActivityLauncher
-import piuk.blockchain.android.ui.launcher.LauncherActivityV2
+import piuk.blockchain.android.ui.launcher.LauncherActivity
 import timber.log.Timber
 
 class FcmCallbackService : FirebaseMessagingService() {
@@ -124,7 +123,7 @@ class FcmCallbackService : FirebaseMessagingService() {
     }
 
     /**
-     * Redirects the user to the [LauncherActivityV2] if [foreground] is set to true, otherwise to
+     * Redirects the user to the [LauncherActivity] if [foreground] is set to true, otherwise to
      * the [MainActivity] unless it is a new device login, in which case [MainActivity] is
      * going to load the [piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginSheet] .
      *
@@ -192,7 +191,7 @@ class FcmCallbackService : FirebaseMessagingService() {
             )
 
             else -> Maybe.just(
-                LauncherActivityV2.newInstance(
+                LauncherActivity.newInstance(
                     context = applicationContext,
                     intentFromNotification = true,
                     notificationAnalyticsPayload = createCampaignPayload(payload.payload, payload.title)

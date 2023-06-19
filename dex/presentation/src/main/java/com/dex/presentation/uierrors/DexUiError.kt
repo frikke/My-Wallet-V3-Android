@@ -5,6 +5,7 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.dex.presentation.R
 import com.dex.domain.DexTransaction
 import com.dex.domain.DexTxError
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 
 sealed class DexUiError {
@@ -27,7 +28,7 @@ sealed class DexUiError {
             get() = 0
     }
 
-    data class TokenNotAllowed(val token: Currency, val hasBeenApproved: Boolean) : DexUiError(), ActionRequiredError {
+    data class TokenNotAllowed(val token: AssetInfo, val hasBeenApproved: Boolean) : DexUiError(), ActionRequiredError {
         override val priority: Int
             get() = 2
     }

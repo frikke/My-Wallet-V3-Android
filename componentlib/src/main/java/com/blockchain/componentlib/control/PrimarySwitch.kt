@@ -9,24 +9,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.componentlib.theme.AppColors
 
 private val checkedThumbColorLight = Color(0XFF0C6CF2)
 private val checkedThumbColorDark = Color(0XFF65A5FF)
-private val checkedThumbColor @Composable get() = if (isSystemInDarkTheme()) checkedThumbColorDark else checkedThumbColorLight
+private val checkedThumbColor
+    @Composable get() = if (isSystemInDarkTheme()) checkedThumbColorDark else checkedThumbColorLight
 
 private val checkedTrackColorLight = Color(0XFF65A5FF)
 private val checkedTrackColorDark = Color(0XFF0C6CF2)
-private val checkedTrackColor @Composable get() = if (isSystemInDarkTheme()) checkedTrackColorDark else checkedTrackColorLight
+private val checkedTrackColor
+    @Composable get() = if (isSystemInDarkTheme()) checkedTrackColorDark else checkedTrackColorLight
 
 private val uncheckedThumbColorLight = Color(0XFFB1B8C7)
 private val uncheckedThumbColorDark = Color(0XFF2C3038)
-private val uncheckedThumbColor @Composable get() = if (isSystemInDarkTheme()) uncheckedThumbColorDark else uncheckedThumbColorLight
+private val uncheckedThumbColor
+    @Composable get() = if (isSystemInDarkTheme()) uncheckedThumbColorDark else uncheckedThumbColorLight
 
 private val uncheckedTrackColorLight = Color(0XFFF1F2F7)
 private val uncheckedTrackColorDark = Color(0XFF3B3E46)
-private val uncheckedTrackColor @Composable get() = if (isSystemInDarkTheme()) uncheckedTrackColorDark else uncheckedTrackColorLight
-
+private val uncheckedTrackColor
+    @Composable get() = if (isSystemInDarkTheme()) uncheckedTrackColorDark else uncheckedTrackColorLight
 
 @Composable
 fun PrimarySwitch(
@@ -62,7 +64,6 @@ private fun PrimarySwitchPreview_NotChecked() {
     )
 }
 
-
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PrimarySwitchPreview_NotCheckedDark() {
@@ -84,7 +85,6 @@ private fun PrimarySwitchPreview_IsCheckedDark() {
     PrimarySwitchPreview_IsChecked()
 }
 
-
 @Preview(name = "Not checked not enabled", group = "Primary Switch")
 @Composable
 private fun PrimarySwitchPreview_NotChecked_NotEnabled() {
@@ -100,7 +100,6 @@ private fun PrimarySwitchPreview_NotChecked_NotEnabled() {
 private fun PrimarySwitchPreview_NotChecked_NotEnabledDark() {
     PrimarySwitchPreview_NotChecked_NotEnabled()
 }
-
 
 @Preview(name = "Checked not enabled", group = "Primary Switch")
 @Composable

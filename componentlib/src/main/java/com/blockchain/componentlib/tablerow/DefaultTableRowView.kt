@@ -13,8 +13,6 @@ import com.blockchain.componentlib.icons.ChevronRight
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppColors
-import com.blockchain.componentlib.theme.AppSurface
-import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
 
 class DefaultTableRowView @JvmOverloads constructor(

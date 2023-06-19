@@ -8,7 +8,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.button.common.LoadingIndicator
-import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.theme.AppColors
 
 @Preview

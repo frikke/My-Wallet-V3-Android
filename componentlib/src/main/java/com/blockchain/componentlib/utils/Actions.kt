@@ -10,6 +10,7 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import timber.log.Timber
 
 fun Context.copyToClipboard(label: String, text: String) {
     (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).apply {
@@ -36,11 +37,15 @@ fun Context.openUrl(url: String) {
 }
 
 fun Context.openUrl(url: Uri) {
-    CustomTabsIntent.Builder()
-        .build()
-        .run {
-            launchUrl(this@openUrl, url)
-        }
+    try {
+        CustomTabsIntent.Builder()
+            .build()
+            .run {
+                launchUrl(this@openUrl, url)
+            }
+    } catch (e: Exception) {
+        Timber.e("Cannot open url, $e")
+    }
 }
 
 fun Context.checkValidUrlAndOpen(url: Uri) {

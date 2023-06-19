@@ -169,7 +169,6 @@ private fun Single<AnalyticsContext>.plusWalletModeTrait(
     fun AnalyticsContext.withWalletModeTrait(appModeTrait: String): AnalyticsContext {
         return copy(
             traits = traits + mapOf(
-                "is_superapp_v1" to true.toString(),
                 "app_mode" to appModeTrait
             )
         )

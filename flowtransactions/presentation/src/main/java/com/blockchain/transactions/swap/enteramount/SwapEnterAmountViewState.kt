@@ -11,9 +11,15 @@ data class SwapEnterAmountViewState(
     val fiatAmount: CurrencyValue?,
     val cryptoAmount: CurrencyValue?,
     val snackbarError: Exception?,
-    val inputError: SwapEnterAmountInputError?,
+    val previewButtonState: PreviewButtonState,
     val fatalError: SwapEnterAmountFatalError?
 ) : ViewState
+
+sealed interface PreviewButtonState {
+    object Enabled : PreviewButtonState
+    object Disabled : PreviewButtonState
+    data class Error(val error: SwapEnterAmountInputError) : PreviewButtonState
+}
 
 data class EnterAmountAssets(
     val from: EnterAmountAssetState,

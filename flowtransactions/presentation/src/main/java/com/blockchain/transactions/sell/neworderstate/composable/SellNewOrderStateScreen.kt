@@ -211,18 +211,26 @@ private fun NewOrderStateContent(
                         stringResource(
                             com.blockchain.stringResources.R.string.sell_neworderstate_pending_deposit_l2_description,
                             targetAmount.toStringWithSymbol(),
-                            sourceAmount.toStringWithSymbol(),
+                            sourceAmount.currency.displayTicker,
                             l2CoinNetworkName,
                             // TODO(aromano): usually X minutes
-                            "5"
+                            if (sourceAmount.currency.networkTicker == "BTC") {
+                                "30"
+                            } else {
+                                "10"
+                            }
                         )
                     } else {
                         stringResource(
                             com.blockchain.stringResources.R.string.sell_neworderstate_pending_deposit_description,
                             targetAmount.toStringWithSymbol(),
-                            sourceAmount.toStringWithSymbol(),
+                            sourceAmount.currency.displayTicker,
                             // TODO(aromano): usually X minutes
-                            "5"
+                            if (sourceAmount.currency.networkTicker == "BTC") {
+                                "30"
+                            } else {
+                                "10"
+                            }
                         )
                     }
                 }

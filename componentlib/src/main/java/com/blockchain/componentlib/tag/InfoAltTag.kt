@@ -10,10 +10,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.common.BaseButtonView
-import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
 
 class InfoAltTagView @JvmOverloads constructor(

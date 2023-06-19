@@ -10,9 +10,9 @@ import androidx.core.content.ContextCompat
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.visibleIf
 import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.DialogSheetKycLimitsUpgradeNowBinding
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 
 class KycLimitsUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycLimitsUpgradeNowBinding>() {
 
@@ -81,7 +81,7 @@ class KycLimitsUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycLimitsUp
     }
 
     private fun launchKyc() {
-        KycNavHostActivity.start(requireContext(), CampaignType.None)
+        KycNavHostActivity.start(requireContext(), KycEntryPoint.Other)
         dismiss()
     }
 

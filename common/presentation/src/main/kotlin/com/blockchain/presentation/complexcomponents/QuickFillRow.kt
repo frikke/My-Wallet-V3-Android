@@ -86,7 +86,7 @@ fun QuickFillRow(
                 )
             }
         }
-        if (quickFillButtonData.maxAmount.isPositive) {
+        if (quickFillButtonData.maxAmount != null) {
             MinimalPrimarySmallButton(
                 text = maxButtonText,
                 onClick = {
@@ -135,7 +135,7 @@ private fun Preview() {
 
 data class QuickFillButtonData(
     val quickFillButtons: List<QuickFillDisplayAndAmount>,
-    val maxAmount: Money
+    val maxAmount: Money?
 )
 
 data class QuickFillDisplayAndAmount(

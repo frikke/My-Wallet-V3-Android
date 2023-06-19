@@ -20,9 +20,9 @@ import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityKycLimitsBinding
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 
 class KycLimitsActivity : BlockchainActivity(), KycUpgradeNowSheet.Host {
     override val alwaysDisableScreenshots: Boolean = false
@@ -99,7 +99,7 @@ class KycLimitsActivity : BlockchainActivity(), KycUpgradeNowSheet.Host {
     }
 
     override fun startKycClicked() {
-        KycNavHostActivity.start(this, CampaignType.None)
+        KycNavHostActivity.start(this, KycEntryPoint.Other)
     }
 
     override fun onSheetClosed() {

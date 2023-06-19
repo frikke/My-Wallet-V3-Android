@@ -1,22 +1,17 @@
 package piuk.blockchain.android.ui.kyc.reentry
 
-import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.data.asSingle
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.utils.rxMaybeOutcome
-import com.blockchain.utils.rxSingleOutcome
 import io.reactivex.rxjava3.core.Single
 
 class TiersReentryDecision(
-    private val custodialWalletManager: CustodialWalletManager,
     private val dataRemediationService: DataRemediationService,
-    private val kycService: KycService,
     private val userFeaturePermissionService: UserFeaturePermissionService
 ) : ReentryDecision {
 
@@ -37,25 +32,17 @@ class TiersReentryDecision(
             return@flatMap when {
                 tier0UnverifiedEmail() -> Single.just(ReentryPoint.EmailEntry)
                 tier0UnselectedCountry() -> Single.just(ReentryPoint.CountrySelection)
-                else -> rxSingleOutcome { kycService.shouldLaunchProve() }
-                    .onErrorReturnItem(false)
-                    .flatMap { shouldLaunchProve ->
-                        if (shouldLaunchProve) {
-                            Single.just(ReentryPoint.Prove)
-                        } else {
-                            when {
-                                tier0ProfileIncompleteOrResubmitAllowed() &&
-                                    !tier0UnselectedCountry() -> Single.just(ReentryPoint.Profile)
-                                tier0AndCanAdvance() && tier0MissingAddress() -> Single.just(ReentryPoint.Address)
-                                !hasMobileVerified() -> Single.just(ReentryPoint.MobileEntry)
-                                else -> rxMaybeOutcome {
-                                    dataRemediationService.getQuestionnaire(QuestionnaireContext.TIER_TWO_VERIFICATION)
-                                }.map { questionnaire ->
-                                    ReentryPoint.Questionnaire(questionnaire) as ReentryPoint
-                                }.defaultIfEmpty(ReentryPoint.Veriff)
-                            }
-                        }
-                    }
+                else -> when {
+                    tier0ProfileIncompleteOrResubmitAllowed() &&
+                        !tier0UnselectedCountry() -> Single.just(ReentryPoint.Profile)
+                    tier0AndCanAdvance() && tier0MissingAddress() -> Single.just(ReentryPoint.Address)
+                    !hasMobileVerified() -> Single.just(ReentryPoint.MobileEntry)
+                    else -> rxMaybeOutcome {
+                        dataRemediationService.getQuestionnaire(QuestionnaireContext.TIER_TWO_VERIFICATION)
+                    }.map { questionnaire ->
+                        ReentryPoint.Questionnaire(questionnaire) as ReentryPoint
+                    }.defaultIfEmpty(ReentryPoint.Veriff)
+                }
             }
         }
 

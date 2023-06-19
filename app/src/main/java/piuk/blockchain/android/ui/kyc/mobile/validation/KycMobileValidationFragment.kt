@@ -36,7 +36,6 @@ import piuk.blockchain.android.ui.kyc.extensions.skipFirstUnless
 import piuk.blockchain.android.ui.kyc.mobile.entry.models.PhoneVerificationModel
 import piuk.blockchain.android.ui.kyc.mobile.validation.models.VerificationCode
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
-import piuk.blockchain.android.ui.kyc.navhost.models.KycStep
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.throttledClicks
 
@@ -129,7 +128,7 @@ class KycMobileValidationFragment :
 
         compositeDisposable +=
             binding.editTextKycMobileValidationCode
-                .onDelayedChange(KycStep.VerificationCodeEntered)
+                .onDelayedChange()
                 .subscribe()
     }
 
@@ -185,9 +184,7 @@ class KycMobileValidationFragment :
             .show()
     }
 
-    private fun TextView.onDelayedChange(
-        kycStep: KycStep
-    ): Observable<Boolean> =
+    private fun TextView.onDelayedChange(): Observable<Boolean> =
         this.afterTextChangeEvents()
             .debounce(300, TimeUnit.MILLISECONDS)
             .map { it.editable.toString() }

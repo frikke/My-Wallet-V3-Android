@@ -19,10 +19,10 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentReceiveBinding
 import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
 
@@ -124,7 +124,7 @@ class ReceiveFragment :
     }
 
     override fun startKycClicked() {
-        KycNavHostActivity.start(requireContext(), CampaignType.None)
+        KycNavHostActivity.start(requireContext(), KycEntryPoint.Other)
     }
 
     override fun onSheetClosed() {

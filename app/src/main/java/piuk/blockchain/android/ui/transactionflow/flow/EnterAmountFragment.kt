@@ -38,7 +38,6 @@ import java.math.RoundingMode
 import java.util.concurrent.TimeUnit
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentTxFlowEnterAmountBinding
 import piuk.blockchain.android.fraud.domain.service.FraudFlow
 import piuk.blockchain.android.fraud.domain.service.FraudService
@@ -47,6 +46,7 @@ import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoInputView
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoViewConfiguration
 import piuk.blockchain.android.ui.customviews.inputview.PrefixedOrSuffixedEditText
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import piuk.blockchain.android.ui.locks.LocksInfoBottomSheet
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
@@ -411,7 +411,14 @@ class EnterAmountFragment :
     }
 
     private fun startKyc() {
-        KycNavHostActivity.start(requireActivity(), CampaignType.None)
+        val campaign = when (state.action) {
+            AssetAction.Swap -> KycEntryPoint.Swap
+            AssetAction.Buy -> KycEntryPoint.Buy
+            AssetAction.InterestDeposit -> KycEntryPoint.Interest
+            AssetAction.InterestWithdraw -> KycEntryPoint.Interest
+            else -> KycEntryPoint.Other
+        }
+        KycNavHostActivity.start(requireActivity(), campaign)
     }
 
     private fun startBuyForCurrency(asset: AssetInfo) {

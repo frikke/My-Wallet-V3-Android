@@ -59,6 +59,7 @@ class KycProfileFragment : MVIFragment<KycProfileViewState>(), NavigationRouter<
                 KycProfileScreen(
                     viewState = viewModel.viewState,
                     onIntent = viewModel::onIntent,
+                    isSavingProfileLoadingOverride = false,
                     showDatePicker = ::showDatePicker
                 )
             }

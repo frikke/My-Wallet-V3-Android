@@ -5,7 +5,6 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.componentlib.theme.AppColors
 
 private val bgColorLight = Color(0XFFFFECD6)
 private val bgColorDark = Color(0XFFFFA133)

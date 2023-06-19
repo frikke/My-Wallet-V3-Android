@@ -40,7 +40,7 @@ fun SwapInputErrorScreen(
                 stringResource(R.string.minimum_with_value, inputError.minValue)
 
             is SwapEnterAmountInputError.InsufficientGas ->
-                stringResource(R.string.not_enough_funds, inputError.displayTicker)
+                stringResource(R.string.confirm_status_msg_insufficient_gas, inputError.displayTicker)
 
             is SwapEnterAmountInputError.Unknown ->
                 stringResource(R.string.common_error)
@@ -65,8 +65,8 @@ fun SwapInputErrorScreen(
 
             is SwapEnterAmountInputError.InsufficientGas ->
                 stringResource(
-                    R.string.confirm_status_msg_insufficient_gas,
-                    inputError.displayTicker
+                    R.string.confirm_status_msg_insufficient_gas_description,
+                    inputError.networkName
                 )
 
             is SwapEnterAmountInputError.Unknown ->

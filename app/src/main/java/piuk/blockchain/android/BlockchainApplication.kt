@@ -117,7 +117,8 @@ open class BlockchainApplication : Application() {
                 projectId = BuildConfig.WALLETCONNECT_PROJECT_ID,
                 relayUrl = BuildConfig.WALLETCONNECT_RELAY_URL,
             )
-        } catch (_: Exception) {
+        } catch (t: Throwable) {
+            remoteLogger.logException(t, "walletConnectV2Service.initWalletConnect failed")
         }
 
         AppVersioningChecks(

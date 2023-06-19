@@ -12,10 +12,15 @@ data class SellEnterAmountViewState(
     val fiatAmount: CurrencyValue?,
     val cryptoAmount: CurrencyValue?,
     val snackbarError: Exception?,
-    val inputError: SellEnterAmountInputError?,
+    val previewButtonState: PreviewButtonState,
     val fatalError: SellEnterAmountFatalError?,
-    val isConfirmEnabled: Boolean,
 ) : ViewState
+
+sealed interface PreviewButtonState {
+    object Enabled : PreviewButtonState
+    object Disabled : PreviewButtonState
+    data class Error(val error: SellEnterAmountInputError) : PreviewButtonState
+}
 
 data class EnterAmountAssets(
     val from: EnterAmountAssetState,

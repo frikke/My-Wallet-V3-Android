@@ -13,12 +13,13 @@ import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.nabu.models.responses.nabu.sunriverCampaignName
 import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.stringResources.R
 import com.blockchain.utils.unsafeLazy
-import piuk.blockchain.android.campaign.sunriverCampaignName
+import java.text.DateFormat
 import piuk.blockchain.android.databinding.DialogAirdropStatusBinding
 import piuk.blockchain.android.ui.resources.AssetResources
-import java.text.DateFormat
 
 class AirdropStatusSheet : SlidingModalBottomDialog<DialogAirdropStatusBinding>(), AirdropCentreView {
 
@@ -34,7 +35,7 @@ class AirdropStatusSheet : SlidingModalBottomDialog<DialogAirdropStatusBinding>(
 
     override fun initControls(binding: DialogAirdropStatusBinding) {
         binding.ctaButton.apply {
-            text = getString(com.blockchain.stringResources.R.string.airdrop_received_sheet_close_btn)
+            text = getString(R.string.airdrop_received_sheet_close_btn)
             onClick = { onCtaClick() }
         }
         presenter.attachView(this)
@@ -70,10 +71,10 @@ class AirdropStatusSheet : SlidingModalBottomDialog<DialogAirdropStatusBinding>(
 
     private fun renderStatus(airdrop: Airdrop) {
         when (airdrop.status) {
-            AirdropState.UNKNOWN -> com.blockchain.stringResources.R.string.airdrop_status_unknown to TagType.Default()
-            AirdropState.EXPIRED -> com.blockchain.stringResources.R.string.airdrop_status_expired to TagType.Warning()
-            AirdropState.PENDING -> com.blockchain.stringResources.R.string.airdrop_status_pending to TagType.InfoAlt()
-            AirdropState.RECEIVED -> com.blockchain.stringResources.R.string.airdrop_status_received to TagType.Success()
+            AirdropState.UNKNOWN -> R.string.airdrop_status_unknown to TagType.Default()
+            AirdropState.EXPIRED -> R.string.airdrop_status_expired to TagType.Warning()
+            AirdropState.PENDING -> R.string.airdrop_status_pending to TagType.InfoAlt()
+            AirdropState.RECEIVED -> R.string.airdrop_status_received to TagType.Success()
             AirdropState.REGISTERED -> throw NotImplementedError("AirdropState.REGISTERED")
         }.also { (text, type) ->
             binding.statusValue.tag = TagViewState(getString(text), type)

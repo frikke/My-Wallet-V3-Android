@@ -32,6 +32,7 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.controls.OutlinedTextInput
 import com.blockchain.componentlib.controls.TextInputState
@@ -47,6 +48,7 @@ import piuk.blockchain.android.ui.kyc.commonui.UserIcon
 @Composable
 fun KycProfileScreen(
     viewState: StateFlow<KycProfileViewState>,
+    isSavingProfileLoadingOverride: Boolean,
     onIntent: (KycProfileIntent) -> Unit,
     showDatePicker: () -> Unit
 ) {
@@ -180,7 +182,7 @@ fun KycProfileScreen(
                     .fillMaxWidth()
                     .padding(top = AppTheme.dimensions.standardSpacing),
                 text = stringResource(com.blockchain.stringResources.R.string.kyc_profile_next),
-                state = state.continueButtonState,
+                state = if (isSavingProfileLoadingOverride) ButtonState.Loading else state.continueButtonState,
                 onClick = { onIntent(KycProfileIntent.ContinueClicked) }
             )
         }

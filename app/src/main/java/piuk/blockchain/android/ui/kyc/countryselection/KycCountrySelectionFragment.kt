@@ -114,13 +114,13 @@ internal class KycCountrySelectionFragment :
         _binding = null
     }
 
-    override fun continueFlow(countryCode: String, stateCode: String?, stateName: String?) {
+    override fun continueFlow(countryCode: String, stateCode: String?) {
         analytics.logEvent(KYCAnalyticsEvents.CountrySelected)
         navigate(
             KycCountrySelectionFragmentDirections.actionKycCountrySelectionFragmentToKycProfileFragment(
                 countryCode,
                 stateCode ?: "",
-                stateName ?: ""
+                stateCode ?: ""
             )
         )
     }

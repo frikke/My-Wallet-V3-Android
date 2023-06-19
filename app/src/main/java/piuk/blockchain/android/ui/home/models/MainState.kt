@@ -15,9 +15,9 @@ import com.blockchain.walletconnect.ui.networks.NetworkInfo
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.simplebuy.SimpleBuyState
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 
 data class MainState(
     val viewToLaunch: ViewToLaunch = ViewToLaunch.None,
@@ -34,7 +34,7 @@ sealed class ViewToLaunch {
     object LaunchSetupBiometricLogin : ViewToLaunch()
     class LaunchInterestDashboard(val origin: LaunchOrigin) : ViewToLaunch()
     class LaunchSimpleBuy(val asset: AssetInfo) : ViewToLaunch()
-    class LaunchKyc(val campaignType: CampaignType) : ViewToLaunch()
+    class LaunchKyc(val entryPoint: KycEntryPoint) : ViewToLaunch()
     class DisplayAlertDialog(@StringRes val dialogTitle: Int, @StringRes val dialogMessage: Int) : ViewToLaunch()
     object ShowOpenBankingError : ViewToLaunch()
     class LaunchOpenBankingLinking(val bankLinkingInfo: BankLinkingInfo) : ViewToLaunch()

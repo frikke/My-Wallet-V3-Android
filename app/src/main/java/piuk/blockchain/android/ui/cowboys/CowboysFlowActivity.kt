@@ -57,13 +57,13 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailVerificationFragment
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity.Companion.RESULT_KYC_FOR_TIER_COMPLETE
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import timber.log.Timber
 
 class CowboysFlowActivity : BlockchainActivity(), EmailEntryHost {
@@ -184,10 +184,10 @@ class CowboysFlowActivity : BlockchainActivity(), EmailEntryHost {
         }
     }
 
-    private fun launchKycForResult(requestCode: Int, campaignType: CampaignType = CampaignType.None) {
+    private fun launchKycForResult(requestCode: Int, entryPoint: KycEntryPoint = KycEntryPoint.Other) {
         KycNavHostActivity.startForResult(
             activity = this@CowboysFlowActivity,
-            campaignType = campaignType,
+            entryPoint = entryPoint,
             requestCode = requestCode
         )
     }

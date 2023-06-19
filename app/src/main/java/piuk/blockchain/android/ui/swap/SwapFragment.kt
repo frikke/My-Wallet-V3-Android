@@ -56,7 +56,6 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentSwapBinding
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_SWAP
@@ -66,6 +65,7 @@ import piuk.blockchain.android.ui.customviews.ButtonOptions
 import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
@@ -161,7 +161,7 @@ class SwapFragment :
     override fun verificationCtaClicked() {
         analytics.logEvent(SwapAnalyticsEvents.SwapSilverLimitSheetCta)
         walletPrefs.setSeenSwapPromo()
-        KycNavHostActivity.start(requireActivity(), CampaignType.Swap)
+        KycNavHostActivity.start(requireActivity(), KycEntryPoint.Swap)
     }
 
     override fun onSheetClosed() {
@@ -177,7 +177,7 @@ class SwapFragment :
     }
 
     override fun startKycClicked() {
-        KycNavHostActivity.start(requireContext(), CampaignType.Swap)
+        KycNavHostActivity.start(requireContext(), KycEntryPoint.Swap)
     }
 
     private fun loadSwapOrKyc(showLoading: Boolean) {
@@ -404,7 +404,7 @@ class SwapFragment :
             R.drawable.ic_swap_blue_circle,
             ButtonOptions(visible = true, text = getString(com.blockchain.stringResources.R.string.swap_kyc_cta)) {
                 analytics.logEvent(SwapAnalyticsEvents.VerifyNowClicked)
-                startKycForResult.launch(KycNavHostActivity.newIntent(requireActivity(), CampaignType.Swap))
+                startKycForResult.launch(KycNavHostActivity.newIntent(requireActivity(), KycEntryPoint.Swap))
             },
             ButtonOptions(visible = false),
             showSheetIndicator = false

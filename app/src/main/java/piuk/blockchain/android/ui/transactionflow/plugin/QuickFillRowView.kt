@@ -110,7 +110,7 @@ class QuickFillRowView @JvmOverloads constructor(
         }
 
         quickFillButtonData = QuickFillButtonData(
-            maxAmount = state.maxSpendable,
+            maxAmount = state.maxSpendable.takeIf { it.isPositive },
             quickFillButtons = listOfAmounts.distinct().map { amount ->
                 val index = listOfAmounts.indexOf(amount)
                 QuickFillDisplayAndAmount(
@@ -181,7 +181,7 @@ class QuickFillRowView @JvmOverloads constructor(
         }
 
         quickFillButtonData = QuickFillButtonData(
-            maxAmount = state.maxSpendable,
+            maxAmount = state.maxSpendable.takeIf { it.isPositive },
             quickFillButtons = listOfAmounts.distinct()
         )
 
