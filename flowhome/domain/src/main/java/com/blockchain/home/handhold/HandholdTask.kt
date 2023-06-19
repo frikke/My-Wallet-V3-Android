@@ -1,7 +1,7 @@
 package com.blockchain.home.handhold
 
-data class HandholdStepStatus(
-    val step: HandholdStep,
+data class HandholdTasksStatus(
+    val task: HandholdTask,
     val status: HandholStatus
 ) {
     val isComplete: Boolean = status == HandholStatus.Complete
@@ -14,7 +14,7 @@ enum class HandholStatus {
     Complete
 }
 
-enum class HandholdStep {
+enum class HandholdTask {
     VerifyEmail,
     Kyc,
     BuyCrypto

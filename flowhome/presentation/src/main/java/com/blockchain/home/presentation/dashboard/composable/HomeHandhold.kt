@@ -3,19 +3,19 @@ package com.blockchain.home.presentation.dashboard.composable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.ui.res.stringResource
-import com.blockchain.componentlib.card.NextStepCard
+import com.blockchain.componentlib.card.TasksSummaryCard
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.home.handhold.HandholdStep
-import com.blockchain.home.handhold.HandholdStepStatus
+import com.blockchain.home.handhold.HandholdTask
+import com.blockchain.home.handhold.HandholdTasksStatus
 import com.blockchain.home.presentation.handhold.composable.HandholdTask
 import com.blockchain.stringResources.R
 import kotlinx.collections.immutable.ImmutableList
 
 internal fun LazyListScope.handhold(
-    data: ImmutableList<HandholdStepStatus>,
-    onClick: (HandholdStep) -> Unit
+    data: ImmutableList<HandholdTasksStatus>,
+    onClick: (HandholdTask) -> Unit
 ) {
     paddedItem(
         paddingValues = {
@@ -27,9 +27,9 @@ internal fun LazyListScope.handhold(
             )
         }
     ) {
-        NextStepCard(
-            stepsCount = data.size,
-            completedSteps = data.count { it.isComplete },
+        TasksSummaryCard(
+            allTasksCount = data.size,
+            completedTasksCount = data.count { it.isComplete },
             title = stringResource(id = R.string.handhold_title),
             description = stringResource(id = R.string.handhold_subtitle)
         )
@@ -55,7 +55,7 @@ internal fun LazyListScope.handhold(
             stepStatus = stepStatus,
             enabled = !disabled,
             onClick = {
-                onClick(stepStatus.step)
+                onClick(stepStatus.task)
             }
         )
     }

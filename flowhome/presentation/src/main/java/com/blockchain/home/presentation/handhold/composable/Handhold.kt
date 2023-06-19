@@ -24,13 +24,13 @@ import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.conditional
 import com.blockchain.home.handhold.HandholStatus
-import com.blockchain.home.handhold.HandholdStep
-import com.blockchain.home.handhold.HandholdStepStatus
+import com.blockchain.home.handhold.HandholdTask
+import com.blockchain.home.handhold.HandholdTasksStatus
 import com.blockchain.stringResources.R
 
 @Composable
 fun HandholdTask(
-    stepStatus: HandholdStepStatus,
+    stepStatus: HandholdTasksStatus,
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
@@ -41,13 +41,13 @@ fun HandholdTask(
     ) {
         CustomTableRow(
             icon = StackedIcon.SingleIcon(
-                stepStatus.step.icon()
-                    .withTint(stepStatus.step.tint())
+                stepStatus.task.icon()
+                    .withTint(stepStatus.task.tint())
                     .withBackground(backgroundColor = AppColors.backgroundSecondary)
             ),
             leadingComponents = listOf(
                 ViewType.Text(
-                    value = stepStatus.step.title(),
+                    value = stepStatus.task.title(),
                     style = ViewStyle.TextStyle(style = AppTheme.typography.paragraph2, color = AppColors.title)
                 ),
                 ViewType.Text(
@@ -68,7 +68,7 @@ fun HandholdTask(
             ),
             trailingComponents = listOf(),
             endIcon = when (stepStatus.status) {
-                HandholStatus.Incomplete -> Icons.ChevronRight.withTint(stepStatus.step.tint())
+                HandholStatus.Incomplete -> Icons.ChevronRight.withTint(stepStatus.task.tint())
                 HandholStatus.Pending -> Icons.Filled.Pending.withTint(AppColors.dark)
                 HandholStatus.Complete -> Icons.Filled.Check.withTint(AppColors.success)
             }
@@ -77,37 +77,37 @@ fun HandholdTask(
 }
 
 @Composable
-private fun HandholdStep.icon() = when (this) {
-    HandholdStep.VerifyEmail -> Icons.Filled.Email
-    HandholdStep.Kyc -> Icons.Filled.Identification
-    HandholdStep.BuyCrypto -> Icons.Filled.Cart
+private fun HandholdTask.icon() = when (this) {
+    HandholdTask.VerifyEmail -> Icons.Filled.Email
+    HandholdTask.Kyc -> Icons.Filled.Identification
+    HandholdTask.BuyCrypto -> Icons.Filled.Cart
 }
 
 @Composable
-private fun HandholdStep.tint() = when (this) {
-    HandholdStep.VerifyEmail -> AppColors.explorer
-    HandholdStep.Kyc -> AppColors.primary
-    HandholdStep.BuyCrypto -> AppColors.success
+private fun HandholdTask.tint() = when (this) {
+    HandholdTask.VerifyEmail -> AppColors.explorer
+    HandholdTask.Kyc -> AppColors.primary
+    HandholdTask.BuyCrypto -> AppColors.success
 }
 
 @Composable
-private fun HandholdStep.title() = when (this) {
-    HandholdStep.VerifyEmail -> R.string.handhold_email
-    HandholdStep.Kyc -> R.string.handhold_kyc
-    HandholdStep.BuyCrypto -> R.string.handhold_buy
+private fun HandholdTask.title() = when (this) {
+    HandholdTask.VerifyEmail -> R.string.handhold_email
+    HandholdTask.Kyc -> R.string.handhold_kyc
+    HandholdTask.BuyCrypto -> R.string.handhold_buy
 }.run {
     stringResource(id = this)
 }
 
 @Composable
-private fun HandholdStepStatus.subtitle(): String {
+private fun HandholdTasksStatus.subtitle(): String {
     return if (status == HandholStatus.Pending) {
         stringResource(R.string.in_review)
     } else {
-        when (step) {
-            HandholdStep.VerifyEmail -> R.string.handhold_completion_seconds to 30
-            HandholdStep.Kyc -> R.string.handhold_completion_minutes to 3
-            HandholdStep.BuyCrypto -> R.string.handhold_completion_seconds to 10
+        when (task) {
+            HandholdTask.VerifyEmail -> R.string.handhold_completion_seconds to 30
+            HandholdTask.Kyc -> R.string.handhold_completion_minutes to 3
+            HandholdTask.BuyCrypto -> R.string.handhold_completion_seconds to 10
         }.run {
             val (id, duration) = this
             stringResource(id = id, duration)
@@ -119,8 +119,8 @@ private fun HandholdStepStatus.subtitle(): String {
 @Composable
 private fun PreviewHandholdScreenEmailIncompleteDisabled() {
     HandholdTask(
-        stepStatus = HandholdStepStatus(
-            step = HandholdStep.VerifyEmail, status = HandholStatus.Incomplete
+        stepStatus = HandholdTasksStatus(
+            task = HandholdTask.VerifyEmail, status = HandholStatus.Incomplete
         ),
         enabled = false,
         onClick = {}
@@ -131,8 +131,8 @@ private fun PreviewHandholdScreenEmailIncompleteDisabled() {
 @Composable
 private fun PreviewHandholdScreenEmailIncomplete() {
     HandholdTask(
-        stepStatus = HandholdStepStatus(
-            step = HandholdStep.VerifyEmail, status = HandholStatus.Incomplete
+        stepStatus = HandholdTasksStatus(
+            task = HandholdTask.VerifyEmail, status = HandholStatus.Incomplete
         ),
         onClick = {}
     )
@@ -148,8 +148,8 @@ private fun PreviewHandholdScreenEmailIncompleteDark() {
 @Composable
 private fun PreviewHandholdScreenEmailComplete() {
     HandholdTask(
-        stepStatus = HandholdStepStatus(
-            step = HandholdStep.VerifyEmail, status = HandholStatus.Complete
+        stepStatus = HandholdTasksStatus(
+            task = HandholdTask.VerifyEmail, status = HandholStatus.Complete
         ),
         onClick = {}
     )
@@ -165,8 +165,8 @@ private fun PreviewHandholdScreenEmailCompleteDark() {
 @Composable
 private fun PreviewHandholdScreenKycIncomplete() {
     HandholdTask(
-        stepStatus = HandholdStepStatus(
-            step = HandholdStep.Kyc, status = HandholStatus.Incomplete
+        stepStatus = HandholdTasksStatus(
+            task = HandholdTask.Kyc, status = HandholStatus.Incomplete
         ),
         onClick = {}
     )
@@ -182,8 +182,8 @@ private fun PreviewHandholdScreenKycIncompleteDark() {
 @Composable
 private fun PreviewHandholdScreenKycPending() {
     HandholdTask(
-        stepStatus = HandholdStepStatus(
-            step = HandholdStep.Kyc, status = HandholStatus.Pending
+        stepStatus = HandholdTasksStatus(
+            task = HandholdTask.Kyc, status = HandholStatus.Pending
         ),
         onClick = {}
     )
@@ -199,8 +199,8 @@ private fun PreviewHandholdScreenKycPendingDark() {
 @Composable
 private fun PreviewHandholdScreenKycComplete() {
     HandholdTask(
-        stepStatus = HandholdStepStatus(
-            step = HandholdStep.Kyc, status = HandholStatus.Complete
+        stepStatus = HandholdTasksStatus(
+            task = HandholdTask.Kyc, status = HandholStatus.Complete
         ),
         onClick = {}
     )
@@ -216,8 +216,8 @@ private fun PreviewHandholdScreenKycCompleteDark() {
 @Composable
 private fun PreviewHandholdScreenBuyIncomplete() {
     HandholdTask(
-        stepStatus = HandholdStepStatus(
-            step = HandholdStep.BuyCrypto, status = HandholStatus.Incomplete
+        stepStatus = HandholdTasksStatus(
+            task = HandholdTask.BuyCrypto, status = HandholStatus.Incomplete
         ),
         onClick = {}
     )
@@ -233,8 +233,8 @@ private fun PreviewHandholdScreenBuyIncompleteDark() {
 @Composable
 private fun PreviewHandholdScreenBuyComplete() {
     HandholdTask(
-        stepStatus = HandholdStepStatus(
-            step = HandholdStep.BuyCrypto, status = HandholStatus.Complete
+        stepStatus = HandholdTasksStatus(
+            task = HandholdTask.BuyCrypto, status = HandholStatus.Complete
         ),
         onClick = {}
     )

@@ -22,7 +22,7 @@ class HandholdViewModel(
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
     override fun HandholdModelState.reduce() = HandholdViewState(
-        stepsStatus = data,
+        tasksStatus = data,
         showHandhold = walletMode?.let { walletMode ->
             data.map {
                 walletMode == WalletMode.CUSTODIAL && it.any { !it.isComplete }

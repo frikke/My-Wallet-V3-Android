@@ -38,9 +38,7 @@ import com.blockchain.data.doOnData
 import com.blockchain.data.map
 import com.blockchain.data.toImmutableList
 import com.blockchain.domain.referral.model.ReferralInfo
-import com.blockchain.home.handhold.HandholStatus
-import com.blockchain.home.handhold.HandholdStep
-import com.blockchain.home.handhold.HandholdStepStatus
+import com.blockchain.home.handhold.HandholdTask
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.accouncement.AnnouncementsIntent
 import com.blockchain.home.presentation.accouncement.AnnouncementsViewModel
@@ -90,7 +88,6 @@ import com.blockchain.prices.prices.percentAndPositionOf
 import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
@@ -281,20 +278,20 @@ fun HomeScreen(
 
         handholdViewState.showHandhold.doOnData { showHandhold ->
             if (showHandhold) {
-                val handholdTasks = (handholdViewState.stepsStatus as DataResource.Data).data.toImmutableList()
+                val handholdTasks = (handholdViewState.tasksStatus as DataResource.Data).data.toImmutableList()
                 handhold(
                     data = handholdTasks,
                     onClick = {
                         when (it) {
-                            HandholdStep.VerifyEmail -> {
+                            HandholdTask.VerifyEmail -> {
                                 navController.navigate(HomeDestination.EmailVerification)
                             }
 
-                            HandholdStep.Kyc -> {
+                            HandholdTask.Kyc -> {
                                 assetActionsNavigation.startKyc()
                             }
 
-                            HandholdStep.BuyCrypto -> {
+                            HandholdTask.BuyCrypto -> {
                             }
                         }
                     }

@@ -12,18 +12,18 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.componentlib.loader.StepIndicator
+import com.blockchain.componentlib.loader.TasksIndicator
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
-fun NextStepCard(
-    stepsCount: Int,
-    completedSteps: Int,
+fun TasksSummaryCard(
+    allTasksCount: Int,
+    completedTasksCount: Int,
     title: String,
     description: String
 ) {
-    require(stepsCount >= completedSteps) { "completedSteps cannot be greater than stepsCount" }
+    require(allTasksCount >= completedTasksCount) { "completedTasksCount cannot be greater than allTasksCount" }
 
     Surface(
         color = AppColors.backgroundSecondary,
@@ -37,9 +37,9 @@ fun NextStepCard(
                     horizontal = AppTheme.dimensions.smallSpacing
                 )
         ) {
-            StepIndicator(
-                stepsCount = stepsCount,
-                completedSteps = completedSteps,
+            TasksIndicator(
+                allTasksCount = allTasksCount,
+                completedTasksCount = completedTasksCount,
                 color = AppColors.primary
             )
 
@@ -64,15 +64,15 @@ fun NextStepCard(
 
 @Preview
 @Composable
-private fun PreviewNextStepCard() {
-    NextStepCard(
-        stepsCount = 3, completedSteps = 1,
+private fun PreviewTasksSummaryCard() {
+    TasksSummaryCard(
+        allTasksCount = 3, completedTasksCount = 1,
         title = "Complete your profile", description = "Trade crypto today"
     )
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun PreviewNextStepCardDark() {
-    PreviewNextStepCard()
+private fun PreviewTasksSummaryCardDark() {
+    PreviewTasksSummaryCard()
 }

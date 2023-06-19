@@ -8,8 +8,8 @@ import com.blockchain.data.combineDataResourceFlows
 import com.blockchain.data.mapData
 import com.blockchain.home.handhold.HandholStatus
 import com.blockchain.home.handhold.HandholdService
-import com.blockchain.home.handhold.HandholdStep
-import com.blockchain.home.handhold.HandholdStepStatus
+import com.blockchain.home.handhold.HandholdTask
+import com.blockchain.home.handhold.HandholdTasksStatus
 import com.blockchain.nabu.api.getuser.domain.UserService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -18,19 +18,19 @@ class HandholdRepository(
     private val userService: UserService,
     private val kycService: KycService
 ) : HandholdService {
-    override fun handholdTasksStatus(): Flow<DataResource<List<HandholdStepStatus>>> {
-        val emailVerifiedStep = userService.getUserResourceFlow()
+    override fun handholdTasksStatus(): Flow<DataResource<List<HandholdTasksStatus>>> {
+        val emailVerifiedTask = userService.getUserResourceFlow()
             .mapData { user ->
-                HandholdStepStatus(
-                    step = HandholdStep.VerifyEmail,
+                HandholdTasksStatus(
+                    task = HandholdTask.VerifyEmail,
                     status = if (user.emailVerified) HandholStatus.Complete else HandholStatus.Incomplete
                 )
             }
 
-        val kycStep = kycService.stateFor(tierLevel = KycTier.GOLD)
+        val kycTask = kycService.stateFor(tierLevel = KycTier.GOLD)
             .mapData { goldState ->
-                HandholdStepStatus(
-                    step = HandholdStep.Kyc,
+                HandholdTasksStatus(
+                    task = HandholdTask.Kyc,
                     status = when (goldState) {
                         KycTierState.Verified -> HandholStatus.Complete
 
@@ -44,18 +44,18 @@ class HandholdRepository(
                 )
             }
 
-        val buyStep = flowOf(
+        val buyTask = flowOf(
             DataResource.Data(
-                HandholdStepStatus(
-                    step = HandholdStep.BuyCrypto, status = HandholStatus.Complete
+                HandholdTasksStatus(
+                    task = HandholdTask.BuyCrypto, status = HandholStatus.Complete
                 )
             )
         )
 
         return combineDataResourceFlows(
-            emailVerifiedStep,
-            kycStep,
-            buyStep
+            emailVerifiedTask,
+            kycTask,
+            buyTask
         ) { emailVerifiedStatus, kycStatus, buyCryptoStatus ->
             listOf(emailVerifiedStatus, kycStatus, buyCryptoStatus)
         }

@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -20,14 +19,14 @@ import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
-fun StepIndicator(
+fun TasksIndicator(
     modifier: Modifier = Modifier,
-    stepsCount: Int,
-    completedSteps: Int,
+    allTasksCount: Int,
+    completedTasksCount: Int,
     size: Dp = 40.dp,
     color: Color,
 ) {
-    require(stepsCount >= completedSteps) { "completedSteps cannot be greater than stepsCount" }
+    require(allTasksCount >= completedTasksCount) { "completedTasksCount cannot be greater than allTasksCount" }
 
     val stroke = 4.dp
 
@@ -49,7 +48,7 @@ fun StepIndicator(
             drawArc(
                 color = color,
                 startAngle = -90F,
-                sweepAngle = 360F / (stepsCount.toFloat() / completedSteps.toFloat()),
+                sweepAngle = 360F / (allTasksCount.toFloat() / completedTasksCount.toFloat()),
                 useCenter = false,
                 style = Stroke(width = stroke.toPx(), cap = StrokeCap.Round)
             )
@@ -57,7 +56,7 @@ fun StepIndicator(
 
         Text(
             modifier = Modifier.align(Alignment.Center),
-            text = "$completedSteps/$stepsCount",
+            text = "$completedTasksCount/$allTasksCount",
             style = AppTheme.typography.paragraph2SlashedZero,
             color = color
         )
@@ -66,12 +65,12 @@ fun StepIndicator(
 
 @Preview
 @Composable
-private fun PreviewStepIndicator() {
-    StepIndicator(stepsCount = 3, completedSteps = 1, color = AppColors.primary)
+private fun PreviewTasksIndicator() {
+    TasksIndicator(allTasksCount = 3, completedTasksCount = 1, color = AppColors.primary)
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun PreviewStepIndicatorDark() {
-    PreviewStepIndicator()
+private fun PreviewTasksIndicatorDark() {
+    PreviewTasksIndicator()
 }

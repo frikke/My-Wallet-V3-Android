@@ -4,5 +4,5 @@ import com.blockchain.data.DataResource
 import kotlinx.coroutines.flow.Flow
 
 interface HandholdService {
-    fun handholdTasksStatus(): Flow<DataResource<List<HandholdStepStatus>>>
+    fun handholdTasksStatus(): Flow<DataResource<List<HandholdTasksStatus>>>
 }
