@@ -15,6 +15,7 @@
     <string name="common_receive">Receive</string>
     <string name="common_rewards">Rewards</string>
     <string name="common_swap">Swap</string>
+    <string name="common_new">New</string>
     <string name="common_swap_from">Swap from</string>
     <string name="common_swap_select_account">Select %1$s account</string>
     <string name="common_swap_to">Swap to</string>
@@ -3553,7 +3554,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bcdc_swap">Blockchain.com Swap</string>
     <string name="cross_chain_limited_tokens">Cross-chain, limited token pairs</string>
     <string name="dex_swap">DEX Swap</string>
-    <string name="single_chain_eth_tokens">Single-chain, thousands of tokens on Ethereum</string>
+    <string name="single_chain_eth_tokens">Swap thousands of tokens on Ethereum and Polygon</string>
     <string name="announcement_recovery_title">Never lose access to your DeFi Wallet</string>
     <string name="announcement_recovery_subtitle">Backup your DeFi Wallet</string>
     <string name="announcements_all_done">🎉 You’re all caught up!</string>
@@ -3626,7 +3627,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="allowed_slippage">Allowed Slippage</string>
     <string name="slippage_explanation">Slippage is the max percentage of price you\'re willing to allow for your swap to go through. If price changes beyond that, the swap will revert and your assets will be returned.</string>
     <string name="approve_token">Approve %1$s</string>
-    <string name="allow_bcdc_dex_to_use">Allow Blockchain.com DEX to use your %1$s?</string>
+    <string name="allow_bcdc_dex_to_use">Allow %1$s</string>
     <string name="allowance_bcdc_expanation">To complete the swap, allow permission to use your %1$s. You only have to do this once per token.</string>
     <string name="asset_upsell_buy_another">Buy Another Asset</string>
     <string name="asset_upsell_title">Would you like to buy another asset?</string>

@@ -147,7 +147,7 @@ class DexEnterAmountViewModel(
                 state.feeToFiatExchangeRate
             ),
             previewActionButtonState = actionButtonState(state),
-            sourceAccountHasNoFunds = transaction?.sourceAccount?.fiatBalance?.isZero ?: false,
+            sourceAccountHasNoFunds = transaction?.sourceAccount?.balance?.isZero ?: false,
             allowanceCanBeRevoked = state.canRevokeAllowance
         )
     }
