@@ -93,6 +93,7 @@ class HandholdRepository(
             // /savings for every currency
             // /staking for every currency
             // /earn_cc1w for every currency
+            // https://blockc.slack.com/archives/C0551CRRYHM/p1686926159229149
             val buyTask = combine(
                 tradingService.getActiveAssets().map { it.isNotEmpty() },
                 interestService.getActiveAssets().map { it.isNotEmpty() },
