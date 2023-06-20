@@ -2,6 +2,7 @@ package com.blockchain.nabu.api.getuser.data
 
 import com.blockchain.api.interceptors.SessionInfo
 import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.internalnotifications.NotificationEvent
 import com.blockchain.logging.DigitalTrust
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.NabuUserReporter
@@ -11,6 +12,7 @@ import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.UserState
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.preferences.CountryPrefs
+import com.blockchain.store.CacheConfiguration
 import com.blockchain.store.CachedData
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Mediator
@@ -32,6 +34,7 @@ class GetUserStore(
 ) : Store<NabuUser> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
+        reset = CacheConfiguration.on(listOf(NotificationEvent.UserUpdated)),
         fetcher = Fetcher.Keyed.ofSingle(
             mapper = {
                 nabuService.getUser()

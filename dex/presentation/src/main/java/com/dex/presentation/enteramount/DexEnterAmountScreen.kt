@@ -64,7 +64,6 @@ import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.PrimarySmallButton
-import com.blockchain.componentlib.button.common.LoadingIndicator
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.icon.SmallTagIcon
 import com.blockchain.componentlib.icons.Alert
@@ -79,6 +78,7 @@ import com.blockchain.componentlib.icons.Settings
 import com.blockchain.componentlib.icons.Sync
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.lazylist.paddedItem
+import com.blockchain.componentlib.loader.LoadingIndicator
 import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppColors

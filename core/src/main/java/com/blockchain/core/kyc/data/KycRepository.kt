@@ -56,6 +56,15 @@ class KycRepository(
             .subscribeOn(Schedulers.io())
     }
 
+    override fun stateFor(
+        tierLevel: KycTier,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<KycTierState>> {
+        return getKycTiersFlow(freshnessStrategy).mapData {
+            it.stateFor(tierLevel)
+        }
+    }
+
     override fun getHighestApprovedTierLevelLegacy(freshnessStrategy: FreshnessStrategy): Single<KycTier> {
         return getTiersLegacy(freshnessStrategy).map { kycTiers ->
             val approvedTier = KycTier.values().reversed().find {

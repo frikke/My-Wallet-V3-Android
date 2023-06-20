@@ -13,9 +13,11 @@ import com.blockchain.home.data.announcements.AnnouncementsRepository
 import com.blockchain.home.data.announcements.AnnouncementsStore
 import com.blockchain.home.data.emptystate.CustodialEmptyCardRepository
 import com.blockchain.home.data.emptystate.EmptyStateBuyAmountsRemoteConfig
+import com.blockchain.home.data.handhold.HandholdRepository
 import com.blockchain.home.domain.FiltersService
 import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.home.emptystate.CustodialEmptyCardService
+import com.blockchain.home.handhold.HandholdService
 import com.blockchain.koin.payloadScopeQualifier
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -73,6 +75,18 @@ val homeDataModule = module {
             AnnouncementsStore(
                 announcementsApiService = get(),
                 announcementsCredentials = get()
+            )
+        }
+
+        scoped<HandholdService> {
+            HandholdRepository(
+                userService = get(),
+                kycService = get(),
+                tradingService = get(),
+                interestService = get(),
+                stakingService = get(),
+                activeRewardsService = get(),
+                handholdPrefs = get()
             )
         }
     }

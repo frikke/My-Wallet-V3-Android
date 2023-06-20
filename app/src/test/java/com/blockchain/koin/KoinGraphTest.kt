@@ -50,6 +50,8 @@ class KoinGraphTest : KoinTest {
     fun `test module configuration`() {
         getKoin().checkModules {
             withInstance<CoroutineScope>(TestScope())
+            // for example viewmodels expecting a boolean argument
+            withInstance(true)
         }
     }
 }

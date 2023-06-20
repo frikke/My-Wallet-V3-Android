@@ -30,6 +30,7 @@ import com.blockchain.koin.modules.serviceModule
 import com.blockchain.koin.modules.urls
 import com.blockchain.koin.modules.versionsModule
 import com.blockchain.koin.modules.xlmModule
+import com.blockchain.kyc.kycPresentationModule
 import com.blockchain.kycproviders.prove.proveModule
 import com.blockchain.logging.data.koin.loggingModule
 import com.blockchain.metadata.metadataModule
@@ -187,7 +188,8 @@ object KoinStarter {
                     proveModule,
                     commonTransactionsPresentationModule, swapTransactionsPresentationModule,
                     sellTransactionsPresentationModule, transactionsDataModule,
-                    newsDataModule, newsPresentationModule
+                    newsDataModule, newsPresentationModule,
+                    kycPresentationModule
                 )
             )
         }

@@ -1,10 +1,12 @@
 package com.blockchain.componentlib.icon
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -23,6 +25,7 @@ fun CustomStackedIcon(
     iconBackground: Color = AppTheme.colors.background,
     borderColor: Color = AppTheme.colors.backgroundSecondary,
     size: Dp = AppTheme.dimensions.standardSpacing,
+    tagIconSize: Dp? = null,
     iconShape: Shape = CircleShape,
     alphaProvider: () -> Float = { 1F }
 ) {
@@ -39,6 +42,7 @@ fun CustomStackedIcon(
             SmallTagIcon(
                 icon = icon,
                 mainIconSize = size,
+                tagIconSize = tagIconSize,
                 iconBackground = iconBackground,
                 borderColor = borderColor,
                 mainIconShape = iconShape
@@ -54,12 +58,14 @@ fun CustomStackedIcon(
                 shape = iconShape,
                 color = iconBackground
             ) {
-                AsyncMediaItem(
-                    modifier = Modifier
-                        .size(size),
-                    imageResource = icon.icon,
-                    onErrorDrawable = com.blockchain.componentlib.icons.R.drawable.coins_on
-                )
+                Box {
+                    AsyncMediaItem(
+                        modifier = Modifier
+                            .align(Alignment.Center),
+                        imageResource = icon.icon,
+                        onErrorDrawable = com.blockchain.componentlib.icons.R.drawable.coins_on
+                    )
+                }
             }
         }
         StackedIcon.None -> {

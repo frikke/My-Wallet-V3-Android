@@ -95,6 +95,7 @@
     <string name="common_go">GO</string>
     <string name="common_important_information">Important information</string>
     <string name="common_crypto">Crypto</string>
+    <string name="common_completed">Completed</string>
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>
@@ -1264,7 +1265,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="get_free_crypto">GET FREE CRYPTO</string>
     <string name="start_arrow">start arrow</string>
     <string name="approved">Approved!</string>
-    <string name="in_review">In Review</string>
+    <string name="in_review">In review</string>
     <string name="available">Available</string>
     <string name="swap_limit">Your Swap Limit is the maximum amount of crypto you can trade</string>
     <string name="swap_unavailable">Swap Currently Unavailable</string>
@@ -2144,15 +2145,16 @@ If you want to know more about our verification process visit our <annotation li
     <string name="kyc_country_selection_search_hint_1">Select Your Country</string>
     <string name="kyc_country_selection_title_1">Select Your Country</string>
     <string name="security_check">Security Check</string>
-    <string name="success_email_veriff">Success! Your email has been confirmed.</string>
+    <string name="success_email_veriff">You can now use this email to access any Blockchain.com product</string>
     <string name="error_email_veriff_title">Oops! Something went wrong.</string>
     <string name="error_email_veriff">We were unable to your verify your email. Please try again or we can send you a new email.</string>
     <string name="error_email_veriff_too_many_attempts">Too many attemps, please try again later.</string>
-    <string name="email_verified">Email Verified</string>
+    <string name="email_verified">Your email was verified!</string>
     <string name="email_verification_title">We sent a verification email to %1$s. Click the link and get all set up to buy crypto.</string>
-    <string name="email_verification_subtitle">We sent a verification email to %1$s. Click the link and get all set up to buy crypto.</string>
+    <string name="email_verification_subtitle">Click on the link we sent to</string>
     <string name="email_verification_resend_snackbar">Email sent to %1$s.</string>
     <string name="email_verify">Verify Your Email</string>
+    <string name="resend_email">Resend Email</string>
     <string name="edit_email_address">Edit Email Address</string>
     <string name="common_save">Save</string>
     <string name="change_email_instructions">Enter your email address below and click Save. We’ll send you a verification email to this new address.</string>
@@ -2649,7 +2651,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="dashboard_onboarding_step_link_buy_time">10 Seconds</string>
     <string name="dashboard_onboarding_steps_counter">%1$d/%2$d</string>
     <string name="dashboard_onboarding_card_title">Complete Your Profile</string>
-    <string name="dashboard_onboarding_subtitle">Buy Crypto Today</string>
+    <string name="dashboard_onboarding_subtitle">Trade crypto today</string>
     <string name="dashboard_onboarding_error_title">Loading Error</string>
     <string name="dashboard_onboarding_error_description">We encountered an issue while loading the verification screen. Please go back to the previous screen and try again.</string>
     <string name="blockchain_fee">Blockchain.com Fee</string>
@@ -3676,7 +3678,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="empty_dapp_description">A Dapp wants to connect \nto your wallet</string>
     <string name="empty_dapp_title">the Dapp</string>
     <string name="common_dapp">Dapp</string>
-    <string name="deposit_more">Deposit more  %1$s</string>
+    <string name="deposit_more">Deposit more %1$s</string>
     <string name="total_balance_loading">Loading…</string>
     <string name="total_balance_error">Failed to load</string>
 
@@ -3686,4 +3688,12 @@ If you want to know more about our verification process visit our <annotation li
     <string name="could_take_few_seconds">This could take a few seconds.</string>
     <string name="no_assets_on_network">No assets on %1$s</string>
     <string name="no_assets_on_network_description">You don\'t have any assets on %1$s Network. Deposit %2$s to get started.</string>
+
+    <string name="handhold_title">Complete Your Profile</string>
+    <string name="handhold_subtitle">Buy crypto today</string>
+    <string name="handhold_completion_minutes">Complete in around %1$s minutes</string>
+    <string name="handhold_completion_seconds">Complete in around %1$s seconds</string>
+    <string name="handhold_email">Verify your email</string>
+    <string name="handhold_kyc">Verify your identity</string>
+    <string name="handhold_buy">Buy crypto</string>
 </resources>

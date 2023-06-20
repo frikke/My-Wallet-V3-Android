@@ -21,7 +21,7 @@ interface ActiveRewardsService {
     ): Flow<DataResource<Boolean>>
 
     fun getActiveAssets(
-        refreshStrategy: FreshnessStrategy
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
     ): Flow<Set<AssetInfo>>
 
     fun getBalanceForAllAssets(

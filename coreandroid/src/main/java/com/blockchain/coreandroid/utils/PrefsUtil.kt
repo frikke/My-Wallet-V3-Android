@@ -26,6 +26,7 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.DexPrefs
 import com.blockchain.preferences.ExchangeCampaignPrefs
+import com.blockchain.preferences.HandholdPrefs
 import com.blockchain.preferences.IterableAnnouncementsPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.MaskedValuePrefs
@@ -95,7 +96,8 @@ class PrefsUtil(
     CountryPrefs,
     ExchangeCampaignPrefs,
     IterableAnnouncementsPrefs,
-    MaskedValuePrefs {
+    MaskedValuePrefs,
+    HandholdPrefs {
 
     private var isUnderAutomationTesting = false // Don't persist!
 
@@ -838,6 +840,22 @@ class PrefsUtil(
         get() = getValue(MASK_VALUES, false)
         set(value) = setValue(MASK_VALUES, value)
 
+    override var overrideHandholdVerification: Boolean
+        get() = getValue(DEBUG_HANDHOLD_OVERRIDE, false)
+        set(value) = setValue(DEBUG_HANDHOLD_OVERRIDE, value)
+
+    override var debugHandholdEmailVerified: Boolean
+        get() = getValue(DEBUG_HANDHOLD_EMAIL_VERIFIED, false)
+        set(value) = setValue(DEBUG_HANDHOLD_EMAIL_VERIFIED, value)
+
+    override var debugHandholdKycVerified: Boolean
+        get() = getValue(DEBUG_HANDHOLD_KYC_VERIFIED, false)
+        set(value) = setValue(DEBUG_HANDHOLD_KYC_VERIFIED, value)
+
+    override var debugHandholdBuyVerified: Boolean
+        get() = getValue(DEBUG_HANDHOLD_BUY_VERIFIED, false)
+        set(value) = setValue(DEBUG_HANDHOLD_BUY_VERIFIED, value)
+
     companion object {
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
 
@@ -1002,6 +1020,12 @@ class PrefsUtil(
 
         // masked values
         private const val MASK_VALUES = "MASK_VALUES"
+
+        // handhold
+        private const val DEBUG_HANDHOLD_OVERRIDE = "overrideHandholdVerification"
+        private const val DEBUG_HANDHOLD_EMAIL_VERIFIED = "DEBUG_EMAIL_VERIFIED"
+        private const val DEBUG_HANDHOLD_KYC_VERIFIED = "DEBUG_KYC_VERIFIED"
+        private const val DEBUG_HANDHOLD_BUY_VERIFIED = "DEBUG_BUY_VERIFIED"
     }
 
     override val legacyWalletMode: String

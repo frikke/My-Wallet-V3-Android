@@ -455,6 +455,8 @@ dependencies {
     implementation project(':news:domain')
     implementation project(':news:presentation')
 
+    implementation project(':kyc:presentation')
+
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring
 

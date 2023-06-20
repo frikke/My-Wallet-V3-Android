@@ -19,6 +19,7 @@ import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.preferences.AppMaintenancePrefs
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.HandholdPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SessionPrefs
@@ -48,6 +49,7 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
     private val remoteLogger: RemoteLogger by inject()
     private val simpleBuyPrefs: SimpleBuyPrefs by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
+    private val handholdPrefs: HandholdPrefs by inject()
     private val appMaintenancePrefs: AppMaintenancePrefs by inject()
     private val appRatingPrefs: AppRatingPrefs by inject()
     private val remoteConfigPrefs: RemoteConfigPrefs by inject()
@@ -115,6 +117,27 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
             }
 
             brokerageErrorSwitch.isChecked = remoteConfigPrefs.brokerageErrorsEnabled
+
+            // handhold
+            handholdOverride.setOnCheckedChangeListener { buttonView, isChecked ->
+                handholdPrefs.overrideHandholdVerification = isChecked
+            }
+            handholdOverride.isChecked = handholdPrefs.overrideHandholdVerification
+
+            handholdEmail.setOnCheckedChangeListener { buttonView, isChecked ->
+                handholdPrefs.debugHandholdEmailVerified = isChecked
+            }
+            handholdEmail.isChecked = handholdPrefs.debugHandholdEmailVerified
+
+            handholdKyc.setOnCheckedChangeListener { buttonView, isChecked ->
+                handholdPrefs.debugHandholdKycVerified = isChecked
+            }
+            handholdKyc.isChecked = handholdPrefs.debugHandholdKycVerified
+
+            handholdBuy.setOnCheckedChangeListener { buttonView, isChecked ->
+                handholdPrefs.debugHandholdBuyVerified = isChecked
+            }
+            handholdBuy.isChecked = handholdPrefs.debugHandholdBuyVerified
 
             // app maintenance
             ignoreAppMaintenanceRcSwitch.setOnCheckedChangeListener { _, isChecked ->

@@ -21,19 +21,9 @@ sealed class ImageResource {
         override val size: Dp? = null
     ) : ImageResource() {
 
-        fun withTint(tint: Color) = Local(
-            id = id,
-            contentDescription = contentDescription,
-            colorFilter = ColorFilter.tint(tint),
-            size = size
-        )
+        fun withTint(tint: Color) = copy(colorFilter = ColorFilter.tint(tint))
 
-        fun withSize(size: Dp) = Local(
-            id = id,
-            contentDescription = contentDescription,
-            colorFilter = colorFilter,
-            size = size
-        )
+        fun withSize(size: Dp) = copy(size = size)
 
         fun withContentDescription(contentDescription: String?) = copy(contentDescription = contentDescription)
     }
