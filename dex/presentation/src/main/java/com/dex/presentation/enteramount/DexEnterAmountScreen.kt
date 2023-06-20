@@ -93,6 +93,7 @@ import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.componentlib.utils.conditional
 import com.blockchain.data.DataResource
+import com.blockchain.extensions.safeLet
 import com.blockchain.koin.payloadScope
 import com.blockchain.preferences.DexPrefs
 import com.blockchain.stringResources.R
@@ -304,6 +305,14 @@ fun DexEnterAmountScreen(
                         viewModel.onIntent(InputAmountIntent.PollForPendingAllowance(it))
                     },
                     receive = receiveOnAccount,
+                    onAlertErrorClicked = { title, description ->
+                        navController.navigate(
+                            DexDestination.DexExtraInfoSheet.routeWithTitleAndDescription(
+                                title = title,
+                                description = description
+                            )
+                        )
+                    },
                     onNoSourceAccountFunds = {
                         navController.navigate(
                             DexDestination.NoFundsForSourceAccount.routeWithArgs(
@@ -430,6 +439,7 @@ fun InputScreen(
     onTokenAllowanceRequested: () -> Unit,
     onTokenAllowanceApproveButPending: (AssetInfo) -> Unit,
     onPreviewClicked: () -> Unit,
+    onAlertErrorClicked: (String, String) -> Unit,
     revokeAllowance: () -> Unit,
     onValueChanged: (TextFieldValue) -> Unit,
     settingsOnClick: () -> Unit,
@@ -461,19 +471,6 @@ fun InputScreen(
             settingsOnClick = settingsOnClick
         )
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
-
-        viewState.topScreenUiError?.let {
-            UiError(
-                modifier = Modifier.padding(bottom = AppTheme.dimensions.smallSpacing),
-                title = it.title ?: stringResource(
-                    id = R.string.common_http_error_title
-                ),
-                description = it.description ?: stringResource(
-                    id = R.string.common_http_error_description
-                ),
-                close = null
-            )
-        }
 
         viewState.txInProgressWarning?.let {
             UiError(
@@ -553,13 +550,18 @@ fun InputScreen(
             )
         }
 
-        viewState.alertError?.let {
+        viewState.alertError?.let { error ->
             AlertButton(
                 modifier = Modifier
                     .padding(vertical = dimensionResource(id = com.blockchain.componentlib.R.dimen.small_spacing))
                     .fillMaxWidth(),
-                text = it.message(LocalContext.current),
-                onClick = { },
+                text = error.message(LocalContext.current),
+                onClick = {
+                    val uiError = (error as? DexUiError.CommonUiError)
+                    safeLet(uiError?.title, uiError?.description) { title, description ->
+                        onAlertErrorClicked(title, description)
+                    }
+                },
                 state = ButtonState.Enabled
             )
         }
@@ -889,7 +891,7 @@ private fun PreviewNetworkSelection_Loading() {
 @Composable
 private fun PreviewInputScreen_NetworkSelection() {
     InputScreen(
-        {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> }, {}, {}, { }, {},
+        {}, {}, {}, {}, {}, { _, _ -> }, {}, {}, {}, { _, _ -> }, {}, {}, { }, {},
         InputAmountViewState.TransactionInputState(
             selectedNetwork = DataResource.Data(
                 DexNetworkViewState(

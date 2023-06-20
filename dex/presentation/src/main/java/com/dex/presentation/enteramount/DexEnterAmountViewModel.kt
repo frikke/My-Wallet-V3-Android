@@ -608,9 +608,6 @@ sealed class InputAmountViewState : ViewState {
                 operationInProgress == DexOperation.PushingAllowance ||
                 operationInProgress is DexOperation.PollingAllowance
 
-        val topScreenUiError: DexUiError.CommonUiError?
-            get() = errors.filterIsInstance<DexUiError.CommonUiError>().firstOrNull()
-
         val txInProgressWarning: DexUiError.TransactionInProgressError?
             get() = errors.filterIsInstance<DexUiError.TransactionInProgressError>().firstOrNull()
 

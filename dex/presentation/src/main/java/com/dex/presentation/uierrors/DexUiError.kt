@@ -17,20 +17,12 @@ sealed class DexUiError {
             context.getString(com.blockchain.stringResources.R.string.not_enough_funds, account.currency.displayTicker)
 
         override val priority: Int
-            get() = 1
-    }
-
-    object LiquidityError : DexUiError(), AlertError, ActionRequiredError {
-        override fun message(context: Context): String =
-            context.getString(com.blockchain.stringResources.R.string.unable_to_swap_tokens)
-
-        override val priority: Int
             get() = 0
     }
 
     data class TokenNotAllowed(val token: AssetInfo, val hasBeenApproved: Boolean) : DexUiError(), ActionRequiredError {
         override val priority: Int
-            get() = 2
+            get() = 1
     }
 
     data class NotEnoughGas(val gasCurrency: Currency) : DexUiError(), AlertError, ActionRequiredError {
@@ -38,13 +30,19 @@ sealed class DexUiError {
             context.getString(com.blockchain.stringResources.R.string.not_enough_gas, gasCurrency.displayTicker)
 
         override val priority: Int
-            get() = 3
+            get() = 2
     }
 
     /**
      * In some rare cases like timeout exceptions, there is no title or description.
      */
-    data class CommonUiError(val title: String?, val description: String?) : DexUiError()
+    data class CommonUiError(val title: String?, val description: String?) : DexUiError(), AlertError {
+        override fun message(context: Context): String =
+            title ?: context.getString(
+                com.blockchain.stringResources.R.string.unable_to_swap_tokens
+            )
+    }
+
     object TransactionInProgressError : DexUiError()
     data class UnknownError(val exception: Exception) : DexUiError()
 }
@@ -72,9 +70,7 @@ fun DexTransaction.toUiErrors(): List<DexUiError> {
             is DexTxError.FatalTxError -> DexUiError.UnknownError(it.exception)
             is DexTxError.TxInProgress -> DexUiError.TransactionInProgressError
             is DexTxError.QuoteError ->
-                if (it.isLiquidityError()) {
-                    DexUiError.LiquidityError
-                } else DexUiError.CommonUiError(
+                DexUiError.CommonUiError(
                     it.title,
                     it.message
                 )

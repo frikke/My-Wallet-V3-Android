@@ -283,9 +283,9 @@ class DexTransactionProcessor(
         }.map { tx ->
             tx.validateAllowance()
         }.map { tx ->
-            tx.validateSufficientNetworkFees()
-        }.map { tx ->
             tx.validateQuoteError()
+        }.map { tx ->
+            tx.validateSufficientNetworkFees()
         }.map { tx ->
             tx.validateTransactionInProcess()
         }
@@ -421,9 +421,6 @@ sealed class DexTxError {
     }
 
     data class QuoteError(val title: String?, val message: String?) : DexTxError() {
-        fun isLiquidityError(): Boolean =
-            message?.contains("INSUFFICIENT_ASSET_LIQUIDITY", true) == true
-
         override val allowsQuotesFetching: Boolean
             get() = true
     }
