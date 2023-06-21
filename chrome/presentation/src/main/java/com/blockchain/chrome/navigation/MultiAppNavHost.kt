@@ -10,8 +10,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import com.blockchain.analytics.Analytics
-import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.chrome.ChromeBottomNavigationItem
 import com.blockchain.chrome.ChromePill
 import com.blockchain.chrome.LocalChromePillProvider
@@ -25,7 +23,6 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
 import com.blockchain.commonarch.presentation.mvi_v2.compose.rememberBottomSheetNavigator
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.earn.navigation.EarnNavigation
-import com.blockchain.home.presentation.navigation.ARG_FIAT_TICKER
 import com.blockchain.home.presentation.navigation.ARG_IS_FROM_MODE_SWITCH
 import com.blockchain.home.presentation.navigation.ARG_RECURRING_BUY_ID
 import com.blockchain.home.presentation.navigation.ARG_WALLET_MODE
@@ -42,9 +39,6 @@ import com.blockchain.nfts.navigation.nftGraph
 import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
-import com.blockchain.prices.navigation.PricesNavigation
-import com.blockchain.walletconnect.domain.WalletConnectAnalytics
-import com.blockchain.walletconnect.ui.navigation.WalletConnectDestination
 import com.blockchain.walletconnect.ui.navigation.WalletConnectV2Navigation
 import com.blockchain.walletconnect.ui.navigation.walletConnectGraph
 import com.dex.presentation.graph.dexGraph
@@ -64,7 +58,6 @@ fun MultiAppNavHost(
     showAppRating: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
     recurringBuyNavigation: RecurringBuyNavigation,
-    pricesNavigation: PricesNavigation,
     settingsNavigation: SettingsNavigation,
     qrScanNavigation: QrScanNavigation,
     supportNavigation: SupportNavigation,
@@ -134,7 +127,6 @@ fun MultiAppNavHost(
                     viewModel = multiAppViewModel,
                     navController = navController,
                     startPhraseRecovery = startPhraseRecovery,
-                    pricesNavigation = pricesNavigation,
                     qrScanNavigation = qrScanNavigation,
                     showAppRating = showAppRating,
                     openExternalUrl = openExternalUrl,
@@ -196,7 +188,6 @@ private fun NavGraphBuilder.chrome(
     navController: NavHostController,
     startPhraseRecovery: () -> Unit,
     showAppRating: () -> Unit,
-    pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
@@ -219,7 +210,6 @@ private fun NavGraphBuilder.chrome(
                     args = listOf(NavArgument(ARG_IS_FROM_MODE_SWITCH, true))
                 )
             },
-            pricesNavigation = pricesNavigation,
             qrScanNavigation = qrScanNavigation,
             graphNavController = navController,
             showAppRating = showAppRating,

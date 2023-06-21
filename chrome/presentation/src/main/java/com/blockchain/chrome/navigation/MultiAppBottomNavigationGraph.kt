@@ -23,9 +23,7 @@ import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.koin.payloadScope
 import com.blockchain.nfts.collection.screen.NftCollection
 import com.blockchain.nfts.navigation.NftNavigation
-import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.prices.prices.composable.Prices
-import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
 import com.blockchain.walletmode.WalletModeService
 import com.dex.presentation.enteramount.DexEnterAmountScreen
 import org.koin.androidx.compose.get
@@ -35,7 +33,6 @@ fun MultiAppBottomNavigationHost(
     modifier: Modifier = Modifier,
     navControllerProvider: () -> NavHostController,
     enableRefresh: Boolean,
-    pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
     updateScrollInfo: (Pair<ChromeBottomNavigationItem, ListStateInfo>) -> Unit,
     selectedNavigationItem: ChromeBottomNavigationItem,
@@ -162,7 +159,6 @@ fun MultiAppBottomNavigationHost(
                         listState = listState,
                         shouldTriggerRefresh = shouldTriggerRefresh &&
                             selectedNavigationItem == ChromeBottomNavigationItem.Prices,
-                        pricesNavigation = pricesNavigation,
                         openSettings = openSettings,
                         launchQrScanner = launchQrScanner
                     )

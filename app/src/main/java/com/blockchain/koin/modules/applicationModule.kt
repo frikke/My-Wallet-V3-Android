@@ -76,7 +76,6 @@ import com.blockchain.payments.core.CardProcessor
 import com.blockchain.payments.stripe.StripeCardProcessor
 import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.chrome.navigation.DefiBackupNavigation
-import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.transactions.upsell.buy.viewmodel.UpsellBuyViewModel
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.BackupWallet
@@ -276,7 +275,6 @@ val applicationModule = module {
         }
 
         factory { (activity: BlockchainActivity) -> AssetActionsNavigationImpl(activity = activity) }.apply {
-            bind(PricesNavigation::class)
             bind(AssetActionsNavigation::class)
         }
 

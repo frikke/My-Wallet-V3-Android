@@ -77,8 +77,6 @@ import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.extensions.safeLet
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.nfts.navigation.NftNavigation
-import com.blockchain.prices.navigation.PricesNavigation
-import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.Money
 import kotlinx.collections.immutable.ImmutableList
@@ -116,7 +114,6 @@ fun MultiAppChrome(
     showDefiOnboarding: () -> Unit,
     startPhraseRecovery: () -> Unit,
     showAppRating: () -> Unit,
-    pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
     graphNavController: NavController,
     openExternalUrl: (url: String) -> Unit,
@@ -174,7 +171,6 @@ fun MultiAppChrome(
             },
             onModeLongClicked = onModeLongClicked,
             graphNavController = graphNavController,
-            pricesNavigation = pricesNavigation,
             qrScanNavigation = qrScanNavigation,
             onBalanceRevealed = {
                 viewModel.onIntent(MultiAppIntents.BalanceRevealed)
@@ -207,7 +203,6 @@ fun MultiAppChromeScreen(
     onBottomNavigationItemSelected: (ChromeBottomNavigationItem) -> Unit,
     onModeSelected: (WalletMode) -> Unit,
     onModeLongClicked: (WalletMode) -> Unit,
-    pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
     onBalanceRevealed: () -> Unit,
     graphNavController: NavController,
@@ -730,7 +725,6 @@ fun MultiAppChromeScreen(
                     refreshComplete = {
                         stopRefresh()
                     },
-                    pricesNavigation = pricesNavigation,
                     navController = graphNavController,
                     qrScanNavigation = qrScanNavigation,
                     startPhraseRecovery = startPhraseRecovery,

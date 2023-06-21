@@ -16,10 +16,8 @@ import com.blockchain.earn.interest.InterestSummaryBottomSheet
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.chrome.navigation.AssetActionsNavigation
-
 import com.blockchain.koin.newSellFlowFeatureFlag
 import com.blockchain.koin.newSwapFlowFeatureFlag
-import com.blockchain.prices.navigation.PricesNavigation
 import info.blockchain.balance.AssetInfo
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
@@ -33,7 +31,7 @@ import piuk.blockchain.android.ui.settings.SettingsActivity
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
 
-class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : AssetActionsNavigation, PricesNavigation {
+class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : AssetActionsNavigation {
 
     private val newSwapFlowFF: FeatureFlag?
         get() = activity?.run {

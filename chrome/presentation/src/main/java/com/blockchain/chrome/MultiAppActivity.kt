@@ -66,7 +66,6 @@ import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.chrome.navigation.DefiBackupNavigation
 import com.blockchain.presentation.sheets.NoBalanceActionBottomSheet
-import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.domain.WalletConnectV2Service
 import com.blockchain.walletconnect.ui.networks.NetworkInfo
@@ -129,12 +128,6 @@ class MultiAppActivity :
         get() = false
 
     private val defiBackupNavigation: DefiBackupNavigation = payloadScope.get {
-        parametersOf(
-            this
-        )
-    }
-
-    private val pricesNavigation: PricesNavigation = payloadScope.get {
         parametersOf(
             this
         )
@@ -224,7 +217,6 @@ class MultiAppActivity :
                 recurringBuyNavigation = recurringBuyNavigation,
                 showAppRating = ::showAppRating,
                 settingsNavigation = settingsNavigation,
-                pricesNavigation = pricesNavigation,
                 qrScanNavigation = qrScanNavigation,
                 supportNavigation = supportNavigation,
                 nftNavigation = nftNavigation,
