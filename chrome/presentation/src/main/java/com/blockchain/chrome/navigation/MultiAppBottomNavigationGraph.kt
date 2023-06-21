@@ -41,7 +41,6 @@ fun MultiAppBottomNavigationHost(
     selectedNavigationItem: ChromeBottomNavigationItem,
     refreshStarted: () -> Unit,
     refreshComplete: () -> Unit,
-    openFiatActionDetail: (String) -> Unit,
     startPhraseRecovery: () -> Unit,
     openExternalUrl: (url: String) -> Unit,
     navController: NavController,
@@ -50,8 +49,6 @@ fun MultiAppBottomNavigationHost(
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
     processAnnouncementUrl: (String) -> Unit,
-    onWalletConnectSessionClicked: (DappSessionUiElement) -> Unit,
-    onWalletConnectSeeAllSessionsClicked: () -> Unit
 ) {
     val walletMode by get<WalletModeService>(scope = payloadScope)
         .walletMode.collectAsStateLifecycleAware(initial = null)
@@ -106,11 +103,8 @@ fun MultiAppBottomNavigationHost(
                             selectedNavigationItem == ChromeBottomNavigationItem.Home,
                         openSettings = openSettings,
                         launchQrScanner = launchQrScanner,
-                        openFiatActionDetail = openFiatActionDetail,
                         startPhraseRecovery = startPhraseRecovery,
                         processAnnouncementUrl = processAnnouncementUrl,
-                        onWalletConnectSessionClicked = onWalletConnectSessionClicked,
-                        onWalletConnectSeeAllSessionsClicked = onWalletConnectSeeAllSessionsClicked
                     )
                 }
             )

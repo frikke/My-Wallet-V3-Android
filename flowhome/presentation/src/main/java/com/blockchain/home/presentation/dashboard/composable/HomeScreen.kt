@@ -26,8 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.navigation.NavHostController
 import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.chrome.LocalNavControllerProvider
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
@@ -77,9 +77,8 @@ import com.blockchain.chrome.navigation.LocalAssetActionsNavigationProvider
 import com.blockchain.chrome.navigation.LocalRecurringBuyNavigationProvider
 import com.blockchain.chrome.navigation.LocalSupportNavigationProvider
 import com.blockchain.home.presentation.navigation.HomeDestination
-import com.blockchain.chrome.navigation.RecurringBuyNavigation
 import com.blockchain.home.presentation.navigation.ARG_RECURRING_BUY_ID
-import com.blockchain.chrome.navigation.SupportNavigation
+import com.blockchain.home.presentation.navigation.ARG_FIAT_TICKER
 import com.blockchain.home.presentation.news.NewsIntent
 import com.blockchain.home.presentation.news.NewsViewModel
 import com.blockchain.home.presentation.news.NewsViewState
@@ -101,7 +100,9 @@ import com.blockchain.prices.prices.PricesLoadStrategy
 import com.blockchain.prices.prices.PricesViewModel
 import com.blockchain.prices.prices.PricesViewState
 import com.blockchain.prices.prices.percentAndPositionOf
+import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
+import com.blockchain.walletconnect.ui.navigation.WalletConnectDestination
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
@@ -116,38 +117,56 @@ fun HomeScreen(
     isSwipingToRefresh: Boolean,
     openSettings: () -> Unit,
     launchQrScanner: () -> Unit,
-    openFiatActionDetail: (String) -> Unit,
     startPhraseRecovery: () -> Unit,
-    processAnnouncementUrl: (String) -> Unit,
-    onWalletConnectSessionClicked: (DappSessionUiElement) -> Unit,
-    onWalletConnectSeeAllSessionsClicked: () -> Unit
+    processAnnouncementUrl: (String) -> Unit
 ) {
-    var menuOptionsHeight: Int by remember { mutableStateOf(0) }
-    var balanceOffsetToMenuOption: Float by remember { mutableStateOf(0F) }
-    val balanceToMenuPaddingPx: Int = LocalDensity.current.run { 24.dp.toPx() }.toInt()
-    var balanceScrollRange: Float by remember { mutableStateOf(0F) }
-
     val navController = LocalNavControllerProvider.current
     val assetActionsNavigation = LocalAssetActionsNavigationProvider.current
     val recurringBuyNavigation = LocalRecurringBuyNavigationProvider.current
     val supportNavigation = LocalSupportNavigationProvider.current
 
+    // -----------------------------
+    // header scroll animation
+    var menuOptionsHeight: Int by remember { mutableStateOf(0) }
+    var balanceOffsetToMenuOption: Float by remember { mutableStateOf(0F) }
+    val balanceToMenuPaddingPx: Int = LocalDensity.current.run { 24.dp.toPx() }.toInt()
+    var balanceScrollRange: Float by remember { mutableStateOf(0F) }
+
+    val showMenuOptionsBackground: Boolean = balanceOffsetToMenuOption <= 0F && menuOptionsHeight > 0F
+    val showMenuOptionsBalance = balanceScrollRange <= 0.5 && menuOptionsHeight > 0F
+    val hideBalance = balanceScrollRange <= 0.5 && menuOptionsHeight > 0F
+    fun menuOptionsHeightLoaded(height: Int) {
+        if (menuOptionsHeight == 0) menuOptionsHeight = height
+    }
+
+    fun balanceYPositionLoaded(balanceYPosition: Float) {
+        (balanceYPosition - menuOptionsHeight + balanceToMenuPaddingPx)
+            .coerceAtLeast(0F).let {
+                if (balanceOffsetToMenuOption != it) balanceOffsetToMenuOption = it
+            }
+
+        ((balanceYPosition / menuOptionsHeight.toFloat()) * 2).coerceIn(0F, 1F).let {
+            if (balanceScrollRange != it) balanceScrollRange = it
+        }
+    }
+
+    // -----------------------------
     // navigation
-    fun openAssetsList(analytics: Analytics, assetsCount: Int) {
+    fun openAssetsList(assetsCount: Int) {
         navController.navigate(HomeDestination.CryptoAssets)
         analytics.logEvent(
             DashboardAnalyticsEvents.AssetsSeeAllClicked(assetsCount = assetsCount)
         )
     }
 
-    fun openCoinview(analytics: Analytics, asset: AssetInfo) {
+    fun openCoinview(asset: AssetInfo) {
         assetActionsNavigation.coinview(asset)
         analytics.logEvent(
             DashboardAnalyticsEvents.CryptoAssetClicked(ticker = asset.displayTicker)
         )
     }
 
-    fun openActivityList(analytics: Analytics) {
+    fun openActivityList() {
         navController.navigate(HomeDestination.Activity)
         analytics.logEvent(DashboardAnalyticsEvents.ActivitySeeAllClicked)
     }
@@ -191,19 +210,47 @@ fun HomeScreen(
         navController.navigate(HomeDestination.SwapDexOptions)
     }
 
-    fun  openMoreQuickActions() {
+    fun openMoreQuickActions() {
         navController.navigate(HomeDestination.MoreQuickActions)
+    }
+
+    fun openFiatActionDetail(fiatTicker: String) {
+        navController.navigate(
+            HomeDestination.FiatActionDetail,
+            listOf(NavArgument(key = ARG_FIAT_TICKER, fiatTicker))
+        )
+        analytics.logEvent(DashboardAnalyticsEvents.FiatAssetClicked(ticker = fiatTicker))
+    }
+
+    fun openFundsLockDetail(fundsLocks: FundsLocks) {
+        assetActionsNavigation.fundsLocksDetail(fundsLocks)
+    }
+
+    fun openWalletConnectManageSession(dappSessionUiElement: DappSessionUiElement) {
+        analytics.logEvent(WalletConnectAnalytics.HomeDappClicked(dappSessionUiElement.chainName))
+
+        navController.navigate(
+            WalletConnectDestination.WalletConnectManageSession,
+            listOfNotNull(
+                NavArgument(key = WalletConnectDestination.ARG_SESSION_ID, value = dappSessionUiElement.sessionId),
+                NavArgument(key = WalletConnectDestination.ARG_IS_V2_SESSION, value = dappSessionUiElement.isV2)
+            )
+        )
+    }
+
+    fun openWalletConnectDappList() {
+        analytics.logEvent(WalletConnectAnalytics.ConnectedDappsListClicked(origin = LaunchOrigin.HOME))
+
+        navController.navigate(WalletConnectDestination.WalletConnectDappList)
     }
     //
 
-    val walletMode by
-    get<WalletModeService>(scope = payloadScope).walletMode.collectAsStateLifecycleAware(initial = null)
+    val walletMode by get<WalletModeService>(scope = payloadScope).walletMode.collectAsStateLifecycleAware(null)
 
-    DisposableEffect(walletMode) {
+    LaunchedEffect(walletMode) {
         walletMode?.let {
             analytics.logEvent(DashboardAnalyticsEvents.ModeViewed(walletMode = it))
         }
-        onDispose { }
     }
 
     walletMode?.let {
@@ -225,57 +272,33 @@ fun HomeScreen(
                     openDexSwapOptions = ::openSwapDexOptions,
                     openMoreQuickActions = ::openMoreQuickActions,
 
-                    openCryptoAssets = {
-                        openAssetsList(analytics = analytics, assetsCount = it)
-                    },
-                    assetOnClick = { asset ->
-                        openCoinview(analytics = analytics, asset = asset)
-                    },
-                    fundsLocksOnClick = { fundsLocks ->
-                        assetActionsNavigation.fundsLocksDetail(fundsLocks)
-                    },
-                    openFiatActionDetail = { ticker ->
-                        openFiatActionDetail(ticker)
-                        analytics.logEvent(DashboardAnalyticsEvents.FiatAssetClicked(ticker = ticker))
-                    },
+                    openCryptoAssets = ::openAssetsList,
+                    assetOnClick = ::openCoinview,
+                    fundsLocksOnClick = ::openFundsLockDetail,
+                    openFiatActionDetail = ::openFiatActionDetail,
 
                     openRecurringBuys = ::openRecurringBuysList,
                     upsellOnClick = ::openRecurringBuyOnboarding,
                     recurringBuyOnClick = ::openRecurringBuyDetail,
 
-                    openActivity = {
-                        openActivityList(analytics)
-                    },
+                    openActivity = ::openActivityList,
                     openActivityDetail = ::openActivityDetail,
 
                     openReferral = ::openRefferal,
 
                     openSupportCenter = ::openSupportCenter,
 
-                    showBackground = balanceOffsetToMenuOption <= 0F && menuOptionsHeight > 0F,
-                    showBalance = balanceScrollRange <= 0.5 && menuOptionsHeight > 0F,
+                    showMenuOptionsBackground = showMenuOptionsBackground,
+                    showMenuOptionsBalance = showMenuOptionsBalance,
                     balanceAlphaProvider = { balanceScrollRange },
-                    hideBalance = balanceScrollRange <= 0.5 && menuOptionsHeight > 0F,
-                    menuOptionsHeightLoaded = {
-                        if (menuOptionsHeight == 0) menuOptionsHeight = it
-                    },
-                    balanceYPositionLoaded = { balanceYPosition ->
-                        (balanceYPosition - menuOptionsHeight + balanceToMenuPaddingPx)
-                            .coerceAtLeast(0F).let {
-                                if (balanceOffsetToMenuOption != it) balanceOffsetToMenuOption = it
-                            }
-
-                        ((balanceYPosition / menuOptionsHeight.toFloat()) * 2).coerceIn(0F, 1F).let {
-                            if (balanceScrollRange != it) balanceScrollRange = it
-                        }
-                    }
+                    hideBalance = hideBalance,
+                    menuOptionsHeightLoaded = ::menuOptionsHeightLoaded,
+                    balanceYPositionLoaded = ::balanceYPositionLoaded
                 )
             }
 
             WalletMode.NON_CUSTODIAL -> {
                 DefiHomeDashboard(
-                    analytics = analytics,
-
                     isSwipingToRefresh = isSwipingToRefresh,
 
                     listState = listState,
@@ -289,48 +312,24 @@ fun HomeScreen(
                     openDexSwapOptions = ::openSwapDexOptions,
                     openMoreQuickActions = ::openMoreQuickActions,
 
-                    openCryptoAssets = {
-                        openAssetsList(analytics = analytics, assetsCount = it)
-                    },
-                    assetOnClick = { asset ->
-                        openCoinview(analytics = analytics, asset = asset)
-                    },
-                    fundsLocksOnClick = { fundsLocks ->
-                        assetActionsNavigation.fundsLocksDetail(fundsLocks)
-                    },
-                    openFiatActionDetail = { ticker ->
-                        openFiatActionDetail(ticker)
-                        analytics.logEvent(DashboardAnalyticsEvents.FiatAssetClicked(ticker = ticker))
-                    },
+                    openCryptoAssets = ::openAssetsList,
+                    assetOnClick = ::openCoinview,
 
-                    onDappSessionClicked = onWalletConnectSessionClicked,
-                    onWalletConnectSeeAllSessionsClicked = onWalletConnectSeeAllSessionsClicked,
+                    onDappSessionClicked = ::openWalletConnectManageSession,
+                    onWalletConnectSeeAllSessionsClicked = ::openWalletConnectDappList,
 
-                    openActivity = {
-                        openActivityList(analytics)
-                    },
+                    openActivity = ::openActivityList,
                     openActivityDetail = ::openActivityDetail,
                     openReferral = ::openRefferal,
 
                     openSupportCenter = ::openSupportCenter,
 
-                    showBackground = balanceOffsetToMenuOption <= 0F && menuOptionsHeight > 0F,
-                    showBalance = balanceScrollRange <= 0.5 && menuOptionsHeight > 0F,
+                    showMenuOptionsBackground = showMenuOptionsBackground,
+                    showMenuOptionsBalance = showMenuOptionsBalance,
                     balanceAlphaProvider = { balanceScrollRange },
-                    hideBalance = balanceScrollRange <= 0.5 && menuOptionsHeight > 0F,
-                    menuOptionsHeightLoaded = {
-                        if (menuOptionsHeight == 0) menuOptionsHeight = it
-                    },
-                    balanceYPositionLoaded = { balanceYPosition ->
-                        (balanceYPosition - menuOptionsHeight + balanceToMenuPaddingPx)
-                            .coerceAtLeast(0F).let {
-                                if (balanceOffsetToMenuOption != it) balanceOffsetToMenuOption = it
-                            }
-
-                        ((balanceYPosition / menuOptionsHeight.toFloat()) * 2).coerceIn(0F, 1F).let {
-                            if (balanceScrollRange != it) balanceScrollRange = it
-                        }
-                    }
+                    hideBalance = hideBalance,
+                    menuOptionsHeightLoaded = ::menuOptionsHeightLoaded,
+                    balanceYPositionLoaded = ::balanceYPositionLoaded
                 )
             }
         }
@@ -371,8 +370,8 @@ private fun CustodialHomeDashboard(
 
     openSupportCenter: () -> Unit,
 
-    showBackground: Boolean = false,
-    showBalance: Boolean = false,
+    showMenuOptionsBackground: Boolean = false,
+    showMenuOptionsBalance: Boolean = false,
     balanceAlphaProvider: () -> Float,
     hideBalance: Boolean,
     menuOptionsHeightLoaded: (Int) -> Unit,
@@ -450,7 +449,7 @@ private fun CustodialHomeDashboard(
         }
     }
 
-    LaunchedEffect(key1 = isSwipingToRefresh) {
+    LaunchedEffect(isSwipingToRefresh) {
         if (isSwipingToRefresh) {
             announcementsViewModel.onIntent(AnnouncementsIntent.Refresh)
             homeAssetsViewModel.onIntent(AssetsIntent.Refresh)
@@ -479,8 +478,8 @@ private fun CustodialHomeDashboard(
                 walletBalance = balance?.toStringWithoutSymbol().orEmpty(),
                 openSettings = openSettings,
                 launchQrScanner = launchQrScanner,
-                showBackground = showBackground,
-                showBalance = showBalance
+                showBackground = showMenuOptionsBackground,
+                showBalance = showMenuOptionsBalance
             )
         }
 
@@ -727,8 +726,6 @@ private fun CustodialHomeDashboard(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun DefiHomeDashboard(
-    analytics: Analytics,
-
     isSwipingToRefresh: Boolean,
 
     listState: LazyListState,
@@ -744,8 +741,6 @@ private fun DefiHomeDashboard(
 
     assetOnClick: (AssetInfo) -> Unit,
     openCryptoAssets: (count: Int) -> Unit,
-    fundsLocksOnClick: (FundsLocks) -> Unit,
-    openFiatActionDetail: (String) -> Unit,
 
     onDappSessionClicked: (DappSessionUiElement) -> Unit,
     onWalletConnectSeeAllSessionsClicked: () -> Unit,
@@ -757,8 +752,8 @@ private fun DefiHomeDashboard(
 
     openSupportCenter: () -> Unit,
 
-    showBackground: Boolean = false,
-    showBalance: Boolean = false,
+    showMenuOptionsBackground: Boolean,
+    showMenuOptionsBalance: Boolean,
     balanceAlphaProvider: () -> Float,
     hideBalance: Boolean,
     menuOptionsHeightLoaded: (Int) -> Unit,
@@ -826,7 +821,7 @@ private fun DefiHomeDashboard(
         }
     }
 
-    LaunchedEffect(key1 = isSwipingToRefresh) {
+    LaunchedEffect(isSwipingToRefresh) {
         if (isSwipingToRefresh) {
             announcementsViewModel.onIntent(AnnouncementsIntent.Refresh)
             homeAssetsViewModel.onIntent(AssetsIntent.Refresh)
@@ -854,8 +849,8 @@ private fun DefiHomeDashboard(
                 walletBalance = balance?.toStringWithoutSymbol().orEmpty(),
                 openSettings = openSettings,
                 launchQrScanner = launchQrScanner,
-                showBackground = showBackground,
-                showBalance = showBalance
+                showBackground = showMenuOptionsBackground,
+                showBalance = showMenuOptionsBalance
             )
         }
 
@@ -931,8 +926,8 @@ private fun DefiHomeDashboard(
                 data = assets,
                 openCryptoAssets = { openCryptoAssets(data.size) },
                 assetOnClick = assetOnClick,
-                fundsLocksOnClick = fundsLocksOnClick,
-                openFiatActionDetail = openFiatActionDetail
+                fundsLocksOnClick = {}, // n/a nc
+                openFiatActionDetail = {} // n/a nc
             )
         }
 

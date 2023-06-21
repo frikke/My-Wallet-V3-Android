@@ -119,15 +119,12 @@ fun MultiAppChrome(
     pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
     graphNavController: NavController,
-    openFiatActionDetail: (String) -> Unit,
     openExternalUrl: (url: String) -> Unit,
     openNftHelp: () -> Unit,
     processAnnouncementUrl: (String) -> Unit,
     openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
-    onWalletConnectSessionClicked: (DappSessionUiElement) -> Unit,
-    onWalletConnectSeeAllSessionsClicked: () -> Unit
 ) {
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(MultiAppIntents.LoadData)
@@ -176,7 +173,6 @@ fun MultiAppChrome(
                 viewModel.onIntent(MultiAppIntents.WalletModeSelected(walletMode))
             },
             onModeLongClicked = onModeLongClicked,
-            openFiatActionDetail = openFiatActionDetail,
             graphNavController = graphNavController,
             pricesNavigation = pricesNavigation,
             qrScanNavigation = qrScanNavigation,
@@ -192,8 +188,6 @@ fun MultiAppChrome(
             nftNavigation = nftNavigation,
             earnNavigation = earnNavigation,
             processAnnouncementUrl = processAnnouncementUrl,
-            onWalletConnectSessionClicked = onWalletConnectSessionClicked,
-            onWalletConnectSeeAllSessionsClicked = onWalletConnectSeeAllSessionsClicked
         )
     }
 }
@@ -215,7 +209,6 @@ fun MultiAppChromeScreen(
     onModeLongClicked: (WalletMode) -> Unit,
     pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
-    openFiatActionDetail: (String) -> Unit,
     onBalanceRevealed: () -> Unit,
     graphNavController: NavController,
     startPhraseRecovery: () -> Unit,
@@ -225,8 +218,6 @@ fun MultiAppChromeScreen(
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
     processAnnouncementUrl: (String) -> Unit,
-    onWalletConnectSessionClicked: (DappSessionUiElement) -> Unit,
-    onWalletConnectSeeAllSessionsClicked: () -> Unit
 ) {
     val toolbarState = rememberToolbarState(modeSwitcherOptions)
     val navController = rememberNavController()
@@ -739,7 +730,6 @@ fun MultiAppChromeScreen(
                     refreshComplete = {
                         stopRefresh()
                     },
-                    openFiatActionDetail = openFiatActionDetail,
                     pricesNavigation = pricesNavigation,
                     navController = graphNavController,
                     qrScanNavigation = qrScanNavigation,
@@ -750,8 +740,6 @@ fun MultiAppChromeScreen(
                     nftNavigation = nftNavigation,
                     earnNavigation = earnNavigation,
                     processAnnouncementUrl = processAnnouncementUrl,
-                    onWalletConnectSessionClicked = onWalletConnectSessionClicked,
-                    onWalletConnectSeeAllSessionsClicked = onWalletConnectSeeAllSessionsClicked
                 )
             }
 

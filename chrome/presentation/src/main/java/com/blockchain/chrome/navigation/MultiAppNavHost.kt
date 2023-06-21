@@ -204,9 +204,6 @@ private fun NavGraphBuilder.chrome(
     processAnnouncementUrl: (url: String) -> Unit
 ) {
     composable(navigationEvent = ChromeDestination.Main) {
-
-        val analytics: Analytics = get()
-
         MultiAppChrome(
             viewModel = viewModel,
             onModeLongClicked = { walletMode ->
@@ -225,12 +222,6 @@ private fun NavGraphBuilder.chrome(
             pricesNavigation = pricesNavigation,
             qrScanNavigation = qrScanNavigation,
             graphNavController = navController,
-            openFiatActionDetail = { fiatTicker: String ->
-                navController.navigate(
-                    HomeDestination.FiatActionDetail,
-                    listOf(NavArgument(key = ARG_FIAT_TICKER, fiatTicker))
-                )
-            },
             showAppRating = showAppRating,
             openExternalUrl = openExternalUrl,
             openNftHelp = {
@@ -249,22 +240,6 @@ private fun NavGraphBuilder.chrome(
             nftNavigation = nftNavigation,
             earnNavigation = earnNavigation,
             processAnnouncementUrl = processAnnouncementUrl,
-            onWalletConnectSessionClicked = {
-                analytics.logEvent(WalletConnectAnalytics.HomeDappClicked(it.chainName))
-
-                navController.navigate(
-                    WalletConnectDestination.WalletConnectManageSession,
-                    listOfNotNull(
-                        NavArgument(key = WalletConnectDestination.ARG_SESSION_ID, value = it.sessionId),
-                        NavArgument(key = WalletConnectDestination.ARG_IS_V2_SESSION, value = it.isV2)
-                    ),
-                )
-            },
-            onWalletConnectSeeAllSessionsClicked = {
-                analytics.logEvent(WalletConnectAnalytics.ConnectedDappsListClicked(origin = LaunchOrigin.HOME))
-
-                navController.navigate(WalletConnectDestination.WalletConnectDappList)
-            },
         )
     }
 }
