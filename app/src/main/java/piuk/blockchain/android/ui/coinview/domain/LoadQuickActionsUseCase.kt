@@ -2,8 +2,12 @@ package piuk.blockchain.android.ui.coinview.domain
 
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.kyc.domain.model.KycTierState
 import com.blockchain.data.DataResource
 import com.blockchain.data.combineDataResources
+import com.blockchain.data.dataOrElse
 import com.blockchain.data.mapData
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -21,7 +25,8 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickActions
 
 class LoadQuickActionsUseCase(
     private val userFeaturePermissionService: UserFeaturePermissionService,
-    private val custodialWalletManager: CustodialWalletManager
+    private val custodialWalletManager: CustodialWalletManager,
+    private val kycService: KycService
 ) {
     // todo(othman) remove accounts/total balance args - and use flow once caching is available
     operator fun invoke(
@@ -50,15 +55,18 @@ class LoadQuickActionsUseCase(
                             Feature.Swap
                         ),
                         custodialWalletManager.isCurrencyAvailableForTrading(asset.currency),
-                        custodialWalletManager.isAssetSupportedForSwap(asset.currency).toFlowDataResource()
-                    ) { featuresAccess, isAvailableForTrading, isSupportedForSwap ->
+                        custodialWalletManager.isAssetSupportedForSwap(asset.currency).toFlowDataResource(),
+                        kycService.stateFor(KycTier.GOLD).mapData { it == KycTierState.Rejected }
+                    ) { featuresAccess, isAvailableForTrading, isSupportedForSwap, isKycRejected ->
                         combineDataResources(
                             featuresAccess,
                             isAvailableForTrading,
-                            isSupportedForSwap
+                            isSupportedForSwap,
+                            isKycRejected
                         ) { featuresAccessData,
                             isAvailableForTradingData,
-                            isSupportedForSwapData ->
+                            isSupportedForSwapData,
+                            isKycRejectedData ->
 
                             val assetFilters = listOf(AssetFilter.Trading)
 
@@ -137,14 +145,14 @@ class LoadQuickActionsUseCase(
                             val canReceive = receiveAccess is FeatureAccess.Granted && isAvailableForTradingData
 
                             val centerButtons = listOfNotNull(
-                                CoinviewQuickAction.Swap.takeIf { canSwap },
-                                CoinviewQuickAction.Receive.takeIf { canReceive },
-                                CoinviewQuickAction.Send.takeIf { canSend }
+                                CoinviewQuickAction.Swap(enabled = !isKycRejectedData).takeIf { canSwap },
+                                CoinviewQuickAction.Receive(enabled = !isKycRejectedData).takeIf { canReceive },
+                                CoinviewQuickAction.Send(enabled = !isKycRejectedData).takeIf { canSend }
                             )
 
                             val bottomButtons = listOfNotNull(
-                                CoinviewQuickAction.Sell.takeIf { canSell },
-                                CoinviewQuickAction.Buy.takeIf { canBuy }
+                                CoinviewQuickAction.Sell(enabled = !isKycRejectedData).takeIf { canSell },
+                                CoinviewQuickAction.Buy(enabled = !isKycRejectedData).takeIf { canBuy }
                             )
 
                             /**
@@ -193,12 +201,12 @@ class LoadQuickActionsUseCase(
                                     isSwapAvailable
 
                             val centerButtons = listOfNotNull(
-                                CoinviewQuickAction.Send.takeIf { canSend },
-                                CoinviewQuickAction.Receive.takeIf { canReceive }
+                                CoinviewQuickAction.Send().takeIf { canSend },
+                                CoinviewQuickAction.Receive().takeIf { canReceive }
                             )
 
                             val bottomButtons = listOfNotNull(
-                                CoinviewQuickAction.Swap.takeIf { canSwap }
+                                CoinviewQuickAction.Swap().takeIf { canSwap }
                             )
 
                             /**

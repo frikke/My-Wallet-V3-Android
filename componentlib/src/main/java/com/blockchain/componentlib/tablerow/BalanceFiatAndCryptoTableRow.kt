@@ -72,7 +72,7 @@ fun BalanceFiatAndCryptoTableRow(
     valueFiat: String,
     icon: StackedIcon = StackedIcon.None,
     defaultIconSize: Dp = AppTheme.dimensions.standardSpacing,
-    onClick: () -> Unit
+    onClick: (() -> Unit)? = null
 ) {
     BalanceFiatAndCryptoTableRow(
         maskState = MaskStateConfig.Override(maskEnabled = false),
@@ -102,7 +102,7 @@ private fun BalanceFiatAndCryptoTableRow(
     titleIcon: ImageResource?,
     valueFiat: String,
     contentStart: @Composable (RowScope.() -> Unit)? = null,
-    onClick: () -> Unit
+    onClick: (() -> Unit)? = null
 ) {
     TableRow(
         contentStart = contentStart,

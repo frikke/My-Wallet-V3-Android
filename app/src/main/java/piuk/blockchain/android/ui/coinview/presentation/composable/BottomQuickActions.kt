@@ -10,18 +10,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.toImageResource
 import com.blockchain.componentlib.utils.value
 import com.blockchain.data.DataResource
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
+import piuk.blockchain.android.ui.coinview.presentation.logo
+import piuk.blockchain.android.ui.coinview.presentation.name
 
 @Composable
 fun BottomQuickActions(
-    data: DataResource<List<CoinviewQuickActionState>>,
-    onQuickActionClick: (CoinviewQuickActionState) -> Unit
+    data: DataResource<List<CoinviewQuickAction>>,
+    onQuickActionClick: (CoinviewQuickAction) -> Unit
 ) {
     when (data) {
         DataResource.Loading,
@@ -38,8 +41,8 @@ fun BottomQuickActions(
 
 @Composable
 fun BottomQuickActionData(
-    data: DataResource.Data<List<CoinviewQuickActionState>>,
-    onQuickActionClick: (CoinviewQuickActionState) -> Unit
+    data: DataResource.Data<List<CoinviewQuickAction>>,
+    onQuickActionClick: (CoinviewQuickAction) -> Unit
 ) {
     if (data.data.isEmpty()) {
         Empty()
@@ -59,8 +62,9 @@ fun BottomQuickActionData(
             data.data.forEachIndexed { index, action ->
                 SecondaryButton(
                     modifier = Modifier.weight(1F),
-                    text = action.name.value(),
-                    icon = action.logo.toImageResource().withTint(AppColors.backgroundSecondary),
+                    text = action.name().value(),
+                    icon = action.logo().toImageResource().withTint(AppColors.backgroundSecondary),
+                    state = if(action.enabled) ButtonState.Enabled else ButtonState.Disabled,
                     onClick = { onQuickActionClick(action) }
                 )
 
@@ -77,7 +81,7 @@ fun BottomQuickActionData(
 fun PreviewBottomQuickActions_Data_2() {
     BottomQuickActions(
         data = DataResource.Data(
-            listOf(CoinviewQuickActionState.Send, CoinviewQuickActionState.Receive)
+            listOf(CoinviewQuickAction.Send(), CoinviewQuickAction.Receive(false))
         ),
         onQuickActionClick = {}
     )
@@ -88,7 +92,7 @@ fun PreviewBottomQuickActions_Data_2() {
 fun PreviewBottomQuickActions_Data_1() {
     BottomQuickActions(
         data = DataResource.Data(
-            listOf(CoinviewQuickActionState.Send)
+            listOf(CoinviewQuickAction.Send())
         ),
         onQuickActionClick = {}
     )

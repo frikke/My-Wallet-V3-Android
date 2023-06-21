@@ -48,5 +48,11 @@ fun Modifier.circleAround(color: Color) = clip(CircleShape)
     }
 
 fun Modifier.conditional(condition: Boolean, other: Modifier.() -> Modifier): Modifier {
-    return then(other().takeIf { condition } ?: Modifier)
+    return then(
+        if (condition) {
+            other()
+        } else {
+            Modifier
+        }
+    )
 }

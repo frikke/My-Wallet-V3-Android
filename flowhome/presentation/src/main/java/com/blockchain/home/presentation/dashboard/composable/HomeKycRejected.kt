@@ -88,6 +88,7 @@ private fun KycRejectedCard(
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
             PrimaryButton(
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(R.string.go_to_defi),
                 onClick = onClick
             )
