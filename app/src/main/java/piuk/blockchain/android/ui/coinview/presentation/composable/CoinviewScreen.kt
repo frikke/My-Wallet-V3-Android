@@ -44,6 +44,7 @@ import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
+import com.blockchain.presentation.urllinks.URL_KYC_REJETED_SUPPORT
 import com.blockchain.stringResources.R
 import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.CryptoCurrency
@@ -135,7 +136,7 @@ fun CoinviewScreen(
     asset: DataResource<CoinviewAssetState>,
     onContactSupportClick: () -> Unit,
 
-    showKycRejected : Boolean,
+    showKycRejected: Boolean,
 
     price: DataResource<CoinviewPriceState>,
     onChartEntryHighlighted: (Entry) -> Unit,
@@ -262,7 +263,7 @@ fun CoinviewScreen(
                                 )
                             }
 
-                            if(showKycRejected){
+                            if (showKycRejected) {
                                 Box(
                                     modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
                                 ) {
@@ -276,9 +277,7 @@ fun CoinviewScreen(
                                         primaryCta = CardButton(
                                             text = stringResource(R.string.dashboard_kyc_rejected_with_balance_support),
                                             onClick = {
-                                                context.openUrl(
-                                                    "https://support.blockchain.com/hc/en-us/requests/new?ticket_form_id=4705355075996"
-                                                ) // todo
+                                                context.openUrl(URL_KYC_REJETED_SUPPORT)
                                             }
                                         )
                                     )

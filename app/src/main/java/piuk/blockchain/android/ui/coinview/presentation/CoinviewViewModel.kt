@@ -48,11 +48,11 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
-import kotlinx.coroutines.Dispatchers
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest

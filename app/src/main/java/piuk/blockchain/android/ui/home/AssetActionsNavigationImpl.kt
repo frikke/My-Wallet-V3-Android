@@ -4,6 +4,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.lifecycleScope
 import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.chrome.navigation.AssetActionsNavigation
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
@@ -15,7 +16,6 @@ import com.blockchain.earn.activeRewards.ActiveRewardsSummaryBottomSheet
 import com.blockchain.earn.interest.InterestSummaryBottomSheet
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.chrome.navigation.AssetActionsNavigation
 import com.blockchain.koin.newSellFlowFeatureFlag
 import com.blockchain.koin.newSwapFlowFeatureFlag
 import info.blockchain.balance.AssetInfo

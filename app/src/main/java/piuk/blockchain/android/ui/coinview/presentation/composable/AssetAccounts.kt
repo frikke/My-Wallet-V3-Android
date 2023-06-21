@@ -88,7 +88,7 @@ fun AssetAccounts(
                 data = data,
                 l1Network = l1Network,
                 assetTicker = assetTicker,
-                enabled= enabled,
+                enabled = enabled,
                 onAccountClick = onAccountClick,
                 onLockedAccountClick = onLockedAccountClick
             )

@@ -3,10 +3,10 @@ package piuk.blockchain.android.ui.home
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.blockchain.chrome.navigation.SettingsDestination
+import com.blockchain.chrome.navigation.SettingsNavigation
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.home.presentation.navigation.HomeLaunch.ACCOUNT_EDIT
 import com.blockchain.home.presentation.navigation.QrExpected
-import com.blockchain.chrome.navigation.SettingsNavigation
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.addresses.AddressesActivity
 import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity

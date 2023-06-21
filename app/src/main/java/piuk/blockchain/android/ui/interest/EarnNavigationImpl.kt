@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.interest
 
+import com.blockchain.chrome.navigation.AssetActionsNavigation
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
@@ -14,8 +15,6 @@ import com.blockchain.earn.dashboard.viewmodel.EarnType
 import com.blockchain.earn.interest.InterestSummaryBottomSheet
 import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
-import com.blockchain.chrome.navigation.AssetActionsNavigation
-
 import com.blockchain.home.presentation.navigation.HomeLaunch
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.sheets.NoBalanceActionBottomSheet

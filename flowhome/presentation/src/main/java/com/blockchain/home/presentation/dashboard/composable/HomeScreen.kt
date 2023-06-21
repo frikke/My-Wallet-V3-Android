@@ -95,6 +95,7 @@ import com.blockchain.home.presentation.referral.ReferralIntent
 import com.blockchain.home.presentation.referral.ReferralViewModel
 import com.blockchain.home.presentation.referral.ReferralViewState
 import com.blockchain.koin.payloadScope
+import com.blockchain.presentation.urllinks.URL_KYC_REJETED_SUPPORT
 import com.blockchain.prices.prices.PricesIntents
 import com.blockchain.prices.prices.PricesLoadStrategy
 import com.blockchain.prices.prices.PricesViewModel
@@ -584,9 +585,7 @@ private fun CustodialHomeDashboard(
                                         primaryCta = CardButton(
                                             text = stringResource(R.string.dashboard_kyc_rejected_with_balance_support),
                                             onClick = {
-                                                context.openUrl(
-                                                    "https://support.blockchain.com/hc/en-us/requests/new?ticket_form_id=4705355075996"
-                                                ) // todo
+                                                context.openUrl(URL_KYC_REJETED_SUPPORT)
                                             }
                                         )
                                     )

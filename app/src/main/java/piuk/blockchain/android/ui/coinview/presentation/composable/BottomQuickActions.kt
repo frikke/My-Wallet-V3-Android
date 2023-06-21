@@ -64,7 +64,7 @@ fun BottomQuickActionData(
                     modifier = Modifier.weight(1F),
                     text = action.name().value(),
                     icon = action.logo().toImageResource().withTint(AppColors.backgroundSecondary),
-                    state = if(action.enabled) ButtonState.Enabled else ButtonState.Disabled,
+                    state = if (action.enabled) ButtonState.Enabled else ButtonState.Disabled,
                     onClick = { onQuickActionClick(action) }
                 )
 

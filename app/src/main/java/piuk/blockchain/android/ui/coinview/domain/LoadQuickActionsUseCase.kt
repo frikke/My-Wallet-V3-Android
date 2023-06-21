@@ -7,7 +7,6 @@ import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.kyc.domain.model.KycTierState
 import com.blockchain.data.DataResource
 import com.blockchain.data.combineDataResources
-import com.blockchain.data.dataOrElse
 import com.blockchain.data.mapData
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature

@@ -54,7 +54,7 @@ fun CenterQuickActionsData(
                         .then(if (index < 2) Modifier else Modifier.requiredWidthIn(min = 48.dp)),
                     text = action.name().value().takeIf { index < 2 } ?: "",
                     icon = action.logo().toImageResource(),
-                    state = if(action.enabled) ButtonState.Enabled else ButtonState.Disabled,
+                    state = if (action.enabled) ButtonState.Enabled else ButtonState.Disabled,
                     onClick = { onQuickActionClick(action) }
                 )
 
