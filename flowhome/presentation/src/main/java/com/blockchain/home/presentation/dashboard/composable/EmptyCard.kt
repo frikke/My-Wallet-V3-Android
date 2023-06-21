@@ -2,13 +2,13 @@ package com.blockchain.home.presentation.dashboard.composable
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyListScope
+import com.blockchain.chrome.navigation.AssetActionsNavigation
 import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.allassets.AssetsViewState
-import com.blockchain.chrome.navigation.AssetActionsNavigation
 import com.blockchain.walletmode.WalletMode
 
 fun LazyListScope.emptyCard(

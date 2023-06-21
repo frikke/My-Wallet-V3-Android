@@ -16,7 +16,6 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.anyError
 import com.blockchain.data.anyLoading
-import com.blockchain.data.combineDataResourceFlows
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.doOnError
 import com.blockchain.data.filter
@@ -45,13 +44,11 @@ import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
@@ -339,14 +336,14 @@ class AssetsViewModel(
                         toAsset = FiatCurrency.Dollars
                     ).map { it to account }
                 }.merge().onEach { (usdExchangeRate, account) ->
-                                        updateState {
-                                            copy(
-                                                accounts = accounts.withUsdRate(
-                                                    account = account,
-                                                    usdRate = usdExchangeRate
-                                                )
-                                            )
-                                        }
+                    updateState {
+                        copy(
+                            accounts = accounts.withUsdRate(
+                                account = account,
+                                usdRate = usdExchangeRate
+                            )
+                        )
+                    }
                 }
 
 //                val prices = accountsResource.data.map { account ->
@@ -371,11 +368,11 @@ class AssetsViewModel(
                         fromAsset = account.currency
                     ).map { it to account }
                 }.merge().onEach { (price, account) ->
-                                        updateState {
-                                            copy(
-                                                accounts = accounts.withPricing(account, price)
-                                            )
-                                        }
+                    updateState {
+                        copy(
+                            accounts = accounts.withPricing(account, price)
+                        )
+                    }
                 }
                 merge(usdRate, balances, exchangeRates)
             }
@@ -413,7 +410,7 @@ class AssetsViewModel(
             is DataResource.Data -> {
                 val modelAccounts = stateAccounts.data
                 if (modelAccounts.size == accounts.size && modelAccounts.map { it.singleAccount.currency.networkTicker }
-                        .containsAll(
+                    .containsAll(
                             accounts.map { it.currency.networkTicker }
                         )
                 ) {

@@ -79,6 +79,7 @@ import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.Money
+import kotlin.math.min
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.cancelChildren
@@ -86,7 +87,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
-import kotlin.math.min
 
 @Composable
 private fun rememberToolbarState(modeSwitcherOptions: ChromeModeOptions): CollapsingToolbarState {
@@ -529,6 +529,7 @@ fun MultiAppChromeScreen(
             durationMillis = ANIMATION_DURATION
         )
     )
+
     fun pillAlphaInterpolator(value: Float): Float {
         val x1 = 0f
         val x2 = -300f
@@ -734,6 +735,11 @@ fun MultiAppChromeScreen(
                     nftNavigation = nftNavigation,
                     earnNavigation = earnNavigation,
                     processAnnouncementUrl = processAnnouncementUrl,
+                    navigateToMode = {
+                        stopRefresh()
+                        bottomNavigationVisible = false
+                        onModeSelected(it)
+                    }
                 )
             }
 

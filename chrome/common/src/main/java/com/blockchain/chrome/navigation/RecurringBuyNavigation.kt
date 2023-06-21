@@ -9,5 +9,5 @@ interface RecurringBuyNavigation {
 }
 
 val LocalRecurringBuyNavigationProvider = staticCompositionLocalOf<RecurringBuyNavigation> {
-    error("No AssetActionsNavigation provided.")
+    error("not provided")
 }

@@ -35,7 +35,7 @@ private fun TableRow(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .conditional(onContentClicked != null){
+            .conditional(onContentClicked != null) {
                 clickable { onContentClicked?.invoke() }
             }
             .background(backgroundColor, backgroundShape)

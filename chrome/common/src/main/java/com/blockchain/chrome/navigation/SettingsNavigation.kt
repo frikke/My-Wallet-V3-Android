@@ -23,6 +23,5 @@ enum class SettingsDestination {
 }
 
 val LocalSettingsNavigationProvider = staticCompositionLocalOf<SettingsNavigation> {
-    error("No AssetActionsNavigation provided.")
+    error("not provided")
 }
-

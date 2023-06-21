@@ -13,5 +13,5 @@ interface DefiBackupNavigation {
 }
 
 val LocalDefiBackupNavigationProvider = staticCompositionLocalOf<DefiBackupNavigation> {
-    error("No AssetActionsNavigation provided.")
+    error("not provided")
 }

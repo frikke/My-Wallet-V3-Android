@@ -41,6 +41,5 @@ interface AssetActionsNavigation : ActivityResultNavigation {
 }
 
 val LocalAssetActionsNavigationProvider = staticCompositionLocalOf<AssetActionsNavigation> {
-    error("No AssetActionsNavigation provided.")
+    error("not provided")
 }
-

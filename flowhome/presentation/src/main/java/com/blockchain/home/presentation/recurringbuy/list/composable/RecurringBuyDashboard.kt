@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.analytics.Analytics
+import com.blockchain.chrome.navigation.AssetActionsNavigation
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
@@ -34,7 +35,6 @@ import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.componentlib.utils.value
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.SectionSize
-import com.blockchain.chrome.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.recurringbuy.RecurringBuysAnalyticsEvents
 import com.blockchain.home.presentation.recurringbuy.list.RecurringBuyEligibleState
 import com.blockchain.home.presentation.recurringbuy.list.RecurringBuyViewState

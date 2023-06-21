@@ -10,5 +10,5 @@ interface SupportNavigation {
 }
 
 val LocalSupportNavigationProvider = staticCompositionLocalOf<SupportNavigation> {
-    error("No AssetActionsNavigation provided.")
+    error("not provided")
 }

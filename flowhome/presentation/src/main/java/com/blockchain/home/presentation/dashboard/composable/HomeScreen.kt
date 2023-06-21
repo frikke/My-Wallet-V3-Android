@@ -29,6 +29,10 @@ import androidx.lifecycle.ViewModelStoreOwner
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.chrome.LocalNavControllerProvider
+import com.blockchain.chrome.navigation.AssetActionsNavigation
+import com.blockchain.chrome.navigation.LocalAssetActionsNavigationProvider
+import com.blockchain.chrome.navigation.LocalRecurringBuyNavigationProvider
+import com.blockchain.chrome.navigation.LocalSupportNavigationProvider
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
 import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
@@ -48,7 +52,6 @@ import com.blockchain.data.toImmutableList
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.home.handhold.HandholdTask
-import com.blockchain.stringResources.R
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.accouncement.AnnouncementsIntent
 import com.blockchain.home.presentation.accouncement.AnnouncementsViewModel
@@ -71,14 +74,10 @@ import com.blockchain.home.presentation.handhold.HandholdIntent
 import com.blockchain.home.presentation.handhold.HandholdViewModel
 import com.blockchain.home.presentation.handhold.HandholdViewState
 import com.blockchain.home.presentation.navigation.ARG_ACTIVITY_TX_ID
-import com.blockchain.home.presentation.navigation.ARG_WALLET_MODE
-import com.blockchain.chrome.navigation.AssetActionsNavigation
-import com.blockchain.chrome.navigation.LocalAssetActionsNavigationProvider
-import com.blockchain.chrome.navigation.LocalRecurringBuyNavigationProvider
-import com.blockchain.chrome.navigation.LocalSupportNavigationProvider
-import com.blockchain.home.presentation.navigation.HomeDestination
-import com.blockchain.home.presentation.navigation.ARG_RECURRING_BUY_ID
 import com.blockchain.home.presentation.navigation.ARG_FIAT_TICKER
+import com.blockchain.home.presentation.navigation.ARG_RECURRING_BUY_ID
+import com.blockchain.home.presentation.navigation.ARG_WALLET_MODE
+import com.blockchain.home.presentation.navigation.HomeDestination
 import com.blockchain.home.presentation.news.NewsIntent
 import com.blockchain.home.presentation.news.NewsViewModel
 import com.blockchain.home.presentation.news.NewsViewState
@@ -101,6 +100,7 @@ import com.blockchain.prices.prices.PricesLoadStrategy
 import com.blockchain.prices.prices.PricesViewModel
 import com.blockchain.prices.prices.PricesViewState
 import com.blockchain.prices.prices.percentAndPositionOf
+import com.blockchain.stringResources.R
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
 import com.blockchain.walletconnect.ui.navigation.WalletConnectDestination
@@ -119,7 +119,8 @@ fun HomeScreen(
     openSettings: () -> Unit,
     launchQrScanner: () -> Unit,
     startPhraseRecovery: () -> Unit,
-    processAnnouncementUrl: (String) -> Unit
+    processAnnouncementUrl: (String) -> Unit,
+    navigateToMode: (WalletMode) -> Unit,
 ) {
     val navController = LocalNavControllerProvider.current
     val assetActionsNavigation = LocalAssetActionsNavigationProvider.current
@@ -266,6 +267,7 @@ fun HomeScreen(
                     openSettings = openSettings,
                     launchQrScanner = launchQrScanner,
 
+                    goToDefi = { navigateToMode(WalletMode.NON_CUSTODIAL) },
                     processAnnouncementUrl = processAnnouncementUrl,
                     startPhraseRecovery = startPhraseRecovery,
 
@@ -347,6 +349,8 @@ private fun CustodialHomeDashboard(
     listState: LazyListState,
     openSettings: () -> Unit,
     launchQrScanner: () -> Unit,
+
+    goToDefi: () -> Unit,
 
     processAnnouncementUrl: (String) -> Unit,
     startPhraseRecovery: () -> Unit,
@@ -548,16 +552,14 @@ private fun CustodialHomeDashboard(
                 false -> {
                     // if user has no balance and kyc is rejected -> block custodial wallet
                     // should be shown if kyc rejected && balance == 0
-                    val showBlockingKycCard = handholdViewState.showKycRejected
-                        && (balance?.isZero ?: false)
+                    val showBlockingKycCard = handholdViewState.showKycRejected &&
+                        (balance?.isZero ?: false)
 
                     when (showBlockingKycCard) {
                         true -> {
                             // blocked ⛔️
                             kycRejected(
-                                onClick = {
-
-                                }
+                                onClick = goToDefi
                             )
                         }
 
@@ -566,8 +568,8 @@ private fun CustodialHomeDashboard(
 
                             // kyc rejected warning, when user has balance > 0
                             // should be shown if kyc is rejected && balance > 0
-                            val showKycRejectedWithBalance = handholdViewState.showKycRejected
-                                && (balance?.isPositive ?: false)
+                            val showKycRejectedWithBalance = handholdViewState.showKycRejected &&
+                                (balance?.isPositive ?: false)
 
                             if (showKycRejectedWithBalance) {
                                 paddedItem(
@@ -592,13 +594,14 @@ private fun CustodialHomeDashboard(
                                 }
                             }
 
-                            // anouncements
+                            // announcements
                             item {
-                                (announcementsState.remoteAnnouncements as? DataResource.Data)?.data?.let { announcements ->
+                                (announcementsState.remoteAnnouncements as? DataResource.Data)?.data?.let {
                                     StackedAnnouncements(
-                                        announcements = announcements,
+                                        announcements = it,
                                         hideConfirmation = announcementsState.hideAnnouncementsConfirmation,
-                                        animateHideConfirmation = announcementsState.animateHideAnnouncementsConfirmation,
+                                        animateHideConfirmation = announcementsState
+                                            .animateHideAnnouncementsConfirmation,
                                         announcementOnSwiped = { announcement ->
                                             announcementsViewModel.onIntent(
                                                 AnnouncementsIntent.DeleteAnnouncement(announcement)
@@ -978,4 +981,3 @@ private fun DefiHomeDashboard(
 private const val MAX_ASSET_COUNT = 7
 private const val MAX_ACTIVITY_COUNT = 5
 private const val MAX_RB_COUNT = 5
-

@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.Analytics
+import com.blockchain.chrome.navigation.AssetActionsNavigation
 import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.MinimalPrimaryButton
@@ -50,7 +51,6 @@ import com.blockchain.home.presentation.dashboard.CustodialEmptyCardIntent
 import com.blockchain.home.presentation.dashboard.CustodialEmptyCardViewModel
 import com.blockchain.home.presentation.dashboard.CustodialEmptyCardViewState
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
-import com.blockchain.chrome.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
 import com.blockchain.stringResources.R
 import info.blockchain.balance.CryptoCurrency
