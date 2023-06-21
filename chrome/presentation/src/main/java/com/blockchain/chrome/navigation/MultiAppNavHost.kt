@@ -29,10 +29,8 @@ import com.blockchain.home.presentation.navigation.ARG_FIAT_TICKER
 import com.blockchain.home.presentation.navigation.ARG_IS_FROM_MODE_SWITCH
 import com.blockchain.home.presentation.navigation.ARG_RECURRING_BUY_ID
 import com.blockchain.home.presentation.navigation.ARG_WALLET_MODE
-
 import com.blockchain.home.presentation.navigation.HomeDestination
 import com.blockchain.home.presentation.navigation.QrScanNavigation
-import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.home.presentation.navigation.homeGraph
 import com.blockchain.koin.payloadScope
 import com.blockchain.nfts.navigation.ARG_ADDRESS
@@ -99,6 +97,7 @@ fun MultiAppNavHost(
         LocalSettingsNavigationProvider provides settingsNavigation,
         LocalDefiBackupNavigationProvider provides defiBackupNavigation,
         LocalRecurringBuyNavigationProvider provides recurringBuyNavigation,
+        LocalSupportNavigationProvider provides supportNavigation,
     ) {
         ModalBottomSheetLayout(
             bottomSheetNavigator,
@@ -137,7 +136,6 @@ fun MultiAppNavHost(
                     startPhraseRecovery = startPhraseRecovery,
                     pricesNavigation = pricesNavigation,
                     qrScanNavigation = qrScanNavigation,
-                    supportNavigation = supportNavigation,
                     showAppRating = showAppRating,
                     openExternalUrl = openExternalUrl,
                     nftNavigation = nftNavigation,
@@ -200,7 +198,6 @@ private fun NavGraphBuilder.chrome(
     showAppRating: () -> Unit,
     pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
-    supportNavigation: SupportNavigation,
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
     openExternalUrl: (url: String) -> Unit,
@@ -227,19 +224,12 @@ private fun NavGraphBuilder.chrome(
             },
             pricesNavigation = pricesNavigation,
             qrScanNavigation = qrScanNavigation,
-            supportNavigation = supportNavigation,
             graphNavController = navController,
-            openSwapDexOption = {
-                navController.navigate(HomeDestination.SwapDexOptions)
-            },
             openFiatActionDetail = { fiatTicker: String ->
                 navController.navigate(
                     HomeDestination.FiatActionDetail,
                     listOf(NavArgument(key = ARG_FIAT_TICKER, fiatTicker))
                 )
-            },
-            openMoreQuickActions = {
-                navController.navigate(HomeDestination.MoreQuickActions)
             },
             showAppRating = showAppRating,
             openExternalUrl = openExternalUrl,

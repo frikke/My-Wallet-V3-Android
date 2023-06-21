@@ -75,10 +75,11 @@ import com.blockchain.home.presentation.navigation.ARG_WALLET_MODE
 import com.blockchain.chrome.navigation.AssetActionsNavigation
 import com.blockchain.chrome.navigation.LocalAssetActionsNavigationProvider
 import com.blockchain.chrome.navigation.LocalRecurringBuyNavigationProvider
+import com.blockchain.chrome.navigation.LocalSupportNavigationProvider
 import com.blockchain.home.presentation.navigation.HomeDestination
 import com.blockchain.chrome.navigation.RecurringBuyNavigation
 import com.blockchain.home.presentation.navigation.ARG_RECURRING_BUY_ID
-import com.blockchain.home.presentation.navigation.SupportNavigation
+import com.blockchain.chrome.navigation.SupportNavigation
 import com.blockchain.home.presentation.news.NewsIntent
 import com.blockchain.home.presentation.news.NewsViewModel
 import com.blockchain.home.presentation.news.NewsViewState
@@ -113,12 +114,9 @@ fun HomeScreen(
     analytics: Analytics = get(),
     listState: LazyListState,
     isSwipingToRefresh: Boolean,
-    supportNavigation: SupportNavigation,
     openSettings: () -> Unit,
     launchQrScanner: () -> Unit,
-    openSwapDexOption: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
-    openMoreQuickActions: () -> Unit,
     startPhraseRecovery: () -> Unit,
     processAnnouncementUrl: (String) -> Unit,
     onWalletConnectSessionClicked: (DappSessionUiElement) -> Unit,
@@ -132,11 +130,11 @@ fun HomeScreen(
     val navController = LocalNavControllerProvider.current
     val assetActionsNavigation = LocalAssetActionsNavigationProvider.current
     val recurringBuyNavigation = LocalRecurringBuyNavigationProvider.current
-
+    val supportNavigation = LocalSupportNavigationProvider.current
 
     // navigation
-    fun NavHostController.openAssetsList(analytics: Analytics, assetsCount: Int) {
-        navigate(HomeDestination.CryptoAssets)
+    fun openAssetsList(analytics: Analytics, assetsCount: Int) {
+        navController.navigate(HomeDestination.CryptoAssets)
         analytics.logEvent(
             DashboardAnalyticsEvents.AssetsSeeAllClicked(assetsCount = assetsCount)
         )
@@ -149,13 +147,13 @@ fun HomeScreen(
         )
     }
 
-    fun NavHostController.openActivityList(analytics: Analytics) {
-        navigate(HomeDestination.Activity)
+    fun openActivityList(analytics: Analytics) {
+        navController.navigate(HomeDestination.Activity)
         analytics.logEvent(DashboardAnalyticsEvents.ActivitySeeAllClicked)
     }
 
-    fun NavHostController.openActivityDetail(txId: String, walletMode: WalletMode) {
-        navigate(
+    fun openActivityDetail(txId: String, walletMode: WalletMode) {
+        navController.navigate(
             destination = HomeDestination.ActivityDetail,
             args = listOf(
                 NavArgument(key = ARG_ACTIVITY_TX_ID, value = txId),
@@ -164,24 +162,37 @@ fun HomeScreen(
         )
     }
 
-    fun NavHostController.openRefferal() {
-        navigate(HomeDestination.Referral)
+    fun openRefferal() {
+        navController.navigate(HomeDestination.Referral)
     }
 
-    fun NavHostController.openRecurringBuysList() {
-        navigate(HomeDestination.RecurringBuys)
+    fun openRecurringBuysList() {
+        navController.navigate(HomeDestination.RecurringBuys)
     }
 
-    fun NavHostController.openRecurringBuyDetail(id: String) {
+    fun openRecurringBuyDetail(id: String) {
         navController.navigate(
             destination = HomeDestination.RecurringBuyDetail,
             args = listOf(
                 NavArgument(key = ARG_RECURRING_BUY_ID, value = id)
             )
-        )    }
+        )
+    }
 
     fun openRecurringBuyOnboarding() {
         recurringBuyNavigation.openOnboarding()
+    }
+
+    fun openSupportCenter() {
+        supportNavigation.launchSupportCenter()
+    }
+
+    fun openSwapDexOptions() {
+        navController.navigate(HomeDestination.SwapDexOptions)
+    }
+
+    fun  openMoreQuickActions() {
+        navController.navigate(HomeDestination.MoreQuickActions)
     }
     //
 
@@ -211,11 +222,11 @@ fun HomeScreen(
                     startPhraseRecovery = startPhraseRecovery,
 
                     assetActionsNavigation = assetActionsNavigation,
-                    openDexSwapOptions = openSwapDexOption,
-                    openMoreQuickActions = openMoreQuickActions,
+                    openDexSwapOptions = ::openSwapDexOptions,
+                    openMoreQuickActions = ::openMoreQuickActions,
 
                     openCryptoAssets = {
-                        navController.openAssetsList(analytics = analytics, assetsCount = it)
+                        openAssetsList(analytics = analytics, assetsCount = it)
                     },
                     assetOnClick = { asset ->
                         openCoinview(analytics = analytics, asset = asset)
@@ -228,18 +239,18 @@ fun HomeScreen(
                         analytics.logEvent(DashboardAnalyticsEvents.FiatAssetClicked(ticker = ticker))
                     },
 
-                    openRecurringBuys = navController::openRecurringBuysList,
+                    openRecurringBuys = ::openRecurringBuysList,
                     upsellOnClick = ::openRecurringBuyOnboarding,
-                    recurringBuyOnClick = navController::openRecurringBuyDetail,
+                    recurringBuyOnClick = ::openRecurringBuyDetail,
 
                     openActivity = {
-                        navController.openActivityList(analytics)
+                        openActivityList(analytics)
                     },
-                    openActivityDetail = navController::openActivityDetail,
+                    openActivityDetail = ::openActivityDetail,
 
-                    openReferral = navController::openRefferal,
+                    openReferral = ::openRefferal,
 
-                    supportNavigation = supportNavigation,
+                    openSupportCenter = ::openSupportCenter,
 
                     showBackground = balanceOffsetToMenuOption <= 0F && menuOptionsHeight > 0F,
                     showBalance = balanceScrollRange <= 0.5 && menuOptionsHeight > 0F,
@@ -275,11 +286,11 @@ fun HomeScreen(
                     startPhraseRecovery = startPhraseRecovery,
 
                     assetActionsNavigation = assetActionsNavigation,
-                    openDexSwapOptions = openSwapDexOption,
-                    openMoreQuickActions = openMoreQuickActions,
+                    openDexSwapOptions = ::openSwapDexOptions,
+                    openMoreQuickActions = ::openMoreQuickActions,
 
                     openCryptoAssets = {
-                        navController.openAssetsList(analytics = analytics, assetsCount = it)
+                        openAssetsList(analytics = analytics, assetsCount = it)
                     },
                     assetOnClick = { asset ->
                         openCoinview(analytics = analytics, asset = asset)
@@ -296,12 +307,12 @@ fun HomeScreen(
                     onWalletConnectSeeAllSessionsClicked = onWalletConnectSeeAllSessionsClicked,
 
                     openActivity = {
-                        navController.openActivityList(analytics)
+                        openActivityList(analytics)
                     },
-                    openActivityDetail = navController::openActivityDetail,
-                    openReferral = navController::openRefferal,
+                    openActivityDetail = ::openActivityDetail,
+                    openReferral = ::openRefferal,
 
-                    supportNavigation = supportNavigation,
+                    openSupportCenter = ::openSupportCenter,
 
                     showBackground = balanceOffsetToMenuOption <= 0F && menuOptionsHeight > 0F,
                     showBalance = balanceScrollRange <= 0.5 && menuOptionsHeight > 0F,
@@ -358,7 +369,7 @@ private fun CustodialHomeDashboard(
 
     openReferral: () -> Unit,
 
-    supportNavigation: SupportNavigation,
+    openSupportCenter: () -> Unit,
 
     showBackground: Boolean = false,
     showBalance: Boolean = false,
@@ -530,7 +541,7 @@ private fun CustodialHomeDashboard(
                     )
 
                     homeHelp(
-                        openSupportCenter = { supportNavigation.launchSupportCenter() }
+                        openSupportCenter = openSupportCenter
                     )
                 }
 
@@ -699,7 +710,7 @@ private fun CustodialHomeDashboard(
 
                             // help
                             homeHelp(
-                                openSupportCenter = { supportNavigation.launchSupportCenter() }
+                                openSupportCenter = openSupportCenter
                             )
                         }
                     }
@@ -744,7 +755,7 @@ private fun DefiHomeDashboard(
 
     openReferral: () -> Unit,
 
-    supportNavigation: SupportNavigation,
+    openSupportCenter: () -> Unit,
 
     showBackground: Boolean = false,
     showBalance: Boolean = false,
@@ -961,7 +972,7 @@ private fun DefiHomeDashboard(
 
         // help
         homeHelp(
-            openSupportCenter = { supportNavigation.launchSupportCenter() }
+            openSupportCenter = openSupportCenter
         )
 
         item {

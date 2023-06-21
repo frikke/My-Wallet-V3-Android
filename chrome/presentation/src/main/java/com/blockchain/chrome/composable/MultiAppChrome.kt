@@ -76,7 +76,6 @@ import com.blockchain.data.DataResource
 import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.extensions.safeLet
 import com.blockchain.home.presentation.navigation.QrScanNavigation
-import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
@@ -119,11 +118,8 @@ fun MultiAppChrome(
     showAppRating: () -> Unit,
     pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
-    supportNavigation: SupportNavigation,
-    openSwapDexOption: () -> Unit,
     graphNavController: NavController,
     openFiatActionDetail: (String) -> Unit,
-    openMoreQuickActions: () -> Unit,
     openExternalUrl: (url: String) -> Unit,
     openNftHelp: () -> Unit,
     processAnnouncementUrl: (String) -> Unit,
@@ -180,13 +176,10 @@ fun MultiAppChrome(
                 viewModel.onIntent(MultiAppIntents.WalletModeSelected(walletMode))
             },
             onModeLongClicked = onModeLongClicked,
-            openSwapDexOption = openSwapDexOption,
             openFiatActionDetail = openFiatActionDetail,
             graphNavController = graphNavController,
-            openMoreQuickActions = openMoreQuickActions,
             pricesNavigation = pricesNavigation,
             qrScanNavigation = qrScanNavigation,
-            supportNavigation = supportNavigation,
             onBalanceRevealed = {
                 viewModel.onIntent(MultiAppIntents.BalanceRevealed)
             },
@@ -222,9 +215,6 @@ fun MultiAppChromeScreen(
     onModeLongClicked: (WalletMode) -> Unit,
     pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
-    supportNavigation: SupportNavigation,
-    openSwapDexOption: () -> Unit,
-    openMoreQuickActions: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
     onBalanceRevealed: () -> Unit,
     graphNavController: NavController,
@@ -749,13 +739,10 @@ fun MultiAppChromeScreen(
                     refreshComplete = {
                         stopRefresh()
                     },
-                    openSwapDexOption = openSwapDexOption,
-                    openMoreQuickActions = openMoreQuickActions,
                     openFiatActionDetail = openFiatActionDetail,
                     pricesNavigation = pricesNavigation,
                     navController = graphNavController,
                     qrScanNavigation = qrScanNavigation,
-                    supportNavigation = supportNavigation,
                     startPhraseRecovery = startPhraseRecovery,
                     openExternalUrl = openExternalUrl,
                     openNftHelp = openNftHelp,

@@ -41,7 +41,7 @@ import com.blockchain.home.presentation.navigation.AuthNavigation
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.chrome.navigation.RecurringBuyNavigation
 import com.blockchain.chrome.navigation.SettingsNavigation
-import com.blockchain.home.presentation.navigation.SupportNavigation
+import com.blockchain.chrome.navigation.SupportNavigation
 import com.blockchain.internalnotifications.NotificationReceiver
 import com.blockchain.internalnotifications.NotificationTransmitter
 import com.blockchain.keyboard.InputKeyboard

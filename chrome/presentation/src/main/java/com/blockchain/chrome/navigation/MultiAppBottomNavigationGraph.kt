@@ -20,7 +20,6 @@ import com.blockchain.earn.dashboard.EarnDashboardScreen
 import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.home.presentation.dashboard.composable.HomeScreen
 import com.blockchain.home.presentation.navigation.QrScanNavigation
-import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.koin.payloadScope
 import com.blockchain.nfts.collection.screen.NftCollection
 import com.blockchain.nfts.navigation.NftNavigation
@@ -38,13 +37,10 @@ fun MultiAppBottomNavigationHost(
     enableRefresh: Boolean,
     pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
-    supportNavigation: SupportNavigation,
     updateScrollInfo: (Pair<ChromeBottomNavigationItem, ListStateInfo>) -> Unit,
     selectedNavigationItem: ChromeBottomNavigationItem,
     refreshStarted: () -> Unit,
     refreshComplete: () -> Unit,
-    openSwapDexOption: () -> Unit,
-    openMoreQuickActions: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
     startPhraseRecovery: () -> Unit,
     openExternalUrl: (url: String) -> Unit,
@@ -108,12 +104,9 @@ fun MultiAppBottomNavigationHost(
                         listState = listState,
                         isSwipingToRefresh = shouldTriggerRefresh &&
                             selectedNavigationItem == ChromeBottomNavigationItem.Home,
-                        supportNavigation = supportNavigation,
                         openSettings = openSettings,
                         launchQrScanner = launchQrScanner,
-                        openSwapDexOption = openSwapDexOption,
                         openFiatActionDetail = openFiatActionDetail,
-                        openMoreQuickActions = openMoreQuickActions,
                         startPhraseRecovery = startPhraseRecovery,
                         processAnnouncementUrl = processAnnouncementUrl,
                         onWalletConnectSessionClicked = onWalletConnectSessionClicked,

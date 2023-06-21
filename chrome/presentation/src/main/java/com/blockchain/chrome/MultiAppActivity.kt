@@ -58,7 +58,7 @@ import com.blockchain.home.presentation.navigation.HomeLaunch.PENDING_DESTINATIO
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.chrome.navigation.RecurringBuyNavigation
 import com.blockchain.chrome.navigation.SettingsNavigation
-import com.blockchain.home.presentation.navigation.SupportNavigation
+import com.blockchain.chrome.navigation.SupportNavigation
 import com.blockchain.home.presentation.navigation.WCSessionIntent
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
