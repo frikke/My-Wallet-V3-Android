@@ -20,6 +20,7 @@ import com.blockchain.earn.dashboard.EarnDashboardScreen
 import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.home.presentation.dashboard.composable.HomeScreen
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.home.presentation.navigation.LocalAssetActionsNavigationProvider
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
@@ -40,7 +41,6 @@ fun MultiAppBottomNavigationHost(
     modifier: Modifier = Modifier,
     navControllerProvider: () -> NavHostController,
     enableRefresh: Boolean,
-    assetActionsNavigation: AssetActionsNavigation,
     recurringBuyNavigation: RecurringBuyNavigation,
     settingsNavigation: SettingsNavigation,
     pricesNavigation: PricesNavigation,
@@ -53,9 +53,6 @@ fun MultiAppBottomNavigationHost(
     openCryptoAssets: () -> Unit,
     openRecurringBuys: () -> Unit,
     openRecurringBuyDetail: (String) -> Unit,
-    openActivity: () -> Unit,
-    openActivityDetail: (String, WalletMode) -> Unit,
-    openReferral: () -> Unit,
     openSwapDexOption: () -> Unit,
     openMoreQuickActions: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
@@ -122,14 +119,10 @@ fun MultiAppBottomNavigationHost(
                         openCryptoAssets = openCryptoAssets,
                         openRecurringBuys = openRecurringBuys,
                         openRecurringBuyDetail = openRecurringBuyDetail,
-                        assetActionsNavigation = assetActionsNavigation,
                         recurringBuyNavigation = recurringBuyNavigation,
                         supportNavigation = supportNavigation,
                         openSettings = openSettings,
                         launchQrScanner = launchQrScanner,
-                        openActivity = openActivity,
-                        openActivityDetail = openActivityDetail,
-                        openReferral = openReferral,
                         openSwapDexOption = openSwapDexOption,
                         openFiatActionDetail = openFiatActionDetail,
                         openMoreQuickActions = openMoreQuickActions,
@@ -143,6 +136,8 @@ fun MultiAppBottomNavigationHost(
         }
 
         composable(ChromeBottomNavigationItem.Dex.route) {
+            val assetActionsNavigation = LocalAssetActionsNavigationProvider.current
+
             ChromeListScreen(
                 modifier = modifier,
                 isPullToRefreshEnabled = enableRefresh,

@@ -52,12 +52,14 @@ import com.blockchain.home.presentation.allassets.HomeCryptoAsset
 import com.blockchain.home.presentation.allassets.NonCustodialAssetState
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -66,29 +68,34 @@ fun CryptoAssets(
     assetActionsNavigation: AssetActionsNavigation,
     onBackPressed: () -> Unit
 ) {
-    val viewState: AssetsViewState by viewModel.viewState.collectAsStateLifecycleAware()
+    val walletMode by get<WalletModeService>(scope = payloadScope)
+        .walletMode.collectAsStateLifecycleAware(initial = null)
 
-    LaunchedEffect(viewModel) {
-        viewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.All))
-        viewModel.onIntent(AssetsIntent.LoadFilters)
+    walletMode?.let { walletMode ->
+        val viewState: AssetsViewState by viewModel.viewState.collectAsStateLifecycleAware()
+
+        LaunchedEffect(viewModel) {
+            viewModel.onIntent(AssetsIntent.LoadAccounts(walletMode, SectionSize.All))
+            viewModel.onIntent(AssetsIntent.LoadFilters)
+        }
+
+        CryptoAssetsScreen(
+            cryptoAssets = viewState.assets.map { it.filterIsInstance<HomeCryptoAsset>() },
+            onSearchTermEntered = { term ->
+                viewModel.onIntent(AssetsIntent.FilterSearch(term = term))
+            },
+            filters = viewState.filters,
+            showNoResults = viewState.showNoResults,
+            showFilterIcon = viewState.showFilterIcon,
+            onFiltersConfirmed = { filters ->
+                viewModel.onIntent(AssetsIntent.UpdateFilters(filters = filters))
+            },
+            onAssetClick = { asset ->
+                assetActionsNavigation.coinview(asset)
+            },
+            onBackPressed = onBackPressed
+        )
     }
-
-    CryptoAssetsScreen(
-        cryptoAssets = viewState.assets.map { it.filterIsInstance<HomeCryptoAsset>() },
-        onSearchTermEntered = { term ->
-            viewModel.onIntent(AssetsIntent.FilterSearch(term = term))
-        },
-        filters = viewState.filters,
-        showNoResults = viewState.showNoResults,
-        showFilterIcon = viewState.showFilterIcon,
-        onFiltersConfirmed = { filters ->
-            viewModel.onIntent(AssetsIntent.UpdateFilters(filters = filters))
-        },
-        onAssetClick = { asset ->
-            assetActionsNavigation.coinview(asset)
-        },
-        onBackPressed = onBackPressed
-    )
 }
 
 @OptIn(ExperimentalMaterialApi::class)

@@ -33,6 +33,7 @@ import com.blockchain.home.presentation.navigation.ARG_RECURRING_BUY_ID
 import com.blockchain.home.presentation.navigation.ARG_WALLET_MODE
 import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.HomeDestination
+import com.blockchain.home.presentation.navigation.LocalAssetActionsNavigationProvider
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
@@ -98,7 +99,8 @@ fun MultiAppNavHost(
     val chromePill: ChromePill = get(scope = payloadScope)
     CompositionLocalProvider(
         LocalChromePillProvider provides chromePill,
-        LocalNavControllerProvider provides navController
+        LocalNavControllerProvider provides navController,
+        LocalAssetActionsNavigationProvider provides assetActionsNavigation
     ) {
         ModalBottomSheetLayout(
             bottomSheetNavigator,
@@ -135,7 +137,6 @@ fun MultiAppNavHost(
                     viewModel = multiAppViewModel,
                     navController = navController,
                     startPhraseRecovery = startPhraseRecovery,
-                    assetActionsNavigation = assetActionsNavigation,
                     recurringBuyNavigation = recurringBuyNavigation,
                     settingsNavigation = settingsNavigation,
                     pricesNavigation = pricesNavigation,
@@ -201,7 +202,6 @@ private fun NavGraphBuilder.chrome(
     navController: NavHostController,
     startPhraseRecovery: () -> Unit,
     showAppRating: () -> Unit,
-    assetActionsNavigation: AssetActionsNavigation,
     recurringBuyNavigation: RecurringBuyNavigation,
     settingsNavigation: SettingsNavigation,
     pricesNavigation: PricesNavigation,
@@ -231,7 +231,6 @@ private fun NavGraphBuilder.chrome(
                     args = listOf(NavArgument(ARG_IS_FROM_MODE_SWITCH, true))
                 )
             },
-            assetActionsNavigation = assetActionsNavigation,
             recurringBuyNavigation = recurringBuyNavigation,
             settingsNavigation = settingsNavigation,
             pricesNavigation = pricesNavigation,
@@ -250,22 +249,6 @@ private fun NavGraphBuilder.chrome(
                         NavArgument(key = ARG_RECURRING_BUY_ID, value = recurringBuyId)
                     )
                 )
-            },
-            openActivity = {
-                navController.navigate(HomeDestination.Activity)
-                analytics.logEvent(DashboardAnalyticsEvents.ActivitySeeAllClicked)
-            },
-            openActivityDetail = { txId: String, walletMode: WalletMode ->
-                navController.navigate(
-                    destination = HomeDestination.ActivityDetail,
-                    args = listOf(
-                        NavArgument(key = ARG_ACTIVITY_TX_ID, value = txId),
-                        NavArgument(key = ARG_WALLET_MODE, value = walletMode)
-                    )
-                )
-            },
-            openReferral = {
-                navController.navigate(HomeDestination.Referral)
             },
             graphNavController = navController,
             openSwapDexOption = {

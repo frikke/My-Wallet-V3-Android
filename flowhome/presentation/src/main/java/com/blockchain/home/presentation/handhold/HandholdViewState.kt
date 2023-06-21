@@ -6,5 +6,6 @@ import com.blockchain.home.handhold.HandholdTasksStatus
 
 data class HandholdViewState(
     val tasksStatus: DataResource<List<HandholdTasksStatus>>,
-    val showHandhold: DataResource<Boolean>
+    val showHandhold: DataResource<Boolean>,
+    val showKycRejected: Boolean
 ) : ViewState

@@ -104,24 +104,20 @@ class QuickActionsViewModel(
                     copy(maxQuickActionsOnScreen = intent.maxQuickActionsOnScreen)
                 }
 
-                walletModeService.walletMode.onEach { wMode ->
-                    updateState {
-                        copy(
-                            walletMode = wMode
-                        )
-                    }
-                }.flatMapLatest { wMode ->
-                    quickActionsService.availableQuickActionsForWalletMode(wMode)
-                        .map { actions ->
-                            actions to wMode
-                        }
-                }.collectLatest { (actions, _) ->
-                    updateState {
-                        copy(
-                            quickActions = actions
-                        )
-                    }
+                updateState {
+                    copy(
+                        walletMode = intent.walletMode
+                    )
                 }
+
+                quickActionsService.availableQuickActionsForWalletMode(intent.walletMode)
+                    .collectLatest { actions ->
+                        updateState {
+                            copy(
+                                quickActions = actions
+                            )
+                        }
+                    }
             }
 
             is QuickActionsIntent.FiatAction -> {
@@ -129,15 +125,16 @@ class QuickActionsViewModel(
             }
 
             QuickActionsIntent.Refresh -> {
+                check(modelState.walletMode != null)
+
                 updateState {
                     copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
-                walletModeService.walletMode.take(1).flatMapLatest {
-                    quickActionsService.availableQuickActionsForWalletMode(
-                        walletMode = it,
-                        freshnessStrategy = FreshnessStrategy.Fresh
-                    )
-                }.collectLatest { actions ->
+
+                quickActionsService.availableQuickActionsForWalletMode(
+                    walletMode = modelState.walletMode,
+                    freshnessStrategy = FreshnessStrategy.Fresh
+                ).collectLatest { actions ->
                     updateState {
                         copy(
                             quickActions = actions
@@ -393,10 +390,14 @@ data class MoreActionItem(
 )
 
 sealed interface QuickActionsIntent : Intent<QuickActionsModelState> {
-    data class LoadActions(val maxQuickActionsOnScreen: Int) : QuickActionsIntent
+    data class LoadActions(
+        val walletMode: WalletMode,
+        val maxQuickActionsOnScreen: Int
+    ) : QuickActionsIntent
+
     object Refresh : QuickActionsIntent {
         override fun isValidFor(modelState: QuickActionsModelState): Boolean {
-            return PullToRefresh.canRefresh(modelState.lastFreshDataTime)
+            return modelState.walletMode != null && PullToRefresh.canRefresh(modelState.lastFreshDataTime)
         }
     }
 

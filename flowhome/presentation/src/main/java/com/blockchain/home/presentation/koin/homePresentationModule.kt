@@ -193,6 +193,7 @@ val homePresentationModule = module {
         viewModel {
             HandholdViewModel(
                 handholdService = get(),
+                kycService = get(),
                 walletModeService = get()
             )
         }
