@@ -488,7 +488,7 @@ class WalletConnectV2ServiceImpl : WalletConnectV2Service, WalletConnectV2UrlVal
         ) ?: throw Exception("Error formatting message")
 
     override fun validateURI(uri: String): Boolean {
-        val regex = Regex("^wc:[0-9a-fA-F]+@2\\?(.*)")
+        val regex = Regex("^wc:(?:/{0,2})([0-9a-fA-F]+)@2\\?(.*)")
         return regex.matches(uri)
     }
 
