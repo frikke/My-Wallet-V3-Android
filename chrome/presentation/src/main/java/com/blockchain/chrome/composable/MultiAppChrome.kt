@@ -75,7 +75,8 @@ import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.extensions.safeLet
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.chrome.navigation.AssetActionsNavigation
+
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
@@ -120,7 +121,6 @@ fun MultiAppChrome(
     showDefiOnboarding: () -> Unit,
     startPhraseRecovery: () -> Unit,
     showAppRating: () -> Unit,
-    openCryptoAssets: () -> Unit,
     openRecurringBuys: () -> Unit,
     openRecurringBuyDetail: (String) -> Unit,
     recurringBuyNavigation: RecurringBuyNavigation,
@@ -188,7 +188,6 @@ fun MultiAppChrome(
                 viewModel.onIntent(MultiAppIntents.WalletModeSelected(walletMode))
             },
             onModeLongClicked = onModeLongClicked,
-            openCryptoAssets = openCryptoAssets,
             openRecurringBuys = openRecurringBuys,
             openRecurringBuyDetail = openRecurringBuyDetail,
             openSwapDexOption = openSwapDexOption,
@@ -233,7 +232,6 @@ fun MultiAppChromeScreen(
     onBottomNavigationItemSelected: (ChromeBottomNavigationItem) -> Unit,
     onModeSelected: (WalletMode) -> Unit,
     onModeLongClicked: (WalletMode) -> Unit,
-    openCryptoAssets: () -> Unit,
     openRecurringBuys: () -> Unit,
     openRecurringBuyDetail: (String) -> Unit,
     recurringBuyNavigation: RecurringBuyNavigation,
@@ -767,7 +765,6 @@ fun MultiAppChromeScreen(
                     refreshComplete = {
                         stopRefresh()
                     },
-                    openCryptoAssets = openCryptoAssets,
                     openRecurringBuys = openRecurringBuys,
                     openRecurringBuyDetail = openRecurringBuyDetail,
                     openSwapDexOption = openSwapDexOption,

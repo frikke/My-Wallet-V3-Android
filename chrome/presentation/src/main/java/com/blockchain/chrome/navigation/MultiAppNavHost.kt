@@ -31,9 +31,9 @@ import com.blockchain.home.presentation.navigation.ARG_FIAT_TICKER
 import com.blockchain.home.presentation.navigation.ARG_IS_FROM_MODE_SWITCH
 import com.blockchain.home.presentation.navigation.ARG_RECURRING_BUY_ID
 import com.blockchain.home.presentation.navigation.ARG_WALLET_MODE
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.chrome.navigation.AssetActionsNavigation
+
 import com.blockchain.home.presentation.navigation.HomeDestination
-import com.blockchain.home.presentation.navigation.LocalAssetActionsNavigationProvider
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
@@ -236,9 +236,6 @@ private fun NavGraphBuilder.chrome(
             pricesNavigation = pricesNavigation,
             qrScanNavigation = qrScanNavigation,
             supportNavigation = supportNavigation,
-            openCryptoAssets = {
-                navController.navigate(HomeDestination.CryptoAssets)
-            },
             openRecurringBuys = {
                 navController.navigate(HomeDestination.RecurringBuys)
             },

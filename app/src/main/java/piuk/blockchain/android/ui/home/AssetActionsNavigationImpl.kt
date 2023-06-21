@@ -15,7 +15,8 @@ import com.blockchain.earn.activeRewards.ActiveRewardsSummaryBottomSheet
 import com.blockchain.earn.interest.InterestSummaryBottomSheet
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.chrome.navigation.AssetActionsNavigation
+
 import com.blockchain.koin.newSellFlowFeatureFlag
 import com.blockchain.koin.newSwapFlowFeatureFlag
 import com.blockchain.prices.navigation.PricesNavigation

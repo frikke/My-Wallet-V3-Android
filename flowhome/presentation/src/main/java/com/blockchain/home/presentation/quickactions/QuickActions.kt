@@ -43,7 +43,7 @@ import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.dashboard.composable.DashboardState
 import com.blockchain.home.presentation.dashboard.eventName
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.chrome.navigation.AssetActionsNavigation
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get

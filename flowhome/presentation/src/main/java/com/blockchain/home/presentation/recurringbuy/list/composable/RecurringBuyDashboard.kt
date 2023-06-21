@@ -34,7 +34,7 @@ import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.componentlib.utils.value
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.SectionSize
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.chrome.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.recurringbuy.RecurringBuysAnalyticsEvents
 import com.blockchain.home.presentation.recurringbuy.list.RecurringBuyEligibleState
 import com.blockchain.home.presentation.recurringbuy.list.RecurringBuyViewState

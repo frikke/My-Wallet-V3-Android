@@ -1,4 +1,5 @@
 apply from: rootProject.file('gradle/local/common-feature-android-presentation.gradle')
+apply plugin: 'kotlin-parcelize'
 
 android {
     namespace 'com.blockchain.chrome.common'
@@ -6,9 +7,11 @@ android {
 
 dependencies {
     implementation project(':common:interface')
+    implementation project(':common:domain')
     implementation project(':commonarch')
     implementation project(':balance')
     implementation project(':componentlib')
+    implementation project(':coincore')
 
     implementation Libraries.accompanistSystemUi
 }

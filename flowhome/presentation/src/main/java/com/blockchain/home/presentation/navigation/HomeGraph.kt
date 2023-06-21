@@ -22,6 +22,8 @@ import com.blockchain.home.presentation.swapdexoption.SwapDexOptionScreen
 import com.blockchain.kyc.email.EmailVerification
 import com.blockchain.news.composable.NewsArticlesScreen
 import com.blockchain.walletmode.WalletMode
+import com.blockchain.chrome.navigation.AssetActionsNavigation
+
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 
 @OptIn(ExperimentalMaterialNavigationApi::class)

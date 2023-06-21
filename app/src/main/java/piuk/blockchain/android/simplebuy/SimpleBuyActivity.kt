@@ -36,7 +36,8 @@ import com.blockchain.domain.paymentmethods.model.fromPreferencesValue
 import com.blockchain.domain.paymentmethods.model.toPreferencesValue
 import com.blockchain.extensions.exhaustive
 import com.blockchain.fiatActions.QuestionnaireSheetHost
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.chrome.navigation.AssetActionsNavigation
+
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeOrNull
 import com.blockchain.nabu.BlockedReason

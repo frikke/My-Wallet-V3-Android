@@ -9,7 +9,8 @@ import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.invisibleIf
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.chrome.navigation.AssetActionsNavigation
+
 import com.blockchain.home.presentation.recurringbuy.RecurringBuysAnalyticsEvents
 import com.blockchain.koin.payloadScope
 import com.blockchain.utils.unsafeLazy

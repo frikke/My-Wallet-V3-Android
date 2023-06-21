@@ -50,7 +50,7 @@ import com.blockchain.home.presentation.dashboard.CustodialEmptyCardIntent
 import com.blockchain.home.presentation.dashboard.CustodialEmptyCardViewModel
 import com.blockchain.home.presentation.dashboard.CustodialEmptyCardViewState
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.chrome.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
 import com.blockchain.stringResources.R
 import info.blockchain.balance.CryptoCurrency

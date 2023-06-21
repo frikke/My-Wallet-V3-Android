@@ -8,7 +8,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.allassets.AssetsViewState
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.chrome.navigation.AssetActionsNavigation
 import com.blockchain.walletmode.WalletMode
 
 fun LazyListScope.emptyCard(

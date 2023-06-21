@@ -35,7 +35,8 @@ import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.fiatActions.fiatactions.FiatActionsNavigation
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.chrome.navigation.AssetActionsNavigation
+
 import com.blockchain.home.presentation.navigation.AuthNavigation
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.RecurringBuyNavigation

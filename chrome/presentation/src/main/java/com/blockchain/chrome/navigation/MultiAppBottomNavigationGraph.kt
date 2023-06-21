@@ -19,8 +19,6 @@ import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.earn.dashboard.EarnDashboardScreen
 import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.home.presentation.dashboard.composable.HomeScreen
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
-import com.blockchain.home.presentation.navigation.LocalAssetActionsNavigationProvider
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
 import com.blockchain.home.presentation.navigation.SettingsNavigation
@@ -50,7 +48,6 @@ fun MultiAppBottomNavigationHost(
     selectedNavigationItem: ChromeBottomNavigationItem,
     refreshStarted: () -> Unit,
     refreshComplete: () -> Unit,
-    openCryptoAssets: () -> Unit,
     openRecurringBuys: () -> Unit,
     openRecurringBuyDetail: (String) -> Unit,
     openSwapDexOption: () -> Unit,
@@ -116,7 +113,6 @@ fun MultiAppBottomNavigationHost(
                         listState = listState,
                         isSwipingToRefresh = shouldTriggerRefresh &&
                             selectedNavigationItem == ChromeBottomNavigationItem.Home,
-                        openCryptoAssets = openCryptoAssets,
                         openRecurringBuys = openRecurringBuys,
                         openRecurringBuyDetail = openRecurringBuyDetail,
                         recurringBuyNavigation = recurringBuyNavigation,

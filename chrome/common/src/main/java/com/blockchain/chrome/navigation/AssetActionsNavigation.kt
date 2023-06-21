@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.navigation
+package com.blockchain.chrome.navigation
 
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.staticCompositionLocalOf

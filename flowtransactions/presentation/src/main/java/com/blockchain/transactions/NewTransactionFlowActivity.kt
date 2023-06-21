@@ -10,7 +10,8 @@ import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.setContent
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.chrome.navigation.AssetActionsNavigation
+
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.extensions.getAccount
 import com.blockchain.presentation.extensions.getTarget

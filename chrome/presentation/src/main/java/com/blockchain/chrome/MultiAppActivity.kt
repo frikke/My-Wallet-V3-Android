@@ -48,7 +48,8 @@ import com.blockchain.home.presentation.fiat.actions.FiatActionRequest
 import com.blockchain.home.presentation.fiat.actions.FiatActionsNavEvent
 import com.blockchain.home.presentation.fiat.actions.FiatActionsNavigator
 import com.blockchain.home.presentation.navigation.AccountWalletLinkAlertSheetHost
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.chrome.navigation.AssetActionsNavigation
+
 import com.blockchain.home.presentation.navigation.AuthNavigation
 import com.blockchain.home.presentation.navigation.AuthNavigationHost
 import com.blockchain.home.presentation.navigation.HomeLaunch

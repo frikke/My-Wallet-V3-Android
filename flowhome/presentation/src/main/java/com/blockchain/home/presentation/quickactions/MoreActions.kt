@@ -22,7 +22,7 @@ import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.home.presentation.R
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.chrome.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
 import org.koin.androidx.compose.getViewModel
 

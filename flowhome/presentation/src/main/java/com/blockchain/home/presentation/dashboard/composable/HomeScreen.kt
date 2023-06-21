@@ -72,9 +72,10 @@ import com.blockchain.home.presentation.handhold.HandholdViewModel
 import com.blockchain.home.presentation.handhold.HandholdViewState
 import com.blockchain.home.presentation.navigation.ARG_ACTIVITY_TX_ID
 import com.blockchain.home.presentation.navigation.ARG_WALLET_MODE
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.chrome.navigation.AssetActionsNavigation
+import com.blockchain.chrome.navigation.LocalAssetActionsNavigationProvider
+import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.home.presentation.navigation.HomeDestination
-import com.blockchain.home.presentation.navigation.LocalAssetActionsNavigationProvider
 import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.home.presentation.news.NewsIntent
@@ -116,7 +117,6 @@ fun HomeScreen(
     supportNavigation: SupportNavigation,
     openSettings: () -> Unit,
     launchQrScanner: () -> Unit,
-    openCryptoAssets: () -> Unit,
     openRecurringBuys: () -> Unit,
     openRecurringBuyDetail: (String) -> Unit,
     openSwapDexOption: () -> Unit,
@@ -134,6 +134,42 @@ fun HomeScreen(
 
     val navController = LocalNavControllerProvider.current
     val assetActionsNavigation = LocalAssetActionsNavigationProvider.current
+
+
+    // navigation
+    fun NavHostController.openAssetsList(analytics: Analytics, assetsCount: Int) {
+        navigate(HomeDestination.CryptoAssets)
+        analytics.logEvent(
+            DashboardAnalyticsEvents.AssetsSeeAllClicked(assetsCount = assetsCount)
+        )
+    }
+
+    fun openCoinview(analytics: Analytics, asset: AssetInfo) {
+        assetActionsNavigation.coinview(asset)
+        analytics.logEvent(
+            DashboardAnalyticsEvents.CryptoAssetClicked(ticker = asset.displayTicker)
+        )
+    }
+
+    fun NavHostController.openActivityList(analytics: Analytics) {
+        navigate(HomeDestination.Activity)
+        analytics.logEvent(DashboardAnalyticsEvents.ActivitySeeAllClicked)
+    }
+
+    fun NavHostController.openActivityDetail(txId: String, walletMode: WalletMode) {
+        navigate(
+            destination = HomeDestination.ActivityDetail,
+            args = listOf(
+                NavArgument(key = ARG_ACTIVITY_TX_ID, value = txId),
+                NavArgument(key = ARG_WALLET_MODE, value = walletMode)
+            )
+        )
+    }
+
+    fun NavHostController.openRefferal() {
+        navigate(HomeDestination.Referral)
+    }
+    //
 
     val walletMode by
     get<WalletModeService>(scope = payloadScope).walletMode.collectAsStateLifecycleAware(initial = null)
@@ -165,16 +201,10 @@ fun HomeScreen(
                     openMoreQuickActions = openMoreQuickActions,
 
                     openCryptoAssets = {
-                        openCryptoAssets()
-                        analytics.logEvent(
-                            DashboardAnalyticsEvents.AssetsSeeAllClicked(assetsCount = it)
-                        )
+                        navController.openAssetsList(analytics = analytics, assetsCount = it)
                     },
                     assetOnClick = { asset ->
-                        assetActionsNavigation.coinview(asset)
-                        analytics.logEvent(
-                            DashboardAnalyticsEvents.CryptoAssetClicked(ticker = asset.displayTicker)
-                        )
+                        openCoinview(analytics = analytics, asset = asset)
                     },
                     fundsLocksOnClick = { fundsLocks ->
                         assetActionsNavigation.fundsLocksDetail(fundsLocks)
@@ -191,7 +221,7 @@ fun HomeScreen(
                     openActivity = {
                         navController.openActivityList(analytics)
                     },
-                    openActivityDetail = navController::openActivityList,
+                    openActivityDetail = navController::openActivityDetail,
 
                     openReferral = navController::openRefferal,
 
@@ -235,16 +265,10 @@ fun HomeScreen(
                     openMoreQuickActions = openMoreQuickActions,
 
                     openCryptoAssets = {
-                        openCryptoAssets()
-                        analytics.logEvent(
-                            DashboardAnalyticsEvents.AssetsSeeAllClicked(assetsCount = it)
-                        )
+                        navController.openAssetsList(analytics = analytics, assetsCount = it)
                     },
                     assetOnClick = { asset ->
-                        assetActionsNavigation.coinview(asset)
-                        analytics.logEvent(
-                            DashboardAnalyticsEvents.CryptoAssetClicked(ticker = asset.displayTicker)
-                        )
+                        openCoinview(analytics = analytics, asset = asset)
                     },
                     fundsLocksOnClick = { fundsLocks ->
                         assetActionsNavigation.fundsLocksDetail(fundsLocks)
@@ -260,7 +284,7 @@ fun HomeScreen(
                     openActivity = {
                         navController.openActivityList(analytics)
                     },
-                    openActivityDetail = navController::openActivityList,
+                    openActivityDetail = navController::openActivityDetail,
                     openReferral = navController::openRefferal,
 
                     supportNavigation = supportNavigation,
@@ -936,21 +960,3 @@ private const val MAX_ASSET_COUNT = 7
 private const val MAX_ACTIVITY_COUNT = 5
 private const val MAX_RB_COUNT = 5
 
-private fun NavHostController.openActivityList(analytics: Analytics) {
-    navigate(HomeDestination.Activity)
-    analytics.logEvent(DashboardAnalyticsEvents.ActivitySeeAllClicked)
-}
-
-private fun NavHostController.openActivityList(txId: String, walletMode: WalletMode) {
-    navigate(
-        destination = HomeDestination.ActivityDetail,
-        args = listOf(
-            NavArgument(key = ARG_ACTIVITY_TX_ID, value = txId),
-            NavArgument(key = ARG_WALLET_MODE, value = walletMode)
-        )
-    )
-}
-
-private fun NavHostController.openRefferal() {
-    navigate(HomeDestination.Referral)
-}

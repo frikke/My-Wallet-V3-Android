@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.chrome.navigation.AssetActionsNavigation
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.icons.Filter
@@ -50,7 +51,6 @@ import com.blockchain.home.presentation.allassets.AssetsViewState
 import com.blockchain.home.presentation.allassets.CustodialAssetState
 import com.blockchain.home.presentation.allassets.HomeCryptoAsset
 import com.blockchain.home.presentation.allassets.NonCustodialAssetState
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo

@@ -14,7 +14,8 @@ import com.blockchain.earn.dashboard.viewmodel.EarnType
 import com.blockchain.earn.interest.InterestSummaryBottomSheet
 import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.earn.staking.StakingSummaryBottomSheet
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
+import com.blockchain.chrome.navigation.AssetActionsNavigation
+
 import com.blockchain.home.presentation.navigation.HomeLaunch
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.sheets.NoBalanceActionBottomSheet
