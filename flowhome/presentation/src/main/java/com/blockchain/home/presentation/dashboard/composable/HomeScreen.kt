@@ -74,9 +74,10 @@ import com.blockchain.home.presentation.navigation.ARG_ACTIVITY_TX_ID
 import com.blockchain.home.presentation.navigation.ARG_WALLET_MODE
 import com.blockchain.chrome.navigation.AssetActionsNavigation
 import com.blockchain.chrome.navigation.LocalAssetActionsNavigationProvider
-import com.blockchain.coincore.NullCryptoAddress.asset
+import com.blockchain.chrome.navigation.LocalRecurringBuyNavigationProvider
 import com.blockchain.home.presentation.navigation.HomeDestination
-import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
+import com.blockchain.chrome.navigation.RecurringBuyNavigation
+import com.blockchain.home.presentation.navigation.ARG_RECURRING_BUY_ID
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.home.presentation.news.NewsIntent
 import com.blockchain.home.presentation.news.NewsViewModel
@@ -107,18 +108,14 @@ import kotlinx.collections.immutable.toImmutableList
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
     analytics: Analytics = get(),
     listState: LazyListState,
     isSwipingToRefresh: Boolean,
-    recurringBuyNavigation: RecurringBuyNavigation,
     supportNavigation: SupportNavigation,
     openSettings: () -> Unit,
     launchQrScanner: () -> Unit,
-    openRecurringBuys: () -> Unit,
-    openRecurringBuyDetail: (String) -> Unit,
     openSwapDexOption: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
     openMoreQuickActions: () -> Unit,
@@ -134,6 +131,7 @@ fun HomeScreen(
 
     val navController = LocalNavControllerProvider.current
     val assetActionsNavigation = LocalAssetActionsNavigationProvider.current
+    val recurringBuyNavigation = LocalRecurringBuyNavigationProvider.current
 
 
     // navigation
@@ -168,6 +166,22 @@ fun HomeScreen(
 
     fun NavHostController.openRefferal() {
         navigate(HomeDestination.Referral)
+    }
+
+    fun NavHostController.openRecurringBuysList() {
+        navigate(HomeDestination.RecurringBuys)
+    }
+
+    fun NavHostController.openRecurringBuyDetail(id: String) {
+        navController.navigate(
+            destination = HomeDestination.RecurringBuyDetail,
+            args = listOf(
+                NavArgument(key = ARG_RECURRING_BUY_ID, value = id)
+            )
+        )    }
+
+    fun openRecurringBuyOnboarding() {
+        recurringBuyNavigation.openOnboarding()
     }
     //
 
@@ -214,9 +228,9 @@ fun HomeScreen(
                         analytics.logEvent(DashboardAnalyticsEvents.FiatAssetClicked(ticker = ticker))
                     },
 
-                    manageOnclick = openRecurringBuys,
-                    upsellOnClick = recurringBuyNavigation::openOnboarding,
-                    recurringBuyOnClick = openRecurringBuyDetail,
+                    openRecurringBuys = navController::openRecurringBuysList,
+                    upsellOnClick = ::openRecurringBuyOnboarding,
+                    recurringBuyOnClick = navController::openRecurringBuyDetail,
 
                     openActivity = {
                         navController.openActivityList(analytics)
@@ -335,7 +349,7 @@ private fun CustodialHomeDashboard(
     fundsLocksOnClick: (FundsLocks) -> Unit,
     openFiatActionDetail: (String) -> Unit,
 
-    manageOnclick: () -> Unit,
+    openRecurringBuys: () -> Unit,
     upsellOnClick: () -> Unit,
     recurringBuyOnClick: (String) -> Unit,
 
@@ -632,7 +646,7 @@ private fun CustodialHomeDashboard(
                                     homeRecurringBuys(
                                         analytics = analytics,
                                         recurringBuys = recurringBuys,
-                                        manageOnclick = manageOnclick,
+                                        manageOnclick = openRecurringBuys,
                                         upsellOnClick = upsellOnClick,
                                         recurringBuyOnClick = recurringBuyOnClick
                                     )

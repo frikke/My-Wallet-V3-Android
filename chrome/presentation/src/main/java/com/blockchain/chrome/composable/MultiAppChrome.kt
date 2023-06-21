@@ -75,18 +75,13 @@ import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.extensions.safeLet
-import com.blockchain.chrome.navigation.AssetActionsNavigation
-
 import com.blockchain.home.presentation.navigation.QrScanNavigation
-import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
-import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.Money
-import kotlin.math.min
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.cancelChildren
@@ -94,6 +89,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
+import kotlin.math.min
 
 @Composable
 private fun rememberToolbarState(modeSwitcherOptions: ChromeModeOptions): CollapsingToolbarState {
@@ -121,10 +117,6 @@ fun MultiAppChrome(
     showDefiOnboarding: () -> Unit,
     startPhraseRecovery: () -> Unit,
     showAppRating: () -> Unit,
-    openRecurringBuys: () -> Unit,
-    openRecurringBuyDetail: (String) -> Unit,
-    recurringBuyNavigation: RecurringBuyNavigation,
-    settingsNavigation: SettingsNavigation,
     pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
     supportNavigation: SupportNavigation,
@@ -188,14 +180,10 @@ fun MultiAppChrome(
                 viewModel.onIntent(MultiAppIntents.WalletModeSelected(walletMode))
             },
             onModeLongClicked = onModeLongClicked,
-            openRecurringBuys = openRecurringBuys,
-            openRecurringBuyDetail = openRecurringBuyDetail,
             openSwapDexOption = openSwapDexOption,
             openFiatActionDetail = openFiatActionDetail,
             graphNavController = graphNavController,
             openMoreQuickActions = openMoreQuickActions,
-            recurringBuyNavigation = recurringBuyNavigation,
-            settingsNavigation = settingsNavigation,
             pricesNavigation = pricesNavigation,
             qrScanNavigation = qrScanNavigation,
             supportNavigation = supportNavigation,
@@ -232,10 +220,6 @@ fun MultiAppChromeScreen(
     onBottomNavigationItemSelected: (ChromeBottomNavigationItem) -> Unit,
     onModeSelected: (WalletMode) -> Unit,
     onModeLongClicked: (WalletMode) -> Unit,
-    openRecurringBuys: () -> Unit,
-    openRecurringBuyDetail: (String) -> Unit,
-    recurringBuyNavigation: RecurringBuyNavigation,
-    settingsNavigation: SettingsNavigation,
     pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
     supportNavigation: SupportNavigation,
@@ -765,13 +749,9 @@ fun MultiAppChromeScreen(
                     refreshComplete = {
                         stopRefresh()
                     },
-                    openRecurringBuys = openRecurringBuys,
-                    openRecurringBuyDetail = openRecurringBuyDetail,
                     openSwapDexOption = openSwapDexOption,
                     openMoreQuickActions = openMoreQuickActions,
                     openFiatActionDetail = openFiatActionDetail,
-                    recurringBuyNavigation = recurringBuyNavigation,
-                    settingsNavigation = settingsNavigation,
                     pricesNavigation = pricesNavigation,
                     navController = graphNavController,
                     qrScanNavigation = qrScanNavigation,

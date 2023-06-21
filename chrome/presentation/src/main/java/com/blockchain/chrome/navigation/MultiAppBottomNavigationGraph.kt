@@ -20,8 +20,6 @@ import com.blockchain.earn.dashboard.EarnDashboardScreen
 import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.home.presentation.dashboard.composable.HomeScreen
 import com.blockchain.home.presentation.navigation.QrScanNavigation
-import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
-import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.koin.payloadScope
 import com.blockchain.nfts.collection.screen.NftCollection
@@ -29,7 +27,6 @@ import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.prices.prices.composable.Prices
 import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
-import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.dex.presentation.enteramount.DexEnterAmountScreen
 import org.koin.androidx.compose.get
@@ -39,8 +36,6 @@ fun MultiAppBottomNavigationHost(
     modifier: Modifier = Modifier,
     navControllerProvider: () -> NavHostController,
     enableRefresh: Boolean,
-    recurringBuyNavigation: RecurringBuyNavigation,
-    settingsNavigation: SettingsNavigation,
     pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
     supportNavigation: SupportNavigation,
@@ -48,8 +43,6 @@ fun MultiAppBottomNavigationHost(
     selectedNavigationItem: ChromeBottomNavigationItem,
     refreshStarted: () -> Unit,
     refreshComplete: () -> Unit,
-    openRecurringBuys: () -> Unit,
-    openRecurringBuyDetail: (String) -> Unit,
     openSwapDexOption: () -> Unit,
     openMoreQuickActions: () -> Unit,
     openFiatActionDetail: (String) -> Unit,
@@ -86,7 +79,9 @@ fun MultiAppBottomNavigationHost(
         onDispose { }
     }
 
+    val settingsNavigation = LocalSettingsNavigationProvider.current
     val openSettings = remember { { settingsNavigation.settings() } }
+
     val launchQrScanner = remember {
         {
             qrScanNavigation.launchQrScan()
@@ -113,9 +108,6 @@ fun MultiAppBottomNavigationHost(
                         listState = listState,
                         isSwipingToRefresh = shouldTriggerRefresh &&
                             selectedNavigationItem == ChromeBottomNavigationItem.Home,
-                        openRecurringBuys = openRecurringBuys,
-                        openRecurringBuyDetail = openRecurringBuyDetail,
-                        recurringBuyNavigation = recurringBuyNavigation,
                         supportNavigation = supportNavigation,
                         openSettings = openSettings,
                         launchQrScanner = launchQrScanner,

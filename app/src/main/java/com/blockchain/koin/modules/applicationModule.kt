@@ -39,8 +39,8 @@ import com.blockchain.chrome.navigation.AssetActionsNavigation
 
 import com.blockchain.home.presentation.navigation.AuthNavigation
 import com.blockchain.home.presentation.navigation.QrScanNavigation
-import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
-import com.blockchain.home.presentation.navigation.SettingsNavigation
+import com.blockchain.chrome.navigation.RecurringBuyNavigation
+import com.blockchain.chrome.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.internalnotifications.NotificationReceiver
 import com.blockchain.internalnotifications.NotificationTransmitter
@@ -75,7 +75,7 @@ import com.blockchain.payments.checkoutcom.CheckoutFactory
 import com.blockchain.payments.core.CardProcessor
 import com.blockchain.payments.stripe.StripeCardProcessor
 import com.blockchain.payments.stripe.StripeFactory
-import com.blockchain.presentation.navigation.DefiBackupNavigation
+import com.blockchain.chrome.navigation.DefiBackupNavigation
 import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.transactions.upsell.buy.viewmodel.UpsellBuyViewModel
 import com.blockchain.ui.password.SecondPasswordHandler

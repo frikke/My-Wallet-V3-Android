@@ -25,18 +25,13 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
 import com.blockchain.commonarch.presentation.mvi_v2.compose.rememberBottomSheetNavigator
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.earn.navigation.EarnNavigation
-import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
-import com.blockchain.home.presentation.navigation.ARG_ACTIVITY_TX_ID
 import com.blockchain.home.presentation.navigation.ARG_FIAT_TICKER
 import com.blockchain.home.presentation.navigation.ARG_IS_FROM_MODE_SWITCH
 import com.blockchain.home.presentation.navigation.ARG_RECURRING_BUY_ID
 import com.blockchain.home.presentation.navigation.ARG_WALLET_MODE
-import com.blockchain.chrome.navigation.AssetActionsNavigation
 
 import com.blockchain.home.presentation.navigation.HomeDestination
 import com.blockchain.home.presentation.navigation.QrScanNavigation
-import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
-import com.blockchain.home.presentation.navigation.SettingsNavigation
 import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.home.presentation.navigation.homeGraph
 import com.blockchain.koin.payloadScope
@@ -54,7 +49,6 @@ import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.ui.navigation.WalletConnectDestination
 import com.blockchain.walletconnect.ui.navigation.WalletConnectV2Navigation
 import com.blockchain.walletconnect.ui.navigation.walletConnectGraph
-import com.blockchain.walletmode.WalletMode
 import com.dex.presentation.graph.dexGraph
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
@@ -78,6 +72,7 @@ fun MultiAppNavHost(
     supportNavigation: SupportNavigation,
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
+    defiBackupNavigation: DefiBackupNavigation,
     openExternalUrl: (url: String) -> Unit,
     processAnnouncementUrl: (url: String) -> Unit
 ) {
@@ -100,7 +95,10 @@ fun MultiAppNavHost(
     CompositionLocalProvider(
         LocalChromePillProvider provides chromePill,
         LocalNavControllerProvider provides navController,
-        LocalAssetActionsNavigationProvider provides assetActionsNavigation
+        LocalAssetActionsNavigationProvider provides assetActionsNavigation,
+        LocalSettingsNavigationProvider provides settingsNavigation,
+        LocalDefiBackupNavigationProvider provides defiBackupNavigation,
+        LocalRecurringBuyNavigationProvider provides recurringBuyNavigation,
     ) {
         ModalBottomSheetLayout(
             bottomSheetNavigator,
@@ -137,8 +135,6 @@ fun MultiAppNavHost(
                     viewModel = multiAppViewModel,
                     navController = navController,
                     startPhraseRecovery = startPhraseRecovery,
-                    recurringBuyNavigation = recurringBuyNavigation,
-                    settingsNavigation = settingsNavigation,
                     pricesNavigation = pricesNavigation,
                     qrScanNavigation = qrScanNavigation,
                     supportNavigation = supportNavigation,
@@ -202,8 +198,6 @@ private fun NavGraphBuilder.chrome(
     navController: NavHostController,
     startPhraseRecovery: () -> Unit,
     showAppRating: () -> Unit,
-    recurringBuyNavigation: RecurringBuyNavigation,
-    settingsNavigation: SettingsNavigation,
     pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
     supportNavigation: SupportNavigation,
@@ -231,22 +225,9 @@ private fun NavGraphBuilder.chrome(
                     args = listOf(NavArgument(ARG_IS_FROM_MODE_SWITCH, true))
                 )
             },
-            recurringBuyNavigation = recurringBuyNavigation,
-            settingsNavigation = settingsNavigation,
             pricesNavigation = pricesNavigation,
             qrScanNavigation = qrScanNavigation,
             supportNavigation = supportNavigation,
-            openRecurringBuys = {
-                navController.navigate(HomeDestination.RecurringBuys)
-            },
-            openRecurringBuyDetail = { recurringBuyId ->
-                navController.navigate(
-                    destination = HomeDestination.RecurringBuyDetail,
-                    args = listOf(
-                        NavArgument(key = ARG_RECURRING_BUY_ID, value = recurringBuyId)
-                    )
-                )
-            },
             graphNavController = navController,
             openSwapDexOption = {
                 navController.navigate(HomeDestination.SwapDexOptions)
