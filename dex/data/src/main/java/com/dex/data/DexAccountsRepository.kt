@@ -20,6 +20,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.Money
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -28,6 +29,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
@@ -39,17 +41,18 @@ class DexAccountsRepository(
     private val coincore: Coincore,
     private val currencyPrefs: CurrencyPrefs,
     private val dexPrefs: DexPrefs,
+    private val coroutineDispatcher: CoroutineDispatcher,
     private val assetCatalogue: AssetCatalogue,
 ) : DexAccountsService {
     override fun sourceAccounts(chainId: Int): Flow<List<DexAccount>> =
         dexSourceAccounts(chainId = chainId).catch {
             emit(emptyList())
-        }
+        }.flowOn(coroutineDispatcher)
 
     override fun destinationAccounts(chainId: Int): Flow<List<DexAccount>> =
         dexDestinationAccounts(chainId = chainId).catch {
             emit(emptyList())
-        }
+        }.flowOn(coroutineDispatcher)
 
     override suspend fun defSourceAccount(
         coinNetwork: CoinNetwork
@@ -58,7 +61,8 @@ class DexAccountsRepository(
         require(chainId != null)
         val defFundedAccount = dexSourceAccounts(chainId = chainId).map { accounts ->
             accounts.maxByOrNull { it.fiatBalance }
-        }.firstOrNull()
+        }.flowOn(coroutineDispatcher).firstOrNull()
+
         if (defFundedAccount != null)
             return defFundedAccount
         val nativeCurrency =
@@ -198,7 +202,7 @@ class DexAccountsRepository(
         coincore.activeWalletsInMode(
             walletMode = WalletMode.NON_CUSTODIAL,
             freshnessStrategy = freshness
-        ).map {
+        ).flowOn(coroutineDispatcher).map {
             it.accounts
         }.map {
             it.filterIsInstance<CryptoNonCustodialAccount>()

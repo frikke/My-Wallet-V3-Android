@@ -16,7 +16,7 @@ import com.dex.domain.DexTransaction
 import com.dex.domain.DexTransactionProcessor
 import com.dex.presentation.uierrors.AlertError
 import com.dex.presentation.uierrors.DexUiError
-import com.dex.presentation.uierrors.toUiErrors
+import com.dex.presentation.uierrors.uiErrors
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
@@ -96,7 +96,7 @@ class DexConfirmationViewModel(
             /*
              * Ignore this error in the confirmation screen
              * */
-            errors = transaction.toUiErrors().filter { it != DexUiError.TransactionInProgressError },
+            errors = transaction.uiErrors().filter { it !is DexUiError.TransactionInProgressError },
             newPriceAvailable = priceUpdatedAndNotAccepted,
             network = transaction.sourceAccount.currency.coinNetwork?.shortName
         )

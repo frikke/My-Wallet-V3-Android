@@ -2,10 +2,10 @@ package com.dex.presentation.uierrors
 
 import android.content.Context
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
-import com.blockchain.dex.presentation.R
 import com.dex.domain.DexTransaction
 import com.dex.domain.DexTxError
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.Currency
 
 sealed class DexUiError {
@@ -43,7 +43,7 @@ sealed class DexUiError {
             )
     }
 
-    object TransactionInProgressError : DexUiError()
+    data class TransactionInProgressError(val coinNetwork: CoinNetwork) : DexUiError()
     data class UnknownError(val exception: Exception) : DexUiError()
 }
 
@@ -55,7 +55,7 @@ interface ActionRequiredError {
     val priority: Int
 }
 
-fun DexTransaction.toUiErrors(): List<DexUiError> {
+fun DexTransaction.uiErrors(): List<DexUiError> {
     return txErrors.map {
         when (it) {
             DexTxError.NotEnoughFunds -> DexUiError.InsufficientFunds(sourceAccount.account)
@@ -68,7 +68,7 @@ fun DexTransaction.toUiErrors(): List<DexUiError> {
             }
 
             is DexTxError.FatalTxError -> DexUiError.UnknownError(it.exception)
-            is DexTxError.TxInProgress -> DexUiError.TransactionInProgressError
+            is DexTxError.TxInProgress -> DexUiError.TransactionInProgressError(it.coinNetwork)
             is DexTxError.QuoteError ->
                 DexUiError.CommonUiError(
                     it.title,
