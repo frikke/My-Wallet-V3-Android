@@ -207,15 +207,15 @@ private fun Wallet.Model.SessionRequest.JSONRPCRequest.toEthTransaction(): Ether
     val from = transactionParams["from"]?.jsonPrimitive?.content ?: ""
     val to = transactionParams["to"]?.jsonPrimitive?.content ?: ""
     val data = transactionParams["data"]?.jsonPrimitive?.content ?: ""
-    val nonce = transactionParams["nonce"]?.jsonPrimitive?.content ?: ""
-    val gasPrice = transactionParams["gasPrice"]?.jsonPrimitive?.content ?: ""
-    val gasLimit = transactionParams["gasLimit"]?.jsonPrimitive?.content ?: ""
-    val value = transactionParams["value"]?.jsonPrimitive?.content ?: ""
+    val gas = transactionParams["gas"]?.jsonPrimitive?.content ?: "0x15F90" // default according to WC docs
+    val nonce = transactionParams["nonce"]?.jsonPrimitive?.content
+    val gasPrice = transactionParams["gasPrice"]?.jsonPrimitive?.content
+    val value = transactionParams["value"]?.jsonPrimitive?.content
 
     return EthereumJsonRpcTransaction(
         from = from,
         to = to,
-        gas = gasLimit,
+        gas = gas,
         gasPrice = gasPrice,
         value = value,
         nonce = nonce,
