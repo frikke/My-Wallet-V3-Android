@@ -26,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.ViewModelStoreOwner
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.chrome.LocalNavControllerProvider
@@ -50,7 +51,6 @@ import com.blockchain.data.doOnData
 import com.blockchain.data.map
 import com.blockchain.data.toImmutableList
 import com.blockchain.domain.paymentmethods.model.FundsLocks
-import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.home.handhold.HandholdTask
 import com.blockchain.home.presentation.SectionSize
 import com.blockchain.home.presentation.accouncement.AnnouncementsIntent
@@ -75,6 +75,7 @@ import com.blockchain.home.presentation.handhold.HandholdViewModel
 import com.blockchain.home.presentation.handhold.HandholdViewState
 import com.blockchain.home.presentation.navigation.ARG_ACTIVITY_TX_ID
 import com.blockchain.home.presentation.navigation.ARG_FIAT_TICKER
+import com.blockchain.home.presentation.navigation.ARG_QUICK_ACTION_VM_KEY
 import com.blockchain.home.presentation.navigation.ARG_RECURRING_BUY_ID
 import com.blockchain.home.presentation.navigation.ARG_WALLET_MODE
 import com.blockchain.home.presentation.navigation.HomeDestination
@@ -91,9 +92,6 @@ import com.blockchain.home.presentation.recurringbuy.list.RecurringBuyEligibleSt
 import com.blockchain.home.presentation.recurringbuy.list.RecurringBuysIntent
 import com.blockchain.home.presentation.recurringbuy.list.RecurringBuysViewModel
 import com.blockchain.home.presentation.recurringbuy.list.RecurringBuysViewState
-import com.blockchain.home.presentation.referral.ReferralIntent
-import com.blockchain.home.presentation.referral.ReferralViewModel
-import com.blockchain.home.presentation.referral.ReferralViewState
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.urllinks.URL_KYC_REJETED_SUPPORT
 import com.blockchain.prices.prices.PricesIntents
@@ -187,10 +185,6 @@ fun HomeScreen(
         )
     }
 
-    fun openRefferal() {
-        navController.navigate(HomeDestination.Referral)
-    }
-
     fun openRecurringBuysList() {
         navController.navigate(HomeDestination.RecurringBuys)
     }
@@ -216,8 +210,13 @@ fun HomeScreen(
         navController.navigate(HomeDestination.SwapDexOptions)
     }
 
-    fun openMoreQuickActions() {
-        navController.navigate(HomeDestination.MoreQuickActions)
+    fun openMoreQuickActions(walletMode: WalletMode) {
+        navController.navigate(
+            HomeDestination.MoreQuickActions,
+            listOf(
+                NavArgument(key = ARG_QUICK_ACTION_VM_KEY, value = walletMode.name + "qa"),
+            )
+        )
     }
 
     fun openFiatActionDetail(fiatTicker: String) {
@@ -276,7 +275,7 @@ fun HomeScreen(
                     startPhraseRecovery = startPhraseRecovery,
 
                     assetActionsNavigation = assetActionsNavigation,
-                    openMoreQuickActions = ::openMoreQuickActions,
+                    openMoreQuickActions = { openMoreQuickActions(WalletMode.CUSTODIAL) },
 
                     openCryptoAssets = ::openAssetsList,
                     assetOnClick = ::openCoinview,
@@ -289,8 +288,6 @@ fun HomeScreen(
 
                     openActivity = ::openActivityList,
                     openActivityDetail = ::openActivityDetail,
-
-                    openReferral = ::openRefferal,
 
                     openSupportCenter = ::openSupportCenter,
 
@@ -316,7 +313,7 @@ fun HomeScreen(
 
                     assetActionsNavigation = assetActionsNavigation,
                     openDexSwapOptions = ::openSwapDexOptions,
-                    openMoreQuickActions = ::openMoreQuickActions,
+                    openMoreQuickActions = { openMoreQuickActions(WalletMode.NON_CUSTODIAL) },
 
                     openCryptoAssets = ::openAssetsList,
                     assetOnClick = ::openCoinview,
@@ -326,7 +323,6 @@ fun HomeScreen(
 
                     openActivity = ::openActivityList,
                     openActivityDetail = ::openActivityDetail,
-                    openReferral = ::openRefferal,
 
                     openSupportCenter = ::openSupportCenter,
 
@@ -373,8 +369,6 @@ private fun CustodialHomeDashboard(
     openActivity: () -> Unit,
     openActivityDetail: (String, WalletMode) -> Unit,
 
-    openReferral: () -> Unit,
-
     openSupportCenter: () -> Unit,
 
     showMenuOptionsBackground: Boolean = false,
@@ -392,7 +386,9 @@ private fun CustodialHomeDashboard(
     val handholdViewModel: HandholdViewModel = getViewModel(scope = payloadScope)
     val handholdViewState: HandholdViewState by handholdViewModel.viewState.collectAsStateLifecycleAware()
     val quickActionsViewModel: QuickActionsViewModel = getViewModel(
-        scope = payloadScope, key = WalletMode.CUSTODIAL.name + "qa"
+        scope = payloadScope,
+        viewModelStoreOwner = LocalContext.current as ViewModelStoreOwner,
+        key = WalletMode.CUSTODIAL.name + "qa"
     )
     val quickActionsState: QuickActionsViewState by quickActionsViewModel.viewState.collectAsStateLifecycleAware()
     val maxQuickActions = maxQuickActionsOnScreen
@@ -408,8 +404,6 @@ private fun CustodialHomeDashboard(
     val pricesViewState: PricesViewState by pricesViewModel.viewState.collectAsStateLifecycleAware()
     val activityViewModel: CustodialActivityViewModel = getViewModel(scope = payloadScope)
     val activityViewState: ActivityViewState by activityViewModel.viewState.collectAsStateLifecycleAware()
-    val referralViewModel: ReferralViewModel = getViewModel(scope = payloadScope)
-    val referralState: ReferralViewState by referralViewModel.viewState.collectAsStateLifecycleAware()
     val newsViewModel: NewsViewModel = getViewModel(scope = payloadScope)
     val newsViewState: NewsViewState by newsViewModel.viewState.collectAsStateLifecycleAware()
 
@@ -446,8 +440,6 @@ private fun CustodialHomeDashboard(
                 pricesViewModel.onIntent(PricesIntents.LoadData(PricesLoadStrategy.TradableOnly))
                 // activity
                 activityViewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.Limited(MAX_ACTIVITY_COUNT)))
-                // referral
-                referralViewModel.onIntent(ReferralIntent.LoadData())
                 // news
                 newsViewModel.onIntent(NewsIntent.LoadData)
             }
@@ -554,7 +546,7 @@ private fun CustodialHomeDashboard(
             }
         }
 
-        // announcements, assets, dapps, rb, top movers, activity, referrals, news
+        // announcements, assets, dapps, rb, top movers, activity, news
         // should wait for handhold status
         handholdViewState.showHandhold.doOnData { showHandhold ->
             when (showHandhold) {
@@ -727,16 +719,6 @@ private fun CustodialHomeDashboard(
                                 wMode = WalletMode.CUSTODIAL
                             )
 
-                            // referral
-                            (referralState.referralInfo as? DataResource.Data)?.data?.let {
-                                (it as? ReferralInfo.Data)?.let {
-                                    homeReferral(
-                                        referralData = it,
-                                        openReferral = openReferral
-                                    )
-                                }
-                            }
-
                             // news
                             homeNews(
                                 data = newsViewState.newsArticles?.toImmutableList(),
@@ -786,8 +768,6 @@ private fun DefiHomeDashboard(
     openActivity: () -> Unit,
     openActivityDetail: (String, WalletMode) -> Unit,
 
-    openReferral: () -> Unit,
-
     openSupportCenter: () -> Unit,
 
     showMenuOptionsBackground: Boolean,
@@ -801,7 +781,9 @@ private fun DefiHomeDashboard(
     val navController = LocalNavControllerProvider.current
 
     val quickActionsViewModel: QuickActionsViewModel = getViewModel(
-        scope = payloadScope, key = WalletMode.NON_CUSTODIAL.name + "qa"
+        scope = payloadScope,
+        viewModelStoreOwner = LocalContext.current as ViewModelStoreOwner,
+        key = WalletMode.NON_CUSTODIAL.name + "qa"
     )
     val quickActionsState: QuickActionsViewState by quickActionsViewModel.viewState.collectAsStateLifecycleAware()
     val maxQuickActions = maxQuickActionsOnScreen
@@ -815,8 +797,6 @@ private fun DefiHomeDashboard(
     val homeDappsState: HomeDappsViewState by homeDappsViewModel.viewState.collectAsStateLifecycleAware()
     val activityViewModel: PrivateKeyActivityViewModel = getViewModel(scope = payloadScope)
     val activityViewState: ActivityViewState by activityViewModel.viewState.collectAsStateLifecycleAware()
-    val referralViewModel: ReferralViewModel = getViewModel(scope = payloadScope)
-    val referralState: ReferralViewState by referralViewModel.viewState.collectAsStateLifecycleAware()
     val newsViewModel: NewsViewModel = getViewModel(scope = payloadScope)
     val newsViewState: NewsViewState by newsViewModel.viewState.collectAsStateLifecycleAware()
 
@@ -848,8 +828,6 @@ private fun DefiHomeDashboard(
                 homeDappsViewModel.onIntent(HomeDappsIntent.LoadData)
                 // activity
                 activityViewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.Limited(MAX_ACTIVITY_COUNT)))
-                // referral
-                referralViewModel.onIntent(ReferralIntent.LoadData())
                 // news
                 newsViewModel.onIntent(NewsIntent.LoadData)
             }
@@ -1012,16 +990,6 @@ private fun DefiHomeDashboard(
             openActivityDetail = openActivityDetail,
             wMode = WalletMode.NON_CUSTODIAL
         )
-
-        // referral
-        (referralState.referralInfo as? DataResource.Data)?.data?.let {
-            (it as? ReferralInfo.Data)?.let {
-                homeReferral(
-                    referralData = it,
-                    openReferral = openReferral
-                )
-            }
-        }
 
         // news
         homeNews(

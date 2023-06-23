@@ -149,9 +149,13 @@ fun NavGraphBuilder.homeGraph(
         }
     }
 
-    bottomSheet(navigationEvent = HomeDestination.MoreQuickActions) {
+    bottomSheet(navigationEvent = HomeDestination.MoreQuickActions) { backStackEntry ->
+        val vmKey = backStackEntry.arguments?.getComposeArgument(ARG_QUICK_ACTION_VM_KEY)
+        check(vmKey != null)
+
         ChromeBottomSheet(onClose = onBackPressed) {
             MoreActions(
+                vmKey = vmKey,
                 dismiss = onBackPressed,
                 assetActionsNavigation = assetActionsNavigation
             )

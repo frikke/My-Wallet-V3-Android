@@ -28,8 +28,10 @@ import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun MoreActions(
+    vmKey: String,
     viewModel: QuickActionsViewModel = getViewModel(
         viewModelStoreOwner = LocalContext.current as ViewModelStoreOwner,
+        key = vmKey,
         scope = payloadScope
     ),
     assetActionsNavigation: AssetActionsNavigation,
