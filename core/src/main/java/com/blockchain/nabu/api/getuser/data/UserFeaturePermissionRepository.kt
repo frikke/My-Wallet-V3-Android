@@ -43,6 +43,7 @@ internal class UserFeaturePermissionRepository(
             Feature.Sell,
             Feature.DepositCrypto,
             Feature.DepositFiat,
+            Feature.Dex,
             Feature.DepositInterest,
             Feature.DepositStaking,
             Feature.DepositActiveRewards,
@@ -159,7 +160,10 @@ internal class UserFeaturePermissionRepository(
                 eligibilityService.getProductEligibility(EligibleProduct.KYC, freshnessStrategy)
                     .mapData(ProductEligibility::toFeatureAccess)
             }
-
+            Feature.Dex -> {
+                eligibilityService.getProductEligibility(EligibleProduct.DEX, freshnessStrategy)
+                    .mapData(ProductEligibility::toFeatureAccess)
+            }
             is Feature.Interest,
             is Feature.TierLevel -> {
                 TODO("Not Implemented Yet")

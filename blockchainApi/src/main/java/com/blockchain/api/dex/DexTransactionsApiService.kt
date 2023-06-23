@@ -40,12 +40,13 @@ class DexTransactionsApiService(
         networkNativeCurrency: String,
         data: String,
         value: String,
+        fee: String,
         gasLimit: String
     ) = dynamicSelfCustodyService.buildTransaction(
         type = "SWAP",
         maxVerificationVersion = 1,
         amount = null,
-        fee = "NORMAL",
+        fee = fee,
         swapTx = SwapTx(
             data = data,
             value = value,

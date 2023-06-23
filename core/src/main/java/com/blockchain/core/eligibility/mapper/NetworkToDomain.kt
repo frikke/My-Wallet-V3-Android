@@ -3,6 +3,7 @@ package com.blockchain.core.eligibility.mapper
 import com.blockchain.api.eligibility.data.BuyEligibilityResponse
 import com.blockchain.api.eligibility.data.CountryResponse
 import com.blockchain.api.eligibility.data.DefaultEligibilityResponse
+import com.blockchain.api.eligibility.data.DexEligibilityResponse
 import com.blockchain.api.eligibility.data.ProductEligibilityResponse
 import com.blockchain.api.eligibility.data.ReasonNotEligibleReasonResponse
 import com.blockchain.api.eligibility.data.ReasonNotEligibleResponse
@@ -23,6 +24,7 @@ fun ProductEligibilityResponse.toDomain(): List<ProductEligibility> =
         buy?.toProductEligibility(),
         useTradingAccount?.toProductEligibility(),
         swap?.toProductEligibility(),
+        dex?.toProductEligibility(),
         sell?.toProductEligibility(EligibleProduct.SELL),
         depositFiat?.toProductEligibility(EligibleProduct.DEPOSIT_FIAT),
         depositCrypto?.toProductEligibility(EligibleProduct.DEPOSIT_CRYPTO),
@@ -60,6 +62,14 @@ fun SwapEligibilityResponse.toProductEligibility(): ProductEligibility = Product
     } else {
         TransactionsLimit.Unlimited
     },
+    isDefault = false,
+    reasonNotEligible = reasonNotEligible?.toDomain().takeIf { !enabled }
+)
+
+fun DexEligibilityResponse.toProductEligibility(): ProductEligibility = ProductEligibility(
+    product = EligibleProduct.DEX,
+    canTransact = enabled,
+    maxTransactionsCap = TransactionsLimit.Unlimited,
     isDefault = false,
     reasonNotEligible = reasonNotEligible?.toDomain().takeIf { !enabled }
 )

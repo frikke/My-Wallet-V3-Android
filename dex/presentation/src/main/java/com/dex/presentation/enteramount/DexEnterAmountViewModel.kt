@@ -12,9 +12,14 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrElse
+import com.blockchain.data.doOnData
+import com.blockchain.data.doOnError
+import com.blockchain.data.filterNotLoading
 import com.blockchain.data.map
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.safeLet
+import com.blockchain.nabu.BlockedReason
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.getOrNull
 import com.blockchain.preferences.CurrencyPrefs
@@ -22,6 +27,7 @@ import com.dex.domain.AllowanceService
 import com.dex.domain.AllowanceTransactionProcessor
 import com.dex.domain.AllowanceTransactionState
 import com.dex.domain.DexAccountsService
+import com.dex.domain.DexEligibilityService
 import com.dex.domain.DexNetworkService
 import com.dex.domain.DexTransaction
 import com.dex.domain.DexTransactionProcessor
@@ -43,6 +49,7 @@ import info.blockchain.balance.canConvert
 import info.blockchain.balance.isLayer2Token
 import info.blockchain.balance.isNetworkNativeAsset
 import java.math.BigDecimal
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.first
@@ -54,6 +61,7 @@ class DexEnterAmountViewModel(
     private val txProcessor: DexTransactionProcessor,
     private val allowanceProcessor: AllowanceTransactionProcessor,
     private val dexAccountsService: DexAccountsService,
+    private val dexEligibilityService: DexEligibilityService,
     private val dexSlippageService: SlippageService,
     private val enviromentConfig: EnvironmentConfig,
     private val dexAllowanceService: AllowanceService,
@@ -72,19 +80,24 @@ class DexEnterAmountViewModel(
         inputToFiatExchangeRate = null,
         outputToFiatExchangeRate = null,
         feeToFiatExchangeRate = null,
-        canTransact = DataResource.Loading
+        dexAllowanceState = DataResource.Loading
     )
 ) {
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
-    override fun AmountModelState.reduce() = when (canTransact) {
+    override fun AmountModelState.reduce() = when (dexAllowanceState) {
         DataResource.Loading -> InputAmountViewState.Loading
-        is DataResource.Data -> if (canTransact.data) {
-            showInputUi(this)
-        } else {
-            showNoInoutUi(this)
+        is DataResource.Data -> when (val allowance = dexAllowanceState.data) {
+            DexAllowanceState.Allowed -> {
+                showInputUi(this)
+            }
+
+            DexAllowanceState.NoFundsAvailable -> {
+                showNoInoutUi(this)
+            }
+            is DexAllowanceState.NotEligible -> InputAmountViewState.NotEligible(allowance.reason)
         }
         /**
          * todo map loading errors
@@ -217,7 +230,7 @@ class DexEnterAmountViewModel(
         when (intent) {
             InputAmountIntent.InitTransaction -> {
                 loadNetworks()
-                initTransaction()
+                tryToInitTransaction()
             }
 
             is InputAmountIntent.AmountUpdated -> {
@@ -390,50 +403,75 @@ class DexEnterAmountViewModel(
         }
     }
 
-    private fun initTransaction() {
+    private fun tryToInitTransaction() {
         viewModelScope.launch {
-            val selectedSlippage = dexSlippageService.selectedSlippage()
-            val networks = dexNetworkService.supportedNetworks()
-
-            val defAccounts = networks.associateWith {
-                dexAccountsService.defSourceAccount(it)
-            }
-
-            if (defAccounts.filter { it.value.fiatBalance.isPositive }.isEmpty()) {
-                dexNetworkService.chainId.collectLatest { chainId ->
-                    updateState {
+            dexEligibilityService.dexEligibility().filterNotLoading().doOnData { featureAccess ->
+                when (featureAccess) {
+                    is FeatureAccess.Granted -> initTransaction()
+                    is FeatureAccess.Blocked -> updateState {
                         copy(
-                            selectedChain = chainId,
-                            canTransact = DataResource.Data(false)
+                            dexAllowanceState = DataResource.Data(
+                                DexAllowanceState.NotEligible(
+                                    (featureAccess.reason as? BlockedReason.NotEligible)?.message
+                                )
+                            )
                         )
                     }
                 }
-            } else {
-                dexNetworkService.chainId.collectLatest { chainId ->
-                    val preselectedAccount = defAccounts[networks.first { it.chainId == chainId }]
-                    preselectedAccount?.let { source ->
-                        val preselectedDestination = dexAccountsService.defDestinationAccount(
-                            chainId = chainId,
-                            source = source
+            }.doOnError {
+                updateState {
+                    copy(
+                        dexAllowanceState = DataResource.Data(
+                            DexAllowanceState.NotEligible(null)
                         )
-                        updateState {
-                            copy(
-                                selectedChain = chainId,
-                                canTransact = DataResource.Data(true)
-                            )
-                        }
-                        txProcessor.initTransaction(
-                            sourceAccount = source,
-                            destinationAccount = preselectedDestination,
-                            slippage = selectedSlippage
-                        )
-                        subscribeForTxUpdates()
-                    } ?: updateState {
+                    )
+                }
+            }.collect()
+        }
+    }
+
+    private suspend fun initTransaction() {
+        val selectedSlippage = dexSlippageService.selectedSlippage()
+        val networks = dexNetworkService.supportedNetworks()
+
+        val defAccounts = networks.associateWith {
+            dexAccountsService.defSourceAccount(it)
+        }
+
+        if (defAccounts.filter { it.value.fiatBalance.isPositive }.isEmpty()) {
+            dexNetworkService.chainId.collectLatest { chainId ->
+                updateState {
+                    copy(
+                        selectedChain = chainId,
+                        dexAllowanceState = DataResource.Data(DexAllowanceState.Allowed)
+                    )
+                }
+            }
+        } else {
+            dexNetworkService.chainId.collectLatest { chainId ->
+                val preselectedAccount = defAccounts[networks.first { it.chainId == chainId }]
+                preselectedAccount?.let { source ->
+                    val preselectedDestination = dexAccountsService.defDestinationAccount(
+                        chainId = chainId,
+                        source = source
+                    )
+                    updateState {
                         copy(
                             selectedChain = chainId,
-                            canTransact = DataResource.Data(false)
+                            dexAllowanceState = DataResource.Data(DexAllowanceState.Allowed)
                         )
                     }
+                    txProcessor.initTransaction(
+                        sourceAccount = source,
+                        destinationAccount = preselectedDestination,
+                        slippage = selectedSlippage
+                    )
+                    subscribeForTxUpdates()
+                } ?: updateState {
+                    copy(
+                        selectedChain = chainId,
+                        dexAllowanceState = DataResource.Data(DexAllowanceState.NoFundsAvailable)
+                    )
                 }
             }
         }
@@ -614,6 +652,8 @@ sealed class InputAmountViewState : ViewState {
         val allowNetworkSelection: Boolean,
     ) : InputAmountViewState()
 
+    data class NotEligible(val reason: String?) : InputAmountViewState()
+
     object Loading : InputAmountViewState()
 }
 
@@ -641,7 +681,7 @@ sealed class UiNetworkFee {
 data class AmountModelState(
     val networks: DataResource<List<CoinNetwork>> = DataResource.Loading,
     val selectedChain: Int? = null,
-    val canTransact: DataResource<Boolean> = DataResource.Loading,
+    val dexAllowanceState: DataResource<DexAllowanceState> = DataResource.Loading,
     val transaction: DexTransaction?,
     val ignoredTxErrors: List<DexUiError> = emptyList(),
     val operationInProgress: DexOperation = DexOperation.None,
@@ -715,4 +755,10 @@ data class AllowanceTxUiData(
 
 enum class ActionButtonState {
     INVISIBLE, ENABLED, DISABLED
+}
+
+sealed class DexAllowanceState {
+    object Allowed : DexAllowanceState()
+    object NoFundsAvailable : DexAllowanceState()
+    data class NotEligible(val reason: String?) : DexAllowanceState()
 }

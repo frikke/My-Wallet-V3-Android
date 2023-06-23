@@ -64,13 +64,16 @@ import com.blockchain.componentlib.button.PrimarySmallButton
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.icon.SmallTagIcon
 import com.blockchain.componentlib.icons.Alert
+import com.blockchain.componentlib.icons.AlertOn
 import com.blockchain.componentlib.icons.Check
 import com.blockchain.componentlib.icons.ChevronRight
 import com.blockchain.componentlib.icons.Gas
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Network
 import com.blockchain.componentlib.icons.Settings
+import com.blockchain.componentlib.icons.Swap
 import com.blockchain.componentlib.icons.Sync
+import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.loader.LoadingIndicator
 import com.blockchain.componentlib.tablerow.TableRow
@@ -339,6 +342,74 @@ fun DexEnterAmountScreen(
                     receive = startReceiving
                 )
             }
+        }
+
+        (viewState as? InputAmountViewState.NotEligible)?.let {
+            paddedItem(
+                paddingValues = {
+                    PaddingValues(horizontal = AppTheme.dimensions.smallSpacing)
+                }
+            ) {
+                NotEligibleScreen(
+                    reason = it.reason ?: stringResource(id = R.string.default_dex_not_available_message),
+                )
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun NotEligibleScreen(
+    reason: String = "The DEX is not yet available for your account.",
+) {
+    Surface(
+        color = AppTheme.colors.backgroundSecondary,
+        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(
+                    horizontal = AppTheme.dimensions.smallSpacing
+                )
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            StandardVerticalSpacer()
+
+            SmallTagIcon(
+                icon = StackedIcon.SmallTag(
+                    main = Icons.Swap.withTint(AppColors.title)
+                        .withBackground(
+                            backgroundColor = AppColors.light,
+                            iconSize = 58.dp,
+                            backgroundSize = 88.dp
+                        ),
+                    tag = Icons.AlertOn.withTint(AppColors.warning)
+                ),
+                mainIconSize = 88.dp,
+                tagIconSize = 44.dp
+            )
+
+            StandardVerticalSpacer()
+
+            SimpleText(
+                text = stringResource(id = R.string.currently_unavailable),
+                style = ComposeTypographies.Title3,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Centre
+            )
+
+            SimpleText(
+                text = reason,
+                style = ComposeTypographies.Body1,
+                color = ComposeColors.Body,
+                gravity = ComposeGravities.Centre,
+                modifier = Modifier.padding(
+                    vertical = AppTheme.dimensions.smallSpacing
+                )
+            )
         }
     }
 }

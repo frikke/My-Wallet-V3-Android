@@ -2582,6 +2582,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="select_a_trading_currency">Select a Trading Currency.</string>
     <string name="select_a_display_currency">Select a Display Currency.</string>
     <string name="currency_not_available">Right now, %1$s is not supported for buying crypto. You can add a bank account or card from the list of available currencies below.</string>
+    <string name="currently_unavailable">Currently unavailable</string>
     <string name="bank_fees_disclaimer">Additional bank fees may apply. Your bank may add fee and Exchange Rates to each transaction.</string>
     <string name="landing_cta_title">Your First Buy Is on Us.</string>
     <string name="landing_cta_subtitle">Verify your ID and we\'ll cover the fees on your first trade. It\'s our way of saying welcome to Blockchain.com!</string>
@@ -3659,6 +3660,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="accept">Accept</string>
     <string name="approval_for_token_failed">%1$s approval failed</string>
     <string name="approval_for_token_completed">Approved %1$s</string>
+    <string name="default_dex_not_available_message">The dex is not available yet for your account.</string>
     <string name="tx_in_process">Transaction in process</string>
     <string name="tx_in_process_for_network">Your balances may not be accurate since you have transactions in progress on the %1$s network.</string>
     <string name="not_accurate_balance">Your balances may not be accurate.

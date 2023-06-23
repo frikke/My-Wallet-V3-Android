@@ -1,5 +1,6 @@
 package com.blockchain.api.dex
 
+import com.blockchain.network.interceptor.Cacheable
 import com.blockchain.outcome.Outcome
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -18,6 +19,10 @@ interface DexApi {
         @Query("limit") limit: Int = Int.MAX_VALUE
     ): Outcome<Exception, List<DexTokenResponse>>
 
+    @Cacheable(maxAge = Cacheable.MAX_AGE_THREE_DAYS)
     @GET("dex/eligible")
-    suspend fun eligibility(): Outcome<Exception, DexEligibilityResponse>
+    suspend fun eligibility(
+        @Query("product") product: String,
+        @Query("walletAddress") walletAddress: String,
+    ): Outcome<Exception, DexEligibilityResponse>
 }

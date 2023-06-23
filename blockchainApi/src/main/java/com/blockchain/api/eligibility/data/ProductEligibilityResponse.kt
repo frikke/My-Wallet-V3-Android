@@ -9,6 +9,7 @@ class ProductEligibilityResponse(
     val notifications: List<ReasonNotEligibleResponse>,
     val buy: BuyEligibilityResponse?,
     val swap: SwapEligibilityResponse?,
+    val dex: DexEligibilityResponse?,
     val sell: DefaultEligibilityResponse?,
     val useTradingAccount: UseTradingAccountsResponse?,
     val depositFiat: DefaultEligibilityResponse?,
@@ -55,6 +56,12 @@ class SwapEligibilityResponse(
     val enabled: Boolean,
     val maxOrdersCap: Int?, // if null there's no max
     val maxOrdersLeft: Int?, // if null there's infinite orders left
+    val reasonNotEligible: ReasonNotEligibleResponse?
+)
+
+@Serializable
+class DexEligibilityResponse(
+    val enabled: Boolean,
     val reasonNotEligible: ReasonNotEligibleResponse?
 )
 
