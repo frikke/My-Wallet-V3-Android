@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
@@ -53,6 +54,7 @@ class BalanceFiatAndCryptoTableRowView @JvmOverloads constructor(
     override fun Content() {
         Surface(
             modifier = Modifier.clickable(onClick = onClick),
+            color = AppColors.backgroundSecondary,
             shape = RoundedCornerShape(
                 topStart = getRoundSize(roundedTop),
                 topEnd = getRoundSize(roundedTop),

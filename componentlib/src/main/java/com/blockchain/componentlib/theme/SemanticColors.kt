@@ -21,7 +21,6 @@ class SemanticColors(
     primaryLight: Color,
     success: Color,
     successMuted: Color,
-    successLight: Color,
     warning: Color,
     warningMuted: Color,
     warningLight: Color,
@@ -64,8 +63,6 @@ class SemanticColors(
         private set
     var successMuted by mutableStateOf(successMuted)
         private set
-    var successLight by mutableStateOf(successLight)
-        private set
     var warning by mutableStateOf(warning)
         private set
     var warningMuted by mutableStateOf(warningMuted)
@@ -102,7 +99,6 @@ class SemanticColors(
         primaryLight: Color = this.primaryLight,
         success: Color = this.success,
         successMuted: Color = this.successMuted,
-        successLight: Color = this.successLight,
         warning: Color = this.warning,
         warningMuted: Color = this.warningMuted,
         warningLight: Color = this.warningLight,
@@ -129,7 +125,6 @@ class SemanticColors(
         primaryLight = primaryLight,
         success = success,
         successMuted = successMuted,
-        successLight = successLight,
         warning = warning,
         warningMuted = warningMuted,
         warningLight = warningLight,
@@ -157,7 +152,6 @@ class SemanticColors(
         primaryLight = colors.primaryLight
         success = colors.success
         successMuted = colors.successMuted
-        successLight = colors.successLight
         warning = colors.warning
         warningMuted = colors.warningMuted
         warningLight = colors.warningLight

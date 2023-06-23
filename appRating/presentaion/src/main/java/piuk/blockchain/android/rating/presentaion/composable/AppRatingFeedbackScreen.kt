@@ -1,5 +1,7 @@
 package piuk.blockchain.android.rating.presentaion.composable
 
+import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,9 +24,8 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.controls.TextInput
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey600
-import com.blockchain.componentlib.theme.Grey900
 import piuk.blockchain.android.rating.presentaion.AppRatingIntents
 import piuk.blockchain.android.rating.presentaion.AppRatingViewModel
 
@@ -49,6 +50,7 @@ fun AppRatingFeedbackScreen(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .background(AppColors.backgroundSecondary)
             .padding(
                 start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
                 top = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
@@ -59,7 +61,7 @@ fun AppRatingFeedbackScreen(
     ) {
         Text(
             style = AppTheme.typography.body2,
-            color = Grey900,
+            color = AppColors.title,
             textAlign = TextAlign.Center,
             text = stringResource(com.blockchain.stringResources.R.string.app_rating_feedback_title)
         )
@@ -68,7 +70,7 @@ fun AppRatingFeedbackScreen(
 
         Text(
             style = AppTheme.typography.paragraph1,
-            color = Grey600,
+            color = AppColors.body,
             textAlign = TextAlign.Center,
             text = stringResource(com.blockchain.stringResources.R.string.app_rating_feedback_description)
         )
@@ -86,6 +88,7 @@ fun AppRatingFeedbackScreen(
         Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)))
 
         PrimaryButton(
+            modifier = Modifier.fillMaxWidth(),
             text = stringResource(com.blockchain.stringResources.R.string.common_submit),
             onClick = { onSubmit(feedback) },
             state = ButtonState.Enabled
@@ -93,8 +96,14 @@ fun AppRatingFeedbackScreen(
     }
 }
 
-@Preview(name = "Feedback Screen", showBackground = true)
+@Preview
 @Composable
 fun PreviewAppRatingFeedbackScreen() {
     AppRatingFeedbackScreen {}
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewAppRatingFeedbackScreenDark() {
+    PreviewAppRatingFeedbackScreen()
 }

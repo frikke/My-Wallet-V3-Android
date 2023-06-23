@@ -1,5 +1,7 @@
 package piuk.blockchain.android.rating.presentaion.composable
 
+import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,13 +16,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.MinimalPrimarySmallButton
+import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.controls.RatingBar
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Star
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey600
-import com.blockchain.componentlib.theme.Grey900
 import piuk.blockchain.android.rating.presentaion.AppRatingIntents
 import piuk.blockchain.android.rating.presentaion.AppRatingViewModel
 import piuk.blockchain.android.rating.presentaion.R
@@ -45,6 +47,7 @@ fun AppRatingStarsScreen(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .background(AppColors.backgroundSecondary)
             .padding(
                 start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
                 top = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
@@ -54,15 +57,14 @@ fun AppRatingStarsScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.size_medium)),
-            imageResource = ImageResource.Local(R.drawable.ic_favorite_filled)
+            imageResource = Icons.Filled.Star.withTint(AppColors.warningMuted)
         )
 
         Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)))
 
         Text(
             style = AppTheme.typography.body2,
-            color = Grey900,
+            color = AppColors.title,
             textAlign = TextAlign.Center,
             text = stringResource(com.blockchain.stringResources.R.string.app_rating_title)
         )
@@ -71,7 +73,7 @@ fun AppRatingStarsScreen(
 
         Text(
             style = AppTheme.typography.paragraph1,
-            color = Grey600,
+            color = AppColors.body,
             textAlign = TextAlign.Center,
             text = stringResource(com.blockchain.stringResources.R.string.app_rating_description)
         )
@@ -79,8 +81,8 @@ fun AppRatingStarsScreen(
         Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)))
 
         RatingBar(
-            imageFilled = R.drawable.ic_favorite_filled,
-            imageOutline = R.drawable.ic_favorite_outline,
+            imageFilled = Icons.Filled.Star.withTint(AppColors.warningMuted),
+            imageOutline = Icons.Star.withTint(AppColors.muted),
             onRatingChanged = { rating ->
                 onSubmit(rating)
             }
@@ -88,7 +90,8 @@ fun AppRatingStarsScreen(
 
         Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)))
 
-        MinimalPrimarySmallButton(
+        PrimaryButton(
+            modifier = Modifier.fillMaxWidth(),
             text = stringResource(com.blockchain.stringResources.R.string.common_cancel),
             onClick = onCanceled,
             state = ButtonState.Enabled
@@ -96,8 +99,14 @@ fun AppRatingStarsScreen(
     }
 }
 
-@Preview(name = "Full Screen", showBackground = true)
+@Preview
 @Composable
 fun PreviewAppRatingStarsScreen() {
     AppRatingStarsScreen({}, {})
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewAppRatingStarsScreenDark() {
+    PreviewAppRatingStarsScreen()
 }

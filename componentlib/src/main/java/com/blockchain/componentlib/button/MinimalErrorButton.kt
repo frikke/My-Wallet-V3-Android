@@ -24,6 +24,10 @@ class MinimalErrorButtonView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
+        if (isInEditMode) {
+            text = "dummy text"
+        }
+
         MinimalErrorButton(
             onClick = onClick,
             text = text,

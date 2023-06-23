@@ -7,8 +7,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
-import com.blockchain.componentlib.theme.AppSurface
-import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
 
 class NavigationBarView @JvmOverloads constructor(
@@ -30,28 +28,24 @@ class NavigationBarView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme(setSystemColors = false) {
-            AppSurface {
-                if (startNavigationButton != null) {
-                    NavigationBar(
-                        modeColor = modeColor,
-                        mutedBackground = mutedBackground,
-                        title = title,
-                        icon = icon,
-                        startNavigationBarButton = startNavigationButton,
-                        endNavigationBarButtons = endNavigationBarButtons
-                    )
-                } else {
-                    NavigationBar(
-                        modeColor = modeColor,
-                        mutedBackground = mutedBackground,
-                        title = title,
-                        icon = icon,
-                        onBackButtonClick = onBackButtonClick,
-                        navigationBarButtons = endNavigationBarButtons
-                    )
-                }
-            }
+        if (startNavigationButton != null) {
+            NavigationBar(
+                modeColor = modeColor,
+                mutedBackground = mutedBackground,
+                title = title,
+                icon = icon,
+                startNavigationBarButton = startNavigationButton,
+                endNavigationBarButtons = endNavigationBarButtons
+            )
+        } else {
+            NavigationBar(
+                modeColor = modeColor,
+                mutedBackground = mutedBackground,
+                title = title,
+                icon = icon,
+                onBackButtonClick = onBackButtonClick,
+                navigationBarButtons = endNavigationBarButtons
+            )
         }
     }
 

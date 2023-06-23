@@ -9,8 +9,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.KeyboardType
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.theme.AppSurface
-import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
 
 class OutlinedTextInputView @JvmOverloads constructor(
@@ -33,23 +31,27 @@ class OutlinedTextInputView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme(setSystemColors = false) {
-            AppSurface {
-                OutlinedTextInput(
-                    value = value,
-                    onValueChange = onValueChange,
-                    state = state,
-                    placeholder = placeholderText,
-                    label = labelText,
-                    unfocusedTrailingIcon = unfocusedTrailingIconResource,
-                    focusedTrailingIcon = focusedTrailingIconResource,
-                    leadingIcon = leadingIconResource,
-                    singleLine = singleLine,
-                    keyboardOptions = KeyboardOptions(keyboardType = inputType),
-                    onTrailingIconClicked = onTrailingIconClicked
-                )
-            }
+        if (isInEditMode) {
+            labelText = "dummy label"
+            value = "dummy text"
         }
+
+        OutlinedTextInput(
+            value = value,
+            onValueChange = {
+                value = it
+                onValueChange(it)
+            },
+            state = state,
+            placeholder = placeholderText,
+            label = labelText,
+            unfocusedTrailingIcon = unfocusedTrailingIconResource,
+            focusedTrailingIcon = focusedTrailingIconResource,
+            leadingIcon = leadingIconResource,
+            singleLine = singleLine,
+            keyboardOptions = KeyboardOptions(keyboardType = inputType),
+            onTrailingIconClicked = onTrailingIconClicked
+        )
     }
 
     fun clearState() {

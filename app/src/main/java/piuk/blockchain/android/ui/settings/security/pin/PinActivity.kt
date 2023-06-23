@@ -129,7 +129,7 @@ class PinActivity :
                 setOnClickListener { model.process(PinIntent.PinLogout) }
             }
             pinKeyboard.apply {
-                bgColor = Color.White // todo dark mode when doing xml
+                bgColor = Color(getColor(com.blockchain.componentlib.R.color.backgroundSecondary))
                 onClick = { button ->
                     if (::lastState.isInitialized) {
                         when (button) {

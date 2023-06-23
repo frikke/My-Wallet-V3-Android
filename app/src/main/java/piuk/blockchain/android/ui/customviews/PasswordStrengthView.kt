@@ -31,10 +31,10 @@ class PasswordStrengthView(context: Context, attrs: AttributeSet?) : ConstraintL
     )
 
     private val strengthColors = intArrayOf(
-        com.blockchain.common.R.color.product_red_medium,
-        com.blockchain.common.R.color.product_orange_medium,
-        com.blockchain.common.R.color.primary_blue_medium,
-        com.blockchain.common.R.color.product_green_medium
+        com.blockchain.componentlib.R.color.error,
+        com.blockchain.componentlib.R.color.warning,
+        com.blockchain.componentlib.R.color.primary,
+        com.blockchain.componentlib.R.color.success
     )
 
     init {

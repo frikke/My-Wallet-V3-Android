@@ -23,6 +23,10 @@ class AlertButtonView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
+        if (isInEditMode) {
+            text = "dummy text"
+        }
+
         AlertButton(
             onClick = onClick,
             text = text,

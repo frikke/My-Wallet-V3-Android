@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="background">#07080D</color>
+    <color name="backgroundSecondary">#FF20242C</color>
+
+    <color name="primary">#FF65A5FF</color>
+    <color name="title">#FFFFFFFF</color>
+    <color name="body">#FF989BA1</color>
+    <color name="light">#FF2C3038</color>
+    <color name="error">#FFFF3344</color>
+    <color name="warning">#FFFFA133</color>
+    <color name="success">#FF69ECCA</color>
+    <color name="medium">#FF3B3E46</color>
+    <color name="dark">#FF98A1B2</color>
 
     <color name="calendarAccent">#619FF7</color>
     <color name="sheetBackgroundColor">#FF20242C</color>

@@ -6,6 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.componentlib.tag.TagType
+import com.blockchain.componentlib.tag.TagView
+import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import io.reactivex.rxjava3.core.Maybe
@@ -83,8 +86,12 @@ class DefaultAccountCellDecorator(private val account: CryptoAccount) : CellDeco
 
     private fun defaultLabel(context: Context): Maybe<View> =
         Maybe.just(
-            LayoutInflater.from(context)
-                .inflate(R.layout.decorator_account_default, null, false)
+            TagView(context).apply {
+                tag = TagViewState(
+                    value = context.getString(com.blockchain.stringResources.R.string.default_label),
+                    type = TagType.Success()
+                )
+            }
         )
 
     override fun isEnabled(): Single<Boolean> = Single.just(true)

@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:background="@color/backgroundSecondary">
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/airdrop_title"
@@ -15,6 +16,7 @@
         android:layout_marginTop="32dp"
         android:layout_marginEnd="@dimen/standard_spacing"
         android:text="@string/airdrop_received_sheet_heading"
+        android:textColor="@color/title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -29,7 +31,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/airdrop_title"
-        tools:srcCompat="@drawable/ic_logo_stx" />
+        tools:srcCompat="@drawable/ic_close" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/title"
@@ -39,6 +41,7 @@
         android:layout_marginStart="@dimen/standard_spacing"
         android:layout_marginTop="22dp"
         android:layout_marginEnd="@dimen/standard_spacing"
+        android:textColor="@color/title"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/icon_crypto"
@@ -52,14 +55,14 @@
         android:layout_marginStart="@dimen/standard_spacing"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="@dimen/standard_spacing"
+        android:textColor="@color/body"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title"
         tools:text="Blurb about the crypto" />
 
-    <View
+    <com.blockchain.componentlib.basic.AppDividerView
         android:id="@+id/divider_body"
-        style="@style/Divider"
         android:layout_width="48dp"
         android:layout_height="1dp"
         android:layout_marginTop="5dp"
@@ -78,14 +81,14 @@
         android:layout_marginBottom="@dimen/small_spacing"
         android:padding="4dp"
         android:text="@string/airdrop_received_sheet_status_label"
+        android:textColor="@color/title"
         app:layout_constraintBottom_toTopOf="@id/divider_status"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider_body"
         app:layout_constraintVertical_bias="1" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <com.blockchain.componentlib.tag.TagView
         android:id="@+id/status_value"
-        style="@style/Text.Standard.14"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/standard_spacing"
@@ -100,14 +103,12 @@
         app:layout_constraintBottom_toTopOf="@id/divider_status"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider_body"
-        app:layout_constraintVertical_bias="1"
-        tools:text="Status Text" />
+        app:layout_constraintVertical_bias="1" />
 
-    <View
+    <com.blockchain.componentlib.basic.AppDividerView
         android:id="@+id/divider_status"
-        style="@style/Divider"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/standard_spacing"
         android:layout_marginEnd="@dimen/standard_spacing"
         android:layout_marginBottom="16dp"
@@ -126,6 +127,7 @@
         android:layout_marginBottom="@dimen/small_spacing"
         android:padding="4dp"
         android:text="@string/airdrop_received_sheet_date_label"
+        android:textColor="@color/title"
         app:layout_constraintBottom_toTopOf="@+id/divider_date"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -139,15 +141,15 @@
         android:layout_marginBottom="@dimen/small_spacing"
         android:gravity="end"
         android:padding="4dp"
+        android:textColor="@color/body"
         app:layout_constraintBottom_toTopOf="@+id/divider_date"
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="311/02/2201" />
 
-    <View
+    <com.blockchain.componentlib.basic.AppDividerView
         android:id="@+id/divider_date"
-        style="@style/Divider"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/standard_spacing"
         android:layout_marginEnd="@dimen/standard_spacing"
         android:layout_marginBottom="@dimen/small_spacing"
@@ -165,6 +167,7 @@
         android:layout_marginBottom="@dimen/small_spacing"
         android:padding="4dp"
         android:text="@string/airdrop_received_sheet_amount_label"
+        android:textColor="@color/title"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/divider_amount"
         app:layout_constraintStart_toStartOf="parent"
@@ -180,17 +183,17 @@
         android:layout_marginBottom="@dimen/small_spacing"
         android:gravity="end"
         android:padding="4dp"
+        android:textColor="@color/body"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/divider_amount"
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="How much - optional"
         tools:visibility="visible" />
 
-    <View
+    <com.blockchain.componentlib.basic.AppDividerView
         android:id="@+id/divider_amount"
-        style="@style/Divider"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/standard_spacing"
         android:layout_marginEnd="@dimen/standard_spacing"
         android:layout_marginBottom="@dimen/small_spacing"
@@ -208,6 +211,7 @@
         android:layout_marginStart="@dimen/standard_spacing"
         android:layout_marginTop="@dimen/small_spacing"
         android:layout_marginEnd="@dimen/standard_spacing"
+        android:textColor="@color/title"
         android:textSize="16sp"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/support_message"
@@ -223,6 +227,7 @@
         android:layout_marginStart="@dimen/standard_spacing"
         android:layout_marginTop="@dimen/small_spacing"
         android:layout_marginEnd="@dimen/standard_spacing"
+        android:textColor="@color/body"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/support_link"
         app:layout_constraintEnd_toEndOf="parent"
@@ -238,21 +243,20 @@
         android:layout_marginEnd="@dimen/standard_spacing"
         android:layout_marginBottom="@dimen/small_spacing"
         android:text="@string/common_learn_more"
-        android:textColor="@color/blue_600"
+        android:textColor="@color/primary"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/cta_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
+    <com.blockchain.componentlib.button.SecondaryButtonView
         android:id="@+id/cta_button"
-        style="@style/CtaButton.Blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/standard_spacing"
         android:layout_marginTop="154dp"
         android:layout_marginBottom="24dp"
         android:contentDescription="@string/airdrop_received_sheet_close_btn"
-        android:text="@string/airdrop_received_sheet_close_btn"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

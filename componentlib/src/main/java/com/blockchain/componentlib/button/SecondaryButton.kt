@@ -25,6 +25,10 @@ class SecondaryButtonView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
+        if (isInEditMode) {
+            text = "dummy text"
+        }
+
         SecondaryButton(
             onClick = onClick,
             text = text,
@@ -41,6 +45,10 @@ class SmallSecondaryButtonView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
+        if (isInEditMode) {
+            text = "dummy text"
+        }
+
         SecondarySmallButton(
             onClick = onClick,
             text = text,

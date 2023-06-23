@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.settings.security.password
 
 import android.os.Bundle
-import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,9 +16,8 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.presentation.koin.scopedInject
-import piuk.blockchain.android.R
+import com.blockchain.stringResources.R
 import piuk.blockchain.android.databinding.FragmentPasswordUpdateBinding
-import piuk.blockchain.android.util.AfterTextChangedWatcher
 
 class PasswordChangeFragment :
     MviFragment<PasswordChangeModel, PasswordChangeIntent, PasswordChangeState, FragmentPasswordUpdateBinding>() {
@@ -31,65 +29,65 @@ class PasswordChangeFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         updateToolbar(
-            toolbarTitle = getString(com.blockchain.stringResources.R.string.change_password_title),
+            toolbarTitle = getString(R.string.change_password_title),
             menuItems = emptyList()
         )
 
         with(binding) {
             passwordBlurb.apply {
-                text = getString(com.blockchain.stringResources.R.string.password_change_blurb)
+                text = getString(R.string.password_change_blurb)
                 style = ComposeTypographies.Paragraph1
                 textColor = ComposeColors.Body
             }
             passwordCta.apply {
                 buttonState = ButtonState.Disabled
-                text = getString(com.blockchain.stringResources.R.string.password_change_cta)
+                text = getString(R.string.password_change_cta)
                 onClick = {
                     model.process(
                         PasswordChangeIntent.UpdatePassword(
-                            currentPassword = fieldPassword.text.toString(),
-                            newPassword = fieldNewPassword.text.toString(),
-                            newPasswordConfirmation = fieldConfirmPassword.text.toString()
+                            currentPassword = passwordCurrentInput.value,
+                            newPassword = passwordNewInput.value,
+                            newPasswordConfirmation = passwordConfirmInput.value
                         )
                     )
                 }
             }
 
-            fieldNewPassword.addTextChangedListener(object : AfterTextChangedWatcher() {
-                override fun afterTextChanged(editable: Editable) {
-                    fieldNewPassword.postDelayed({
-                        if (!requireActivity().isFinishing) {
-                            passwordStrength.visibleIf { editable.isNotEmpty() }
-                            val strength = passwordStrength.updatePassword(editable.toString())
-                            passwordCta.buttonState =
-                                if (strength >= 51 && fieldPassword.text?.isNotEmpty() == true &&
-                                    fieldConfirmPassword.text?.isNotEmpty() == true
-                                ) {
-                                    ButtonState.Enabled
-                                } else {
-                                    ButtonState.Disabled
-                                }
-                        }
-                    }, 200)
-                }
-            })
+            passwordCurrentInput.apply {
+                labelText = getString(R.string.password_current_hint)
+            }
 
-            fieldConfirmPassword.addTextChangedListener(object : AfterTextChangedWatcher() {
-                override fun afterTextChanged(editable: Editable) {
-                    fieldNewPassword.postDelayed({
-                        if (!requireActivity().isFinishing) {
-                            passwordCta.buttonState =
-                                if (fieldPassword.text?.isNotEmpty() == true &&
-                                    fieldNewPassword.text?.isNotEmpty() == true
-                                ) {
-                                    ButtonState.Enabled
-                                } else {
-                                    ButtonState.Disabled
-                                }
+            passwordNewInput.apply {
+                labelText = getString(R.string.password_new_hint)
+
+                onValueChange = { text ->
+                    passwordStrength.visibleIf { text.isNotEmpty() }
+                    val strength = passwordStrength.updatePassword(text)
+                    passwordCta.buttonState =
+                        if (strength >= 51 && passwordCurrentInput.value.isNotEmpty() &&
+                            passwordConfirmInput.value.isNotEmpty()
+                        ) {
+                            ButtonState.Enabled
+                        } else {
+                            ButtonState.Disabled
                         }
-                    }, 200)
                 }
-            })
+            }
+
+            passwordConfirmInput.apply {
+                labelText = getString(R.string.password_confirm_hint)
+
+                onValueChange = { text ->
+                    passwordCta.buttonState =
+                        if (passwordCurrentInput.value.isNotEmpty() &&
+                            passwordNewInput.value.isNotEmpty()
+                        ) {
+                            ButtonState.Enabled
+                        } else {
+                            ButtonState.Disabled
+                        }
+                }
+            }
         }
     }
 
@@ -102,14 +100,14 @@ class PasswordChangeFragment :
 
                 PasswordViewState.PasswordUpdated -> {
                     showSnackBar(
-                        com.blockchain.stringResources.R.string.change_password_success,
+                        R.string.change_password_success,
                         type = SnackbarType.Success
                     )
                     activity.onBackPressedDispatcher.onBackPressed()
                     with(binding) {
-                        fieldPassword.setText("")
-                        fieldNewPassword.setText("")
-                        fieldConfirmPassword.setText("")
+                        passwordCurrentInput.value = ""
+                        passwordNewInput.value = ""
+                        passwordConfirmInput.value = ""
                         passwordProgress.gone()
                     }
                 }
@@ -131,42 +129,42 @@ class PasswordChangeFragment :
         when (errorState) {
             PasswordChangeError.USING_SAME_PASSWORDS -> {
                 showSnackBar(
-                    com.blockchain.stringResources.R.string.change_password_error_old_new_match,
+                    R.string.change_password_error_old_new_match,
                     type = SnackbarType.Error
                 )
             }
 
             PasswordChangeError.CURRENT_PASSWORD_WRONG -> {
                 showSnackBar(
-                    com.blockchain.stringResources.R.string.change_password_error_old_incorrect,
+                    R.string.change_password_error_old_incorrect,
                     type = SnackbarType.Error
                 )
             }
 
             PasswordChangeError.NEW_PASSWORDS_DONT_MATCH -> {
                 showSnackBar(
-                    com.blockchain.stringResources.R.string.change_password_error_new_dont_match,
+                    R.string.change_password_error_new_dont_match,
                     type = SnackbarType.Error
                 )
             }
 
             PasswordChangeError.NEW_PASSWORD_INVALID_LENGTH -> {
                 showSnackBar(
-                    com.blockchain.stringResources.R.string.change_password_error_new_length,
+                    R.string.change_password_error_new_length,
                     type = SnackbarType.Error
                 )
             }
 
             PasswordChangeError.NEW_PASSWORD_TOO_WEAK -> {
                 showSnackBar(
-                    com.blockchain.stringResources.R.string.change_password_error_new_too_weak,
+                    R.string.change_password_error_new_too_weak,
                     type = SnackbarType.Error
                 )
             }
 
             PasswordChangeError.UNKNOWN_ERROR -> {
                 showSnackBar(
-                    com.blockchain.stringResources.R.string.change_password_error_general,
+                    R.string.change_password_error_general,
                     type = SnackbarType.Error
                 )
             }

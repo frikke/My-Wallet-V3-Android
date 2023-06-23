@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="background">#FFF1F2F7</color>
+    <color name="backgroundSecondary">#FFFFFFFF</color>
+
+    <color name="primary">#FF0C6CF2</color>
+    <color name="title">#FF121D33</color>
+    <color name="body">#FF50596B</color>
+    <color name="light">#FFF0F2F7</color>
+    <color name="error">#FFCF1726</color>
+    <color name="warning">#FFD46A00</color>
+    <color name="success">#FF00B083</color>
+    <color name="medium">#FFDFE3EB</color>
+    <color name="dark">#FFB1B8C7</color>
+
 
     <color name="paletteBaseWhite">#FFFFFF</color>
     <color name="paletteBaseBlack">#000000</color>
