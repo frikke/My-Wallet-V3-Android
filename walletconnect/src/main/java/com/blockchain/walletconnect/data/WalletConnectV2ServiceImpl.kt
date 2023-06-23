@@ -7,9 +7,12 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.chains.ethereum.EthMessageSigner
 import com.blockchain.koin.payloadScope
+import com.blockchain.lifecycle.AppState
+import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.utils.asFlow
 import com.blockchain.walletconnect.domain.ClientMeta
 import com.blockchain.walletconnect.domain.DAppInfo
+import com.blockchain.walletconnect.domain.DappRedirectUri
 import com.blockchain.walletconnect.domain.EthRequestSign
 import com.blockchain.walletconnect.domain.EthSendTransactionRequest
 import com.blockchain.walletconnect.domain.WalletConnectAuthSigningPayload
@@ -33,7 +36,6 @@ import com.blockchain.walletmode.WalletMode
 import com.walletconnect.android.Core
 import com.walletconnect.android.CoreClient
 import com.walletconnect.android.cacao.signature.SignatureType
-import com.walletconnect.android.internal.common.scope
 import com.walletconnect.android.internal.common.signing.cacao.Cacao
 import com.walletconnect.android.internal.common.signing.signature.Signature
 import com.walletconnect.android.internal.common.signing.signature.toCacaoSignature
@@ -59,6 +61,7 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx3.asFlow
 import kotlinx.coroutines.rx3.rxCompletable
 import kotlinx.coroutines.withContext
 import org.bouncycastle.util.encoders.Hex
@@ -73,6 +76,9 @@ class WalletConnectV2ServiceImpl : WalletConnectV2Service, WalletConnectV2UrlVal
 
     private val _walletConnectUserEvents: MutableSharedFlow<WalletConnectUserEvent> = MutableSharedFlow()
     override val userEvents: SharedFlow<WalletConnectUserEvent> = _walletConnectUserEvents.asSharedFlow()
+
+    private val _dappRedirectEvents: MutableSharedFlow<DappRedirectUri> = MutableSharedFlow()
+    override val dappRedirectEvents: SharedFlow<DappRedirectUri> = _dappRedirectEvents.asSharedFlow()
 
     private val ethDataManager: EthDataManager
         get() = payloadScope.get()
@@ -89,10 +95,13 @@ class WalletConnectV2ServiceImpl : WalletConnectV2Service, WalletConnectV2UrlVal
     private val ethMessageSigner: EthMessageSigner
         get() = payloadScope.get()
 
+    private val lifecycleObservable: LifecycleObservable
+        get() = payloadScope.get()
+
     override fun initWalletConnect(application: Application, projectId: String, relayUrl: String) {
         // WalletConnect V2 Initialization
         val serverUrl = "wss://$relayUrl?projectId=$projectId"
-        val connectionType = ConnectionType.AUTOMATIC
+        val connectionType = ConnectionType.MANUAL
 
         CoreClient.initialize(
             relayServerUrl = serverUrl,
@@ -103,7 +112,7 @@ class WalletConnectV2ServiceImpl : WalletConnectV2Service, WalletConnectV2UrlVal
                 description = "",
                 url = "https://www.blockchain.com",
                 icons = listOf("https://www.blockchain.com/static/apple-touch-icon.png"),
-                redirect = null,
+                redirect = "bc-dapp-request://",
                 verifyUrl = null
             ),
             relay = null,
@@ -126,6 +135,24 @@ class WalletConnectV2ServiceImpl : WalletConnectV2Service, WalletConnectV2UrlVal
                 Timber.e("WalletConnect V2: Web3Wallet init error: $error")
             }
         )
+
+        scope.launch {
+            lifecycleObservable.onStateUpdated.asFlow().collectLatest { appState ->
+                if (appState == AppState.BACKGROUNDED) {
+                    Timber.d("WalletConnect V2: App is in background, disconnecting")
+                    CoreClient.Relay.disconnect { error: Core.Model.Error ->
+                        Timber.e("WalletConnect V2: Disconnect Relay error: $error")
+                    }
+                }
+            }
+        }
+    }
+
+    override fun resumeConnection() {
+        Timber.d("WalletConnect V2: resuming connection")
+        CoreClient.Relay.connect { error: Core.Model.Error ->
+            Timber.e("WalletConnect V2: Connect Relay error: $error")
+        }
     }
 
     override suspend fun pair(pairingUrl: String) {
@@ -135,18 +162,23 @@ class WalletConnectV2ServiceImpl : WalletConnectV2Service, WalletConnectV2UrlVal
             clearSessionProposals()
 
             val pairingParams = Wallet.Params.Pair(pairingUrl)
-            Web3Wallet.pair(
-                pairingParams,
-                onSuccess = {
-                    Timber.d("WalletConnect V2: pairing success")
-                },
-                onError = { error ->
-                    scope.launch {
-                        Timber.e("WalletConnect V2: pairing error: $error")
-                        _walletEvents.emit(error)
-                    }
-                },
-            )
+            try {
+                Web3Wallet.pair(
+                    pairingParams,
+                    onSuccess = {
+                        Timber.d("WalletConnect V2: pairing success")
+                    },
+                    onError = { error ->
+                        scope.launch {
+                            Timber.e("WalletConnect V2: pairing error: $error")
+                            _walletEvents.emit(error)
+                        }
+                    },
+                )
+            } catch (e: Exception) {
+                Timber.e("WalletConnect V2: pairing error: $e")
+                _walletEvents.emit(Wallet.Model.Error(e))
+            }
         }
     }
 
@@ -183,43 +215,59 @@ class WalletConnectV2ServiceImpl : WalletConnectV2Service, WalletConnectV2UrlVal
                     accounts = addresses
                 )
             )
-            Web3Wallet.generateApprovedNamespaces(
-                sessionProposal = sessionProposal, supportedNamespaces = sessionNamespace
-            )
+            try {
+                Web3Wallet.generateApprovedNamespaces(
+                    sessionProposal = sessionProposal, supportedNamespaces = sessionNamespace
+                )
+            } catch (e: Exception) {
+                Timber.e("WalletConnect V2: generateApprovedNamespaces error: $e")
+                emptyMap()
+            }
         }
     }
 
-    // TODO(labreu): take in a topicID so that the correct session is approved
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun approveLastSession() {
+    override fun approveSession(sessionId: String) {
         Timber.d("WalletConnect V2: Approving last session")
         scope.launch {
-            if (Web3Wallet.getSessionProposals().isNotEmpty()) {
-                val sessionProposal = Web3Wallet.getSessionProposals().last()
-                buildApprovedSessionNamespaces(sessionProposal).mapLatest { sessionNamespaces ->
-                    Wallet.Params.SessionApprove(
-                        proposerPublicKey = sessionProposal.proposerPublicKey,
-                        namespaces = sessionNamespaces
-                    )
-                }.collectLatest { sessionApproval ->
-                    Web3Wallet.approveSession(
-                        sessionApproval,
-                        onError = { error ->
-                            Timber.e("WalletConnect V2: Approve session error: $error")
-                        },
-                        onSuccess = {
-                            Timber.d("WalletConnect V2: Session approved: $it")
-                        }
-                    )
+            try {
+                Web3Wallet.getSessionProposals().find { it.pairingTopic == sessionId }?.let {
+                    val sessionProposal = Web3Wallet.getSessionProposals().last()
+                    buildApprovedSessionNamespaces(sessionProposal).mapLatest { sessionNamespaces ->
+                        Wallet.Params.SessionApprove(
+                            proposerPublicKey = sessionProposal.proposerPublicKey,
+                            namespaces = sessionNamespaces
+                        )
+                    }.collectLatest { sessionApproval ->
+                        Web3Wallet.approveSession(
+                            sessionApproval,
+                            onError = { error ->
+                                Timber.e("WalletConnect V2: Approve session error: $error")
+                            },
+                            onSuccess = {
+                                Timber.d("WalletConnect V2: Session approved: $it")
+                                if (sessionProposal.redirect.isNotEmpty()) {
+                                    redirectToDapp(sessionProposal.redirect)
+                                }
+                            }
+                        )
+                    }
                 }
+            } catch (e: Exception) {
+                Timber.e("WalletConnect V2: Approve session error: $e")
             }
         }
     }
 
     override suspend fun getSessions(): List<WalletConnectSession> =
         withContext(Dispatchers.IO) {
-            Web3Wallet.getListOfActiveSessions().map {
-                it.toDomainWalletConnectSession()
+            try {
+                Web3Wallet.getListOfActiveSessions().map {
+                    it.toDomainWalletConnectSession()
+                }
+            } catch (e: Exception) {
+                Timber.e("WalletConnect V2: Error getting sessions: $e")
+                emptyList()
             }
         }
 
@@ -236,11 +284,15 @@ class WalletConnectV2ServiceImpl : WalletConnectV2Service, WalletConnectV2UrlVal
         }.distinctUntilChanged() // Ensure that the same list is not emitted multiple times
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun getSessionProposalState(): Flow<WalletConnectSessionProposalState?> {
+    override fun getSessionProposalState(sessionId: String): Flow<WalletConnectSessionProposalState?> {
         return _walletEvents.transformLatest { event ->
             when (event) {
                 is Wallet.Model.SettledSessionResponse.Result -> {
-                    emit(WalletConnectSessionProposalState.APPROVED)
+                    if (event.session.pairingTopic == sessionId) {
+                        emit(WalletConnectSessionProposalState.APPROVED)
+                    } else {
+                        emit(null)
+                    }
                 }
 
                 is Wallet.Model.SettledSessionResponse.Error -> {
@@ -256,7 +308,12 @@ class WalletConnectV2ServiceImpl : WalletConnectV2Service, WalletConnectV2UrlVal
 
     override suspend fun getSession(sessionId: String): WalletConnectSession? =
         withContext(Dispatchers.IO) {
-            Web3Wallet.getActiveSessionByTopic(sessionId)?.toDomainWalletConnectSession()
+            try {
+                Web3Wallet.getActiveSessionByTopic(sessionId)?.toDomainWalletConnectSession()
+            } catch (e: Exception) {
+                Timber.e("WalletConnect V2: Error getting session: $e")
+                null
+            }
         }
 
     override suspend fun ethSign(sessionRequest: Wallet.Model.SessionRequest) =
@@ -312,6 +369,11 @@ class WalletConnectV2ServiceImpl : WalletConnectV2Service, WalletConnectV2UrlVal
             ),
             onSuccess = {
                 Timber.d("WalletConnect V2: Session request response: $it")
+                sessionRequest.peerMetaData?.redirect?.let { redirectUri ->
+                    if (redirectUri.isNotEmpty()) {
+                        redirectToDapp(redirectUri)
+                    }
+                }
             },
             onError = { error ->
                 Timber.e("WalletConnect V2: Session request response error: $error")
@@ -321,78 +383,115 @@ class WalletConnectV2ServiceImpl : WalletConnectV2Service, WalletConnectV2UrlVal
 
     override suspend fun sessionRequestFailed(sessionRequest: Wallet.Model.SessionRequest) =
         withContext(Dispatchers.IO) {
-            Web3Wallet.respondSessionRequest(
-                params = Wallet.Params.SessionRequestResponse(
-                    sessionTopic = sessionRequest.topic,
-                    jsonRpcResponse = Wallet.Model.JsonRpcResponse.JsonRpcError(
-                        id = sessionRequest.request.id, code = 500, message = "Transaction Cancelled"
-                    )
-                ),
-                onSuccess = {
-                    Timber.d("WalletConnect V2: Session request response: $it")
-                },
-                onError = { error ->
-                    Timber.e("WalletConnect V2: Session request response error: $error")
-                }
-            )
+            try {
+                Web3Wallet.respondSessionRequest(
+                    params = Wallet.Params.SessionRequestResponse(
+                        sessionTopic = sessionRequest.topic,
+                        jsonRpcResponse = Wallet.Model.JsonRpcResponse.JsonRpcError(
+                            id = sessionRequest.request.id, code = 500, message = "Transaction Cancelled"
+                        )
+                    ),
+                    onSuccess = {
+                        Timber.d("WalletConnect V2: Session request failed response: $it")
+                        sessionRequest.peerMetaData?.redirect?.let { redirectUri ->
+                            if (redirectUri.isNotEmpty()) {
+                                redirectToDapp(redirectUri)
+                            }
+                        }
+                    },
+                    onError = { error ->
+                        Timber.e("WalletConnect V2: Session request failed response error: $error")
+                    }
+                )
+            } catch (e: Exception) {
+                Timber.e("WalletConnect V2: Session request response error: $e")
+            }
         }
+
+    override fun redirectToDapp(redirectUri: DappRedirectUri) {
+        scope.launch {
+            _dappRedirectEvents.emit(redirectUri)
+        }
+    }
 
     override suspend fun disconnectAllSessions() {
         Timber.d("WalletConnect V2: Disconnecting all sessions")
         withContext(Dispatchers.IO) {
-            Web3Wallet.getListOfActiveSessions().forEach { session ->
-                Web3Wallet.disconnectSession(
-                    Wallet.Params.SessionDisconnect(session.topic),
-                    onSuccess = {
-                        Timber.d("Session disconnected: $session")
-                    },
-                    onError = { error ->
-                        Timber.e("Disconnect session error: $error")
-                    }
-                )
+            try {
+                Web3Wallet.getListOfActiveSessions().forEach { session ->
+                    Web3Wallet.disconnectSession(
+                        Wallet.Params.SessionDisconnect(session.topic),
+                        onSuccess = {
+                            Timber.d("Session disconnected: $session")
+                        },
+                        onError = { error ->
+                            Timber.e("Disconnect session error: $error")
+                        }
+                    )
+                }
+            } catch (e: Exception) {
+                Timber.e("Disconnect all sessions error: $e")
             }
         }
     }
 
     override suspend fun disconnectSession(sessionTopic: String) {
         withContext(Dispatchers.IO) {
-            Web3Wallet.disconnectSession(
-                params = Wallet.Params.SessionDisconnect(sessionTopic),
-                onSuccess = {
-                    Timber.d("Session disconnected: $it")
-                },
-                onError = { error ->
-                    Timber.e("Disconnect session error: $error")
-                }
-            )
+            try {
+                Web3Wallet.disconnectSession(
+                    params = Wallet.Params.SessionDisconnect(sessionTopic),
+                    onSuccess = {
+                        Timber.d("Session disconnected: $it")
+                    },
+                    onError = { error ->
+                        Timber.e("Disconnect session error: $error")
+                    }
+                )
+            } catch (e: Exception) {
+                Timber.e("Disconnect session error: $e")
+            }
         }
     }
 
     override suspend fun getSessionProposal(sessionId: String): Wallet.Model.SessionProposal? =
         withContext(Dispatchers.IO) {
-            Web3Wallet.getSessionProposals().firstOrNull { it.pairingTopic == sessionId }
+            try {
+                Web3Wallet.getSessionProposals().firstOrNull { it.pairingTopic == sessionId }
+            } catch (e: Exception) {
+                Timber.e("Get session proposal error: $e")
+                null
+            }
         }
 
     override fun clearSessionProposals() {
         Timber.d("WalletConnect V2: Clearing Session Proposals")
         scope.launch {
-            Web3Wallet.getSessionProposals().map { sessionProposal ->
-                Web3Wallet.rejectSession(
-                    Wallet.Params.SessionReject(sessionProposal.proposerPublicKey, ""),
-                    onSuccess = {
-                        Timber.d("Session rejected: $it")
-                    },
-                    onError = { error ->
-                        Timber.e("Session rejected error: $error")
-                    }
-                )
+            try {
+                Web3Wallet.getSessionProposals().map { sessionProposal ->
+                    Web3Wallet.rejectSession(
+                        Wallet.Params.SessionReject(sessionProposal.proposerPublicKey, ""),
+                        onSuccess = {
+                            Timber.d("Session rejected: $it")
+                        },
+                        onError = { error ->
+                            Timber.e("Session rejected error: $error")
+                        }
+                    )
+                }
+            } catch (e: Exception) {
+                Timber.e("Clear session proposals error: $e")
             }
         }
     }
 
     override suspend fun getAuthRequest(authId: String): Wallet.Model.PendingAuthRequest? =
         withContext(Dispatchers.IO) {
-            Web3Wallet.getPendingAuthRequests().firstOrNull { it.id == authId.toLong() }
+            try {
+                Web3Wallet.getPendingAuthRequests().firstOrNull { it.id == authId.toLong() }
+            } catch (e: Exception) {
+                Timber.e("Get auth request error: $e")
+                null
+            }
         }
 
     override suspend fun approveAuthRequest(authSigningPayload: WalletConnectAuthSigningPayload) {
@@ -411,23 +510,27 @@ class WalletConnectV2ServiceImpl : WalletConnectV2Service, WalletConnectV2UrlVal
                     SignatureType.EIP191.header,
                     web3WalletSignature.toCacaoSignature()
                 )
-                Web3Wallet.respondAuthRequest(
-                    params = Wallet.Params.AuthRequestResponse.Result(
-                        id = authSigningPayload.authId.toLong(),
-                        signature = Wallet.Model.Cacao.Signature(
-                            t = cacaoSignature.t,
-                            s = cacaoSignature.s,
-                            m = cacaoSignature.m
+                try {
+                    Web3Wallet.respondAuthRequest(
+                        params = Wallet.Params.AuthRequestResponse.Result(
+                            id = authSigningPayload.authId.toLong(),
+                            signature = Wallet.Model.Cacao.Signature(
+                                t = cacaoSignature.t,
+                                s = cacaoSignature.s,
+                                m = cacaoSignature.m
+                            ),
+                            issuer = authSigningPayload.issuer
                         ),
-                        issuer = authSigningPayload.issuer
-                    ),
-                    onSuccess = {
-                        Timber.d("Auth request response: $it")
-                    },
-                    onError = { error ->
-                        Timber.e("Auth request response error: $error")
-                    }
-                )
+                        onSuccess = {
+                            Timber.d("Auth request response: $it")
+                        },
+                        onError = { error ->
+                            Timber.e("Auth request response error: $error")
+                        }
+                    )
+                } catch (e: Exception) {
+                    Timber.e("Auth request response error: $e")
+                }
             }
         }
     }
@@ -466,19 +569,23 @@ class WalletConnectV2ServiceImpl : WalletConnectV2Service, WalletConnectV2UrlVal
 
     override suspend fun rejectAuthRequest(authId: String) {
         withContext(Dispatchers.IO) {
-            Web3Wallet.respondAuthRequest(
-                params = Wallet.Params.AuthRequestResponse.Error(
-                    id = authId.toLong(),
-                    code = 500,
-                    message = "User rejected the request"
-                ),
-                onSuccess = {
-                    Timber.d("Auth request response: $it")
-                },
-                onError = { error ->
-                    Timber.e("Auth request response error: $error")
-                }
-            )
+            try {
+                Web3Wallet.respondAuthRequest(
+                    params = Wallet.Params.AuthRequestResponse.Error(
+                        id = authId.toLong(),
+                        code = 500,
+                        message = "User rejected the request"
+                    ),
+                    onSuccess = {
+                        Timber.d("Auth request response: $it")
+                    },
+                    onError = { error ->
+                        Timber.e("Auth request response error: $error")
+                    }
+                )
+            } catch (e: Exception) {
+                Timber.e("Auth request response error: $e")
+            }
         }
     }
 

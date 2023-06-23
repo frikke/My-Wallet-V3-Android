@@ -10,7 +10,6 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.walletconnect.R
 import com.blockchain.walletconnect.databinding.SessionApprovalBottomSheetBinding
 import com.blockchain.walletconnect.domain.WalletConnectSession
-import com.blockchain.walletconnect.domain.WalletConnectV2SessionProposal
 import com.blockchain.walletconnect.ui.networks.NetworkInfo
 import com.bumptech.glide.Glide
 
@@ -18,10 +17,6 @@ class WCApproveSessionBottomSheet : SlidingModalBottomDialog<SessionApprovalBott
 
     private val session: WalletConnectSession? by lazy {
         arguments?.getSerializable(SESSION_KEY)?.let { it as WalletConnectSession }
-    }
-
-    private val sessionV2: WalletConnectV2SessionProposal? by lazy {
-        arguments?.getSerializable(SESSION_V2_KEY)?.let { it as WalletConnectV2SessionProposal }
     }
 
     private val selectedNetwork: NetworkInfo by lazy {
@@ -34,8 +29,6 @@ class WCApproveSessionBottomSheet : SlidingModalBottomDialog<SessionApprovalBott
         fun onSelectNetworkClicked(session: WalletConnectSession)
         fun onSessionApproved(session: WalletConnectSession)
         fun onSessionRejected(session: WalletConnectSession)
-        fun onApproveV2Session()
-        fun onRejectV2Session()
     }
 
     override val host: Host by lazy {
@@ -50,30 +43,7 @@ class WCApproveSessionBottomSheet : SlidingModalBottomDialog<SessionApprovalBott
     @SuppressLint("StringFormatInvalid")
     override fun initControls(binding: SessionApprovalBottomSheetBinding) {
         with(binding) {
-            sessionV2?.let { sessionV2 ->
-                Glide.with(requireActivity()).load(sessionV2.dappLogoUrl).into(binding.icon)
-                title.text =
-                    getString(com.blockchain.stringResources.R.string.dapp_wants_to_connect, sessionV2.dappName)
-                description.text = sessionV2.dappDescription
-                walletAndNetwork.gone()
-                cancelButton.apply {
-                    text = getString(com.blockchain.stringResources.R.string.common_cancel)
-                    onClick = {
-                        host.onRejectV2Session()
-                        dismiss()
-                    }
-                }
-
-                stateIndicator.gone()
-
-                approveButton.apply {
-                    text = getString(com.blockchain.stringResources.R.string.common_confirm)
-                    onClick = {
-                        host.onApproveV2Session()
-                        dismiss()
-                    }
-                }
-            } ?: session?.let { session ->
+            session?.let { session ->
                 Glide.with(requireActivity()).load(session.dAppInfo.peerMeta.uiIcon()).into(binding.icon)
                 title.text = getString(
                     com.blockchain.stringResources.R.string.dapp_wants_to_connect, session.dAppInfo.peerMeta.name
@@ -113,7 +83,6 @@ class WCApproveSessionBottomSheet : SlidingModalBottomDialog<SessionApprovalBott
 
     companion object {
         private const val SESSION_KEY = "SESSION_KEY"
-        private const val SESSION_V2_KEY = "SESSION_V2_KEY"
         private const val NETWORK_KEY = "NETWORK_KEY"
         fun newInstance(session: WalletConnectSession) =
             WCApproveSessionBottomSheet().apply {
@@ -127,13 +96,6 @@ class WCApproveSessionBottomSheet : SlidingModalBottomDialog<SessionApprovalBott
                 arguments = Bundle().also {
                     it.putSerializable(SESSION_KEY, session)
                     it.putSerializable(NETWORK_KEY, selectedNetwork)
-                }
-            }
-
-        fun newInstanceWalletConnectV2(walletConnectV2SessionProposal: WalletConnectV2SessionProposal) =
-            WCApproveSessionBottomSheet().apply {
-                arguments = Bundle().also {
-                    it.putSerializable(SESSION_V2_KEY, walletConnectV2SessionProposal)
                 }
             }
     }

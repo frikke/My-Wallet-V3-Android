@@ -3,9 +3,11 @@ package com.blockchain.chrome.navigation
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -85,14 +87,24 @@ fun MultiAppNavHost(
     val bottomSheetNavigator = rememberBottomSheetNavigator(skipHalfExpanded = true)
     val navController = rememberNavController(bottomSheetNavigator)
 
+    val lifecycleOwner = LocalLifecycleOwner.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
     val walletConnectV2Navigation: WalletConnectV2Navigation = get(
         scope = payloadScope,
         parameters = { parametersOf(lifecycle, navController) }
     )
-    LaunchedEffect(Unit) {
-        walletConnectV2Navigation.launchWalletConnectV2()
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                walletConnectV2Navigation.launchWalletConnectV2()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     val chromePill: ChromePill = get(scope = payloadScope)

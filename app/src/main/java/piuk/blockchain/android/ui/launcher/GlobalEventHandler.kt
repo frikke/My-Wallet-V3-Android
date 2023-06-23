@@ -4,6 +4,8 @@ import android.app.Application
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
+import android.net.Uri
+import androidx.core.net.toUri
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
@@ -54,6 +56,14 @@ class GlobalEventHandler(
             Timber.d("New WalletConnectV2 User Event ${it.javaClass.simpleName}")
             startTransactionFlowForSigning(it)
         }
+
+        compositeDisposable += walletConnectV2Service.dappRedirectEvents
+            .distinctUntilChanged()
+            .asObservable()
+            .subscribe {
+                Timber.d("New WalletConnectV2 Dapp Redirect Event: $it")
+                openUri(it.toUri())
+            }
 
         compositeDisposable += deeplinkRedirector.deeplinkEvents
             .observeOn(AndroidSchedulers.mainThread())
@@ -203,6 +213,12 @@ class GlobalEventHandler(
                 is WalletConnectUserEvent.SendTransaction -> AssetAction.Send
             }
         )
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        application.startActivity(intent)
+    }
+
+    private fun openUri(uri: Uri) {
+        val intent = Intent(Intent.ACTION_VIEW, uri)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         application.startActivity(intent)
     }

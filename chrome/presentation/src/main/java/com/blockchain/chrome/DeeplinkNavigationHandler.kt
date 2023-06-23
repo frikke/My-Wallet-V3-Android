@@ -121,8 +121,7 @@ class DeeplinkNavigationHandler(
             }
             is LinkState.KycDeepLink -> {}
             is LinkState.OpenBankingLink -> handleOpenBankingDeepLink(linkState)
-            is LinkState.BlockchainLink -> {
-            }
+            is LinkState.BlockchainLink -> {}
             else -> {
                 // do nothing
             }

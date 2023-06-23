@@ -11,7 +11,8 @@
             <data android:mimeType="image/*" />
         </intent>
     </queries>
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -27,7 +28,8 @@
         tools:node="remove" />
 
     <uses-feature android:name="android.hardware.location.gps" />
-    <uses-feature android:name="android.hardware.camera"
+    <uses-feature
+        android:name="android.hardware.camera"
         android:required="false" />
 
     <application
@@ -91,13 +93,20 @@
                     android:scheme="https" />
             </intent-filter>
             <intent-filter>
-
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data
-                    android:scheme="wc" />
+
+                <data android:scheme="wc" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="bc-dapp-request" /> <!--allows a dapp to deeplink into our app for send/sign -->
             </intent-filter>
         </activity>
         <activity
@@ -132,7 +141,10 @@
         <activity
             android:name="com.blockchain.chrome.MultiAppActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:exported="true" />
+            android:launchMode="singleTask"
+            android:exported="true">
+        </activity>
+
         <activity
             android:name=".ui.scan.QrScanActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
@@ -171,8 +183,8 @@
 
         <activity
             android:name=".ui.login.auth.LoginAuthActivity"
-            android:exported="true"
             android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.start.LandingActivity"

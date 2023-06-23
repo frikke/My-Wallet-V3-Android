@@ -733,14 +733,6 @@ class MultiAppActivity :
         qrScanNavigation.updateWalletConnectSession(WCSessionIntent.RejectWCSession(session))
     }
 
-    override fun onApproveV2Session() {
-        walletConnectV2Service.approveLastSession()
-    }
-
-    override fun onRejectV2Session() {
-        walletConnectV2Service.clearSessionProposals()
-    }
-
     override fun startKycClicked() {
         earnNavigation.startKycClicked()
     }
