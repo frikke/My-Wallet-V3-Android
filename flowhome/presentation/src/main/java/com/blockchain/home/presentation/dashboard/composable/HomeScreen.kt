@@ -1010,7 +1010,7 @@ private fun DefiHomeDashboard(
             activityState = activityViewState,
             openActivity = openActivity,
             openActivityDetail = openActivityDetail,
-            wMode = WalletMode.CUSTODIAL
+            wMode = WalletMode.NON_CUSTODIAL
         )
 
         // referral
