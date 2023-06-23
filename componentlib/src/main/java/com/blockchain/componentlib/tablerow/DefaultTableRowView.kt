@@ -42,9 +42,11 @@ class DefaultTableRowView @JvmOverloads constructor(
             tags = tags,
             endTag = endTag,
             startImageResource = startImageResource,
-            endImageResource = endImageResource.apply {
+            endImageResource = endImageResource.run {
                 if (this is ImageResource.Local) {
                     withTint(AppColors.body)
+                } else {
+                    this
                 }
             },
             primaryTextColor = primaryTextColor.toComposeColor(),
