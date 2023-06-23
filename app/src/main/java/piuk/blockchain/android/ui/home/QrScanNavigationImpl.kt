@@ -8,6 +8,7 @@ import com.blockchain.coincore.loader.DynamicAssetsService
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.domain.auth.SecureChannelService
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.home.presentation.navigation.QrExpected
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.ScanResult
@@ -42,7 +43,9 @@ class QrScanNavigationImpl(
     private val secureChannelService: SecureChannelService,
     private val assetService: DynamicAssetsService,
     private val assetCatalogue: AssetCatalogue,
-    private val walletConnectV2Service: WalletConnectV2Service
+    private val walletConnectV2Service: WalletConnectV2Service,
+    private val walletConnectV1FeatureFlag: FeatureFlag,
+    private val walletConnectV2FeatureFlag: FeatureFlag
 ) : QrScanNavigation {
 
     private var resultLauncher: ActivityResultLauncher<Set<QrExpected>>?
@@ -164,12 +167,16 @@ class QrScanNavigationImpl(
                 }
             }
             is ScanResult.WalletConnectRequest -> {
-                walletConnectServiceAPI.attemptToConnect(scanResult.data)
-                    .awaitOutcome()
-                    .doOnFailure { Timber.e(it) }
+                if (walletConnectV1FeatureFlag.coEnabled()) {
+                    walletConnectServiceAPI.attemptToConnect(scanResult.data)
+                        .awaitOutcome()
+                        .doOnFailure { Timber.e(it) }
+                }
             }
             is ScanResult.WalletConnectV2Request ->
-                walletConnectV2Service.pair(scanResult.data)
+                if (walletConnectV2FeatureFlag.coEnabled()) {
+                    walletConnectV2Service.pair(scanResult.data)
+                }
         }
     }
 

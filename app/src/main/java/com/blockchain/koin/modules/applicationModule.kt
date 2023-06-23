@@ -60,6 +60,7 @@ import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.sellOrder
 import com.blockchain.koin.vgsFeatureFlag
+import com.blockchain.koin.walletConnectV1FeatureFlag
 import com.blockchain.koin.walletConnectV2FeatureFlag
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
@@ -311,6 +312,8 @@ val applicationModule = module {
                 assetService = get(),
                 assetCatalogue = get(),
                 walletConnectV2Service = get(),
+                walletConnectV1FeatureFlag = get(walletConnectV1FeatureFlag),
+                walletConnectV2FeatureFlag = get(walletConnectV2FeatureFlag),
             )
         }.apply {
             bind(QrScanNavigation::class)

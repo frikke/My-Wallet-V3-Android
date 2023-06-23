@@ -24,6 +24,7 @@ import com.blockchain.koin.activeRewardsAccountFeatureFlag
 import com.blockchain.koin.dexFeatureFlag
 import com.blockchain.koin.iterableAnnouncementsFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.walletConnectV1FeatureFlag
 import com.blockchain.koin.walletConnectV2FeatureFlag
 import kotlinx.coroutines.CoroutineScope
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -181,6 +182,7 @@ val homePresentationModule = module {
                 walletConnectService = get(),
                 walletConnectV2Service = get(),
                 walletConnectV2FeatureFlag = get(walletConnectV2FeatureFlag),
+                walletConnectV1FeatureFlag = get(walletConnectV1FeatureFlag)
             )
         }
 

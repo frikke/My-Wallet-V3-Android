@@ -36,6 +36,7 @@ import com.blockchain.koin.sellSwapBrokerageQuoteFeatureFlag
 import com.blockchain.koin.stakingWithdrawalsFeatureFlag
 import com.blockchain.koin.topMoversInBuy
 import com.blockchain.koin.vgsFeatureFlag
+import com.blockchain.koin.walletConnectV1FeatureFlag
 import com.blockchain.koin.walletConnectV2FeatureFlag
 import com.blockchain.remoteconfig.featureFlag
 import org.koin.dsl.bind
@@ -332,6 +333,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_walletconnect_v2",
                 "Enable WalletConnect V2"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(walletConnectV1FeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_walletconnect_v1",
+                "Enable WalletConnect V1"
             )
         )
     }.bind(FeatureFlag::class)

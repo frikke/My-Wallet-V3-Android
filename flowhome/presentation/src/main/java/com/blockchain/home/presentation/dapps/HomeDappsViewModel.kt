@@ -26,7 +26,8 @@ class HomeDappsViewModel(
     private val sessionsRepository: SessionRepository,
     private val walletConnectService: WalletConnectServiceAPI,
     private val walletConnectV2Service: WalletConnectV2Service,
-    private val walletConnectV2FeatureFlag: FeatureFlag
+    private val walletConnectV2FeatureFlag: FeatureFlag,
+    private val walletConnectV1FeatureFlag: FeatureFlag
 ) : MviViewModel<
     HomeDappsIntent,
     HomeDappsViewState,
@@ -69,11 +70,14 @@ class HomeDappsViewModel(
     }
 
     private fun loadSessions() = viewModelScope.launch {
-        val sessionsV1Flow = sessionsRepository.retrieve()
-            .onErrorReturn { emptyList() }.asFlow()
+        val sessionsV1Flow =
+            if (walletConnectV1FeatureFlag.coEnabled())
+                sessionsRepository.retrieve().onErrorReturn { emptyList() }.asFlow()
+            else emptyFlow()
 
         val sessionsV2Flow =
-            if (walletConnectV2FeatureFlag.coEnabled()) walletConnectV2Service.getSessionsFlow()
+            if (walletConnectV2FeatureFlag.coEnabled())
+                walletConnectV2Service.getSessionsFlow()
             else emptyFlow()
 
         combine(sessionsV1Flow, sessionsV2Flow) { sessionsV1, sessionsV2 ->
