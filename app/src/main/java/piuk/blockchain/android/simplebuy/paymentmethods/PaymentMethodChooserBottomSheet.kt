@@ -82,10 +82,13 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
             ) else getString(
                 com.blockchain.stringResources.R.string.payment_methods
             )
-        binding.addPaymentMethod.setOnClickListener {
-            (host as? Host)?.showAvailableToAddPaymentMethods()
-            analytics.logEvent(BuyPaymentAddNewClickedEvent)
-            dismiss()
+        binding.addPaymentMethod.apply {
+            text = getString(com.blockchain.stringResources.R.string.add_payment_method)
+            onClick = {
+                (host as? Host)?.showAvailableToAddPaymentMethods()
+                analytics.logEvent(BuyPaymentAddNewClickedEvent)
+                dismiss()
+            }
         }
 
         analytics.logEvent(paymentMethodsShown(paymentMethods.map { it.toAnalyticsString() }.joinToString { "," }))

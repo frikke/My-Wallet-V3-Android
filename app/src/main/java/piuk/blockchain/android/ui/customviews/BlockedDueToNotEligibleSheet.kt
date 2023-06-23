@@ -39,7 +39,7 @@ class BlockedDueToNotEligibleSheet : ComposeModalBottomDialog() {
                         title = com.blockchain.stringResources.R.string.account_restricted,
                         description = descriptionResId ?: com.blockchain.stringResources.R.string.feature_not_available,
                         descriptionText = descriptionText,
-                        icon = Icons.Filled.User.id,
+                        icon = Icons.Filled.User,
                         ctaText = com.blockchain.stringResources.R.string.contact_support,
                         ctaAction = { startActivity(SupportCentreActivity.newIntent(requireContext())) }
                     )

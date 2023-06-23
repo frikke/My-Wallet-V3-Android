@@ -1,5 +1,8 @@
 package com.blockchain.presentation.urllinks
 
+const val URL_KYC_REJETED_SUPPORT =
+    "https://support.blockchain.com/hc/en-us/requests/new?ticket_form_id=4705355075996"
+
 const val URL_BLOCKCHAIN_SUPPORT_CLOUD_BACKUP_INFO =
     "https://support.blockchain.com/hc/en-us/articles/360046143432"
 

@@ -39,7 +39,7 @@ fun ShimmerLoadingBox(
     )
 
     val brush = Brush.linearGradient(
-        colors = listOf(Grey100, Color.White, Grey100),
+        colors = listOf(AppTheme.colors.light, AppTheme.colors.backgroundSecondary, AppTheme.colors.light),
         start = Offset(10f, 10f),
         end = Offset(translateAnim, translateAnim)
     )

@@ -34,15 +34,13 @@ class EmptyStateView @JvmOverloads constructor(
             viewEmptyTitle.text = context.getString(title)
             viewEmptyDesc.text = context.getString(description)
             viewEmptyIcon.setImageDrawable(context.getResolvedDrawable(icon))
-            viewEmptyCta.text = context.getString(ctaText)
-            viewEmptyCta.setOnClickListener {
-                action()
+            viewEmptyCta.apply {
+                text = context.getString(ctaText)
+                onClick = { action() }
             }
-            viewEmptySupportCta.visibleIf {
-                contactSupportEnabled
-            }
-            viewEmptySupportCta.setOnClickListener {
-                onContactSupport()
+            viewEmptySupportCta.apply {
+                visibleIf { contactSupportEnabled }
+                onClick = { onContactSupport() }
             }
         }
     }

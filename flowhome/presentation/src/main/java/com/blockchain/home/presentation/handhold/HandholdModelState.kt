@@ -8,5 +8,6 @@ import com.blockchain.walletmode.WalletMode
 data class HandholdModelState(
     val data: DataResource<List<HandholdTasksStatus>> = DataResource.Loading,
     val walletMode: WalletMode? = null,
+    val isKycRejected: Boolean = false,
     val lastFreshDataTime: Long = 0
 ) : ModelState

@@ -3,6 +3,7 @@ package com.blockchain.componentlib.basic
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import androidx.annotation.DrawableRes
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
@@ -83,7 +84,8 @@ sealed class ImageResource {
         override val size: Dp? = null
     ) : ImageResource()
 
-    class Remote(
+    @Stable
+    data class Remote(
         val url: String,
         override val contentDescription: String? = null,
         val colorFilter: ColorFilter? = null,

@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.Analytics
+import com.blockchain.chrome.navigation.LocalAssetActionsNavigationProvider
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.icons.Fire
@@ -36,7 +37,6 @@ import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.data.toImmutableList
 import com.blockchain.koin.payloadScope
-import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.prices.prices.PriceItemViewState
 import com.blockchain.prices.prices.PricesAnalyticsEvents
 import com.blockchain.prices.prices.PricesFilter
@@ -58,10 +58,11 @@ fun Prices(
     viewModel: PricesViewModel = getViewModel(scope = payloadScope),
     listState: LazyListState,
     shouldTriggerRefresh: Boolean,
-    pricesNavigation: PricesNavigation,
     openSettings: () -> Unit,
     launchQrScanner: () -> Unit
 ) {
+    val assetActionsNavigation = LocalAssetActionsNavigationProvider.current
+
     val viewState: PricesViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
@@ -103,7 +104,7 @@ fun Prices(
                 viewModel.onIntent(PricesIntents.Filter(filter = filter))
             },
             onAssetClick = { asset ->
-                pricesNavigation.coinview(asset)
+                assetActionsNavigation.coinview(asset)
             }
         )
     }

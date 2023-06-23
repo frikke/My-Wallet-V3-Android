@@ -18,6 +18,9 @@ import com.blockchain.componentlib.utils.LocalLogo
 import com.blockchain.componentlib.utils.LogoValue
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.asset.domain.AssetService
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.kyc.domain.model.KycTierState
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.core.recurringbuy.domain.model.RecurringBuyState
@@ -49,6 +52,7 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -93,7 +97,8 @@ class CoinviewViewModel(
     private val assetService: AssetService,
     private val custodialWalletManager: CustodialWalletManager,
     private val recurringBuyService: RecurringBuyService,
-    private val newsService: NewsService
+    private val newsService: NewsService,
+    private val kycService: KycService
 ) : MviViewModel<
     CoinviewIntent,
     CoinviewViewState,
@@ -123,6 +128,19 @@ class CoinviewViewModel(
 
     private val defaultTimeSpan = HistoricalTimeSpan.DAY
 
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            kycService.stateFor(KycTier.GOLD).mapData { it == KycTierState.Rejected }
+                .collectLatest {
+                    updateState {
+                        copy(
+                            isKycRejected = it.dataOrElse(false)
+                        )
+                    }
+                }
+        }
+    }
+
     override fun viewCreated(args: CoinviewArgs) {
         (coincore[args.networkTicker] as? CryptoAsset)?.let { asset ->
             updateState {
@@ -139,6 +157,7 @@ class CoinviewViewModel(
 
     override fun CoinviewModelState.reduce() = CoinviewViewState(
         asset = reduceAsset(this),
+        showKycRejected = walletMode == WalletMode.CUSTODIAL && isKycRejected,
         tradeable = reduceAssetTradeable(this),
         assetPrice = reduceAssetPrice(this),
         watchlist = reduceWatchlist(this),
@@ -522,32 +541,28 @@ class CoinviewViewModel(
 
     private fun reduceCenterQuickActions(
         state: CoinviewModelState
-    ): DataResource<List<CoinviewQuickActionState>> = state.run {
+    ): DataResource<List<CoinviewQuickAction>> = state.run {
         when {
             isTradeableAsset == false -> {
                 DataResource.Data(emptyList())
             }
 
             else -> {
-                quickActions.map {
-                    it.center.map { it.toViewState() }
-                }
+                quickActions.map { it.center }
             }
         }
     }
 
     private fun reduceBottomQuickActions(
         state: CoinviewModelState
-    ): DataResource<List<CoinviewQuickActionState>> = state.run {
+    ): DataResource<List<CoinviewQuickAction>> = state.run {
         when {
             isTradeableAsset == false -> {
                 DataResource.Data(emptyList())
             }
 
             else -> {
-                quickActions.map {
-                    it.bottom.map { it.toViewState() }
-                }
+                quickActions.map { it.bottom }
             }
         }
     }

@@ -19,17 +19,11 @@ import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.earn.dashboard.EarnDashboardScreen
 import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.home.presentation.dashboard.composable.HomeScreen
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.QrScanNavigation
-import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
-import com.blockchain.home.presentation.navigation.SettingsNavigation
-import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.koin.payloadScope
 import com.blockchain.nfts.collection.screen.NftCollection
 import com.blockchain.nfts.navigation.NftNavigation
-import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.prices.prices.composable.Prices
-import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.dex.presentation.enteramount.DexEnterAmountScreen
@@ -39,26 +33,13 @@ import org.koin.androidx.compose.get
 fun MultiAppBottomNavigationHost(
     modifier: Modifier = Modifier,
     navControllerProvider: () -> NavHostController,
+    navigateToMode: (WalletMode) -> Unit,
     enableRefresh: Boolean,
-    assetActionsNavigation: AssetActionsNavigation,
-    recurringBuyNavigation: RecurringBuyNavigation,
-    settingsNavigation: SettingsNavigation,
-    pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
-    supportNavigation: SupportNavigation,
     updateScrollInfo: (Pair<ChromeBottomNavigationItem, ListStateInfo>) -> Unit,
     selectedNavigationItem: ChromeBottomNavigationItem,
     refreshStarted: () -> Unit,
     refreshComplete: () -> Unit,
-    openCryptoAssets: () -> Unit,
-    openRecurringBuys: () -> Unit,
-    openRecurringBuyDetail: (String) -> Unit,
-    openActivity: () -> Unit,
-    openActivityDetail: (String, WalletMode) -> Unit,
-    openReferral: () -> Unit,
-    openSwapDexOption: () -> Unit,
-    openMoreQuickActions: () -> Unit,
-    openFiatActionDetail: (String) -> Unit,
     startPhraseRecovery: () -> Unit,
     openExternalUrl: (url: String) -> Unit,
     navController: NavController,
@@ -67,8 +48,6 @@ fun MultiAppBottomNavigationHost(
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
     processAnnouncementUrl: (String) -> Unit,
-    onWalletConnectSessionClicked: (DappSessionUiElement) -> Unit,
-    onWalletConnectSeeAllSessionsClicked: () -> Unit
 ) {
     val walletMode by get<WalletModeService>(scope = payloadScope)
         .walletMode.collectAsStateLifecycleAware(initial = null)
@@ -92,7 +71,9 @@ fun MultiAppBottomNavigationHost(
         onDispose { }
     }
 
+    val settingsNavigation = LocalSettingsNavigationProvider.current
     val openSettings = remember { { settingsNavigation.settings() } }
+
     val launchQrScanner = remember {
         {
             qrScanNavigation.launchQrScan()
@@ -119,30 +100,19 @@ fun MultiAppBottomNavigationHost(
                         listState = listState,
                         isSwipingToRefresh = shouldTriggerRefresh &&
                             selectedNavigationItem == ChromeBottomNavigationItem.Home,
-                        openCryptoAssets = openCryptoAssets,
-                        openRecurringBuys = openRecurringBuys,
-                        openRecurringBuyDetail = openRecurringBuyDetail,
-                        assetActionsNavigation = assetActionsNavigation,
-                        recurringBuyNavigation = recurringBuyNavigation,
-                        supportNavigation = supportNavigation,
                         openSettings = openSettings,
                         launchQrScanner = launchQrScanner,
-                        openActivity = openActivity,
-                        openActivityDetail = openActivityDetail,
-                        openReferral = openReferral,
-                        openSwapDexOption = openSwapDexOption,
-                        openFiatActionDetail = openFiatActionDetail,
-                        openMoreQuickActions = openMoreQuickActions,
                         startPhraseRecovery = startPhraseRecovery,
                         processAnnouncementUrl = processAnnouncementUrl,
-                        onWalletConnectSessionClicked = onWalletConnectSessionClicked,
-                        onWalletConnectSeeAllSessionsClicked = onWalletConnectSeeAllSessionsClicked
+                        navigateToMode = navigateToMode,
                     )
                 }
             )
         }
 
         composable(ChromeBottomNavigationItem.Dex.route) {
+            val assetActionsNavigation = LocalAssetActionsNavigationProvider.current
+
             ChromeListScreen(
                 modifier = modifier,
                 isPullToRefreshEnabled = enableRefresh,
@@ -192,7 +162,6 @@ fun MultiAppBottomNavigationHost(
                         listState = listState,
                         shouldTriggerRefresh = shouldTriggerRefresh &&
                             selectedNavigationItem == ChromeBottomNavigationItem.Prices,
-                        pricesNavigation = pricesNavigation,
                         openSettings = openSettings,
                         launchQrScanner = launchQrScanner
                     )

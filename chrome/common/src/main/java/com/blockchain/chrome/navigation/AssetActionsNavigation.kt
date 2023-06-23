@@ -1,6 +1,7 @@
-package com.blockchain.home.presentation.navigation
+package com.blockchain.chrome.navigation
 
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.staticCompositionLocalOf
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
@@ -37,4 +38,8 @@ interface AssetActionsNavigation : ActivityResultNavigation {
     fun startKyc()
 
     fun initNewTxFlowFFs()
+}
+
+val LocalAssetActionsNavigationProvider = staticCompositionLocalOf<AssetActionsNavigation> {
+    error("not provided")
 }

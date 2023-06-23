@@ -26,6 +26,10 @@ data class CoinviewModelState(
     val walletMode: WalletMode? = null,
 
     val asset: CryptoAsset? = null,
+
+    // kyc rejected
+    val isKycRejected: Boolean = false,
+
     // price
     val isChartDataLoading: Boolean = false,
     val assetPriceHistory: DataResource<CoinviewAssetPriceHistory> = DataResource.Loading,

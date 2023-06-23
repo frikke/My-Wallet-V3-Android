@@ -71,6 +71,7 @@ fun AssetAccounts(
     data: DataResource<CoinviewAccountsState?>,
     l1Network: CoinViewNetwork?,
     assetTicker: String,
+    enabled: Boolean,
     onAccountClick: (CoinviewAccount) -> Unit,
     onLockedAccountClick: () -> Unit
 ) {
@@ -87,6 +88,7 @@ fun AssetAccounts(
                 data = data,
                 l1Network = l1Network,
                 assetTicker = assetTicker,
+                enabled = enabled,
                 onAccountClick = onAccountClick,
                 onLockedAccountClick = onLockedAccountClick
             )
@@ -120,6 +122,7 @@ fun AssetAccountsData(
     assetTicker: String,
     l1Network: CoinViewNetwork?,
     data: DataResource.Data<CoinviewAccountsState?>,
+    enabled: Boolean,
     onAccountClick: (CoinviewAccount) -> Unit,
     onLockedAccountClick: () -> Unit
 ) {
@@ -197,7 +200,7 @@ fun AssetAccountsData(
                                         )
 
                                         onAccountClick(account.cvAccount)
-                                    }
+                                    }.takeIf { enabled }
                                 )
                             }
 
@@ -264,6 +267,7 @@ fun PreviewAssetAccounts_Error() {
         data = DataResource.Error(Exception()),
         l1Network = null,
         assetTicker = "ETH",
+        enabled = true,
         onAccountClick = {},
         onLockedAccountClick = {}
     )
@@ -314,6 +318,7 @@ fun PreviewAssetAccounts_Data() {
         ),
         l1Network = CoinViewNetwork("", "MATIC"),
         assetTicker = "ETH",
+        enabled = true,
         onAccountClick = {},
         onLockedAccountClick = {}
     )

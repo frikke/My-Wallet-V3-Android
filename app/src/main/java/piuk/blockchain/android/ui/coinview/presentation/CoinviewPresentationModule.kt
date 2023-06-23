@@ -22,7 +22,8 @@ val coinviewPresentationModule = module {
                 assetService = get(),
                 custodialWalletManager = get(),
                 recurringBuyService = get(),
-                newsService = get()
+                newsService = get(),
+                kycService = get()
             )
         }
     }

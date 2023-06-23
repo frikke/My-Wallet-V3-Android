@@ -90,10 +90,10 @@ abstract class MviViewModel<
 
     /**
      * Called by the Viewmodel whenever states [modelState] and [viewState] need to get updated.
-     * @param stateUpdate a lambda that generates a new [modelState]
+     * @param newModelState a lambda that generates a new [modelState]
      */
-    protected fun updateState(stateUpdate: TModelState.() -> TModelState) {
-        _modelState.value = stateUpdate(modelState)
+    protected fun updateState(newModelState: TModelState.() -> TModelState) {
+        _modelState.value = newModelState(modelState)
     }
 
     /**
@@ -108,8 +108,8 @@ abstract class MviViewModel<
     /**
      * [viewState] flow always has a value
      */
-    val viewState: StateFlow<TViewState>
-        get() = _modelState.map {
+    val viewState: StateFlow<TViewState> by lazy {
+        _modelState.map {
             it.reduce()
         }.stateIn(
             viewModelScope,
@@ -118,6 +118,7 @@ abstract class MviViewModel<
                 Timber.e("Reducing initial state $it for ViewModel ${this.javaClass.simpleName}")
             }
         )
+    }
 
     /**
      * Method that should be override in every Model created. In this method, base on the latest internal

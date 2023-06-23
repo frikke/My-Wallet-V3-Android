@@ -11,12 +11,14 @@ import com.blockchain.data.updateDataWith
 import com.blockchain.news.NewsService
 import com.blockchain.presentation.pulltorefresh.PullToRefresh
 import com.blockchain.utils.CurrentTimeProvider
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class NewsViewModel(
-    private val newsService: NewsService
+    private val newsService: NewsService,
+    private val dispatcher: CoroutineDispatcher,
 ) : MviViewModel<
     NewsIntent,
     NewsViewState,
@@ -52,7 +54,7 @@ class NewsViewModel(
 
     private fun loadNews(forceRefresh: Boolean = false) {
         newsJob?.cancel()
-        newsJob = viewModelScope.launch {
+        newsJob = viewModelScope.launch(dispatcher) {
             val forTicker = newsService.preferredNewsAssetTickers()
             newsService.articles(
                 freshnessStrategy = PullToRefresh.freshnessStrategy(

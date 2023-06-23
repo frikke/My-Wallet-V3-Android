@@ -3,6 +3,7 @@ package com.blockchain.home.presentation.navigation
 import androidx.navigation.NavGraphBuilder
 import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.chrome.composable.ChromeSingleScreen
+import com.blockchain.chrome.navigation.AssetActionsNavigation
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
@@ -148,9 +149,13 @@ fun NavGraphBuilder.homeGraph(
         }
     }
 
-    bottomSheet(navigationEvent = HomeDestination.MoreQuickActions) {
+    bottomSheet(navigationEvent = HomeDestination.MoreQuickActions) { backStackEntry ->
+        val vmKey = backStackEntry.arguments?.getComposeArgument(ARG_QUICK_ACTION_VM_KEY)
+        check(vmKey != null)
+
         ChromeBottomSheet(onClose = onBackPressed) {
             MoreActions(
+                vmKey = vmKey,
                 dismiss = onBackPressed,
                 assetActionsNavigation = assetActionsNavigation
             )

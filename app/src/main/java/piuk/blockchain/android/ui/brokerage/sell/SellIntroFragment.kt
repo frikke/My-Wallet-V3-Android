@@ -289,7 +289,7 @@ class SellIntroFragment :
             customEmptyState.apply {
                 title = com.blockchain.stringResources.R.string.account_restricted
                 descriptionText = reason.message
-                icon = Icons.Filled.User.id
+                icon = Icons.Filled.User
                 ctaText = com.blockchain.stringResources.R.string.common_learn_more
                 ctaAction = action
                 visible()

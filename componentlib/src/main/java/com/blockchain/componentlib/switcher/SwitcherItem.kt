@@ -24,14 +24,9 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Pending
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-
-@Stable
-data class SwitcherItemIndicator(
-    val size: Dp = 8.dp,
-    val color: Color
-)
 
 @Composable
 fun SwitcherItem(
@@ -43,7 +38,7 @@ fun SwitcherItem(
         colorFilter = ColorFilter.tint(AppTheme.colors.dark)
     ),
     state: SwitcherState = SwitcherState.Enabled,
-    indicator: SwitcherItemIndicator? = null,
+    showIndicator: Boolean = false,
     onClick: () -> Unit
 ) {
     val textColor = when (state) {
@@ -98,13 +93,13 @@ fun SwitcherItem(
             }
         }
 
-        indicator?.let {
+        showIndicator?.let {
             CircleIndicator(
                 modifier = Modifier
                     .padding(top = 3.dp)
                     .align(Alignment.TopEnd),
-                size = indicator.size,
-                color = indicator.color
+                size = 8.dp,
+                color = AppColors.negative
             )
         }
     }
@@ -139,10 +134,7 @@ fun Switcher_preview_disabled_light_mode() {
                     id = R.drawable.ic_arrow_right,
                     contentDescription = "IconArrowRight"
                 ),
-                indicator = SwitcherItemIndicator(
-                    size = 8.dp,
-                    color = Color.Red
-                ),
+                showIndicator = true,
                 onClick = { }
             )
         }

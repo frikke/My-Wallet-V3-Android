@@ -79,7 +79,7 @@ private class ExpandableSimpleConfirmationCheckoutItemViewHolder(
                             expandableItemTitle.setTextColor(
                                 ContextCompat.getColor(
                                     expandableItemLabel.context,
-                                    com.blockchain.common.R.color.blue_600
+                                    com.blockchain.componentlib.R.color.primary
                                 )
                             )
                         }
@@ -87,7 +87,7 @@ private class ExpandableSimpleConfirmationCheckoutItemViewHolder(
                             expandableItemTitle.setTextColor(
                                 ContextCompat.getColor(
                                     expandableItemLabel.context,
-                                    com.blockchain.common.R.color.grey_800
+                                    com.blockchain.componentlib.R.color.body
                                 )
                             )
                         }

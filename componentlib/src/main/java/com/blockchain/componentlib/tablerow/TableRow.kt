@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.conditional
 
 @Composable
 private fun TableRow(
@@ -34,12 +35,8 @@ private fun TableRow(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .run {
-                if (onContentClicked != null) {
-                    clickable { onContentClicked() }
-                } else {
-                    this
-                }
+            .conditional(onContentClicked != null) {
+                clickable { onContentClicked?.invoke() }
             }
             .background(backgroundColor, backgroundShape)
             .padding(paddingValues)

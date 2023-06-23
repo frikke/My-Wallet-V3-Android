@@ -4,7 +4,6 @@
     android:id="@+id/crypto_account_parent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/grey_000"
     android:layout_marginHorizontal="@dimen/small_spacing"
     android:paddingStart="@dimen/smallest_spacing"
     android:paddingEnd="@dimen/smallest_spacing">

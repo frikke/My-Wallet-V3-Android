@@ -120,6 +120,7 @@ fun <T> Flow<DataResource<T>>.onErrorReturn(errorToData: (Exception) -> T): Flow
             is DataResource.Error -> {
                 DataResource.Data(errorToData(dataResource.error))
             }
+
             else -> dataResource
         }
     }
@@ -203,6 +204,13 @@ fun <T1, T2, T3, T4, T5, T6, T7, R> combineDataResourceFlows(
     transform: (T1, T2, T3, T4, T5, T6, T7) -> R
 ): Flow<DataResource<R>> = combineMore(flow1, flow2, flow3, flow4, flow5, flow6, flow7) { t1, t2, t3, t4, t5, t6, t7 ->
     combineDataResources(t1, t2, t3, t4, t5, t6, t7, transform)
+}
+
+fun <T, R> combineDataResourceFlows(
+    flows: Iterable<Flow<DataResource<T>>>,
+    transform: (List<T>) -> R
+): Flow<DataResource<R>> = combine(flows) {
+    combineDataResources(it.toList(), transform)
 }
 
 fun <T1, T2, R> combineDataResources(
@@ -554,6 +562,7 @@ fun <T> Flow<DataResource<T>>.getDataOrThrow(): Flow<T> =
                 is DataResource.Data -> it.data
                 is DataResource.Error ->
                     throw it.error
+
                 is DataResource.Loading -> throw IllegalStateException()
             }
         }

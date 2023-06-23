@@ -14,6 +14,11 @@ import com.blockchain.biometrics.BiometricDataRepository
 import com.blockchain.biometrics.CryptographyManager
 import com.blockchain.biometrics.CryptographyManagerImpl
 import com.blockchain.chrome.ChromePill
+import com.blockchain.chrome.navigation.AssetActionsNavigation
+import com.blockchain.chrome.navigation.DefiBackupNavigation
+import com.blockchain.chrome.navigation.RecurringBuyNavigation
+import com.blockchain.chrome.navigation.SettingsNavigation
+import com.blockchain.chrome.navigation.SupportNavigation
 import com.blockchain.chrome.navigation.TransactionFlowNavigation
 import com.blockchain.chrome.navigation.WalletLinkAndOpenBankingNavigation
 import com.blockchain.commonarch.presentation.base.AppUtilAPI
@@ -35,12 +40,8 @@ import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.fiatActions.fiatactions.FiatActionsNavigation
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.AuthNavigation
 import com.blockchain.home.presentation.navigation.QrScanNavigation
-import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
-import com.blockchain.home.presentation.navigation.SettingsNavigation
-import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.internalnotifications.NotificationReceiver
 import com.blockchain.internalnotifications.NotificationTransmitter
 import com.blockchain.keyboard.InputKeyboard
@@ -75,8 +76,6 @@ import com.blockchain.payments.checkoutcom.CheckoutFactory
 import com.blockchain.payments.core.CardProcessor
 import com.blockchain.payments.stripe.StripeCardProcessor
 import com.blockchain.payments.stripe.StripeFactory
-import com.blockchain.presentation.navigation.DefiBackupNavigation
-import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.transactions.upsell.buy.viewmodel.UpsellBuyViewModel
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.BackupWallet
@@ -276,7 +275,6 @@ val applicationModule = module {
         }
 
         factory { (activity: BlockchainActivity) -> AssetActionsNavigationImpl(activity = activity) }.apply {
-            bind(PricesNavigation::class)
             bind(AssetActionsNavigation::class)
         }
 

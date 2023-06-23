@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.alert
 
+import android.content.res.Configuration
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
@@ -28,6 +29,7 @@ import com.blockchain.componentlib.icons.Alert
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.User
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
@@ -36,7 +38,7 @@ fun CustomEmptyState(
     @StringRes title: Int = com.blockchain.stringResources.R.string.common_empty_title,
     @StringRes description: Int = com.blockchain.stringResources.R.string.common_empty_details,
     descriptionText: String? = null,
-    @DrawableRes icon: Int = Icons.Filled.User.id,
+    icon: ImageResource.Local = Icons.Filled.User,
     @StringRes secondaryText: Int? = null,
     secondaryAction: (() -> Unit)? = null,
     @StringRes ctaText: Int = com.blockchain.stringResources.R.string.common_empty_cta,
@@ -56,7 +58,7 @@ fun CustomEmptyState(
         ) {
             SmallTagIcon(
                 icon = StackedIcon.SmallTag(
-                    ImageResource.Local(icon, size = 55.dp),
+                    icon.withTint(AppColors.title).withSize(55.dp),
                     Icons.Filled.Alert.withTint(AppTheme.colors.error)
                 ),
                 mainIconSize = 88.dp,
@@ -110,7 +112,13 @@ fun CustomEmptyState(
 @Composable
 fun PreviewCustomEmptyState() {
     CustomEmptyState(
-        icon = Icons.Filled.User.id,
+        icon = Icons.Filled.User,
         ctaAction = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewCustomEmptyStateDark() {
+    PreviewCustomEmptyState()
 }

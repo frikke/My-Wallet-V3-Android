@@ -14,8 +14,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import com.blockchain.analytics.Analytics
-import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.chrome.ChromeBottomNavigationItem
 import com.blockchain.chrome.ChromePill
 import com.blockchain.chrome.LocalChromePillProvider
@@ -30,18 +28,11 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.rememberBottomSheet
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.earn.navigation.EarnNavigation
-import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
-import com.blockchain.home.presentation.navigation.ARG_ACTIVITY_TX_ID
-import com.blockchain.home.presentation.navigation.ARG_FIAT_TICKER
 import com.blockchain.home.presentation.navigation.ARG_IS_FROM_MODE_SWITCH
 import com.blockchain.home.presentation.navigation.ARG_RECURRING_BUY_ID
 import com.blockchain.home.presentation.navigation.ARG_WALLET_MODE
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.HomeDestination
 import com.blockchain.home.presentation.navigation.QrScanNavigation
-import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
-import com.blockchain.home.presentation.navigation.SettingsNavigation
-import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.home.presentation.navigation.homeGraph
 import com.blockchain.koin.payloadScope
 import com.blockchain.nfts.navigation.ARG_ADDRESS
@@ -53,12 +44,8 @@ import com.blockchain.nfts.navigation.nftGraph
 import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
-import com.blockchain.prices.navigation.PricesNavigation
-import com.blockchain.walletconnect.domain.WalletConnectAnalytics
-import com.blockchain.walletconnect.ui.navigation.WalletConnectDestination
 import com.blockchain.walletconnect.ui.navigation.WalletConnectV2Navigation
 import com.blockchain.walletconnect.ui.navigation.walletConnectGraph
-import com.blockchain.walletmode.WalletMode
 import com.dex.presentation.graph.dexGraph
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
@@ -76,12 +63,12 @@ fun MultiAppNavHost(
     showAppRating: () -> Unit,
     assetActionsNavigation: AssetActionsNavigation,
     recurringBuyNavigation: RecurringBuyNavigation,
-    pricesNavigation: PricesNavigation,
     settingsNavigation: SettingsNavigation,
     qrScanNavigation: QrScanNavigation,
     supportNavigation: SupportNavigation,
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
+    defiBackupNavigation: DefiBackupNavigation,
     openExternalUrl: (url: String) -> Unit,
     processAnnouncementUrl: (url: String) -> Unit
 ) {
@@ -113,7 +100,12 @@ fun MultiAppNavHost(
     val chromePill: ChromePill = get(scope = payloadScope)
     CompositionLocalProvider(
         LocalChromePillProvider provides chromePill,
-        LocalNavControllerProvider provides navController
+        LocalNavControllerProvider provides navController,
+        LocalAssetActionsNavigationProvider provides assetActionsNavigation,
+        LocalSettingsNavigationProvider provides settingsNavigation,
+        LocalDefiBackupNavigationProvider provides defiBackupNavigation,
+        LocalRecurringBuyNavigationProvider provides recurringBuyNavigation,
+        LocalSupportNavigationProvider provides supportNavigation,
     ) {
         ModalBottomSheetLayout(
             modifier = Modifier.background(AppColors.background),
@@ -151,12 +143,7 @@ fun MultiAppNavHost(
                     viewModel = multiAppViewModel,
                     navController = navController,
                     startPhraseRecovery = startPhraseRecovery,
-                    assetActionsNavigation = assetActionsNavigation,
-                    recurringBuyNavigation = recurringBuyNavigation,
-                    settingsNavigation = settingsNavigation,
-                    pricesNavigation = pricesNavigation,
                     qrScanNavigation = qrScanNavigation,
-                    supportNavigation = supportNavigation,
                     showAppRating = showAppRating,
                     openExternalUrl = openExternalUrl,
                     nftNavigation = nftNavigation,
@@ -217,21 +204,13 @@ private fun NavGraphBuilder.chrome(
     navController: NavHostController,
     startPhraseRecovery: () -> Unit,
     showAppRating: () -> Unit,
-    assetActionsNavigation: AssetActionsNavigation,
-    recurringBuyNavigation: RecurringBuyNavigation,
-    settingsNavigation: SettingsNavigation,
-    pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
-    supportNavigation: SupportNavigation,
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
     openExternalUrl: (url: String) -> Unit,
     processAnnouncementUrl: (url: String) -> Unit
 ) {
     composable(navigationEvent = ChromeDestination.Main) {
-
-        val analytics: Analytics = get()
-
         MultiAppChrome(
             viewModel = viewModel,
             onModeLongClicked = { walletMode ->
@@ -247,55 +226,8 @@ private fun NavGraphBuilder.chrome(
                     args = listOf(NavArgument(ARG_IS_FROM_MODE_SWITCH, true))
                 )
             },
-            assetActionsNavigation = assetActionsNavigation,
-            recurringBuyNavigation = recurringBuyNavigation,
-            settingsNavigation = settingsNavigation,
-            pricesNavigation = pricesNavigation,
             qrScanNavigation = qrScanNavigation,
-            supportNavigation = supportNavigation,
-            openCryptoAssets = {
-                navController.navigate(HomeDestination.CryptoAssets)
-            },
-            openRecurringBuys = {
-                navController.navigate(HomeDestination.RecurringBuys)
-            },
-            openRecurringBuyDetail = { recurringBuyId ->
-                navController.navigate(
-                    destination = HomeDestination.RecurringBuyDetail,
-                    args = listOf(
-                        NavArgument(key = ARG_RECURRING_BUY_ID, value = recurringBuyId)
-                    )
-                )
-            },
-            openActivity = {
-                navController.navigate(HomeDestination.Activity)
-                analytics.logEvent(DashboardAnalyticsEvents.ActivitySeeAllClicked)
-            },
-            openActivityDetail = { txId: String, walletMode: WalletMode ->
-                navController.navigate(
-                    destination = HomeDestination.ActivityDetail,
-                    args = listOf(
-                        NavArgument(key = ARG_ACTIVITY_TX_ID, value = txId),
-                        NavArgument(key = ARG_WALLET_MODE, value = walletMode)
-                    )
-                )
-            },
-            openReferral = {
-                navController.navigate(HomeDestination.Referral)
-            },
             graphNavController = navController,
-            openSwapDexOption = {
-                navController.navigate(HomeDestination.SwapDexOptions)
-            },
-            openFiatActionDetail = { fiatTicker: String ->
-                navController.navigate(
-                    HomeDestination.FiatActionDetail,
-                    listOf(NavArgument(key = ARG_FIAT_TICKER, fiatTicker))
-                )
-            },
-            openMoreQuickActions = {
-                navController.navigate(HomeDestination.MoreQuickActions)
-            },
             showAppRating = showAppRating,
             openExternalUrl = openExternalUrl,
             openNftHelp = {
@@ -314,22 +246,6 @@ private fun NavGraphBuilder.chrome(
             nftNavigation = nftNavigation,
             earnNavigation = earnNavigation,
             processAnnouncementUrl = processAnnouncementUrl,
-            onWalletConnectSessionClicked = {
-                analytics.logEvent(WalletConnectAnalytics.HomeDappClicked(it.chainName))
-
-                navController.navigate(
-                    WalletConnectDestination.WalletConnectManageSession,
-                    listOfNotNull(
-                        NavArgument(key = WalletConnectDestination.ARG_SESSION_ID, value = it.sessionId),
-                        NavArgument(key = WalletConnectDestination.ARG_IS_V2_SESSION, value = it.isV2)
-                    ),
-                )
-            },
-            onWalletConnectSeeAllSessionsClicked = {
-                analytics.logEvent(WalletConnectAnalytics.ConnectedDappsListClicked(origin = LaunchOrigin.HOME))
-
-                navController.navigate(WalletConnectDestination.WalletConnectDappList)
-            },
         )
     }
 }

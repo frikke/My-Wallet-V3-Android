@@ -28,13 +28,12 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Pending
-import com.blockchain.componentlib.switcher.SwitcherItemIndicator
 import com.blockchain.componentlib.switcher.SwitcherState
 import com.blockchain.componentlib.tablerow.DefaultTableRowView
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Pink700
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
@@ -912,7 +911,7 @@ class SimpleBuyCryptoFragment :
     ) {
         binding.recurringBuyCta.apply {
             switcherState = SwitcherState.Enabled
-            indicator = SwitcherItemIndicator(color = Pink700).takeIf { showIndicator }
+            this@apply.showIndicator = showIndicator
             onClick = {
                 model.process(SimpleBuyIntent.RecurringBuyOptionsSeen)
                 analytics.logEvent(RecurringBuysAnalyticsEvents.BuyFrequencyClicked(ticker))

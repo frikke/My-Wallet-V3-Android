@@ -127,7 +127,7 @@ fun SwapEnterAmount(
             when (viewState.fatalError) {
                 SwapEnterAmountFatalError.WalletLoading -> {
                     CustomEmptyState(
-                        icon = Icons.Network.id,
+                        icon = Icons.Network,
                         ctaAction = { }
                     )
                 }

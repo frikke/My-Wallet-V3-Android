@@ -8,6 +8,7 @@ const val ARG_RECURRING_BUY_ID = "recurringBuyId"
 const val ARG_ACTIVITY_TX_ID = "activityTxId"
 const val ARG_WALLET_MODE = "walletMode"
 const val ARG_IS_FROM_MODE_SWITCH = "isFromModeSwitch"
+const val ARG_QUICK_ACTION_VM_KEY = "ARG_QUICK_ACTION_VM_KEY"
 
 sealed class HomeDestination(
     override val route: String
@@ -26,6 +27,6 @@ sealed class HomeDestination(
     object Referral : HomeDestination("Referral")
     object SwapDexOptions : HomeDestination("SwapDexOptions")
     object FiatActionDetail : HomeDestination("FiatActionDetail/${ARG_FIAT_TICKER.wrappedArg()}")
-    object MoreQuickActions : HomeDestination("MoreQuickActions")
+    object MoreQuickActions : HomeDestination("MoreQuickActions/${ARG_QUICK_ACTION_VM_KEY.wrappedArg()}")
     object News : HomeDestination("News")
 }

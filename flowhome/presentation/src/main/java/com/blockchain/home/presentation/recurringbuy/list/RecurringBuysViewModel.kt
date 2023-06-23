@@ -21,12 +21,14 @@ import com.google.protobuf.StringValue
 import java.time.ZonedDateTime
 import java.time.format.TextStyle
 import java.util.Locale
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class RecurringBuysViewModel(
-    private val recurringBuyService: RecurringBuyService
+    private val recurringBuyService: RecurringBuyService,
+    private val dispatcher: CoroutineDispatcher,
 ) : MviViewModel<
     RecurringBuysIntent,
     RecurringBuysViewState,
@@ -99,7 +101,7 @@ class RecurringBuysViewModel(
         includeInactive: Boolean = false
     ) {
         recurringBuysJob?.cancel()
-        recurringBuysJob = viewModelScope.launch {
+        recurringBuysJob = viewModelScope.launch(dispatcher) {
             if (recurringBuyService.isEligible()) {
                 recurringBuyService.recurringBuys(includeInactive = includeInactive)
                     .collectLatest { recurringBuys ->

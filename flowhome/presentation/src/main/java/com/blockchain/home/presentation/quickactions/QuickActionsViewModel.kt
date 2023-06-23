@@ -15,33 +15,36 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.dataOrElse
+import com.blockchain.data.mapData
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.fiatActions.fiatactions.FiatActionsUseCase
 import com.blockchain.home.actions.QuickActionsService
+import com.blockchain.home.handhold.HandholdService
+import com.blockchain.home.handhold.isMandatory
 import com.blockchain.home.presentation.R
 import com.blockchain.outcome.getOrNull
 import com.blockchain.presentation.pulltorefresh.PullToRefresh
 import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.utils.awaitOutcome
 import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
 class QuickActionsViewModel(
-    private val walletModeService: WalletModeService,
     private val fiatCurrenciesService: FiatCurrenciesService,
     private val coincore: Coincore,
     private val dexFeatureFlag: FeatureFlag,
     private val quickActionsService: QuickActionsService,
-    private val fiatActions: FiatActionsUseCase
+    private val fiatActions: FiatActionsUseCase,
+    private val dispatcher: CoroutineDispatcher,
+    private val handholdService: HandholdService
 ) : MviViewModel<
     QuickActionsIntent,
     QuickActionsViewState,
@@ -51,6 +54,7 @@ class QuickActionsViewModel(
     >(
     QuickActionsModelState()
 ) {
+    private var loadActionsJob: Job? = null
     private var fiatActionJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
@@ -104,24 +108,13 @@ class QuickActionsViewModel(
                     copy(maxQuickActionsOnScreen = intent.maxQuickActionsOnScreen)
                 }
 
-                walletModeService.walletMode.onEach { wMode ->
-                    updateState {
-                        copy(
-                            walletMode = wMode
-                        )
-                    }
-                }.flatMapLatest { wMode ->
-                    quickActionsService.availableQuickActionsForWalletMode(wMode)
-                        .map { actions ->
-                            actions to wMode
-                        }
-                }.collectLatest { (actions, _) ->
-                    updateState {
-                        copy(
-                            quickActions = actions
-                        )
-                    }
+                updateState {
+                    copy(
+                        walletMode = intent.walletMode
+                    )
                 }
+
+                loadActions(intent.walletMode)
             }
 
             is QuickActionsIntent.FiatAction -> {
@@ -129,15 +122,16 @@ class QuickActionsViewModel(
             }
 
             QuickActionsIntent.Refresh -> {
+                check(modelState.walletMode != null)
+
                 updateState {
                     copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
-                walletModeService.walletMode.take(1).flatMapLatest {
-                    quickActionsService.availableQuickActionsForWalletMode(
-                        walletMode = it,
-                        freshnessStrategy = FreshnessStrategy.Fresh
-                    )
-                }.collectLatest { actions ->
+
+                quickActionsService.availableQuickActionsForWalletMode(
+                    walletMode = modelState.walletMode,
+                    freshnessStrategy = FreshnessStrategy.Fresh
+                ).collectLatest { actions ->
                     updateState {
                         copy(
                             quickActions = actions
@@ -148,6 +142,38 @@ class QuickActionsViewModel(
 
             is QuickActionsIntent.ActionClicked -> {
                 navigate(intent.action.navigationEvent())
+            }
+        }
+    }
+
+    private fun loadActions(walletMode: WalletMode) {
+        loadActionsJob?.cancel()
+        loadActionsJob = viewModelScope.launch(dispatcher) {
+
+            val isHandholdVisibleFlow = when (walletMode) {
+                WalletMode.CUSTODIAL -> handholdService.handholdTasksStatus().mapData {
+                    it.any { it.task.isMandatory() && !it.isComplete }
+                }
+
+                WalletMode.NON_CUSTODIAL -> flowOf(DataResource.Data(false))
+            }
+
+            combine(
+                isHandholdVisibleFlow,
+                quickActionsService.availableQuickActionsForWalletMode(walletMode)
+            ) { isHandholdVisible, actions ->
+                isHandholdVisible.dataOrElse(false) to actions
+            }.collectLatest { (isHandholdVisible, actions) ->
+                updateState {
+                    copy(
+                        quickActions = if (isHandholdVisible) {
+                            // show only available actions
+                            actions.filter { it.state == ActionState.Available }
+                        } else {
+                            actions
+                        }
+                    )
+                }
             }
         }
     }
@@ -184,7 +210,7 @@ class QuickActionsViewModel(
 
     private fun handleFiatAction(action: AssetAction) {
         fiatActionJob?.cancel()
-        fiatActionJob = viewModelScope.launch {
+        fiatActionJob = viewModelScope.launch(dispatcher) {
             val accountOutcome = coincore.allFiats().map {
                 (
                     it.firstOrNull { acc ->
@@ -393,10 +419,14 @@ data class MoreActionItem(
 )
 
 sealed interface QuickActionsIntent : Intent<QuickActionsModelState> {
-    data class LoadActions(val maxQuickActionsOnScreen: Int) : QuickActionsIntent
+    data class LoadActions(
+        val walletMode: WalletMode,
+        val maxQuickActionsOnScreen: Int
+    ) : QuickActionsIntent
+
     object Refresh : QuickActionsIntent {
         override fun isValidFor(modelState: QuickActionsModelState): Boolean {
-            return PullToRefresh.canRefresh(modelState.lastFreshDataTime)
+            return modelState.walletMode != null && PullToRefresh.canRefresh(modelState.lastFreshDataTime)
         }
     }
 

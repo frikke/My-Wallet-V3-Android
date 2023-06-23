@@ -51,13 +51,13 @@ class StatusPill(context: Context, attrs: AttributeSet) : AppCompatTextView(cont
     private fun setupWarning() {
         setupStyle(com.blockchain.common.R.style.Text_Semibold_12)
         background = context.getResolvedDrawable(R.drawable.bkgd_orange_100_rounded)
-        setTextColor(context.getResolvedColor(com.blockchain.common.R.color.orange_600))
+        setTextColor(context.getResolvedColor(com.blockchain.componentlib.R.color.warning))
     }
 
     private fun setupUpsell() {
         setupStyle(com.blockchain.common.R.style.Text_Semibold_12)
         background = context.getResolvedDrawable(R.drawable.bkgd_green_100_rounded)
-        setTextColor(context.getResolvedColor(com.blockchain.common.R.color.green_600))
+        setTextColor(context.getResolvedColor(com.blockchain.componentlib.R.color.success))
     }
 
     private fun setupStyle(@StyleRes style: Int) {

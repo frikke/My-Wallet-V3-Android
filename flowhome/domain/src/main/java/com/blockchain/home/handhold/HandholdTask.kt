@@ -19,3 +19,9 @@ enum class HandholdTask {
     Kyc,
     BuyCrypto
 }
+
+fun HandholdTask.isMandatory() = when (this) {
+    HandholdTask.VerifyEmail -> false
+    HandholdTask.Kyc -> false
+    HandholdTask.BuyCrypto -> true
+}

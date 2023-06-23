@@ -26,7 +26,7 @@ class TagView @JvmOverloads constructor(
     @Composable
     override fun Content() {
         if (isInEditMode) {
-            tag = TagViewState(value = "dummy text", type = TagType.Default())
+            tag = TagViewState(value = "dummy tag text", type = TagType.Default())
         }
 
         Tag(

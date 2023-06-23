@@ -1,7 +1,7 @@
 <resources>
 
     <style name="Text">
-        <item name="android:textColor">@color/grey_800</item>
+        <item name="android:textColor">@color/body</item>
         <item name="android:gravity">start</item>
     </style>
 
@@ -251,14 +251,14 @@
     </style>
 
     <style name="Text.Error">
-        <item name="android:textColor">@color/red_600</item>
+        <item name="android:textColor">@color/error</item>
         <item name="android:textSize">14sp</item>
         <item name="android:background">@drawable/rounded_error_text_background</item>
         <item name="android:gravity">center</item>
     </style>
 
     <style name="Text.Info">
-        <item name="android:textColor">@color/blue_600</item>
+        <item name="android:textColor">@color/primary</item>
         <item name="android:textSize">14sp</item>
         <item name="android:background">@drawable/rounded_info_text_bkgd</item>
     </style>
