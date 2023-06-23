@@ -74,22 +74,6 @@ class AboutAppFragment : Fragment(), SettingsScreen {
                 primaryText = getString(com.blockchain.stringResources.R.string.about_app_privacy_policy)
                 onClick = { onPrivacyClicked() }
             }
-
-            darkModeFF.enabled
-                .onErrorReturn { false }
-                .subscribe { enabled ->
-                    if (enabled) {
-                        light.visible()
-                        light.setOnClickListener {
-                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                        }
-
-                        dark.visible()
-                        dark.setOnClickListener {
-                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                        }
-                    }
-                }
         }
     }
 

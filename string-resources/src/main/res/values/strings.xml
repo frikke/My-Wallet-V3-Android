@@ -2679,6 +2679,11 @@ If you want to know more about our verification process visit our <annotation li
     <string name="settings_subtitle_no_payments">Add a Credit/Debit Card</string>
     <string name="settings_label_settings">Settings</string>
     <string name="settings_title_account">Account</string>
+    <string name="settings_theme_title">Theme</string>
+    <string name="settings_theme_subtitle">App theme: %1$s</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
     <string name="settings_notifications_title">Notifications</string>
     <string name="settings_notifications_subtitle">Emails and push alerts</string>
     <string name="settings_subtitle_account">Limits, Currency, Airdrops and more</string>

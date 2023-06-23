@@ -116,7 +116,7 @@ fun MultiAppNavHost(
         LocalNavControllerProvider provides navController
     ) {
         ModalBottomSheetLayout(
-            modifier = Modifier.background(AppColors.background),
+            modifier = Modifier.background(AppColors.error),
             bottomSheetNavigator = bottomSheetNavigator,
             sheetShape = AppTheme.shapes.large.copy(
                 bottomStart = CornerSize(0.dp),

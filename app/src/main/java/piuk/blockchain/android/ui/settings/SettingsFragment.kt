@@ -6,9 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.commonarch.presentation.base.updateToolbar
@@ -29,9 +32,15 @@ import com.blockchain.domain.paymentmethods.model.BankAuthSource
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.darkModeFeatureFlag
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.theme.Theme
+import com.blockchain.theme.ThemeService
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx3.await
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -56,6 +65,8 @@ import piuk.blockchain.android.ui.linkbank.alias.BankAliasLinkContract
 import piuk.blockchain.android.ui.referral.presentation.Origin
 import piuk.blockchain.android.ui.referral.presentation.ReferralAnalyticsEvents
 import piuk.blockchain.android.ui.settings.sheets.AddPaymentMethodsBottomSheet
+import piuk.blockchain.android.ui.settings.sheets.ThemeBottomSheet
+import piuk.blockchain.android.ui.settings.sheets.textResource
 import piuk.blockchain.android.util.AndroidUtils
 
 class SettingsFragment :
@@ -95,6 +106,8 @@ class SettingsFragment :
     override val model: SettingsModel by scopedInject()
 
     private val bankAliasLinkLauncher = registerForActivityResult(BankAliasLinkContract()) {}
+
+    private val darkModeFF: FeatureFlag by inject(darkModeFeatureFlag)
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentRedesignSettingsBinding =
         FragmentRedesignSettingsBinding.inflate(inflater, container, false)
@@ -197,8 +210,26 @@ class SettingsFragment :
 
     override fun onResume() {
         super.onResume()
+        model.process(SettingsIntent.LoadTheme)
         model.process(SettingsIntent.LoadHeaderInformation)
         model.process(SettingsIntent.LoadPaymentMethods)
+
+        lifecycleScope.launch {
+            darkModeFF.enabled
+                .onErrorReturn { false }
+                .await()
+                .let { enabled ->
+                    with(binding) {
+                        if (enabled) {
+                            themeGroup.visible()
+                            dividerTheme.visible()
+                        } else {
+                            themeGroup.gone()
+                            dividerTheme.gone()
+                        }
+                    }
+                }
+        }
 
         updateToolbar(
             toolbarTitle = getString(com.blockchain.stringResources.R.string.toolbar_settings),
@@ -283,6 +314,19 @@ class SettingsFragment :
                 visible()
             }
             dividerGeneral.visible()
+
+            themeGroup.apply {
+                primaryText = getString(com.blockchain.stringResources.R.string.settings_theme_title)
+                secondaryText = getString(
+                    com.blockchain.stringResources.R.string.settings_theme_subtitle,
+                    newState.theme?.let { theme ->
+                        getString(theme.textResource())
+                    } ?: "--"
+                )
+                onClick = {
+                    showThemeBottomSheet()
+                }
+            }
         }
 
         if (newState.error != SettingsError.None) {
@@ -558,6 +602,12 @@ class SettingsFragment :
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
+    }
+
+    private fun showThemeBottomSheet() {
+        showBottomSheet(
+            ThemeBottomSheet.newInstance()
+        )
     }
 
     private fun showPaymentMethodsBottomSheet(

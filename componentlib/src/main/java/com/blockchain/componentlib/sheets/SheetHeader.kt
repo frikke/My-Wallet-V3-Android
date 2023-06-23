@@ -40,11 +40,12 @@ fun SheetHeader(
     onClosePress: () -> Unit,
     closeButtonTint: Color = AppTheme.colors.semidark,
     closeButtonBackground: Color = AppTheme.colors.light,
-    shouldShowDivider: Boolean = true
+    shouldShowDivider: Boolean = true,
+    background: Color = AppColors.background
 ) {
 
     Surface(
-        color = AppColors.background,
+        color = background,
         shape = AppTheme.shapes.large.topOnly()
     ) {
         Box {
