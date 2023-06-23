@@ -16,9 +16,11 @@ data class CoinviewQuickActions(
 }
 
 sealed interface CoinviewQuickAction {
-    object Buy : CoinviewQuickAction
-    object Sell : CoinviewQuickAction
-    object Send : CoinviewQuickAction
-    object Receive : CoinviewQuickAction
-    object Swap : CoinviewQuickAction
+    val enabled: Boolean
+
+    data class Buy(override val enabled: Boolean = true) : CoinviewQuickAction
+    data class Sell(override val enabled: Boolean = true) : CoinviewQuickAction
+    data class Send(override val enabled: Boolean = true) : CoinviewQuickAction
+    data class Receive(override val enabled: Boolean = true) : CoinviewQuickAction
+    data class Swap(override val enabled: Boolean = true) : CoinviewQuickAction
 }

@@ -17,10 +17,11 @@ import com.blockchain.componentlib.utils.value
 import com.blockchain.home.presentation.recurringbuy.RecurringBuysAnalyticsEvents
 import com.blockchain.home.presentation.recurringbuy.list.RecurringBuyViewState
 import com.blockchain.home.presentation.recurringbuy.list.composable.RecurringBuyTableRow
+import kotlinx.collections.immutable.ImmutableList
 
 internal fun LazyListScope.homeRecurringBuys(
     analytics: Analytics,
-    recurringBuys: List<RecurringBuyViewState>,
+    recurringBuys: ImmutableList<RecurringBuyViewState>,
     manageOnclick: () -> Unit,
     upsellOnClick: () -> Unit,
     recurringBuyOnClick: (String) -> Unit

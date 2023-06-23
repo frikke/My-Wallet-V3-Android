@@ -26,6 +26,7 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
 import kotlin.math.absoluteValue
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
@@ -36,7 +37,8 @@ class PricesViewModel(
     private val walletModeService: WalletModeService,
     private val currencyPrefs: CurrencyPrefs,
     private val userFeaturePermissionService: UserFeaturePermissionService,
-    private val pricesService: PricesService
+    private val pricesService: PricesService,
+    private val dispatcher: CoroutineDispatcher
 ) : MviViewModel<
     PricesIntents,
     PricesViewState,
@@ -165,7 +167,6 @@ class PricesViewModel(
                     )
                 }
 
-                loadWalletMode()
                 loadFilters()
                 loadData(intent.strategy)
                 loadTopMoversCount()
@@ -206,7 +207,7 @@ class PricesViewModel(
 
     private fun loadData(strategy: PricesLoadStrategy) {
         pricesJob?.cancel()
-        pricesJob = viewModelScope.launch {
+        pricesJob = viewModelScope.launch(dispatcher) {
             val assetsFlow = when (strategy) {
                 is PricesLoadStrategy.All -> pricesService.allAssets()
                 is PricesLoadStrategy.TradableOnly -> pricesService.tradableAssets()
@@ -225,7 +226,7 @@ class PricesViewModel(
 
     private fun loadFilters() {
         filtersJob?.cancel()
-        filtersJob = viewModelScope.launch {
+        filtersJob = viewModelScope.launch(dispatcher) {
             userFeaturePermissionService.isEligibleFor(Feature.CustodialAccounts)
                 .onErrorReturn { true }.doOnData { canTrade ->
                     updateState {
@@ -243,7 +244,7 @@ class PricesViewModel(
 
     private fun loadTopMoversCount() {
         topMoversCountJob?.cancel()
-        topMoversCountJob = viewModelScope.launch {
+        topMoversCountJob = viewModelScope.launch(dispatcher) {
             pricesService.topMoversCount().catch {
                 emit(0)
             }
@@ -259,7 +260,7 @@ class PricesViewModel(
 
     private fun loadMostPopularTickers() {
         mostPopularJob?.cancel()
-        mostPopularJob = viewModelScope.launch {
+        mostPopularJob = viewModelScope.launch(dispatcher) {
             pricesService.mostPopularTickers()
                 .collectLatest { mostPopularTickers ->
                     updateState {
@@ -273,7 +274,7 @@ class PricesViewModel(
 
     private fun loadRisingFastPercentThreshold() {
         risingFastJob?.cancel()
-        risingFastJob = viewModelScope.launch {
+        risingFastJob = viewModelScope.launch(dispatcher) {
             pricesService.risingFastPercentThreshold()
                 .collectLatest { risingFastPercent ->
                     updateState {

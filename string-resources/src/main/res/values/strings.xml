@@ -3697,4 +3697,11 @@ If you want to know more about our verification process visit our <annotation li
     <string name="handhold_email">Verify your email</string>
     <string name="handhold_kyc">Verify your identity</string>
     <string name="handhold_buy">Buy crypto</string>
+    <string name="dashboard_kyc_rejected_with_balance_title">Your account is now a DeFi Wallet only account.</string>
+    <string name="dashboard_kyc_rejected_with_balance_description">Any funds you had in the account section are safe. To send them to the DeFi Wallet, please contact our Support Center.</string>
+    <string name="dashboard_kyc_rejected_with_balance_support">Contact Support Center</string>
+    <string name="dashboard_kyc_blocked_title">We couldn’t verify your identity</string>
+    <string name="dashboard_kyc_blocked_description">It seems we\'re unable to verify your identity. \n\nHowever, you can still use our DeFi Wallet.</string>
+    <string name="go_to_defi">Go to DeFi Wallet</string>
+
 </resources>

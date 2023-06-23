@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModelStoreOwner
+import com.blockchain.chrome.navigation.AssetActionsNavigation
 import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.SheetHeader
@@ -22,14 +23,15 @@ import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.home.presentation.R
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
 import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun MoreActions(
+    vmKey: String,
     viewModel: QuickActionsViewModel = getViewModel(
         viewModelStoreOwner = LocalContext.current as ViewModelStoreOwner,
+        key = vmKey,
         scope = payloadScope
     ),
     assetActionsNavigation: AssetActionsNavigation,

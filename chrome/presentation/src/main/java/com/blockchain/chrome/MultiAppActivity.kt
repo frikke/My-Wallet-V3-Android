@@ -11,7 +11,13 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.chrome.navigation.AssetActionsNavigation
+import com.blockchain.chrome.navigation.DefiBackupNavigation
 import com.blockchain.chrome.navigation.MultiAppNavHost
+import com.blockchain.chrome.navigation.RecurringBuyNavigation
+import com.blockchain.chrome.navigation.SettingsDestination
+import com.blockchain.chrome.navigation.SettingsNavigation
+import com.blockchain.chrome.navigation.SupportNavigation
 import com.blockchain.chrome.navigation.TransactionFlowNavigation
 import com.blockchain.chrome.navigation.WalletLinkAndOpenBankingNavigation
 import com.blockchain.coincore.AssetAction
@@ -48,24 +54,17 @@ import com.blockchain.home.presentation.fiat.actions.FiatActionRequest
 import com.blockchain.home.presentation.fiat.actions.FiatActionsNavEvent
 import com.blockchain.home.presentation.fiat.actions.FiatActionsNavigator
 import com.blockchain.home.presentation.navigation.AccountWalletLinkAlertSheetHost
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.AuthNavigation
 import com.blockchain.home.presentation.navigation.AuthNavigationHost
 import com.blockchain.home.presentation.navigation.HomeLaunch
 import com.blockchain.home.presentation.navigation.HomeLaunch.PENDING_DESTINATION
 import com.blockchain.home.presentation.navigation.QrScanNavigation
-import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
-import com.blockchain.home.presentation.navigation.SettingsDestination
-import com.blockchain.home.presentation.navigation.SettingsNavigation
-import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.home.presentation.navigation.WCSessionIntent
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
 import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
-import com.blockchain.presentation.navigation.DefiBackupNavigation
 import com.blockchain.presentation.sheets.NoBalanceActionBottomSheet
-import com.blockchain.prices.navigation.PricesNavigation
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.domain.WalletConnectV2Service
 import com.blockchain.walletconnect.ui.networks.NetworkInfo
@@ -128,12 +127,6 @@ class MultiAppActivity :
         get() = false
 
     private val defiBackupNavigation: DefiBackupNavigation = payloadScope.get {
-        parametersOf(
-            this
-        )
-    }
-
-    private val pricesNavigation: PricesNavigation = payloadScope.get {
         parametersOf(
             this
         )
@@ -223,11 +216,11 @@ class MultiAppActivity :
                 recurringBuyNavigation = recurringBuyNavigation,
                 showAppRating = ::showAppRating,
                 settingsNavigation = settingsNavigation,
-                pricesNavigation = pricesNavigation,
                 qrScanNavigation = qrScanNavigation,
                 supportNavigation = supportNavigation,
                 nftNavigation = nftNavigation,
                 earnNavigation = earnNavigation,
+                defiBackupNavigation = defiBackupNavigation,
                 openExternalUrl = ::openExternalUrl,
                 processAnnouncementUrl = ::processAnnouncementUrl
             )

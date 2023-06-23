@@ -10,6 +10,7 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.utils.LogoValue
 import com.blockchain.core.asset.domain.AssetService
+import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.recurringbuy.domain.RecurringBuyService
@@ -104,6 +105,7 @@ class CoinviewViewModelTest {
     private val recurringBuyService: RecurringBuyService = mockk()
 
     private val newsService: NewsService = mockk()
+    private val kycService: KycService = mockk()
 
     private val tradingWalletLabel = "TradingWalletLabel"
 
@@ -126,7 +128,8 @@ class CoinviewViewModelTest {
             assetService = assetService,
             custodialWalletManager = custodialWalletManager,
             recurringBuyService = recurringBuyService,
-            newsService = newsService
+            newsService = newsService,
+            kycService = kycService
         )
 
         every { cryptoAsset.currency } returns currency

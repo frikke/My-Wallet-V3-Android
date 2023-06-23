@@ -75,14 +75,8 @@ import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.extensions.safeLet
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.home.presentation.navigation.QrScanNavigation
-import com.blockchain.home.presentation.navigation.RecurringBuyNavigation
-import com.blockchain.home.presentation.navigation.SettingsNavigation
-import com.blockchain.home.presentation.navigation.SupportNavigation
 import com.blockchain.nfts.navigation.NftNavigation
-import com.blockchain.prices.navigation.PricesNavigation
-import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.Money
 import kotlin.math.min
@@ -120,30 +114,14 @@ fun MultiAppChrome(
     showDefiOnboarding: () -> Unit,
     startPhraseRecovery: () -> Unit,
     showAppRating: () -> Unit,
-    openCryptoAssets: () -> Unit,
-    openRecurringBuys: () -> Unit,
-    openRecurringBuyDetail: (String) -> Unit,
-    assetActionsNavigation: AssetActionsNavigation,
-    recurringBuyNavigation: RecurringBuyNavigation,
-    settingsNavigation: SettingsNavigation,
-    pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
-    supportNavigation: SupportNavigation,
-    openActivity: () -> Unit,
-    openActivityDetail: (String, WalletMode) -> Unit,
-    openReferral: () -> Unit,
-    openSwapDexOption: () -> Unit,
     graphNavController: NavController,
-    openFiatActionDetail: (String) -> Unit,
-    openMoreQuickActions: () -> Unit,
     openExternalUrl: (url: String) -> Unit,
     openNftHelp: () -> Unit,
     processAnnouncementUrl: (String) -> Unit,
     openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
-    onWalletConnectSessionClicked: (DappSessionUiElement) -> Unit,
-    onWalletConnectSeeAllSessionsClicked: () -> Unit
 ) {
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(MultiAppIntents.LoadData)
@@ -192,22 +170,8 @@ fun MultiAppChrome(
                 viewModel.onIntent(MultiAppIntents.WalletModeSelected(walletMode))
             },
             onModeLongClicked = onModeLongClicked,
-            openCryptoAssets = openCryptoAssets,
-            openRecurringBuys = openRecurringBuys,
-            openRecurringBuyDetail = openRecurringBuyDetail,
-            openActivity = openActivity,
-            openActivityDetail = openActivityDetail,
-            openReferral = openReferral,
-            openSwapDexOption = openSwapDexOption,
-            openFiatActionDetail = openFiatActionDetail,
             graphNavController = graphNavController,
-            openMoreQuickActions = openMoreQuickActions,
-            assetActionsNavigation = assetActionsNavigation,
-            recurringBuyNavigation = recurringBuyNavigation,
-            settingsNavigation = settingsNavigation,
-            pricesNavigation = pricesNavigation,
             qrScanNavigation = qrScanNavigation,
-            supportNavigation = supportNavigation,
             onBalanceRevealed = {
                 viewModel.onIntent(MultiAppIntents.BalanceRevealed)
             },
@@ -220,8 +184,6 @@ fun MultiAppChrome(
             nftNavigation = nftNavigation,
             earnNavigation = earnNavigation,
             processAnnouncementUrl = processAnnouncementUrl,
-            onWalletConnectSessionClicked = onWalletConnectSessionClicked,
-            onWalletConnectSeeAllSessionsClicked = onWalletConnectSeeAllSessionsClicked
         )
     }
 }
@@ -241,21 +203,7 @@ fun MultiAppChromeScreen(
     onBottomNavigationItemSelected: (ChromeBottomNavigationItem) -> Unit,
     onModeSelected: (WalletMode) -> Unit,
     onModeLongClicked: (WalletMode) -> Unit,
-    openCryptoAssets: () -> Unit,
-    openRecurringBuys: () -> Unit,
-    openRecurringBuyDetail: (String) -> Unit,
-    assetActionsNavigation: AssetActionsNavigation,
-    recurringBuyNavigation: RecurringBuyNavigation,
-    settingsNavigation: SettingsNavigation,
-    pricesNavigation: PricesNavigation,
     qrScanNavigation: QrScanNavigation,
-    supportNavigation: SupportNavigation,
-    openActivity: () -> Unit,
-    openActivityDetail: (String, WalletMode) -> Unit,
-    openReferral: () -> Unit,
-    openSwapDexOption: () -> Unit,
-    openMoreQuickActions: () -> Unit,
-    openFiatActionDetail: (String) -> Unit,
     onBalanceRevealed: () -> Unit,
     graphNavController: NavController,
     startPhraseRecovery: () -> Unit,
@@ -265,8 +213,6 @@ fun MultiAppChromeScreen(
     nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
     processAnnouncementUrl: (String) -> Unit,
-    onWalletConnectSessionClicked: (DappSessionUiElement) -> Unit,
-    onWalletConnectSeeAllSessionsClicked: () -> Unit
 ) {
     val toolbarState = rememberToolbarState(modeSwitcherOptions)
     val navController = rememberNavController()
@@ -583,6 +529,7 @@ fun MultiAppChromeScreen(
             durationMillis = ANIMATION_DURATION
         )
     )
+
     fun pillAlphaInterpolator(value: Float): Float {
         val x1 = 0f
         val x2 = -300f
@@ -779,22 +726,8 @@ fun MultiAppChromeScreen(
                     refreshComplete = {
                         stopRefresh()
                     },
-                    openCryptoAssets = openCryptoAssets,
-                    openRecurringBuys = openRecurringBuys,
-                    openRecurringBuyDetail = openRecurringBuyDetail,
-                    openActivity = openActivity,
-                    openActivityDetail = openActivityDetail,
-                    openReferral = openReferral,
-                    openSwapDexOption = openSwapDexOption,
-                    openMoreQuickActions = openMoreQuickActions,
-                    openFiatActionDetail = openFiatActionDetail,
-                    assetActionsNavigation = assetActionsNavigation,
-                    recurringBuyNavigation = recurringBuyNavigation,
-                    settingsNavigation = settingsNavigation,
-                    pricesNavigation = pricesNavigation,
                     navController = graphNavController,
                     qrScanNavigation = qrScanNavigation,
-                    supportNavigation = supportNavigation,
                     startPhraseRecovery = startPhraseRecovery,
                     openExternalUrl = openExternalUrl,
                     openNftHelp = openNftHelp,
@@ -802,8 +735,11 @@ fun MultiAppChromeScreen(
                     nftNavigation = nftNavigation,
                     earnNavigation = earnNavigation,
                     processAnnouncementUrl = processAnnouncementUrl,
-                    onWalletConnectSessionClicked = onWalletConnectSessionClicked,
-                    onWalletConnectSeeAllSessionsClicked = onWalletConnectSeeAllSessionsClicked
+                    navigateToMode = {
+                        stopRefresh()
+                        bottomNavigationVisible = false
+                        onModeSelected(it)
+                    }
                 )
             }
 

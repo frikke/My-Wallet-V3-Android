@@ -19,13 +19,14 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 
 data class CoinviewViewState(
     val asset: DataResource<CoinviewAssetState>,
+    val showKycRejected: Boolean,
     val assetPrice: DataResource<CoinviewPriceState>,
     val tradeable: CoinviewAssetTradeableState,
     val watchlist: DataResource<Boolean>,
     val accounts: DataResource<CoinviewAccountsState?>,
-    val centerQuickAction: DataResource<List<CoinviewQuickActionState>>,
+    val centerQuickAction: DataResource<List<CoinviewQuickAction>>,
     val recurringBuys: DataResource<CoinviewRecurringBuysState>,
-    val bottomQuickAction: DataResource<List<CoinviewQuickActionState>>,
+    val bottomQuickAction: DataResource<List<CoinviewQuickAction>>,
     val assetInfo: CoinviewAssetInfoState,
     val news: CoinviewNewsState,
     val pillAlert: CoinviewPillAlertState,
@@ -127,54 +128,22 @@ sealed interface CoinviewRecurringBuysState {
 }
 
 // Quick actions
-sealed interface CoinviewQuickActionState {
-    val name: TextValue
-    val logo: LocalLogo
-
-    object Buy : CoinviewQuickActionState {
-        override val name = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_buy)
-        override val logo = LocalLogo.Buy
-    }
-
-    object Sell : CoinviewQuickActionState {
-        override val name = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_sell)
-        override val logo = LocalLogo.Sell
-    }
-
-    object Send : CoinviewQuickActionState {
-        override val name = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_send)
-        override val logo = LocalLogo.Send
-    }
-
-    object Receive : CoinviewQuickActionState {
-        override val name = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_receive)
-        override val logo = LocalLogo.Receive
-    }
-
-    object Swap : CoinviewQuickActionState {
-        override val name = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_swap)
-        override val logo = LocalLogo.Swap
-    }
+fun CoinviewQuickAction.name() = when (this) {
+    is CoinviewQuickAction.Buy -> com.blockchain.stringResources.R.string.common_buy
+    is CoinviewQuickAction.Sell -> com.blockchain.stringResources.R.string.common_sell
+    is CoinviewQuickAction.Send -> com.blockchain.stringResources.R.string.common_send
+    is CoinviewQuickAction.Receive -> com.blockchain.stringResources.R.string.common_receive
+    is CoinviewQuickAction.Swap -> com.blockchain.stringResources.R.string.common_swap
+}.run {
+    TextValue.IntResValue(this)
 }
 
-fun CoinviewQuickAction.toViewState(): CoinviewQuickActionState = run {
-    when (this) {
-        is CoinviewQuickAction.Buy -> CoinviewQuickActionState.Buy
-        is CoinviewQuickAction.Sell -> CoinviewQuickActionState.Sell
-        is CoinviewQuickAction.Send -> CoinviewQuickActionState.Send
-        is CoinviewQuickAction.Receive -> CoinviewQuickActionState.Receive
-        is CoinviewQuickAction.Swap -> CoinviewQuickActionState.Swap
-    }
-}
-
-fun CoinviewQuickActionState.toModelState(): CoinviewQuickAction = run {
-    when (this) {
-        is CoinviewQuickActionState.Buy -> CoinviewQuickAction.Buy
-        is CoinviewQuickActionState.Sell -> CoinviewQuickAction.Sell
-        is CoinviewQuickActionState.Send -> CoinviewQuickAction.Send
-        is CoinviewQuickActionState.Receive -> CoinviewQuickAction.Receive
-        is CoinviewQuickActionState.Swap -> CoinviewQuickAction.Swap
-    }
+fun CoinviewQuickAction.logo() = when (this) {
+    is CoinviewQuickAction.Buy -> LocalLogo.Buy
+    is CoinviewQuickAction.Sell -> LocalLogo.Sell
+    is CoinviewQuickAction.Send -> LocalLogo.Send
+    is CoinviewQuickAction.Receive -> LocalLogo.Receive
+    is CoinviewQuickAction.Swap -> LocalLogo.Swap
 }
 
 // Info

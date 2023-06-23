@@ -9,17 +9,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.MinimalSecondaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.toImageResource
 import com.blockchain.componentlib.utils.value
 import com.blockchain.data.DataResource
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
+import piuk.blockchain.android.ui.coinview.presentation.logo
+import piuk.blockchain.android.ui.coinview.presentation.name
 
 @Composable
 fun CenterQuickActions(
-    data: DataResource<List<CoinviewQuickActionState>>,
-    onQuickActionClick: (CoinviewQuickActionState) -> Unit
+    data: DataResource<List<CoinviewQuickAction>>,
+    onQuickActionClick: (CoinviewQuickAction) -> Unit
 ) {
     when (data) {
         DataResource.Loading -> Empty()
@@ -35,8 +38,8 @@ fun CenterQuickActions(
 
 @Composable
 fun CenterQuickActionsData(
-    data: DataResource.Data<List<CoinviewQuickActionState>>,
-    onQuickActionClick: (CoinviewQuickActionState) -> Unit
+    data: DataResource.Data<List<CoinviewQuickAction>>,
+    onQuickActionClick: (CoinviewQuickAction) -> Unit
 ) {
     if (data.data.isEmpty()) {
         Empty()
@@ -49,8 +52,9 @@ fun CenterQuickActionsData(
                     modifier = Modifier
                         .then(if (index < 2) Modifier.weight(1F) else Modifier)
                         .then(if (index < 2) Modifier else Modifier.requiredWidthIn(min = 48.dp)),
-                    text = action.name.value().takeIf { index < 2 } ?: "",
-                    icon = action.logo.toImageResource(),
+                    text = action.name().value().takeIf { index < 2 } ?: "",
+                    icon = action.logo().toImageResource(),
+                    state = if (action.enabled) ButtonState.Enabled else ButtonState.Disabled,
                     onClick = { onQuickActionClick(action) }
                 )
 
@@ -67,7 +71,7 @@ fun CenterQuickActionsData(
 fun PreviewCenterQuickActions_Data_3() {
     CenterQuickActions(
         data = DataResource.Data(
-            listOf(CoinviewQuickActionState.Send, CoinviewQuickActionState.Swap, CoinviewQuickActionState.Receive)
+            listOf(CoinviewQuickAction.Send(), CoinviewQuickAction.Swap(false), CoinviewQuickAction.Receive())
         ),
         onQuickActionClick = {}
     )
@@ -78,7 +82,7 @@ fun PreviewCenterQuickActions_Data_3() {
 fun PreviewCenterQuickActions_Data_1() {
     CenterQuickActions(
         data = DataResource.Data(
-            listOf(CoinviewQuickActionState.Send)
+            listOf(CoinviewQuickAction.Send())
         ),
         onQuickActionClick = {}
     )

@@ -1,6 +1,7 @@
-package com.blockchain.home.presentation.navigation
+package com.blockchain.chrome.navigation
 
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.staticCompositionLocalOf
 import com.blockchain.navigation.ActivityResultNavigation
 
 @Stable
@@ -19,4 +20,8 @@ enum class SettingsDestination {
     About,
     CardLinking,
     BankLinking
+}
+
+val LocalSettingsNavigationProvider = staticCompositionLocalOf<SettingsNavigation> {
+    error("not provided")
 }

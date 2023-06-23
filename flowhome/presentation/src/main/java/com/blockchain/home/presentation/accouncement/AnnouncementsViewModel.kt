@@ -20,7 +20,6 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.home.announcements.Announcement
 import com.blockchain.home.announcements.AnnouncementsService
 import com.blockchain.home.announcements.ConsumeAnnouncementAction
-import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.presentation.pulltorefresh.PullToRefresh
 import com.blockchain.walletmode.WalletMode
@@ -51,21 +50,6 @@ class AnnouncementsViewModel(
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    init {
-        viewModelScope.launch {
-            walletModeService.walletMode.collectLatest { walletMode ->
-                updateState {
-                    copy(walletMode = walletMode)
-                }
-
-                updateRemoteAnnouncementsConfirmation(
-                    announcements = modelState.remoteAnnouncements,
-                    withDelay = false
-                )
-            }
-        }
-    }
-
     override fun AnnouncementModelState.reduce() = AnnouncementsViewState(
         remoteAnnouncements = remoteAnnouncements.forMode(walletMode),
         hideAnnouncementsConfirmation = hideAnnouncementsConfirmation,
@@ -75,7 +59,15 @@ class AnnouncementsViewModel(
 
     override suspend fun handleIntent(modelState: AnnouncementModelState, intent: AnnouncementsIntent) {
         when (intent) {
-            AnnouncementsIntent.LoadAnnouncements -> {
+            is AnnouncementsIntent.LoadAnnouncements -> {
+                updateState {
+                    copy(walletMode = intent.walletMode)
+                }
+                updateRemoteAnnouncementsConfirmation(
+                    announcements = modelState.remoteAnnouncements,
+                    withDelay = false
+                )
+
                 loadRemoteAnnouncements(forceRefresh = false)
                 loadLocalAnnouncements()
             }

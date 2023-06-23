@@ -44,13 +44,15 @@ import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -67,7 +69,8 @@ class AssetsViewModel(
     private val exchangeRates: ExchangeRatesDataManager,
     private val walletModeService: WalletModeService,
     private val filterService: FiltersService,
-    private val coincore: Coincore
+    private val coincore: Coincore,
+    private val dispatcher: CoroutineDispatcher,
 ) : MviViewModel<AssetsIntent, AssetsViewState, AssetsModelState, HomeNavEvent, ModelConfigArgs.NoArgs>(
     AssetsModelState(walletMode = WalletMode.CUSTODIAL, userFiat = currencyPrefs.selectedFiatCurrency)
 ) {
@@ -181,7 +184,7 @@ class AssetsViewModel(
                         userFiat = currencyPrefs.selectedFiatCurrency
                     )
                 }
-                loadAccounts()
+                loadAccounts(intent.walletMode)
             }
 
             is AssetsIntent.LoadFundLocks -> {
@@ -234,7 +237,7 @@ class AssetsViewModel(
 
     private fun loadFundsLocks(forceRefresh: Boolean) {
         fundsLocksJob?.cancel()
-        fundsLocksJob = viewModelScope.launch {
+        fundsLocksJob = viewModelScope.launch(dispatcher) {
             coincore.getWithdrawalLocks(
                 localCurrency = currencyPrefs.selectedFiatCurrency,
                 freshnessStrategy = PullToRefresh.freshnessStrategy(
@@ -250,22 +253,18 @@ class AssetsViewModel(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private fun loadAccounts() {
+    private fun loadAccounts(walletMode: WalletMode) {
+        // take local cache first
+        updateState {
+            copy(
+                walletMode = walletMode,
+                accounts = accountsForMode(walletMode)
+            )
+        }
+
         accountsJob?.cancel()
-        accountsJob = viewModelScope.launch {
-            walletModeService.walletMode.onEach { walletMode ->
-                if (walletMode != modelState.walletMode) {
-                    updateState {
-                        copy(
-                            walletMode = walletMode,
-                            accounts = accountsForMode(walletMode)
-                        )
-                    }
-                }
-            }.flatMapLatest {
-                loadAccountsForWalletMode(it, false)
-            }.collect()
+        accountsJob = viewModelScope.launch(dispatcher) {
+            loadAccountsForWalletMode(walletMode, false).collect()
         }
     }
 
@@ -316,34 +315,41 @@ class AssetsViewModel(
                     }
                 }
 
-                val usdRate = accountsResource.data.map { account ->
+                val usdRates = accountsResource.data.map { account ->
                     exchangeRates.exchangeRate(
                         fromAsset = account.currency,
                         toAsset = FiatCurrency.Dollars
                     ).map { it to account }
-                }.merge().onEach { (usdExchangeRate, account) ->
+                }
+                val usdRatesFlow = combine(usdRates) {
+                    it.toList()
+                }.filter {
+                    it.none { it.first is DataResource.Loading }
+                }.onEach {
                     updateState {
                         copy(
-                            accounts = accounts.withUsdRate(
-                                account = account,
-                                usdRate = usdExchangeRate
-                            )
+                            accounts = accounts.withUsdRates(it)
                         )
                     }
                 }
 
                 val exchangeRates = accountsResource.data.map { account ->
                     exchangeRates.getPricesWith24hDelta(
-                        fromAsset = account.currency
+                        fromAsset = account.currency,
                     ).map { it to account }
-                }.merge().onEach { (price, account) ->
+                }
+                val exchangeRatesFlow = combine(exchangeRates) {
+                    it.toList()
+                }.filter {
+                    it.none { it.first is DataResource.Loading }
+                }.onEach {
                     updateState {
                         copy(
-                            accounts = accounts.withPricing(account, price)
+                            accounts = accounts.withPricings(it)
                         )
                     }
                 }
-                merge(usdRate, balances, exchangeRates)
+                merge(usdRatesFlow, balances, exchangeRatesFlow)
             }
     }
 
@@ -508,36 +514,42 @@ private fun DataResource<List<SingleAccountBalance>>.withBalancedAccounts(
     )
 }
 
-private fun DataResource<List<SingleAccountBalance>>.withUsdRate(
-    account: SingleAccount,
-    usdRate: DataResource<ExchangeRate>
+private fun DataResource<List<SingleAccountBalance>>.withUsdRates(
+    usdRates: List<Pair<DataResource<ExchangeRate>, SingleAccount>>
 ): DataResource<List<SingleAccountBalance>> {
     return this.map { accounts ->
-        val oldAccount = accounts.firstOrNull { it.singleAccount == account }
-        oldAccount?.let {
-            accounts.replace(
-                old = it,
-                new = it.copy(
-                    usdRate = oldAccount.usdRate.updateDataWith(usdRate)
+        var updatedAccounts = accounts.toList()
+        usdRates.forEach { (usdRate, account) ->
+            val oldAccount = updatedAccounts.firstOrNull { it.singleAccount == account }
+            oldAccount?.let {
+                updatedAccounts = updatedAccounts.replace(
+                    old = it,
+                    new = it.copy(
+                        usdRate = oldAccount.usdRate.updateDataWith(usdRate)
+                    )
                 )
-            )
-        } ?: accounts
+            }
+        }
+        updatedAccounts
     }
 }
 
-private fun DataResource<List<SingleAccountBalance>>.withPricing(
-    account: SingleAccount,
-    price: DataResource<Prices24HrWithDelta>
+private fun DataResource<List<SingleAccountBalance>>.withPricings(
+    prices: List<Pair<DataResource<Prices24HrWithDelta>, SingleAccount>>
 ): DataResource<List<SingleAccountBalance>> {
     return this.map { accounts ->
-        val oldAccount = accounts.firstOrNull { it.singleAccount == account }
-        oldAccount?.let {
-            accounts.replace(
-                old = it,
-                new = it.copy(
-                    exchangeRate24hWithDelta = oldAccount.exchangeRate24hWithDelta.updateDataWith(price)
+        var updatedAccounts = accounts.toList()
+        prices.forEach { (price, account) ->
+            val oldAccount = updatedAccounts.firstOrNull { it.singleAccount == account }
+            oldAccount?.let {
+                updatedAccounts = updatedAccounts.replace(
+                    old = it,
+                    new = it.copy(
+                        exchangeRate24hWithDelta = oldAccount.exchangeRate24hWithDelta.updateDataWith(price)
+                    )
                 )
-            )
-        } ?: accounts
+            }
+        }
+        updatedAccounts
     }
 }

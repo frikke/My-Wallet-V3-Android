@@ -3,6 +3,7 @@ package com.blockchain.transactions
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import com.blockchain.chrome.navigation.AssetActionsNavigation
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
@@ -10,7 +11,6 @@ import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.setContent
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.extensions.getAccount
 import com.blockchain.presentation.extensions.getTarget

@@ -18,16 +18,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.chrome.composable.ANIMATION_DURATION
+import com.blockchain.componentlib.alert.AlertType
+import com.blockchain.componentlib.alert.CardAlert
 import com.blockchain.componentlib.alert.PillAlert
 import com.blockchain.componentlib.alert.PillAlertType
 import com.blockchain.componentlib.alert.SnackbarAlert
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.card.CardButton
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Star
 import com.blockchain.componentlib.navigation.NavigationBar
@@ -36,13 +40,17 @@ import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
+import com.blockchain.presentation.urllinks.URL_KYC_REJETED_SUPPORT
+import com.blockchain.stringResources.R
 import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.CryptoCurrency
 import org.koin.androidx.compose.get
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewAnalytics
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
@@ -52,12 +60,10 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntent
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewNewsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPillAlertState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewSnackbarAlertState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewModel
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewState
-import piuk.blockchain.android.ui.coinview.presentation.toModelState
 
 @Composable
 fun Coinview(
@@ -69,6 +75,7 @@ fun Coinview(
     CoinviewScreen(
         backOnClick = backOnClick,
         asset = viewState.asset,
+        showKycRejected = viewState.showKycRejected,
         onContactSupportClick = {
             viewModel.onIntent(CoinviewIntent.ContactSupport)
         },
@@ -108,7 +115,7 @@ fun Coinview(
         },
         quickActionsBottom = viewState.bottomQuickAction,
         onQuickActionClick = { quickAction ->
-            viewModel.onIntent(CoinviewIntent.QuickActionSelected(quickAction.toModelState()))
+            viewModel.onIntent(CoinviewIntent.QuickActionSelected(quickAction))
         },
         assetInfo = viewState.assetInfo,
         onWebsiteClick = {
@@ -129,6 +136,8 @@ fun CoinviewScreen(
     asset: DataResource<CoinviewAssetState>,
     onContactSupportClick: () -> Unit,
 
+    showKycRejected: Boolean,
+
     price: DataResource<CoinviewPriceState>,
     onChartEntryHighlighted: (Entry) -> Unit,
     resetPriceInformation: () -> Unit,
@@ -143,14 +152,14 @@ fun CoinviewScreen(
     onAccountClick: (CoinviewAccount) -> Unit,
     onLockedAccountClick: () -> Unit,
 
-    quickActionsCenter: DataResource<List<CoinviewQuickActionState>>,
+    quickActionsCenter: DataResource<List<CoinviewQuickAction>>,
 
     recurringBuys: DataResource<CoinviewRecurringBuysState>,
     onRecurringBuyUpsellClick: () -> Unit,
     onRecurringBuyItemClick: (String) -> Unit,
 
-    quickActionsBottom: DataResource<List<CoinviewQuickActionState>>,
-    onQuickActionClick: (CoinviewQuickActionState) -> Unit,
+    quickActionsBottom: DataResource<List<CoinviewQuickAction>>,
+    onQuickActionClick: (CoinviewQuickAction) -> Unit,
 
     assetInfo: CoinviewAssetInfoState,
     onWebsiteClick: () -> Unit,
@@ -161,6 +170,8 @@ fun CoinviewScreen(
 
     snackbarAlert: CoinviewSnackbarAlertState
 ) {
+    val context = LocalContext.current
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -252,6 +263,27 @@ fun CoinviewScreen(
                                 )
                             }
 
+                            if (showKycRejected) {
+                                Box(
+                                    modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
+                                ) {
+                                    CardAlert(
+                                        title = stringResource(R.string.dashboard_kyc_rejected_with_balance_title),
+                                        subtitle = stringResource(
+                                            R.string.dashboard_kyc_rejected_with_balance_description
+                                        ),
+                                        isDismissable = false,
+                                        alertType = AlertType.Warning,
+                                        primaryCta = CardButton(
+                                            text = stringResource(R.string.dashboard_kyc_rejected_with_balance_support),
+                                            onClick = {
+                                                context.openUrl(URL_KYC_REJETED_SUPPORT)
+                                            }
+                                        )
+                                    )
+                                }
+                            }
+
                             Box(
                                 modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
                             ) {
@@ -260,6 +292,7 @@ fun CoinviewScreen(
                                     data = accounts,
                                     l1Network = asset.data.l1Network,
                                     assetTicker = asset.data.asset.networkTicker,
+                                    enabled = !showKycRejected,
                                     onAccountClick = onAccountClick,
                                     onLockedAccountClick = onLockedAccountClick
                                 )
@@ -373,6 +406,8 @@ fun PreviewCoinviewScreen() {
         asset = DataResource.Data(CoinviewAssetState(CryptoCurrency.ETHER, null)),
         onContactSupportClick = {},
 
+        showKycRejected = false,
+
         price = DataResource.Loading,
         onChartEntryHighlighted = {},
         resetPriceInformation = {},
@@ -416,6 +451,8 @@ fun PreviewCoinviewScreen_Unknown() {
 
         asset = DataResource.Error(Exception()),
         onContactSupportClick = {},
+
+        showKycRejected = false,
 
         price = DataResource.Loading,
         onChartEntryHighlighted = {},

@@ -8,20 +8,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.basic.Image
@@ -43,9 +38,8 @@ import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.dashboard.composable.DashboardState
 import com.blockchain.home.presentation.dashboard.eventName
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import org.koin.androidx.compose.get
 
 val maxQuickActionsOnScreen: Int
@@ -64,58 +58,22 @@ val maxQuickActionsOnScreen: Int
 @Composable
 fun QuickActions(
     analytics: Analytics = get(),
-    quickActionItems: List<QuickActionItem>,
-    assetActionsNavigation: AssetActionsNavigation,
-    quickActionsViewModel: QuickActionsViewModel,
+    quickActionItems: ImmutableList<QuickActionItem>,
     dashboardState: DashboardState,
-    openDexSwapOptions: () -> Unit,
-    openMoreQuickActions: () -> Unit
+    quickActionClicked: (QuickActionItem) -> Unit
 ) {
-    val scope = rememberCoroutineScope()
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_CREATE) {
-                scope.launch {
-                    quickActionsViewModel.navigationEventFlow.collectLatest {
-                        when (it) {
-                            QuickActionsNavEvent.Send -> assetActionsNavigation.navigate(AssetAction.Send)
-                            QuickActionsNavEvent.Sell -> assetActionsNavigation.navigate(AssetAction.Sell)
-                            QuickActionsNavEvent.Receive -> assetActionsNavigation.navigate(AssetAction.Receive)
-                            QuickActionsNavEvent.Buy -> assetActionsNavigation.navigate(AssetAction.Buy)
-                            QuickActionsNavEvent.Swap -> assetActionsNavigation.navigate(AssetAction.Swap)
-                            QuickActionsNavEvent.DexOrSwapOption -> openDexSwapOptions()
-                            QuickActionsNavEvent.FiatDeposit -> quickActionsViewModel.onIntent(
-                                QuickActionsIntent.FiatAction(AssetAction.FiatDeposit)
-                            )
-
-                            QuickActionsNavEvent.FiatWithdraw -> quickActionsViewModel.onIntent(
-                                QuickActionsIntent.FiatAction(AssetAction.FiatWithdraw)
-                            )
-
-                            QuickActionsNavEvent.More -> openMoreQuickActions()
-                        }
-                    }
-                }
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
     QuickActionsScreen(
         analytics = analytics,
         quickActionItems = quickActionItems,
         dashboardState = dashboardState,
-        onActionClicked = { quickActionsViewModel.onIntent(QuickActionsIntent.ActionClicked(it)) }
+        onActionClicked = quickActionClicked
     )
 }
 
 @Composable
 private fun QuickActionsScreen(
     analytics: Analytics = get(),
-    quickActionItems: List<QuickActionItem>,
+    quickActionItems: ImmutableList<QuickActionItem>,
     dashboardState: DashboardState,
     onActionClicked: (QuickActionItem) -> Unit
 ) {
@@ -229,7 +187,7 @@ fun PreviewQuickActionsScreen() {
                 action = QuickAction.More,
                 enabled = true
             )
-        ),
+        ).toImmutableList(),
         dashboardState = DashboardState.NON_EMPTY,
         onActionClicked = {}
     )
