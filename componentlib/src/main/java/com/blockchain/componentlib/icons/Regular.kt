@@ -281,6 +281,8 @@ val Icons.User: ImageResource.Local
 val Icons.Users: ImageResource.Local
     get() = ImageResource.Local(R.drawable.users_off)
 val Icons.Verified: ImageResource.Local
+    get() = ImageResource.Local(R.drawable.verified_on)
+val Icons.VerifiedOff: ImageResource.Local
     get() = ImageResource.Local(R.drawable.verified_off)
 val Icons.Viewfinder: ImageResource.Local
     get() = ImageResource.Local(R.drawable.viewfinder_off)

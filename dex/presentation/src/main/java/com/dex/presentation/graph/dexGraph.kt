@@ -6,6 +6,7 @@ import androidx.navigation.NavGraphBuilder
 import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.chrome.composable.ChromeSingleScreen
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationDestination
+import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
 import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.commonarch.presentation.mvi_v2.compose.getComposeArgument
@@ -16,8 +17,8 @@ import com.dex.presentation.SelectDestinationAccountBottomSheet
 import com.dex.presentation.SelectSourceAccountBottomSheet
 import com.dex.presentation.SettingsBottomSheet
 import com.dex.presentation.TokenAllowanceBottomSheet
-import com.dex.presentation.confirmation.DexConfirmationInfoSheet
 import com.dex.presentation.confirmation.DexConfirmationScreen
+import com.dex.presentation.confirmation.DexInfoSheet
 import com.dex.presentation.enteramount.AllowanceTxUiData
 import com.dex.presentation.inprogress.DexInProgressTransactionScreen
 import com.dex.presentation.network.SelectNetwork
@@ -65,13 +66,13 @@ fun NavGraphBuilder.dexGraph(onBackPressed: () -> Unit, navController: NavContro
         }
     }
 
-    bottomSheet(navigationEvent = DexDestination.DexConfirmationExtraInfoSheet) {
+    bottomSheet(navigationEvent = DexDestination.DexExtraInfoSheet) {
         val title = it.arguments?.getComposeArgument(ARG_INFO_TITLE) ?: throw IllegalArgumentException(
             "You must provide title"
         )
         val description = String(Base64.getUrlDecoder().decode(it.arguments?.getComposeArgument(ARG_INFO_DESCRIPTION)))
         ChromeBottomSheet(onClose = onBackPressed) {
-            DexConfirmationInfoSheet(
+            DexInfoSheet(
                 closeClicked = onBackPressed,
                 title = title,
                 description = description
@@ -147,9 +148,25 @@ sealed class DexDestination(
     object Confirmation : DexDestination("Confirmation")
     object InProgress : DexDestination("InProgress")
     object TokenAllowanceSheet : DexDestination(route = "TokenAllowanceSheet/${ARG_ALLOWANCE_TX.wrappedArg()}}")
-    object DexConfirmationExtraInfoSheet : DexDestination(
+    object DexExtraInfoSheet : DexDestination(
         route = "DexConfirmationExtraInfoSheet/${ARG_INFO_TITLE.wrappedArg()}/${ARG_INFO_DESCRIPTION.wrappedArg()}}"
-    )
+    ) {
+        fun routeWithTitleAndDescription(title: String, description: String) =
+            routeWithArgs(
+                listOf(
+                    NavArgument(
+                        key = ARG_INFO_TITLE,
+                        value = title
+                    ),
+                    NavArgument(
+                        key = ARG_INFO_DESCRIPTION,
+                        value = Base64.getUrlEncoder().encodeToString(
+                            description.toByteArray()
+                        )
+                    )
+                )
+            )
+    }
 }
 
 const val ARG_ALLOWANCE_TX = "ARG_ALLOWANCE_TX"

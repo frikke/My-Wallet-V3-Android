@@ -14,6 +14,7 @@ sealed class HomeDestination(
 ) : ComposeNavigationDestination {
     object Introduction : HomeDestination("Introduction/${ARG_WALLET_MODE.wrappedArg()}")
     object DefiOnboarding : HomeDestination("DefiOnboarding/${ARG_IS_FROM_MODE_SWITCH.wrappedArg()}")
+    object EmailVerification : HomeDestination("EmailVerification")
     object CryptoAssets : HomeDestination("AllAssets")
     object RecurringBuys : HomeDestination("RecurringBuys")
     object RecurringBuyDetail : HomeDestination("RecurringBuyDetail/${ARG_RECURRING_BUY_ID.wrappedArg()}")

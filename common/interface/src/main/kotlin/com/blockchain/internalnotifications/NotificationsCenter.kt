@@ -14,6 +14,7 @@ interface NotificationTransmitter {
 enum class NotificationEvent {
     Login,
     Logout,
+    UserUpdated,
     MetadataUpdated,
     NonCustodialTransaction,
     PayloadUpdated,

@@ -22,6 +22,7 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
+import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import org.koin.androidx.compose.get
 
@@ -103,6 +104,7 @@ fun NonCustodialEmptyStateCard(
 @Composable
 fun NonCustodialEmptyStateCardPreview() {
     NonCustodialEmptyStateCard(
+        analytics = previewAnalytics,
         onReceiveClicked = {}
     )
 }

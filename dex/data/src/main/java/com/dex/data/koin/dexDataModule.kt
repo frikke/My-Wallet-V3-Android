@@ -17,6 +17,7 @@ import com.dex.domain.DexNetworkService
 import com.dex.domain.DexQuotesService
 import com.dex.domain.DexTransactionService
 import com.dex.domain.SlippageService
+import kotlinx.coroutines.Dispatchers
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -26,6 +27,7 @@ val dexDataModule = module {
             DexAccountsRepository(
                 coincore = get(),
                 dexPrefs = get(),
+                coroutineDispatcher = Dispatchers.IO,
                 assetCatalogue = get(),
                 currencyPrefs = get()
             )

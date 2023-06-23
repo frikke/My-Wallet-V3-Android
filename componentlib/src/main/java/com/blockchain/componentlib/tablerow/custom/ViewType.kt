@@ -55,7 +55,7 @@ sealed interface StackedIcon {
     ) : StackedIcon
 
     data class SingleIcon(
-        val icon: ImageResource
+        val icon: ImageResource // add notification indicator
     ) : StackedIcon
 
     object None : StackedIcon

@@ -49,6 +49,7 @@ dependencies {
     implementation project(':flowprices:presentation')
     implementation project(':news:domain')
     implementation project(':news:presentation')
+    implementation project(':kyc:presentation')
 
     implementation Libraries.composelifecycle
     // android

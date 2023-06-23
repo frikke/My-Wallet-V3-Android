@@ -22,6 +22,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Plus
+import com.blockchain.componentlib.loader.LoadingIndicator
 import com.blockchain.componentlib.theme.AppTheme
 
 @Stable

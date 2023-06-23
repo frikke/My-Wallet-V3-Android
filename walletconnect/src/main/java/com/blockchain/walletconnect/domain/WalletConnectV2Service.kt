@@ -6,20 +6,25 @@ import com.walletconnect.web3.wallet.client.Wallet
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 
+typealias DappRedirectUri = String
+
 interface WalletConnectV2Service {
 
     val walletEvents: SharedFlow<Wallet.Model>
     val userEvents: SharedFlow<WalletConnectUserEvent>
+    val dappRedirectEvents: SharedFlow<DappRedirectUri>
 
     fun initWalletConnect(application: Application, projectId: String, relayUrl: String)
+    fun resumeConnection()
 
     suspend fun pair(pairingUrl: String)
 
     fun buildApprovedSessionNamespaces(
         sessionProposal: Wallet.Model.SessionProposal
     ): Flow<Map<String, Wallet.Model.Namespace.Session>>
-    fun approveLastSession()
-    fun getSessionProposalState(): Flow<WalletConnectSessionProposalState?>
+
+    fun approveSession(sessionId: String)
+    fun getSessionProposalState(sessionId: String): Flow<WalletConnectSessionProposalState?>
     suspend fun getSessions(): List<WalletConnectSession>
     fun getSessionsFlow(): Flow<List<WalletConnectSession>>
 
@@ -41,7 +46,10 @@ interface WalletConnectV2Service {
         sessionRequest: Wallet.Model.SessionRequest,
         hashedTxResult: TxResult.HashedTxResult
     )
+
     suspend fun sessionRequestFailed(sessionRequest: Wallet.Model.SessionRequest)
+
+    fun redirectToDapp(redirectUri: DappRedirectUri)
 
     suspend fun ethSign(sessionRequest: Wallet.Model.SessionRequest)
     suspend fun ethSend(sessionRequest: Wallet.Model.SessionRequest, method: String)

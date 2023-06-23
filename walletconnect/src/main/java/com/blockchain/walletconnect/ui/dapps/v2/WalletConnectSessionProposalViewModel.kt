@@ -68,24 +68,25 @@ class WalletConnectSessionProposalViewModel(
                 }
 
                 loadSessionProposalJob = viewModelScope.launch {
-                    walletConnectV2Service.getSessionProposalState().collectLatest { sessionProposalState ->
-                        when (sessionProposalState) {
-                            WalletConnectSessionProposalState.APPROVED,
-                            WalletConnectSessionProposalState.REJECTED -> {
-                                updateState {
-                                    copy(sessionState = DataResource.Data(sessionProposalState))
+                    walletConnectV2Service.getSessionProposalState(sessionId = intent.sessionId)
+                        .collectLatest { sessionProposalState ->
+                            when (sessionProposalState) {
+                                WalletConnectSessionProposalState.APPROVED,
+                                WalletConnectSessionProposalState.REJECTED -> {
+                                    updateState {
+                                        copy(sessionState = DataResource.Data(sessionProposalState))
+                                    }
+                                    loadSessionProposalJob?.cancel()
                                 }
-                                loadSessionProposalJob?.cancel()
-                            }
 
-                            else -> {}
+                                else -> {}
+                            }
                         }
-                    }
                 }
             }
 
             is WalletConnectSessionProposalIntent.ApproveSession -> {
-                walletConnectV2Service.approveLastSession()
+                walletConnectV2Service.approveSession(modelState.sessionId)
             }
 
             is WalletConnectSessionProposalIntent.RejectSession -> {

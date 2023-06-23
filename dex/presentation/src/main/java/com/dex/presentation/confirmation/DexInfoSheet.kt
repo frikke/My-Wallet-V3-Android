@@ -18,10 +18,9 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.dex.presentation.R
 
 @Composable
-fun DexConfirmationInfoSheet(closeClicked: () -> Unit, title: String, description: String) {
+fun DexInfoSheet(closeClicked: () -> Unit, title: String, description: String) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.Center,

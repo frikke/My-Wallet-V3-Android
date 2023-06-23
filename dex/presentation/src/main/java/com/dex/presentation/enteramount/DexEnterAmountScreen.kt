@@ -1,10 +1,8 @@
 package com.dex.presentation.enteramount
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -64,35 +61,31 @@ import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.PrimarySmallButton
-import com.blockchain.componentlib.button.common.LoadingIndicator
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.icon.SmallTagIcon
 import com.blockchain.componentlib.icons.Alert
 import com.blockchain.componentlib.icons.Check
 import com.blockchain.componentlib.icons.ChevronRight
-import com.blockchain.componentlib.icons.Close
 import com.blockchain.componentlib.icons.Gas
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Network
-import com.blockchain.componentlib.icons.Question
 import com.blockchain.componentlib.icons.Settings
 import com.blockchain.componentlib.icons.Sync
-import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.lazylist.paddedItem
+import com.blockchain.componentlib.loader.LoadingIndicator
 import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Green700
 import com.blockchain.componentlib.theme.Grey000
-import com.blockchain.componentlib.theme.Grey400
-import com.blockchain.componentlib.theme.Orange600
 import com.blockchain.componentlib.theme.Red400
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.componentlib.utils.conditional
 import com.blockchain.data.DataResource
+import com.blockchain.extensions.safeLet
 import com.blockchain.koin.payloadScope
 import com.blockchain.preferences.DexPrefs
 import com.blockchain.stringResources.R
@@ -294,9 +287,6 @@ fun DexEnterAmountScreen(
                         navController.navigate(DexDestination.Confirmation.route)
                         keyboardController?.hide()
                     },
-                    txInProgressDismiss = {
-                        viewModel.onIntent(InputAmountIntent.IgnoreTxInProcessError)
-                    },
                     revokeAllowance = {
                         viewModel.onIntent(InputAmountIntent.RevokeSourceCurrencyAllowance)
                     },
@@ -304,6 +294,14 @@ fun DexEnterAmountScreen(
                         viewModel.onIntent(InputAmountIntent.PollForPendingAllowance(it))
                     },
                     receive = receiveOnAccount,
+                    onAlertErrorClicked = { title, description ->
+                        navController.navigate(
+                            DexDestination.DexExtraInfoSheet.routeWithTitleAndDescription(
+                                title = title,
+                                description = description
+                            )
+                        )
+                    },
                     onNoSourceAccountFunds = {
                         navController.navigate(
                             DexDestination.NoFundsForSourceAccount.routeWithArgs(
@@ -430,6 +428,7 @@ fun InputScreen(
     onTokenAllowanceRequested: () -> Unit,
     onTokenAllowanceApproveButPending: (AssetInfo) -> Unit,
     onPreviewClicked: () -> Unit,
+    onAlertErrorClicked: (String, String) -> Unit,
     revokeAllowance: () -> Unit,
     onValueChanged: (TextFieldValue) -> Unit,
     settingsOnClick: () -> Unit,
@@ -437,7 +436,6 @@ fun InputScreen(
     selectNetworkOnClick: () -> Unit,
     receive: (CryptoNonCustodialAccount) -> Unit,
     onNoSourceAccountFunds: (Currency) -> Unit,
-    txInProgressDismiss: () -> Unit,
     viewState: InputAmountViewState.TransactionInputState
 ) {
 
@@ -461,28 +459,6 @@ fun InputScreen(
             settingsOnClick = settingsOnClick
         )
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
-
-        viewState.topScreenUiError?.let {
-            UiError(
-                modifier = Modifier.padding(bottom = AppTheme.dimensions.smallSpacing),
-                title = it.title ?: stringResource(
-                    id = R.string.common_http_error_title
-                ),
-                description = it.description ?: stringResource(
-                    id = R.string.common_http_error_description
-                ),
-                close = null
-            )
-        }
-
-        viewState.txInProgressWarning?.let {
-            UiError(
-                modifier = Modifier.padding(bottom = AppTheme.dimensions.smallSpacing),
-                title = stringResource(id = R.string.tx_in_process),
-                description = stringResource(id = R.string.not_accurate_balance),
-                close = txInProgressDismiss
-            )
-        }
 
         SendAndReceiveAmountFields(
             onValueChanged = onValueChanged,
@@ -553,13 +529,18 @@ fun InputScreen(
             )
         }
 
-        viewState.alertError?.let {
+        viewState.alertError?.let { error ->
             AlertButton(
                 modifier = Modifier
                     .padding(vertical = dimensionResource(id = com.blockchain.componentlib.R.dimen.small_spacing))
                     .fillMaxWidth(),
-                text = it.message(LocalContext.current),
-                onClick = { },
+                text = error.message(LocalContext.current),
+                onClick = {
+                    val uiError = (error as? DexUiError.CommonUiError)
+                    safeLet(uiError?.title, uiError?.description) { title, description ->
+                        onAlertErrorClicked(title, description)
+                    }
+                },
                 state = ButtonState.Enabled
             )
         }
@@ -610,7 +591,6 @@ private fun TokenAllowance(
             .padding(top = dimensionResource(id = com.blockchain.componentlib.R.dimen.small_spacing))
             .fillMaxWidth(),
         state = if (txInProgress) ButtonState.Loading else ButtonState.Enabled,
-        icon = Icons.Question,
         text = stringResource(id = R.string.approve_token, currency.displayTicker),
         onClick = onClick
     )
@@ -651,60 +631,6 @@ private fun ApprovingTokenCard(ticker: String, onViewClicked: (() -> Unit)?) {
             ) {
                 it()
             }
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun UiError(
-    modifier: Modifier = Modifier,
-    title: String = "Transaction In progress",
-    description: String = "Your balances may not be accurate. " +
-        "Once the transaction is confirmed, your balances will update.",
-    close: (() -> Unit)? = {}
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(
-                shape = RoundedCornerShape(AppTheme.dimensions.smallSpacing),
-                color = Color.White
-            )
-            .border(
-                width = 1.dp,
-                color = Orange600,
-                shape = RoundedCornerShape(AppTheme.dimensions.smallSpacing)
-            )
-    ) {
-        Column(Modifier.padding(AppTheme.dimensions.smallSpacing)) {
-            Row {
-                SimpleText(
-                    text = title,
-                    style = ComposeTypographies.Paragraph2,
-                    color = ComposeColors.Warning,
-                    gravity = ComposeGravities.Centre
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                if (close != null) {
-                    Image(
-                        modifier = Modifier.clickable { close() },
-                        imageResource = Icons.Close.withTint(Grey400)
-                            .withBackground(
-                                backgroundColor = Grey000,
-                                backgroundSize = AppTheme.dimensions.standardSpacing
-                            )
-                    )
-                }
-            }
-
-            SimpleText(
-                modifier = Modifier.padding(top = AppTheme.dimensions.smallestSpacing),
-                text = description,
-                style = ComposeTypographies.Caption1,
-                color = ComposeColors.Title,
-                gravity = ComposeGravities.Start
-            )
         }
     }
 }
@@ -889,7 +815,7 @@ private fun PreviewNetworkSelection_Loading() {
 @Composable
 private fun PreviewInputScreen_NetworkSelection() {
     InputScreen(
-        {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> }, {}, {}, { }, {},
+        {}, {}, {}, {}, {}, { _, _ -> }, {}, {}, {}, { _, _ -> }, {}, {}, { },
         InputAmountViewState.TransactionInputState(
             selectedNetwork = DataResource.Data(
                 DexNetworkViewState(

@@ -41,6 +41,8 @@ class WalletConnectV2NavigationImpl(
                 }
             }
         }
+
+        walletConnectV2Service.resumeConnection()
     }
 
     override fun approveOrRejectSession(sessionId: String, walletAddress: String) {
@@ -51,14 +53,6 @@ class WalletConnectV2NavigationImpl(
                 NavArgument(key = WalletConnectDestination.ARG_WALLET_ADDRESS, value = walletAddress)
             ),
         )
-    }
-
-    override fun approveSession() {
-        walletConnectV2Service.approveLastSession()
-    }
-
-    override fun rejectSession() {
-        walletConnectV2Service.clearSessionProposals()
     }
 
     override fun sessionUnsupported(dappName: String, dappLogoUrl: String) {

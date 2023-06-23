@@ -7,6 +7,7 @@ import info.blockchain.balance.Money
 data class KycTiers(
     private val tiersMap: TiersMap
 ) {
+    fun stateFor(level: KycTier) = tiersMap[level].state
     fun isApprovedFor(level: KycTier) = tiersMap[level].state == KycTierState.Verified
     fun isPendingFor(level: KycTier) = tiersMap[level].state == KycTierState.Pending
     fun isUnderReviewFor(level: KycTier) = tiersMap[level].state == KycTierState.UnderReview

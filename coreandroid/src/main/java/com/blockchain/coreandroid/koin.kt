@@ -21,6 +21,7 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.DexPrefs
 import com.blockchain.preferences.ExchangeCampaignPrefs
+import com.blockchain.preferences.HandholdPrefs
 import com.blockchain.preferences.IterableAnnouncementsPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.MaskedValuePrefs
@@ -94,6 +95,7 @@ val coreAndroidModule = module {
         bind(ExchangeCampaignPrefs::class)
         bind(IterableAnnouncementsPrefs::class)
         bind(MaskedValuePrefs::class)
+        bind(HandholdPrefs::class)
     }
 
     factory {

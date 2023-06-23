@@ -34,7 +34,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavController
 import com.blockchain.analytics.Analytics
-import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
 import com.blockchain.componentlib.anim.AnimatedAmountCounter
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
@@ -62,8 +61,6 @@ import com.dex.presentation.AmountFieldConfig
 import com.dex.presentation.DexAnalyticsEvents
 import com.dex.presentation.DexTxSubscribeScreen
 import com.dex.presentation.SendAndReceiveAmountFields
-import com.dex.presentation.graph.ARG_INFO_DESCRIPTION
-import com.dex.presentation.graph.ARG_INFO_TITLE
 import com.dex.presentation.graph.DexDestination
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -71,7 +68,6 @@ import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
 import java.math.BigDecimal
 import java.math.BigInteger
-import java.util.Base64
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
@@ -492,7 +488,7 @@ private fun NetworkFee(
                     )
 
                     ExtraInfoIndicator {
-                        val destination = extraInfoDestination(
+                        val destination = DexDestination.DexExtraInfoSheet.routeWithTitleAndDescription(
                             title = extraInfoTitle,
                             description = extraInfoDescription
                         )
@@ -542,7 +538,7 @@ private fun BlockchainFee(
                     )
 
                     ExtraInfoIndicator {
-                        val destination = extraInfoDestination(
+                        val destination = DexDestination.DexExtraInfoSheet.routeWithTitleAndDescription(
                             title = extraInfoTitle,
                             description = extraInfoDescription
                         )
@@ -597,7 +593,7 @@ private fun MinAmountConfirmation(
                     )
 
                     ExtraInfoIndicator {
-                        val destination = extraInfoDestination(
+                        val destination = DexDestination.DexExtraInfoSheet.routeWithTitleAndDescription(
                             title = extraInfoTitle,
                             description = extraInfoDescription
                         )
@@ -636,23 +632,6 @@ private fun ExtraInfoIndicator(
             .padding(horizontal = AppTheme.dimensions.smallestSpacing)
             .clickableNoEffect { onClick() },
         imageResource = Icons.Question.withTint(Grey400).withSize(14.dp)
-    )
-}
-
-private fun extraInfoDestination(title: String, description: String): String {
-    return DexDestination.DexConfirmationExtraInfoSheet.routeWithArgs(
-        listOf(
-            NavArgument(
-                key = ARG_INFO_TITLE,
-                value = title
-            ),
-            NavArgument(
-                key = ARG_INFO_DESCRIPTION,
-                value = Base64.getUrlEncoder().encodeToString(
-                    description.toByteArray()
-                )
-            )
-        )
     )
 }
 

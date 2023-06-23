@@ -11,7 +11,11 @@ import com.dex.domain.DexAccount
 import com.dex.domain.DexAccountsService
 import com.dex.domain.DexNetworkService
 import com.dex.domain.DexTransactionProcessor
+import com.dex.presentation.uierrors.DexUiError
+import com.dex.presentation.uierrors.uiErrors
+import info.blockchain.balance.CoinNetwork
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class DexSourceAccountViewModel(
@@ -26,7 +30,8 @@ class DexSourceAccountViewModel(
     ModelConfigArgs.NoArgs
     >(
     initialState = SourceAccountModelState(
-        accounts = emptyList()
+        accounts = emptyList(),
+        txInProgressStatus = InProgressTxStatus.None,
     )
 ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
@@ -40,7 +45,8 @@ class DexSourceAccountViewModel(
                 account.currency.name.contains(searchFilter, true)
         }.sortedByDescending {
             it.fiatBalance
-        }
+        },
+        inProgressTxStatus = txInProgressStatus
     )
 
     override suspend fun handleIntent(modelState: SourceAccountModelState, intent: SourceAccountIntent) {
@@ -56,6 +62,21 @@ class DexSourceAccountViewModel(
                             }
                         }
                 }
+
+                viewModelScope.launch {
+                    transactionProcessor.transaction.map { it.uiErrors() }.collectLatest { errors ->
+                        updateState {
+                            copy(
+                                txInProgressStatus = errors
+                                    .filterIsInstance<DexUiError.TransactionInProgressError>()
+                                    .firstOrNull()
+                                    .takeIf { this.txInProgressDismissed.not() }?.let {
+                                        InProgressTxStatus.PendingTx(it.coinNetwork)
+                                    } ?: InProgressTxStatus.None
+                            )
+                        }
+                    }
+                }
             }
 
             is SourceAccountIntent.OnAccountSelected -> {
@@ -69,21 +90,37 @@ class DexSourceAccountViewModel(
                     )
                 }
             }
+
+            SourceAccountIntent.WarningDismissed -> updateState {
+                copy(
+                    txInProgressDismissed = true,
+                    txInProgressStatus = InProgressTxStatus.None
+                )
+            }
         }
     }
 }
 
 sealed class SourceAccountIntent : Intent<SourceAccountModelState> {
     object LoadSourceAccounts : SourceAccountIntent()
-    class OnAccountSelected(val account: DexAccount) : SourceAccountIntent()
-    class Search(val query: String) : SourceAccountIntent()
+    object WarningDismissed : SourceAccountIntent()
+    data class OnAccountSelected(val account: DexAccount) : SourceAccountIntent()
+    data class Search(val query: String) : SourceAccountIntent()
 }
 
 data class SourceAccountSelectionViewState(
     val accounts: List<DexAccount>,
+    val inProgressTxStatus: InProgressTxStatus,
 ) : ViewState
 
 data class SourceAccountModelState(
     val accounts: List<DexAccount> = emptyList(),
-    val searchFilter: String = ""
+    val searchFilter: String = "",
+    val txInProgressStatus: InProgressTxStatus,
+    val txInProgressDismissed: Boolean = false
 ) : ModelState
+
+sealed class InProgressTxStatus {
+    object None : InProgressTxStatus()
+    data class PendingTx(val coinNetwork: CoinNetwork) : InProgressTxStatus()
+}

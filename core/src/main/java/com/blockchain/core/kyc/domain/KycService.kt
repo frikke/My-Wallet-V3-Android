@@ -1,6 +1,7 @@
 package com.blockchain.core.kyc.domain
 
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.kyc.domain.model.KycTierState
 import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
@@ -20,6 +21,11 @@ interface KycService {
     fun getHighestApprovedTierLevelLegacy(
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
     ): Single<KycTier>
+
+    fun stateFor(
+        tierLevel: KycTier,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+    ): Flow<DataResource<KycTierState>>
 
     suspend fun shouldLaunchProve(): Outcome<Exception, Boolean>
 

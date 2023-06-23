@@ -11,6 +11,7 @@ import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.getOrNull
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
+import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.Money
 import info.blockchain.balance.isNetworkNativeAsset
 import java.math.BigDecimal
@@ -283,9 +284,9 @@ class DexTransactionProcessor(
         }.map { tx ->
             tx.validateAllowance()
         }.map { tx ->
-            tx.validateSufficientNetworkFees()
-        }.map { tx ->
             tx.validateQuoteError()
+        }.map { tx ->
+            tx.validateSufficientNetworkFees()
         }.map { tx ->
             tx.validateTransactionInProcess()
         }
@@ -298,15 +299,17 @@ class DexTransactionProcessor(
     }
 
     private suspend fun DexTransaction.validateTransactionInProcess(): DexTransaction {
-        val txNetwork = sourceAccount.currency.coinNetwork?.networkTicker ?: return this
+        val txNetwork = sourceAccount.currency.coinNetwork ?: return this
         val transactions =
             unifiedActivityService.getAllActivity().filter { it != DataResource.Loading }.first().dataOrElse(
                 emptyList()
-            ).filter { it.network == txNetwork }
+            ).filter { it.network == txNetwork.networkTicker }
 
-        return if (transactions.any { it.status == "PENDING" }) {
-            copy(txErrors = txErrors.plus(DexTxError.TxInProgress))
-        } else this
+        return if (transactions.any { it.status in listOf("PENDING", "CONFIRMING") }) {
+            copy(txErrors = txErrors.plus(DexTxError.TxInProgress(txNetwork)))
+        } else {
+            this
+        }
     }
 
     private suspend fun DexTransaction.validateAllowance(): DexTransaction {
@@ -421,9 +424,6 @@ sealed class DexTxError {
     }
 
     data class QuoteError(val title: String?, val message: String?) : DexTxError() {
-        fun isLiquidityError(): Boolean =
-            message?.contains("INSUFFICIENT_ASSET_LIQUIDITY", true) == true
-
         override val allowsQuotesFetching: Boolean
             get() = true
     }
@@ -438,7 +438,7 @@ sealed class DexTxError {
             get() = false
     }
 
-    object TxInProgress : DexTxError() {
+    class TxInProgress(val coinNetwork: CoinNetwork) : DexTxError() {
         override val allowsQuotesFetching: Boolean
             get() = true
     }

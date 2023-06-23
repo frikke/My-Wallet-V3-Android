@@ -51,6 +51,7 @@ fun DexAccountSelection(
     accounts: List<DexAccount>,
     onAccountSelected: (DexAccount) -> Unit,
     onSearchTermUpdated: (String) -> Unit,
+    warning: (@Composable () -> Unit)? = null,
     analytics: Analytics = get(),
 ) {
     var searchTerm by remember { mutableStateOf("") }
@@ -67,6 +68,11 @@ fun DexAccountSelection(
         )
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
+
+        warning?.let {
+            it()
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
+        }
 
         LazyColumn(
             modifier = Modifier

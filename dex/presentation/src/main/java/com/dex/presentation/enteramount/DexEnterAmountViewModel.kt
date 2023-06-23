@@ -31,7 +31,7 @@ import com.dex.presentation.network.DexNetworkViewState
 import com.dex.presentation.uierrors.ActionRequiredError
 import com.dex.presentation.uierrors.AlertError
 import com.dex.presentation.uierrors.DexUiError
-import com.dex.presentation.uierrors.toUiErrors
+import com.dex.presentation.uierrors.uiErrors
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CoinNetwork
@@ -127,7 +127,7 @@ class DexEnterAmountViewModel(
             destinationCurrency = transaction?.destinationAccount?.currency,
             maxAmount = transaction?.sourceAccount?.takeIf { !it.currency.isNetworkNativeAsset() }?.balance,
             txAmount = transaction?.amount,
-            errors = state.transaction?.toUiErrors()?.filter { it !in state.ignoredTxErrors }
+            errors = state.transaction?.uiErrors()?.filter { it !in state.ignoredTxErrors }
                 ?.withOnlyTopPriorityActionRequired() ?: emptyList(),
             inputExchangeAmount = safeLet(transaction?.amount, state.inputToFiatExchangeRate) { amount, rate ->
                 fiatAmount(amount, rate)
@@ -147,7 +147,7 @@ class DexEnterAmountViewModel(
                 state.feeToFiatExchangeRate
             ),
             previewActionButtonState = actionButtonState(state),
-            sourceAccountHasNoFunds = transaction?.sourceAccount?.fiatBalance?.isZero ?: false,
+            sourceAccountHasNoFunds = transaction?.sourceAccount?.balance?.isZero ?: false,
             allowanceCanBeRevoked = state.canRevokeAllowance
         )
     }
@@ -239,12 +239,6 @@ class DexEnterAmountViewModel(
             InputAmountIntent.RevokeSourceCurrencyAllowance -> revokeSourceAllowance(modelState)
             InputAmountIntent.SubscribeForTxUpdates -> txProcessor.subscribeForTxUpdates()
             InputAmountIntent.UnSubscribeToTxUpdates -> txProcessor.unsubscribeToTxUpdates()
-            InputAmountIntent.IgnoreTxInProcessError -> {
-                updateState {
-                    copy(ignoredTxErrors = ignoredTxErrors.plus(DexUiError.TransactionInProgressError))
-                }
-            }
-
             InputAmountIntent.AllowanceTransactionDeclined -> {
                 modelState.transaction?.sourceAccount?.currency?.displayTicker?.let {
                     navigate(
@@ -608,12 +602,6 @@ sealed class InputAmountViewState : ViewState {
                 operationInProgress == DexOperation.PushingAllowance ||
                 operationInProgress is DexOperation.PollingAllowance
 
-        val topScreenUiError: DexUiError.CommonUiError?
-            get() = errors.filterIsInstance<DexUiError.CommonUiError>().firstOrNull()
-
-        val txInProgressWarning: DexUiError.TransactionInProgressError?
-            get() = errors.filterIsInstance<DexUiError.TransactionInProgressError>().firstOrNull()
-
         val noTokenAllowanceError: DexUiError.TokenNotAllowed?
             get() = errors.filterIsInstance<DexUiError.TokenNotAllowed>().firstOrNull()
 
@@ -693,7 +681,6 @@ sealed class InputAmountIntent : Intent<AmountModelState> {
     object AllowanceTransactionApproved : InputAmountIntent()
     object AllowanceTransactionDeclined : InputAmountIntent()
     object BuildAllowanceTransaction : InputAmountIntent()
-    object IgnoreTxInProcessError : InputAmountIntent()
     object RevokeSourceCurrencyAllowance : InputAmountIntent()
 
     data class DepositOnSourceAccountRequested(val receive: (CryptoNonCustodialAccount) -> Unit) : InputAmountIntent()
