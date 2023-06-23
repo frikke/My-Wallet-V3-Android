@@ -10,6 +10,7 @@ import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.presentation.pulltorefresh.PullToRefresh
 import com.blockchain.utils.CurrentTimeProvider
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -59,7 +60,7 @@ class ReferralViewModel(
 
     private fun loadData(forceRefresh: Boolean) {
         referralJob?.cancel()
-        referralJob = viewModelScope.launch {
+        referralJob = viewModelScope.launch(Dispatchers.IO) {
             referralService.fetchReferralData(
                 freshnessStrategy = PullToRefresh.freshnessStrategy(
                     forceRefresh,

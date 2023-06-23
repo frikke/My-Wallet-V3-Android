@@ -16,6 +16,7 @@ import com.blockchain.home.handhold.HandholdService
 import com.blockchain.home.handhold.HandholdTask
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -23,13 +24,14 @@ import kotlinx.coroutines.launch
 class HandholdViewModel(
     private val handholdService: HandholdService,
     private val kycService: KycService,
-    private val walletModeService: WalletModeService
+    private val walletModeService: WalletModeService,
+    private val dispatcher: CoroutineDispatcher
 ) : MviViewModel<HandholdIntent, HandholdViewState, HandholdModelState, EmptyNavEvent, ModelConfigArgs.NoArgs>(
     HandholdModelState()
 ) {
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             kycService.stateFor(KycTier.GOLD)
                 .mapData {
                     it == KycTierState.Rejected
@@ -63,7 +65,7 @@ class HandholdViewModel(
     }
 
     private fun loadData() {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             handholdService.handholdTasksStatus().collectLatest {
                 updateState {
                     copy(data = data.updateDataWith(it))

@@ -1,5 +1,6 @@
 package com.blockchain.home.presentation.dashboard.composable
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,6 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.icon.SmallTagIcon
 import com.blockchain.componentlib.icons.AlertOn
@@ -60,11 +63,13 @@ private fun KycRejectedCard(
                 icon = StackedIcon.SmallTag(
                     main = Icons.Filled.User
                         .withTint(AppColors.title)
-                        .withBackground(backgroundColor = AppColors.light),
+                        .withBackground(backgroundColor = AppColors.light, iconSize = 58.dp, backgroundSize = 88.dp),
                     tag = Icons.AlertOn
-                        .withTint(AppColors.backgroundSecondary)
-                        .withBackground(AppColors.warning),
-                )
+                        .withTint(AppColors.warning),
+                ),
+                iconBackground = AppColors.backgroundSecondary,
+                mainIconSize = 88.dp,
+                tagIconSize = 44.dp,
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
@@ -94,4 +99,16 @@ private fun KycRejectedCard(
             )
         }
     }
+}
+
+@Preview
+@Composable
+private fun PreviewKycRejectedCard() {
+    KycRejectedCard(onClick = {})
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewKycRejectedCardDark() {
+    PreviewKycRejectedCard()
 }

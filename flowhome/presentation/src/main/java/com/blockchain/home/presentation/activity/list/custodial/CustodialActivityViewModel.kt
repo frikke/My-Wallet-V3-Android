@@ -6,7 +6,6 @@ import com.blockchain.coincore.CryptoActivitySummaryItem
 import com.blockchain.coincore.CustodialTransaction
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
-import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.filter
@@ -25,9 +24,9 @@ import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import java.util.Calendar
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
@@ -56,17 +55,23 @@ class CustodialActivityViewModel(
                 }
             }
             .map { activityItems ->
-                activityItems.reduceActivityPage()
+                activityItems.take(sectionSize.size)
+            }
+            .map { activityItems ->
+                println("------- dataRes st")
+                val a = activityItems.reduceActivityPage()
+                println("------- dataRes fun")
+                a
             }
             .map { groupedComponents ->
-                when (val sectionSize = sectionSize) {
+                when (sectionSize) {
                     SectionSize.All -> {
                         groupedComponents
                     }
 
                     is SectionSize.Limited -> {
                         mapOf(
-                            TransactionGroup.Combined to groupedComponents.values.flatten().take(sectionSize.size)
+                            TransactionGroup.Combined to groupedComponents.values.flatten()
                         )
                     }
                 }
@@ -110,10 +115,9 @@ class CustodialActivityViewModel(
             is ActivityIntent.LoadActivity -> {
                 updateState { copy(sectionSize = intent.sectionSize) }
                 activityJob?.cancel()
-                activityJob = viewModelScope.launch {
-                    walletModeService.walletMode.flatMapLatest {
-                        loadData(intent.freshnessStrategy, it)
-                    }.collect { dataRes ->
+                activityJob = viewModelScope.launch(Dispatchers.IO) {
+                    loadData(intent.freshnessStrategy).collectLatest { dataRes ->
+                        println("------- dataRes $dataRes")
                         updateState {
                             copy(activityItems = activityItems.updateDataWith(dataRes))
                         }
@@ -131,9 +135,8 @@ class CustodialActivityViewModel(
                 updateState {
                     copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
-                walletModeService.walletMode.take(1).flatMapLatest {
-                    loadData(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh), it)
-                }.collect { dataRes ->
+
+                loadData(FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)).collectLatest { dataRes ->
                     updateState {
                         copy(activityItems = activityItems.updateDataWith(dataRes))
                     }
@@ -142,16 +145,8 @@ class CustodialActivityViewModel(
         }
     }
 
-    private fun loadData(freshnessStrategy: FreshnessStrategy, walletMode: WalletMode) =
-        when (walletMode) {
-            WalletMode.CUSTODIAL -> {
-                custodialActivityService.getAllActivity(
-                    freshnessStrategy
-                )
-            }
-
-            WalletMode.NON_CUSTODIAL -> flowOf(DataResource.Data(emptyList()))
-        }
+    private fun loadData(freshnessStrategy: FreshnessStrategy) =
+        custodialActivityService.getAllActivity(freshnessStrategy)
 }
 
 private fun ActivitySummaryItem.matches(filterTerm: String): Boolean {

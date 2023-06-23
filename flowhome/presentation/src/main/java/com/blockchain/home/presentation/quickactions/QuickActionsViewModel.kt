@@ -25,20 +25,19 @@ import com.blockchain.presentation.pulltorefresh.PullToRefresh
 import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.utils.awaitOutcome
 import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class QuickActionsViewModel(
-    private val walletModeService: WalletModeService,
     private val fiatCurrenciesService: FiatCurrenciesService,
     private val coincore: Coincore,
     private val dexFeatureFlag: FeatureFlag,
     private val quickActionsService: QuickActionsService,
-    private val fiatActions: FiatActionsUseCase
+    private val fiatActions: FiatActionsUseCase,
+    private val dispatcher: CoroutineDispatcher,
 ) : MviViewModel<
     QuickActionsIntent,
     QuickActionsViewState,
@@ -48,6 +47,7 @@ class QuickActionsViewModel(
     >(
     QuickActionsModelState()
 ) {
+    private var loadActionsJob: Job? = null
     private var fiatActionJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
@@ -107,14 +107,7 @@ class QuickActionsViewModel(
                     )
                 }
 
-                quickActionsService.availableQuickActionsForWalletMode(intent.walletMode)
-                    .collectLatest { actions ->
-                        updateState {
-                            copy(
-                                quickActions = actions
-                            )
-                        }
-                    }
+                loadActions(intent.walletMode)
             }
 
             is QuickActionsIntent.FiatAction -> {
@@ -143,6 +136,20 @@ class QuickActionsViewModel(
             is QuickActionsIntent.ActionClicked -> {
                 navigate(intent.action.navigationEvent())
             }
+        }
+    }
+
+    private fun loadActions(walletMode: WalletMode) {
+        loadActionsJob?.cancel()
+        loadActionsJob = viewModelScope.launch(dispatcher) {
+            quickActionsService.availableQuickActionsForWalletMode(walletMode)
+                .collectLatest { actions ->
+                    updateState {
+                        copy(
+                            quickActions = actions
+                        )
+                    }
+                }
         }
     }
 
@@ -178,7 +185,7 @@ class QuickActionsViewModel(
 
     private fun handleFiatAction(action: AssetAction) {
         fiatActionJob?.cancel()
-        fiatActionJob = viewModelScope.launch {
+        fiatActionJob = viewModelScope.launch(dispatcher) {
             val accountOutcome = coincore.allFiats().map {
                 (
                     it.firstOrNull { acc ->

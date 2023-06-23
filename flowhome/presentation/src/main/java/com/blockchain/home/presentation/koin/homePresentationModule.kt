@@ -26,6 +26,7 @@ import com.blockchain.koin.iterableAnnouncementsFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.walletConnectV2FeatureFlag
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -56,7 +57,8 @@ val homePresentationModule = module {
                 filterService = get(),
                 assetCatalogue = get(),
                 walletModeService = get(),
-                coincore = get()
+                coincore = get(),
+                dispatcher = Dispatchers.IO
             )
         }
 
@@ -97,7 +99,8 @@ val homePresentationModule = module {
 
         viewModel {
             RecurringBuysViewModel(
-                recurringBuyService = get()
+                recurringBuyService = get(),
+                dispatcher = Dispatchers.IO
             )
         }
 
@@ -139,12 +142,12 @@ val homePresentationModule = module {
 
         viewModel {
             QuickActionsViewModel(
-                walletModeService = get(),
                 coincore = get(),
                 dexFeatureFlag = get(dexFeatureFlag),
                 quickActionsService = get(),
                 fiatCurrenciesService = get(),
-                fiatActions = get()
+                fiatActions = get(),
+                dispatcher = Dispatchers.IO
             )
         }
 
@@ -186,7 +189,8 @@ val homePresentationModule = module {
 
         viewModel {
             NewsViewModel(
-                newsService = get()
+                newsService = get(),
+                dispatcher = Dispatchers.IO
             )
         }
 
@@ -194,7 +198,8 @@ val homePresentationModule = module {
             HandholdViewModel(
                 handholdService = get(),
                 kycService = get(),
-                walletModeService = get()
+                walletModeService = get(),
+                dispatcher = Dispatchers.IO
             )
         }
     }

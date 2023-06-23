@@ -14,6 +14,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -25,7 +26,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.ViewModelStoreOwner
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.chrome.LocalNavControllerProvider
@@ -83,6 +83,7 @@ import com.blockchain.home.presentation.news.NewsViewModel
 import com.blockchain.home.presentation.news.NewsViewState
 import com.blockchain.home.presentation.quickactions.QuickActions
 import com.blockchain.home.presentation.quickactions.QuickActionsIntent
+import com.blockchain.home.presentation.quickactions.QuickActionsNavEvent
 import com.blockchain.home.presentation.quickactions.QuickActionsViewModel
 import com.blockchain.home.presentation.quickactions.QuickActionsViewState
 import com.blockchain.home.presentation.quickactions.maxQuickActionsOnScreen
@@ -106,8 +107,11 @@ import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
 import com.blockchain.walletconnect.ui.navigation.WalletConnectDestination
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import com.walletconnect.android.internal.common.scope
 import info.blockchain.balance.AssetInfo
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
@@ -272,7 +276,6 @@ fun HomeScreen(
                     startPhraseRecovery = startPhraseRecovery,
 
                     assetActionsNavigation = assetActionsNavigation,
-                    openDexSwapOptions = ::openSwapDexOptions,
                     openMoreQuickActions = ::openMoreQuickActions,
 
                     openCryptoAssets = ::openAssetsList,
@@ -356,7 +359,6 @@ private fun CustodialHomeDashboard(
     startPhraseRecovery: () -> Unit,
 
     assetActionsNavigation: AssetActionsNavigation,
-    openDexSwapOptions: () -> Unit,
     openMoreQuickActions: () -> Unit,
 
     assetOnClick: (AssetInfo) -> Unit,
@@ -385,18 +387,20 @@ private fun CustodialHomeDashboard(
     val lifecycleOwner = LocalLifecycleOwner.current
     val navController = LocalNavControllerProvider.current
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     val handholdViewModel: HandholdViewModel = getViewModel(scope = payloadScope)
     val handholdViewState: HandholdViewState by handholdViewModel.viewState.collectAsStateLifecycleAware()
     val quickActionsViewModel: QuickActionsViewModel = getViewModel(
-        viewModelStoreOwner = LocalContext.current as ViewModelStoreOwner,
-        scope = payloadScope
+        scope = payloadScope, key = WalletMode.CUSTODIAL.name + "qa"
     )
     val quickActionsState: QuickActionsViewState by quickActionsViewModel.viewState.collectAsStateLifecycleAware()
     val maxQuickActions = maxQuickActionsOnScreen
     val announcementsViewModel: AnnouncementsViewModel = getViewModel(scope = payloadScope)
     val announcementsState: AnnouncementsViewState by announcementsViewModel.viewState.collectAsStateLifecycleAware()
-    val homeAssetsViewModel: AssetsViewModel = getViewModel(scope = payloadScope)
+    val homeAssetsViewModel: AssetsViewModel = getViewModel(
+        scope = payloadScope, key = WalletMode.CUSTODIAL.name + "assets"
+    )
     val assetsViewState: AssetsViewState by homeAssetsViewModel.viewState.collectAsStateLifecycleAware()
     val rbViewModel: RecurringBuysViewModel = getViewModel(scope = payloadScope)
     val rbViewState: RecurringBuysViewState by rbViewModel.viewState.collectAsStateLifecycleAware()
@@ -465,6 +469,39 @@ private fun CustodialHomeDashboard(
         }
     }
 
+    // quick actions navigation
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_CREATE) {
+                scope.launch {
+                    quickActionsViewModel.navigationEventFlow.collectLatest {
+                        when (it) {
+                            QuickActionsNavEvent.Send -> assetActionsNavigation.navigate(AssetAction.Send)
+                            QuickActionsNavEvent.Sell -> assetActionsNavigation.navigate(AssetAction.Sell)
+                            QuickActionsNavEvent.Receive -> assetActionsNavigation.navigate(AssetAction.Receive)
+                            QuickActionsNavEvent.Buy -> assetActionsNavigation.navigate(AssetAction.Buy)
+                            QuickActionsNavEvent.Swap -> assetActionsNavigation.navigate(AssetAction.Swap)
+                            QuickActionsNavEvent.FiatDeposit -> quickActionsViewModel.onIntent(
+                                QuickActionsIntent.FiatAction(AssetAction.FiatDeposit)
+                            )
+
+                            QuickActionsNavEvent.FiatWithdraw -> quickActionsViewModel.onIntent(
+                                QuickActionsIntent.FiatAction(AssetAction.FiatWithdraw)
+                            )
+
+                            QuickActionsNavEvent.More -> openMoreQuickActions()
+                            QuickActionsNavEvent.DexOrSwapOption -> {} // n/a
+                        }
+                    }
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
     val balance = (assetsViewState.balance.balance as? DataResource.Data)?.data
     LazyColumn(
         state = listState,
@@ -508,12 +545,11 @@ private fun CustodialHomeDashboard(
                 }
             ) {
                 QuickActions(
-                    quickActionItems = quickActionsState.actions,
-                    assetActionsNavigation = assetActionsNavigation,
-                    quickActionsViewModel = quickActionsViewModel,
-                    openDexSwapOptions = openDexSwapOptions,
+                    quickActionItems = quickActionsState.actions.toImmutableList(),
                     dashboardState = dashboardState(assetsViewState, activityViewState),
-                    openMoreQuickActions = openMoreQuickActions
+                    quickActionClicked = {
+                        quickActionsViewModel.onIntent(QuickActionsIntent.ActionClicked(it))
+                    }
                 )
             }
         }
@@ -657,7 +693,7 @@ private fun CustodialHomeDashboard(
                                 ?.let { recurringBuys ->
                                     homeRecurringBuys(
                                         analytics = analytics,
-                                        recurringBuys = recurringBuys,
+                                        recurringBuys = recurringBuys.toImmutableList(),
                                         manageOnclick = openRecurringBuys,
                                         upsellOnClick = upsellOnClick,
                                         recurringBuyOnClick = recurringBuyOnClick
@@ -765,14 +801,15 @@ private fun DefiHomeDashboard(
     val navController = LocalNavControllerProvider.current
 
     val quickActionsViewModel: QuickActionsViewModel = getViewModel(
-        viewModelStoreOwner = LocalContext.current as ViewModelStoreOwner,
-        scope = payloadScope
+        scope = payloadScope, key = WalletMode.NON_CUSTODIAL.name + "qa"
     )
     val quickActionsState: QuickActionsViewState by quickActionsViewModel.viewState.collectAsStateLifecycleAware()
     val maxQuickActions = maxQuickActionsOnScreen
     val announcementsViewModel: AnnouncementsViewModel = getViewModel(scope = payloadScope)
     val announcementsState: AnnouncementsViewState by announcementsViewModel.viewState.collectAsStateLifecycleAware()
-    val homeAssetsViewModel: AssetsViewModel = getViewModel(scope = payloadScope)
+    val homeAssetsViewModel: AssetsViewModel = getViewModel(
+        scope = payloadScope, key = WalletMode.NON_CUSTODIAL.name + "assets"
+    )
     val assetsViewState: AssetsViewState by homeAssetsViewModel.viewState.collectAsStateLifecycleAware()
     val homeDappsViewModel: HomeDappsViewModel = getViewModel(scope = payloadScope)
     val homeDappsState: HomeDappsViewState by homeDappsViewModel.viewState.collectAsStateLifecycleAware()
@@ -833,6 +870,34 @@ private fun DefiHomeDashboard(
         }
     }
 
+    // quick actions navigation
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_CREATE) {
+                scope.launch {
+                    quickActionsViewModel.navigationEventFlow.collectLatest {
+                        when (it) {
+                            QuickActionsNavEvent.Send -> assetActionsNavigation.navigate(AssetAction.Send)
+                            QuickActionsNavEvent.Sell -> assetActionsNavigation.navigate(AssetAction.Sell)
+                            QuickActionsNavEvent.Receive -> assetActionsNavigation.navigate(AssetAction.Receive)
+                            QuickActionsNavEvent.Swap -> assetActionsNavigation.navigate(AssetAction.Swap)
+                            QuickActionsNavEvent.DexOrSwapOption -> openDexSwapOptions()
+                            QuickActionsNavEvent.More -> openMoreQuickActions()
+                            QuickActionsNavEvent.Buy,
+                            QuickActionsNavEvent.FiatDeposit,
+                            QuickActionsNavEvent.FiatWithdraw -> {
+                            } // n/a
+                        }
+                    }
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
     val balance = (assetsViewState.balance.balance as? DataResource.Data)?.data
     LazyColumn(
         state = listState,
@@ -873,12 +938,11 @@ private fun DefiHomeDashboard(
             }
         ) {
             QuickActions(
-                quickActionItems = quickActionsState.actions,
-                assetActionsNavigation = assetActionsNavigation,
-                quickActionsViewModel = quickActionsViewModel, // lambdas
-                openDexSwapOptions = openDexSwapOptions,
+                quickActionItems = quickActionsState.actions.toImmutableList(),
                 dashboardState = dashboardState(assetsViewState, activityViewState),
-                openMoreQuickActions = openMoreQuickActions
+                quickActionClicked = {
+                    quickActionsViewModel.onIntent(QuickActionsIntent.ActionClicked(it))
+                }
             )
         }
 
