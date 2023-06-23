@@ -147,7 +147,8 @@ val homePresentationModule = module {
                 quickActionsService = get(),
                 fiatCurrenciesService = get(),
                 fiatActions = get(),
-                dispatcher = Dispatchers.IO
+                dispatcher = Dispatchers.IO,
+                handholdService = get()
             )
         }
 

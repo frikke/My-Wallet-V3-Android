@@ -15,10 +15,14 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.dataOrElse
+import com.blockchain.data.mapData
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.fiatActions.fiatactions.FiatActionsUseCase
 import com.blockchain.home.actions.QuickActionsService
+import com.blockchain.home.handhold.HandholdService
+import com.blockchain.home.handhold.isMandatory
 import com.blockchain.home.presentation.R
 import com.blockchain.outcome.getOrNull
 import com.blockchain.presentation.pulltorefresh.PullToRefresh
@@ -29,6 +33,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
 class QuickActionsViewModel(
@@ -38,6 +44,7 @@ class QuickActionsViewModel(
     private val quickActionsService: QuickActionsService,
     private val fiatActions: FiatActionsUseCase,
     private val dispatcher: CoroutineDispatcher,
+    private val handholdService: HandholdService
 ) : MviViewModel<
     QuickActionsIntent,
     QuickActionsViewState,
@@ -142,14 +149,32 @@ class QuickActionsViewModel(
     private fun loadActions(walletMode: WalletMode) {
         loadActionsJob?.cancel()
         loadActionsJob = viewModelScope.launch(dispatcher) {
-            quickActionsService.availableQuickActionsForWalletMode(walletMode)
-                .collectLatest { actions ->
-                    updateState {
-                        copy(
-                            quickActions = actions
-                        )
-                    }
+
+            val isHandholdVisibleFlow = when (walletMode) {
+                WalletMode.CUSTODIAL -> handholdService.handholdTasksStatus().mapData {
+                    it.any { it.task.isMandatory() && !it.isComplete }
                 }
+
+                WalletMode.NON_CUSTODIAL -> flowOf(DataResource.Data(false))
+            }
+
+            combine(
+                isHandholdVisibleFlow,
+                quickActionsService.availableQuickActionsForWalletMode(walletMode)
+            ) { isHandholdVisible, actions ->
+                isHandholdVisible.dataOrElse(false) to actions
+            }.collectLatest { (isHandholdVisible, actions) ->
+                updateState {
+                    copy(
+                        quickActions = if (isHandholdVisible) {
+                            // show only available actions
+                            actions.filter { it.state == ActionState.Available }
+                        } else {
+                            actions
+                        }
+                    )
+                }
+            }
         }
     }
 

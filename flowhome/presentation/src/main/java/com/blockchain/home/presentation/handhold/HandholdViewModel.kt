@@ -13,7 +13,7 @@ import com.blockchain.data.map
 import com.blockchain.data.mapData
 import com.blockchain.data.updateDataWith
 import com.blockchain.home.handhold.HandholdService
-import com.blockchain.home.handhold.HandholdTask
+import com.blockchain.home.handhold.isMandatory
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import kotlinx.coroutines.CoroutineDispatcher
@@ -80,11 +80,5 @@ class HandholdViewModel(
                 }
             }
         }
-    }
-
-    private fun HandholdTask.isMandatory() = when (this) {
-        HandholdTask.VerifyEmail -> false
-        HandholdTask.Kyc -> false
-        HandholdTask.BuyCrypto -> true
     }
 }
