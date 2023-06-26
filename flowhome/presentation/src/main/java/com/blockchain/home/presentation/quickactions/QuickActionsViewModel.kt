@@ -30,7 +30,6 @@ import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.utils.awaitOutcome
 import com.blockchain.walletmode.WalletMode
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -100,7 +99,6 @@ class QuickActionsViewModel(
         )
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun handleIntent(modelState: QuickActionsModelState, intent: QuickActionsIntent) {
         when (intent) {
             is QuickActionsIntent.LoadActions -> {

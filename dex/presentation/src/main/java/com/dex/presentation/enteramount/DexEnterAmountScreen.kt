@@ -140,7 +140,10 @@ fun DexEnterAmountScreen(
     val chromePillProvider = LocalChromePillProvider.current
 
     DexTxSubscribeScreen(
-        subscribe = { viewModel.onIntent(InputAmountIntent.SubscribeForTxUpdates) },
+        subscribe = {
+            viewModel.onIntent(InputAmountIntent.SubscribeForTxUpdates)
+            viewModel.onIntent(InputAmountIntent.RevalidateTransaction)
+        },
         unsubscribe = { viewModel.onIntent(InputAmountIntent.UnSubscribeToTxUpdates) }
     )
     val scope = rememberCoroutineScope()

@@ -97,6 +97,7 @@ class DexEnterAmountViewModel(
             DexAllowanceState.NoFundsAvailable -> {
                 showNoInoutUi(this)
             }
+
             is DexAllowanceState.NotEligible -> InputAmountViewState.NotEligible(allowance.reason)
         }
         /**
@@ -278,6 +279,10 @@ class DexEnterAmountViewModel(
                     intent.receive(it.account)
                 }
             }
+
+            InputAmountIntent.RevalidateTransaction -> viewModelScope.launch {
+                txProcessor.revalidate()
+            }
         }
     }
 
@@ -443,7 +448,7 @@ class DexEnterAmountViewModel(
                 updateState {
                     copy(
                         selectedChain = chainId,
-                        dexAllowanceState = DataResource.Data(DexAllowanceState.Allowed)
+                        dexAllowanceState = DataResource.Data(DexAllowanceState.NoFundsAvailable)
                     )
                 }
             }
@@ -716,6 +721,7 @@ sealed class InputAmountIntent : Intent<AmountModelState> {
     }
 
     object SubscribeForTxUpdates : InputAmountIntent()
+    object RevalidateTransaction : InputAmountIntent()
     object UnSubscribeToTxUpdates : InputAmountIntent()
     class ViewAllowanceTx(val currency: AssetInfo, val txId: String) : InputAmountIntent()
     object AllowanceTransactionApproved : InputAmountIntent()

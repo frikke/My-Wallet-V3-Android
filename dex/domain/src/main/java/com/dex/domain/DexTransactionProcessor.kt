@@ -2,6 +2,8 @@ package com.dex.domain
 
 import com.blockchain.core.chains.ethereum.EvmNetworkPreImageSigner
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.dataOrElse
 import com.blockchain.extensions.safeLet
 import com.blockchain.internalnotifications.NotificationEvent
@@ -33,6 +35,8 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
@@ -71,6 +75,7 @@ class DexTransactionProcessor(
         combine(_dexTransaction, revalidateSignal) { tx, _ ->
             tx
         }.validate()
+            .flowOn(Dispatchers.IO)
             .shareIn(
                 scope = scope,
                 started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 1000),
@@ -276,6 +281,8 @@ class DexTransactionProcessor(
 
     private fun Flow<DexTransaction>.validate(): Flow<DexTransaction> {
         return map { tx ->
+            tx.ensureBalancesUpToDate()
+        }.map { tx ->
             tx.copy(
                 txErrors = emptyList()
             )
@@ -296,6 +303,24 @@ class DexTransactionProcessor(
         return if (quoteError == null)
             this
         else copy(txErrors = txErrors.plus(quoteError))
+    }
+
+    private suspend fun DexTransaction.ensureBalancesUpToDate(): DexTransaction {
+        val sourceAccountBalance =
+            sourceAccount.account.balance(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)).firstOrNull()
+        val destinationAccountBalance =
+            destinationAccount?.account?.balance(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
+                ?.firstOrNull()
+        return this.copy(
+            _sourceAccount = sourceAccount.copy(
+                balance = sourceAccountBalance?.total ?: sourceAccount.balance,
+                fiatBalance = sourceAccountBalance?.totalFiat ?: sourceAccount.fiatBalance,
+            ),
+            destinationAccount = destinationAccount?.copy(
+                balance = destinationAccountBalance?.total ?: destinationAccount.balance,
+                fiatBalance = destinationAccountBalance?.totalFiat ?: destinationAccount.fiatBalance,
+            )
+        )
     }
 
     private suspend fun DexTransaction.validateTransactionInProcess(): DexTransaction {

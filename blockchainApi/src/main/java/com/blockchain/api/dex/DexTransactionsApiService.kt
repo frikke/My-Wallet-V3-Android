@@ -78,20 +78,3 @@ data class TokenAllowanceResponse(
 data class AllowanceResult(
     val allowance: String
 )
-
-@kotlinx.serialization.Serializable
-data class GasValuesPayload(
-    val payload: Payload?
-)
-
-@kotlinx.serialization.Serializable
-data class Payload(
-    val gasLimit: HexValue?,
-    val gasPrice: HexValue?,
-)
-
-@kotlinx.serialization.Serializable
-data class HexValue(
-    val type: String,
-    val hex: String
-)
