@@ -60,7 +60,6 @@ private fun TradingBalanceResponseDto.toTradingAccountBalance(currency: Currency
         total = Money.fromMinor(currency, total.toBigInteger()),
         withdrawable = Money.fromMinor(currency, withdrawable.toBigInteger()),
         pending = Money.fromMinor(currency, pending.toBigInteger()),
-        dashboardDisplay = Money.fromMinor(currency, mainBalanceToDisplay.toBigInteger()),
         hasTransactions = true
     )
 
@@ -69,5 +68,4 @@ private fun zeroBalance(currency: Currency): TradingAccountBalance =
         total = Money.zero(currency),
         withdrawable = Money.zero(currency),
         pending = Money.zero(currency),
-        dashboardDisplay = Money.zero(currency)
     )

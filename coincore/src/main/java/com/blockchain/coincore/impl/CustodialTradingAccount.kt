@@ -114,7 +114,6 @@ class CustodialTradingAccount(
                 total = balance.total,
                 withdrawable = balance.withdrawable,
                 pending = balance.pending,
-                dashboardDisplay = balance.dashboardDisplay,
                 exchangeRate = rate
             )
         }

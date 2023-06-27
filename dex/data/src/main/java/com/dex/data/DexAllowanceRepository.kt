@@ -82,7 +82,7 @@ class DexAllowanceRepository(
                 networkNativeAssetTicker = coinNetwork.nativeAssetTicker
             ).map { buildTxResponse ->
                 AllowanceTransaction(
-                    fees = Money.fromMinor(nativeAsset, BigInteger(buildTxResponse.summary.relativeFee)),
+                    fees = Money.fromMinor(nativeAsset, BigInteger(buildTxResponse.summary.maxFee)),
                     rawTx = buildTxResponse.rawTx,
                     preImages = buildTxResponse.preImages.map {
                         PreImage(

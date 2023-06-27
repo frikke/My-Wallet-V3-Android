@@ -55,7 +55,6 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
 
         val balance = TradingAccountBalance(
             total = 100.testValue(TEST_ASSET),
-            dashboardDisplay = 100.testValue(TEST_ASSET),
             withdrawable = 90.testValue(TEST_ASSET),
             pending = 10.testValue(TEST_ASSET)
         )
@@ -80,7 +79,6 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
 
         val balance = TradingAccountBalance(
             total = 0.testValue(TEST_ASSET),
-            dashboardDisplay = 0.testValue(TEST_ASSET),
             withdrawable = 0.testValue(TEST_ASSET),
             pending = 0.testValue(TEST_ASSET)
         )
@@ -113,7 +111,6 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
 
         val balance = TradingAccountBalance(
             total = 100.testValue(TEST_ASSET),
-            dashboardDisplay = 100.testValue(TEST_ASSET),
             withdrawable = 90.testValue(TEST_ASSET),
             pending = 10.testValue(TEST_ASSET)
         )

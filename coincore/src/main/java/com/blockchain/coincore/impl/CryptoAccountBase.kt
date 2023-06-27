@@ -244,7 +244,6 @@ abstract class CryptoNonCustodialAccount(
                 pending = it.unconfirmedBalance,
                 exchangeRate = it.exchangeRate,
                 withdrawable = it.balance,
-                dashboardDisplay = it.balance
             )
         }
     }

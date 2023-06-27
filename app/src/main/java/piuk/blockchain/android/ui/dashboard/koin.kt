@@ -7,7 +7,6 @@ import com.blockchain.koin.assetOrderingFeatureFlag
 import com.blockchain.koin.defaultOrder
 import com.blockchain.koin.exchangeWAPromptFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.paymentUxAssetDisplayBalanceFeatureFlag
 import com.blockchain.koin.sellOrder
 import com.blockchain.koin.swapSourceOrder
 import com.blockchain.koin.swapTargetOrder
@@ -17,7 +16,6 @@ import org.koin.dsl.module
 import piuk.blockchain.android.domain.usecases.ShouldShowExchangeCampaignUseCase
 import piuk.blockchain.android.ui.cowboys.CowboysPromoDataProvider
 import piuk.blockchain.android.ui.dashboard.assetdetails.StateAwareActionsComparator
-import piuk.blockchain.android.ui.dashboard.model.ShouldAssetShowUseCase
 import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingInteractor
 import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingModel
 import piuk.blockchain.android.ui.transfer.AccountsSorting
@@ -29,15 +27,6 @@ import piuk.blockchain.android.ui.transfer.SwapTargetAccountsSorting
 val dashboardModule = module {
 
     scope(payloadScopeQualifier) {
-
-        factory {
-            ShouldAssetShowUseCase(
-                assetDisplayBalanceFF = get(paymentUxAssetDisplayBalanceFeatureFlag),
-                localSettingsPrefs = get(),
-                watchlistService = get()
-            )
-        }
-
         factory {
             StateAwareActionsComparator()
         }.bind(Comparator::class)

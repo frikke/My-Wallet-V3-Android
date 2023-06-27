@@ -73,7 +73,6 @@ class BtcCryptoWalletAccount internal constructor(
                     total = balance,
                     withdrawable = balance,
                     pending = Money.zero(currency),
-                    dashboardDisplay = balance,
                     exchangeRate = rate
                 )
             }
