@@ -31,8 +31,14 @@ class AccountWalletLinkAlertSheet : SlidingModalBottomDialog<AccountWalletLinkAl
                 com.blockchain.stringResources.R.string.account_wallet_mismatch_label,
                 walletId
             )
-            logoutButton.setOnClickListener { host.logout() }
-            cancelButton.setOnClickListener { dismiss() }
+            logoutButton.apply {
+                text = getString(com.blockchain.stringResources.R.string.logout)
+                onClick = { host.logout() }
+            }
+            cancelButton.apply {
+                text = getString(com.blockchain.stringResources.R.string.common_cancel)
+                onClick =  { dismiss() }
+            }
         }
     }
 

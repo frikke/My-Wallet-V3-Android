@@ -78,7 +78,10 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
         )
         with(binding) {
             binding.walletId.disableInputForDemoAccount()
-            commandNext.setOnClickListener { presenter.onContinueClicked(guid, password) }
+            commandNext.apply {
+                text = getString(com.blockchain.stringResources.R.string.common_continue)
+                onClick = { presenter.onContinueClicked(guid, password) }
+            }
             binding.walletId.setText(prefilledGuid)
             walletPass.setOnEditorActionListener { _, i, _ ->
                 if (i == EditorInfo.IME_ACTION_GO) {
@@ -138,18 +141,18 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
                 it
             )
         }, resendAction = { limitReached ->
-                if (!limitReached) {
-                    presenter.requestNew2FaCode(password, guid)
-                } else {
-                    showSnackbar(
-                        com.blockchain.stringResources.R.string.two_factor_retries_exceeded,
-                        SnackbarType.Error
-                    )
-                    if (!isTwoFATimerRunning) {
-                        twoFATimer.start()
-                    }
+            if (!limitReached) {
+                presenter.requestNew2FaCode(password, guid)
+            } else {
+                showSnackbar(
+                    com.blockchain.stringResources.R.string.two_factor_retries_exceeded,
+                    SnackbarType.Error
+                )
+                if (!isTwoFATimerRunning) {
+                    twoFATimer.start()
                 }
-            })
+            }
+        })
 
         showAlert(dialog)
     }

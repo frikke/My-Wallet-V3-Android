@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.dashboard
 
 import com.blockchain.core.announcements.DismissClock
 import com.blockchain.core.announcements.DismissRecorder
-import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.koin.assetOrderingFeatureFlag
 import com.blockchain.koin.defaultOrder
 import com.blockchain.koin.exchangeWAPromptFeatureFlag
@@ -11,15 +10,12 @@ import com.blockchain.koin.paymentUxAssetDisplayBalanceFeatureFlag
 import com.blockchain.koin.sellOrder
 import com.blockchain.koin.swapSourceOrder
 import com.blockchain.koin.swapTargetOrder
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.domain.usecases.ShouldShowExchangeCampaignUseCase
 import piuk.blockchain.android.ui.cowboys.CowboysPromoDataProvider
 import piuk.blockchain.android.ui.dashboard.assetdetails.StateAwareActionsComparator
 import piuk.blockchain.android.ui.dashboard.model.ShouldAssetShowUseCase
-import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingInteractor
-import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingModel
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 import piuk.blockchain.android.ui.transfer.DefaultAccountsSorting
 import piuk.blockchain.android.ui.transfer.SellAccountsSorting
@@ -73,25 +69,6 @@ val dashboardModule = module {
                 coincore = get()
             )
         }.bind(AccountsSorting::class)
-
-        factory { params ->
-            DashboardOnboardingModel(
-                initialSteps = params.getOrNull<List<CompletableDashboardOnboardingStep>>() ?: emptyList(),
-                interactor = get(),
-                fiatCurrenciesService = get(),
-                uiScheduler = AndroidSchedulers.mainThread(),
-                environmentConfig = get(),
-                remoteLogger = get()
-            )
-        }
-
-        factory {
-            DashboardOnboardingInteractor(
-                getDashboardOnboardingUseCase = get(),
-                bankService = get(),
-                getAvailablePaymentMethodsTypesUseCase = get()
-            )
-        }
 
         scoped { WalletModeBalanceCache(coincore = get()) }
 

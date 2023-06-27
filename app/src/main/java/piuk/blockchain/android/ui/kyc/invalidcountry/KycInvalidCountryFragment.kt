@@ -52,8 +52,14 @@ class KycInvalidCountryFragment :
                 com.blockchain.stringResources.R.string.kyc_invalid_country_message,
                 displayModel.name
             )
-            textViewKycNoThanks.setOnClickListener { presenter.onNoThanks() }
-            buttonKycInvalidCountryMessageMe.setOnClickListener { presenter.onNotifyMe() }
+            textViewKycNoThanks.apply {
+                text = getString(com.blockchain.stringResources.R.string.kyc_invalid_country_no_thanks)
+                onClick = { presenter.onNoThanks() }
+            }
+            buttonKycInvalidCountryMessageMe.apply {
+                text = getString(com.blockchain.stringResources.R.string.kyc_invalid_country_message_me)
+                onClick = { presenter.onNotifyMe() }
+            }
         }
         onViewReady()
     }

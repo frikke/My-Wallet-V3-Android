@@ -63,7 +63,6 @@ private fun Referral(
         } ?: CustomBackgroundCard(
             title = stringResource(id = com.blockchain.stringResources.R.string.referral_program),
             subtitle = referralData.rewardSubtitle,
-            backgroundResource = ImageResource.Local(R.drawable.bkgd_button_blue),
             onClick = openReferral
         )
     }

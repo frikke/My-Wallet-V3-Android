@@ -59,14 +59,12 @@
         </LinearLayout>
     </ScrollView>
 
-    <Button
+    <com.blockchain.componentlib.button.PrimaryButtonView
         android:id="@+id/command_next"
-        style="@style/CtaButton.Blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/small_spacing"
         android:layout_gravity="center_horizontal|center_vertical"
-        android:layout_marginBottom="@dimen/standard_spacing"
-        android:contentDescription="@string/btn_continue"
-        android:text="@string/btn_continue" />
+        android:layout_marginBottom="@dimen/standard_spacing" />
 
 </LinearLayout>

@@ -28,8 +28,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:tint="@color/warning"
         app:layout_constraintVertical_bias="0.35"
-        app:srcCompat="@drawable/ic_alert_logo" />
+        app:srcCompat="@drawable/alert_on" />
 
     <ProgressBar
         android:id="@+id/progress"

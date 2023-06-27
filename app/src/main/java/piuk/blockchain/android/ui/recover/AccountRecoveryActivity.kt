@@ -115,15 +115,18 @@ class AccountRecoveryActivity :
             }
             resetKycLabel.text = getString(com.blockchain.stringResources.R.string.reset_kyc_notice_1)
 
-            verifyButton.setOnClickListener {
-                analytics.logEvent(AccountRecoveryAnalytics.MnemonicEntered(isCustodialAccount = false))
+            verifyButton.apply {
+                text = getString(com.blockchain.stringResources.R.string.verify)
+                onClick = {
+                    analytics.logEvent(AccountRecoveryAnalytics.MnemonicEntered(isCustodialAccount = false))
 
-                this@AccountRecoveryActivity.hideKeyboard()
-                model.process(
-                    AccountRecoveryIntents.VerifySeedPhrase(
-                        seedPhrase = recoveryPhaseText.text?.toString() ?: ""
+                    this@AccountRecoveryActivity.hideKeyboard()
+                    model.process(
+                        AccountRecoveryIntents.VerifySeedPhrase(
+                            seedPhrase = recoveryPhaseText.text?.toString() ?: ""
+                        )
                     )
-                )
+                }
             }
         }
     }

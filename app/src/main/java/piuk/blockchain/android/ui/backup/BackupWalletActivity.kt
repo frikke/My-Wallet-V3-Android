@@ -49,7 +49,7 @@ class BackupWalletActivity : BlockchainActivity() {
         if (isBackedUp()) {
             startFragment(
                 BackupWalletCompletedFragment.newInstance(),
-                BackupWalletCompletedFragment.TAG
+                    BackupWalletCompletedFragment.TAG
             )
         } else {
             startFragment(BackupWalletStartingFragment(), BackupWalletStartingFragment.TAG)

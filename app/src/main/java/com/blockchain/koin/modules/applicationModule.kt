@@ -112,7 +112,6 @@ import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailableCryptoAssetsUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
-import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCase
 import piuk.blockchain.android.domain.usecases.GetReceiveAccountsForAssetUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.everypay.service.EveryPayCardService
@@ -597,18 +596,6 @@ val applicationModule = module {
                 custodialWalletManager = get()
             )
         }.bind(CancelOrderService::class)
-
-        factory {
-            GetDashboardOnboardingStepsUseCase(
-                dashboardPrefs = get(),
-                userIdentity = get(),
-                kycService = get(),
-                bankService = get(),
-                cardService = get(),
-                tradeDataService = get(),
-                userFeaturePermissionService = get()
-            )
-        }.bind(OnBoardingStepsService::class)
 
         factory<TradeDataService> {
             TradeDataRepository(

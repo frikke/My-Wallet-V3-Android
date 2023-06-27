@@ -10,7 +10,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.allassets.AssetsViewState
 import com.blockchain.walletmode.WalletMode
-
+// todo defi
 fun LazyListScope.emptyCard(
     walletMode: WalletMode,
     assetsViewState: AssetsViewState,
@@ -25,14 +25,8 @@ fun LazyListScope.emptyCard(
                 PaddingValues(horizontal = AppTheme.dimensions.smallSpacing)
             }
         ) {
-            when (walletMode) {
-                WalletMode.CUSTODIAL -> CustodialEmptyStateCards(
-                    assetActionsNavigation = assetActionsNavigation
-                )
-
-                WalletMode.NON_CUSTODIAL -> NonCustodialEmptyStateCard {
-                    assetActionsNavigation.navigate(AssetAction.Receive)
-                }
+            NonCustodialEmptyStateCard {
+                assetActionsNavigation.navigate(AssetAction.Receive)
             }
         }
     }

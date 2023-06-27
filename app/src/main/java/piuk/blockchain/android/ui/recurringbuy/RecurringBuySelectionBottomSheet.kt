@@ -112,14 +112,17 @@ class RecurringBuySelectionBottomSheet : MviBottomSheet<
             recurringBuySelectionGroup.setOnCheckedChangeListener { _, checkedId ->
                 selectedFrequency = idToInterval(checkedId)
             }
-            recurringBuySelectCta.setOnClickListener {
-                analytics.logEvent(
-                    BuyFrequencySelected(
-                        frequency = selectedFrequency.name
+            recurringBuySelectCta.apply {
+                text = getString(com.blockchain.stringResources.R.string.common_ok)
+                onClick =  {
+                    analytics.logEvent(
+                        BuyFrequencySelected(
+                            frequency = selectedFrequency.name
+                        )
                     )
-                )
-                host.onIntervalSelected(selectedFrequency)
-                dismiss()
+                    host.onIntervalSelected(selectedFrequency)
+                    dismiss()
+                }
             }
         }
     }

@@ -34,14 +34,12 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <androidx.appcompat.widget.AppCompatButton
+    <com.blockchain.componentlib.button.PrimaryButtonView
         android:id="@+id/continue_button"
-        style="@style/CtaButton.Blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/standard_spacing"
         android:enabled="false"
-        android:text="@string/common_continue"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -91,18 +89,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatButton
+    <com.blockchain.componentlib.button.MinimalPrimaryButtonView
         android:id="@+id/scan_pairing_button"
-        style="@style/CtaButton.White"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/standard_spacing"
         android:layout_marginBottom="@dimen/standard_spacing"
-        android:contentDescription="@string/btn_scan_pairing_code"
-        android:drawableStart="@drawable/ic_qr_scan_blue"
-        android:text="@string/btn_scan_pairing_code"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/continue_with_google_button"
+        app:layout_constraintBottom_toTopOf="@id/manual_pairing_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/login_or_label"
@@ -110,36 +104,16 @@
         app:layout_constraintVertical_chainStyle="packed"
         tools:visibility="visible" />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/continue_with_google_button"
-        style="@style/CtaButton.White"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/standard_spacing"
-        android:contentDescription="@string/continue_with_google"
-        android:drawableStart="@drawable/ic_google"
-        android:text="@string/continue_with_google"
-        android:textColor="@color/black"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/manual_pairing_button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scan_pairing_button"
-        tools:visibility="visible" />
-
-    <androidx.appcompat.widget.AppCompatButton
+    <com.blockchain.componentlib.button.MinimalPrimaryButtonView
         android:id="@+id/manual_pairing_button"
-        style="@style/CtaButton.White"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/standard_spacing"
-        android:enabled="false"
-        android:text="@string/btn_manual_pairing"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/continue_with_google_button"
+        app:layout_constraintTop_toBottomOf="@+id/scan_pairing_button"
         tools:visibility="visible" />
 
     <FrameLayout

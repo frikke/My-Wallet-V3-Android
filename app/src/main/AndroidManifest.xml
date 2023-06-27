@@ -155,9 +155,6 @@
             android:name=".ui.transfer.receive.detail.ReceiveDetailActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
-            android:name=".ui.dashboard.onboarding.DashboardOnboardingActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
-        <activity
             android:name=".ui.login.LoginActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:exported="true"

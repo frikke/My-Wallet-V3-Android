@@ -3544,7 +3544,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="buy_crypto_today">Buy crypto today</string>
     <string name="complete_your_profile">Complete your profile</string>
     <string name="other_amount">Other amount</string>
-    <string name="to_get_started_buy_your_first_btc">To get started, buy your first BTC.</string>
     <string name="to_get_started_transfer_to_your_wallets">To get started, transfer to your wallets</string>
     <string name="nc_empty_state_title">To get started, deposit crypto to your DeFi Wallet</string>
     <string name="nc_empty_state_cta">Deposit Crypto</string>
@@ -3555,7 +3554,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_rate">%1$s%% Rate</string>
     <string name="add_cash_from_your_bank_or_card">Add cash from your bank</string>
     <string name="cash_out_bank">Cash out to your bank</string>
-    <string name="buy_different_crypto">Buy a different crypto</string>
     <string name="select_an_option">Select an option</string>
     <string name="choose_how_to_swap">Choose how you\'d like to swap</string>
     <string name="bcdc_swap">Blockchain.com Swap</string>
