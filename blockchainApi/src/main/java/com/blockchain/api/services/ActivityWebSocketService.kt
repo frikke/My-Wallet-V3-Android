@@ -42,9 +42,6 @@ class ActivityWebSocketService(
                             activityJob = wsScope.launch {
                                 webSocket.responses.asFlow().flowOn(Dispatchers.IO)
                                     .collect {
-                                        println(
-                                            "EEEE NEW MESSAGE ${it.activityData.activity.map { item -> item.status }}"
-                                        )
                                         activityCacheService.addOrUpdateActivityItems(it)
                                     }
                             }
@@ -117,6 +114,7 @@ class ActivityWebSocketService(
     }
 
     fun close() {
+        openSocket = {}
         webSocket.close()
     }
 

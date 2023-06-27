@@ -12,6 +12,9 @@ const val URL_BLOCKCHAIN_GOLD_UNAVAILABLE_SUPPORT =
 const val URL_BLOCKCHAIN_KYC_SUPPORTED_COUNTRIES_LIST =
     "https://support.blockchain.com/hc/en-us/articles/4417197015188"
 
+const val URL_LEARN_MORE_DEX_NOT_ELIGIBLE =
+    "https://support.blockchain.com/hc/en-us/categories/4416659837460-Wallet"
+
 const val URL_TOS_POLICY = "https://blockchain.com/terms"
 const val URL_PRIVACY_POLICY = "https://blockchain.com/privacy"
 

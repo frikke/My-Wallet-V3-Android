@@ -83,14 +83,17 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Green700
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Red400
+import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.componentlib.utils.conditional
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.data.DataResource
 import com.blockchain.extensions.safeLet
 import com.blockchain.koin.payloadScope
 import com.blockchain.preferences.DexPrefs
+import com.blockchain.presentation.urllinks.URL_LEARN_MORE_DEX_NOT_ELIGIBLE
 import com.blockchain.stringResources.R
 import com.dex.presentation.ALLOWANCE_TRANSACTION_APPROVED
 import com.dex.presentation.AmountFieldConfig
@@ -366,6 +369,8 @@ fun DexEnterAmountScreen(
 private fun NotEligibleScreen(
     reason: String = "The DEX is not yet available for your account.",
 ) {
+    val context = LocalContext.current
+
     Surface(
         color = AppTheme.colors.backgroundSecondary,
         shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
@@ -413,6 +418,16 @@ private fun NotEligibleScreen(
                     vertical = AppTheme.dimensions.smallSpacing
                 )
             )
+
+            SmallVerticalSpacer()
+
+            MinimalPrimaryButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(id = R.string.common_learn_more)
+            ) {
+                context.openUrl(URL_LEARN_MORE_DEX_NOT_ELIGIBLE)
+            }
+            SmallVerticalSpacer()
         }
     }
 }
