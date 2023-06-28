@@ -16,6 +16,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.dataOrElse
+import com.blockchain.data.filterNotLoading
+import com.blockchain.data.map
 import com.blockchain.data.mapData
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.featureflag.FeatureFlag
@@ -24,6 +26,8 @@ import com.blockchain.home.actions.QuickActionsService
 import com.blockchain.home.handhold.HandholdService
 import com.blockchain.home.handhold.isMandatory
 import com.blockchain.home.presentation.R
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.outcome.getOrNull
 import com.blockchain.presentation.pulltorefresh.PullToRefresh
 import com.blockchain.utils.CurrentTimeProvider
@@ -40,6 +44,7 @@ class QuickActionsViewModel(
     private val fiatCurrenciesService: FiatCurrenciesService,
     private val coincore: Coincore,
     private val dexFeatureFlag: FeatureFlag,
+    private val userFeaturePermissionService: UserFeaturePermissionService,
     private val quickActionsService: QuickActionsService,
     private val fiatActions: FiatActionsUseCase,
     private val dispatcher: CoroutineDispatcher,
@@ -113,6 +118,7 @@ class QuickActionsViewModel(
                 }
 
                 loadActions(intent.walletMode)
+                loadDexState()
             }
 
             is QuickActionsIntent.FiatAction -> {
@@ -140,6 +146,27 @@ class QuickActionsViewModel(
 
             is QuickActionsIntent.ActionClicked -> {
                 navigate(intent.action.navigationEvent())
+            }
+        }
+    }
+
+    private suspend fun loadDexState() {
+        viewModelScope.launch(dispatcher) {
+            userFeaturePermissionService.isEligibleFor(Feature.Dex).filterNotLoading().collectLatest {
+                updateState {
+                    copy(
+                        dexEligible = it.dataOrElse(false)
+                    )
+                }
+            }
+        }
+
+        viewModelScope.launch(dispatcher) {
+            val enabled = dexFeatureFlag.coEnabled()
+            updateState {
+                copy(
+                    dexFFEnabled = enabled
+                )
             }
         }
     }
@@ -176,13 +203,13 @@ class QuickActionsViewModel(
         }
     }
 
-    private suspend fun QuickActionItem.navigationEvent(): QuickActionsNavEvent {
+    private fun QuickActionItem.navigationEvent(): QuickActionsNavEvent {
         check(modelState.walletMode != null)
         val assetAction = (action as? QuickAction.TxAction)?.assetAction ?: return QuickActionsNavEvent.More
         return when (assetAction) {
             AssetAction.Send -> QuickActionsNavEvent.Send
             AssetAction.Swap -> {
-                if (dexFeatureFlag.coEnabled() && modelState.walletMode == WalletMode.NON_CUSTODIAL) {
+                if (modelState.canUseDex()) {
                     QuickActionsNavEvent.DexOrSwapOption
                 } else {
                     QuickActionsNavEvent.Swap
@@ -398,9 +425,14 @@ fun StateAwareAction.toMoreActionItem(): MoreActionItem {
 data class QuickActionsModelState(
     val quickActions: List<StateAwareAction> = emptyList(),
     val maxQuickActionsOnScreen: Int? = null,
+    private val dexFFEnabled: Boolean = false,
+    private val dexEligible: Boolean = false,
     val walletMode: WalletMode? = null,
     val lastFreshDataTime: Long = 0
-) : ModelState
+) : ModelState {
+    fun canUseDex() =
+        dexFFEnabled && dexEligible && walletMode == WalletMode.NON_CUSTODIAL
+}
 
 data class QuickActionItem(
     val title: Int,
