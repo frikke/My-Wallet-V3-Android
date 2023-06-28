@@ -228,7 +228,14 @@ fun DexConfirmationScreen(
 
                     dataState.slippage?.let { sl ->
                         item {
-                            SlippageConfirmation(sl)
+                            SlippageConfirmation(
+                                sl = sl,
+                                extraInfoOnClick = { destination ->
+                                    navController.navigate(
+                                        destination
+                                    )
+                                }
+                            )
                             Divider(color = BackgroundMuted)
                         }
                     }
@@ -662,16 +669,34 @@ private fun ExchangeRateConfirmation(confirmationExchangeRate: ConfirmationExcha
     )
 }
 
+@Preview
 @Composable
-private fun SlippageConfirmation(sl: Double) {
+private fun SlippageConfirmation(sl: Double = 1.0, extraInfoOnClick: (String) -> Unit = {}) {
+    val extraInfoTitle = stringResource(id = com.blockchain.stringResources.R.string.allowed_slippage)
+    val extraInfoDescription =
+        stringResource(
+            id = com.blockchain.stringResources.R.string.slippage_explanation,
+        )
     TableRow(
         content = {
-            SimpleText(
-                text = stringResource(id = com.blockchain.stringResources.R.string.allowed_slippage),
-                style = ComposeTypographies.Paragraph2,
-                color = ComposeColors.Body,
-                gravity = ComposeGravities.Start
-            )
+            Row(verticalAlignment = CenterVertically) {
+                SimpleText(
+                    text = stringResource(id = com.blockchain.stringResources.R.string.allowed_slippage),
+                    style = ComposeTypographies.Paragraph2,
+                    color = ComposeColors.Body,
+                    gravity = ComposeGravities.Start
+                )
+
+                ExtraInfoIndicator {
+                    val destination = DexDestination.DexExtraInfoSheet.routeWithTitleAndDescription(
+                        title = extraInfoTitle,
+                        description = extraInfoDescription
+                    )
+                    extraInfoOnClick(
+                        destination
+                    )
+                }
+            }
             Spacer(modifier = Modifier.weight(1f))
             SimpleText(
                 text = sl.toPercentageString(),

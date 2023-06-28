@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.icons.Icons
@@ -56,6 +57,8 @@ fun MaskableText(
     text: String,
     style: TextStyle,
     color: Color,
+    overflow: TextOverflow = TextOverflow.Ellipsis,
+    maxLines: Int = Int.MAX_VALUE,
     textAlign: TextAlign? = null,
 ) {
     MaskableText(
@@ -63,6 +66,8 @@ fun MaskableText(
         maskState = maskState,
         clearText = "",
         maskableText = text,
+        overflow = overflow,
+        maxLines = maxLines,
         format = MaskedTextFormat.ClearThenMasked,
         style = style,
         color = color,
@@ -82,7 +87,9 @@ fun MaskableText(
     format: MaskedTextFormat,
     style: TextStyle,
     color: Color,
-    textAlign: TextAlign? = null
+    textAlign: TextAlign? = null,
+    maxLines: Int = Integer.MAX_VALUE,
+    overflow: TextOverflow = TextOverflow.Ellipsis
 ) {
 
     val shouldMask by when (maskState) {
@@ -96,6 +103,8 @@ fun MaskableText(
             MaskedTextFormat.ClearThenMasked -> clearText + (maskableText.takeIf { !shouldMask } ?: MASKED_TEXT)
             MaskedTextFormat.MaskedThenClear -> (maskableText.takeIf { !shouldMask } ?: MASKED_TEXT) + clearText
         },
+        maxLines = maxLines,
+        overflow = overflow,
         style = style,
         color = color,
         textAlign = textAlign

@@ -1,9 +1,12 @@
 package com.blockchain.componentlib.tablerow.custom
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -12,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
@@ -33,7 +37,9 @@ private fun StyledText(
     text: String,
     style: ViewStyle.TextStyle,
     textAlign: TextAlign,
-    maskState: MaskStateConfig
+    maskState: MaskStateConfig,
+    overflow: TextOverflow = TextOverflow.Ellipsis,
+    maxLines: Int = Int.MAX_VALUE
 ) {
     MaskableText(
         maskState = maskState,
@@ -41,6 +47,8 @@ private fun StyledText(
         style = style.style.copy(
             textDecoration = style.textDecoration()
         ),
+        overflow = overflow,
+        maxLines = maxLines,
         color = style.color,
         textAlign = textAlign
     )
@@ -49,6 +57,7 @@ private fun StyledText(
 @Composable
 fun MaskedCustomTableRow(
     modifier: Modifier = Modifier,
+    ellipsiseLeading: Boolean = false,
     icon: StackedIcon = StackedIcon.None,
     leadingComponents: List<ViewType>,
     trailingComponents: List<ViewType>,
@@ -61,6 +70,7 @@ fun MaskedCustomTableRow(
         modifier = modifier,
         maskState = MaskStateConfig.Default,
         icon = icon,
+        ellipsiseLeading = ellipsiseLeading,
         leadingComponents = leadingComponents,
         trailingComponents = trailingComponents,
         endIcon = endIcon,
@@ -77,6 +87,7 @@ fun CustomTableRow(
     leadingComponents: List<ViewType>,
     trailingComponents: List<ViewType>,
     endIcon: ImageResource = ImageResource.None,
+    ellipsise: Boolean = false,
     onClick: (() -> Unit)? = null,
     backgroundColor: Color = AppTheme.colors.backgroundSecondary,
     backgroundShape: Shape = RectangleShape
@@ -85,6 +96,7 @@ fun CustomTableRow(
         modifier = modifier,
         maskState = MaskStateConfig.Override(maskEnabled = false),
         icon = icon,
+        ellipsiseLeading = ellipsise,
         leadingComponents = leadingComponents,
         trailingComponents = trailingComponents,
         endIcon = endIcon,
@@ -102,6 +114,7 @@ private fun CustomTableRow(
     leadingComponents: List<ViewType>,
     trailingComponents: List<ViewType>,
     endIcon: ImageResource = ImageResource.None,
+    ellipsiseLeading: Boolean = false,
     onClick: (() -> Unit)? = null,
     backgroundColor: Color = AppTheme.colors.backgroundSecondary,
     backgroundShape: Shape = RectangleShape
@@ -116,36 +129,46 @@ private fun CustomTableRow(
             if (icon !is StackedIcon.None) {
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
             }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
 
-            Column {
-                leadingComponents.forEachIndexed { index, viewType ->
-                    SingleComponent(
-                        viewType = viewType,
-                        isTrailing = false,
-                        maskState = MaskStateConfig.Override(false)
-                    )
-
-                    if (index < leadingComponents.lastIndex) {
-                        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+                Column(
+                    modifier = if (ellipsiseLeading)
+                        Modifier.weight(1f)
+                    else Modifier
+                ) {
+                    leadingComponents.forEachIndexed { index, viewType ->
+                        SingleComponent(
+                            viewType = viewType,
+                            isTrailing = false,
+                            ellipsise = ellipsiseLeading,
+                            maskState = MaskStateConfig.Override(false)
+                        )
+                        if (index < leadingComponents.lastIndex) {
+                            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+                        }
                     }
                 }
-            }
+                //  Spacer(modifier = Modifier.size(AppTheme.dimensions.verySmallSpacing))
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.verySmallSpacing))
-
-            Column(
-                modifier = Modifier.weight(1F),
-                horizontalAlignment = Alignment.End
-            ) {
-                trailingComponents.forEachIndexed { index, viewType ->
-                    SingleComponent(
-                        viewType = viewType,
-                        isTrailing = true,
-                        maskState = maskState
-                    )
-
-                    if (index < trailingComponents.lastIndex) {
-                        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+                Column(
+                    modifier = if (!ellipsiseLeading)
+                        Modifier.weight(1f)
+                    else Modifier,
+                    horizontalAlignment = Alignment.End
+                ) {
+                    trailingComponents.forEachIndexed { index, viewType ->
+                        SingleComponent(
+                            viewType = viewType,
+                            isTrailing = true,
+                            maskState = maskState
+                        )
+                        if (index < trailingComponents.lastIndex) {
+                            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+                        }
                     }
                 }
             }
@@ -166,6 +189,7 @@ private fun CustomTableRow(
 private fun SingleComponent(
     viewType: ViewType,
     isTrailing: Boolean,
+    ellipsise: Boolean = false,
     maskState: MaskStateConfig
 ) {
     when (viewType) {
@@ -174,6 +198,7 @@ private fun SingleComponent(
                 text = viewType.value,
                 style = viewType.style,
                 textAlign = if (isTrailing) TextAlign.End else TextAlign.Start,
+                maxLines = if (ellipsise) 1 else Int.MAX_VALUE,
                 maskState = maskState
             )
         }
@@ -204,7 +229,7 @@ private fun PreviewCustomTableRow_Summary_SmallTag() {
         ),
         leadingComponents = listOf(
             ViewType.Text(
-                value = "Sent Ethereum",
+                value = "Sent Ethereum Sent Ethereum Sent Ethereum Sent Ethereum Sent Ethereum Sent Ethereum",
                 style = ViewStyle.TextStyle(
                     style = AppTheme.typography.paragraph2,
                     color = AppTheme.colors.title
