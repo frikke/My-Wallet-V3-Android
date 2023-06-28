@@ -26,7 +26,7 @@ fun ImageView.setAssetIconColoursWithTint(asset: Currency) {
 
 fun ImageView.setAssetIconColoursNoTint(asset: Currency) {
     val main = tryParseColour(asset.colour)
-    val tint = context.getResolvedColor(com.blockchain.common.R.color.white)
+    val tint = context.getResolvedColor(com.blockchain.componentlib.R.color.backgroundSecondary)
     setAssetIconColours(tint, main)
 }
 
@@ -35,21 +35,6 @@ fun ImageView.setAssetIconColours(@ColorInt tintColor: Int, @ColorInt filterColo
     ViewCompat.setBackgroundTintList(this, ColorStateList.valueOf(tintColor))
     setColorFilter(filterColor)
 }
-
-fun ImageView.setTransactionHasFailed() =
-    this.apply {
-        setImageResource(R.drawable.ic_close)
-        val tint = context.getResolvedColor(com.blockchain.common.R.color.red_200)
-        val main = context.getResolvedColor(com.blockchain.common.R.color.red_600)
-        setAssetIconColours(tint, main)
-    }
-
-fun ImageView.setTransactionIsConfirming() =
-    this.apply {
-        setImageResource(com.blockchain.common.R.drawable.ic_tx_confirming)
-        background = null
-        setColorFilter(Color.TRANSPARENT)
-    }
 
 // We fetch the colour codes from the BE and, therefore, we shouldn't trust them
 // to always parse correctly. If we cannot parse it, then fall back to black

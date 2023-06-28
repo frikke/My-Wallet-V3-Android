@@ -65,9 +65,9 @@ class InvoiceCountdownTimerDelegate<in T> : AdapterDelegate<T> {
             binding.confirmationItemValue.text = readableTime
 
             when {
-                remaining > FIVE_MINUTES -> setColors(com.blockchain.common.R.color.primary_grey_light)
-                remaining > ONE_MINUTE -> setColors(com.blockchain.common.R.color.secondary_yellow_medium)
-                else -> setColors(com.blockchain.common.R.color.secondary_red_light)
+                remaining > FIVE_MINUTES -> setColors(com.blockchain.componentlib.R.color.dark)
+                remaining > ONE_MINUTE -> setColors(com.blockchain.componentlib.R.color.warning)
+                else -> setColors(com.blockchain.componentlib.R.color.error)
             }
         }
 
