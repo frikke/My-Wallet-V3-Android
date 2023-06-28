@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.NavDirections
-import com.blockchain.activities.StartOnboarding
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.data.logEvent
 import com.blockchain.analytics.events.AnalyticsEvents
@@ -17,8 +16,6 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.presentation.koin.scopedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.FragmentKycSplashBinding
 import piuk.blockchain.android.ui.base.BaseFragment
@@ -26,8 +23,6 @@ import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import piuk.blockchain.android.ui.kyc.navigate
-import piuk.blockchain.android.util.throttledClicks
-import timber.log.Timber
 
 class KycSplashFragment : BaseFragment<KycSplashView, KycSplashPresenter>(), KycSplashView {
 
@@ -38,8 +33,6 @@ class KycSplashFragment : BaseFragment<KycSplashView, KycSplashPresenter>(), Kyc
     private val presenter: KycSplashPresenter by scopedInject()
 
     private val settingsDataManager: SettingsDataManager by scopedInject()
-
-    private val onBoardingStarter: StartOnboarding by inject()
 
     private val analytics: Analytics by inject()
 
@@ -88,28 +81,18 @@ class KycSplashFragment : BaseFragment<KycSplashView, KycSplashPresenter>(), Kyc
 
         with(binding) {
             textViewKycTermsAndConditions.gone()
+
+            buttonKycSplashApplyNow.apply {
+                text = getString(com.blockchain.stringResources.R.string.kyc_splash_apply_now)
+                onClick = {
+                    analytics.logEvent(KYCAnalyticsEvents.VerifyIdentityStart)
+                    presenter.onCTATapped()
+                }
+            }
         }
     }
 
     private val disposable = CompositeDisposable()
-
-    override fun onResume() {
-        super.onResume()
-        disposable += binding.buttonKycSplashApplyNow
-            .throttledClicks()
-            .subscribeBy(
-                onNext = {
-                    analytics.logEvent(KYCAnalyticsEvents.VerifyIdentityStart)
-                    presenter.onCTATapped()
-                },
-                onError = { Timber.e(it) }
-            )
-    }
-
-    override fun onPause() {
-        disposable.clear()
-        super.onPause()
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -137,14 +120,6 @@ class KycSplashFragment : BaseFragment<KycSplashView, KycSplashPresenter>(), Kyc
             message,
             type = SnackbarType.Error
         ).show()
-
-    override fun onEmailNotVerified() {
-        disposable += settingsDataManager.getSettings().subscribeBy(onNext = {
-            activity?.let {
-                onBoardingStarter.startEmailOnboarding(it)
-            }
-        }, onError = {})
-    }
 
     override fun createPresenter(): KycSplashPresenter = presenter
 

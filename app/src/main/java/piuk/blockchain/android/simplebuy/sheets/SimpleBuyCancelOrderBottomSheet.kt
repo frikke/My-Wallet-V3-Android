@@ -37,18 +37,21 @@ class SimpleBuyCancelOrderBottomSheet : SlidingModalBottomDialog<SimpleBuyCancel
                         com.blockchain.stringResources.R.string.cancel_order_do_cancel_dashboard
                     )
                     goBack.text = getString(com.blockchain.stringResources.R.string.cancel_order_go_back_dashboard)
+                } else {
+                    cancelOrder.text = getString(com.blockchain.stringResources.R.string.cancel_order_do_cancel)
+                    goBack.text = getString(com.blockchain.stringResources.R.string.cancel_order_go_back)
                 }
 
                 cancelOrderToken.text = getString(
                     com.blockchain.stringResources.R.string.cancel_token_instruction,
                     asset.displayTicker
                 )
-                cancelOrder.setOnClickListenerDebounced {
+                cancelOrder.onClick = {
                     analytics.logEvent(SimpleBuyAnalytics.BANK_DETAILS_CANCEL_CONFIRMED)
                     dismiss()
                     host.cancelOrderConfirmAction(true, state.id)
                 }
-                goBack.setOnClickListenerDebounced {
+                goBack.onClick =  {
                     analytics.logEvent(SimpleBuyAnalytics.BANK_DETAILS_CANCEL_GO_BACK)
                     dismiss()
                     host.cancelOrderConfirmAction(false, null)

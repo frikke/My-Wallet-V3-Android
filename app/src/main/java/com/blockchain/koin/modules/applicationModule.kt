@@ -32,7 +32,6 @@ import com.blockchain.core.trade.TradeDataRepository
 import com.blockchain.core.utils.SSLVerifyUtil
 import com.blockchain.deeplinking.processor.DeeplinkService
 import com.blockchain.domain.buy.CancelOrderService
-import com.blockchain.domain.onboarding.OnBoardingStepsService
 import com.blockchain.domain.paymentmethods.model.BankBuyNavigation
 import com.blockchain.domain.paymentmethods.model.BankPartnerCallbackProvider
 import com.blockchain.domain.trade.TradeDataService
@@ -84,7 +83,6 @@ import com.blockchain.walletconnect.ui.navigation.WalletConnectV2Navigation
 import exchange.ExchangeLinking
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import okhttp3.OkHttpClient
@@ -138,12 +136,6 @@ import piuk.blockchain.android.ui.airdrops.AirdropCentrePresenter
 import piuk.blockchain.android.ui.auth.AuthNavigationImpl
 import piuk.blockchain.android.ui.auth.FirebaseMobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.auth.MobileNoticeRemoteConfig
-import piuk.blockchain.android.ui.backup.completed.BackupWalletCompletedPresenter
-import piuk.blockchain.android.ui.backup.start.BackupWalletStartingInteractor
-import piuk.blockchain.android.ui.backup.start.BackupWalletStartingModel
-import piuk.blockchain.android.ui.backup.start.BackupWalletStartingState
-import piuk.blockchain.android.ui.backup.verify.BackupVerifyPresenter
-import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListPresenter
 import piuk.blockchain.android.ui.brokerage.BuySellFlowNavigator
 import piuk.blockchain.android.ui.brokerage.sell.SellRepository
 import piuk.blockchain.android.ui.brokerage.sell.SellViewModel
@@ -172,9 +164,6 @@ import piuk.blockchain.android.ui.launcher.LauncherViewModel
 import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.android.ui.linkbank.BankAuthModel
 import piuk.blockchain.android.ui.linkbank.BankAuthState
-import piuk.blockchain.android.ui.onboarding.OnboardingPresenter
-import piuk.blockchain.android.ui.pairingcode.PairingModel
-import piuk.blockchain.android.ui.pairingcode.PairingState
 import piuk.blockchain.android.ui.recover.AccountRecoveryInteractor
 import piuk.blockchain.android.ui.recover.AccountRecoveryModel
 import piuk.blockchain.android.ui.recover.AccountRecoveryState
@@ -193,6 +182,7 @@ import piuk.blockchain.android.util.wiper.DataWiper
 import piuk.blockchain.android.util.wiper.DataWiperImpl
 import piuk.blockchain.android.walletmode.DefaultWalletModeStrategy
 import piuk.blockchain.android.walletmode.WalletModeThemeProvider
+import java.io.File
 
 val applicationModule = module {
 
@@ -368,19 +358,6 @@ val applicationModule = module {
                 .debugLog("COIN_SOCKET")
         }
 
-        factory {
-            PairingModel(
-                initialState = PairingState(),
-                mainScheduler = AndroidSchedulers.mainThread(),
-                environmentConfig = get(),
-                remoteLogger = get(),
-                qrCodeDataService = get(),
-                payloadDataManager = get(),
-                authDataManager = get(),
-                analytics = get()
-            )
-        }
-
         viewModel {
             CreateWalletViewModel(
                 environmentConfig = get(),
@@ -406,40 +383,9 @@ val applicationModule = module {
             )
         }
 
-        factory {
-            BackupWalletStartingInteractor(
-                authPrefs = get(),
-                settingsDataManager = get()
-            )
-        }
-
-        factory {
-            BackupWalletStartingModel(
-                initialState = BackupWalletStartingState(),
-                mainScheduler = AndroidSchedulers.mainThread(),
-                environmentConfig = get(),
-                remoteLogger = get(),
-                interactor = get()
-            )
-        }
-
-        factory {
-            BackupWalletWordListPresenter(
-                backupWallet = get()
-            )
-        }
-
         factory<BackupWallet> {
             BackupWalletUtil(
                 payloadDataManager = get()
-            )
-        }
-
-        factory {
-            BackupVerifyPresenter(
-                payloadDataManager = get(),
-                backupWallet = get(),
-                walletStatusPrefs = get()
             )
         }
 
@@ -719,21 +665,6 @@ val applicationModule = module {
                 userService = get()
             )
         }.bind(ExchangeLinking::class)
-
-        factory {
-            BackupWalletCompletedPresenter(
-                walletStatusPrefs = get(),
-                authDataManager = get()
-            )
-        }
-
-        factory {
-            OnboardingPresenter(
-                biometricsController = get(),
-                pinRepository = get(),
-                settingsDataManager = get()
-            )
-        }
 
         factory {
             Prerequisites(

@@ -30,7 +30,8 @@ class SimpleBuyPendingKycFragment :
         super.onViewCreated(view, savedInstanceState)
         model.process(SimpleBuyIntent.FetchKycState)
         model.process(SimpleBuyIntent.FlowCurrentScreen(FlowScreen.KYC_VERIFICATION))
-        binding.continueToWallet.setOnClickListener {
+        binding.continueToWallet.text = getString(com.blockchain.stringResources.R.string.common_continue)
+        binding.continueToWallet.onClick = {
             navigator().exitSimpleBuyFlow()
         }
     }

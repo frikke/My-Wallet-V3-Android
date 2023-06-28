@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.blockchain.analytics.data.logEvent
 import com.blockchain.analytics.events.AnalyticsEvents
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.presentation.koin.scopedInject
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -47,6 +48,21 @@ class KycResubmissionSplashFragment : Fragment() {
         logEvent(AnalyticsEvents.KycResubmission)
 
         progressListener.setupHostToolbar(com.blockchain.stringResources.R.string.kyc_resubmission_splash_title)
+
+        binding.buttonKycResubmissionSplashNext.apply {
+            text = getString(com.blockchain.stringResources.R.string.common_next)
+            buttonState = ButtonState.Enabled
+            onClick = {
+                buttonState = ButtonState.Disabled
+
+                disposable += kycNavigator.findNextStep()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeBy(
+                        onSuccess = { navigate(it) },
+                        onError = { Timber.e(it) }
+                    )
+            }
+        }
     }
 
     override fun onDestroyView() {
@@ -55,18 +71,6 @@ class KycResubmissionSplashFragment : Fragment() {
     }
 
     private val disposable = CompositeDisposable()
-
-    override fun onResume() {
-        super.onResume()
-        disposable += binding.buttonKycResubmissionSplashNext
-            .throttledClicks()
-            .flatMapSingle { kycNavigator.findNextStep() }
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy(
-                onNext = { navigate(it) },
-                onError = { Timber.e(it) }
-            )
-    }
 
     override fun onPause() {
         disposable.clear()

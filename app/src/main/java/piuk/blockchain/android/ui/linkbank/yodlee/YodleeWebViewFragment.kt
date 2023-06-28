@@ -85,8 +85,12 @@ class YodleeWebViewFragment :
         super.onViewCreated(view, savedInstanceState)
         updateTitleToolbar(getString(com.blockchain.stringResources.R.string.link_a_bank))
         setupWebView()
-        binding.yodleeRetry.setOnClickListener {
-            loadYodlee()
+
+        binding.yodleeRetry.apply {
+            text = getString(com.blockchain.stringResources.R.string.common_retry)
+            onClick = {
+                loadYodlee()
+            }
         }
     }
 
@@ -169,7 +173,6 @@ class YodleeWebViewFragment :
             yodleeStatusLabel.visible()
 
             yodleeRetry.visible()
-            yodleeRetry.setOnClickListener { loadYodlee() }
             reason?.let {
                 yodleeSubtitle.visible()
                 yodleeSubtitle.text = it

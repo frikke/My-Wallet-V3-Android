@@ -27,6 +27,7 @@
         <item name="android:windowContentTransitions">true</item>
         <item name="toolbarStyle">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
         <item name="bottomSheetDialogTheme">@style/BottomSheetDialog</item>
+        <item name="android:textColorHint">@color/body</item>
     </style>
 
     <style name="AppTheme.MainActivity">
@@ -373,7 +374,7 @@
         <item name="cardCornerRadius">3dp</item>
         <item name="cardPreventCornerOverlap">true</item>
         <item name="cardUseCompatPadding">true</item>
-        <item name="cardBackgroundColor">@color/white</item>
+        <item name="cardBackgroundColor">@color/backgroundSecondary</item>
     </style>
 
     <style name="ToolbarTitleTextAppearance" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">

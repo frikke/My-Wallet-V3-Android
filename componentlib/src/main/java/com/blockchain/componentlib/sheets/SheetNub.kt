@@ -20,13 +20,13 @@ fun SheetNub(
     Box(
         modifier = modifier
             .size(
-                width = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
-                height = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
+                width = AppTheme.dimensions.standardSpacing,
+                height = AppTheme.dimensions.smallestSpacing
             )
             .background(
                 color = AppColors.dark,
                 shape = RoundedCornerShape(
-                    size = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
+                    size = AppTheme.dimensions.smallestSpacing
                 )
             )
     )

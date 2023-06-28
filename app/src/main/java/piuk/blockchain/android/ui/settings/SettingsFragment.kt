@@ -299,7 +299,7 @@ class SettingsFragment :
                     // keep old functionality here if no data returned
                     title = getString(com.blockchain.stringResources.R.string.referral_program)
                     subtitle = newState.referralInfo.rewardTitle
-                    backgroundResource = ImageResource.Local(R.drawable.bkgd_button_blue)
+                    backgroundResource = ImageResource.Local(R.drawable.rounded_blue_button_bkg)
                 }
             }
         }

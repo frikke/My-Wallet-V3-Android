@@ -55,9 +55,12 @@ class YodleeSplashFragment : Fragment() {
                     requireActivity()
                 )
 
-            yodleeSplashCta.setOnClickListener {
-                analytics.logEvent(bankAuthEvent(BankAuthAnalytics.SPLASH_CTA, BankPartner.YODLEE))
-                navigator().launchYodleeWebview(attributes, linkingBankId)
+            yodleeSplashCta.apply {
+                text = getString(com.blockchain.stringResources.R.string.common_continue)
+                onClick =  {
+                    analytics.logEvent(bankAuthEvent(BankAuthAnalytics.SPLASH_CTA, BankPartner.YODLEE))
+                    navigator().launchYodleeWebview(attributes, linkingBankId)
+                }
             }
         }
 
