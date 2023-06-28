@@ -62,7 +62,6 @@ class SellRepositoryTest {
             kycService = kycService,
             coincore = mockk(),
             accountsSorting = mockk(),
-            localSettingsPrefs = mockk(),
             simpleBuyService = simpleBuyService,
             custodialWalletManager = custodialWalletManager,
             currencyPrefs = currencyPrefs

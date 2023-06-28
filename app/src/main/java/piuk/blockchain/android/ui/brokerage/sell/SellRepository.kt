@@ -20,14 +20,10 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.utils.asFlow
-import com.blockchain.utils.zipSingles
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.asAssetInfoOrThrow
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.zipWith
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
@@ -42,7 +38,6 @@ class SellRepository(
     private val userFeaturePermissionService: UserFeaturePermissionService,
     private val kycService: KycService,
     private val coincore: Coincore,
-    private val localSettingsPrefs: LocalSettingsPrefs,
     private val accountsSorting: AccountsSorting,
     private val simpleBuyService: SimpleBuyService,
     private val custodialWalletManager: CustodialWalletManager,
@@ -75,18 +70,13 @@ class SellRepository(
         ).map { accountList ->
             accountList
                 .filterUnsupportedPairs(availableAssets)
-        }.zipWith(Single.just(localSettingsPrefs.hideSmallBalancesEnabled))
-            .flatMap { (accounts, shouldHideDust) ->
-                if (shouldHideDust) {
-                    accounts.filterDustBalances()
-                } else {
-                    Single.just(accounts.filterIsInstance<CryptoAccount>())
-                }
-            }.toObservable().map { DataResource.Data(it) as DataResource<List<CryptoAccount>> }.asFlow().onEach {
-                sellAvailableAccounts = sellAvailableAccounts.plus(walletMode to it)
-            }.onStart {
-                emit(sellAvailableAccounts[walletMode] ?: DataResource.Loading)
-            }
+        }.map { accounts ->
+            accounts.filterIsInstance<CryptoAccount>()
+        }.toObservable().map { DataResource.Data(it) as DataResource<List<CryptoAccount>> }.asFlow().onEach {
+            sellAvailableAccounts = sellAvailableAccounts.plus(walletMode to it)
+        }.onStart {
+            emit(sellAvailableAccounts[walletMode] ?: DataResource.Loading)
+        }
     }
 
     private fun checkUserEligibilityStatus(
@@ -97,6 +87,7 @@ class SellRepository(
             is BlockedReason.InsufficientTier,
             is BlockedReason.NotEligible,
             is BlockedReason.Sanctions -> flowOf(DataResource.Data(SellEligibility.NotEligible(reason)))
+
             is BlockedReason.TooManyInFlightTransactions,
             is BlockedReason.ShouldAcknowledgeStakingWithdrawal,
             is BlockedReason.ShouldAcknowledgeActiveRewardsWithdrawalWarning,
@@ -107,6 +98,7 @@ class SellRepository(
                         SellUserEligibility.NonKycdUser -> flowOf(
                             DataResource.Data(SellEligibility.KycBlocked(data)) as DataResource<SellEligibility>
                         )
+
                         SellUserEligibility.KycdUser -> {
                             getSellAssetList().mapData { list ->
                                 SellEligibility.Eligible(list)
@@ -127,12 +119,15 @@ class SellRepository(
                     kyc.isApprovedFor(KycTier.GOLD) && eligible -> {
                         SellUserEligibility.KycdUser
                     }
+
                     kyc.isRejectedFor(KycTier.GOLD) -> {
                         SellUserEligibility.KycRejectedUser
                     }
+
                     kyc.isApprovedFor(KycTier.GOLD) && !eligible -> {
                         SellUserEligibility.KycRejectedUser
                     }
+
                     else -> {
                         SellUserEligibility.NonKycdUser
                     }
@@ -157,18 +152,5 @@ class SellRepository(
     private fun SingleAccountList.filterUnsupportedPairs(supportedAssets: List<AssetInfo>) =
         this.filter { account ->
             supportedAssets.contains(account.currency)
-        }
-
-    private fun SingleAccountList.filterDustBalances(): Single<List<CryptoAccount>> =
-        map { account ->
-            account.balanceRx().firstOrError()
-        }.zipSingles().map {
-            this.mapIndexedNotNull { index, singleAccount ->
-                if (!it[index].totalFiat.isDust()) {
-                    singleAccount
-                } else {
-                    null
-                }
-            }.filterIsInstance<CryptoAccount>()
         }
 }

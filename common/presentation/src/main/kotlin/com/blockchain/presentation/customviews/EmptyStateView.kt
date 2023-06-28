@@ -8,8 +8,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.blockchain.common.R
 import com.blockchain.common.databinding.ViewEmptyStateBinding
-import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.User
+import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.presentation.getResolvedDrawable
 
@@ -24,7 +23,7 @@ class EmptyStateView @JvmOverloads constructor(
     fun setDetails(
         @StringRes title: Int = com.blockchain.stringResources.R.string.common_empty_title,
         @StringRes description: Int = com.blockchain.stringResources.R.string.common_empty_details,
-        @DrawableRes icon: Int = Icons.Filled.User.id,
+        @DrawableRes icon: Int? = null,
         @StringRes ctaText: Int = com.blockchain.stringResources.R.string.common_empty_cta,
         contactSupportEnabled: Boolean = false,
         action: () -> Unit,
@@ -33,7 +32,11 @@ class EmptyStateView @JvmOverloads constructor(
         with(binding) {
             viewEmptyTitle.text = context.getString(title)
             viewEmptyDesc.text = context.getString(description)
-            viewEmptyIcon.setImageDrawable(context.getResolvedDrawable(icon))
+            icon?.let {
+                viewEmptyIcon.setImageDrawable(context.getResolvedDrawable(it))
+            } ?: kotlin.run {
+                viewEmptyIcon.gone()
+            }
             viewEmptyCta.text = context.getString(ctaText)
             viewEmptyCta.setOnClickListener {
                 action()

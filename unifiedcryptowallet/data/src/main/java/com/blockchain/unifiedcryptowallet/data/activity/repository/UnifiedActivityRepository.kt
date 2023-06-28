@@ -88,7 +88,10 @@ class UnifiedActivityRepository(
             }
     }
 
-    override fun clearCache() = activityCache.clearActivityCache()
+    override fun clear() {
+        activityWebSocketService.close()
+        activityCache.clearActivityCache()
+    }
 
     private fun ActivityItem.toUnifiedActivityItem(): UnifiedActivityItem? {
         return json.decodeFromString<ActivityViewItemDto>(summary_view)

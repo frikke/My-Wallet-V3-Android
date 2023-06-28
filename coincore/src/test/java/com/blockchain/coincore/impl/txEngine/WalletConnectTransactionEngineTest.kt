@@ -24,6 +24,7 @@ import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.math.BigDecimal
 import org.junit.Before
 import org.junit.Test
 
@@ -133,7 +134,7 @@ class WalletConnectTransactionEngineTest : CoincoreTestBase() {
 
         whenever(exchangeRates.getLastCryptoToUserFiatRate(CryptoCurrency.ETHER)).thenReturn(
             ExchangeRate(
-                rate = 0.01.toBigDecimal(),
+                rate = 5.88.toBigDecimal(),
                 from = CryptoCurrency.ETHER,
                 to = TEST_USER_FIAT
             )
@@ -189,13 +190,13 @@ class WalletConnectTransactionEngineTest : CoincoreTestBase() {
                 ) && it.txConfirmations[4] == TxConfirmationValue.CompoundNetworkFee(
                     sendingFeeInfo = FeeInfo(
                         asset = CryptoCurrency.ETHER,
-                        fiatAmount = Money.zero(TEST_USER_FIAT),
+                        fiatAmount = Money.fromMajor(TEST_USER_FIAT, BigDecimal("1.60661980080E-9")),
                         feeAmount = Money.fromMinor(CryptoCurrency.ETHER, 273234660.toBigInteger())
                     ),
                     feeLevel = FeeLevel.Regular
                 ) && it.txConfirmations[5] == TxConfirmationValue.Total(
                     totalWithFee = Money.fromMinor(CryptoCurrency.ETHER, 1147192045.toBigInteger()),
-                    exchange = Money.zero(TEST_USER_FIAT)
+                    exchange = Money.fromMajor(TEST_USER_FIAT, BigDecimal("6.74548922460E-9"))
                 )
             }
             .assertNoErrors()

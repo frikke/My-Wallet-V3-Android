@@ -83,10 +83,10 @@ internal class SellRepository(
         return combineDataResourceFlows(
             availableFiats,
             supportedCryptoCurrencies,
-        ) { availableFiats, supportedCryptoCurrencies ->
-            supportedCryptoCurrencies
+        ) { fiats, supportedCryptos ->
+            supportedCryptos
                 .filter {
-                    availableFiats.contains(it.destination) &&
+                    fiats.contains(it.destination) &&
                         (forFiatCurrency == null || it.destination == forFiatCurrency)
                 }
         }

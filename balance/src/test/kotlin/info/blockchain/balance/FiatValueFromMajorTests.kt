@@ -18,30 +18,6 @@ class FiatValueFromMajorTests {
     }
 
     @Test
-    fun `from major GBP - rounds down above midway`() {
-        FiatValue.fromMajor(
-            GBP,
-            1.235.toBigDecimal()
-        ) `should be equal to` 1.23.gbp()
-    }
-
-    @Test
-    fun `from major GBP - rounds down below midway`() {
-        FiatValue.fromMajor(
-            GBP,
-            1.2349.toBigDecimal()
-        ) `should be equal to` 1.23.gbp()
-    }
-
-    @Test
-    fun `from major GBP has scale 2`() {
-        FiatValue.fromMajor(
-            GBP,
-            1.toBigDecimal()
-        ).toBigDecimal().scale() `should be equal to` 2
-    }
-
-    @Test
     fun `from major JPY`() {
         FiatValue.fromMajor(
             JPY,

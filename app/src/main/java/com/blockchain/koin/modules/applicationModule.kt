@@ -719,7 +719,6 @@ val applicationModule = module {
                 userFeaturePermissionService = get(),
                 kycService = get(),
                 accountsSorting = get(sellOrder),
-                localSettingsPrefs = get(),
                 simpleBuyService = get(),
                 coincore = get(),
                 custodialWalletManager = get(),

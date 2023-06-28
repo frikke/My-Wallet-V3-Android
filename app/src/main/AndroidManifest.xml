@@ -178,8 +178,7 @@
         <activity
             android:name=".ui.settings.security.pin.PinActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:exported="true"
-            android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
+            android:exported="true" />
 
         <activity
             android:name=".ui.login.auth.LoginAuthActivity"

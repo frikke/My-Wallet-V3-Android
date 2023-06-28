@@ -41,7 +41,7 @@ data class AssetsModelState(
                             singleAccount = it.firstOrNull()?.singleAccount ?: return@mapNotNull null,
                             balance = it.map { acc -> acc.balance }.sumAvailableBalances(),
                             fiatBalance = it.map { acc -> acc.fiatBalance }.sumAvailableBalances(),
-                            usdBalance = it.map { acc -> acc.usdBalance }.sumAvailableBalances(),
+                            majorCurrencyBalance = it.map { acc -> acc.usdBalance }.sumAvailableBalances(),
                             exchangeRate24hWithDelta = it.firstOrNull()?.exchangeRate24hWithDelta
                                 ?: return@mapNotNull null
                         )

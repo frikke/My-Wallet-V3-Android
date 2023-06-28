@@ -39,7 +39,6 @@ class DatePickerActivity : AppCompatActivity() {
         findViewById<DateCalendarView>(R.id.date_calendar).apply {
             minimumDate = Date()
             onDateSelected = {
-                println(it)
             }
         }
     }
