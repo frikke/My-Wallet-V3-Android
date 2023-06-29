@@ -58,16 +58,20 @@ class AuthInterceptor : Interceptor, KoinComponent {
             .build()
 
         val response = chain.proceed(request)
+
         return if (response.code == NabuErrorStatusCodes.TokenExpired.code) {
             response.body?.closeQuietly()
             nabuDataManager.clearAccessToken()
-
-            val sessionToken = nabuDataManager.refreshToken(offlineToken).blockingGet()
-            val newRequest = request
-                .newBuilder()
-                .header("authorization", sessionToken.authHeader)
-                .build()
-            chain.proceed(newRequest)
+            try {
+                val refreshedToken = nabuDataManager.refreshToken(offlineToken).blockingGet()
+                val newRequest = request
+                    .newBuilder()
+                    .header("authorization", refreshedToken.authHeader)
+                    .build()
+                chain.proceed(newRequest)
+            } catch (_: Exception) {
+                response
+            }
         } else {
             response
         }

@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,10 +40,13 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.impl.toDatePattern
 import com.blockchain.data.DataResource
 import com.github.mikephil.charting.data.Entry
+import java.time.Period
 import kotlin.random.Random
 import org.koin.androidx.compose.get
+import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewAnalytics
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
+import piuk.blockchain.android.ui.coinview.presentation.PriceIntervalText
 
 @Composable
 fun AssetPrice(
@@ -120,7 +124,11 @@ fun AssetPriceInfoData(
             percentageChangeData = PercentageChangeData(
                 priceChange = data.priceChange,
                 valueChange = data.valueChange,
-                interval = stringResource(data.intervalName)
+                interval = when (data.intervalText) {
+                    PriceIntervalText.Empty -> stringResource(id = com.blockchain.stringResources.R.string.empty)
+                    is PriceIntervalText.TimeSpanText -> data.intervalText.historicalTimeSpan.text()
+                    is PriceIntervalText.CustomPeriod -> data.intervalText.period.text()
+                }
             )
         )
 
@@ -160,6 +168,31 @@ fun AssetPriceInfoData(
             selectedItemIndex = data.selectedTimeSpan.value,
             showLiveIndicator = false
         )
+    }
+}
+
+@Composable
+private fun Period.text(): String {
+    return when {
+        years > 0 -> pluralStringResource(id = com.blockchain.stringResources.R.plurals.years_ago, count = years, years)
+        months > 0 -> pluralStringResource(
+            id = com.blockchain.stringResources.R.plurals.months_ago, count = months, months
+        )
+        days > 0 -> pluralStringResource(id = com.blockchain.stringResources.R.plurals.days_ago, count = days, days)
+        else -> stringResource(id = com.blockchain.stringResources.R.string.empty)
+    }
+}
+
+@Composable
+private fun HistoricalTimeSpan.text(): String {
+    return when (this) {
+        HistoricalTimeSpan.DAY -> stringResource(id = com.blockchain.stringResources.R.string.coinview_price_day)
+        HistoricalTimeSpan.WEEK -> stringResource(id = com.blockchain.stringResources.R.string.coinview_price_week)
+        HistoricalTimeSpan.MONTH ->
+            stringResource(id = com.blockchain.stringResources.R.string.coinview_price_month)
+
+        HistoricalTimeSpan.YEAR -> stringResource(id = com.blockchain.stringResources.R.string.coinview_price_year)
+        HistoricalTimeSpan.ALL_TIME -> stringResource(id = com.blockchain.stringResources.R.string.coinview_price_all)
     }
 }
 
@@ -287,7 +320,7 @@ fun PreviewAssetPrice_Data() {
             price = "$4,570.27",
             priceChange = "$969.25",
             valueChange = ValueChange.fromValue(5.58),
-            intervalName = com.blockchain.stringResources.R.string.coinview_price_day,
+            intervalText = PriceIntervalText.CustomPeriod(Period.of(2022, 2, 4)),
             chartData = CoinviewPriceState.CoinviewChartState.Data(
                 listOf(ChartEntry(1.4f, 43f), ChartEntry(3.4f, 4f))
             ),

@@ -136,6 +136,7 @@ class GlobalEventHandler(
                                 TransactionFlowActivity.newIntent(
                                     context = application,
                                     sourceAccount = account,
+                                    origin = "DeeplinkAssetSendDestination",
                                     action = AssetAction.Send
                                 )
                             )
@@ -211,7 +212,8 @@ class GlobalEventHandler(
                 is WalletConnectUserEvent.SignTransaction,
                 is WalletConnectUserEvent.SignMessage -> AssetAction.Sign
                 is WalletConnectUserEvent.SendTransaction -> AssetAction.Send
-            }
+            },
+            origin = "startTransactionFlowForSigning WC"
         )
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         application.startActivity(intent)

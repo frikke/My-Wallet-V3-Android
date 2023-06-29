@@ -264,8 +264,9 @@ class AddressesActivity :
         startActivityForResult(
             TransactionFlowActivity.newIntent(
                 context = this,
+                origin = "AddressActivity",
                 sourceAccount = sourceAccount,
-                action = AssetAction.Send
+                action = AssetAction.Send,
             ),
             TX_FLOW_REQUEST
         )

@@ -51,6 +51,10 @@ import info.blockchain.balance.isLayer2Token
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.Period
+import java.time.ZoneId
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -225,21 +229,25 @@ class CoinviewViewModel(
                     .price.toStringWithSymbol(),
                 priceChange = (interactiveAssetPrice ?: it.priceDetail)
                     .changeDifference.toStringWithSymbol(),
-                valueChange = (interactiveAssetPrice ?: it.priceDetail).percentChange.run {
-                    ValueChange.fromValue(BigDecimal(this).setScale(2, RoundingMode.FLOOR).toDouble())
-                },
-                intervalName = if (interactiveAssetPrice != null) {
-                    com.blockchain.stringResources.R.string.empty
+                valueChange = calculateValueChange(
+                    (
+                        interactiveAssetPrice
+                            ?: it.priceDetail
+                        ).percentChange
+                ),
+                intervalText = if (interactiveAssetPrice != null) {
+                    PriceIntervalText.Empty
                 } else {
-                    when ((it.priceDetail).timeSpan) {
-                        HistoricalTimeSpan.DAY -> com.blockchain.stringResources.R.string.coinview_price_day
-                        HistoricalTimeSpan.WEEK -> com.blockchain.stringResources.R.string.coinview_price_week
-                        HistoricalTimeSpan.MONTH ->
-                            com.blockchain.stringResources.R.string.coinview_price_month
+                    when (val tSpan = (it.priceDetail).timeSpan) {
+                        HistoricalTimeSpan.DAY,
+                        HistoricalTimeSpan.WEEK,
+                        HistoricalTimeSpan.MONTH,
+                        HistoricalTimeSpan.YEAR -> PriceIntervalText.TimeSpanText(tSpan)
 
-                        HistoricalTimeSpan.YEAR -> com.blockchain.stringResources.R.string.coinview_price_year
                         HistoricalTimeSpan.ALL_TIME ->
-                            com.blockchain.stringResources.R.string.coinview_price_all
+                            asset.currency.startDate?.calculateTimePassed()?.let { period ->
+                                PriceIntervalText.CustomPeriod(period)
+                            } ?: PriceIntervalText.TimeSpanText(HistoricalTimeSpan.ALL_TIME)
                     }
                 },
                 chartData = when {
@@ -264,20 +272,32 @@ class CoinviewViewModel(
         }
     }
 
+    private fun Long.calculateTimePassed(): Period {
+        val instant = Instant.ofEpochSecond(this)
+        val dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
+        val currentDate = LocalDateTime.now()
+        return Period.between(dateTime.toLocalDate(), currentDate.toLocalDate())
+    }
+
     private fun reduceWatchlist(
         state: CoinviewModelState
     ): DataResource<Boolean> = state.run {
         watchlist
     }
 
+    private fun calculateValueChange(percentChange: Double): ValueChange =
+        percentChange.takeIf { percent -> !percent.isNaN() && !percent.isInfinite() }
+            ?.let {
+                ValueChange.fromValue(BigDecimal(it).setScale(2, RoundingMode.FLOOR).toDouble())
+            } ?: ValueChange.None(percentChange)
+
     private fun reduceAccounts(
         state: CoinviewModelState
     ): DataResource<CoinviewAccountsState?> = state.run {
-        when {
-            isTradeableAsset == false -> {
+        when (isTradeableAsset) {
+            false -> {
                 DataResource.Data(null)
             }
-
             else -> {
                 assetDetail.map {
                     if (it is CoinviewAssetDetail.Tradeable) {
@@ -1455,4 +1475,10 @@ class CoinviewViewModel(
             }
         }
     }
+}
+
+sealed class PriceIntervalText {
+    object Empty : PriceIntervalText()
+    data class TimeSpanText(val historicalTimeSpan: HistoricalTimeSpan) : PriceIntervalText()
+    data class CustomPeriod(val period: Period) : PriceIntervalText()
 }

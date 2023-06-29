@@ -194,6 +194,7 @@ class CoinViewActivity :
                     TransactionFlowActivity.newIntent(
                         context = this,
                         action = AssetAction.Send,
+                        origin = "CoinviewActivity",
                         sourceAccount = navigationEvent.cvAccount.account
                     )
                 )
@@ -459,7 +460,8 @@ class CoinViewActivity :
             TransactionFlowActivity.newIntent(
                 context = this,
                 action = AssetAction.InterestDeposit,
-                target = account as TransactionTarget
+                target = account as TransactionTarget,
+                origin = "",
             )
         )
     }
@@ -477,7 +479,8 @@ class CoinViewActivity :
             TransactionFlowActivity.newIntent(
                 context = this,
                 action = AssetAction.InterestWithdraw,
-                sourceAccount = sourceAccount
+                sourceAccount = sourceAccount,
+                origin = "",
             )
         )
     }

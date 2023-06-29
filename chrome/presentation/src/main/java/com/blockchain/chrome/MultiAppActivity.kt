@@ -383,7 +383,8 @@ class MultiAppActivity :
                         onSuccess = { account ->
                             transactionFlowNavigation.startTransactionFlow(
                                 sourceAccount = account,
-                                action = AssetAction.Send
+                                action = AssetAction.Send,
+                                origin = "NavigateToDeeplinkDestination --- ${assetInfo.networkTicker}",
                             )
                         },
                         onError = {
@@ -452,14 +453,16 @@ class MultiAppActivity :
     override fun launchInterestDeposit(account: EarnRewardsAccount.Interest) {
         transactionFlowNavigation.startTransactionFlow(
             action = AssetAction.InterestDeposit,
-            target = account as TransactionTarget
+            target = account as TransactionTarget,
+            origin = "",
         )
     }
 
     override fun launchInterestWithdrawal(sourceAccount: BlockchainAccount) {
         transactionFlowNavigation.startTransactionFlow(
             action = AssetAction.InterestWithdraw,
-            sourceAccount = sourceAccount
+            sourceAccount = sourceAccount,
+            origin = "",
         )
     }
 
@@ -491,14 +494,16 @@ class MultiAppActivity :
         transactionFlowNavigation.startTransactionFlow(
             action = AssetAction.StakingWithdraw,
             sourceAccount = sourceAccount,
-            target = targetAccount as TransactionTarget
+            target = targetAccount as TransactionTarget,
+            origin = "",
         )
     }
 
     override fun launchStakingDeposit(account: EarnRewardsAccount.Staking) {
         transactionFlowNavigation.startTransactionFlow(
             action = AssetAction.StakingDeposit,
-            target = account as TransactionTarget
+            target = account as TransactionTarget,
+            origin = "",
         )
     }
 
@@ -522,7 +527,8 @@ class MultiAppActivity :
     override fun launchActiveRewardsDeposit(account: EarnRewardsAccount.Active) {
         transactionFlowNavigation.startTransactionFlow(
             action = AssetAction.ActiveRewardsDeposit,
-            target = account as TransactionTarget
+            target = account as TransactionTarget,
+            origin = "",
         )
     }
 
@@ -533,6 +539,7 @@ class MultiAppActivity :
         transactionFlowNavigation.startTransactionFlow(
             action = AssetAction.ActiveRewardsWithdraw,
             sourceAccount = sourceAccount,
+            origin = "",
             target = targetAccount as TransactionTarget
         )
     }

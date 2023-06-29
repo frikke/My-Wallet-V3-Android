@@ -7,6 +7,7 @@ import com.blockchain.coincore.TransactionTarget
 interface TransactionFlowNavigation {
     fun startTransactionFlow(
         action: AssetAction,
+        origin: String,
         sourceAccount: BlockchainAccount? = null,
         target: TransactionTarget? = null
     )

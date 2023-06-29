@@ -3706,4 +3706,16 @@ If you want to know more about our verification process visit our <annotation li
     <string name="dashboard_kyc_blocked_description">It seems we\'re unable to verify your identity. \n\nHowever, you can still use our DeFi Wallet.</string>
     <string name="go_to_defi">Go to DeFi Wallet</string>
 
+    <plurals name="years_ago">
+        <item quantity="one">%d year ago</item>
+        <item quantity="other">%d years ago</item>
+    </plurals>
+    <plurals name="months_ago">
+        <item quantity="one">%d months ago</item>
+        <item quantity="other">%d months ago</item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="one">%d day ago</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
 </resources>

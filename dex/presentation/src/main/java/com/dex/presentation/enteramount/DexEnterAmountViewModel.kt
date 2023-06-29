@@ -107,18 +107,21 @@ class DexEnterAmountViewModel(
     }
 
     private fun AmountModelState.reduceSelectedNetwork(): DataResource<DexNetworkViewState> {
-        return networks.map { coinNetworks ->
-            coinNetworks.first { it.chainId == selectedChain }
-        }.map { coinNetwork ->
-            val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(coinNetwork.nativeAssetTicker)
-            check(assetInfo != null)
-            DexNetworkViewState(
-                chainId = selectedChain!!,
-                logo = assetInfo.logo,
-                name = coinNetwork.shortName,
-                selected = true
-            )
+        val selectedNetwork = networks.map { coinNetworks ->
+            coinNetworks.firstOrNull { it.chainId == selectedChain }
         }
+        return (selectedNetwork as? DataResource.Data)?.data?.let {
+            val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(it.nativeAssetTicker)
+            check(assetInfo != null)
+            DataResource.Data(
+                DexNetworkViewState(
+                    chainId = it.chainId!!,
+                    logo = assetInfo.logo,
+                    name = it.shortName,
+                    selected = true
+                )
+            )
+        } ?: DataResource.Loading
     }
 
     private fun AmountModelState.reduceAllowNetworkSelection(): Boolean {
@@ -230,7 +233,6 @@ class DexEnterAmountViewModel(
     override suspend fun handleIntent(modelState: AmountModelState, intent: InputAmountIntent) {
         when (intent) {
             InputAmountIntent.InitTransaction -> {
-                loadNetworks()
                 tryToInitTransaction()
             }
 
@@ -397,17 +399,6 @@ class DexEnterAmountViewModel(
         }
     }
 
-    private fun loadNetworks() {
-        viewModelScope.launch {
-            val networks = dexNetworkService.supportedNetworks()
-            updateState {
-                copy(
-                    networks = DataResource.Data(networks)
-                )
-            }
-        }
-    }
-
     private fun tryToInitTransaction() {
         viewModelScope.launch {
             dexEligibilityService.dexEligibility().filterNotLoading().doOnData { featureAccess ->
@@ -441,6 +432,12 @@ class DexEnterAmountViewModel(
 
         val defAccounts = networks.associateWith {
             dexAccountsService.defSourceAccount(it)
+        }
+
+        updateState {
+            copy(
+                networks = DataResource.Data(networks)
+            )
         }
 
         if (defAccounts.filter { it.value.fiatBalance.isPositive }.isEmpty()) {

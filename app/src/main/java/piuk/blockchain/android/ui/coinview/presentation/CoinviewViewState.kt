@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.coinview.presentation
 
-import androidx.annotation.StringRes
 import com.blockchain.charts.ChartEntry
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.alert.SnackbarType
@@ -13,7 +12,6 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
 import com.blockchain.news.NewsArticle
 import info.blockchain.balance.AssetInfo
-import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 
@@ -52,7 +50,7 @@ data class CoinviewPriceState(
     val price: String,
     val priceChange: String,
     val valueChange: ValueChange,
-    @StringRes val intervalName: Int,
+    val intervalText: PriceIntervalText,
     val chartData: CoinviewChartState,
     val selectedTimeSpan: HistoricalTimeSpan
 ) {

@@ -229,7 +229,8 @@ class BuySellFragment :
             startActivity(
                 TransactionFlowActivity.newIntent(
                     context = requireActivity(),
-                    action = AssetAction.Sell
+                    action = AssetAction.Sell,
+                    origin = "",
                 )
             )
             requireActivity().finish()
