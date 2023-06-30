@@ -44,6 +44,7 @@ import com.blockchain.nabu.service.NabuService
 import com.blockchain.nabu.service.RetailWalletTokenService
 import com.blockchain.nabu.service.UserTagsRepository
 import com.blockchain.nabu.stores.NabuSessionTokenStore
+import kotlinx.coroutines.Dispatchers
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -106,6 +107,7 @@ val nabuModule = module {
                 kycService = get(),
                 interestService = get(),
                 eligibilityService = get(),
+                coroutinesDispatcher = Dispatchers.IO,
                 simpleBuyService = get()
             )
         }

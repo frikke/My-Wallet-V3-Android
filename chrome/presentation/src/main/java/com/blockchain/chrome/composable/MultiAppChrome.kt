@@ -487,23 +487,22 @@ fun MultiAppChromeScreen(
         }
         verifyHeaderPositionForNewScreen = false
     }
-    // //////////////////////////////////////////////
-
-    // //////////////////////////////////////////////
-    // show and hide balance on first launch
-    var hideBalanceAfterInitialValue by remember { mutableStateOf(false) }
-    // //////////////////////////////////////////////
 
     // //////////////////////////////////////////////
     // bottomnav animation
-    var currentBottomNavigationItems by remember { mutableStateOf(bottomNavigationItems) }
+    var currentBottomNavigationItems by remember { mutableStateOf(emptyList<ChromeBottomNavigationItem>()) }
+
     var bottomNavigationVisible by remember { mutableStateOf(true) }
+
+    if (bottomNavigationVisible && currentBottomNavigationItems.toSet() != bottomNavigationItems.toSet()) {
+        currentBottomNavigationItems = bottomNavigationItems
+    }
+
     val bottomNavOffsetY by animateIntAsState(
         targetValue = if (bottomNavigationVisible) 0 else 300,
         finishedListener = {
             if (bottomNavigationVisible.not()) {
                 bottomNavigationVisible = true
-                currentBottomNavigationItems = bottomNavigationItems
             }
         },
         animationSpec = tween(

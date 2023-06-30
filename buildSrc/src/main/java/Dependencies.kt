@@ -181,7 +181,7 @@ object Versions {
     const val mockk = "1.12.2"
     const val hamcrestJunit = "2.0.0.0"
     const val junit = "4.13.2"
-    const val robolectric = "4.9"
+    const val robolectric = "4.10.3"
 
     const val json = "20140107"
     const val espresso = "3.2.0"
