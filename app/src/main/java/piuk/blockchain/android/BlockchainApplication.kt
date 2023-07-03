@@ -111,15 +111,11 @@ open class BlockchainApplication : Application() {
             .subscribeBy(onNext = ::onConnectionEvent)
 
         // Init WalletConnect
-        try {
-            walletConnectV2Service.initWalletConnect(
-                application = this,
-                projectId = BuildConfig.WALLETCONNECT_PROJECT_ID,
-                relayUrl = BuildConfig.WALLETCONNECT_RELAY_URL,
-            )
-        } catch (t: Throwable) {
-            remoteLogger.logException(t, "walletConnectV2Service.initWalletConnect failed")
-        }
+        walletConnectV2Service.initWalletConnect(
+            application = this,
+            projectId = BuildConfig.WALLETCONNECT_PROJECT_ID,
+            relayUrl = BuildConfig.WALLETCONNECT_RELAY_URL,
+        )
 
         AppVersioningChecks(
             context = this,

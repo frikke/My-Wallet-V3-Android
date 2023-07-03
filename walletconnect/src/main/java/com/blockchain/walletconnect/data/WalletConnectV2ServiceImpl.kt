@@ -103,38 +103,42 @@ class WalletConnectV2ServiceImpl(private val lifecycleObservable: LifecycleObser
         val serverUrl = "wss://$relayUrl?projectId=$projectId"
         val connectionType = ConnectionType.MANUAL
         scope.launch(Dispatchers.IO) {
-            CoreClient.initialize(
-                relayServerUrl = serverUrl,
-                connectionType = connectionType,
-                application = application,
-                metaData = Core.Model.AppMetaData(
-                    name = "Blockchain.com",
-                    description = "",
-                    url = "https://www.blockchain.com",
-                    icons = listOf("https://www.blockchain.com/static/apple-touch-icon.png"),
-                    redirect = "bc-dapp-request://",
-                    verifyUrl = null
-                ),
-                relay = null,
-                keyServerUrl = null,
-                networkClientTimeout = null,
-                onError = { error ->
-                    Timber.e("WalletConnect V2: Core error: $error")
-                },
+            try {
+                CoreClient.initialize(
+                    relayServerUrl = serverUrl,
+                    connectionType = connectionType,
+                    application = application,
+                    metaData = Core.Model.AppMetaData(
+                        name = "Blockchain.com",
+                        description = "",
+                        url = "https://www.blockchain.com",
+                        icons = listOf("https://www.blockchain.com/static/apple-touch-icon.png"),
+                        redirect = "bc-dapp-request://",
+                        verifyUrl = null
+                    ),
+                    relay = null,
+                    keyServerUrl = null,
+                    networkClientTimeout = null,
+                    onError = { error ->
+                        Timber.e("WalletConnect V2: Core error: $error")
+                    },
 
-            )
+                )
 
-            val initParams = Wallet.Params.Init(CoreClient)
-            Web3Wallet.initialize(
-                initParams,
-                onSuccess = {
-                    Timber.d("WalletConnect V2: Web3Wallet init success")
-                    Web3Wallet.setWalletDelegate(this@WalletConnectV2ServiceImpl)
-                },
-                onError = { error ->
-                    Timber.e("WalletConnect V2: Web3Wallet init error: $error")
-                }
-            )
+                val initParams = Wallet.Params.Init(CoreClient)
+                Web3Wallet.initialize(
+                    initParams,
+                    onSuccess = {
+                        Timber.d("WalletConnect V2: Web3Wallet init success")
+                        Web3Wallet.setWalletDelegate(this@WalletConnectV2ServiceImpl)
+                    },
+                    onError = { error ->
+                        Timber.e("WalletConnect V2: Web3Wallet init error: $error")
+                    }
+                )
+            } catch (t: Throwable) {
+                Timber.e(t, "WalletConnect V2: Web3Wallet exception")
+            }
         }
         scope.launch {
             lifecycleObservable.onStateUpdated.asFlow().collectLatest { appState ->
