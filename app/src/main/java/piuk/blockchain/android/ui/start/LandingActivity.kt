@@ -2,11 +2,9 @@ package piuk.blockchain.android.ui.start
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.method.LinkMovementMethod
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Lifecycle
@@ -26,7 +24,6 @@ import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
 import piuk.blockchain.android.ui.login.LoginAnalytics
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
 import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
-import piuk.blockchain.android.util.StringUtils
 
 class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingView {
 
@@ -46,7 +43,7 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         with(binding) {
             presenter.checkForRooted()
 
-            btnCreate.apply { 
+            btnCreate.apply {
                 text = getString(com.blockchain.stringResources.R.string.landing_create_wallet)
                 onClick = { launchCreateWalletActivity() }
             }
@@ -163,7 +160,7 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         )
 
     override fun showApiOutageMessage() {
-        with(binding.tagWarning){
+        with(binding.tagWarning) {
             visible()
             text = getString(com.blockchain.stringResources.R.string.wallet_issue_message_clear)
             onClick = {

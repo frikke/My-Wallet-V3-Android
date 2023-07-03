@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.ImageResource
-import org.koin.android.BuildConfig
 
 private val bgColorLight = Color(0XFFEDFFFA)
 private val bgColorDark = Color(0XFF69ECCA)

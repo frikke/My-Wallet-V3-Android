@@ -114,7 +114,7 @@ private fun ThemeScreen(
                 )
 
                 if (index < Theme.values().lastIndex) {
-                    AppDivider()
+                    AppDivider(AppTheme.colors.light)
                 }
             }
 

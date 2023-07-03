@@ -35,9 +35,9 @@ import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.LargeVerticalSpacer
-import com.blockchain.componentlib.theme.Red600
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.extensions.exhaustive
@@ -225,7 +225,7 @@ fun VerifyPhraseIncorrect(resetOnClick: () -> Unit) {
         Text(
             text = stringResource(com.blockchain.stringResources.R.string.verify_phrase_incorrect_message),
             style = AppTheme.typography.body1,
-            color = Red600,
+            color = AppColors.error,
             textAlign = TextAlign.Center
         )
     }

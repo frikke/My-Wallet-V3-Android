@@ -92,7 +92,8 @@ fun Tag(
 @Composable
 fun ClickableTagLargeText() {
     Tag(
-        text = "There is a notice up on our status page. Full wallet functionality might not be available. Rest assured that your funds are safe. Learn more",
+        text = "There is a notice up on our status page. Full wallet functionality might not be available. " +
+            "Rest assured that your funds are safe. Learn more",
         size = TagSize.Primary,
         backgroundColor = Dark600,
         textColor = Blue400,

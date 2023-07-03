@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -152,10 +151,9 @@ fun NavigationBar(
 ) {
     val walletMode: WalletMode? = walletModeProvider(modeColor)
 
-
     NavigationBar(
         walletMode = walletMode,
-        mutedBg =  mutedBackground,
+        mutedBg = mutedBackground,
         title = title,
         icon = icon,
         startNavigationBarButton = startNavigationBarButton,

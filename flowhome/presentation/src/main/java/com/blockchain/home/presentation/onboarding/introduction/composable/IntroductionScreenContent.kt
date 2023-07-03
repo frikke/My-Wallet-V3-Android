@@ -2,10 +2,6 @@ package com.blockchain.home.presentation.onboarding.introduction.composable
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.ui.graphics.Color
-import com.blockchain.componentlib.theme.AppColors
-import com.blockchain.componentlib.theme.Blue600
-import com.blockchain.componentlib.theme.Purple0000
 import com.blockchain.home.presentation.R
 import com.blockchain.walletmode.WalletMode
 

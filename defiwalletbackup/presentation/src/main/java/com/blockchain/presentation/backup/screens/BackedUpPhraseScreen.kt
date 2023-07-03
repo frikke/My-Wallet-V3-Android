@@ -25,7 +25,6 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
-import com.blockchain.componentlib.tag.SuccessTag
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.LargeVerticalSpacer
 import com.blockchain.componentlib.theme.SmallVerticalSpacer

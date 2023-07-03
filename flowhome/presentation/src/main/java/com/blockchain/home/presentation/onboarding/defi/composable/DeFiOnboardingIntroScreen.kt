@@ -3,7 +3,6 @@ package com.blockchain.home.presentation.onboarding.defi.composable
 import android.content.res.Configuration
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,9 +35,6 @@ import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue000
-import com.blockchain.componentlib.theme.Blue600
-import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.componentlib.utils.circleAround

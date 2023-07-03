@@ -19,7 +19,7 @@ class WarningTagView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : BaseAbstractComposeView(context, attrs, defStyleAttr) {
 
-    var onClick : (() -> Unit)? by mutableStateOf(null)
+    var onClick: (() -> Unit)? by mutableStateOf(null)
     var text by mutableStateOf("")
 
     @Composable
@@ -34,7 +34,6 @@ class WarningTagView @JvmOverloads constructor(
         )
     }
 }
-
 
 private val bgColorLight = Color(0XFFFFECD6)
 private val bgColorDark = Color(0XFFFFA133)

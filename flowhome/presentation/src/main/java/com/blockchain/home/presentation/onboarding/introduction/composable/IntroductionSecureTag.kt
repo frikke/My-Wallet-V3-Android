@@ -16,7 +16,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.system.ClippedShadow
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.walletmode.WalletMode
 
 @Composable

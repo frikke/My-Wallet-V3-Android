@@ -1,14 +1,6 @@
 package com.blockchain.presentation.backup
 
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
-import androidx.compose.ui.graphics.Color
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
-import com.blockchain.componentlib.theme.Green000
-import com.blockchain.componentlib.theme.Green700
-import com.blockchain.componentlib.theme.Orange000
-import com.blockchain.componentlib.theme.Orange600
-import com.blockchain.presentation.R
 
 const val TOTAL_STEP_COUNT = 2
 

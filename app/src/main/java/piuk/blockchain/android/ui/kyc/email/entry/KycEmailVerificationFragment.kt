@@ -33,7 +33,7 @@ class KycEmailVerificationFragment :
         }
     }
 
-    private val legacyBg  = arguments?.getBoolean(LEGACY_BG) ?: true
+    private val legacyBg = arguments?.getBoolean(LEGACY_BG) ?: true
 
     override fun onCreateView(
         inflater: LayoutInflater,

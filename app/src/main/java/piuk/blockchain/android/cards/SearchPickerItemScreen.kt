@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,10 +26,8 @@ import androidx.compose.ui.unit.sp
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
-import com.blockchain.componentlib.controls.OutlinedTextInput
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
@@ -54,7 +51,8 @@ fun SearchPickerItemScreen(
     Column(
         Modifier
             .fillMaxSize()
-            .background(AppColors.backgroundSecondary)) {
+            .background(AppColors.backgroundSecondary)
+    ) {
         CancelableOutlinedSearch(
             onValueChange = { searchInput = it },
             placeholder = stringResource(com.blockchain.stringResources.R.string.search)

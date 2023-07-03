@@ -18,17 +18,12 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
-import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.icon.ScreenStatusIcon
 import com.blockchain.componentlib.icon.SmallTagIcon
-import com.blockchain.componentlib.icons.AlertOn
 import com.blockchain.componentlib.icons.Check
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Lock
-import com.blockchain.componentlib.icons.User
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
