@@ -3,6 +3,7 @@ package com.blockchain.home.presentation.onboarding.introduction.composable
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.Purple0000
 import com.blockchain.home.presentation.R
@@ -18,7 +19,6 @@ data class IntroductionScreenContent(
 
 data class IntroductionScreenTag(
     @StringRes val title: Int?,
-    val titleColor: Color?,
     @StringRes val description: Int
 )
 sealed interface IntroductionScreensSetup {
@@ -36,7 +36,6 @@ fun introductionsScreens(introductionScreensSetup: IntroductionScreensSetup): Li
                     description = com.blockchain.stringResources.R.string.intro_new_user_description,
                     tag = IntroductionScreenTag(
                         title = null,
-                        titleColor = null,
                         description = com.blockchain.stringResources.R.string.intro_new_user_tag_description
                     )
                 ).takeIf { introductionScreensSetup.isNewUser },
@@ -64,7 +63,6 @@ private val walletModeContent = mutableListOf(
         description = com.blockchain.stringResources.R.string.intro_custodial_description,
         tag = IntroductionScreenTag(
             title = com.blockchain.stringResources.R.string.intro_custodial_tag_title,
-            titleColor = Blue600,
             description = com.blockchain.stringResources.R.string.intro_custodial_tag_description
         ),
         forWalletMode = WalletMode.CUSTODIAL
@@ -75,7 +73,6 @@ private val walletModeContent = mutableListOf(
         description = com.blockchain.stringResources.R.string.intro_non_custodial_description,
         tag = IntroductionScreenTag(
             title = com.blockchain.stringResources.R.string.intro_non_custodial_tag_title,
-            titleColor = Purple0000,
             description = com.blockchain.stringResources.R.string.intro_non_custodial_tag_description
         ),
         forWalletMode = WalletMode.NON_CUSTODIAL

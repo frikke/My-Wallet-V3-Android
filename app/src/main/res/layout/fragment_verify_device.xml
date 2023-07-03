@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
+    android:clickable="true"
     android:background="@color/background">
 
     <androidx.appcompat.widget.AppCompatImageButton
@@ -76,6 +77,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/small_spacing"
+        android:layout_marginHorizontal="@dimen/small_spacing"
         app:layout_constraintBottom_toTopOf="@id/resend_email_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -84,6 +86,7 @@
         android:id="@+id/resend_email_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/small_spacing"
         android:layout_marginBottom="@dimen/standard_spacing"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

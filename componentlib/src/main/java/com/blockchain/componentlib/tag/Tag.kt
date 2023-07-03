@@ -23,6 +23,9 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.ChevronRight
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Info
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue400
 import com.blockchain.componentlib.theme.Dark600
@@ -34,14 +37,8 @@ fun Tag(
     defaultBackgroundColor: Color,
     defaultTextColor: Color,
     borders: Boolean = false,
-    startImageResource: ImageResource = ImageResource.Local(
-        id = R.drawable.ic_info_outline,
-        colorFilter = ColorFilter.tint(defaultTextColor, blendMode = BlendMode.SrcAtop)
-    ),
-    endImageResource: ImageResource = ImageResource.Local(
-        id = R.drawable.ic_chevron_end_small,
-        colorFilter = ColorFilter.tint(defaultTextColor, blendMode = BlendMode.SrcAtop)
-    ),
+    startImageResource: ImageResource = Icons.Info.withTint(defaultTextColor),
+    endImageResource: ImageResource = Icons.ChevronRight.withTint(defaultTextColor),
     onClick: (() -> Unit)?
 ) {
     val paddingHorizontal = when (size) {
@@ -87,6 +84,7 @@ fun Tag(
             }
 
             Text(
+                modifier = Modifier.weight(1F, fill = false),
                 text = text,
                 style = textStyle,
                 color = defaultTextColor
@@ -125,9 +123,9 @@ fun Tag(
 
 @Preview
 @Composable
-fun ClickableTag() {
+fun ClickableTagLargeText() {
     Tag(
-        text = "Click me",
+        text = "There is a notice up on our status page. Full wallet functionality might not be available. Rest assured that your funds are safe. Learn more",
         size = TagSize.Primary,
         defaultBackgroundColor = Dark600,
         defaultTextColor = Blue400,
@@ -136,27 +134,28 @@ fun ClickableTag() {
     )
 }
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview
 @Composable
-private fun PreviewClickableTagDark() {
-    ClickableTag()
+fun ClickableTag() {
+    Tag(
+        text = "Clickable",
+        size = TagSize.Primary,
+        defaultBackgroundColor = Dark600,
+        defaultTextColor = Blue400,
+        borders = true,
+        onClick = { }
+    )
 }
 
 @Preview
 @Composable
 fun NonClickableTag() {
     Tag(
-        text = "Click me",
+        text = "Dummy",
         size = TagSize.Primary,
         defaultBackgroundColor = Dark600,
         defaultTextColor = Blue400,
         borders = true,
         onClick = null
     )
-}
-
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun PreviewNonClickableTagDark() {
-    NonClickableTag()
 }

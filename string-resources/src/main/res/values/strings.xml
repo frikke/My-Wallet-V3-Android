@@ -2270,6 +2270,7 @@ If you want to know more about our verification process visit our <annotation li
 
     <string name="wallet_outage_message">We are experiencing an outage. Please rest assured your funds are safe. <annotation link="learn_more">Learn more</annotation></string>
     <string name="wallet_issue_message">There is a notice up on our status page. Full wallet functionality might not be available. Rest assured that your funds are safe. <annotation link="learn_more">Learn more →</annotation></string>
+    <string name="wallet_issue_message_clear">There is a notice up on our status page. Full wallet functionality might not be available. Rest assured that your funds are safe. Learn more</string>
     <string name="increase_your_limits">Increase your limits</string>
     <string name="increase_your_limits_body">Continue your verification to get Full Access and increase your limits and payment methods.</string>
     <string name="continue_to_gold">Continue to Full Access</string>

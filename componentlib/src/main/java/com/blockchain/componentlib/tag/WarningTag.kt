@@ -1,10 +1,42 @@
 package com.blockchain.componentlib.tag
 
+import android.content.Context
 import android.content.res.Configuration
+import android.util.AttributeSet
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.button.common.BaseButtonView
+import com.blockchain.componentlib.utils.BaseAbstractComposeView
+
+class WarningTagView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : BaseAbstractComposeView(context, attrs, defStyleAttr) {
+
+    var onClick : (() -> Unit)? by mutableStateOf(null)
+    var text by mutableStateOf("")
+
+    @Composable
+    override fun Content() {
+        if (isInEditMode) {
+            text = "dummy tag text"
+        }
+
+        WarningTag(
+            text = text,
+            onClick = onClick
+        )
+    }
+}
+
 
 private val bgColorLight = Color(0XFFFFECD6)
 private val bgColorDark = Color(0XFFFFA133)

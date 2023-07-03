@@ -14,6 +14,7 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.carousel.CarouselViewType
 import com.blockchain.componentlib.price.PriceView
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.presentation.koin.scopedInject
 import java.util.Timer
@@ -45,7 +46,10 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         with(binding) {
             presenter.checkForRooted()
 
-            btnCreate.setOnClickListener { launchCreateWalletActivity() }
+            btnCreate.apply { 
+                text = getString(com.blockchain.stringResources.R.string.landing_create_wallet)
+                onClick = { launchCreateWalletActivity() }
+            }
 
             val onboardingList: List<CarouselViewType> = listOf(
                 CarouselViewType.ValueProp(
@@ -159,16 +163,12 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         )
 
     override fun showApiOutageMessage() {
-        val warningLayout = binding.layoutWarning
-        warningLayout.root.visible()
-        val learnMoreMap = mapOf<String, Uri>("learn_more" to Uri.parse(WALLET_STATUS_URL))
-        warningLayout.warningMessage.apply {
-            movementMethod = LinkMovementMethod.getInstance()
-            text = StringUtils.getStringWithMappedAnnotations(
-                this@LandingActivity,
-                com.blockchain.stringResources.R.string.wallet_issue_message,
-                learnMoreMap
-            )
+        with(binding.tagWarning){
+            visible()
+            text = getString(com.blockchain.stringResources.R.string.wallet_issue_message_clear)
+            onClick = {
+                openUrl(WALLET_STATUS_URL)
+            }
         }
     }
 

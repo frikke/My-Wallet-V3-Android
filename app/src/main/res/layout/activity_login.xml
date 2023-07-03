@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    android:background="@color/white"
+    android:background="@color/background"
     android:clickable="true"
     android:focusable="true">
 
@@ -38,6 +38,7 @@
         android:id="@+id/continue_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/small_spacing"
         android:layout_marginBottom="@dimen/standard_spacing"
         android:enabled="false"
         android:visibility="gone"
@@ -93,6 +94,7 @@
         android:id="@+id/scan_pairing_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/small_spacing"
         android:layout_marginTop="@dimen/standard_spacing"
         android:layout_marginBottom="@dimen/standard_spacing"
         android:visibility="gone"
@@ -108,6 +110,7 @@
         android:id="@+id/manual_pairing_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/small_spacing"
         android:layout_marginBottom="@dimen/standard_spacing"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"

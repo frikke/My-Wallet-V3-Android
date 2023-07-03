@@ -14,12 +14,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.system.ClippedShadow
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue600
+import com.blockchain.walletmode.WalletMode
 
 @Composable
 fun EducationalWalletModeSecureTag(
-    tag: IntroductionScreenTag
+    tag: IntroductionScreenTag,
+    forWalletMode: WalletMode?
 ) {
     ClippedShadow(
         modifier = Modifier.fillMaxWidth(),
@@ -45,7 +48,7 @@ fun EducationalWalletModeSecureTag(
                         ),
                     text = stringResource(tag.title),
                     style = AppTheme.typography.caption2,
-                    color = tag.titleColor ?: AppTheme.colors.title,
+                    color = forWalletMode?.tagTitleColor() ?: AppTheme.colors.title,
                     textAlign = TextAlign.Center
                 )
 
@@ -65,6 +68,12 @@ fun EducationalWalletModeSecureTag(
     }
 }
 
+@Composable
+private fun WalletMode.tagTitleColor() = when (this) {
+    WalletMode.CUSTODIAL -> AppColors.primary
+    WalletMode.NON_CUSTODIAL -> AppColors.explorer
+}
+
 // ///////////////
 // PREVIEWS
 // ///////////////
@@ -75,9 +84,9 @@ fun PreviewEducationalWalletModeSecureTag() {
     EducationalWalletModeSecureTag(
         IntroductionScreenTag(
             com.blockchain.stringResources.R.string.intro_custodial_tag_title,
-            Blue600,
             com.blockchain.stringResources.R.string.intro_custodial_tag_description
-        )
+        ),
+        WalletMode.CUSTODIAL
     )
 }
 
@@ -87,8 +96,8 @@ fun PreviewEducationalWalletModeSecureTagNull() {
     EducationalWalletModeSecureTag(
         IntroductionScreenTag(
             null,
-            null,
             com.blockchain.stringResources.R.string.intro_custodial_tag_description
-        )
+        ),
+        null
     )
 }
