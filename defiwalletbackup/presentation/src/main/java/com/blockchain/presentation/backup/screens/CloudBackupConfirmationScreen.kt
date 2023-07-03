@@ -1,5 +1,6 @@
 package com.blockchain.presentation.backup.screens
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -72,12 +73,11 @@ fun CloudBackupConfirmationScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.backgroundSecondary),
+            .background(AppTheme.colors.background),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         NavigationBar(
             modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
-            mutedBackground = false,
             title = stringResource(com.blockchain.stringResources.R.string.backup_phrase_title_secure_wallet),
             onBackButtonClick = null
         )
@@ -150,9 +150,9 @@ private val mnemonic = Locale.getISOCountries().toList().map {
     Locale("", it).isO3Country
 }.shuffled().subList(0, 12)
 
-@Preview(name = "Cloud Backup Confirmation", backgroundColor = 0xFFFFFF, showBackground = true)
+@Preview(name = "Cloud Backup Confirmation")
 @Composable
-fun PreviewCloudBackupConfirmationScreen() {
+private fun PreviewCloudBackupConfirmationScreen() {
     CloudBackupConfirmationScreen(
         mnemonic = mnemonic,
         copyState = CopyState.Idle(false),
@@ -160,4 +160,10 @@ fun PreviewCloudBackupConfirmationScreen() {
         doneOnClick = {},
         backUpManualOnClick = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewCloudBackupConfirmationScreenDark() {
+    PreviewCloudBackupConfirmationScreen()
 }

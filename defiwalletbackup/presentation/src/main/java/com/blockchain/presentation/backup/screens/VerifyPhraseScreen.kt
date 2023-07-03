@@ -1,5 +1,6 @@
 package com.blockchain.presentation.backup.screens
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -115,12 +116,11 @@ fun VerifyPhraseScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.backgroundSecondary),
+            .background(AppTheme.colors.background),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         NavigationBar(
             modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
-            mutedBackground = false,
             title = stringResource(
                 com.blockchain.stringResources.R.string.backup_phrase_title_steps,
                 STEP_INDEX,
@@ -259,9 +259,9 @@ private val mnemonic = Locale.getISOCountries().toList().map {
     Locale("", it).isO3Country
 }.shuffled().subList(0, 12)
 
-@Preview(name = "Verify Phrase", backgroundColor = 0xFFFFFF, showBackground = true)
+@Preview(name = "Verify Phrase")
 @Composable
-fun PreviewVerifyPhrase() {
+private fun PreviewVerifyPhrase() {
     VerifyPhraseScreen(
         mnemonic = mnemonic,
         isLoading = false,
@@ -273,21 +273,13 @@ fun PreviewVerifyPhrase() {
     )
 }
 
-@Preview(name = "Verify Phrase Loading", backgroundColor = 0xFFFFFF, showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun PreviewVerifyPhraseScreenLoading() {
-    VerifyPhraseScreen(
-        mnemonic = mnemonic,
-        isLoading = true,
-        mnemonicVerificationStatus = UserMnemonicVerificationStatus.IDLE,
-
-        resetVerificationStatus = {},
-        backOnClick = {},
-        nextOnClick = {}
-    )
+private fun PreviewVerifyPhraseDark() {
+    PreviewVerifyPhrase()
 }
 
-@Preview(name = "Verify Phrase Incorrect", backgroundColor = 0xFFFFFF, showBackground = true)
+@Preview(name = "Verify Phrase Incorrect")
 @Composable
 fun PreviewVerifyPhraseScreenIncorrect() {
     VerifyPhraseScreen(
@@ -301,38 +293,8 @@ fun PreviewVerifyPhraseScreenIncorrect() {
     )
 }
 
-@Preview(name = "Incorrect Phrase Message")
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun PreviewVerifyPhraseIncorrect() {
-    VerifyPhraseIncorrect {}
-}
-
-@Preview(name = "Verify Phrase Cta - selected:false, loading:false, status:nostatus")
-@Composable
-fun PreviewVerifyPhraseCta_SelectedFalse_LoadingFalse_StatusNoStatus() {
-    VerifyPhraseCta(
-        allWordsSelected = false,
-        isLoading = false,
-        onClick = {}
-    )
-}
-
-@Preview(name = "Verify Phrase Cta - selected:true, loading:false, status:nostatus")
-@Composable
-fun PreviewVerifyPhraseCta_SelectedTrue_LoadingFalse_StatusIncorrect() {
-    VerifyPhraseCta(
-        allWordsSelected = true,
-        isLoading = false,
-        onClick = {}
-    )
-}
-
-@Preview(name = "Verify Phrase Cta - selected:true, loading:true, status:nostatus")
-@Composable
-fun PreviewVerifyPhraseCta_SelectedTrue_LoadingTrue_StatusIncorrect() {
-    VerifyPhraseCta(
-        allWordsSelected = true,
-        isLoading = true,
-        onClick = {}
-    )
+private fun PreviewVerifyPhraseScreenIncorrectDark() {
+    PreviewVerifyPhraseScreenIncorrect()
 }

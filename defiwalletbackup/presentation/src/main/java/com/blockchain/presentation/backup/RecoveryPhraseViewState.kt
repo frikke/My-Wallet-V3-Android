@@ -23,28 +23,8 @@ data class BackupPhraseViewState(
     val flowState: FlowState
 ) : ViewState
 
-enum class BackUpStatus(
-    @DrawableRes val icon: Int,
-    val iconColor: Color,
-    val bgColor: Color,
-    val textColor: Color,
-    @StringRes val text: Int
-) {
-    NO_BACKUP(
-        icon = com.blockchain.componentlib.icons.R.drawable.alert_on,
-        iconColor = Orange600,
-        bgColor = Orange000,
-        textColor = Orange600,
-        text = com.blockchain.stringResources.R.string.back_up_status_negative
-    ),
-
-    BACKED_UP(
-        icon = com.blockchain.componentlib.icons.R.drawable.check_on,
-        iconColor = Green700,
-        bgColor = Green000,
-        textColor = Green700,
-        text = com.blockchain.stringResources.R.string.back_up_status_positive
-    )
+enum class BackUpStatus {
+    NO_BACKUP, BACKED_UP
 }
 
 sealed interface CopyState {

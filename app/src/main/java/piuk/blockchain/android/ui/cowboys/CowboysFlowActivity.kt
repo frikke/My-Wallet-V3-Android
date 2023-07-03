@@ -297,7 +297,7 @@ fun EmailKycHost(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        val emailKycFragment = remember { KycEmailVerificationFragment.newInstance(true) }
+        val emailKycFragment = remember { KycEmailVerificationFragment.newInstance(true, true) }
 
         NavigationBar(
             title = stringResource(com.blockchain.stringResources.R.string.security_check),

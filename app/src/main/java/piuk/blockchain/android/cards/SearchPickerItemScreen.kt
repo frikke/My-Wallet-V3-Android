@@ -1,11 +1,15 @@
 package piuk.blockchain.android.cards
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Text
@@ -25,8 +29,10 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.controls.OutlinedTextInput
 import com.blockchain.componentlib.divider.HorizontalDivider
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import piuk.blockchain.android.R
 
@@ -45,24 +51,16 @@ fun SearchPickerItemScreen(
         }
     }
 
-    Column(Modifier.fillMaxHeight()) {
-        val searchInputIcon =
-            if (searchInput.isNotEmpty()) {
-                ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_close_circle)
-            } else ImageResource.None
-        OutlinedTextInput(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = AppTheme.dimensions.smallSpacing),
-            value = searchInput,
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(AppColors.backgroundSecondary)) {
+        CancelableOutlinedSearch(
             onValueChange = { searchInput = it },
-            singleLine = true,
-            placeholder = stringResource(com.blockchain.stringResources.R.string.common_search),
-            leadingIcon = ImageResource.Local(R.drawable.ic_search),
-            focusedTrailingIcon = searchInputIcon,
-            unfocusedTrailingIcon = searchInputIcon,
-            onTrailingIconClicked = { searchInput = "" }
+            placeholder = stringResource(com.blockchain.stringResources.R.string.search)
         )
+
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
         LazyColumn() {
             if (suggestedPick != null && searchInput.isEmpty()) {
@@ -102,12 +100,16 @@ private fun PickerItemContent(item: PickerItem, onClick: (PickerItem) -> Unit) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         item.icon?.let { icon ->
-            Text(text = icon, fontSize = 30.sp)
+            Text(
+                text = icon,
+                fontSize = 30.sp
+            )
         }
         Text(
             modifier = Modifier.padding(AppTheme.dimensions.smallSpacing),
             text = item.label,
             fontSize = 14.sp,
+            color = AppColors.title,
             fontWeight = FontWeight.Medium
         )
     }

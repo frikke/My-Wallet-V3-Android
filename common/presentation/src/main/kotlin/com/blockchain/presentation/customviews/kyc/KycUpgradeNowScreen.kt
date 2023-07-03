@@ -32,6 +32,7 @@ import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
@@ -82,7 +83,7 @@ private fun KycUpgradeNow(
 ) {
     Column(
         Modifier
-            .background(White)
+            .background(AppColors.background)
             .padding(AppTheme.dimensions.smallSpacing)
     ) {
         Row {

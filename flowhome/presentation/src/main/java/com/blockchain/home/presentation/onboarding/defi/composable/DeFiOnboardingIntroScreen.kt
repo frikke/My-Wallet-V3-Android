@@ -1,5 +1,6 @@
 package com.blockchain.home.presentation.onboarding.defi.composable
 
+import android.content.res.Configuration
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,11 +29,13 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.basic.closeImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue000
 import com.blockchain.componentlib.theme.Blue600
@@ -81,20 +84,17 @@ fun DeFiOnboardingScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.backgroundSecondary)
+            .background(AppTheme.colors.background)
     ) {
         NavigationBar(
             title = stringResource(com.blockchain.stringResources.R.string.defi_wallet_name),
             endNavigationBarButtons = listOfNotNull(
-                NavigationBarButton.Icon(
-                    drawable = com.blockchain.componentlib.R.drawable.ic_close_circle,
-                    color = null,
-                    contentDescription = com.blockchain.stringResources.R.string.accessibility_close,
+                NavigationBarButton.IconResource(
+                    image = closeImageResource(isScreenBackgroundSecondary = false),
                     onIconClick = closeOnClick
                 ).takeIf { showCloseIcon }
             ),
-            mutedBackground = false,
-            modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL)
+            modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
         )
 
         Box {
@@ -171,12 +171,10 @@ fun DeFiOnboardingPropertyItem(
 ) {
     Row(
         modifier = Modifier
-            .border(
-                width = AppTheme.dimensions.borderSmall,
-                color = Grey100,
+            .background(
+                color = AppColors.backgroundSecondary,
                 shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
             )
-            .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
             .padding(
                 horizontal = AppTheme.dimensions.smallSpacing,
                 vertical = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)
@@ -185,9 +183,9 @@ fun DeFiOnboardingPropertyItem(
     ) {
         Text(
             modifier = Modifier
-                .circleAround(color = Blue000),
+                .circleAround(color = AppColors.background),
             style = AppTheme.typography.body2,
-            color = Blue600,
+            color = AppColors.primary,
             text = number.toString()
         )
 
@@ -238,7 +236,7 @@ data class DeFiProperty(@StringRes val title: Int, @StringRes val subtitle: Int)
 // PREVIEWS
 // ///////////////
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun PreviewDeFiOnboardingScreen() {
     AppTheme {
@@ -248,6 +246,12 @@ fun PreviewDeFiOnboardingScreen() {
             enableDeFiOnClick = {}
         )
     }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewDeFiOnboardingScreenDark() {
+    PreviewDeFiOnboardingScreen()
 }
 
 @Preview(showBackground = true)

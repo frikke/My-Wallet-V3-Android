@@ -11,8 +11,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.common.BaseButtonView
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
 
 class WarningTagView @JvmOverloads constructor(
@@ -50,13 +48,15 @@ private val textColor @Composable get() = if (isSystemInDarkTheme()) textColorDa
 fun WarningTag(
     text: String,
     size: TagSize = TagSize.Primary,
+    startImageResource: ImageResource.Local? = null,
     onClick: (() -> Unit)? = null
 ) {
     Tag(
         text = text,
         size = size,
-        defaultBackgroundColor = bgColor,
-        defaultTextColor = textColor,
+        startImageResource = startImageResource,
+        backgroundColor = bgColor,
+        textColor = textColor,
         onClick = onClick
     )
 }

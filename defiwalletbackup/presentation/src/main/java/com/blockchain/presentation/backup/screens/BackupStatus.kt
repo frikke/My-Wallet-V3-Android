@@ -16,39 +16,31 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.Alert
+import com.blockchain.componentlib.icons.Check
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.tag.SuccessTag
+import com.blockchain.componentlib.tag.WarningTag
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.presentation.R
 import com.blockchain.presentation.backup.BackUpStatus
 
 @Composable
 fun BackupStatus(backupStatus: BackUpStatus) {
-    Row(
-        modifier = Modifier
-            .background(
-                color = backupStatus.bgColor,
-                shape = RoundedCornerShape(dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing))
+    when (backupStatus) {
+        BackUpStatus.NO_BACKUP -> {
+            WarningTag(
+                text = stringResource(com.blockchain.stringResources.R.string.back_up_status_negative),
+                startImageResource = Icons.Filled.Alert
             )
-            .padding(
-                horizontal = dimensionResource(id = com.blockchain.componentlib.R.dimen.very_small_spacing),
-                vertical = dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing)
-            ),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Image(
-            imageResource = ImageResource.Local(
-                id = backupStatus.icon,
-                size = dimensionResource(com.blockchain.componentlib.R.dimen.size_standard),
-                colorFilter = ColorFilter.tint(backupStatus.iconColor)
+        }
+
+        BackUpStatus.BACKED_UP -> {
+            SuccessTag(
+                text = stringResource(com.blockchain.stringResources.R.string.back_up_status_positive),
+                startImageResource = Icons.Filled.Check
             )
-        )
-
-        Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)))
-
-        Text(
-            text = stringResource(backupStatus.text),
-            style = AppTheme.typography.paragraph2,
-            color = backupStatus.textColor
-        )
+        }
     }
 }
 
@@ -58,12 +50,12 @@ fun BackupStatus(backupStatus: BackUpStatus) {
 
 @Preview(name = "Backup Status No Backup")
 @Composable
-fun PreviewBackupStatusNoBackup() {
+private fun PreviewBackupStatusNoBackup() {
     BackupStatus(BackUpStatus.NO_BACKUP)
 }
 
 @Preview(name = "Backup Status Backed up")
 @Composable
-fun PreviewBackupStatusBackup() {
+private fun PreviewBackupStatusBackup() {
     BackupStatus(BackUpStatus.BACKED_UP)
 }

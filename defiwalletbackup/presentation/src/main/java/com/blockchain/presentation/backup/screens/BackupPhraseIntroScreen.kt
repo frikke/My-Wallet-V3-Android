@@ -1,5 +1,6 @@
 package com.blockchain.presentation.backup.screens
 
+import android.content.res.Configuration
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -42,6 +43,7 @@ import com.blockchain.componentlib.control.RadioButtonState
 import com.blockchain.componentlib.control.RadioCheckMark
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
@@ -95,12 +97,11 @@ fun BackupPhraseIntroScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.backgroundSecondary)
+            .background(AppTheme.colors.background)
     ) {
         NavigationBar(
             modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
             title = stringResource(com.blockchain.stringResources.R.string.backup_phrase_title_secure_wallet),
-            mutedBackground = false,
             onBackButtonClick = backOnClick
         )
 
@@ -195,16 +196,11 @@ fun BackupPhraseIntroAcknowledgmentItem(
 
     Row(
         modifier = Modifier
-            .border(
-                width = AppTheme.dimensions.borderSmall,
-                color = Grey100,
-                shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
-            )
             .clickableNoEffect {
                 isChecked = true
                 onAccepted()
             }
-            .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
+            .background(color = AppColors.backgroundSecondary, shape = AppTheme.shapes.large)
             .padding(
                 horizontal = AppTheme.dimensions.smallSpacing,
                 vertical = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)
@@ -270,6 +266,12 @@ fun PreviewBackupPhraseIntroScreen_NoBackup_Skip() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewBackupPhraseIntroScreen_NoBackup_SkipDark() {
+    PreviewBackupPhraseIntroScreen_NoBackup_Skip()
+}
+
 @Preview(name = "no backup no skip", showBackground = true)
 @Composable
 fun PreviewBackupPhraseIntroScreen_NoBackup_NoSkip() {
@@ -280,6 +282,12 @@ fun PreviewBackupPhraseIntroScreen_NoBackup_NoSkip() {
         backUpNowOnClick = {},
         skipOnClick = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewBackupPhraseIntroScreen_NoBackup_NoSkipDark() {
+    PreviewBackupPhraseIntroScreen_NoBackup_NoSkip()
 }
 
 @Preview(name = "backed up", showBackground = true)
@@ -294,15 +302,21 @@ fun PreviewBackupPhraseIntroScreenBackedUp() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewBackupPhraseIntroScreenBackedUpDark() {
+    PreviewBackupPhraseIntroScreenBackedUp()
+}
+
 @Preview(name = "Backup Intro Description", showBackground = true)
 @Composable
-fun PreviewBackupPhraseIntroScreenDescription() {
+private fun PreviewBackupPhraseIntroScreenDescription() {
     BackupPhraseIntroScreenDescription()
 }
 
 @Preview(name = "Acknowledgment Item", showBackground = true)
 @Composable
-fun PreviewBackupPhraseIntroAcknowledgmentItem() {
+private fun PreviewBackupPhraseIntroAcknowledgmentItem() {
     BackupPhraseIntroAcknowledgmentItem(
         text = stringResource(id = com.blockchain.stringResources.R.string.backup_phrase_intro_ack_1)
     ) {
@@ -311,7 +325,7 @@ fun PreviewBackupPhraseIntroAcknowledgmentItem() {
 
 @Preview(name = "Acknowledgments", showBackground = true)
 @Composable
-fun PreviewBackupPhraseIntroAcknowledgments() {
+private fun PreviewBackupPhraseIntroAcknowledgments() {
     BackupPhraseIntroAcknowledgments(
         acknowledgments = listOf(
             com.blockchain.stringResources.R.string.backup_phrase_intro_ack_1,

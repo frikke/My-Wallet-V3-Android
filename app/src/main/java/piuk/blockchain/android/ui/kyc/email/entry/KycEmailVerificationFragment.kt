@@ -27,10 +27,13 @@ class KycEmailVerificationFragment :
         when {
             arguments?.containsKey("mustBeValidated") == true ->
                 EmailVerificationArgs.fromBundle(arguments ?: Bundle()).mustBeValidated
+
             arguments?.containsKey(CAN_SKIP) == true -> !requireArguments().getBoolean(CAN_SKIP)
             else -> false
         }
     }
+
+    private val legacyBg  = arguments?.getBoolean(LEGACY_BG) ?: true
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,7 +44,7 @@ class KycEmailVerificationFragment :
             EmailVerification(
                 verificationRequired = emailMustBeValidated,
                 showHeader = false,
-                legacyBackground = true,
+                legacyBackground = legacyBg,
                 closeOnClick = {}, // n/a
                 nextOnClick = {
                     emailEntryHost.onEmailEntryFragmentUpdated(showSkipButton = false)
@@ -65,11 +68,13 @@ class KycEmailVerificationFragment :
 
     companion object {
         private const val CAN_SKIP = "CAN_SKIP"
+        private const val LEGACY_BG = "LEGACY_BG"
 
-        fun newInstance(canBeSkipped: Boolean): KycEmailVerificationFragment =
+        fun newInstance(canBeSkipped: Boolean, legacyBg: Boolean): KycEmailVerificationFragment =
             KycEmailVerificationFragment().apply {
                 arguments = Bundle().apply {
                     putBoolean(CAN_SKIP, canBeSkipped)
+                    putBoolean(LEGACY_BG, legacyBg)
                 }
             }
     }

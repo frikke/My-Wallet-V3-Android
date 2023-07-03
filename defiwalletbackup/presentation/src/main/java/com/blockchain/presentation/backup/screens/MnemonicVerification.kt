@@ -1,5 +1,6 @@
 package com.blockchain.presentation.backup.screens
 
+import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Card
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -25,6 +27,7 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.extensions.exhaustive
 import com.blockchain.presentation.backup.UserMnemonicVerificationStatus
@@ -45,11 +48,11 @@ fun MnemonicVerification(
                 width = AppTheme.dimensions.borderSmall,
                 color = when (mnemonicVerificationStatus) {
                     UserMnemonicVerificationStatus.IDLE -> Color.Transparent
-                    UserMnemonicVerificationStatus.INCORRECT -> AppTheme.colors.errorMuted
-                }.exhaustive,
+                    UserMnemonicVerificationStatus.INCORRECT -> AppColors.error
+                },
                 shape = AppTheme.shapes.large
             )
-            .background(color = AppTheme.colors.background, shape = AppTheme.shapes.large)
+            .background(color = AppTheme.colors.backgroundSecondary, shape = AppTheme.shapes.large)
             .padding(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing))
             .heightIn(min = 182.dp),
         mainAxisAlignment = FlowMainAxisAlignment.Center,
@@ -85,7 +88,11 @@ fun MnemonicSelection(
 }
 
 @Composable
-fun MnemonicVerificationWord(index: Int? = null, selectableWord: SelectableMnemonicWord, onClick: () -> Unit) {
+fun MnemonicVerificationWord(
+    index: Int? = null,
+    selectableWord: SelectableMnemonicWord,
+    onClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             // if a word is selected it should still occupy the space but should be hidden
@@ -95,7 +102,7 @@ fun MnemonicVerificationWord(index: Int? = null, selectableWord: SelectableMnemo
             color = AppTheme.colors.medium
         ),
         shape = AppTheme.shapes.small,
-        backgroundColor = Color.White,
+        backgroundColor = if (index != null) AppColors.background else AppColors.backgroundSecondary,
         elevation = 0.dp
     ) {
         Row(
@@ -148,24 +155,42 @@ private val mnemonic = Locale.getISOCountries().toList().map {
 
 @Preview(name = "Mnemonic Idle", showBackground = true)
 @Composable
-fun PreviewMnemonicVerificationIdle() {
+private fun PreviewMnemonicVerificationIdle() {
     MnemonicVerification(mnemonic = mnemonic, mnemonicVerificationStatus = UserMnemonicVerificationStatus.IDLE) {}
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewMnemonicVerificationIdleDark() {
+    PreviewMnemonicVerificationIdle()
 }
 
 @Preview(name = "Mnemonic Incorrect", showBackground = true)
 @Composable
-fun PreviewMnemonicVerificationIncorrect() {
+private fun PreviewMnemonicVerificationIncorrect() {
     MnemonicVerification(mnemonic = mnemonic, mnemonicVerificationStatus = UserMnemonicVerificationStatus.INCORRECT) {}
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewMnemonicVerificationIncorrectDark() {
+    PreviewMnemonicVerificationIncorrect()
 }
 
 @Preview(name = "Mnemonic Selection", showBackground = true)
 @Composable
-fun PreviewMnemonicSelection() {
+private fun PreviewMnemonicSelection() {
     MnemonicSelection(mnemonic = mnemonic) {}
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun PreviewMnemonicSelectionDark() {
+    PreviewMnemonicSelection()
 }
 
 @Preview
 @Composable
-fun PreviewMnemonicVerificationWord() {
+private fun PreviewMnemonicVerificationWord() {
     MnemonicVerificationWord(1, SelectableMnemonicWord(1, "blockchain", false)) {}
 }

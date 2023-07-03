@@ -19,17 +19,24 @@ fun CloseIcon(
     Box(modifier = modifier) {
         Image(
             modifier = Modifier.clickableNoEffect { onClick() },
-            imageResource = Icons.Close.withTint(AppColors.muted)
-                .withBackground(
-                    backgroundColor = if (isScreenBackgroundSecondary) {
-                        // screen bg is secondary - use light bg
-                        AppColors.light
-                    } else {
-                        // screen bg is background - use bg secondary
-                        AppColors.backgroundSecondary
-                    },
-                    backgroundSize = AppTheme.dimensions.standardSpacing
-                )
+            imageResource = closeImageResource(isScreenBackgroundSecondary)
         )
     }
+}
+
+@Composable
+fun closeImageResource(
+    isScreenBackgroundSecondary: Boolean = true
+): ImageResource {
+    return Icons.Close.withTint(AppColors.muted)
+        .withBackground(
+            backgroundColor = if (isScreenBackgroundSecondary) {
+                // screen bg is secondary - use light bg
+                AppColors.light
+            } else {
+                // screen bg is background - use bg secondary
+                AppColors.backgroundSecondary
+            },
+            backgroundSize = AppTheme.dimensions.standardSpacing
+        )
 }

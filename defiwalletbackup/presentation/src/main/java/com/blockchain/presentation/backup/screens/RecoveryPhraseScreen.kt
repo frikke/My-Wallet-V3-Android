@@ -1,5 +1,6 @@
 package com.blockchain.presentation.backup.screens
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -82,13 +83,12 @@ fun RecoveryPhraseScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.backgroundSecondary),
+            .background(AppTheme.colors.background),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         NavigationBar(
             modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
             title = stringResource(com.blockchain.stringResources.R.string.backup_phrase_title_secure_wallet),
-            mutedBackground = false,
             onBackButtonClick = backOnClick
         )
 
@@ -161,7 +161,7 @@ private val mnemonic = Locale.getISOCountries().toList().map {
 
 @Preview(name = "Recovery Phrase - no backup", showBackground = true)
 @Composable
-fun PreviewRecoveryPhraseScreenNoBackup() {
+private fun PreviewRecoveryPhraseScreenNoBackup() {
     RecoveryPhraseScreen(
         backupStatus = BackUpStatus.NO_BACKUP,
         mnemonic = mnemonic,
@@ -172,9 +172,15 @@ fun PreviewRecoveryPhraseScreenNoBackup() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewRecoveryPhraseScreenNoBackupDark() {
+    PreviewRecoveryPhraseScreenNoBackup()
+}
+
 @Preview(name = "Recovery Phrase - no backup - loading", showBackground = true)
 @Composable
-fun PreviewRecoveryPhraseScreenNoBackupLoading() {
+private fun PreviewRecoveryPhraseScreenNoBackupLoading() {
     RecoveryPhraseScreen(
         backupStatus = BackUpStatus.NO_BACKUP,
         mnemonic = mnemonic,
@@ -185,9 +191,15 @@ fun PreviewRecoveryPhraseScreenNoBackupLoading() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewRecoveryPhraseScreenNoBackupLoadingDark() {
+    PreviewRecoveryPhraseScreenNoBackupLoading()
+}
+
 @Preview(name = "Recovery Phrase - backup", showBackground = true)
 @Composable
-fun PreviewRecoveryPhraseScreenBackup() {
+private fun PreviewRecoveryPhraseScreenBackup() {
     RecoveryPhraseScreen(
         backupStatus = BackUpStatus.BACKED_UP,
         mnemonic = mnemonic,
@@ -196,4 +208,10 @@ fun PreviewRecoveryPhraseScreenBackup() {
         backUpCloudOnClick = {},
         backUpManualOnClick = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewRecoveryPhraseScreenBackupDark() {
+    PreviewRecoveryPhraseScreenBackup()
 }

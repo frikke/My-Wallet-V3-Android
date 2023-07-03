@@ -152,10 +152,10 @@ fun NavigationBar(
 ) {
     val walletMode: WalletMode? = walletModeProvider(modeColor)
 
+
     NavigationBar(
         walletMode = walletMode,
-        // force white on login screens (until future design changes), no session = no wallet mode
-        mutedBg = if (walletMode == null) true else mutedBackground,
+        mutedBg =  mutedBackground,
         title = title,
         icon = icon,
         startNavigationBarButton = startNavigationBarButton,

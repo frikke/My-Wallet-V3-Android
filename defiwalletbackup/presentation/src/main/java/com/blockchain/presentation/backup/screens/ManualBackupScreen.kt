@@ -1,5 +1,6 @@
 package com.blockchain.presentation.backup.screens
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -70,7 +71,7 @@ fun ManualBackupScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.backgroundSecondary),
+            .background(AppTheme.colors.background),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         NavigationBar(
@@ -80,7 +81,6 @@ fun ManualBackupScreen(
                 STEP_INDEX,
                 TOTAL_STEP_COUNT
             ),
-            mutedBackground = false,
             onBackButtonClick = backOnClick
         )
 
@@ -153,7 +153,7 @@ private val mnemonic = Locale.getISOCountries().toList().map {
 
 @Preview(name = "Manual Backup Copy", backgroundColor = 0xFFFFFF, showBackground = true)
 @Composable
-fun PreviewManualBackupScreenCopy() {
+private fun PreviewManualBackupScreenCopy() {
     ManualBackupScreen(
         mnemonic = mnemonic,
         copyState = CopyState.Idle(false),
@@ -164,9 +164,15 @@ fun PreviewManualBackupScreenCopy() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewManualBackupScreenCopyDark() {
+    PreviewManualBackupScreenCopy()
+}
+
 @Preview(name = "Manual Backup Copied", backgroundColor = 0xFFFFFF, showBackground = true)
 @Composable
-fun PreviewManualBackupScreenCopied() {
+private fun PreviewManualBackupScreenCopied() {
     ManualBackupScreen(
         mnemonic = mnemonic,
         copyState = CopyState.Copied,
@@ -175,4 +181,10 @@ fun PreviewManualBackupScreenCopied() {
         mnemonicCopied = {},
         nextOnClick = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewManualBackupScreenCopiedDark() {
+    PreviewManualBackupScreenCopied()
 }

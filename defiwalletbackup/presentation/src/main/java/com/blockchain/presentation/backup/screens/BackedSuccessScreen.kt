@@ -1,5 +1,6 @@
 package com.blockchain.presentation.backup.screens
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
@@ -20,8 +22,18 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.icon.ScreenStatusIcon
+import com.blockchain.componentlib.icon.SmallTagIcon
+import com.blockchain.componentlib.icons.AlertOn
+import com.blockchain.componentlib.icons.Check
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Lock
+import com.blockchain.componentlib.icons.User
+import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
@@ -54,12 +66,11 @@ fun BackupSuccessScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.backgroundSecondary),
+            .background(AppTheme.colors.background),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         NavigationBar(
             modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
-            mutedBackground = false,
             title = stringResource(com.blockchain.stringResources.R.string.backup_phrase_title_secure_wallet),
             onBackButtonClick = null
         )
@@ -72,7 +83,18 @@ fun BackupSuccessScreen(
         ) {
             Spacer(modifier = Modifier.weight(1F))
 
-            Image(imageResource = ImageResource.Local(R.drawable.ic_backup_successful))
+            SmallTagIcon(
+                icon = StackedIcon.SmallTag(
+                    main = Icons.Filled.Lock
+                        .withTint(AppColors.backgroundSecondary)
+                        .withBackground(backgroundColor = AppColors.explorer, iconSize = 58.dp, backgroundSize = 88.dp),
+                    tag = Icons.Filled.Check
+                        .withTint(AppColors.success),
+                ),
+                iconBackground = AppColors.backgroundSecondary,
+                mainIconSize = 88.dp,
+                tagIconSize = 44.dp,
+            )
 
             StandardVerticalSpacer()
 
@@ -109,6 +131,12 @@ fun BackupSuccessScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewBackupSuccessScreen() {
+private fun PreviewBackupSuccessScreen() {
     BackupSuccessScreen {}
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewBackupSuccessScreenDark() {
+    PreviewBackupSuccessScreen()
 }

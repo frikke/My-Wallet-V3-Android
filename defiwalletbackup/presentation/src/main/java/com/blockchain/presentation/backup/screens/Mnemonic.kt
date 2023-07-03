@@ -32,6 +32,7 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey100
@@ -64,10 +65,10 @@ private fun Mnemonic(mnemonic: List<String>, hidable: Boolean) {
                     start.linkTo(parent.start)
                 }
                 .fillMaxWidth()
-                .background(color = Color.White, shape = AppTheme.shapes.large)
+                .background(color = AppColors.backgroundSecondary, shape = AppTheme.shapes.large)
                 .border(
                     width = AppTheme.dimensions.borderSmall,
-                    color = Grey100,
+                    color = AppColors.backgroundSecondary,
                     shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
                 )
                 .run {
@@ -109,10 +110,10 @@ private fun Mnemonic(mnemonic: List<String>, hidable: Boolean) {
                     }
                     .border(
                         width = AppTheme.dimensions.borderSmall,
-                        color = Grey100,
+                        color = AppColors.backgroundSecondary,
                         shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
                     )
-                    .background(color = Grey000, shape = AppTheme.shapes.large)
+                    .background(color = AppColors.backgroundSecondary, shape = AppTheme.shapes.large)
             )
 
             Image(
@@ -161,18 +162,18 @@ private val mnemonic = Locale.getISOCountries().toList().map {
 
 @Preview(name = "Mnemonic", showBackground = true)
 @Composable
-fun PreviewMnemonic() {
+private fun PreviewMnemonic() {
     Mnemonic(mnemonic = mnemonic)
 }
 
 @Preview(name = "Hidable Mnemonic", showBackground = true)
 @Composable
-fun PreviewHidableMnemonic() {
+private fun PreviewHidableMnemonic() {
     HidableMnemonic(mnemonic = mnemonic)
 }
 
 @Preview
 @Composable
-fun PreviewMnemonicWord() {
+private fun PreviewMnemonicWord() {
     MnemonicWord(1, "blockchain")
 }
