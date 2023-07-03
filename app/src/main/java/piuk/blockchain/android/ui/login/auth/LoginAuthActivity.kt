@@ -26,6 +26,7 @@ import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.presentation.koin.scopedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import java.util.concurrent.atomic.AtomicBoolean
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
@@ -49,7 +50,6 @@ import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.clearErrorState
 import piuk.blockchain.android.util.setErrorState
 import timber.log.Timber
-import java.util.concurrent.atomic.AtomicBoolean
 
 class LoginAuthActivity :
     MviActivity<LoginAuthModel, LoginAuthIntents, LoginAuthState, ActivityLoginAuthBinding>() {
@@ -393,7 +393,9 @@ class LoginAuthActivity :
                             )
                         )
                         analytics.logEvent(LoginAnalytics.LoginTwoFaEntered(analyticsInfo))
-                        analytics.logEvent(SettingsAnalytics.TwoStepVerificationCodeSubmitted(TWO_SET_MOBILE_NUMBER_OPTION))
+                        analytics.logEvent(
+                            SettingsAnalytics.TwoStepVerificationCodeSubmitted(TWO_SET_MOBILE_NUMBER_OPTION)
+                        )
                     } else {
                         model.process(LoginAuthIntents.VerifyPassword(passwordText.text.toString()))
                     }

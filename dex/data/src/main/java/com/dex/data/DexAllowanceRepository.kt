@@ -2,8 +2,6 @@ package com.dex.data
 
 import com.blockchain.DefiWalletReceiveAddressService
 import com.blockchain.api.dex.DexTransactionsApiService
-import com.blockchain.api.dex.GasValuesPayload
-import com.blockchain.coincore.eth.GasFeeCalculator
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.PreImage
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSignature
@@ -26,7 +24,6 @@ import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.Money
 import java.math.BigInteger
 import kotlinx.coroutines.delay
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
 class DexAllowanceRepository(
@@ -34,10 +31,8 @@ class DexAllowanceRepository(
     private val dexAllowanceStorage: DexAllowanceStorage,
     private val defiAccountReceiveAddressService: DefiWalletReceiveAddressService,
     private val nonCustodialService: NonCustodialService,
-    private val json: Json,
     private val dexPrefs: DexPrefs,
     private val assetCatalogue: AssetCatalogue,
-    private val gasFeeCalculator: GasFeeCalculator
 ) : AllowanceService {
     override suspend fun tokenAllowance(assetInfo: AssetInfo): Outcome<Exception, TokenAllowance> {
         val address = defiAccountReceiveAddressService.receiveAddress(assetInfo)
@@ -86,20 +81,8 @@ class DexAllowanceRepository(
                 amount = amount?.toBigInteger()?.toString() ?: "MAX",
                 networkNativeAssetTicker = coinNetwork.nativeAssetTicker
             ).map { buildTxResponse ->
-                val gasValuesPayload = json.decodeFromJsonElement(GasValuesPayload.serializer(), buildTxResponse.rawTx)
-                val gasPrice = gasValuesPayload.payload?.gasPrice?.let {
-                    BigInteger(it.hex.removePrefix("0x"), 16)
-                } ?: BigInteger.ZERO
-                val gasLimit = gasValuesPayload.payload?.gasLimit?.let {
-                    BigInteger(it.hex.removePrefix("0x"), 16)
-                } ?: BigInteger.ZERO
-
                 AllowanceTransaction(
-                    fees = gasFeeCalculator.fee(
-                        nativeAsset = nativeAsset,
-                        gasPriceWei = gasPrice,
-                        gasLimit = gasLimit
-                    ),
+                    fees = Money.fromMinor(nativeAsset, BigInteger(buildTxResponse.summary.maxFee)),
                     rawTx = buildTxResponse.rawTx,
                     preImages = buildTxResponse.preImages.map {
                         PreImage(

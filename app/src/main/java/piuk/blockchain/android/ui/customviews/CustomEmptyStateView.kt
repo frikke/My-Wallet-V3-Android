@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.customviews
 
 import android.content.Context
 import android.util.AttributeSet
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue

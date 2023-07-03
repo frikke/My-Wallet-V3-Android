@@ -83,6 +83,7 @@ import com.blockchain.walletconnect.ui.navigation.WalletConnectV2Navigation
 import exchange.ExchangeLinking
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import okhttp3.OkHttpClient
@@ -182,7 +183,6 @@ import piuk.blockchain.android.util.wiper.DataWiper
 import piuk.blockchain.android.util.wiper.DataWiperImpl
 import piuk.blockchain.android.walletmode.DefaultWalletModeStrategy
 import piuk.blockchain.android.walletmode.WalletModeThemeProvider
-import java.io.File
 
 val applicationModule = module {
 
@@ -652,7 +652,6 @@ val applicationModule = module {
                 userFeaturePermissionService = get(),
                 kycService = get(),
                 accountsSorting = get(sellOrder),
-                localSettingsPrefs = get(),
                 simpleBuyService = get(),
                 coincore = get(),
                 custodialWalletManager = get(),

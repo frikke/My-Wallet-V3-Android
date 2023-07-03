@@ -55,7 +55,8 @@ class FiatActionsNavigationImpl(
                 context = activity,
                 sourceAccount = account.takeIf { it !is NullFiatAccount },
                 target = target.takeIf { it !is NullFiatAccount },
-                action = action
+                action = action,
+                origin = "FiatActionsNav",
             )
         )
     }

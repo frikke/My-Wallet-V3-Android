@@ -114,7 +114,7 @@ class RecurringBuySelectionBottomSheet : MviBottomSheet<
             }
             recurringBuySelectCta.apply {
                 text = getString(com.blockchain.stringResources.R.string.common_ok)
-                onClick =  {
+                onClick = {
                     analytics.logEvent(
                         BuyFrequencySelected(
                             frequency = selectedFrequency.name

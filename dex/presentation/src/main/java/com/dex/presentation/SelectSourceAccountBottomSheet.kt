@@ -31,7 +31,6 @@ import com.blockchain.componentlib.sheets.SheetFloatingHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.BackgroundMuted
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware

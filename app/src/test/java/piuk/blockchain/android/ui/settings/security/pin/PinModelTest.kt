@@ -1012,7 +1012,6 @@ class PinModelTest {
 
         val testState = model.state.test()
         model.process(PinIntent.ValidatePIN(pin, isForValidatingPinForResult))
-        println(testState.values().size)
         testState.assertValueAt(0) {
             it == PinState()
         }.assertValueAt(1) {

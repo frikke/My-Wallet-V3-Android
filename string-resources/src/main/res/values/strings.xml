@@ -2547,6 +2547,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="select_a_trading_currency">Select a Trading Currency.</string>
     <string name="select_a_display_currency">Select a Display Currency.</string>
     <string name="currency_not_available">Right now, %1$s is not supported for buying crypto. You can add a bank account or card from the list of available currencies below.</string>
+    <string name="currently_unavailable">Currently unavailable</string>
     <string name="bank_fees_disclaimer">Additional bank fees may apply. Your bank may add fee and Exchange Rates to each transaction.</string>
     <string name="landing_cta_title">Your First Buy Is on Us.</string>
     <string name="landing_cta_subtitle">Verify your ID and we\'ll cover the fees on your first trade. It\'s our way of saying welcome to Blockchain.com!</string>
@@ -3619,7 +3620,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="unable_to_swap_tokens">Unable to swap these tokens</string>
     <string name="common_pending_activity">Pending Activity</string>
     <string name="swapping_with_currencies">Swapping %1$s for %2$s</string>
-    <string name="your_swap_is_confirmed">You swap is being confirmed by the network. Track the confirmation on the Explorer or feel free to start a new swap.</string>
+    <string name="your_swap_is_confirmed">Your swap is being confirmed by the network. Track the confirmation on the Explorer or feel free to start a new swap.</string>
     <string name="view_on_explorer">View on Explorer</string>
     <string name="swap_failed">Swap failed</string>
     <string name="swap_failed_message">Your balance hasn\'t been affected. You can try again or cancel.</string>
@@ -3627,6 +3628,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="accept">Accept</string>
     <string name="approval_for_token_failed">%1$s approval failed</string>
     <string name="approval_for_token_completed">Approved %1$s</string>
+    <string name="default_dex_not_available_message">The dex is not available yet for your account.</string>
     <string name="tx_in_process">Transaction in process</string>
     <string name="tx_in_process_for_network">Your balances may not be accurate since you have transactions in progress on the %1$s network.</string>
     <string name="not_accurate_balance">Your balances may not be accurate.
@@ -3672,4 +3674,16 @@ If you want to know more about our verification process visit our <annotation li
     <string name="dashboard_kyc_blocked_description">It seems we\'re unable to verify your identity. \n\nHowever, you can still use our DeFi Wallet.</string>
     <string name="go_to_defi">Go to DeFi Wallet</string>
 
+    <plurals name="years_ago">
+        <item quantity="one">%d year ago</item>
+        <item quantity="other">%d years ago</item>
+    </plurals>
+    <plurals name="months_ago">
+        <item quantity="one">%d months ago</item>
+        <item quantity="other">%d months ago</item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="one">%d day ago</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
 </resources>

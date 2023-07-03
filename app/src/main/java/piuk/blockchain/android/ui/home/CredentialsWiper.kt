@@ -39,7 +39,7 @@ class CredentialsWiper(
     fun wipe() {
         notificationTokenManager.revokeAccessToken().then {
             Completable.fromAction {
-                unifiedActivityService.clearCache()
+                unifiedActivityService.clear()
                 appUtil.unpairWallet()
                 activityWebSocketService.close()
                 ethDataManager.clearAccountDetails()

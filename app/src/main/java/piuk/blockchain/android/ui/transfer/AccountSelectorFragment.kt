@@ -9,7 +9,6 @@ import androidx.annotation.StringRes
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.SingleAccountList
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
@@ -20,7 +19,6 @@ import com.blockchain.koin.defaultOrder
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.presentation.koin.scopedInject
-import com.blockchain.utils.zipObservables
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.core.Single
 import org.koin.android.ext.android.inject
@@ -109,33 +107,10 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
         coincore.walletsWithAction(
             action = fragmentAction,
             sorter = accountsSorting.sorter()
-        ).flatMap { list ->
-            if (fragmentAction == AssetAction.Send) {
-                checkAndFilterDustBalancesList(list)
-            } else {
-                Single.just(list)
-            }.map {
-                it.map { account ->
-                    AccountListViewItem(account)
-                }
+        ).map {
+            it.map { account ->
+                AccountListViewItem(account)
             }
-        }
-
-    private fun checkAndFilterDustBalancesList(list: SingleAccountList) =
-        if (localSettingsPrefs.hideSmallBalancesEnabled) {
-            list.map { account ->
-                account.balanceRx()
-            }.zipObservables().map {
-                list.mapIndexedNotNull { index, singleAccount ->
-                    if (!it[index].totalFiat.isDust()) {
-                        singleAccount
-                    } else {
-                        null
-                    }
-                }
-            }.firstOrError()
-        } else {
-            Single.just(list)
         }
 
     protected abstract val fragmentAction: AssetAction

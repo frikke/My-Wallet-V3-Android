@@ -118,7 +118,8 @@ class QrScanNavigationImpl(
                     context = activity,
                     sourceAccount = sourceAccount,
                     target = target,
-                    action = AssetAction.Send
+                    action = AssetAction.Send,
+                    origin = "QrScanNav",
                 )
             )
         } catch (ex: Exception) {

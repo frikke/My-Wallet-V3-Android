@@ -100,6 +100,7 @@ class DexQuotesRepository(
                     quoteTtl = resp.quoteTtl,
                     gasLimit = resp.transaction.gasLimit,
                     value = resp.transaction.value,
+                    gasPrice = resp.transaction.gasPrice,
                     destinationContractAddress = resp.transaction.to
                 )
             }

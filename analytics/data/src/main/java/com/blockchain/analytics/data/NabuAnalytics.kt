@@ -22,6 +22,7 @@ import com.blockchain.utils.toJsonElement
 import com.blockchain.utils.toUtcIso8601
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import com.blockchain.walletmode.WalletModeStore
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -37,6 +38,7 @@ import timber.log.Timber
 
 class NabuAnalytics(
     private val analyticsService: AnalyticsService,
+    private val walletModeStore: Lazy<WalletModeStore>,
     private val prefs: Lazy<SessionPrefs>,
     private val localAnalyticsPersistence: AnalyticsLocalPersistence,
     private val remoteLogger: RemoteLogger,
@@ -60,13 +62,12 @@ class NabuAnalytics(
     override fun logEvent(analyticsEvent: AnalyticsEvent) {
         logEventInTerminal(analyticsEvent)
 
-        compositeDisposable += payloadScope.get<WalletModeService>().walletModeSingle
-            .flatMapCompletable { walletMode ->
-                localAnalyticsPersistence.save(
-                    analyticsEvent.toNabuAnalyticsEvent().withWalletMode(walletMode)
-                )
-            }
-            .subscribeOn(Schedulers.computation())
+        compositeDisposable += localAnalyticsPersistence.save(
+            analyticsEvent.toNabuAnalyticsEvent().withWalletMode(
+                walletModeStore.value.walletMode ?: WalletMode.NON_CUSTODIAL
+            )
+        )
+            .subscribeOn(Schedulers.io())
             .doOnError {
                 remoteLogger.logException(it)
             }

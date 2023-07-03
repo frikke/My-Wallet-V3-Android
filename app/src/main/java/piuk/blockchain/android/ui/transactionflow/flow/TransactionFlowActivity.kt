@@ -102,13 +102,17 @@ class TransactionFlowActivity :
     private val dataRemediationService: DataRemediationService by scopedInject()
     private val fraudService: FraudService by inject()
     private lateinit var startingIntent: TransactionIntent
-    private val assetCatalogue: AssetCatalogue by scopedInject()
+    private val assetCatalogue: AssetCatalogue by inject()
 
     private val sourceAccount: SingleAccount by lazy {
         intent.extras?.getAccount(SOURCE) as? SingleAccount ?: kotlin.run {
             remoteLogger.logException(IllegalStateException(), "No source account specified for action $action")
             NullCryptoAccount()
         }
+    }
+
+    private val origin: String by lazy {
+        intent.extras?.getString(ORIGIN).orEmpty()
     }
 
     private val transactionTarget: TransactionTarget by lazy {
@@ -193,6 +197,7 @@ class TransactionFlowActivity :
         val intentMapper = TransactionFlowIntentMapper(
             sourceAccount = sourceAccount,
             target = transactionTarget,
+            origin = origin,
             action = action
         )
 
@@ -227,6 +232,7 @@ class TransactionFlowActivity :
             TransactionStep.ZERO -> {
                 // do nothing
             }
+
             TransactionStep.CLOSED -> dismissFlow()
             else -> analyticsHooks.onStepChanged(state)
         }
@@ -253,10 +259,12 @@ class TransactionFlowActivity :
                 navigateOnBackPressed { finish() }
                 true
             }
+
             R.id.action_close -> {
                 dismissFlow()
                 true
             }
+
             else -> {
                 super.onOptionsItemSelected(item)
             }
@@ -277,15 +285,18 @@ class TransactionFlowActivity :
                     model.process(TransactionIntent.ClearSelectedTarget)
                     model.process(TransactionIntent.ReturnToPreviousStep)
                 }
+
                 BackNavigationState.ResetPendingTransaction -> {
                     hideKeyboard()
                     model.process(TransactionIntent.InvalidateTransaction)
                 }
+
                 BackNavigationState.ResetPendingTransactionKeepingTarget -> {
                     hideKeyboard()
                     binding.txProgress.visible()
                     model.process(TransactionIntent.InvalidateTransactionKeepingTarget)
                 }
+
                 BackNavigationState.NavigateToPreviousScreen -> model.process(TransactionIntent.ReturnToPreviousStep)
             }
         } else {
@@ -297,21 +308,26 @@ class TransactionFlowActivity :
         when (step) {
             TransactionStep.ZERO,
             TransactionStep.CLOSED -> null
+
             TransactionStep.FEATURE_BLOCKED -> when (featureBlockedReason) {
                 is BlockedReason.Sanctions -> BlockedDueToSanctionsSheet.newInstance(featureBlockedReason)
                 is BlockedReason.NotEligible -> BlockedDueToNotEligibleSheet.newInstance(featureBlockedReason)
                 is BlockedReason.TooManyInFlightTransactions,
                 is BlockedReason.InsufficientTier -> KycUpgradeNowSheet.newInstance()
+
                 is BlockedReason.ShouldAcknowledgeStakingWithdrawal -> StakingAccountWithdrawWarning.newInstance(
                     featureBlockedReason.assetIconUrl,
                     featureBlockedReason.unbondingDays
                 )
+
                 is BlockedReason.ShouldAcknowledgeActiveRewardsWithdrawalWarning ->
                     ActiveRewardsWithdrawalWarningSheet.newInstance()
+
                 null -> throw IllegalStateException(
                     "No featureBlockedReason provided for TransactionStep.FEATURE_BLOCKED, state $state"
                 )
             }
+
             TransactionStep.ENTER_PASSWORD -> EnterSecondPasswordFragment.newInstance()
             TransactionStep.SELECT_SOURCE -> SelectSourceAccountFragment.newInstance(assetAction)
             TransactionStep.ENTER_ADDRESS -> EnterTargetAddressFragment.newInstance()
@@ -319,6 +335,7 @@ class TransactionFlowActivity :
                 checkRemainingSendAttemptsWithoutBackup()
                 EnterAmountFragment.newInstance(assetAction)
             }
+
             TransactionStep.SELECT_TARGET_ACCOUNT -> SelectTargetAccountFragment.newInstance()
             TransactionStep.CONFIRM_DETAIL -> ConfirmTransactionFragment.newInstance(assetAction)
             TransactionStep.IN_PROGRESS -> TransactionProgressFragment.newInstance()
@@ -421,18 +438,21 @@ class TransactionFlowActivity :
         private const val SOURCE = "SOURCE_ACCOUNT"
         private const val TARGET = "TARGET_ACCOUNT"
         private const val ACTION = "ASSET_ACTION"
+        private const val ORIGIN = "ORIGIN"
         private const val TX_SCOPE_ID = "TRANSACTION_ACTIVITY_SCOPE_ID"
 
         fun newIntent(
             context: Context,
             sourceAccount: BlockchainAccount? = NullCryptoAccount(),
             target: TransactionTarget? = NullCryptoAccount(),
-            action: AssetAction
+            action: AssetAction,
+            origin: String = ""
         ): Intent {
             val bundle = Bundle().apply {
                 putAccount(SOURCE, sourceAccount ?: NullCryptoAccount())
                 putTarget(TARGET, target ?: NullCryptoAccount())
                 putSerializable(ACTION, action)
+                putString(ORIGIN, origin)
             }
 
             val activityClass = if (shouldUseNewFlow(action)) {

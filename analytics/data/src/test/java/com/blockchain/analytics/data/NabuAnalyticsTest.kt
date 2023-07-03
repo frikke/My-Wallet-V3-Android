@@ -11,6 +11,8 @@ import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenRespon
 import com.blockchain.nabu.stores.NabuSessionTokenStore
 import com.blockchain.preferences.SessionPrefs
 import com.blockchain.utils.Optional
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeStore
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.mock
@@ -46,6 +48,10 @@ class NabuAnalyticsTest {
         on { getAccessToken() }.thenReturn(Observable.just(token))
     }
 
+    private val walletModeStore: WalletModeStore = mock {
+        on { walletMode }.thenReturn(WalletMode.NON_CUSTODIAL)
+    }
+
     private val sessionPrefs: SessionPrefs = mock {
         on { deviceId }.thenReturn("deviceID")
     }
@@ -68,6 +74,7 @@ class NabuAnalyticsTest {
         remoteLogger = mock(),
         analyticsService = analyticsService,
         tokenStore = tokenStore,
+        walletModeStore = lazy { walletModeStore },
         analyticsContextProvider = analyticsContextProvider,
         lifecycleObservable = lifecycleObservable
     )

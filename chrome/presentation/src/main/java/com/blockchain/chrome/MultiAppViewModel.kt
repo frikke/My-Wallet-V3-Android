@@ -8,9 +8,12 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.dataOrElse
+import com.blockchain.data.filterNotLoading
 import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletmode.WalletMode
@@ -22,6 +25,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.rating.domain.service.AppRatingService
 
@@ -30,6 +34,7 @@ class MultiAppViewModel(
     private val walletModeBalanceService: WalletModeBalanceService,
     private val walletStatusPrefs: WalletStatusPrefs,
     private val walletModePrefs: WalletModePrefs,
+    private val userFeaturePermissionService: UserFeaturePermissionService,
     private val dexFeatureFlag: FeatureFlag,
     private val appRatingService: AppRatingService
 ) : MviViewModel<
@@ -116,9 +121,13 @@ class MultiAppViewModel(
 
     private fun loadDex() {
         viewModelScope.launch {
-            val dexEnabled = dexFeatureFlag.coEnabled()
-            updateState {
-                copy(dexEnabled = dexEnabled)
+            userFeaturePermissionService.isEligibleFor(Feature.Dex).filterNotLoading().map {
+                val dexEnabled = dexFeatureFlag.coEnabled()
+                dexEnabled && it.dataOrElse(false)
+            }.collectLatest { enabled ->
+                updateState {
+                    copy(dexEnabled = enabled)
+                }
             }
         }
     }

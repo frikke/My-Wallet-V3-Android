@@ -1,7 +1,6 @@
 package com.blockchain.componentlib.alert
 
 import android.content.res.Configuration
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

@@ -28,6 +28,7 @@ class DexTransactionRepository(
             destination = quote.destinationContractAddress,
             data = quote.data,
             value = quote.value,
+            fee = quote.gasPrice,
             gasLimit = quote.gasLimit,
             networkNativeCurrency = coinNetwork.nativeAssetTicker,
         ).map { builtDexTxResponse ->

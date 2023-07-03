@@ -126,7 +126,6 @@ class CustodialFiatAccountActionsTest : CoincoreTestBase() {
 
         val balance = TradingAccountBalance(
             total = accountBalance,
-            dashboardDisplay = accountBalance,
             withdrawable = actionableBalance,
             pending = pendingBalance,
             hasTransactions = true

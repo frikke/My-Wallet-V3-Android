@@ -14,7 +14,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
-import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.coincore.NullFiatAccount.currency
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
@@ -29,7 +28,6 @@ import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Orange500
 import com.blockchain.stringResources.R
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo

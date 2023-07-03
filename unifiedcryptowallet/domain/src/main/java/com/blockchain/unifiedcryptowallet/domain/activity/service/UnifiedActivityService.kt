@@ -21,5 +21,5 @@ interface UnifiedActivityService {
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<DataResource<ActivityDetailGroups>>
 
-    fun clearCache()
+    fun clear()
 }

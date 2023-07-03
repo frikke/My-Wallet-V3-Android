@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -23,7 +22,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
@@ -52,9 +50,7 @@ import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.BackgroundMuted
 import com.blockchain.componentlib.theme.Grey400
-import com.blockchain.componentlib.theme.Orange500
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.extensions.safeLet
@@ -68,11 +64,11 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
+import java.math.BigDecimal
+import java.math.BigInteger
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
-import java.math.BigDecimal
-import java.math.BigInteger
 
 @Composable
 fun DexConfirmationScreen(
@@ -234,7 +230,14 @@ fun DexConfirmationScreen(
 
                     dataState.slippage?.let { sl ->
                         item {
-                            SlippageConfirmation(sl)
+                            SlippageConfirmation(
+                                sl = sl,
+                                extraInfoOnClick = { destination ->
+                                    navController.navigate(
+                                        destination
+                                    )
+                                }
+                            )
                             AppDivider()
                         }
                     }
@@ -655,10 +658,10 @@ private fun ExchangeRateConfirmation(confirmationExchangeRate: ConfirmationExcha
             AnimatedAmountCounter(
                 amountText = "${confirmationExchangeRate.rate} " +
                     "${confirmationExchangeRate.outputCurrency.displayTicker} / ${
-                        Money.fromMajor(
-                            confirmationExchangeRate.inputCurrency,
-                            BigDecimal.ONE
-                        ).toStringWithSymbol(includeDecimalsWhenWhole = false)
+                    Money.fromMajor(
+                        confirmationExchangeRate.inputCurrency,
+                        BigDecimal.ONE
+                    ).toStringWithSymbol(includeDecimalsWhenWhole = false)
                     }",
                 style = ComposeTypographies.Paragraph2,
                 color = ComposeColors.Title,
@@ -668,16 +671,34 @@ private fun ExchangeRateConfirmation(confirmationExchangeRate: ConfirmationExcha
     )
 }
 
+@Preview
 @Composable
-private fun SlippageConfirmation(sl: Double) {
+private fun SlippageConfirmation(sl: Double = 1.0, extraInfoOnClick: (String) -> Unit = {}) {
+    val extraInfoTitle = stringResource(id = com.blockchain.stringResources.R.string.allowed_slippage)
+    val extraInfoDescription =
+        stringResource(
+            id = com.blockchain.stringResources.R.string.slippage_explanation,
+        )
     TableRow(
         content = {
-            SimpleText(
-                text = stringResource(id = com.blockchain.stringResources.R.string.allowed_slippage),
-                style = ComposeTypographies.Paragraph2,
-                color = ComposeColors.Body,
-                gravity = ComposeGravities.Start
-            )
+            Row(verticalAlignment = CenterVertically) {
+                SimpleText(
+                    text = stringResource(id = com.blockchain.stringResources.R.string.allowed_slippage),
+                    style = ComposeTypographies.Paragraph2,
+                    color = ComposeColors.Body,
+                    gravity = ComposeGravities.Start
+                )
+
+                ExtraInfoIndicator {
+                    val destination = DexDestination.DexExtraInfoSheet.routeWithTitleAndDescription(
+                        title = extraInfoTitle,
+                        description = extraInfoDescription
+                    )
+                    extraInfoOnClick(
+                        destination
+                    )
+                }
+            }
             Spacer(modifier = Modifier.weight(1f))
             SimpleText(
                 text = sl.toPercentageString(),

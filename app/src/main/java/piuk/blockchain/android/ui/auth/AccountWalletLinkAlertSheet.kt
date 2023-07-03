@@ -37,7 +37,7 @@ class AccountWalletLinkAlertSheet : SlidingModalBottomDialog<AccountWalletLinkAl
             }
             cancelButton.apply {
                 text = getString(com.blockchain.stringResources.R.string.common_cancel)
-                onClick =  { dismiss() }
+                onClick = { dismiss() }
             }
         }
     }

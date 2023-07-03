@@ -847,7 +847,7 @@ private fun DefiHomeDashboard(
             newsViewModel.onIntent(NewsIntent.Refresh)
         }
     }
-
+    val scope = rememberCoroutineScope()
     // quick actions navigation
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->

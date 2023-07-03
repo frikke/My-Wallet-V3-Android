@@ -3,8 +3,6 @@ package piuk.blockchain.android.ui.auth
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
-import com.blockchain.componentlib.icons.ArrowLeft
-import com.blockchain.componentlib.icons.Icons
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetEnrollBiometricsBinding
 
@@ -33,7 +31,7 @@ class BiometricsEnrollmentBottomSheet : SlidingModalBottomDialog<DialogSheetEnro
 
         binding.biometricCancel.apply {
             text = getString(com.blockchain.stringResources.R.string.not_now)
-            onClick =  {
+            onClick = {
                 dismiss()
                 host.cancel()
             }

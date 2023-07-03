@@ -438,11 +438,12 @@ class LoginActivity :
             }
 
             continueButton.buttonState =
-                if (emailRegex.matches(newState.email) || (newState.isTypingEmail && emailRegex.matches(
-                        newState.email
-                    ))
+                if (emailRegex.matches(newState.email) || (
+                    newState.isTypingEmail && emailRegex.matches(
+                            newState.email
+                        )
+                    )
                 ) ButtonState.Enabled else ButtonState.Disabled
-
         }
     }
 

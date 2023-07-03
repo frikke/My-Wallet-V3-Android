@@ -415,7 +415,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                 binding.mainCta.apply {
                     text = getString(com.blockchain.stringResources.R.string.bank_linking_try_again)
                     visible()
-                    onClick =  {
+                    onClick = {
                         logRetryAnalytics(errorState, partner)
                         retryLinking(partner, linkBankTransferId)
                     }

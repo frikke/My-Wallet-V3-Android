@@ -55,13 +55,13 @@ class ResetAccountFragment :
             resetAccountDesc.text = getString(com.blockchain.stringResources.R.string.reset_account_description_1)
             resetButton.apply {
                 text = getString(com.blockchain.stringResources.R.string.reset_account_cta)
-                onClick =  {
+                onClick = {
                     model.process(ResetAccountIntents.UpdateStatus(ResetAccountStatus.SHOW_WARNING))
                 }
             }
             retryButton.apply {
                 text = getString(com.blockchain.stringResources.R.string.retry_recovery_phrase_cta)
-                onClick =  {
+                onClick = {
                     model.process(ResetAccountIntents.UpdateStatus(ResetAccountStatus.RETRY))
                 }
             }

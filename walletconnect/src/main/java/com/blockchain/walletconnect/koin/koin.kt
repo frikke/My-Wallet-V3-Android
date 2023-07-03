@@ -31,7 +31,9 @@ import org.koin.dsl.module
 val walletConnectModule = module {
 
     single {
-        WalletConnectV2ServiceImpl()
+        WalletConnectV2ServiceImpl(
+            lifecycleObservable = get()
+        )
     }.apply {
         bind(WalletConnectV2Service::class)
         bind(WalletConnectV2UrlValidator::class)

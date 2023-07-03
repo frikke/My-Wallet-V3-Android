@@ -45,6 +45,7 @@ val analyticsModule = module {
             localAnalyticsPersistence = get(),
             remoteLogger = get(),
             tokenStore = get(),
+            walletModeStore = lazy { get() },
             lifecycleObservable = get()
         )
     }.apply {

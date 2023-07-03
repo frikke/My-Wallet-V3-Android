@@ -42,8 +42,10 @@ class NabuUserIdentity(
             is Feature.TierLevel -> kycService.getTiersLegacy().map {
                 it.isInitialisedFor(feature.tier).not()
             }
+
             is Feature.Interest -> interestService.getEligibilityForAssetsLegacy()
                 .map { mapAssetWithEligibility -> mapAssetWithEligibility.containsKey(feature.currency) }
+
             Feature.Buy,
             Feature.Swap,
             Feature.Sell,
@@ -54,6 +56,7 @@ class NabuUserIdentity(
             Feature.DepositActiveRewards,
             Feature.CustodialAccounts,
             Feature.Kyc,
+            Feature.Dex,
             Feature.WithdrawFiat -> userAccessForFeature(feature, freshnessStrategy).map { it is FeatureAccess.Granted }
         }
     }
@@ -63,6 +66,7 @@ class NabuUserIdentity(
             is Feature.TierLevel -> kycService.getTiersLegacy().map {
                 it.isApprovedFor(feature.tier)
             }
+
             is Feature.Interest,
             Feature.Buy,
             Feature.CustodialAccounts,
@@ -70,6 +74,7 @@ class NabuUserIdentity(
             Feature.Swap,
             Feature.DepositFiat,
             Feature.DepositInterest,
+            Feature.Dex,
             Feature.DepositStaking,
             Feature.DepositActiveRewards,
             Feature.Sell,
@@ -132,6 +137,7 @@ class NabuUserIdentity(
                         buyFeatureAccess !is FeatureAccess.Granted -> buyFeatureAccess
                         sbEligibility.pendingDepositSimpleBuyTrades < sbEligibility.maxPendingDepositSimpleBuyTrades ->
                             FeatureAccess.Granted()
+
                         else -> FeatureAccess.Blocked(
                             BlockedReason.TooManyInFlightTransactions(
                                 sbEligibility.maxPendingDepositSimpleBuyTrades
@@ -139,6 +145,7 @@ class NabuUserIdentity(
                         )
                     }
                 }
+
             Feature.Swap ->
                 rxSingleOutcome {
                     eligibilityService.getProductEligibilityLegacy(
@@ -147,6 +154,7 @@ class NabuUserIdentity(
                     )
                 }
                     .map(ProductEligibility::toFeatureAccess)
+
             Feature.Sell ->
                 rxSingleOutcome {
                     eligibilityService.getProductEligibilityLegacy(
@@ -155,6 +163,7 @@ class NabuUserIdentity(
                     )
                 }
                     .map(ProductEligibility::toFeatureAccess)
+
             Feature.DepositFiat ->
                 rxSingleOutcome {
                     eligibilityService.getProductEligibilityLegacy(
@@ -163,6 +172,7 @@ class NabuUserIdentity(
                     )
                 }
                     .map(ProductEligibility::toFeatureAccess)
+
             Feature.DepositCrypto ->
                 rxSingleOutcome {
                     eligibilityService.getProductEligibilityLegacy(
@@ -171,6 +181,7 @@ class NabuUserIdentity(
                     )
                 }
                     .map(ProductEligibility::toFeatureAccess)
+
             Feature.DepositInterest ->
                 rxSingleOutcome {
                     eligibilityService.getProductEligibilityLegacy(
@@ -179,6 +190,7 @@ class NabuUserIdentity(
                     )
                 }
                     .map(ProductEligibility::toFeatureAccess)
+
             Feature.WithdrawFiat ->
                 rxSingleOutcome {
                     eligibilityService.getProductEligibilityLegacy(
@@ -187,6 +199,7 @@ class NabuUserIdentity(
                     )
                 }
                     .map(ProductEligibility::toFeatureAccess)
+
             Feature.DepositStaking ->
                 rxSingleOutcome {
                     eligibilityService.getProductEligibilityLegacy(
@@ -195,6 +208,7 @@ class NabuUserIdentity(
                     )
                 }
                     .map(ProductEligibility::toFeatureAccess)
+
             Feature.DepositActiveRewards ->
                 rxSingleOutcome {
                     eligibilityService.getProductEligibilityLegacy(
@@ -203,6 +217,7 @@ class NabuUserIdentity(
                     )
                 }
                     .map(ProductEligibility::toFeatureAccess)
+
             Feature.CustodialAccounts ->
                 rxSingleOutcome {
                     eligibilityService.getProductEligibilityLegacy(
@@ -211,6 +226,7 @@ class NabuUserIdentity(
                     )
                 }
                     .map(ProductEligibility::toFeatureAccess)
+
             Feature.Kyc ->
                 rxSingleOutcome {
                     eligibilityService.getProductEligibilityLegacy(
@@ -219,6 +235,14 @@ class NabuUserIdentity(
                     )
                 }
                     .map(ProductEligibility::toFeatureAccess)
+
+            Feature.Dex -> rxSingleOutcome {
+                eligibilityService.getProductEligibilityLegacy(
+                    EligibleProduct.DEX,
+                    freshnessStrategy
+                )
+            }.map(ProductEligibility::toFeatureAccess)
+
             is Feature.Interest,
             is Feature.TierLevel -> TODO("Not Implemented Yet")
         }
@@ -281,18 +305,25 @@ private fun ProductEligibility.toFeatureAccess(): FeatureAccess =
         when (val reason = reasonNotEligible) {
             ProductNotEligibleReason.InsufficientTier.Tier1TradeLimitExceeded ->
                 BlockedReason.InsufficientTier.Tier1TradeLimitExceeded
+
             ProductNotEligibleReason.InsufficientTier.Tier1Required ->
                 BlockedReason.InsufficientTier.Tier1Required
+
             ProductNotEligibleReason.InsufficientTier.Tier2Required ->
                 BlockedReason.InsufficientTier.Tier2Required
+
             is ProductNotEligibleReason.InsufficientTier.Unknown ->
                 BlockedReason.InsufficientTier.Unknown(reason.message)
+
             is ProductNotEligibleReason.Sanctions.RussiaEU5 ->
                 BlockedReason.Sanctions.RussiaEU5(reason.message)
+
             is ProductNotEligibleReason.Sanctions.RussiaEU8 ->
                 BlockedReason.Sanctions.RussiaEU8(reason.message)
+
             is ProductNotEligibleReason.Sanctions.Unknown ->
                 BlockedReason.Sanctions.Unknown(reason.message)
+
             is ProductNotEligibleReason.Unknown -> BlockedReason.NotEligible(reason.message)
             null -> BlockedReason.NotEligible(null)
         }

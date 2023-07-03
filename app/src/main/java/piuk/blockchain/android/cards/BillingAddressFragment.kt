@@ -1,7 +1,6 @@
 package piuk.blockchain.android.cards
 
 import android.os.Bundle
-import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,7 +28,6 @@ import piuk.blockchain.android.databinding.FragmentBillingAddressBinding
 import piuk.blockchain.android.fraud.domain.service.FraudFlow
 import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
-import piuk.blockchain.android.util.AfterTextChangedWatcher
 
 class BillingAddressFragment :
     MviFragment<CardModel, CardIntent, CardState, FragmentBillingAddressBinding>(),

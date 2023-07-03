@@ -315,20 +315,22 @@ class AssetsViewModel(
                     }
                 }
 
-                val usdRates = accountsResource.data.map { account ->
+                val majorCurrencyRates = accountsResource.data.map { account ->
                     exchangeRates.exchangeRate(
                         fromAsset = account.currency,
-                        toAsset = FiatCurrency.Dollars
+                        toAsset = if (currencyPrefs.selectedFiatCurrency.isMajor())
+                            currencyPrefs.selectedFiatCurrency else FiatCurrency.Dollars
                     ).map { it to account }
                 }
-                val usdRatesFlow = combine(usdRates) {
+
+                val majorRatesFlow = combine(majorCurrencyRates) {
                     it.toList()
                 }.filter {
                     it.none { it.first is DataResource.Loading }
                 }.onEach {
                     updateState {
                         copy(
-                            accounts = accounts.withUsdRates(it)
+                            accounts = accounts.withMajorFiatRates(it)
                         )
                     }
                 }
@@ -349,7 +351,7 @@ class AssetsViewModel(
                         )
                     }
                 }
-                merge(usdRatesFlow, balances, exchangeRatesFlow)
+                merge(majorRatesFlow, balances, exchangeRatesFlow)
             }
     }
 
@@ -373,7 +375,7 @@ class AssetsViewModel(
                                     balance = DataResource.Loading,
                                     exchangeRate24hWithDelta = DataResource.Loading,
                                     fiatBalance = DataResource.Loading,
-                                    usdRate = DataResource.Loading
+                                    majorCurrencyRate = DataResource.Loading
                                 )
                             }
                         )
@@ -400,7 +402,7 @@ class AssetsViewModel(
                                         balance = DataResource.Loading,
                                         exchangeRate24hWithDelta = DataResource.Loading,
                                         fiatBalance = DataResource.Loading,
-                                        usdRate = DataResource.Loading
+                                        majorCurrencyRate = DataResource.Loading
                                     )
                                 }
                             )
@@ -514,18 +516,18 @@ private fun DataResource<List<SingleAccountBalance>>.withBalancedAccounts(
     )
 }
 
-private fun DataResource<List<SingleAccountBalance>>.withUsdRates(
-    usdRates: List<Pair<DataResource<ExchangeRate>, SingleAccount>>
+private fun DataResource<List<SingleAccountBalance>>.withMajorFiatRates(
+    majorRates: List<Pair<DataResource<ExchangeRate>, SingleAccount>>
 ): DataResource<List<SingleAccountBalance>> {
     return this.map { accounts ->
         var updatedAccounts = accounts.toList()
-        usdRates.forEach { (usdRate, account) ->
+        majorRates.forEach { (majorRate, account) ->
             val oldAccount = updatedAccounts.firstOrNull { it.singleAccount == account }
             oldAccount?.let {
                 updatedAccounts = updatedAccounts.replace(
                     old = it,
                     new = it.copy(
-                        usdRate = oldAccount.usdRate.updateDataWith(usdRate)
+                        majorCurrencyRate = oldAccount.majorCurrencyRate.updateDataWith(majorRate)
                     )
                 )
             }
@@ -553,3 +555,6 @@ private fun DataResource<List<SingleAccountBalance>>.withPricings(
         updatedAccounts
     }
 }
+
+private fun FiatCurrency.isMajor(): Boolean =
+    networkTicker in listOf("GBP", "USD", "EUR", "CHF")

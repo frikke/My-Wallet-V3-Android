@@ -72,6 +72,7 @@ fun ActivityComponentItem(component: ActivityComponent, onClick: ((ClickAction) 
 
         is ActivityComponent.StackView -> {
             MaskedCustomTableRow(
+                ellipsiseLeading = true,
                 icon = component.leadingImage.toStackedIcon(),
                 leadingComponents = component.leading.map { it.toViewType() },
                 trailingComponents = component.trailing.map { it.toViewType() },

@@ -65,13 +65,16 @@ import com.blockchain.componentlib.button.PrimarySmallButton
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.icon.SmallTagIcon
 import com.blockchain.componentlib.icons.Alert
+import com.blockchain.componentlib.icons.AlertOn
 import com.blockchain.componentlib.icons.Check
 import com.blockchain.componentlib.icons.ChevronRight
 import com.blockchain.componentlib.icons.Gas
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Network
 import com.blockchain.componentlib.icons.Settings
+import com.blockchain.componentlib.icons.Swap
 import com.blockchain.componentlib.icons.Sync
+import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.loader.LoadingIndicator
 import com.blockchain.componentlib.tablerow.TableRow
@@ -79,16 +82,18 @@ import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Green700
-import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Red400
+import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.componentlib.utils.conditional
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.data.DataResource
 import com.blockchain.extensions.safeLet
 import com.blockchain.koin.payloadScope
 import com.blockchain.preferences.DexPrefs
+import com.blockchain.presentation.urllinks.URL_LEARN_MORE_DEX_NOT_ELIGIBLE
 import com.blockchain.stringResources.R
 import com.dex.presentation.ALLOWANCE_TRANSACTION_APPROVED
 import com.dex.presentation.AmountFieldConfig
@@ -138,7 +143,10 @@ fun DexEnterAmountScreen(
     val chromePillProvider = LocalChromePillProvider.current
 
     DexTxSubscribeScreen(
-        subscribe = { viewModel.onIntent(InputAmountIntent.SubscribeForTxUpdates) },
+        subscribe = {
+            viewModel.onIntent(InputAmountIntent.SubscribeForTxUpdates)
+            viewModel.onIntent(InputAmountIntent.RevalidateTransaction)
+        },
         unsubscribe = { viewModel.onIntent(InputAmountIntent.UnSubscribeToTxUpdates) }
     )
     val scope = rememberCoroutineScope()
@@ -340,6 +348,86 @@ fun DexEnterAmountScreen(
                     receive = startReceiving
                 )
             }
+        }
+
+        (viewState as? InputAmountViewState.NotEligible)?.let {
+            paddedItem(
+                paddingValues = {
+                    PaddingValues(horizontal = AppTheme.dimensions.smallSpacing)
+                }
+            ) {
+                NotEligibleScreen(
+                    reason = it.reason ?: stringResource(id = R.string.default_dex_not_available_message),
+                )
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun NotEligibleScreen(
+    reason: String = "The DEX is not yet available for your account.",
+) {
+    val context = LocalContext.current
+
+    Surface(
+        color = AppTheme.colors.backgroundSecondary,
+        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(
+                    horizontal = AppTheme.dimensions.smallSpacing
+                )
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            StandardVerticalSpacer()
+
+            SmallTagIcon(
+                icon = StackedIcon.SmallTag(
+                    main = Icons.Swap.withTint(AppColors.title)
+                        .withBackground(
+                            backgroundColor = AppColors.light,
+                            iconSize = 58.dp,
+                            backgroundSize = 88.dp
+                        ),
+                    tag = Icons.AlertOn.withTint(AppColors.warning)
+                ),
+                mainIconSize = 88.dp,
+                tagIconSize = 44.dp
+            )
+
+            StandardVerticalSpacer()
+
+            SimpleText(
+                text = stringResource(id = R.string.currently_unavailable),
+                style = ComposeTypographies.Title3,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Centre
+            )
+
+            SimpleText(
+                text = reason,
+                style = ComposeTypographies.Body1,
+                color = ComposeColors.Body,
+                gravity = ComposeGravities.Centre,
+                modifier = Modifier.padding(
+                    vertical = AppTheme.dimensions.smallSpacing
+                )
+            )
+
+            SmallVerticalSpacer()
+
+            MinimalPrimaryButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(id = R.string.common_learn_more)
+            ) {
+                context.openUrl(URL_LEARN_MORE_DEX_NOT_ELIGIBLE)
+            }
+            SmallVerticalSpacer()
         }
     }
 }

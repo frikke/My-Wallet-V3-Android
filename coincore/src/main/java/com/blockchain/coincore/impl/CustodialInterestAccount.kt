@@ -94,7 +94,6 @@ class CustodialInterestAccount(
                 total = balance.totalBalance,
                 withdrawable = balance.actionableBalance,
                 pending = balance.pendingDeposit,
-                dashboardDisplay = balance.totalBalance,
                 exchangeRate = rate
             )
         }.doOnNext { hasFunds.set(it.total.isPositive) }

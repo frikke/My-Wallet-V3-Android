@@ -29,7 +29,7 @@ class NavigationBarView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        if(isInEditMode){
+        if (isInEditMode) {
             NavigationBar(
                 walletMode = WalletMode.CUSTODIAL,
                 mutedBg = mutedBackground,

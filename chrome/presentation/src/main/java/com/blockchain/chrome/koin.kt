@@ -14,6 +14,7 @@ val multiAppModule = module {
                 walletStatusPrefs = get(),
                 dexFeatureFlag = get(dexFeatureFlag),
                 walletModePrefs = get(),
+                userFeaturePermissionService = get(),
                 appRatingService = get()
             )
         }

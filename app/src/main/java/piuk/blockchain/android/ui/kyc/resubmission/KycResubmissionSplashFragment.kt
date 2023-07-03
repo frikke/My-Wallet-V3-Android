@@ -19,7 +19,6 @@ import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navigate
 import piuk.blockchain.android.ui.kyc.reentry.KycNavigator
-import piuk.blockchain.android.util.throttledClicks
 import timber.log.Timber
 
 class KycResubmissionSplashFragment : Fragment() {

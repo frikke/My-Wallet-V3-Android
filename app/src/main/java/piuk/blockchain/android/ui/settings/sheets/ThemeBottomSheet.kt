@@ -32,7 +32,6 @@ import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.topOnly
-import com.blockchain.home.presentation.activity.detail.composable.PreviewActivityScreen
 import com.blockchain.stringResources.R
 import com.blockchain.theme.Theme
 import com.blockchain.theme.ThemeService
@@ -117,7 +116,6 @@ private fun ThemeScreen(
                 if (index < Theme.values().lastIndex) {
                     AppDivider()
                 }
-
             }
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))

@@ -20,7 +20,7 @@ sealed class SettingsIntent : MviIntent<SettingsState> {
         override fun reduce(oldState: SettingsState): SettingsState = oldState
     }
 
-    data class UpdateTheme(val theme : Theme) : SettingsIntent() {
+    data class UpdateTheme(val theme: Theme) : SettingsIntent() {
         override fun reduce(oldState: SettingsState): SettingsState =
             oldState.copy(theme = theme)
     }

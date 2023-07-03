@@ -38,7 +38,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.domain.GetAccountActionsUseCase
 import piuk.blockchain.android.ui.coinview.domain.GetAssetPriceUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadAssetAccountsUseCase
@@ -248,7 +247,7 @@ class CoinviewViewModelTest {
                         price = balanceFormatted,
                         priceChange = balanceFormatted,
                         valueChange = percentChange,
-                        intervalName = com.blockchain.stringResources.R.string.coinview_price_day,
+                        intervalText = PriceIntervalText.TimeSpanText(HistoricalTimeSpan.DAY),
                         chartData = CoinviewPriceState.CoinviewChartState.Data(listOf(ChartEntry(1.0F, 1.1F))),
                         selectedTimeSpan = timeSpan
                     )

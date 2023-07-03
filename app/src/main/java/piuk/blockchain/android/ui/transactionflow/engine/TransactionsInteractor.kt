@@ -57,7 +57,6 @@ import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.TransactionPrefs
 import com.blockchain.utils.mapList
 import com.blockchain.utils.rxSingleOutcome
-import com.blockchain.utils.zipObservables
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyPair
@@ -245,13 +244,7 @@ class TransactionInteractor(
     ): Single<SingleAccountList> =
         when (action) {
             AssetAction.Swap -> {
-                getAvailableSwapAccounts().flatMap { accountList ->
-                    if (localSettingsPrefs.hideSmallBalancesEnabled) {
-                        filterDustBalances(accountList)
-                    } else {
-                        Single.just(accountList)
-                    }
-                }
+                getAvailableSwapAccounts().map { it as SingleAccountList }
             }
 
             AssetAction.InterestDeposit -> {
@@ -316,19 +309,6 @@ class TransactionInteractor(
     fun updatePkwFilterState(showPkwOnTradingMode: Boolean) {
         transactionPrefs.showPkwAccountsOnTradingMode = showPkwOnTradingMode
     }
-
-    private fun filterDustBalances(accountList: List<CryptoAccount>) =
-        accountList.map { account ->
-            account.balanceRx()
-        }.zipObservables().map {
-            accountList.mapIndexedNotNull { index, singleAccount ->
-                if (!it[index].totalFiat.isDust()) {
-                    singleAccount
-                } else {
-                    null
-                }
-            }
-        }.firstOrError()
 
     private fun getAvailableSwapAccounts() = coincore.walletsWithAction(
         action = AssetAction.Swap,

@@ -184,7 +184,7 @@ private class SimpleCheckoutItemViewHolder(
             if (item.hasChanged) {
                 simpleItemTitle.animateColor {
                     simpleItemTitle.setTextColor(
-                        ContextCompat.getColor(simpleItemTitle.context,  com.blockchain.componentlib.R.color.body)
+                        ContextCompat.getColor(simpleItemTitle.context, com.blockchain.componentlib.R.color.body)
                     )
                 }
             } else {

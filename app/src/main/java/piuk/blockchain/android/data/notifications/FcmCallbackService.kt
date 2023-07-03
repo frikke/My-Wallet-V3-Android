@@ -21,7 +21,6 @@ import com.blockchain.notifications.models.NotificationPayload
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.WalletStatusPrefs
-import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.emptySubscribe
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -44,11 +43,13 @@ class FcmCallbackService : FirebaseMessagingService() {
     private val analytics: Analytics by inject()
     private val walletPrefs: WalletStatusPrefs by inject()
     private val remoteConfigPrefs: RemoteConfigPrefs by inject()
-    private val secureChannelService: SecureChannelService by scopedInject()
+    private val secureChannelService: SecureChannelService?
+        get() = payloadScopeOrNull?.get()
     private val compositeDisposable = CompositeDisposable()
     private val lifecycleObservable: LifecycleObservable by inject()
     private var isAppOnForegrounded = true
-    private val deeplinkRedirector: DeeplinkRedirector by scopedInject()
+    private val deeplinkRedirector: DeeplinkRedirector?
+        get() = payloadScopeOrNull?.get()
     private val referralPrefs: ReferralPrefs by inject()
 
     init {
@@ -132,7 +133,7 @@ class FcmCallbackService : FirebaseMessagingService() {
     private fun sendNotification(payload: NotificationPayload, foreground: Boolean) {
         if (isSecureChannelMessage(payload)) {
             GlobalScope.launch {
-                secureChannelService.secureChannelLogin(payload.payload)
+                secureChannelService?.secureChannelLogin(payload.payload)
             }
             return
         }
@@ -161,10 +162,10 @@ class FcmCallbackService : FirebaseMessagingService() {
                             )
                         }
                     } else if (payload.deeplinkURL != null) {
-                        deeplinkRedirector.processDeeplinkURL(
+                        deeplinkRedirector?.processDeeplinkURL(
                             Uri.parse(payload.deeplinkURL),
                             payload
-                        ).emptySubscribe()
+                        )?.emptySubscribe()
                     } else {
                         triggerNotification(
                             payload.title,

@@ -128,7 +128,7 @@ class SwapFragment :
         super.onViewCreated(view, savedInstanceState)
 
         binding.swapCta.apply {
-            text  = getString(com.blockchain.stringResources.R.string.swap_cta)
+            text = getString(com.blockchain.stringResources.R.string.swap_cta)
             analytics.logEvent(SwapAnalyticsEvents.NewSwapClicked)
             onClick = {
                 startSwap()

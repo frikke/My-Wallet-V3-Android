@@ -1,7 +1,5 @@
 package com.blockchain.nabu.api.nabu
 
-internal const val NABU_COUNTRIES = "countries"
-internal const val NABU_STATES = "states"
 internal const val NABU_INITIAL_AUTH = "users"
 internal const val NABU_SESSION_TOKEN = "auth"
 internal const val NABU_USERS_TAGS_SYNC = "users/flags/sync"
@@ -16,7 +14,6 @@ internal const val NABU_RECOVER_USER = "users/recover"
 internal const val NABU_RESET_USER = "users/reset"
 internal const val NABU_REGISTER_CAMPAIGN = "users/register-campaign"
 internal const val NABU_SUPPORTED_DOCUMENTS = "kyc/supported-documents"
-internal const val NABU_KYC_TIERS = "kyc/tiers"
 internal const val NABU_FETCH_EXCHANGE_ADDRESS_FOR_WALLET = "payments/accounts/linked"
 internal const val NABU_SIMPLE_BUY_PAIRS = "simple-buy/pairs"
 internal const val NABU_SIMPLE_BUY_ELIGIBILITY = "simple-buy/eligible"

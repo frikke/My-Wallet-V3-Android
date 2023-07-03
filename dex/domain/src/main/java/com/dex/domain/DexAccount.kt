@@ -22,6 +22,7 @@ sealed class DexQuote {
         val destinationContractAddress: String,
         val outputAmount: OutputAmount,
         val networkFees: Money,
+        val gasPrice: String,
         val blockchainFees: Money
     ) : DexQuote()
 

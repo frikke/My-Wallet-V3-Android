@@ -13,9 +13,11 @@ import com.blockchain.network.websocket.WebSocket
 import java.util.Locale
 import java.util.TimeZone
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.asFlow
@@ -38,7 +40,7 @@ class ActivityWebSocketService(
                         ConnectionEvent.Connected -> {
                             isActive = true
                             activityJob = wsScope.launch {
-                                webSocket.responses.asFlow()
+                                webSocket.responses.asFlow().flowOn(Dispatchers.IO)
                                     .collect {
                                         activityCacheService.addOrUpdateActivityItems(it)
                                     }
@@ -53,7 +55,7 @@ class ActivityWebSocketService(
 
                         ConnectionEvent.Authenticated -> {}
                     }
-                }.collect()
+                }.flowOn(Dispatchers.IO).collect()
         }
         wsScope.launch {
             lifecycleObservable.onStateUpdated.asFlow().collectLatest { appState: AppState ->
@@ -61,6 +63,7 @@ class ActivityWebSocketService(
                     AppState.BACKGROUNDED -> {
                         webSocket.close()
                     }
+
                     AppState.FOREGROUNDED -> openSocket()
                 }
             }
@@ -111,6 +114,7 @@ class ActivityWebSocketService(
     }
 
     fun close() {
+        openSocket = {}
         webSocket.close()
     }
 

@@ -40,12 +40,13 @@ class DexTransactionsApiService(
         networkNativeCurrency: String,
         data: String,
         value: String,
+        fee: String,
         gasLimit: String
     ) = dynamicSelfCustodyService.buildTransaction(
         type = "SWAP",
         maxVerificationVersion = 1,
         amount = null,
-        fee = "NORMAL",
+        fee = fee,
         swapTx = SwapTx(
             data = data,
             value = value,
@@ -76,21 +77,4 @@ data class TokenAllowanceResponse(
 @kotlinx.serialization.Serializable
 data class AllowanceResult(
     val allowance: String
-)
-
-@kotlinx.serialization.Serializable
-data class GasValuesPayload(
-    val payload: Payload?
-)
-
-@kotlinx.serialization.Serializable
-data class Payload(
-    val gasLimit: HexValue?,
-    val gasPrice: HexValue?,
-)
-
-@kotlinx.serialization.Serializable
-data class HexValue(
-    val type: String,
-    val hex: String
 )

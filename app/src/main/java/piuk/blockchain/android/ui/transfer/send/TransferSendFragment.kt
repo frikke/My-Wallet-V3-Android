@@ -117,7 +117,8 @@ class TransferSendFragment : AccountSelectorFragment(), SendNetworkWarningSheet.
             TransactionFlowActivity.newIntent(
                 context = requireActivity(),
                 sourceAccount = fromAccount,
-                action = AssetAction.Send
+                action = AssetAction.Send,
+                origin = "TransferSendFragment"
             )
         )
     }

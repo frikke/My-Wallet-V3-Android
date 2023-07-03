@@ -26,7 +26,6 @@ import com.blockchain.componentlib.utils.AnnotatedStringUtils
 import com.blockchain.componentlib.utils.StringAnnotationClickEvent
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.invisible
-import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.custodial.models.Availability
@@ -795,7 +794,7 @@ class SimpleBuyCheckoutFragment :
                     } else {
                         getString(com.blockchain.stringResources.R.string.common_ok)
                     }
-                    onClick =  {
+                    onClick = {
                         trackFraudFlow()
                         if (isForPendingPayment) {
                             navigator().exitSimpleBuyFlow()
@@ -819,7 +818,7 @@ class SimpleBuyCheckoutFragment :
                     isOrderAwaitingFunds && state.selectedPaymentMethod?.isBank() == true
                 }
                 text = getString(com.blockchain.stringResources.R.string.common_cancel)
-                onClick =  {
+                onClick = {
                     analytics.logEvent(SimpleBuyAnalytics.CHECKOUT_SUMMARY_PRESS_CANCEL)
                     showBottomSheet(SimpleBuyCancelOrderBottomSheet.newInstance())
                 }

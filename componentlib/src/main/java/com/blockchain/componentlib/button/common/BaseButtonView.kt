@@ -26,7 +26,7 @@ abstract class BaseButtonView @JvmOverloads constructor(
     }
 
     override fun setEnabled(enabled: Boolean) {
-        buttonState = if(enabled) ButtonState.Enabled else ButtonState.Disabled
+        buttonState = if (enabled) ButtonState.Enabled else ButtonState.Disabled
     }
 
     override fun isEnabled(): Boolean = buttonState == ButtonState.Enabled

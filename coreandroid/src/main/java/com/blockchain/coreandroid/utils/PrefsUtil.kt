@@ -99,7 +99,7 @@ class PrefsUtil(
     ExchangeCampaignPrefs,
     IterableAnnouncementsPrefs,
     MaskedValuePrefs,
-    HandholdPrefs ,
+    HandholdPrefs,
     ThemePrefs {
 
     private var isUnderAutomationTesting = false // Don't persist!

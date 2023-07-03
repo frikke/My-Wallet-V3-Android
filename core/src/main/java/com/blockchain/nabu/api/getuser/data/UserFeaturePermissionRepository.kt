@@ -15,13 +15,16 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 
 internal class UserFeaturePermissionRepository(
     private val kycService: KycService,
     private val interestService: InterestService,
     private val eligibilityService: EligibilityService,
+    private val coroutinesDispatcher: CoroutineDispatcher,
     private val simpleBuyService: SimpleBuyService
 ) : UserFeaturePermissionService {
 
@@ -34,15 +37,18 @@ internal class UserFeaturePermissionRepository(
                 kycService.getTiers(freshnessStrategy)
                     .mapData { it.isInitialisedFor(feature.tier).not() }
             }
+
             is Feature.Interest -> {
                 interestService.getEligibilityForAssets(freshnessStrategy)
                     .mapData { mapAssetWithEligibility -> mapAssetWithEligibility.containsKey(feature.currency) }
             }
+
             Feature.Buy,
             Feature.Swap,
             Feature.Sell,
             Feature.DepositCrypto,
             Feature.DepositFiat,
+            Feature.Dex,
             Feature.DepositInterest,
             Feature.DepositStaking,
             Feature.DepositActiveRewards,
@@ -51,6 +57,8 @@ internal class UserFeaturePermissionRepository(
             Feature.WithdrawFiat -> {
                 getAccessForFeature(feature, freshnessStrategy).mapData { it is FeatureAccess.Granted }
             }
+        }.apply {
+            flowOn(coroutinesDispatcher)
         }
     }
 
@@ -160,6 +168,11 @@ internal class UserFeaturePermissionRepository(
                     .mapData(ProductEligibility::toFeatureAccess)
             }
 
+            Feature.Dex -> {
+                eligibilityService.getProductEligibility(EligibleProduct.DEX, freshnessStrategy)
+                    .mapData(ProductEligibility::toFeatureAccess)
+            }
+
             is Feature.Interest,
             is Feature.TierLevel -> {
                 TODO("Not Implemented Yet")
@@ -194,27 +207,35 @@ private fun ProductEligibility.toFeatureAccess(): FeatureAccess {
                 ProductNotEligibleReason.InsufficientTier.Tier1TradeLimitExceeded -> {
                     BlockedReason.InsufficientTier.Tier1TradeLimitExceeded
                 }
+
                 ProductNotEligibleReason.InsufficientTier.Tier1Required -> {
                     BlockedReason.InsufficientTier.Tier1Required
                 }
+
                 ProductNotEligibleReason.InsufficientTier.Tier2Required -> {
                     BlockedReason.InsufficientTier.Tier2Required
                 }
+
                 is ProductNotEligibleReason.InsufficientTier.Unknown -> {
                     BlockedReason.InsufficientTier.Unknown(reason.message)
                 }
+
                 is ProductNotEligibleReason.Sanctions.RussiaEU5 -> {
                     BlockedReason.Sanctions.RussiaEU5(reason.message)
                 }
+
                 is ProductNotEligibleReason.Sanctions.RussiaEU8 -> {
                     BlockedReason.Sanctions.RussiaEU8(reason.message)
                 }
+
                 is ProductNotEligibleReason.Sanctions.Unknown -> {
                     BlockedReason.Sanctions.Unknown(reason.message)
                 }
+
                 is ProductNotEligibleReason.Unknown -> {
                     BlockedReason.NotEligible(reason.message)
                 }
+
                 null -> {
                     BlockedReason.NotEligible(null)
                 }

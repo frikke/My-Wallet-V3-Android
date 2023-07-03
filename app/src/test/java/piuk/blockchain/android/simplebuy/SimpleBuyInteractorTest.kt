@@ -324,16 +324,13 @@ class SimpleBuyInteractorTest {
             false,
             FiatValue.zero(FiatCurrency.Dollars)
         ).test()
-        println("boom 1")
         test.assertValue {
-            println("boom 1.1")
             it.first == limits.minAmount &&
                 it.second?.maxAmount == limits.maxAmount &&
                 it.second!!.quickFillButtons.size == 2 &&
                 it.second!!.quickFillButtons[0].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(200)) &&
                 it.second!!.quickFillButtons[1].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(400))
         }
-        println("boom 2")
 
         coVerify(exactly = 1) { tradeDataService.getQuickFillRoundingForBuy() }
     }

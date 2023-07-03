@@ -357,7 +357,8 @@ class SellIntroFragment :
             TransactionFlowActivity.newIntent(
                 context = requireActivity(),
                 sourceAccount = it,
-                action = AssetAction.Sell
+                action = AssetAction.Sell,
+                origin = "",
             )
         )
     }

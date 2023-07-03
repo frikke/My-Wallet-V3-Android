@@ -4,6 +4,7 @@ import com.blockchain.koin.payloadScopeQualifier
 import com.dex.data.DexAccountsRepository
 import com.dex.data.DexAllowanceRepository
 import com.dex.data.DexAllowanceStorage
+import com.dex.data.DexEligibilityRepository
 import com.dex.data.DexNetworkRepository
 import com.dex.data.DexQuotesRepository
 import com.dex.data.DexTransactionRepository
@@ -13,6 +14,7 @@ import com.dex.data.stores.SlippageRepository
 import com.dex.domain.AllowanceService
 import com.dex.domain.DexAccountsService
 import com.dex.domain.DexBalanceService
+import com.dex.domain.DexEligibilityService
 import com.dex.domain.DexNetworkService
 import com.dex.domain.DexQuotesService
 import com.dex.domain.DexTransactionService
@@ -61,11 +63,9 @@ val dexDataModule = module {
             DexAllowanceRepository(
                 apiService = get(),
                 dexAllowanceStorage = get(),
-                gasFeeCalculator = get(),
                 assetCatalogue = get(),
                 nonCustodialService = get(),
                 defiAccountReceiveAddressService = get(),
-                json = get(),
                 dexPrefs = get()
             )
         }.bind(AllowanceService::class)
@@ -87,6 +87,15 @@ val dexDataModule = module {
             DexAllowanceStorage(
                 apiService = get(),
                 environmentConfig = get()
+            )
+        }
+
+        scoped<DexEligibilityService> {
+            DexEligibilityRepository(
+                userFeaturePermissionService = get(),
+                dexEligibilityApiService = get(),
+                defiWalletReceiveAddressService = get(),
+                coroutineContext = Dispatchers.IO
             )
         }
 

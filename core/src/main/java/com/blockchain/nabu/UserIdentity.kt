@@ -62,6 +62,7 @@ sealed class Feature {
     object DepositActiveRewards : Feature()
     object CustodialAccounts : Feature()
     object Kyc : Feature()
+    object Dex : Feature()
 }
 
 data class BasicProfileInfo(

@@ -5,7 +5,6 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
 import com.blockchain.data.combineDataResources
 import info.blockchain.balance.ExchangeRate
-import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 
 interface FiltersService {
@@ -39,12 +38,12 @@ data class SingleAccountBalance(
     val singleAccount: SingleAccount,
     val balance: DataResource<Money>,
     val fiatBalance: DataResource<Money>,
-    val usdRate: DataResource<ExchangeRate>,
+    val majorCurrencyRate: DataResource<ExchangeRate>,
     val exchangeRate24hWithDelta: DataResource<Prices24HrWithDelta>
 ) {
     val usdBalance: DataResource<Money>
-        get() = combineDataResources(balance, usdRate) { balance, usdRate ->
-            usdRate.convert(balance)
+        get() = combineDataResources(balance, majorCurrencyRate) { balance, majorRate ->
+            majorRate.convert(balance)
         }
 }
 
@@ -56,12 +55,12 @@ data class AssetBalance(
     val singleAccount: SingleAccount,
     val balance: DataResource<Money>,
     val fiatBalance: DataResource<Money>,
-    val usdBalance: DataResource<Money>,
+    val majorCurrencyBalance: DataResource<Money>,
     val exchangeRate24hWithDelta: DataResource<Prices24HrWithDelta>
 )
 
 fun AssetBalance.isSmallBalance(): Boolean {
-    return (usdBalance as? DataResource.Data<Money>)?.data?.let {
-        it < Money.fromMajor(FiatCurrency.Dollars, 1.toBigDecimal())
+    return (majorCurrencyBalance as? DataResource.Data<Money>)?.data?.let { majorCurrencyBalance ->
+        majorCurrencyBalance < Money.fromMajor(majorCurrencyBalance.currency, 1.toBigDecimal())
     } ?: true
 }

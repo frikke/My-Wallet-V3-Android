@@ -18,13 +18,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.icons.AlertOn
-import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.Swap
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
-import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 
