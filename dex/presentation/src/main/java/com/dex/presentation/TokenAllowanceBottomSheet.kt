@@ -72,7 +72,6 @@ fun TokenAllowanceBottomSheet(
         SheetHeader(
             onClosePress = closeClicked,
             startImageResource = ImageResource.None,
-            closeButtonBackground = AppTheme.colors.backgroundSecondary,
             shouldShowDivider = false
         )
 

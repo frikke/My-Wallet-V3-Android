@@ -3,68 +3,56 @@ package com.blockchain.componentlib.option
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.componentlib.chip.ChipState
+import com.blockchain.componentlib.button.MinimalPrimarySmallButton
+import com.blockchain.componentlib.button.SecondarySmallButton
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+
+data class ChipOption(
+    val id: Any,
+    val text: String,
+    val isActive: Boolean
+)
 
 @Composable
 fun ChipOptionsGroup(
     modifier: Modifier = Modifier,
-    options: List<ChipOption>
+    options: List<ChipOption>,
+    onClick: (ChipOption) -> Unit
 ) {
-    if (options.isEmpty()) return
-    var selectedOption by remember {
-        mutableStateOf(
-            options.firstOrNull { it.initialState == ChipState.Selected }
-        )
-    }
     Row(
         modifier = modifier
-            .fillMaxWidth()
-            .padding(
-                horizontal = AppTheme.dimensions.smallSpacing
-            ),
+            .fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(
             AppTheme.dimensions.tinySpacing,
             Alignment.CenterHorizontally
         )
     ) {
         options.forEach { option ->
-            ChipOptionItem(
-                text = option.text,
-                state = when {
-                    option.initialState == ChipState.Disabled -> ChipState.Disabled
-                    selectedOption == option -> ChipState.Selected
-                    else -> ChipState.Enabled
-                },
-                onClick = {
-                    if (option.initialState != ChipState.Disabled) {
-                        selectedOption = option
-                    }
-                    option.onClick()
+            when (option.isActive) {
+                true -> {
+                    SecondarySmallButton(
+                        modifier = Modifier.weight(1F),
+                        text = option.text,
+                        onClick = { onClick(option) }
+                    )
                 }
-            )
+
+                false -> {
+                    MinimalPrimarySmallButton(
+                        modifier = Modifier.weight(1F),
+                        text = option.text,
+                        onClick = { onClick(option) }
+                    )
+                }
+            }
         }
     }
 }
-
-/**
- * we need to ignore onClick
- */
-data class ChipOption(
-    val text: String,
-    val initialState: ChipState,
-    val onClick: () -> Unit
-)
 
 @Preview
 @Composable
@@ -74,21 +62,23 @@ fun ChipOptionsGroupPreview() {
             ChipOptionsGroup(
                 options = listOf(
                     ChipOption(
+                        id = "1",
                         text = "Option 1",
-                        initialState = ChipState.Enabled,
-                        onClick = {}
+                        isActive = false
                     ),
                     ChipOption(
+                        id = "2",
                         text = "Option 2",
-                        initialState = ChipState.Enabled,
-                        onClick = {}
+                        isActive = true
                     ),
                     ChipOption(
+                        id = "3",
                         text = "Option 3",
-                        initialState = ChipState.Selected,
-                        onClick = {}
+                        isActive = false
+
                     )
-                )
+                ),
+                onClick = {}
             )
         }
     }

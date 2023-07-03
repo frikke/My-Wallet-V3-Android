@@ -20,7 +20,7 @@ import com.dex.presentation.TokenAllowanceBottomSheet
 import com.dex.presentation.confirmation.DexConfirmationScreen
 import com.dex.presentation.confirmation.DexInfoSheet
 import com.dex.presentation.enteramount.AllowanceTxUiData
-import com.dex.presentation.inprogress.DexInProgressTransactionScreen
+import com.dex.presentation.inprogress.DexInProgressTransaction
 import com.dex.presentation.network.SelectNetwork
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import java.util.Base64
@@ -44,7 +44,7 @@ fun NavGraphBuilder.dexGraph(onBackPressed: () -> Unit, navController: NavContro
         BackHandler(true) {
         }
         ChromeSingleScreen {
-            DexInProgressTransactionScreen(
+            DexInProgressTransaction(
                 closeFlow = {
                     navController.popBackStack(
                         navController.graph.startDestinationId,

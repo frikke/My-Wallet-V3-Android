@@ -13,9 +13,6 @@
             android:name=".abstract_compose_view.ExpandablesActivity"
             android:exported="false" />
         <activity
-            android:name=".abstract_compose_view.SheetActivity"
-            android:exported="false" />
-        <activity
             android:name=".abstract_compose_view.SectionHeadersActivity"
             android:exported="false" />
         <activity

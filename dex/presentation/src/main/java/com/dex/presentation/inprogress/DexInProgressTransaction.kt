@@ -1,5 +1,7 @@
 package com.dex.presentation.inprogress
 
+import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -14,11 +16,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.analytics.Analytics
@@ -30,21 +32,31 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.icon.CustomStackedIcon
+import com.blockchain.componentlib.icon.ScreenStatusIcon
+import com.blockchain.componentlib.icon.SmallTagIcon
+import com.blockchain.componentlib.icons.Alert
+import com.blockchain.componentlib.icons.AlertOn
 import com.blockchain.componentlib.icons.Close
 import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Pending
+import com.blockchain.componentlib.icons.Swap
+import com.blockchain.componentlib.icons.User
 import com.blockchain.componentlib.icons.withBackground
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.dex.presentation.R
 import com.blockchain.koin.payloadScope
 import com.dex.presentation.DexAnalyticsEvents
+import info.blockchain.balance.CryptoCurrency
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun DexInProgressTransactionScreen(
+fun DexInProgressTransaction(
     closeFlow: () -> Unit = {},
     retry: () -> Unit = {},
     viewModel: DexInProgressTxViewModel = getViewModel(scope = payloadScope),
@@ -75,9 +87,23 @@ fun DexInProgressTransactionScreen(
         analytics.logEvent(event)
     }
 
+    DexInProgressTransactionScreen(
+        viewState = viewState,
+        retry = retry,
+        closeFlow = closeFlow
+    )
+}
+
+@Composable
+private fun DexInProgressTransactionScreen(
+    viewState: InProgressViewState,
+    retry: () -> Unit,
+    closeFlow: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(AppColors.background)
             .padding(all = AppTheme.dimensions.smallSpacing),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
@@ -86,30 +112,31 @@ fun DexInProgressTransactionScreen(
             modifier = Modifier
                 .align(Alignment.End)
                 .clickableNoEffect { closeFlow() },
-            imageResource = Icons.Close.withTint(Grey400)
+            imageResource = Icons.Close.withTint(AppColors.body)
                 .withBackground(
-                    backgroundColor = Color.White,
+                    backgroundColor = AppColors.backgroundSecondary,
                     backgroundSize = AppTheme.dimensions.standardSpacing
                 )
         )
-        when (val state = viewState) {
+        when (viewState) {
             is InProgressViewState.Success -> SuccessScreen(
                 doneClicked = closeFlow,
-                explorerUrl = state.txExplorerUrl,
-                sourceCurrency = state.sourceCurrency.displayTicker,
-                destinationCurrency = state.destinationCurrency.displayTicker
+                explorerUrl = viewState.txExplorerUrl,
+                sourceCurrency = viewState.sourceCurrency.displayTicker,
+                destinationCurrency = viewState.destinationCurrency.displayTicker
             )
+
             InProgressViewState.Failure -> FailureScreen(
                 cancelClicked = closeFlow,
                 tryAgain = retry
             )
+
             InProgressViewState.Loading -> {
             }
         }
     }
 }
 
-@Preview
 @Composable
 private fun ColumnScope.FailureScreen(
     cancelClicked: () -> Unit = {},
@@ -120,9 +147,12 @@ private fun ColumnScope.FailureScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Image(
-            imageResource = ImageResource.Local(R.drawable.dex_transaction_failed)
+        ScreenStatusIcon(
+            main = Icons.Swap,
+            tag = Icons.Filled.Alert
+                .withTint(AppColors.error),
         )
+
         Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
         SimpleText(
             text = stringResource(com.blockchain.stringResources.R.string.swap_failed),
@@ -172,9 +202,12 @@ private fun ColumnScope.SuccessScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Image(
-            imageResource = ImageResource.Local(R.drawable.dex_transaction_completed)
+        ScreenStatusIcon(
+            main = Icons.Swap,
+            tag = Icons.Filled.Pending
+                .withTint(AppColors.muted),
         )
+
         Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
         SimpleText(
             text = stringResource(
@@ -216,4 +249,40 @@ private fun ColumnScope.SuccessScreen(
             onClick = doneClicked
         )
     }
+}
+
+@Preview
+@Composable
+private fun PreviewDexInProgressTransactionScreenFailure() {
+    DexInProgressTransactionScreen(
+        viewState = InProgressViewState.Failure,
+        retry = {},
+        closeFlow = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewDexInProgressTransactionScreenFailureDark() {
+    PreviewDexInProgressTransactionScreenFailure()
+}
+
+@Preview
+@Composable
+private fun PreviewDexInProgressTransactionScreen() {
+    DexInProgressTransactionScreen(
+        viewState = InProgressViewState.Success(
+            sourceCurrency = CryptoCurrency.ETHER,
+            destinationCurrency = CryptoCurrency.BTC,
+            txExplorerUrl = ""
+        ),
+        retry = {},
+        closeFlow = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewDexInProgressTransactionScreenDark() {
+    PreviewDexInProgressTransactionScreen()
 }

@@ -18,8 +18,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.AlertOn
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Swap
+import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.tag.TagType
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
@@ -69,6 +75,29 @@ fun SmallTagIcon(
             imageResource = icon.tag
         )
     }
+}
+
+@Composable
+fun ScreenStatusIcon(
+    main: ImageResource.Local,
+    tag: ImageResource.Local,
+    iconBackground: Color = AppColors.backgroundSecondary,
+    borderColor: Color = AppColors.background,
+) {
+    SmallTagIcon(
+        icon = StackedIcon.SmallTag(
+            main = main
+                .withTint(AppColors.title)
+                .withBackground(
+                    backgroundColor = AppColors.backgroundSecondary, iconSize = 58.dp, backgroundSize = 88.dp
+                ),
+            tag = tag,
+        ),
+        iconBackground = iconBackground,
+        borderColor = borderColor,
+        mainIconSize = 88.dp,
+        tagIconSize = 44.dp,
+    )
 }
 
 @Preview(backgroundColor = 0XFFF0F2F7, showBackground = true)
