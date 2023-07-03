@@ -24,7 +24,7 @@ class ExpandableItemView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme(setSystemColors = false) {
+        AppTheme {
             AppSurface {
                 ExpandableItem(
                     text = expandableText,

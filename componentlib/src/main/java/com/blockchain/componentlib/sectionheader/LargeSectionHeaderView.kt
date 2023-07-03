@@ -20,7 +20,7 @@ class LargeSectionHeaderView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme(setSystemColors = false) {
+        AppTheme {
             AppSurface {
                 LargeSectionHeader(sectionHeader)
             }

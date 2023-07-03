@@ -21,7 +21,7 @@ class DoubleDateRowView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme(setSystemColors = false) {
+        AppTheme {
             AppSurface {
                 DoubleDateRow(
                     topDateRowData = topDateRowData,

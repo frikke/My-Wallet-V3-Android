@@ -27,6 +27,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
 import com.blockchain.commonarch.presentation.mvi_v2.compose.rememberBottomSheetNavigator
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.SystemColors
 import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.home.presentation.navigation.ARG_IS_FROM_MODE_SWITCH
 import com.blockchain.home.presentation.navigation.ARG_RECURRING_BUY_ID
@@ -84,6 +85,9 @@ fun MultiAppNavHost(
         scope = payloadScope,
         parameters = { parametersOf(lifecycle, navController) }
     )
+
+    // update system colors to light/dark
+    SystemColors()
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->

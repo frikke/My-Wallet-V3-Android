@@ -22,7 +22,7 @@ class DialogueView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme(setSystemColors = false) {
+        AppTheme {
             AppSurface {
                 Dialogue(
                     body = body,

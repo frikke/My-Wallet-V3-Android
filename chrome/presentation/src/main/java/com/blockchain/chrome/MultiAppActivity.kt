@@ -174,6 +174,7 @@ class MultiAppActivity :
         setContent {
             val systemUiController = rememberSystemUiController()
             systemUiController.setStatusBarColor(Color.Transparent)
+
             MultiAppNavHost(
                 startPhraseRecovery = ::handlePhraseRecovery,
                 assetActionsNavigation = assetActionsNavigation,

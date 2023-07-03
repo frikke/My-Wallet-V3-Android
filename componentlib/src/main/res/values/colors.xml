@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <bool name="isDarkMode">false</bool>
+
     <color name="background">#FFF1F2F7</color>
     <color name="backgroundSecondary">#FFFFFFFF</color>
 

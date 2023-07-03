@@ -24,7 +24,7 @@ class ToggleTableRowView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme(setSystemColors = false) {
+        AppTheme {
             AppSurface {
                 ToggleTableRow(
                     primaryText = primaryText,

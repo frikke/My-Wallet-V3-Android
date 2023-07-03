@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:animateLayoutChanges="true"
-    android:background="@color/backgroundSecondary">
-
+    android:background="@color/background">
     <include
         android:id="@+id/toolbar"
         layout="@layout/toolbar_general" />
@@ -93,6 +92,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/tiny_spacing"
         android:layout_marginBottom="@dimen/standard_spacing"
+        android:layout_marginHorizontal="@dimen/small_spacing"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

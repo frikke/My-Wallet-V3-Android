@@ -22,7 +22,7 @@ class CheckboxView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme(setSystemColors = false) {
+        AppTheme {
             AppSurface {
                 Checkbox(
                     state = state,

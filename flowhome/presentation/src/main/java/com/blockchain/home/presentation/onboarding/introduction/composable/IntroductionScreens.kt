@@ -32,7 +32,6 @@ import com.blockchain.componentlib.basic.TextAnimatedBrush
 import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.SystemColors
 import com.blockchain.home.presentation.onboarding.introduction.IntroScreensViewModel
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletmode.WalletMode
@@ -53,8 +52,6 @@ fun IntroductionScreens(
     launchApp: () -> Unit,
     close: () -> Unit
 ) {
-    SystemColors(statusBarDarkContent = true)
-
     val setup = triggeredBy?.let {
         IntroductionScreensSetup.ModesOnly(startMode = it)
     } ?: IntroductionScreensSetup.All(isNewUser = walletStatusPrefs.isNewlyCreated)

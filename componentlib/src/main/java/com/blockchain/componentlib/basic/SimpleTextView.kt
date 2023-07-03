@@ -29,7 +29,7 @@ class SimpleTextView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme(setSystemColors = false) {
+        AppTheme {
             AppSurface {
                 SimpleText(
                     text = text,

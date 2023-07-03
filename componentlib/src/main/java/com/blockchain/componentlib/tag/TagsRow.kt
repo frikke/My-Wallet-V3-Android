@@ -2,11 +2,9 @@ package com.blockchain.componentlib.tag
 
 import android.content.Context
 import android.util.AttributeSet
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,7 +50,7 @@ fun TagsRow(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier.horizontalScroll(rememberScrollState())
+        modifier = modifier
     ) {
         tags.forEachIndexed { index, tag ->
             Tag(tag)

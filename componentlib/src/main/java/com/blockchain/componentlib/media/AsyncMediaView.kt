@@ -27,7 +27,7 @@ class AsyncMediaView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme(setSystemColors = false) {
+        AppTheme {
             AppSurface {
                 AsyncMediaItem(
                     url = url,

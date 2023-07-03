@@ -99,7 +99,7 @@ private fun ChromeSingleScreen(
             )
             .then(
                 if (walletMode == null || screenType is ScreenType.BottomSheet) {
-                    Modifier.background(AppTheme.colors.background)
+                    Modifier.background(AppTheme.colors.backgroundSecondary)
                 } else {
                     Modifier.background(
                         brush = Brush.horizontalGradient(

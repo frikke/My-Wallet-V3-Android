@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <bool name="isDarkMode">true</bool>
+
     <color name="background">#07080D</color>
     <color name="backgroundSecondary">#FF20242C</color>
     <color name="primary">#FF65A5FF</color>
@@ -15,6 +17,5 @@
     <!-- special for split button-->
     <color name="minimal_bg">#FF07080D</color>
     <color name="minimal_border">#FF2C3038</color>
-
     <!-- special for split button-->
 </resources>

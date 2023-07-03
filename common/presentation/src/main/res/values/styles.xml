@@ -1,6 +1,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="BaseTheme" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
+    <style name="ThemeBaseTheme" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <style name="BaseTheme" parent="ThemeBaseTheme">
         <!-- Common styles across all res qualifiers resides here, anything specific can inherit from this -->
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_blue_dark</item>
@@ -17,8 +21,7 @@
         <item name="colorControlActivated">@color/primary_blue_accent</item>
         <item name="colorControlHighlight">@color/primary_blue_accent</item>
 
-        <item name="android:statusBarColor">@color/white</item>
-        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@color/backgroundSecondary</item>
     </style>
 
     <style name="AppTheme" parent="BaseTheme">

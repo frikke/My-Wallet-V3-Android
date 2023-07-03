@@ -26,7 +26,7 @@ class SearchView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme(setSystemColors = false) {
+        AppTheme {
             AppSurface {
                 Search(
                     label = label,
