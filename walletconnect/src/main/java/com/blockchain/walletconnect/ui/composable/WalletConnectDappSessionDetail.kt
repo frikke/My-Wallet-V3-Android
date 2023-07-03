@@ -98,7 +98,6 @@ fun WalletConnectDappSessionManage(
             SheetHeader(
                 shouldShowDivider = false,
                 onClosePress = onDismiss,
-                closeButtonBackground = AppTheme.colors.backgroundSecondary
             )
 
             Image(

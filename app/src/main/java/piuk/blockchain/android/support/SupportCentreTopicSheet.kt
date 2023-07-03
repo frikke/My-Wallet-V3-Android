@@ -4,6 +4,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.RadioButton
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.button.ButtonState
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.BottomSheetSupportTopicBinding
 
 class SupportCentreTopicSheet : SlidingModalBottomDialog<BottomSheetSupportTopicBinding>() {
@@ -21,20 +23,18 @@ class SupportCentreTopicSheet : SlidingModalBottomDialog<BottomSheetSupportTopic
 
     override fun initControls(binding: BottomSheetSupportTopicBinding) {
         with(binding) {
-            topicsHeader.apply {
-                onClosePress = {
+            zendeskOptions.setOnCheckedChangeListener { _, _ ->
+                zendeskContinue.buttonState = ButtonState.Enabled
+            }
+
+            zendeskContinue.apply {
+                text = getString(com.blockchain.stringResources.R.string.common_continue)
+                buttonState = ButtonState.Disabled
+                onClick = {
+                    val checkedButton = zendeskOptions.findViewById<RadioButton>(zendeskOptions.checkedRadioButtonId)
+                    host.onTopicSelected(checkedButton.text.toString())
                     dismiss()
                 }
-            }
-
-            zendeskOptions.setOnCheckedChangeListener { _, _ ->
-                zendeskContinue.isEnabled = true
-            }
-
-            zendeskContinue.setOnClickListener {
-                val checkedButton = zendeskOptions.findViewById<RadioButton>(zendeskOptions.checkedRadioButtonId)
-                host.onTopicSelected(checkedButton.text.toString())
-                dismiss()
             }
         }
     }

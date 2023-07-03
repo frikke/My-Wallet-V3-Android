@@ -36,6 +36,7 @@ import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
 import com.blockchain.componentlib.tablerow.TableRowHeader
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
@@ -215,7 +216,7 @@ private fun AssetsData(
 ) {
     Column(
         modifier = Modifier
-            .background(AppTheme.colors.light)
+            .background(AppColors.background)
     ) {
         var searchedText by remember { mutableStateOf("") }
 
@@ -370,7 +371,7 @@ fun BlockedDueToNotEligible(
             CustomEmptyStateView(context).apply {
                 title = com.blockchain.stringResources.R.string.account_restricted
                 descriptionText = reason.message ?: defaultDescription
-                icon = Icons.Filled.User.id
+                icon = Icons.Filled.User
                 ctaText = com.blockchain.stringResources.R.string.contact_support
                 ctaAction = { onEmptyStateClicked(reason) }
             }
@@ -389,7 +390,7 @@ fun BlockedDueToSanctions(
             CustomEmptyStateView(context).apply {
                 title = com.blockchain.stringResources.R.string.account_restricted
                 descriptionText = reason.message
-                icon = Icons.Filled.User.id
+                icon = Icons.Filled.User
                 ctaText = com.blockchain.stringResources.R.string.common_learn_more
                 ctaAction = { onEmptyStateClicked(reason) }
             }

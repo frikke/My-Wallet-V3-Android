@@ -66,34 +66,40 @@ class VerifyDeviceFragment : Fragment(), Analytics by get(Analytics::class.java)
             }
             customerSupport.visible()
             verifyDeviceDescription.text = getString(com.blockchain.stringResources.R.string.verify_device_desc)
-            openEmailButton.setOnClickListener {
-                Intent(Intent.ACTION_MAIN).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    addCategory(Intent.CATEGORY_APP_EMAIL)
-                    startActivity(
-                        Intent.createChooser(
-                            this,
-                            getString(com.blockchain.stringResources.R.string.security_centre_email_check)
+            openEmailButton.apply {
+                text = getString(com.blockchain.stringResources.R.string.open_email_cta)
+                onClick = {
+                    Intent(Intent.ACTION_MAIN).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        addCategory(Intent.CATEGORY_APP_EMAIL)
+                        startActivity(
+                            Intent.createChooser(
+                                this,
+                                getString(com.blockchain.stringResources.R.string.security_centre_email_check)
+                            )
                         )
-                    )
+                    }
                 }
             }
-            resendEmailButton.setOnClickListener {
-                if (!isTimerRunning.get()) {
-                    timer.start()
-                    (requireActivity() as LoginIntentCoordinator)
-                        .process(LoginIntents.SendEmail(email, captcha))
-                    BlockchainSnackbar.make(
-                        root,
-                        getString(com.blockchain.stringResources.R.string.verify_device_email_resent),
-                        type = SnackbarType.Success
-                    ).show()
-                } else {
-                    BlockchainSnackbar.make(
-                        root,
-                        getString(com.blockchain.stringResources.R.string.verify_device_resend_blocked),
-                        type = SnackbarType.Error
-                    ).show()
+            resendEmailButton.apply {
+                text = getString(com.blockchain.stringResources.R.string.resend_email_cta)
+                onClick = {
+                    if (!isTimerRunning.get()) {
+                        timer.start()
+                        (requireActivity() as LoginIntentCoordinator)
+                            .process(LoginIntents.SendEmail(email, captcha))
+                        BlockchainSnackbar.make(
+                            root,
+                            getString(com.blockchain.stringResources.R.string.verify_device_email_resent),
+                            type = SnackbarType.Success
+                        ).show()
+                    } else {
+                        BlockchainSnackbar.make(
+                            root,
+                            getString(com.blockchain.stringResources.R.string.verify_device_resend_blocked),
+                            type = SnackbarType.Error
+                        ).show()
+                    }
                 }
             }
         }

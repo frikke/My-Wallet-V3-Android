@@ -94,7 +94,7 @@ private fun SheetHeader(
                 },
                 imageResource = onCloseClick?.let {
                     Icons.Close
-                        .withTint(AppColors.dark)
+                        .withTint(AppColors.body)
                         .withBackground(
                             backgroundColor = AppColors.backgroundSecondary,
                             iconSize = AppTheme.dimensions.standardSpacing,

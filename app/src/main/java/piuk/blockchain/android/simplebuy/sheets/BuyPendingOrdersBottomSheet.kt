@@ -29,10 +29,16 @@ class BuyPendingOrdersBottomSheet : SlidingModalBottomDialog<LayoutPendingBuyOrd
     override fun initControls(binding: LayoutPendingBuyOrdersBinding) {
         with(binding) {
             description.text = getString(com.blockchain.stringResources.R.string.pending_buys_description, pendingBuys)
-            ok.setOnClickListener { dismiss() }
-            viewActivity.setOnClickListener {
-                host.startActivityRequested()
-                dismiss()
+            ok.apply {
+                text = getString(com.blockchain.stringResources.R.string.common_ok)
+                onClick = { dismiss() }
+            }
+            viewActivity.apply {
+                text = getString(com.blockchain.stringResources.R.string.view_activity)
+                onClick = {
+                    host.startActivityRequested()
+                    dismiss()
+                }
             }
         }
     }

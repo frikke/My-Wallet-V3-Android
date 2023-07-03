@@ -38,6 +38,7 @@ import com.blockchain.componentlib.icons.Copy
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Question
 import com.blockchain.componentlib.sheets.SheetHeader
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
@@ -65,12 +66,13 @@ fun WireTransferAccountDetailsScreen(
                 stringResource(com.blockchain.stringResources.R.string.deposit_currency, currency)
             },
             onClosePress = backClicked,
-            shouldShowDivider = true
+            shouldShowDivider = true,
+            background = AppColors.backgroundSecondary
         )
 
         Column(
             Modifier
-                .background(AppTheme.colors.light)
+                .background(AppColors.backgroundSecondary)
                 .padding(horizontal = AppTheme.dimensions.smallSpacing)
                 .verticalScroll(rememberScrollState())
         ) {

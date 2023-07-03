@@ -40,8 +40,9 @@ class SimpleBuyBlockedFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         with(binding) {
-            ok.setOnClickListener {
-                activity?.finish()
+            ok.apply {
+                text = getString(com.blockchain.stringResources.R.string.common_ok)
+                onClick = { activity?.finish() }
             }
             title.text = data.title
             description.text = data.description
@@ -94,6 +95,7 @@ class SimpleBuyBlockedFragment : Fragment() {
                         error = INELIGIBLE
                     )
                 }
+
                 is BlockedReason.TooManyInFlightTransactions -> {
                     BlockedBuyData(
                         title = resources.getString(com.blockchain.stringResources.R.string.pending_transaction_limit),
@@ -105,6 +107,7 @@ class SimpleBuyBlockedFragment : Fragment() {
                         error = PENDING_ORDERS_LIMIT_REACHED
                     )
                 }
+
                 is BlockedReason.ShouldAcknowledgeStakingWithdrawal,
                 is BlockedReason.ShouldAcknowledgeActiveRewardsWithdrawalWarning,
                 is BlockedReason.InsufficientTier,

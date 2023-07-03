@@ -52,11 +52,14 @@ class LandingCtaActivity : BlockchainActivity() {
             )
         }
 
-        binding.buttonCta.setOnClickListener {
-            analytics.logEvent(LandingAnalytics.BuyCryptoCtaClicked)
-            onboardingPrefs.isLandingCtaDismissed = true
-            CreateWalletActivity.start(this)
-            finish()
+        binding.buttonCta.apply {
+            text = getString(com.blockchain.stringResources.R.string.common_buy_crypto)
+            onClick = {
+                analytics.logEvent(LandingAnalytics.BuyCryptoCtaClicked)
+                onboardingPrefs.isLandingCtaDismissed = true
+                CreateWalletActivity.start(this@LandingCtaActivity)
+                finish()
+            }
         }
     }
 

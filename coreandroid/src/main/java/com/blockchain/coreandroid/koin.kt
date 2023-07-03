@@ -38,6 +38,7 @@ import com.blockchain.preferences.SessionPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.preferences.SmallBalancesPrefs
 import com.blockchain.preferences.SuperAppMvpPrefs
+import com.blockchain.preferences.ThemePrefs
 import com.blockchain.preferences.TransactionPrefs
 import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
@@ -96,6 +97,7 @@ val coreAndroidModule = module {
         bind(IterableAnnouncementsPrefs::class)
         bind(MaskedValuePrefs::class)
         bind(HandholdPrefs::class)
+        bind(ThemePrefs::class)
     }
 
     factory {

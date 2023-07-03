@@ -19,15 +19,6 @@ sealed class DashboardAnalyticsEvents(
         }
     )
 
-    data class EmptyStateBuyBtc(val amount: String?) : DashboardAnalyticsEvents(
-        event = AnalyticsNames.SUPERAPP_EMPTY_BUY_BTC_CLICKED.eventName,
-        params = mapOf(BTC_BUY_QUICK_FILL_AMOUNT to (amount ?: BTC_BUY_OTHER_AMOUNT))
-    )
-
-    object EmptyStateBuyOther : DashboardAnalyticsEvents(
-        event = AnalyticsNames.SUPERAPP_EMPTY_BUY_OTHER_CLICKED.eventName
-    )
-
     object EmptyStateReceiveCrypto : DashboardAnalyticsEvents(
         event = AnalyticsNames.SUPERAPP_EMPTY_RECEIVE_CLICKED.eventName
     )

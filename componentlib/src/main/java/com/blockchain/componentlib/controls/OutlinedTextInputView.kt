@@ -28,6 +28,7 @@ class OutlinedTextInputView @JvmOverloads constructor(
     var singleLine by mutableStateOf(false)
     var inputType by mutableStateOf(KeyboardType.Text)
     var onTrailingIconClicked by mutableStateOf({})
+    var maxLength by mutableStateOf(Int.MAX_VALUE)
 
     @Composable
     override fun Content() {
@@ -50,7 +51,8 @@ class OutlinedTextInputView @JvmOverloads constructor(
             leadingIcon = leadingIconResource,
             singleLine = singleLine,
             keyboardOptions = KeyboardOptions(keyboardType = inputType),
-            onTrailingIconClicked = onTrailingIconClicked
+            onTrailingIconClicked = onTrailingIconClicked,
+            maxLength = maxLength
         )
     }
 

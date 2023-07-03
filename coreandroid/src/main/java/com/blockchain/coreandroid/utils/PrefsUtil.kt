@@ -43,9 +43,11 @@ import com.blockchain.preferences.SessionPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.preferences.SmallBalancesPrefs
 import com.blockchain.preferences.SuperAppMvpPrefs
+import com.blockchain.preferences.ThemePrefs
 import com.blockchain.preferences.TransactionPrefs
 import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.theme.Theme
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
@@ -97,7 +99,8 @@ class PrefsUtil(
     ExchangeCampaignPrefs,
     IterableAnnouncementsPrefs,
     MaskedValuePrefs,
-    HandholdPrefs {
+    HandholdPrefs,
+    ThemePrefs {
 
     private var isUnderAutomationTesting = false // Don't persist!
 
@@ -856,6 +859,10 @@ class PrefsUtil(
         get() = getValue(DEBUG_HANDHOLD_BUY_VERIFIED, false)
         set(value) = setValue(DEBUG_HANDHOLD_BUY_VERIFIED, value)
 
+    override var currentTheme: String
+        get() = getValue(CURRENT_THEME, Theme.System.name)
+        set(value) = setValue(CURRENT_THEME, value)
+
     companion object {
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
 
@@ -1026,6 +1033,9 @@ class PrefsUtil(
         private const val DEBUG_HANDHOLD_EMAIL_VERIFIED = "DEBUG_EMAIL_VERIFIED"
         private const val DEBUG_HANDHOLD_KYC_VERIFIED = "DEBUG_KYC_VERIFIED"
         private const val DEBUG_HANDHOLD_BUY_VERIFIED = "DEBUG_BUY_VERIFIED"
+
+        // theme
+        private const val CURRENT_THEME = "CURRENT_THEME"
     }
 
     override val legacyWalletMode: String

@@ -25,7 +25,7 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/payment_method_title"
         style="@style/Text.Semibold.16"
-        android:textColor="@color/grey_900"
+        android:textColor="@color/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/small_spacing"
@@ -45,7 +45,7 @@
         android:layout_marginStart="@dimen/small_spacing"
         android:layout_marginTop="2dp"
         android:text="@string/instantly_available"
-        android:textColor="@color/grey_900"
+        android:textColor="@color/title"
         app:layout_constraintStart_toEndOf="@+id/payment_method_icon"
         app:layout_constraintTop_toBottomOf="@+id/payment_method_title" />
 
@@ -55,7 +55,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/small_spacing"
-        android:textColor="@color/grey_600"
+        android:textColor="@color/body"
         android:layout_marginTop="2dp"
         android:layout_marginEnd="@dimen/standard_spacing"
         android:text="@string/google_pay_instructions"

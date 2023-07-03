@@ -7,6 +7,7 @@ import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.BasicProfileInfo
+import com.blockchain.theme.Theme
 import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 
@@ -18,7 +19,8 @@ data class SettingsState(
     val tier: KycTier = KycTier.BRONZE,
     val error: SettingsError = SettingsError.None,
     val referralInfo: ReferralInfo = ReferralInfo.NotAvailable,
-    val canPayWithBind: Boolean = false
+    val canPayWithBind: Boolean = false,
+    val theme: Theme? = null
 ) : MviState
 
 sealed class ViewToLaunch {

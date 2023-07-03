@@ -32,7 +32,6 @@ import com.blockchain.core.trade.TradeDataRepository
 import com.blockchain.core.utils.SSLVerifyUtil
 import com.blockchain.deeplinking.processor.DeeplinkService
 import com.blockchain.domain.buy.CancelOrderService
-import com.blockchain.domain.onboarding.OnBoardingStepsService
 import com.blockchain.domain.paymentmethods.model.BankBuyNavigation
 import com.blockchain.domain.paymentmethods.model.BankPartnerCallbackProvider
 import com.blockchain.domain.trade.TradeDataService
@@ -112,7 +111,6 @@ import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailableCryptoAssetsUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
-import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCase
 import piuk.blockchain.android.domain.usecases.GetReceiveAccountsForAssetUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.everypay.service.EveryPayCardService
@@ -139,12 +137,6 @@ import piuk.blockchain.android.ui.airdrops.AirdropCentrePresenter
 import piuk.blockchain.android.ui.auth.AuthNavigationImpl
 import piuk.blockchain.android.ui.auth.FirebaseMobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.auth.MobileNoticeRemoteConfig
-import piuk.blockchain.android.ui.backup.completed.BackupWalletCompletedPresenter
-import piuk.blockchain.android.ui.backup.start.BackupWalletStartingInteractor
-import piuk.blockchain.android.ui.backup.start.BackupWalletStartingModel
-import piuk.blockchain.android.ui.backup.start.BackupWalletStartingState
-import piuk.blockchain.android.ui.backup.verify.BackupVerifyPresenter
-import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListPresenter
 import piuk.blockchain.android.ui.brokerage.BuySellFlowNavigator
 import piuk.blockchain.android.ui.brokerage.sell.SellRepository
 import piuk.blockchain.android.ui.brokerage.sell.SellViewModel
@@ -173,9 +165,6 @@ import piuk.blockchain.android.ui.launcher.LauncherViewModel
 import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.android.ui.linkbank.BankAuthModel
 import piuk.blockchain.android.ui.linkbank.BankAuthState
-import piuk.blockchain.android.ui.onboarding.OnboardingPresenter
-import piuk.blockchain.android.ui.pairingcode.PairingModel
-import piuk.blockchain.android.ui.pairingcode.PairingState
 import piuk.blockchain.android.ui.recover.AccountRecoveryInteractor
 import piuk.blockchain.android.ui.recover.AccountRecoveryModel
 import piuk.blockchain.android.ui.recover.AccountRecoveryState
@@ -369,19 +358,6 @@ val applicationModule = module {
                 .debugLog("COIN_SOCKET")
         }
 
-        factory {
-            PairingModel(
-                initialState = PairingState(),
-                mainScheduler = AndroidSchedulers.mainThread(),
-                environmentConfig = get(),
-                remoteLogger = get(),
-                qrCodeDataService = get(),
-                payloadDataManager = get(),
-                authDataManager = get(),
-                analytics = get()
-            )
-        }
-
         viewModel {
             CreateWalletViewModel(
                 environmentConfig = get(),
@@ -407,40 +383,9 @@ val applicationModule = module {
             )
         }
 
-        factory {
-            BackupWalletStartingInteractor(
-                authPrefs = get(),
-                settingsDataManager = get()
-            )
-        }
-
-        factory {
-            BackupWalletStartingModel(
-                initialState = BackupWalletStartingState(),
-                mainScheduler = AndroidSchedulers.mainThread(),
-                environmentConfig = get(),
-                remoteLogger = get(),
-                interactor = get()
-            )
-        }
-
-        factory {
-            BackupWalletWordListPresenter(
-                backupWallet = get()
-            )
-        }
-
         factory<BackupWallet> {
             BackupWalletUtil(
                 payloadDataManager = get()
-            )
-        }
-
-        factory {
-            BackupVerifyPresenter(
-                payloadDataManager = get(),
-                backupWallet = get(),
-                walletStatusPrefs = get()
             )
         }
 
@@ -598,18 +543,6 @@ val applicationModule = module {
             )
         }.bind(CancelOrderService::class)
 
-        factory {
-            GetDashboardOnboardingStepsUseCase(
-                dashboardPrefs = get(),
-                userIdentity = get(),
-                kycService = get(),
-                bankService = get(),
-                cardService = get(),
-                tradeDataService = get(),
-                userFeaturePermissionService = get()
-            )
-        }.bind(OnBoardingStepsService::class)
-
         factory<TradeDataService> {
             TradeDataRepository(
                 tradeService = get(),
@@ -731,21 +664,6 @@ val applicationModule = module {
                 userService = get()
             )
         }.bind(ExchangeLinking::class)
-
-        factory {
-            BackupWalletCompletedPresenter(
-                walletStatusPrefs = get(),
-                authDataManager = get()
-            )
-        }
-
-        factory {
-            OnboardingPresenter(
-                biometricsController = get(),
-                pinRepository = get(),
-                settingsDataManager = get()
-            )
-        }
 
         factory {
             Prerequisites(

@@ -1,5 +1,6 @@
 package com.dex.presentation
 
+import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -33,7 +34,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.dimensionResource
@@ -53,12 +53,12 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.icons.ArrowDown
+import com.blockchain.componentlib.icons.ChevronRight
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.withBackground
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.BackgroundMuted
-import com.blockchain.componentlib.theme.Blue600
-import com.blockchain.componentlib.theme.Grey300
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.utils.clickableNoEffect
@@ -96,7 +96,7 @@ fun SendAndReceiveAmountFields(
             Row(
                 modifier = Modifier
                     .background(
-                        color = Color.White,
+                        color = AppColors.backgroundSecondary,
                         shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing)
                     )
                     .padding(AppTheme.dimensions.smallSpacing)
@@ -156,7 +156,7 @@ fun SendAndReceiveAmountFields(
             Row(
                 modifier = Modifier
                     .background(
-                        color = Color.White,
+                        color = AppColors.backgroundSecondary,
                         shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing)
                     )
                     .padding(AppTheme.dimensions.smallSpacing)
@@ -200,11 +200,13 @@ fun SendAndReceiveAmountFields(
             border = BorderStroke(AppTheme.dimensions.tinySpacing, AppTheme.colors.background)
         ) {
             Image(
-                imageResource = Icons.ArrowDown.withBackground(
-                    backgroundColor = Color.White,
-                    backgroundSize = AppTheme.dimensions.standardSpacing,
-                    iconSize = AppTheme.dimensions.standardSpacing
-                )
+                imageResource = Icons.ArrowDown
+                    .withTint(AppColors.title)
+                    .withBackground(
+                        backgroundColor = AppColors.backgroundSecondary,
+                        backgroundSize = AppTheme.dimensions.standardSpacing,
+                        iconSize = AppTheme.dimensions.standardSpacing
+                    )
             )
         }
     }
@@ -279,7 +281,7 @@ private fun AmountAndCurrencySelection(
             value = input,
             singleLine = true,
             enabled = enabled,
-            textStyle = AppTheme.typography.title2SlashedZero.copy(color = Grey900),
+            textStyle = AppTheme.typography.title2SlashedZero.copy(color = AppColors.title),
             readOnly = isReadOnly,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             onValueChange = onValueChanged,
@@ -298,12 +300,12 @@ private fun AmountAndCurrencySelection(
                     Text(
                         "0",
                         style = AppTheme.typography.title2SlashedZero,
-                        color = Grey700
+                        color = AppColors.title
                     )
                 },
                 colors = TextFieldDefaults.textFieldColors(
-                    textColor = Grey900,
-                    disabledTextColor = Grey300,
+                    textColor = AppColors.title,
+                    disabledTextColor = AppColors.body,
                     backgroundColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
@@ -393,16 +395,12 @@ private fun CurrencySelection(
         )
         if (enabled) {
             Image(
-                ImageResource.Local(
-                    id = com.blockchain.componentlib.R.drawable.ic_chevron_end,
-                    colorFilter = ColorFilter.tint(
-                        if (hasCurrencySelected)
-                            AppTheme.colors.body
-                        else
-                            AppTheme.colors.backgroundSecondary
-                    ),
-                    size = 10.dp
-                )
+                Icons.ChevronRight.withTint(
+                    if (hasCurrencySelected)
+                        AppTheme.colors.body
+                    else
+                        AppTheme.colors.backgroundSecondary
+                ).withSize(10.dp)
             )
         }
     }
@@ -457,13 +455,13 @@ private fun RowScope.MaxAmount(maxAvailable: Money, maxClick: () -> Unit) {
         Text(
             text = stringResource(id = com.blockchain.stringResources.R.string.common_max),
             style = AppTheme.typography.micro2,
-            color = Grey700
+            color = AppColors.body
         )
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
         Text(
             text = maxAvailable.toStringWithSymbol(),
             style = AppTheme.typography.micro2SlashedZero,
-            color = Blue600
+            color = AppColors.primary
         )
     }
 }
@@ -477,7 +475,7 @@ private fun BalanceAmount(amount: Money) {
         Text(
             text = stringResource(id = com.blockchain.stringResources.R.string.common_balance),
             style = AppTheme.typography.micro2,
-            color = Grey700
+            color = AppColors.body
         )
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
         Text(
@@ -526,6 +524,12 @@ private fun PreviewReceiveAmountAndCurrencySelection() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewReceiveAmountAndCurrencySelectionDark() {
+    PreviewReceiveAmountAndCurrencySelection()
+}
+
 @Preview
 @Composable
 private fun PreviewAmountAndCurrencySelection() {
@@ -540,10 +544,22 @@ private fun PreviewAmountAndCurrencySelection() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewAmountAndCurrencySelectionDark() {
+    PreviewAmountAndCurrencySelection()
+}
+
 @Preview
 @Composable
 private fun PreviewBalanceAmount() {
     BalanceAmount(Money.fromMajor(CryptoCurrency.BTC, 1234.toBigDecimal()))
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewBalanceAmountDark() {
+    PreviewBalanceAmount()
 }
 
 @Preview
@@ -563,6 +579,12 @@ private fun PreviewSendAndReceiveAmountFields() {
             balance = moneyPreview, max = moneyPreview
         ),
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewSendAndReceiveAmountFieldsDark() {
+    PreviewSendAndReceiveAmountFields()
 }
 
 private val moneyPreview = Money.fromMajor(CryptoCurrency.BTC, 1234.toBigDecimal())

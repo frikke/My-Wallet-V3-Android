@@ -8,6 +8,7 @@ import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.theme.ThemeService
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -19,7 +20,8 @@ class SettingsModel(
     mainScheduler: Scheduler,
     private val interactor: SettingsInteractor,
     environmentConfig: EnvironmentConfig,
-    remoteLogger: RemoteLogger
+    remoteLogger: RemoteLogger,
+    private val themeService: ThemeService
 ) : MviModel<SettingsState, SettingsIntent>(
     initialState,
     mainScheduler,
@@ -32,6 +34,12 @@ class SettingsModel(
         intent: SettingsIntent
     ): Disposable? =
         when (intent) {
+            is SettingsIntent.LoadTheme -> {
+                themeService.currentTheme().run {
+                    process(SettingsIntent.UpdateTheme(this))
+                }
+                null
+            }
             is SettingsIntent.LoadHeaderInformation -> {
                 interactor.getSupportEligibilityAndBasicInfo()
                     .subscribeBy(
@@ -105,6 +113,7 @@ class SettingsModel(
                             process(SettingsIntent.UpdateErrorState(SettingsError.PaymentMethodsLoadFail))
                         }
                     )
+            is SettingsIntent.UpdateTheme,
             is SettingsIntent.UserLoggedOut,
             is SettingsIntent.UpdateViewToLaunch,
             is SettingsIntent.ResetViewState,

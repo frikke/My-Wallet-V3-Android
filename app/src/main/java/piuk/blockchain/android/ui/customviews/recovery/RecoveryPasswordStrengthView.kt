@@ -16,17 +16,17 @@ private enum class PasswordStrengthLevel(val label: Int, val drawable: Int, val 
     Weak(
         label = com.blockchain.stringResources.R.string.strength_weak,
         drawable = R.drawable.progress_red,
-        color = com.blockchain.common.R.color.product_red_medium
+        color = com.blockchain.componentlib.R.color.error
     ),
     Medium(
         label = com.blockchain.stringResources.R.string.strength_medium,
         drawable = R.drawable.progress_orange,
-        color = com.blockchain.common.R.color.product_orange_medium
+        color = com.blockchain.componentlib.R.color.warning
     ),
     Strong(
         label = com.blockchain.stringResources.R.string.strength_strong,
         drawable = R.drawable.progress_green,
-        color = com.blockchain.common.R.color.product_green_medium
+        color = com.blockchain.componentlib.R.color.success
     )
 }
 

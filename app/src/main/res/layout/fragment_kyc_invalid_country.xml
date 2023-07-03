@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
+    android:background="@color/background"
     android:layout_height="match_parent">
 
     <ImageView
@@ -21,6 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="32dp"
+        android:textColor="@color/title"
         android:layout_marginTop="16dp"
         android:layout_marginRight="32dp"
         android:gravity="center"
@@ -38,20 +40,20 @@
         android:layout_marginLeft="32dp"
         android:layout_marginTop="16dp"
         android:layout_marginRight="32dp"
+        android:textColor="@color/body"
         android:gravity="center"
         android:text="@string/kyc_invalid_country_message"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/text_view_kyc_invalid_country_header" />
 
-    <Button
+    <com.blockchain.componentlib.button.PrimaryButtonView
         android:id="@+id/button_kyc_invalid_country_message_me"
-        style="@style/CtaButton.Blue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginTop="48dp"
-        android:text="@string/kyc_invalid_country_message_me"
+        android:layout_marginHorizontal="@dimen/small_spacing"
         app:layout_constraintBottom_toTopOf="@+id/text_view_kyc_no_thanks"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -59,13 +61,13 @@
         app:layout_constraintTop_toBottomOf="@+id/text_view_kyc_invalid_country_message"
         app:layout_constraintVertical_bias="1.0" />
 
-    <TextView
+    <com.blockchain.componentlib.button.MinimalPrimaryButtonView
         android:id="@+id/text_view_kyc_no_thanks"
-        style="@style/CtaButton.White"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:layout_marginBottom="24dp"
+        android:layout_marginHorizontal="@dimen/small_spacing"
         android:text="@string/kyc_invalid_country_no_thanks"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

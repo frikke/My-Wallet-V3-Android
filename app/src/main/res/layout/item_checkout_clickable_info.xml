@@ -13,23 +13,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.5"/>
+        app:layout_constraintGuide_percent="0.5" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/clickable_item_label"
         style="@style/Text.Standard.14"
         android:layout_width="0dp"
-        android:gravity="start"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/small_spacing"
         android:layout_marginEnd="@dimen/smallest_spacing"
-        android:minWidth="@dimen/size_epic"
         android:drawableEnd="@drawable/ic_question"
         android:drawablePadding="@dimen/minuscule_spacing"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/guideline"
-        app:layout_constraintTop_toTopOf="parent"
+        android:gravity="start"
+        android:minWidth="@dimen/size_epic"
+        android:textColor="@color/body"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         tools:text="BTC Price" />
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -40,11 +41,12 @@
         android:layout_marginStart="@dimen/very_small_spacing"
         android:layout_marginEnd="@dimen/small_spacing"
         android:gravity="end"
+        android:textColor="@color/body"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1"
         app:layout_constraintStart_toStartOf="@id/guideline"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         tools:text="£12345.56" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

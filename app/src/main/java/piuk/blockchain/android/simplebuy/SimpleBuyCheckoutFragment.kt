@@ -20,11 +20,12 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.tag.TagType
+import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.utils.AnnotatedStringUtils
 import com.blockchain.componentlib.utils.StringAnnotationClickEvent
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.invisible
-import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.custodial.models.Availability
@@ -242,7 +243,7 @@ class SimpleBuyCheckoutFragment :
                 startCounter(newState.quote, chunksCounter.first())
             }
             if (newState.hasQuoteChanged && !isPendingOrAwaitingFunds(newState.orderState)) {
-                binding.amount.animateChange(startColor = com.blockchain.common.R.color.grey_800)
+                binding.amount.animateChange()
                 checkoutAdapterDelegate.items = getCheckoutFields(newState)
                 model.process(SimpleBuyIntent.QuoteChangeConsumed)
             }
@@ -437,7 +438,7 @@ class SimpleBuyCheckoutFragment :
             sb.append(privateKeyExplanation)
                 .append(learnMoreLink)
                 .setSpan(
-                    ForegroundColorSpan(ContextCompat.getColor(activity, com.blockchain.common.R.color.blue_600)),
+                    ForegroundColorSpan(ContextCompat.getColor(activity, com.blockchain.componentlib.R.color.primary)),
                     privateKeyExplanation.length,
                     privateKeyExplanation.length + learnMoreLink.length,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -461,7 +462,7 @@ class SimpleBuyCheckoutFragment :
                 com.blockchain.stringResources.R.string.common_linked_learn_more,
                 TRADING_ACCOUNT_LOCKS,
                 requireActivity(),
-                com.blockchain.common.R.color.blue_600
+                com.blockchain.componentlib.R.color.primary
             )
         } ?: getString(com.blockchain.stringResources.R.string.security_no_lock_bank_transfer_explanation)
 
@@ -477,19 +478,15 @@ class SimpleBuyCheckoutFragment :
         with(binding.status) {
             when {
                 isPendingOrAwaitingFunds(newState.orderState) -> {
-                    text = getString(com.blockchain.stringResources.R.string.order_pending)
-                    background =
-                        ContextCompat.getDrawable(requireContext(), R.drawable.bkgd_status_unconfirmed)
-                    setTextColor(
-                        ContextCompat.getColor(requireContext(), com.blockchain.common.R.color.grey_800)
+                    tag = TagViewState(
+                        value = getString(com.blockchain.stringResources.R.string.order_pending),
+                        type = TagType.InfoAlt()
                     )
                 }
                 newState.orderState == OrderState.FINISHED -> {
-                    text = getString(com.blockchain.stringResources.R.string.order_complete)
-                    background =
-                        ContextCompat.getDrawable(requireContext(), R.drawable.bkgd_green_100_rounded)
-                    setTextColor(
-                        ContextCompat.getColor(requireContext(), com.blockchain.common.R.color.green_600)
+                    tag = TagViewState(
+                        value = getString(com.blockchain.stringResources.R.string.order_complete),
+                        type = TagType.Success()
                     )
                 }
                 else -> gone()
@@ -512,7 +509,7 @@ class SimpleBuyCheckoutFragment :
             textToMap = com.blockchain.stringResources.R.string.learn_more_annotated,
             url = ORDER_PRICE_EXPLANATION,
             context = requireContext(),
-            linkColour = com.blockchain.common.R.color.blue_600
+            linkColour = com.blockchain.componentlib.R.color.primary
         )
 
         return listOfNotNull(
@@ -739,7 +736,7 @@ class SimpleBuyCheckoutFragment :
                             state.orderValue?.toStringWithSymbol()
                         }
                     )
-                    setOnClickListener {
+                    onClick = {
                         trackFraudFlow()
                         when (
                             getSettlementReason(
@@ -797,7 +794,7 @@ class SimpleBuyCheckoutFragment :
                     } else {
                         getString(com.blockchain.stringResources.R.string.common_ok)
                     }
-                    setOnClickListener {
+                    onClick = {
                         trackFraudFlow()
                         if (isForPendingPayment) {
                             navigator().exitSimpleBuyFlow()
@@ -816,12 +813,15 @@ class SimpleBuyCheckoutFragment :
                 isEnabled = !state.isLoading
             }
 
-            buttonCancel.visibleIf {
-                isOrderAwaitingFunds && state.selectedPaymentMethod?.isBank() == true
-            }
-            buttonCancel.setOnClickListenerDebounced {
-                analytics.logEvent(SimpleBuyAnalytics.CHECKOUT_SUMMARY_PRESS_CANCEL)
-                showBottomSheet(SimpleBuyCancelOrderBottomSheet.newInstance())
+            buttonCancel.apply {
+                visibleIf {
+                    isOrderAwaitingFunds && state.selectedPaymentMethod?.isBank() == true
+                }
+                text = getString(com.blockchain.stringResources.R.string.common_cancel)
+                onClick = {
+                    analytics.logEvent(SimpleBuyAnalytics.CHECKOUT_SUMMARY_PRESS_CANCEL)
+                    showBottomSheet(SimpleBuyCancelOrderBottomSheet.newInstance())
+                }
             }
             buttonGooglePay.apply {
                 visibleIf { isGooglePay }
@@ -1154,7 +1154,7 @@ class SimpleBuyCheckoutFragment :
 
     private fun configureNewUserPromo(promoBinding: PromoLayoutBinding, fees: BuyFees): View =
         promoBinding.apply {
-            feeWaiverPromo.setBackgroundResource(R.drawable.bkgd_green_100_rounded)
+            feeWaiverPromo.setBackgroundResource(R.drawable.bkgd_grey_000_rounded)
             label.text = getString(com.blockchain.stringResources.R.string.new_user_fee_waiver)
             afterPromoFee.text = fees.fee.toStringWithSymbolOrFree()
             val strikedThroughFee = SpannableString(fees.feeBeforePromo.toStringWithSymbol()).apply {

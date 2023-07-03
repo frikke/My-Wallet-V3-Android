@@ -184,12 +184,12 @@ private class SimpleCheckoutItemViewHolder(
             if (item.hasChanged) {
                 simpleItemTitle.animateColor {
                     simpleItemTitle.setTextColor(
-                        ContextCompat.getColor(simpleItemTitle.context, com.blockchain.common.R.color.grey_800)
+                        ContextCompat.getColor(simpleItemTitle.context, com.blockchain.componentlib.R.color.body)
                     )
                 }
             } else {
                 simpleItemTitle.setTextColor(
-                    ContextCompat.getColor(simpleItemTitle.context, com.blockchain.common.R.color.grey_800)
+                    ContextCompat.getColor(simpleItemTitle.context, com.blockchain.componentlib.R.color.body)
                 )
             }
         }
@@ -419,12 +419,12 @@ private class ExpandableCheckoutItemViewHolder(
             if (item.hasChanged) {
                 expandableItemTitle.animateColor {
                     expandableItemTitle.setTextColor(
-                        ContextCompat.getColor(expandableItemTitle.context, com.blockchain.common.R.color.grey_800)
+                        ContextCompat.getColor(expandableItemTitle.context, com.blockchain.componentlib.R.color.body)
                     )
                 }
             } else {
                 expandableItemTitle.setTextColor(
-                    ContextCompat.getColor(expandableItemTitle.context, com.blockchain.common.R.color.grey_800)
+                    ContextCompat.getColor(expandableItemTitle.context, com.blockchain.componentlib.R.color.body)
                 )
             }
             expandableItemLabel.setOnClickListener {
@@ -433,11 +433,11 @@ private class ExpandableCheckoutItemViewHolder(
                 expandableItemExpansion.visibleIf { isExpanded }
                 if (isExpanded) {
                     expandableItemLabel.compoundDrawables[DRAWABLE_END_POSITION].setTint(
-                        expandableItemTitle.context.getResolvedColor(com.blockchain.common.R.color.blue_600)
+                        expandableItemTitle.context.getResolvedColor(com.blockchain.componentlib.R.color.primary)
                     )
                 } else {
                     expandableItemLabel.compoundDrawables[DRAWABLE_END_POSITION].setTint(
-                        expandableItemTitle.context.getResolvedColor(com.blockchain.common.R.color.grey_300)
+                        expandableItemTitle.context.getResolvedColor(com.blockchain.componentlib.R.color.medium)
                     )
                 }
             }

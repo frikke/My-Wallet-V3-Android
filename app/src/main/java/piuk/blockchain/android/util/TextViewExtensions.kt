@@ -10,8 +10,8 @@ import androidx.core.content.ContextCompat
 import piuk.blockchain.android.R
 
 fun TextView.animateChange(
-    @ColorRes startColor: Int = com.blockchain.componentlib.R.color.grey_800,
-    @ColorRes endColor: Int = com.blockchain.componentlib.R.color.blue_600
+    @ColorRes startColor: Int = com.blockchain.componentlib.R.color.title,
+    @ColorRes endColor: Int = com.blockchain.componentlib.R.color.primary
 ) {
     clearAnimation()
     val color1 = ContextCompat.getColor(this.context, startColor)
@@ -35,7 +35,7 @@ fun TextView.animateColor(onAnimationEnd: () -> Unit) {
     pivotX = this.measuredWidth * 0.5f
     pivotY = this.measuredHeight * 0.5f
 
-    setTextColor(ContextCompat.getColor(context, com.blockchain.componentlib.R.color.blue_600))
+    setTextColor(ContextCompat.getColor(context, com.blockchain.componentlib.R.color.primary))
 
     animate()
         .scaleX(1f)

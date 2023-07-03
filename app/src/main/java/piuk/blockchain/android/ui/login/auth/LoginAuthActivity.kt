@@ -162,8 +162,11 @@ class LoginAuthActivity :
                     codeTextLayout.clearErrorState()
                 }
             })
-            forgotPasswordButton.setOnClickListener {
-                launchPasswordRecoveryFlow()
+            forgotPasswordButton.apply {
+                text = getString(com.blockchain.stringResources.R.string.forgot_password_label)
+                onClick = {
+                    launchPasswordRecoveryFlow()
+                }
             }
 
             twoFaResend.text = getString(
@@ -221,12 +224,15 @@ class LoginAuthActivity :
         when (newState.authStatus) {
             AuthStatus.None,
             AuthStatus.InitAuthInfo -> binding.progressBar.visible()
+
             AuthStatus.GetSessionId,
             AuthStatus.AuthorizeApproval,
             AuthStatus.GetPayload -> binding.progressBar.gone()
+
             AuthStatus.Submit2FA,
             AuthStatus.VerifyPassword,
             AuthStatus.UpdateMobileSetup -> binding.progressBar.visible()
+
             AuthStatus.Complete -> {
                 clearKeyboardAndFinish()
                 analytics.logEvent(LoginAnalytics.LoginRequestApproved(analyticsInfo))
@@ -240,6 +246,7 @@ class LoginAuthActivity :
                 )
                 null
             }
+
             AuthStatus.PairingFailed -> showErrorSnackbar(com.blockchain.stringResources.R.string.pairing_failed)
             AuthStatus.InvalidPassword -> {
                 analytics.logEvent(LoginAnalytics.LoginPasswordDenied(analyticsInfo))
@@ -248,10 +255,12 @@ class LoginAuthActivity :
                     getString(com.blockchain.stringResources.R.string.invalid_password)
                 )
             }
+
             AuthStatus.AuthFailed -> {
                 analytics.logEvent(LoginAnalytics.LoginRequestDenied(analyticsInfo))
                 showErrorSnackbar(com.blockchain.stringResources.R.string.auth_failed)
             }
+
             AuthStatus.InitialError -> showErrorSnackbar(com.blockchain.stringResources.R.string.common_error)
             AuthStatus.AuthRequired -> showSnackbar(getString(com.blockchain.stringResources.R.string.auth_required))
             AuthStatus.Invalid2FACode -> {
@@ -261,10 +270,12 @@ class LoginAuthActivity :
                     getString(com.blockchain.stringResources.R.string.invalid_two_fa_code)
                 )
             }
+
             AuthStatus.ShowManualPairing -> {
                 startActivity(ManualPairingActivity.newInstance(this, newState.guid))
                 clearKeyboardAndFinish()
             }
+
             AuthStatus.AccountLocked -> {
                 AlertDialog.Builder(this, com.blockchain.componentlib.R.style.AlertDialogStyle)
                     .setTitle(com.blockchain.stringResources.R.string.account_locked_title)
@@ -292,6 +303,7 @@ class LoginAuthActivity :
                     com.blockchain.stringResources.R.string.two_factor_resend_sms,
                     state.remainingRetries
                 )
+
             is TwoFaCodeState.TwoFaTimeLock -> {
                 if (!isTwoFATimerRunning.get()) {
                     twoFATimer.start()
@@ -330,6 +342,7 @@ class LoginAuthActivity :
                     codeLabel.visible()
                     codeLabel.text = getString(com.blockchain.stringResources.R.string.tap_hardware_key_label)
                 }
+
                 TwoFAMethod.SMS -> {
                     codeTextLayout.visible()
                     codeTextLayout.hint = getString(com.blockchain.stringResources.R.string.two_factor_code_hint)
@@ -340,6 +353,7 @@ class LoginAuthActivity :
                         url = RESET_2FA
                     )
                 }
+
                 TwoFAMethod.GOOGLE_AUTHENTICATOR -> {
                     codeTextLayout.visible()
                     codeTextLayout.hint = getString(com.blockchain.stringResources.R.string.two_factor_code_hint)
@@ -351,11 +365,15 @@ class LoginAuthActivity :
                         url = RESET_2FA
                     )
                 }
+
                 TwoFAMethod.SECOND_PASSWORD -> {
                     codeTextLayout.visible()
                     codeTextLayout.hint = getString(com.blockchain.stringResources.R.string.second_password_hint)
-                    forgotSecondPasswordButton.visible()
-                    forgotSecondPasswordButton.setOnClickListener { launchPasswordRecoveryFlow() }
+                    forgotSecondPasswordButton.apply {
+                        text = getString(com.blockchain.stringResources.R.string.forgot_password_label)
+                        visible()
+                        onClick = { launchPasswordRecoveryFlow() }
+                    }
                     setup2FANotice(
                         textId = com.blockchain.stringResources.R.string.second_password_notice,
                         annotationForLink = SECOND_PASSWORD_LINK_ANNOTATION,
@@ -363,19 +381,24 @@ class LoginAuthActivity :
                     )
                 }
             }.exhaustive
-            continueButton.setOnClickListener {
-                analytics.logEvent(LoginAnalytics.LoginPasswordEntered(analyticsInfo))
-                if (authMethod != TwoFAMethod.OFF) {
-                    model.process(
-                        LoginAuthIntents.SubmitTwoFactorCode(
-                            password = passwordText.text.toString(),
-                            code = codeText.text.toString().trim()
+            continueButton.apply {
+                text = getString(com.blockchain.stringResources.R.string.common_continue)
+                onClick = {
+                    analytics.logEvent(LoginAnalytics.LoginPasswordEntered(analyticsInfo))
+                    if (authMethod != TwoFAMethod.OFF) {
+                        model.process(
+                            LoginAuthIntents.SubmitTwoFactorCode(
+                                password = passwordText.text.toString(),
+                                code = codeText.text.toString().trim()
+                            )
                         )
-                    )
-                    analytics.logEvent(LoginAnalytics.LoginTwoFaEntered(analyticsInfo))
-                    analytics.logEvent(SettingsAnalytics.TwoStepVerificationCodeSubmitted(TWO_SET_MOBILE_NUMBER_OPTION))
-                } else {
-                    model.process(LoginAuthIntents.VerifyPassword(passwordText.text.toString()))
+                        analytics.logEvent(LoginAnalytics.LoginTwoFaEntered(analyticsInfo))
+                        analytics.logEvent(
+                            SettingsAnalytics.TwoStepVerificationCodeSubmitted(TWO_SET_MOBILE_NUMBER_OPTION)
+                        )
+                    } else {
+                        model.process(LoginAuthIntents.VerifyPassword(passwordText.text.toString()))
+                    }
                 }
             }
         }

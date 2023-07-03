@@ -153,8 +153,11 @@ class WireTransferAccountDetailsBottomSheet :
         with(binding) {
             bankDetailsError.apply {
                 errorContainer.visible()
-                errorButton.setOnClickListener {
-                    dismiss()
+                errorButton.apply {
+                    text = getString(com.blockchain.stringResources.R.string.common_ok)
+                    onClick = {
+                        dismiss()
+                    }
                 }
                 errorTitle.text = uxError?.title ?: getString(com.blockchain.stringResources.R.string.common_oops_bank)
                 errorMessage.text = uxError?.description ?: getString(

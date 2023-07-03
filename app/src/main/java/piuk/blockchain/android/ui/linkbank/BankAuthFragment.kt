@@ -13,10 +13,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.annotation.StringRes
-import androidx.appcompat.widget.AppCompatButton
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.componentlib.button.common.BaseButtonView
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.paymentmethods.model.BankAuthError
@@ -30,7 +30,6 @@ import com.blockchain.domain.paymentmethods.model.PlaidAttributes
 import com.blockchain.domain.paymentmethods.model.YapilyAttributes
 import com.blockchain.domain.paymentmethods.model.YodleeAttributes
 import com.blockchain.extensions.exhaustive
-import com.blockchain.presentation.getResolvedDrawable
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.FiatCurrency
@@ -136,11 +135,18 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         }
 
         with(binding) {
-            mainCta.setOnClickListener {
-                logRetryLaunchAnalytics()
-                mainCta.gone()
-                secondaryCta.gone()
-                startBankAuthentication()
+            mainCta.apply {
+                text = getString(com.blockchain.stringResources.R.string.common_retry)
+                onClick = {
+                    logRetryLaunchAnalytics()
+                    mainCta.gone()
+                    secondaryCta.gone()
+                    startBankAuthentication()
+                }
+            }
+
+            secondaryCta.apply {
+                text = getString(com.blockchain.stringResources.R.string.yodlee_linking_cancel)
             }
         }
     }
@@ -409,7 +415,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                 binding.mainCta.apply {
                     text = getString(com.blockchain.stringResources.R.string.bank_linking_try_again)
                     visible()
-                    setOnClickListener {
+                    onClick = {
                         logRetryAnalytics(errorState, partner)
                         retryLinking(partner, linkBankTransferId)
                     }
@@ -424,7 +430,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                 binding.mainCta.apply {
                     text = getString(com.blockchain.stringResources.R.string.bank_linking_try_another_method)
                     visible()
-                    setOnClickListener {
+                    onClick = {
                         logRetryAnalytics(errorState, partner)
                         retryLinking(partner, linkBankTransferId)
                     }
@@ -439,7 +445,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                 binding.mainCta.apply {
                     text = getString(com.blockchain.stringResources.R.string.bank_linking_try_different_account)
                     visible()
-                    setOnClickListener {
+                    onClick = {
                         logRetryAnalytics(errorState, partner)
                         retryLinking(partner, linkBankTransferId)
                     }
@@ -755,10 +761,8 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         with(binding) {
             secondaryCta.apply {
                 visible()
-                background = requireContext().getResolvedDrawable(R.drawable.bkgd_button_no_bkgd_red_selection_selector)
-                setTextColor(resources.getColorStateList(R.color.button_red_text_states, null))
                 text = getString(resId)
-                setOnClickListener {
+                onClick = {
                     model.process(BankAuthIntent.CancelOrder)
                 }
                 analytics.logEvent(bankAuthEvent(BankAuthAnalytics.PIS_EXTERNAL_FLOW_CANCEL, authSource))
@@ -766,13 +770,11 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         }
     }
 
-    private fun showGoBackButton(button: AppCompatButton, onClick: () -> Unit) {
+    private fun showGoBackButton(button: BaseButtonView, onClick: () -> Unit) {
         button.apply {
             text = getString(com.blockchain.stringResources.R.string.common_go_back)
             visible()
-            setOnClickListener {
-                onClick()
-            }
+            this@apply.onClick = onClick
         }
     }
 
@@ -789,7 +791,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             mainCta.apply {
                 text = getString(com.blockchain.stringResources.R.string.common_continue)
                 visible()
-                setOnClickListener {
+                onClick = {
                     navigator().bankLinkingFinished(id, currency)
                 }
             }

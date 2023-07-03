@@ -58,20 +58,6 @@
             android:id="@+id/divider_6"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-
-        <Button
-            android:id="@+id/light"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="light"
-            android:visibility="gone" />
-
-        <Button
-            android:id="@+id/dark"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="dark"
-            android:visibility="gone" />
     </androidx.appcompat.widget.LinearLayoutCompat>
 
 </ScrollView>

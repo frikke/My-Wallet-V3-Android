@@ -37,7 +37,7 @@ class BlockedDueToSanctionsSheet : ComposeModalBottomDialog() {
                     CustomEmptyState(
                         title = com.blockchain.stringResources.R.string.account_restricted,
                         descriptionText = descriptionText,
-                        icon = Icons.Filled.User.id,
+                        icon = Icons.Filled.User,
                         ctaText = com.blockchain.stringResources.R.string.common_learn_more,
                         ctaAction = {
                             actionUrl?.let {

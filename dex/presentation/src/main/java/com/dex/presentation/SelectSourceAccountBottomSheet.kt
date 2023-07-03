@@ -1,5 +1,6 @@
 package com.dex.presentation
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -16,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
@@ -27,8 +29,8 @@ import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.sheets.SheetFloatingHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.BackgroundMuted
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
@@ -53,7 +55,7 @@ fun SelectSourceAccountBottomSheet(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = BackgroundMuted)
+            .background(color = AppColors.background)
     ) {
         SheetFloatingHeader(
             icon = StackedIcon.None,
@@ -130,4 +132,18 @@ private fun TxInProgressWarning(
             )
         }
     }
+}
+
+@Preview
+@Composable
+private fun PreviewTxInProgressWarning() {
+    TxInProgressWarning(
+        network = "ETH"
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewTxInProgressWarningDark() {
+    PreviewTxInProgressWarning()
 }

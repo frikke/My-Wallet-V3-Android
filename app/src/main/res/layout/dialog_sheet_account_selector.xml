@@ -5,17 +5,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    tools:background="@color/backgroundSecondary"
     android:orientation="vertical">
 
-    <androidx.appcompat.widget.AppCompatImageView
+    <com.blockchain.componentlib.sheets.SheetNubView
         android:id="@+id/account_list_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/tiny_spacing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/vector_sheet_indicator_small" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/account_list_back"
@@ -24,9 +24,10 @@
         android:layout_marginStart="@dimen/standard_spacing"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/account_list_title"
+        android:tint="@color/body"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/account_list_title"
-        app:srcCompat="@drawable/ic_arrow_back_blue"
+        app:srcCompat="@drawable/arrow_left_off"
         tools:visibility="visible" />
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -36,6 +37,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/standard_spacing"
         android:layout_marginTop="@dimen/small_spacing"
+        android:textColor="@color/title"
         android:layout_marginEnd="@dimen/standard_spacing"
         android:text="@string/select_account_sheet_title"
         app:layout_constraintEnd_toEndOf="parent"
@@ -50,6 +52,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/standard_spacing"
         android:layout_marginTop="@dimen/tiny_spacing"
+        android:textColor="@color/body"
         android:layout_marginEnd="@dimen/standard_spacing"
         android:text="@string/select_account_sheet_title"
         android:visibility="gone"
@@ -72,6 +75,7 @@
         style="@style/Text.Semibold.16"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/title"
         android:layout_margin="@dimen/standard_spacing"
         android:text="@string/select_account_sheet_empty"
         android:visibility="gone"
@@ -90,9 +94,8 @@
         app:layout_constraintBottom_toTopOf="@id/add_method"
         app:layout_constraintTop_toBottomOf="@id/account_list_separator" />
 
-    <androidx.appcompat.widget.AppCompatButton
+    <com.blockchain.componentlib.button.MinimalPrimaryButtonView
         android:id="@+id/add_method"
-        style="@style/CtaButton.White"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/standard_spacing"

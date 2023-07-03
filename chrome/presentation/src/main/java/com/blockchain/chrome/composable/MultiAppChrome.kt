@@ -36,7 +36,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -70,6 +69,7 @@ import com.blockchain.chrome.toolbar.CollapsingToolbarState
 import com.blockchain.chrome.toolbar.EnterAlwaysCollapsedState
 import com.blockchain.chrome.toolbar.ScrollState
 import com.blockchain.componentlib.alert.PillAlert
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
@@ -670,7 +670,7 @@ fun MultiAppChromeScreen(
                         translationY = -toolbarState.scrollOffset + toolbarState.fullCollapsedOffset
                     }
                     .background(
-                        color = Color(0XFFF1F2F7),
+                        color = AppColors.background,
                         shape = RoundedCornerShape(
                             topStart = AppTheme.dimensions.standardSpacing,
                             topEnd = AppTheme.dimensions.standardSpacing

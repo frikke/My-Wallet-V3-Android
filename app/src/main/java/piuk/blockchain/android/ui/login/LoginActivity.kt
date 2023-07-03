@@ -13,7 +13,10 @@ import androidx.lifecycle.lifecycleScope
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.QrCode
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
@@ -118,35 +121,36 @@ class LoginActivity :
                 })
 
                 setOnEditorActionListener { _, actionId, _ ->
-                    if (actionId == EditorInfo.IME_ACTION_GO && continueButton.isEnabled) {
+                    if (actionId == EditorInfo.IME_ACTION_GO && continueButton.buttonState == ButtonState.Enabled) {
                         onContinueButtonClicked()
                     }
                     true
                 }
             }
-            continueButton.setOnClickListener {
-                onContinueButtonClicked()
+            continueButton.apply {
+                text = getString(com.blockchain.stringResources.R.string.common_continue)
+                onClick = { onContinueButtonClicked() }
             }
 
-            continueWithGoogleButton.setOnClickListener {
-                analytics.logEvent(LoginAnalytics.LoginWithGoogleMethodSelected)
-                startActivityForResult(googleSignInClient.signInIntent, RC_SIGN_IN)
-            }
             if (environmentConfig.isRunningInDebugMode()) {
-                scanPairingButton.setOnClickListener {
-                    startActivityForResult(
-                        QrScanActivity.newInstance(this@LoginActivity, QrExpected.WEB_LOGIN_QR),
-                        QrScanActivity.SCAN_URI_RESULT
-                    )
-                }
-                scanPairingButton.visibleIf {
-                    environmentConfig.environment != Environment.PRODUCTION
+                scanPairingButton.apply {
+                    text = getString(com.blockchain.stringResources.R.string.btn_scan_pairing_code)
+                    icon = Icons.QrCode
+                    onClick = {
+                        startActivityForResult(
+                            QrScanActivity.newInstance(this@LoginActivity, QrExpected.WEB_LOGIN_QR),
+                            QrScanActivity.SCAN_URI_RESULT
+                        )
+                    }
+                    visibleIf {
+                        environmentConfig.environment != Environment.PRODUCTION
+                    }
                 }
                 manualPairingButton.apply {
-                    setOnClickListener {
+                    text = getString(com.blockchain.stringResources.R.string.btn_manual_pairing)
+                    onClick = {
                         startActivity(Intent(context, ManualPairingActivity::class.java))
                     }
-                    isEnabled = true
                     visible()
                 }
             }
@@ -234,6 +238,7 @@ class LoginActivity :
                     restartToLauncherActivity()
                 }
             }
+
             LoginStep.ENTER_PIN -> {
                 showLoginApprovalStatePrompt(newState.loginApprovalState)
                 startActivity(
@@ -245,15 +250,18 @@ class LoginActivity :
                     )
                 )
             }
+
             LoginStep.VERIFY_DEVICE -> navigateToVerifyDevice(newState)
             LoginStep.SHOW_SESSION_ERROR -> showSnackbar(
                 SnackbarType.Error,
                 com.blockchain.stringResources.R.string.login_failed_session_id_error
             )
+
             LoginStep.SHOW_EMAIL_ERROR -> showSnackbar(
                 SnackbarType.Error,
                 com.blockchain.stringResources.R.string.login_send_email_error
             )
+
             LoginStep.NAVIGATE_FROM_DEEPLINK -> {
                 newState.intentUri?.let { uri ->
                     loginAuthResult.launch(
@@ -261,6 +269,7 @@ class LoginActivity :
                     )
                 }
             }
+
             LoginStep.NAVIGATE_FROM_PAYLOAD -> {
                 newState.payload?.let {
                     loginAuthResult.launch(
@@ -268,18 +277,22 @@ class LoginActivity :
                     )
                 }
             }
+
             LoginStep.NAVIGATE_TO_WALLET_CONNECT -> {
                 model.process(LoginIntents.ResetState)
                 navigateToMainWithWCLink(newState.walletConnectUrl)
             }
+
             LoginStep.UNKNOWN_ERROR -> {
                 model.process(LoginIntents.CheckShouldNavigateToOtherScreen)
                 showSnackbar(SnackbarType.Error, com.blockchain.stringResources.R.string.common_error)
             }
+
             LoginStep.MANUAL_PAIRING -> {
                 startActivity(ManualPairingActivity.newInstance(this, newState.guid))
                 finish()
             }
+
             LoginStep.POLLING_PAYLOAD_ERROR -> handlePollingError(newState.pollingState)
             LoginStep.ENTER_EMAIL -> returnToEmailInput()
             // TODO AND-5317 this should display a bottom sheet with info about what device we're authorising
@@ -291,6 +304,7 @@ class LoginActivity :
                 restartToLauncherActivity()
                 finish()
             }
+
             else -> {
                 // do nothing
             }
@@ -302,10 +316,12 @@ class LoginActivity :
             LoginApprovalState.NONE -> {
                 // do nothing
             }
+
             LoginApprovalState.APPROVED -> showSnackbar(
                 SnackbarType.Success,
                 com.blockchain.stringResources.R.string.login_approved_toast
             )
+
             LoginApprovalState.REJECTED -> showSnackbar(
                 SnackbarType.Error,
                 com.blockchain.stringResources.R.string.login_denied_toast
@@ -356,13 +372,16 @@ class LoginActivity :
                 showSnackbar(SnackbarType.Error, com.blockchain.stringResources.R.string.login_polling_timeout)
                 returnToEmailInput()
             }
+
             AuthPollingState.ERROR -> {
                 // fail silently? - maybe log analytics
             }
+
             AuthPollingState.DENIED -> {
                 showSnackbar(SnackbarType.Error, com.blockchain.stringResources.R.string.login_polling_denied)
                 returnToEmailInput()
             }
+
             else -> {
                 // no error, do nothing
             }
@@ -412,14 +431,19 @@ class LoginActivity :
     private fun updateUI(newState: LoginState) {
         with(binding) {
             progressBar.visibleIf { newState.isLoading }
-            // TODO enable Google auth once ready along with the OR label
             continueButton.visibleIf {
                 newState.isTypingEmail ||
                     newState.currentStep == LoginStep.SEND_EMAIL ||
                     newState.currentStep == LoginStep.VERIFY_DEVICE
             }
-            continueButton.isEnabled =
-                emailRegex.matches(newState.email) || (newState.isTypingEmail && emailRegex.matches(newState.email))
+
+            continueButton.buttonState =
+                if (emailRegex.matches(newState.email) || (
+                    newState.isTypingEmail && emailRegex.matches(
+                            newState.email
+                        )
+                    )
+                ) ButtonState.Enabled else ButtonState.Disabled
         }
     }
 

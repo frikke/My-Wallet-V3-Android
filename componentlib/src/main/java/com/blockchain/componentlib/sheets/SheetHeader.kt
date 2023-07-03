@@ -25,11 +25,15 @@ import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.AppDivider
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.Close
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark200
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.theme.topOnly
+import com.blockchain.componentlib.utils.clickableNoEffect
 
 @Composable
 fun SheetHeader(
@@ -38,13 +42,12 @@ fun SheetHeader(
     byline: String? = null,
     startImageResource: ImageResource = ImageResource.None,
     onClosePress: () -> Unit,
-    closeButtonTint: Color = AppTheme.colors.semidark,
-    closeButtonBackground: Color = AppTheme.colors.light,
-    shouldShowDivider: Boolean = true
+    shouldShowDivider: Boolean = true,
+    background: Color = AppColors.backgroundSecondary
 ) {
 
     Surface(
-        color = AppColors.background,
+        color = background,
         shape = AppTheme.shapes.large.topOnly()
     ) {
         Box {
@@ -77,15 +80,23 @@ fun SheetHeader(
                                 bottom = if (byline.isNullOrBlank()) 10.dp else 5.dp
                             )
                     )
-                    SheetHeaderCloseButton(
-                        onClosePress = onClosePress,
+
+                    Box(
                         modifier = Modifier.padding(
-                            top = dimensionResource(R.dimen.medium_spacing),
+                            top = AppTheme.dimensions.mediumSpacing,
                             end = AppTheme.dimensions.smallSpacing
-                        ),
-                        tint = closeButtonTint,
-                        background = closeButtonBackground
-                    )
+                        )
+                    ) {
+                        Image(
+                            modifier = Modifier
+                                .clickableNoEffect { onClosePress() },
+                            imageResource = Icons.Close.withTint(AppColors.muted)
+                                .withBackground(
+                                    backgroundColor = AppColors.light,
+                                    backgroundSize = AppTheme.dimensions.standardSpacing
+                                )
+                        )
+                    }
                 }
                 if (shouldShowDivider) {
                     AppDivider()

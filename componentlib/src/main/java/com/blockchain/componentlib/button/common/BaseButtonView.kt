@@ -20,6 +20,17 @@ abstract class BaseButtonView @JvmOverloads constructor(
     var buttonState by mutableStateOf(ButtonState.Enabled)
     var icon: ImageResource by mutableStateOf(ImageResource.None)
 
+    override fun setOnClickListener(l: OnClickListener?) {
+        super.setOnClickListener(l)
+        onClick = { l?.onClick(this) }
+    }
+
+    override fun setEnabled(enabled: Boolean) {
+        buttonState = if (enabled) ButtonState.Enabled else ButtonState.Disabled
+    }
+
+    override fun isEnabled(): Boolean = buttonState == ButtonState.Enabled
+
     fun clearState() {
         onClick = {}
         text = ""

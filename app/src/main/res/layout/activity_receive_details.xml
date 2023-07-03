@@ -6,7 +6,7 @@
     android:id="@+id/switcher"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/grey_000">
+    android:background="@color/background">
 
     <include
         android:id="@+id/toolbar"
@@ -38,13 +38,14 @@
                 android:visibility="gone"
                 tools:visibility="visible" />
 
+            <!--keep white bg because of qr code image-->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="@dimen/small_spacing"
                 android:layout_marginBottom="@dimen/small_spacing"
-                app:cardBackgroundColor="@color/white"
+                app:cardBackgroundColor="#FFFFFFFF"
                 app:cardCornerRadius="@dimen/small_spacing"
                 app:cardElevation="0dp">
 
@@ -61,8 +62,8 @@
                         android:layout_marginTop="@dimen/small_spacing"
                         android:drawableStart="@drawable/alert_off_text_drawable"
                         android:drawablePadding="@dimen/minuscule_spacing"
-                        android:drawableTint="#D46A00"
-                        android:textColor="#D46A00"
+                        android:drawableTint="@color/warning"
+                        android:textColor="@color/warning"
                         android:textSize="12sp"
                         android:visibility="gone"
                         tools:visibility="visible" />
@@ -81,6 +82,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/small_spacing"
                         android:drawablePadding="@dimen/minuscule_spacing"
+                        android:drawableTint="@color/body"
+                        android:textColor="@color/body"
                         tools:text="Some bitcoin address" />
 
                 </androidx.appcompat.widget.LinearLayoutCompat>

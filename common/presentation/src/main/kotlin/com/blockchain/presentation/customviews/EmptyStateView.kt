@@ -37,15 +37,13 @@ class EmptyStateView @JvmOverloads constructor(
             } ?: kotlin.run {
                 viewEmptyIcon.gone()
             }
-            viewEmptyCta.text = context.getString(ctaText)
-            viewEmptyCta.setOnClickListener {
-                action()
+            viewEmptyCta.apply {
+                text = context.getString(ctaText)
+                onClick = { action() }
             }
-            viewEmptySupportCta.visibleIf {
-                contactSupportEnabled
-            }
-            viewEmptySupportCta.setOnClickListener {
-                onContactSupport()
+            viewEmptySupportCta.apply {
+                visibleIf { contactSupportEnabled }
+                onClick = { onContactSupport() }
             }
         }
     }

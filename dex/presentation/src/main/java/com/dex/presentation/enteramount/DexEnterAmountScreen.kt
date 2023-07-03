@@ -1,5 +1,6 @@
 package com.dex.presentation.enteramount
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -81,7 +82,6 @@ import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Green700
-import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Red400
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
@@ -741,7 +741,7 @@ private fun Fee(uiFee: UiNetworkFee) {
         },
         contentStart = {
             Image(
-                imageResource = Icons.Gas
+                imageResource = Icons.Gas.withTint(AppColors.title)
             )
         },
         contentEnd = {
@@ -811,12 +811,12 @@ private fun NetworkSelection(
             ) {
                 SmallTagIcon(
                     icon = StackedIcon.SmallTag(
-                        main = Icons.Filled.Network.withSize(16.dp),
+                        main = Icons.Filled.Network.withSize(16.dp).withTint(AppColors.title),
                         tag = network?.logo?.let {
                             ImageResource.Remote(it)
                         } ?: Icons.Sync
                     ),
-                    iconBackground = Grey000,
+                    iconBackground = AppColors.light,
                     tagIconSize = 12.dp
                 )
 
@@ -840,7 +840,7 @@ private fun NetworkSelection(
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
                 if (allowNetworkSelection) {
-                    Image(Icons.ChevronRight)
+                    Image(Icons.ChevronRight.withTint(AppColors.title))
                 }
             }
         }
@@ -856,7 +856,9 @@ private fun NetworkSelection(
                 modifier = Modifier
                     .padding(horizontal = AppTheme.dimensions.smallSpacing)
                     .clickable(onClick = settingsOnClick),
-                imageResource = Icons.Settings.withSize(AppTheme.dimensions.standardSpacing)
+                imageResource = Icons.Settings
+                    .withSize(AppTheme.dimensions.standardSpacing)
+                    .withTint(AppColors.title)
             )
         }
     }
@@ -876,6 +878,12 @@ private fun PreviewNetworkSelection() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewNetworkSelectionDark() {
+    PreviewNetworkSelection()
+}
+
 @Preview
 @Composable
 private fun PreviewNetworkSelection_Single() {
@@ -890,6 +898,12 @@ private fun PreviewNetworkSelection_Single() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewNetworkSelection_SingleDark() {
+    PreviewNetworkSelection_Single()
+}
+
 @Preview
 @Composable
 private fun PreviewNetworkSelection_Loading() {
@@ -898,6 +912,12 @@ private fun PreviewNetworkSelection_Loading() {
         allowNetworkSelection = true,
         networkOnClick = {}, settingsOnClick = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewNetworkSelection_LoadingDark() {
+    PreviewNetworkSelection_Loading()
 }
 
 @Preview
@@ -934,4 +954,10 @@ private fun PreviewInputScreen_NetworkSelection() {
             sourceAccountHasNoFunds = false
         )
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewInputScreen_NetworkSelectionDark() {
+    PreviewInputScreen_NetworkSelection()
 }

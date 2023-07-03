@@ -689,39 +689,6 @@
     <!-- SECURITY CENTRE -->
     <string name="security_centre_email_check">Check email</string>
 
-    <!-- BACKUP -->
-    <string name="backup_subtitle">Secret Private Key Recovery Phrase</string>
-    <string name="backup_instructions_1">In crypto, when you hold the private keys, you\'re in control of the funds in your DeFi Wallet. The downside is that WHOEVER holds your private keys can control your DeFi Wallet.</string>
-    <string name="backup_instructions_2">So you must:</string>
-    <string name="backup_instructions_3">1. Write down the 12 word phrase on the next screen in the exact order it appears</string>
-    <string name="backup_instructions_4">2. Keep it safe, ideally on a securely stored piece of paper (in other words, not a digital copy).</string>
-    <string name="backup_instructions_5">3. NEVER share your backup phrase with anyone.</string>
-    <string name="backup_instructions_warn">Warning: If someone has your backup phrase they will have access to your DeFi Wallet and can withdraw funds.</string>
-    <string name="backup_instructions_alert">Blockchain.com will never ask to view or receive your recovery phrase.</string>
-    <string name="backup_button_begin">View Recovery Phrase</string>
-
-    <string name="backup_write_down_words">It is important to make sure you write down your words
-        exactly as they appear here and in this order.
-    </string>
-    <string name="backup_header_complete">Backup Complete</string>
-    <string name="backup_complete_message_1">You can use your Secret Private Key Recovery Phrase to restore your funds if
-        you lose your password. Anyone with access to your Secret Private Key Recovery Phrase can access your funds so
-        remember to keep it offline somewhere safe and secure.
-    </string>
-    <string name="backup_again">Backup again</string>
-    <string name="backup_confirmed">Backup confirmed</string>
-    <string name="backup_last">Last backup: %1$s</string>
-    <string name="backup_verify_heading_1">Enter the following words from your Secret Private Key Recovery Phrase to
-        complete the backup process.
-    </string>
-    <string name="backup_next_word">NEXT WORD</string>
-    <string name="backup_previous_word">PREVIOUS WORD</string>
-    <string name="backup_word">Word</string>
-    <string name="backup_of">of</string>
-    <string name="backup_word_mismatch">Word Mismatch</string>
-    <string name="backup_done">DONE</string>
-    <string name="backup_lost_mnemonic_1">Lost your 12 word Secret Private Key Recovery Phrase?</string>
-
     <!-- BIOMETRICS -->
     <string name="fingerprint_hint">Touch sensor</string>
     <string name="fingerprint_login_title">Biometric login</string>
@@ -2474,8 +2441,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="recurring_buy_view_rb">View Recurring Buy</string>
     <string name="recurring_buy_created_title">%s Buy Created</string>
     <string name="recurring_buy_created_subtitle">You’ll now buy %1$s in %2$s %3$s. You can cancel at any time.</string>
-    <string name="dashboard_title_recurring_buy">Unsure when to buy?</string>
-    <string name="dashboard_recurring_buy_description">Timing the market is hard, which is why many investors use dollar cost averaging.</string>
     <string name="dashboard_recurring_buy_learn_more">Learn more →</string>
     <string name="dashboard_recurring_buy_item_title_1">%1$s %2$s</string>
     <string name="dashboard_recurring_buy_item_label">Next buy on %s</string>
@@ -2680,6 +2645,11 @@ If you want to know more about our verification process visit our <annotation li
     <string name="settings_subtitle_no_payments">Add a Credit/Debit Card</string>
     <string name="settings_label_settings">Settings</string>
     <string name="settings_title_account">Account</string>
+    <string name="settings_theme_title">Theme</string>
+    <string name="settings_theme_subtitle">App theme: %1$s</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
     <string name="settings_notifications_title">Notifications</string>
     <string name="settings_notifications_subtitle">Emails and push alerts</string>
     <string name="settings_subtitle_account">Limits, Currency, Airdrops and more</string>
@@ -3540,7 +3510,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="buy_crypto_today">Buy crypto today</string>
     <string name="complete_your_profile">Complete your profile</string>
     <string name="other_amount">Other amount</string>
-    <string name="to_get_started_buy_your_first_btc">To get started, buy your first BTC.</string>
     <string name="to_get_started_transfer_to_your_wallets">To get started, transfer to your wallets</string>
     <string name="nc_empty_state_title">To get started, deposit crypto to your DeFi Wallet</string>
     <string name="nc_empty_state_cta">Deposit Crypto</string>
@@ -3551,7 +3520,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_rate">%1$s%% Rate</string>
     <string name="add_cash_from_your_bank_or_card">Add cash from your bank</string>
     <string name="cash_out_bank">Cash out to your bank</string>
-    <string name="buy_different_crypto">Buy a different crypto</string>
     <string name="select_an_option">Select an option</string>
     <string name="choose_how_to_swap">Choose how you\'d like to swap</string>
     <string name="bcdc_swap">Blockchain.com Swap</string>

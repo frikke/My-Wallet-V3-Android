@@ -11,6 +11,7 @@ import com.blockchain.domain.auth.SecureChannelBrowserMessage
 import com.blockchain.home.presentation.navigation.AuthNavigationHost
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import com.blockchain.presentation.koin.scopedInject
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.AuthNewLoginSheetBinding
 import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginBrowserInfo
 import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginIpAddress
@@ -54,10 +55,18 @@ class AuthNewLoginSheet :
                 addItemDecoration(BlockchainListDividerDecor(requireContext()))
                 adapter = listAdapter
             }
-            approveButton.setOnClickListener { onApproveClicked() }
-            denyButton.setOnClickListener {
-                model.process(AuthNewLoginIntents.LoginDenied)
-                host.navigateToBottomSheet(AuthConfirmationSheet(isApproved = false))
+            approveButton.apply {
+                text = getString(com.blockchain.stringResources.R.string.auth_new_login_approve_cta)
+                onClick = {
+                    onApproveClicked()
+                }
+            }
+            denyButton.apply {
+                text = getString(com.blockchain.stringResources.R.string.auth_new_login_deny_cta)
+                onClick = {
+                    model.process(AuthNewLoginIntents.LoginDenied)
+                    host.navigateToBottomSheet(AuthConfirmationSheet(isApproved = false))
+                }
             }
         }
     }

@@ -324,7 +324,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     fun showFiatTxError(title: String, subtitle: String, currency: String) {
         setFiatAssetIcon(currency)
         with(binding) {
-            txIcon.setImageResource(R.drawable.ic_alert_logo)
+            txIcon.setImageResource(com.blockchain.componentlib.icons.R.drawable.alert_off)
             txStateIndicator.gone()
         }
         showEndStateUi()

@@ -1,5 +1,6 @@
 package com.dex.presentation.confirmation
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -22,7 +22,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
@@ -35,6 +34,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavController
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.anim.AnimatedAmountCounter
+import com.blockchain.componentlib.basic.AppDivider
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -48,11 +48,9 @@ import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Question
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.tablerow.TableRow
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.BackgroundMuted
-import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey400
-import com.blockchain.componentlib.theme.Orange500
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.extensions.safeLet
@@ -115,7 +113,11 @@ fun DexConfirmationScreen(
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColors.background)
+    ) {
         NavigationBar(
             title = stringResource(com.blockchain.stringResources.R.string.confirm_swap),
             onBackButtonClick = onBackPressed
@@ -215,14 +217,14 @@ fun DexConfirmationScreen(
                         ) {
                             dataState.network?.let {
                                 NetworkConfirmation(it)
-                                Divider(color = BackgroundMuted)
+                                AppDivider()
                             }
                         }
                     }
                     item {
                         animatedState.confirmationExchangeRate?.let {
                             ExchangeRateConfirmation(it)
-                            Divider(color = BackgroundMuted)
+                            AppDivider()
                         }
                     }
 
@@ -236,7 +238,7 @@ fun DexConfirmationScreen(
                                     )
                                 }
                             )
-                            Divider(color = BackgroundMuted)
+                            AppDivider()
                         }
                     }
 
@@ -251,7 +253,7 @@ fun DexConfirmationScreen(
                                     )
                                 }
                             )
-                            Divider(color = BackgroundMuted)
+                            AppDivider()
                         }
                     }
                     item {
@@ -264,7 +266,7 @@ fun DexConfirmationScreen(
                                     )
                                 }
                             )
-                            Divider(color = BackgroundMuted)
+                            AppDivider()
                         }
                     }
                     item {
@@ -389,7 +391,7 @@ private fun ConfirmationPinnedBottom(
     Column(
         modifier = Modifier
             .background(
-                color = Color.White,
+                color = AppColors.backgroundSecondary,
                 shape = RoundedCornerShape(
                     topStart = AppTheme.dimensions.smallSpacing,
                     topEnd = AppTheme.dimensions.smallSpacing,
@@ -431,14 +433,14 @@ private fun PriceUpdateWarning(accept: () -> Unit) {
             .fillMaxWidth()
             .padding(bottom = AppTheme.dimensions.smallSpacing)
             .background(
-                color = Grey000,
+                color = AppColors.background,
                 shape = RoundedCornerShape(AppTheme.dimensions.smallSpacing)
             )
             .padding(all = AppTheme.dimensions.smallSpacing),
         verticalAlignment = CenterVertically
     ) {
         Image(
-            imageResource = Icons.Filled.Error.withTint(Orange500)
+            imageResource = Icons.Filled.Error.withTint(AppColors.warning)
                 .withSize(AppTheme.dimensions.largeSpacing)
         )
         SimpleText(
@@ -735,6 +737,12 @@ private fun PreviewPriceUpdateWarning() {
     PriceUpdateWarning(accept = {})
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewPriceUpdateWarningDark() {
+    PreviewPriceUpdateWarning()
+}
+
 @Preview
 @Composable
 fun MinAmountPreview() {
@@ -747,6 +755,12 @@ fun MinAmountPreview() {
             slippage = 1.0
         ) { _ -> }
     }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun MinAmountPreviewDark() {
+    MinAmountPreview()
 }
 
 private fun Double.toPercentageString(): String {

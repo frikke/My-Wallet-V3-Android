@@ -13,6 +13,9 @@ import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.controls.TextInput
 import com.blockchain.componentlib.controls.TextInputState
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Search
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -31,7 +34,7 @@ fun Search(
     var value by remember { mutableStateOf(prePopulatedText) }
     var shouldClearInput by remember { mutableStateOf(clearInput) }
 
-    val searchIcon = ImageResource.Local(R.drawable.ic_search, null)
+    val searchIcon = Icons.Search.withTint(AppColors.body)
     val closeIcon = if (isDarkMode) {
         ImageResource.Local(R.drawable.ic_close_circle_dark, null)
     } else {

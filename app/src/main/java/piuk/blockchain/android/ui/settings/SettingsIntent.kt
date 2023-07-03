@@ -4,6 +4,7 @@ import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.BasicProfileInfo
+import com.blockchain.theme.Theme
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 
 sealed class SettingsIntent : MviIntent<SettingsState> {
@@ -13,6 +14,15 @@ sealed class SettingsIntent : MviIntent<SettingsState> {
 
     object LoadPaymentMethods : SettingsIntent() {
         override fun reduce(oldState: SettingsState): SettingsState = oldState
+    }
+
+    object LoadTheme : SettingsIntent() {
+        override fun reduce(oldState: SettingsState): SettingsState = oldState
+    }
+
+    data class UpdateTheme(val theme: Theme) : SettingsIntent() {
+        override fun reduce(oldState: SettingsState): SettingsState =
+            oldState.copy(theme = theme)
     }
 
     class UpdateContactSupportEligibility(

@@ -1,7 +1,5 @@
 package piuk.blockchain.android.ui.home
 
-import android.os.Handler
-import android.os.Looper
 import androidx.lifecycle.lifecycleScope
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.chrome.navigation.AssetActionsNavigation
@@ -10,7 +8,6 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
-import com.blockchain.domain.onboarding.CompletableDashboardOnboardingStep
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.earn.activeRewards.ActiveRewardsSummaryBottomSheet
 import com.blockchain.earn.interest.InterestSummaryBottomSheet
@@ -23,7 +20,6 @@ import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivity
-import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import piuk.blockchain.android.ui.locks.LocksDetailsActivity
@@ -57,17 +53,6 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
     override fun unregister() {
         actionsResultContract?.unregister()
     }
-
-    private val activityResultDashboardOnboarding =
-        activity?.registerForActivityResult(DashboardOnboardingActivity.BlockchainActivityResultContract()) { result ->
-            when (result) {
-                DashboardOnboardingActivity.ActivityResult.LaunchBuyFlow -> Handler(Looper.getMainLooper()).post {
-                    launchBuy()
-                }
-                null -> {
-                }
-            }
-        }
 
     private fun launchBuy() {
         actionsResultContract!!.launch(ActionActivity.ActivityArgs(action = AssetAction.Buy, null))
@@ -190,12 +175,6 @@ class AssetActionsNavigationImpl(private val activity: BlockchainActivity?) : As
                 asset = asset,
                 originScreen = LaunchOrigin.HOME.name
             )
-        )
-    }
-
-    override fun onBoardingNavigation(initialSteps: List<CompletableDashboardOnboardingStep>) {
-        activityResultDashboardOnboarding?.launch(
-            DashboardOnboardingActivity.ActivityArgs(initialSteps = initialSteps, isSuperappDesignEnabled = true)
         )
     }
 

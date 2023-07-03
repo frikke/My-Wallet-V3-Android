@@ -68,7 +68,7 @@ class AccountFragment :
             settingsWalletId.apply {
                 primaryText = getString(com.blockchain.stringResources.R.string.account_wallet_id_title)
                 secondaryText = getString(com.blockchain.stringResources.R.string.account_wallet_id_subtitle)
-                endImageResource = ImageResource.Local(R.drawable.ic_copy, null)
+                endImageResource = ImageResource.Local(com.blockchain.componentlib.icons.R.drawable.copy_on, null)
                 onClick = {
                     analytics.logEvent(SettingsAnalytics.WalletIdCopyClicked)
 

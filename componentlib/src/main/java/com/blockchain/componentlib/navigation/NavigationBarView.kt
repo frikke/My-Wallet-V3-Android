@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
+import com.blockchain.walletmode.WalletMode
 
 class NavigationBarView @JvmOverloads constructor(
     context: Context,
@@ -28,24 +29,35 @@ class NavigationBarView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        if (startNavigationButton != null) {
+        if (isInEditMode) {
             NavigationBar(
-                modeColor = modeColor,
-                mutedBackground = mutedBackground,
+                walletMode = WalletMode.CUSTODIAL,
+                mutedBg = mutedBackground,
                 title = title,
                 icon = icon,
                 startNavigationBarButton = startNavigationButton,
                 endNavigationBarButtons = endNavigationBarButtons
             )
         } else {
-            NavigationBar(
-                modeColor = modeColor,
-                mutedBackground = mutedBackground,
-                title = title,
-                icon = icon,
-                onBackButtonClick = onBackButtonClick,
-                navigationBarButtons = endNavigationBarButtons
-            )
+            if (startNavigationButton != null) {
+                NavigationBar(
+                    modeColor = modeColor,
+                    mutedBackground = mutedBackground,
+                    title = title,
+                    icon = icon,
+                    startNavigationBarButton = startNavigationButton,
+                    endNavigationBarButtons = endNavigationBarButtons
+                )
+            } else {
+                NavigationBar(
+                    modeColor = modeColor,
+                    mutedBackground = mutedBackground,
+                    title = title,
+                    icon = icon,
+                    onBackButtonClick = onBackButtonClick,
+                    navigationBarButtons = endNavigationBarButtons
+                )
+            }
         }
     }
 

@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/grey_000"
+    android:background="@color/background"
     tools:context=".ui.transfer.AccountSelectorFragment">
 
     <com.blockchain.componentlib.control.OutlinedSearchView
@@ -20,9 +20,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <View
+    <com.blockchain.componentlib.basic.AppDividerView
         android:id="@+id/header_separator"
-        style="@style/Separator"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_margin="0dp"
@@ -38,7 +37,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/header_separator" />
-
 
     <piuk.blockchain.android.ui.customviews.account.AccountList
         android:id="@+id/supper_app_account_list"

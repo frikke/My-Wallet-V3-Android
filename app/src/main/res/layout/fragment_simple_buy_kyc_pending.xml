@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="@color/background"
     android:layout_height="match_parent">
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -28,8 +29,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:tint="@color/warning"
         app:layout_constraintVertical_bias="0.35"
-        app:srcCompat="@drawable/ic_alert_logo" />
+        app:srcCompat="@drawable/alert_on" />
 
     <ProgressBar
         android:id="@+id/progress"
@@ -68,6 +70,7 @@
         android:text="@string/kyc_verifying_info"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
+        android:textColor="@color/title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/guideline" />
 
@@ -79,19 +82,18 @@
         android:layout_marginStart="@dimen/standard_spacing"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="@dimen/standard_spacing"
+        android:textColor="@color/body"
         android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/verif_text"
         tools:text="@string/kyc_verifying_manual_review_required_info" />
 
-    <androidx.appcompat.widget.AppCompatButton
+    <com.blockchain.componentlib.button.PrimaryButtonView
         android:id="@+id/continue_to_wallet"
-        style="@style/CtaButton.Blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/standard_spacing"
-        android:text="@string/btn_continue"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

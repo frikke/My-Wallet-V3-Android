@@ -38,6 +38,7 @@ import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.theme.ThemeService
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -106,6 +107,10 @@ abstract class BlockchainActivity : ToolBarActivity() {
         WalletMode.NON_CUSTODIAL -> R.drawable.defi_bg
     }
     // //////////////////////////////////
+    // //////////////////////////////////
+    // theme
+    private val themeService: ThemeService by inject()
+    // //////////////////////////////////
 
     private val authPrefs: AuthPrefs by inject()
     private val walletPrefs: WalletStatusPrefs by inject()
@@ -117,6 +122,9 @@ abstract class BlockchainActivity : ToolBarActivity() {
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        themeService.applyCurrentTheme()
+
         processDeathOccurredAndThisIsNotLauncherActivity =
             isFirstActivityToBeCreated && this !is ManifestLauncherActivity
 

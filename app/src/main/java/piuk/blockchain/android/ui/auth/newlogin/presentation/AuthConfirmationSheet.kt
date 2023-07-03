@@ -28,8 +28,9 @@ class AuthConfirmationSheet(
                     com.blockchain.stringResources.R.string.auth_new_login_denied_description
                 )
             }
-            okButton.setOnClickListener {
-                dismiss()
+            okButton.apply {
+                text = getString(com.blockchain.stringResources.R.string.common_ok)
+                onClick = { dismiss() }
             }
         }
     }

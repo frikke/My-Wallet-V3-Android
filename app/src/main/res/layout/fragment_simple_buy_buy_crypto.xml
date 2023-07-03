@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/grey_000">
+    android:background="@color/background">
 
     <LinearLayout
         android:id="@+id/sb_buy_crypto_header"
@@ -52,7 +52,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/small_spacing"
-                android:textColor="@color/grey_900"
+                android:textColor="@color/title"
                 app:layout_constraintBottom_toTopOf="@+id/crypto_ticker"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -65,16 +65,16 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/minuscule_spacing"
                 android:layout_marginBottom="@dimen/minuscule_spacing"
+                android:textColor="@color/body"
                 app:layout_constraintBottom_toTopOf="@id/separator"
                 app:layout_constraintStart_toStartOf="@id/crypto_text"
                 app:layout_constraintTop_toBottomOf="@id/crypto_text"
                 tools:text="BTC" />
 
-            <View
+            <com.blockchain.componentlib.basic.AppDividerView
                 android:id="@+id/separator"
-                style="@style/Separator"
-                android:layout_margin="0dp"
-                android:background="@color/grey_100"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />

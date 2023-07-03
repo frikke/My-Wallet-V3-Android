@@ -2,14 +2,14 @@
 
     <style name="BaseTheme" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
         <!-- Common styles across all res qualifiers resides here, anything specific can inherit from this -->
-        <item name="colorPrimary">@color/primary_blue_dark</item>
+        <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_blue_dark</item>
         <item name="colorAccent">@color/primary_blue_accent</item>
 
-        <item name="android:textColorPrimary">@color/black</item>
+        <item name="android:textColorPrimary">@color/title</item>
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
 
-        <item name="android:windowBackground">@color/white</item>
+        <item name="android:windowBackground">@color/background</item>
 
         <item name="windowActionModeOverlay">true</item>
         <item name="actionModeBackground">@color/primary_navy_medium</item>
@@ -27,6 +27,7 @@
         <item name="android:windowContentTransitions">true</item>
         <item name="toolbarStyle">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
         <item name="bottomSheetDialogTheme">@style/BottomSheetDialog</item>
+        <item name="android:textColorHint">@color/body</item>
     </style>
 
     <style name="AppTheme.MainActivity">
@@ -309,7 +310,7 @@
     </style>
 
     <style name="ErrorText.Red" parent="ErrorText">
-        <item name="android:textColor">@color/red_600</item>
+        <item name="android:textColor">@color/error</item>
     </style>
 
     <style name="CommonDataInputAppearance" parent="Widget.MaterialComponents.TextInputLayout.FilledBox.Dense">
@@ -324,7 +325,7 @@
         <item name="android:padding">2dp</item>
         <item name="boxBackgroundModes">filled</item>
         <item name="boxCornerRadius">4dp</item>
-        <item name="boxStrokeErrorColor">@color/red_500</item>
+        <item name="boxStrokeErrorColor">@color/error</item>
         <item name="errorTextAppearance">@style/ErrorText.Red</item>
     </style>
 
@@ -373,7 +374,7 @@
         <item name="cardCornerRadius">3dp</item>
         <item name="cardPreventCornerOverlap">true</item>
         <item name="cardUseCompatPadding">true</item>
-        <item name="cardBackgroundColor">@color/white</item>
+        <item name="cardBackgroundColor">@color/backgroundSecondary</item>
     </style>
 
     <style name="ToolbarTitleTextAppearance" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">

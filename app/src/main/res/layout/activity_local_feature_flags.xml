@@ -71,7 +71,6 @@
 
         <Button
             android:id="@+id/brokerage_error_cta"
-            style="@style/CtaButton.Blue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/tiny_spacing"
@@ -115,7 +114,6 @@
             android:text="handhold buy verified" />
         <Button
             android:id="@+id/reset_app_rating"
-            style="@style/CtaButton.Blue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/medium_spacing"
@@ -157,7 +155,6 @@
 
         <Button
             android:id="@+id/btn_save_app_maintenance_json"
-            style="@style/CtaButton.Blue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/tiny_spacing"
@@ -179,7 +176,6 @@
 
         <Button
             android:id="@+id/btn_reset_user_cache"
-            style="@style/CtaButton.Blue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -188,7 +184,6 @@
 
         <Button
             android:id="@+id/btn_reset_store_caches"
-            style="@style/CtaButton.Blue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -207,7 +202,6 @@
 
         <Button
             android:id="@+id/btn_show_referral_sheet"
-            style="@style/CtaButton.Blue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -226,7 +220,6 @@
 
         <Button
             android:id="@+id/btn_rnd_device_id"
-            style="@style/CtaButton.Blue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -245,7 +238,6 @@
 
         <Button
             android:id="@+id/btn_reset_wallet"
-            style="@style/CtaButton.Blue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -264,7 +256,6 @@
 
         <Button
             android:id="@+id/btn_reset_announce"
-            style="@style/CtaButton.Blue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -283,7 +274,6 @@
 
         <Button
             android:id="@+id/btn_reset_prefs"
-            style="@style/CtaButton.Blue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -302,7 +292,6 @@
 
         <Button
             android:id="@+id/btn_component_lib"
-            style="@style/CtaButton.Blue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"

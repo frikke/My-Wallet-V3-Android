@@ -226,8 +226,8 @@ class FiatCryptoInputView(
     }
 
     fun onAmountValidationUpdated(isValid: Boolean) {
-        val colour = if (isValid) com.blockchain.componentlib.R.color.grey_800 else
-            com.blockchain.common.R.color.red_400
+        val colour = if (isValid) com.blockchain.componentlib.R.color.title else
+            com.blockchain.componentlib.R.color.error
         binding.enterAmount.setTextColor(resources.getColor(colour, null))
         binding.exchangeAmount.setTextColor(resources.getColor(colour, null))
     }

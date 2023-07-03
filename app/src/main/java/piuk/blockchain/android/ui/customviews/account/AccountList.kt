@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -70,8 +69,6 @@ class AccountList @JvmOverloads constructor(
     var activityIndicator: ActivityIndicator? = null
 
     init {
-        setBackgroundColor(ContextCompat.getColor(context, com.blockchain.common.R.color.grey_000))
-        setFadingEdgeLength(resources.getDimensionPixelSize(com.blockchain.componentlib.R.dimen.size_small))
         isVerticalFadingEdgeEnabled = true
         layoutManager = LinearLayoutManager(
             context,

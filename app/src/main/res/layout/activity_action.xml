@@ -6,7 +6,7 @@
     android:id="@+id/parent_constraint_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/grey_000">
+    android:background="@color/background">
 
     <include
         android:id="@+id/toolbar"
@@ -20,7 +20,7 @@
         android:id="@+id/content_frame"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@color/grey_000"
+        android:background="@color/background"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 

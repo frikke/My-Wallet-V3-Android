@@ -1,5 +1,6 @@
 package com.dex.presentation
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,8 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
+import com.blockchain.coincore.NullFiatAccount.currency
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -23,10 +26,12 @@ import com.blockchain.componentlib.icons.AlertOn
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Orange500
 import com.blockchain.stringResources.R
 import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoCurrency
 import org.koin.androidx.compose.get
 
 @Composable
@@ -38,7 +43,27 @@ fun NoNetworkFundsBottomSheet(
 ) {
 
     val currency = assetCatalogue.assetInfoFromNetworkTicker(assetTicker) ?: return
+
+    NoNetworkFundsScreen(
+        currency = currency,
+        closeClicked = closeClicked,
+        depositOnClick = {
+            savedStateHandle?.set(DEPOSIT_FOR_ACCOUNT_REQUESTED, true)
+            closeClicked()
+        }
+    )
+}
+
+const val DEPOSIT_FOR_ACCOUNT_REQUESTED = "DEPOSIT_FOR_ACCOUNT_REQUESTED"
+
+@Composable
+private fun NoNetworkFundsScreen(
+    currency: AssetInfo,
+    closeClicked: () -> Unit,
+    depositOnClick: () -> Unit
+) {
     val coinNetwork = currency.coinNetwork ?: return
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -49,7 +74,6 @@ fun NoNetworkFundsBottomSheet(
         SheetHeader(
             onClosePress = closeClicked,
             startImageResource = ImageResource.None,
-            closeButtonBackground = AppTheme.colors.backgroundSecondary,
             shouldShowDivider = false
         )
 
@@ -58,7 +82,7 @@ fun NoNetworkFundsBottomSheet(
         SmallTagIcon(
             icon = StackedIcon.SmallTag(
                 main = ImageResource.Remote(currency.logo),
-                tag = Icons.AlertOn.withTint(Orange500)
+                tag = Icons.AlertOn.withTint(AppColors.warning)
             ),
             mainIconSize = 88.dp,
             tagIconSize = 44.dp,
@@ -87,11 +111,24 @@ fun NoNetworkFundsBottomSheet(
                 .fillMaxWidth(),
             text = stringResource(id = R.string.common_deposit)
         ) {
-            savedStateHandle?.set(DEPOSIT_FOR_ACCOUNT_REQUESTED, true)
-            closeClicked()
+            depositOnClick()
         }
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
     }
 }
 
-const val DEPOSIT_FOR_ACCOUNT_REQUESTED = "DEPOSIT_FOR_ACCOUNT_REQUESTED"
+@Preview
+@Composable
+private fun PreviewNoNetworkFundsScreen() {
+    NoNetworkFundsScreen(
+        currency = CryptoCurrency.ETHER,
+        closeClicked = {},
+        depositOnClick = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewNoNetworkFundsScreenDark() {
+    PreviewNoNetworkFundsScreen()
+}

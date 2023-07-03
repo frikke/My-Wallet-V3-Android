@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="@color/backgroundSecondary"
     android:layout_height="match_parent"
     android:fillViewport="true">
 
@@ -14,6 +15,7 @@
             android:id="@+id/text_view_mobile_validation_title"
             style="@style/KycFlowTitle"
             android:layout_width="match_parent"
+            android:textColor="@color/title"
             android:layout_height="wrap_content"
             android:text="@string/kyc_phone_number_validation_header"
             app:layout_constraintEnd_toEndOf="parent"
@@ -24,6 +26,7 @@
             android:id="@+id/text_view_mobile_validation_message"
             style="@style/KycFlowMessage"
             android:layout_width="match_parent"
+            android:textColor="@color/body"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -38,6 +41,7 @@
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:layout_marginTop="16dp"
+            app:hintTextColor="@color/body"
             android:hint="@string/kyc_phone_number_validation_hint"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -46,6 +50,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_text_kyc_mobile_validation_code"
                 android:layout_width="match_parent"
+                android:textColor="@color/title"
                 android:layout_height="wrap_content"
                 android:imeOptions="actionDone"
                 android:inputType="textVisiblePassword"
@@ -63,6 +68,7 @@
             android:gravity="center_horizontal"
             app:layout_constraintBottom_toTopOf="@+id/button_kyc_mobile_validation_next"
             app:layout_constraintEnd_toEndOf="parent"
+            android:textColor="@color/body"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/input_layout_kyc_mobile_validation_code"
@@ -71,7 +77,6 @@
 
         <Button
             android:id="@+id/button_kyc_mobile_validation_next"
-            style="@style/CtaButton.Blue"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -79,6 +84,7 @@
             android:layout_marginTop="48dp"
             android:enabled="false"
             android:text="@string/kyc_profile_next"
+            android:layout_marginHorizontal="@dimen/small_spacing"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"

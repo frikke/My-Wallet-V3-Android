@@ -44,16 +44,6 @@
     <color name="black" />
     <color name="white" />
 
-    <color name="red_000"/>
-    <color name="red_100"/>
-    <color name="red_200"/>
-    <color name="red_300"/>
-    <color name="red_400"/>
-    <color name="red_500"/>
-    <color name="red_600"/>
-    <color name="red_800"/>
-    <color name="red_900"/>
-
     <color name="orange_000"/>
     <color name="orange_100"/>
     <color name="orange_300"/>

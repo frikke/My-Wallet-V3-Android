@@ -15,7 +15,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textColor="@color/green_600" />
+        android:textColor="@color/success" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/after_promo_fee"
@@ -23,7 +23,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/smallest_spacing"
-        android:textColor="@color/green_600"
+        android:textColor="@color/success"
         tools:text="Free" />
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -31,6 +31,6 @@
         style="@style/Text.Light.12"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/grey_600"
+        android:textColor="@color/body"
         tools:text="$10" />
 </LinearLayout>

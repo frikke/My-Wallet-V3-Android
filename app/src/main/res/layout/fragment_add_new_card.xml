@@ -97,7 +97,7 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="@dimen/standard_spacing"
                 android:hint="@string/card_number"
-                app:boxStrokeErrorColor="@color/red_500"
+                app:boxStrokeErrorColor="@color/error"
                 app:layout_constraintTop_toBottomOf="@id/card_name_input">
 
                 <piuk.blockchain.android.cards.views.CardNumberEditText

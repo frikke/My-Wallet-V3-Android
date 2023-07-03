@@ -131,7 +131,7 @@ fun NavContext.SellEnterAmount(
             when (viewState.fatalError) {
                 SellEnterAmountFatalError.WalletLoading -> {
                     CustomEmptyState(
-                        icon = Icons.Network.id,
+                        icon = Icons.Network,
                         ctaAction = { }
                     )
                 }

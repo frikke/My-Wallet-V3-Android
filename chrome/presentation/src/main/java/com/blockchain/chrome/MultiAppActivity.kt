@@ -171,6 +171,25 @@ class MultiAppActivity :
         // allow to draw on status and navigation bars
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
+        setContent {
+            val systemUiController = rememberSystemUiController()
+            systemUiController.setStatusBarColor(Color.Transparent)
+            MultiAppNavHost(
+                startPhraseRecovery = ::handlePhraseRecovery,
+                assetActionsNavigation = assetActionsNavigation,
+                recurringBuyNavigation = recurringBuyNavigation,
+                showAppRating = ::showAppRating,
+                settingsNavigation = settingsNavigation,
+                qrScanNavigation = qrScanNavigation,
+                supportNavigation = supportNavigation,
+                nftNavigation = nftNavigation,
+                earnNavigation = earnNavigation,
+                defiBackupNavigation = defiBackupNavigation,
+                openExternalUrl = ::openExternalUrl,
+                processAnnouncementUrl = ::processAnnouncementUrl
+            )
+        }
+
         assetActionsNavigation.initNewTxFlowFFs()
 
         qrScanNavigation = payloadScope.get {
@@ -207,24 +226,6 @@ class MultiAppActivity :
             )
         }
 
-        setContent {
-            val systemUiController = rememberSystemUiController()
-            systemUiController.setStatusBarColor(Color.Transparent)
-            MultiAppNavHost(
-                startPhraseRecovery = ::handlePhraseRecovery,
-                assetActionsNavigation = assetActionsNavigation,
-                recurringBuyNavigation = recurringBuyNavigation,
-                showAppRating = ::showAppRating,
-                settingsNavigation = settingsNavigation,
-                qrScanNavigation = qrScanNavigation,
-                supportNavigation = supportNavigation,
-                nftNavigation = nftNavigation,
-                earnNavigation = earnNavigation,
-                defiBackupNavigation = defiBackupNavigation,
-                openExternalUrl = ::openExternalUrl,
-                processAnnouncementUrl = ::processAnnouncementUrl
-            )
-        }
         handleIntent(intent)
         subscribeForSecurityChannelLogin()
         handleFiatActionsNav()

@@ -128,8 +128,9 @@ class SwapFragment :
         super.onViewCreated(view, savedInstanceState)
 
         binding.swapCta.apply {
+            text = getString(com.blockchain.stringResources.R.string.swap_cta)
             analytics.logEvent(SwapAnalyticsEvents.NewSwapClicked)
-            setOnClickListener {
+            onClick = {
                 startSwap()
             }
             gone()
@@ -302,7 +303,7 @@ class SwapFragment :
             } else {
                 getString(com.blockchain.stringResources.R.string.feature_not_available)
             }
-            icon = Icons.Filled.User.id
+            icon = Icons.Filled.User
             ctaText = com.blockchain.stringResources.R.string.contact_support
             ctaAction = { startActivity(SupportCentreActivity.newIntent(requireContext())) }
             visible()
@@ -322,7 +323,7 @@ class SwapFragment :
         binding.swapError.apply {
             title = com.blockchain.stringResources.R.string.account_restricted
             descriptionText = reason.message
-            icon = Icons.Filled.User.id
+            icon = Icons.Filled.User
             ctaText = com.blockchain.stringResources.R.string.common_learn_more
             ctaAction = action
             visible()
@@ -417,7 +418,7 @@ class SwapFragment :
         binding.swapError.apply {
             title = com.blockchain.stringResources.R.string.common_empty_title
             description = com.blockchain.stringResources.R.string.common_empty_details
-            icon = Icons.Filled.Network.id
+            icon = Icons.Filled.Network
             ctaText = com.blockchain.stringResources.R.string.common_empty_cta
             ctaAction = { loadSwapOrKyc(true) }
             visible()
