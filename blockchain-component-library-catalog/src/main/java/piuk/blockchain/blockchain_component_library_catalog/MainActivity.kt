@@ -28,7 +28,6 @@ import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vie
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SpacingActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SwitcherActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TabLayoutActivity
-import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TagsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TextInputActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TypographyActivity
 
@@ -57,9 +56,6 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.async_media).setOnClickListener {
             startActivity(Intent(this@MainActivity, AsyncMediaActivity::class.java))
-        }
-        findViewById<MaterialButton>(R.id.tags).setOnClickListener {
-            startActivity(Intent(this@MainActivity, TagsActivity::class.java))
         }
         findViewById<MaterialButton>(R.id.dividers).setOnClickListener {
             startActivity(Intent(this@MainActivity, DividerActivity::class.java))

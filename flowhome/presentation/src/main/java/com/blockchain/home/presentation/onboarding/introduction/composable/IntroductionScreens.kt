@@ -1,9 +1,10 @@
 package com.blockchain.home.presentation.onboarding.introduction.composable
 
+import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -24,12 +25,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.componentlib.basic.CloseIcon
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.TextAnimatedBrush
 import com.blockchain.componentlib.button.MinimalPrimaryButton
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.SystemColors
 import com.blockchain.home.presentation.onboarding.introduction.IntroScreensViewModel
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletmode.WalletMode
@@ -50,8 +52,6 @@ fun IntroductionScreens(
     launchApp: () -> Unit,
     close: () -> Unit
 ) {
-    SystemColors(statusBarDarkContent = true)
-
     val setup = triggeredBy?.let {
         IntroductionScreensSetup.ModesOnly(startMode = it)
     } ?: IntroductionScreensSetup.All(isNewUser = walletStatusPrefs.isNewlyCreated)
@@ -94,7 +94,11 @@ fun IntroductionScreensData(
             .collect()
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColors.background)
+    ) {
         Image(
             modifier = Modifier.fillMaxSize(),
             imageResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.background_gradient),
@@ -109,19 +113,19 @@ fun IntroductionScreensData(
             IntroductionScreen(introductionsScreens[pageIndex])
         }
 
-        Image(
+        CloseIcon(
             modifier = Modifier
-                .clickable {
-                    markAsSeen()
-                    if (setup is IntroductionScreensSetup.All) {
-                        launchApp()
-                    } else {
-                        close()
-                    }
-                }
                 .align(Alignment.TopEnd)
                 .padding(AppTheme.dimensions.standardSpacing),
-            imageResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_close_circle)
+            isScreenBackgroundSecondary = false,
+            onClick = {
+                markAsSeen()
+                if (setup is IntroductionScreensSetup.All) {
+                    launchApp()
+                } else {
+                    close()
+                }
+            }
         )
 
         Column(
@@ -183,4 +187,10 @@ fun IntroductionScreensData(
 @Composable
 fun PreviewIntroductionScreens() {
     IntroductionScreensData(IntroductionScreensSetup.ModesOnly(WalletMode.CUSTODIAL), {}, {}, {})
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewIntroductionScreensDark() {
+    PreviewIntroductionScreens()
 }

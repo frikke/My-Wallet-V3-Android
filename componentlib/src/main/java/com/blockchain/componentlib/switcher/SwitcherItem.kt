@@ -12,13 +12,13 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.alert.CircleIndicator
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.ChevronDown
+import com.blockchain.componentlib.icons.ChevronRight
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Pending
 import com.blockchain.componentlib.theme.AppColors
@@ -30,10 +30,7 @@ fun SwitcherItem(
     modifier: Modifier = Modifier,
     text: String,
     startIcon: ImageResource.Local? = null,
-    endIcon: ImageResource.Local? = ImageResource.Local(
-        id = R.drawable.ic_chevron_down,
-        colorFilter = ColorFilter.tint(AppTheme.colors.dark)
-    ),
+    endIcon: ImageResource.Local? = Icons.ChevronDown.withTint(AppTheme.colors.dark),
     state: SwitcherState = SwitcherState.Enabled,
     showIndicator: Boolean = false,
     onClick: () -> Unit
@@ -111,7 +108,7 @@ fun Switcher_preview_enabled_light_mode() {
                 text = "One Time",
                 state = SwitcherState.Enabled,
                 startIcon = Icons.Pending,
-                endIcon = ImageResource.Local(R.drawable.ic_arrow_right),
+                endIcon = Icons.ChevronRight,
                 onClick = { }
             )
         }
@@ -127,10 +124,7 @@ fun Switcher_preview_disabled_light_mode() {
                 text = "One Time",
                 state = SwitcherState.Disabled,
                 startIcon = Icons.Pending,
-                endIcon = ImageResource.Local(
-                    id = R.drawable.ic_arrow_right,
-                    contentDescription = "IconArrowRight"
-                ),
+                endIcon = Icons.ChevronRight,
                 showIndicator = true,
                 onClick = { }
             )
@@ -146,7 +140,7 @@ fun Switcher_preview_enabled_dark_mode() {
             SwitcherItem(
                 text = "One Time",
                 state = SwitcherState.Enabled,
-                endIcon = ImageResource.Local(R.drawable.ic_arrow_right),
+                endIcon = Icons.ChevronRight,
                 onClick = { }
             )
         }
@@ -161,7 +155,7 @@ fun Switcher_preview_disabled_dark_mode() {
             SwitcherItem(
                 text = "One Time",
                 state = SwitcherState.Disabled,
-                endIcon = ImageResource.Local(R.drawable.ic_arrow_right),
+                endIcon = Icons.ChevronRight,
                 onClick = { }
             )
         }

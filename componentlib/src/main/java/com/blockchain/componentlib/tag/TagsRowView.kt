@@ -20,7 +20,7 @@ class TagsRowView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme(setSystemColors = false) {
+        AppTheme {
             AppSurface {
                 TagsRow(tags)
             }

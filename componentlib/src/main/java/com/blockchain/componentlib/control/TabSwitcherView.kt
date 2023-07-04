@@ -23,7 +23,7 @@ class TabSwitcherView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme(setSystemColors = false) {
+        AppTheme {
             AppSurface {
                 TabSwitcher(
                     initialTabIndex = initialTabIndex,

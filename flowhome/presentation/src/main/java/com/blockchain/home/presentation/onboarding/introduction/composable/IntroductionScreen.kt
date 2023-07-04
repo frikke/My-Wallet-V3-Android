@@ -63,7 +63,10 @@ fun IntroductionScreen(content: IntroductionScreenContent) {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
             content.tag?.let {
-                EducationalWalletModeSecureTag(it)
+                EducationalWalletModeSecureTag(
+                    tag = it,
+                    forWalletMode = content.forWalletMode
+                )
             }
         }
     }

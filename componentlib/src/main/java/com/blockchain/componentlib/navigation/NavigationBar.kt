@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -34,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
@@ -54,6 +54,7 @@ import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.START_DEFI
 import com.blockchain.componentlib.theme.START_TRADING
 import com.blockchain.componentlib.theme.clickableWithIndication
+import com.blockchain.componentlib.theme.topOnly
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.koin.payloadScope
 import com.blockchain.preferences.AuthPrefs
@@ -152,8 +153,7 @@ fun NavigationBar(
 
     NavigationBar(
         walletMode = walletMode,
-        // force white on login screens (until future design changes), no session = no wallet mode
-        mutedBg = if (walletMode == null) false else mutedBackground,
+        mutedBg = mutedBackground,
         title = title,
         icon = icon,
         startNavigationBarButton = startNavigationBarButton,
@@ -190,7 +190,9 @@ fun NavigationBar(
                         )
                     )
 
-                    else -> Modifier.background(AppTheme.colors.backgroundSecondary)
+                    else -> Modifier.background(
+                        if (mutedBg) AppTheme.colors.background else AppTheme.colors.backgroundSecondary
+                    )
                 }
             )
     ) {
@@ -200,7 +202,7 @@ fun NavigationBar(
                 .align(Alignment.CenterStart)
                 .background(
                     if (mutedBg) AppTheme.colors.background else AppTheme.colors.backgroundSecondary,
-                    AppTheme.shapes.veryLarge.copy(bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp))
+                    walletMode?.let { AppTheme.shapes.veryLarge.topOnly() } ?: RectangleShape
                 )
                 .padding(horizontal = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)),
             verticalAlignment = Alignment.CenterVertically,

@@ -22,7 +22,7 @@ class SuccessToastAlertView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme(setSystemColors = false) {
+        AppTheme {
             AppSurface {
                 SuccessToastAlert(
                     text = text,

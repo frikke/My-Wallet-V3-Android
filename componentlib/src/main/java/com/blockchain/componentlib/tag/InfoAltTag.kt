@@ -48,8 +48,8 @@ fun InfoAltTag(
     Tag(
         text = text,
         size = size,
-        defaultBackgroundColor = bgColor,
-        defaultTextColor = textColor,
+        backgroundColor = bgColor,
+        textColor = textColor,
         onClick = onClick
     )
 }

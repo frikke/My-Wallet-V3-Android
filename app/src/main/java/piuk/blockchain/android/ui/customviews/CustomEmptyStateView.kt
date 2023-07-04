@@ -41,7 +41,7 @@ class CustomEmptyStateView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme(setSystemColors = false) {
+        AppTheme {
             AppSurface {
                 CustomEmptyState(
                     title = title,

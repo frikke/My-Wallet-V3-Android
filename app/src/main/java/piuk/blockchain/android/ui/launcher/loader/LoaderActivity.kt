@@ -54,7 +54,7 @@ class LoaderActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        updateToolbarBackground(modeColor = ModeBackgroundColor.None, mutedBackground = false)
+        updateToolbarBackground(modeColor = ModeBackgroundColor.None, mutedBackground = true)
 
         val extras = intent?.extras
         val isPinValidated = extras?.getBoolean(INTENT_EXTRA_VERIFIED, false) ?: false
@@ -186,7 +186,7 @@ class LoaderActivity :
             supportFragmentManager.beginTransaction()
                 .replace(
                     R.id.content_frame,
-                    KycEmailVerificationFragment.newInstance(canBeSkipped = true),
+                    KycEmailVerificationFragment.newInstance(canBeSkipped = true, legacyBg = false),
                     KycEmailVerificationFragment::class.simpleName
                 )
                 .commitAllowingStateLoss()

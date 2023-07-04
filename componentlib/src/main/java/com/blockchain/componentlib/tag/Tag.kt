@@ -1,47 +1,36 @@
 package com.blockchain.componentlib.tag
 
-import android.content.res.Configuration
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.ChevronRight
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Info
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue400
 import com.blockchain.componentlib.theme.Dark600
+import com.blockchain.componentlib.utils.conditional
 
 @Composable
 fun Tag(
     text: String,
     size: TagSize,
-    defaultBackgroundColor: Color,
-    defaultTextColor: Color,
-    borders: Boolean = false,
-    startImageResource: ImageResource = ImageResource.Local(
-        id = R.drawable.ic_info_outline,
-        colorFilter = ColorFilter.tint(defaultTextColor, blendMode = BlendMode.SrcAtop)
-    ),
-    endImageResource: ImageResource = ImageResource.Local(
-        id = R.drawable.ic_chevron_end_small,
-        colorFilter = ColorFilter.tint(defaultTextColor, blendMode = BlendMode.SrcAtop)
-    ),
+    backgroundColor: Color,
+    textColor: Color,
+    startImageResource: ImageResource.Local? = null,
     onClick: (() -> Unit)?
 ) {
     val paddingHorizontal = when (size) {
@@ -59,104 +48,79 @@ fun Tag(
         TagSize.Large -> AppTheme.typography.paragraph2
     }
 
-    onClick?.let { action ->
+    Surface(
+        color = backgroundColor,
+        shape = AppTheme.shapes.small
+    ) {
         Row(
             modifier = Modifier
-                .border(
-                    width = if (borders) 1.dp else 0.dp,
-                    color = AppTheme.colors.light,
-                    shape = RoundedCornerShape(
-                        size = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
-                    )
-                )
-                .clip(
-                    RoundedCornerShape(size = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing))
-                )
-                .background(defaultBackgroundColor)
-                .padding(horizontal = paddingHorizontal, vertical = paddingVertical)
-                .clickable(onClick = action),
+                .conditional(onClick != null) {
+                    clickable { onClick!!.invoke() }
+                }
+                .padding(horizontal = paddingHorizontal, vertical = paddingVertical),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (startImageResource != ImageResource.None) {
-                Image(imageResource = startImageResource)
-                Spacer(
-                    modifier = Modifier.width(
-                        width = dimensionResource(com.blockchain.componentlib.R.dimen.minuscule_spacing)
-                    )
+            (Icons.Info.takeIf { onClick != null } ?: startImageResource)?.let { startImg ->
+                Image(
+                    imageResource = startImg
+                        .withSize(AppTheme.dimensions.smallSpacing)
+                        .withTint(textColor)
                 )
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
             }
 
             Text(
+                modifier = Modifier.weight(1F, fill = false),
                 text = text,
                 style = textStyle,
-                color = defaultTextColor
+                color = textColor
             )
 
-            if (endImageResource != ImageResource.None) {
-                Spacer(
-                    modifier = Modifier.width(
-                        width = dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)
-                    )
+            onClick?.let {
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+                Image(
+                    imageResource = Icons.ChevronRight
+                        .withSize(AppTheme.dimensions.smallSpacing)
+                        .withTint(textColor)
                 )
-                Image(imageResource = endImageResource)
             }
         }
-    } ?: run {
-        Text(
-            text = text,
-            style = textStyle,
-            color = defaultTextColor,
-            modifier = Modifier
-                .border(
-                    width = if (borders) 1.dp else 0.dp,
-                    color = AppTheme.colors.light,
-                    shape = RoundedCornerShape(
-                        size = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
-                    )
-                )
-                .clip(
-                    RoundedCornerShape(size = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing))
-                )
-                .background(defaultBackgroundColor)
-                .padding(horizontal = paddingHorizontal, vertical = paddingVertical)
-        )
     }
+}
+
+@Preview
+@Composable
+fun ClickableTagLargeText() {
+    Tag(
+        text = "There is a notice up on our status page. Full wallet functionality might not be available. " +
+            "Rest assured that your funds are safe. Learn more",
+        size = TagSize.Primary,
+        backgroundColor = Dark600,
+        textColor = Blue400,
+        onClick = { }
+    )
 }
 
 @Preview
 @Composable
 fun ClickableTag() {
     Tag(
-        text = "Click me",
+        text = "Clickable",
         size = TagSize.Primary,
-        defaultBackgroundColor = Dark600,
-        defaultTextColor = Blue400,
-        borders = true,
+        backgroundColor = Dark600,
+        textColor = Blue400,
         onClick = { }
     )
-}
-
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun PreviewClickableTagDark() {
-    ClickableTag()
 }
 
 @Preview
 @Composable
 fun NonClickableTag() {
     Tag(
-        text = "Click me",
+        text = "Dummy",
         size = TagSize.Primary,
-        defaultBackgroundColor = Dark600,
-        defaultTextColor = Blue400,
-        borders = true,
+        backgroundColor = Dark600,
+        textColor = Blue400,
         onClick = null
     )
-}
-
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun PreviewNonClickableTagDark() {
-    NonClickableTag()
 }

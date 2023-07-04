@@ -16,6 +16,7 @@ import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
@@ -190,6 +191,8 @@ class LoginAuthActivity :
     override fun initBinding(): ActivityLoginAuthBinding = ActivityLoginAuthBinding.inflate(layoutInflater)
 
     private fun setupToolbar() {
+        updateToolbarBackground(modeColor = ModeBackgroundColor.None, mutedBackground = true)
+
         updateToolbar(
             toolbarTitle = getString(com.blockchain.stringResources.R.string.login_title),
             backAction = { clearKeyboardAndFinish() }

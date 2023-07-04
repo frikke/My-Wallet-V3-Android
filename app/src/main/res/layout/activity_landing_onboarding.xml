@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/background">
 
     <ImageView
         android:id="@+id/blockchain_logo"
@@ -37,9 +37,8 @@
         android:src="@drawable/background_gradient"
         app:layout_constraintBottom_toBottomOf="parent" />
 
-    <include
-        android:id="@+id/layout_warning"
-        layout="@layout/warning_layout"
+    <com.blockchain.componentlib.tag.WarningTagView
+        android:id="@+id/tag_warning"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/standard_spacing"
@@ -47,16 +46,15 @@
         app:layout_constraintBottom_toTopOf="@id/btn_create"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="visible" />
+        tools:visibility="visible"/>
 
-    <com.blockchain.componentlib.PillButton
+    <com.blockchain.componentlib.button.PrimaryButtonView
         android:id="@+id/btn_create"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/standard_spacing"
         android:layout_marginBottom="16dp"
         android:contentDescription="@string/landing_create_wallet"
-        android:text="@string/landing_create_wallet"
         app:layout_constraintBottom_toTopOf="@+id/btn_login_restore"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

@@ -22,7 +22,7 @@ class WarningToastAlertView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme(setSystemColors = false) {
+        AppTheme {
             AppSurface {
                 WarningToastAlert(
                     text = text,

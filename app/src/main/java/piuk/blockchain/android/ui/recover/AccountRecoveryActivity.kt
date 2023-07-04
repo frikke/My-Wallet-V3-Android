@@ -10,6 +10,7 @@ import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.presentation.koin.scopedInject
@@ -44,6 +45,8 @@ class AccountRecoveryActivity :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        updateToolbarBackground(modeColor = ModeBackgroundColor.None, mutedBackground = true)
+
         updateToolbar(
             toolbarTitle = getString(com.blockchain.stringResources.R.string.account_recover_title),
             backAction = { onBackPressedDispatcher.onBackPressed() }

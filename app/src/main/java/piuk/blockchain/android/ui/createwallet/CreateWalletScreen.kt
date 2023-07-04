@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.createwallet
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -48,6 +49,7 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.basic.closeImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
@@ -60,6 +62,7 @@ import com.blockchain.componentlib.icons.User
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.system.CircularProgressBar
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.AnnotatedStringUtils
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
@@ -106,7 +109,7 @@ fun CreateWalletScreen(
 
         Column(
             Modifier
-                .background(Color.White)
+                .background(AppColors.background)
                 .padding(padding)
                 .fillMaxWidth()
         ) {
@@ -122,6 +125,7 @@ fun CreateWalletScreen(
                     showCountryBottomSheet,
                     showStateBottomSheet
                 )
+
                 CreateWalletScreen.EMAIL_AND_PASSWORD -> EmailAndPasswordStep(state, onIntent)
                 CreateWalletScreen.CREATION_FAILED -> CreateWalletFailed(
                     backOnClick = {
@@ -269,10 +273,11 @@ private fun RegionAndReferralStep(
         } else {
             TextInputState.Default(null)
         }
-        val trailingIcon =
-            if (state.referralCodeInput.isNotEmpty()) {
-                ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_close_circle)
-            } else ImageResource.None
+        val trailingIcon = if (state.referralCodeInput.isNotEmpty()) {
+            closeImageResource()
+        } else {
+            ImageResource.None
+        }
         OutlinedTextInput(
             modifier = Modifier
                 .fillMaxWidth()
@@ -376,10 +381,13 @@ private fun EmailAndPasswordStep(
         val passwordTextState = when (state.passwordInputError) {
             CreateWalletPasswordError.InvalidPasswordTooLong ->
                 TextInputState.Error(stringResource(com.blockchain.stringResources.R.string.invalid_password))
+
             CreateWalletPasswordError.InvalidPasswordTooShort ->
                 TextInputState.Error(stringResource(com.blockchain.stringResources.R.string.invalid_password_too_short))
+
             CreateWalletPasswordError.InvalidPasswordTooWeak ->
                 TextInputState.Error(stringResource(com.blockchain.stringResources.R.string.weak_password))
+
             null -> TextInputState.Default(null)
         }
         OutlinedTextInput(
@@ -553,6 +561,12 @@ private fun PreviewCreateWalletFailed() {
     CreateWalletFailed({})
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewCreateWalletFailedDark() {
+    PreviewCreateWalletFailed()
+}
+
 @Preview
 @Composable
 private fun Preview_RegionAndReferral() {
@@ -579,6 +593,12 @@ private fun Preview_RegionAndReferral() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun Preview_RegionAndReferralDark() {
+    Preview_RegionAndReferral()
+}
+
 @Preview
 @Composable
 private fun Preview_EmailAndPassword() {
@@ -603,6 +623,12 @@ private fun Preview_EmailAndPassword() {
         showCountryBottomSheet = {},
         showStateBottomSheet = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun Preview_EmailAndPasswordDark() {
+    Preview_EmailAndPassword()
 }
 
 private val states = listOf(

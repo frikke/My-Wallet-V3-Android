@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <bool name="isDarkMode">false</bool>
+
     <color name="background">#FFF1F2F7</color>
     <color name="backgroundSecondary">#FFFFFFFF</color>
 
@@ -12,6 +14,12 @@
     <color name="success">#FF00B083</color>
     <color name="medium">#FFDFE3EB</color>
     <color name="dark">#FFB1B8C7</color>
+
+    <!-- special for split button-->
+    <color name="minimal_bg">#FFFFFFFF</color>
+    <color name="minimal_border">#FFF0F2F7</color>
+
+    <!-- special for split button-->
 
 
     <color name="paletteBaseWhite">#FFFFFF</color>
@@ -39,48 +47,47 @@
     <color name="overlay600">#A33B3E46</color>
     <color name="overlay400">#6663676F</color>
 
-    <color name="sheetBackgroundColor">#FFFFFF</color>
     <color name="primary_blue_accent" />
     <color name="black" />
-    <color name="white" />
+    <color name="white">#FFFFFFFF</color>
 
-    <color name="orange_000"/>
-    <color name="orange_100"/>
-    <color name="orange_300"/>
-    <color name="orange_400"/>
-    <color name="orange_600"/>
-    <color name="orange_800"/>
+    <color name="orange_000" />
+    <color name="orange_100" />
+    <color name="orange_300" />
+    <color name="orange_400" />
+    <color name="orange_600" />
+    <color name="orange_800" />
 
-    <color name="green_000"/>
-    <color name="green_100"/>
-    <color name="green_200"/>
-    <color name="green_400"/>
-    <color name="green_500"/>
-    <color name="green_600"/>
-    <color name="green_800"/>
+    <color name="green_000" />
+    <color name="green_100" />
+    <color name="green_200" />
+    <color name="green_400" />
+    <color name="green_500" />
+    <color name="green_600" />
+    <color name="green_800" />
 
-    <color name="grey_000"/>
-    <color name="grey_100"/>
-    <color name="grey_200"/>
-    <color name="grey_300"/>
-    <color name="grey_400"/>
-    <color name="grey_600"/>
-    <color name="grey_700"/>
-    <color name="grey_800"/>
-    <color name="grey_900"/>
+    <color name="grey_000" />
+    <color name="grey_100" />
+    <color name="grey_200" />
+    <color name="grey_300" />
+    <color name="grey_400" />
+    <color name="grey_600" />
+    <color name="grey_700" />
+    <color name="grey_800" />
+    <color name="grey_900" />
 
-    <color name="grey_fade_400"/>
-    <color name="grey_fade_900"/>
+    <color name="grey_fade_400" />
+    <color name="grey_fade_900" />
 
-    <color name="blue_000"/>
-    <color name="blue_100"/>
-    <color name="blue_200"/>
-    <color name="blue_400"/>
-    <color name="blue_500"/>
-    <color name="blue_600"/>
-    <color name="blue_700"/>
-    <color name="blue_800"/>
-    <color name="blue_900"/>
-    <color name="blue_1000"/>
+    <color name="blue_000" />
+    <color name="blue_100" />
+    <color name="blue_200" />
+    <color name="blue_400" />
+    <color name="blue_500" />
+    <color name="blue_600" />
+    <color name="blue_700" />
+    <color name="blue_800" />
+    <color name="blue_900" />
+    <color name="blue_1000" />
 
 </resources>

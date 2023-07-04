@@ -1,5 +1,6 @@
 package com.blockchain.presentation.backup.screens
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -67,13 +68,12 @@ fun BackedUpPhraseScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.backgroundSecondary),
+            .background(AppTheme.colors.background),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         NavigationBar(
             modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
             title = stringResource(com.blockchain.stringResources.R.string.backup_phrase_title_secure_wallet),
-            mutedBackground = false,
             onBackButtonClick = null
         )
 
@@ -140,11 +140,17 @@ private val mnemonic = Locale.getISOCountries().toList().map {
 
 @Preview(name = "Backed Up Phrase", backgroundColor = 0xFFFFFF, showBackground = true)
 @Composable
-fun PreviewBackedUpPhraseScreen() {
+private fun PreviewBackedUpPhraseScreen() {
     BackedUpPhraseScreen(
         mnemonic = mnemonic,
         copyState = CopyState.Idle(resetClipboard = false),
         mnemonicCopied = {},
         nextOnClick = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewBackedUpPhraseScreenDark() {
+    PreviewBackedUpPhraseScreen()
 }

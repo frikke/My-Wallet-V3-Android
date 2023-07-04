@@ -43,9 +43,6 @@
             android:name=".abstract_compose_view.DefaultTableRowActivity"
             android:exported="false" />
         <activity
-            android:name=".abstract_compose_view.TagsActivity"
-            android:exported="false" />
-        <activity
             android:name=".abstract_compose_view.SpacingActivity"
             android:exported="false" />
         <activity

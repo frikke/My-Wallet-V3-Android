@@ -59,7 +59,7 @@ fun CopyMnemonicCta(
 
 @Preview
 @Composable
-fun MnemonicCopied() {
+private fun MnemonicCopied() {
     Row(
         modifier = Modifier
             .fillMaxWidth()

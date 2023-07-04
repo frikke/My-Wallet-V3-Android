@@ -17,6 +17,7 @@ import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.QrCode
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
@@ -204,6 +205,8 @@ class LoginActivity :
     override fun initBinding(): ActivityLoginBinding = ActivityLoginBinding.inflate(layoutInflater)
 
     private fun setupToolbar() {
+        updateToolbarBackground(modeColor = ModeBackgroundColor.None, mutedBackground = true)
+
         updateToolbar(
             toolbarTitle = getString(com.blockchain.stringResources.R.string.login_title),
             backAction = { onBackPressedDispatcher.onBackPressed() }

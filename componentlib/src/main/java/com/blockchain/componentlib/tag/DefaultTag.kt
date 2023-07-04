@@ -23,9 +23,8 @@ fun DefaultTag(
     Tag(
         text = text,
         size = size,
-        defaultBackgroundColor = bgColor,
-        defaultTextColor = textColor,
-        borders = true,
+        backgroundColor = bgColor,
+        textColor = textColor,
         onClick = onClick
     )
 }

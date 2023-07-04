@@ -2,11 +2,9 @@ package piuk.blockchain.android.ui.start
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.method.LinkMovementMethod
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Lifecycle
@@ -14,6 +12,7 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.carousel.CarouselViewType
 import com.blockchain.componentlib.price.PriceView
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.presentation.koin.scopedInject
 import java.util.Timer
@@ -25,7 +24,6 @@ import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
 import piuk.blockchain.android.ui.login.LoginAnalytics
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
 import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
-import piuk.blockchain.android.util.StringUtils
 
 class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingView {
 
@@ -45,7 +43,10 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         with(binding) {
             presenter.checkForRooted()
 
-            btnCreate.setOnClickListener { launchCreateWalletActivity() }
+            btnCreate.apply {
+                text = getString(com.blockchain.stringResources.R.string.landing_create_wallet)
+                onClick = { launchCreateWalletActivity() }
+            }
 
             val onboardingList: List<CarouselViewType> = listOf(
                 CarouselViewType.ValueProp(
@@ -159,16 +160,12 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         )
 
     override fun showApiOutageMessage() {
-        val warningLayout = binding.layoutWarning
-        warningLayout.root.visible()
-        val learnMoreMap = mapOf<String, Uri>("learn_more" to Uri.parse(WALLET_STATUS_URL))
-        warningLayout.warningMessage.apply {
-            movementMethod = LinkMovementMethod.getInstance()
-            text = StringUtils.getStringWithMappedAnnotations(
-                this@LandingActivity,
-                com.blockchain.stringResources.R.string.wallet_issue_message,
-                learnMoreMap
-            )
+        with(binding.tagWarning) {
+            visible()
+            text = getString(com.blockchain.stringResources.R.string.wallet_issue_message_clear)
+            onClick = {
+                openUrl(WALLET_STATUS_URL)
+            }
         }
     }
 

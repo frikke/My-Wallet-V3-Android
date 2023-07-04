@@ -238,7 +238,7 @@ fun SystemColors(statusColor: Color, navigationColor: Color, isDarkTheme: Boolea
 }
 
 @Composable
-fun SystemColors(statusBarDarkContent: Boolean) {
+fun SystemColors(statusBarDarkContent: Boolean = !isSystemInDarkTheme()) {
     val systemUiController = rememberSystemUiController()
     systemUiController.statusBarDarkContentEnabled = statusBarDarkContent
 }

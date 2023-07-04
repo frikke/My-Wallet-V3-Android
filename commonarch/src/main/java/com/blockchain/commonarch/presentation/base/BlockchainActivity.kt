@@ -232,7 +232,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
             val params =
                 ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
             layoutParams = params
-            setBackgroundColor(getColor(com.blockchain.componentlib.R.color.white))
+            setBackgroundColor(getColor(com.blockchain.componentlib.R.color.background))
         }
         view.visibility = View.GONE
         wrapper.addView(view)
