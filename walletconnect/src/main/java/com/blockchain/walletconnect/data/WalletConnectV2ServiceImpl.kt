@@ -6,6 +6,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.TxResult
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.chains.ethereum.EthMessageSigner
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
@@ -67,7 +68,10 @@ import kotlinx.coroutines.withContext
 import org.bouncycastle.util.encoders.Hex
 import timber.log.Timber
 
-class WalletConnectV2ServiceImpl(private val lifecycleObservable: LifecycleObservable) :
+class WalletConnectV2ServiceImpl(
+    private val lifecycleObservable: LifecycleObservable,
+    private val walletConnectV2FeatureFlag: FeatureFlag
+) :
     WalletConnectV2Service,
     WalletConnectV2UrlValidator,
     Web3Wallet.WalletDelegate {
@@ -103,6 +107,7 @@ class WalletConnectV2ServiceImpl(private val lifecycleObservable: LifecycleObser
         val serverUrl = "wss://$relayUrl?projectId=$projectId"
         val connectionType = ConnectionType.MANUAL
         scope.launch(Dispatchers.IO) {
+            if (!walletConnectV2FeatureFlag.coEnabled()) return@launch
             try {
                 CoreClient.initialize(
                     relayServerUrl = serverUrl,
@@ -140,7 +145,11 @@ class WalletConnectV2ServiceImpl(private val lifecycleObservable: LifecycleObser
                 Timber.e(t, "WalletConnect V2: Web3Wallet exception")
             }
         }
+
         scope.launch {
+
+            if (!walletConnectV2FeatureFlag.coEnabled()) return@launch
+
             lifecycleObservable.onStateUpdated.asFlow().collectLatest { appState ->
                 if (appState == AppState.BACKGROUNDED) {
                     Timber.d("WalletConnect V2: App is in background, disconnecting")

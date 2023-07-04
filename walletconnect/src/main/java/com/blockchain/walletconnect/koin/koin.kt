@@ -32,7 +32,8 @@ val walletConnectModule = module {
 
     single {
         WalletConnectV2ServiceImpl(
-            lifecycleObservable = get()
+            lifecycleObservable = get(),
+            walletConnectV2FeatureFlag = get(walletConnectV2FeatureFlag)
         )
     }.apply {
         bind(WalletConnectV2Service::class)
