@@ -71,7 +71,6 @@ fun TokenAllowanceBottomSheet(
     ) {
         SheetHeader(
             onClosePress = closeClicked,
-            startImageResource = ImageResource.None,
             shouldShowDivider = false
         )
 

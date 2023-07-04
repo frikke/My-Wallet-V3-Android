@@ -64,7 +64,6 @@ private fun SelectNetworkScreen(
         SheetHeader(
             title = stringResource(id = com.blockchain.stringResources.R.string.select_network),
             onClosePress = closeClicked,
-            startImageResource = ImageResource.None,
             shouldShowDivider = false
         )
 

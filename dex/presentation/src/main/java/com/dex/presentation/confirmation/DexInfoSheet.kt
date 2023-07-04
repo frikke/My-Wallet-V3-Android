@@ -30,7 +30,6 @@ fun DexInfoSheet(closeClicked: () -> Unit, title: String, description: String) {
     ) {
         SheetHeader(
             onClosePress = closeClicked,
-            startImageResource = ImageResource.None,
             shouldShowDivider = false
         )
 

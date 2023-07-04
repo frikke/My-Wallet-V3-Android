@@ -30,6 +30,7 @@ import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.sheets.SheetHeader
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tablerow.custom.TextWithTooltipTableRow
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
@@ -68,7 +69,9 @@ fun InterestSummarySheet(
                     id = com.blockchain.stringResources.R.string.passive_rewards_summary_title,
                     state.balanceCrypto?.currency?.networkTicker.orEmpty()
                 ),
-                startImageResource = ImageResource.Remote(state.balanceCrypto?.currency?.logo.orEmpty()),
+                startImage = StackedIcon.SingleIcon(
+                    ImageResource.Remote(state.balanceCrypto?.currency?.logo.orEmpty())
+                ),
                 shouldShowDivider = false,
                 onClosePress = onClosePressed
             )

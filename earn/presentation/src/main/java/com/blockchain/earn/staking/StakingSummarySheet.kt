@@ -38,6 +38,7 @@ import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.system.CircularProgressBarWithSmallText
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tablerow.custom.TextWithTooltipTableRow
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
@@ -70,7 +71,9 @@ fun StakingSummarySheet(
                     id = com.blockchain.stringResources.R.string.staking_summary_title,
                     state.balanceCrypto?.currency?.networkTicker.orEmpty()
                 ),
-                startImageResource = ImageResource.Remote(state.balanceCrypto?.currency?.logo.orEmpty()),
+                startImage = StackedIcon.SingleIcon(
+                    ImageResource.Remote(state.balanceCrypto?.currency?.logo.orEmpty())
+                ),
                 shouldShowDivider = false,
                 onClosePress = onClosePressed
             )

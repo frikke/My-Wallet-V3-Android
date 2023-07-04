@@ -82,7 +82,6 @@ private fun SettingsBottomSheetScreen(
         SheetHeader(
             title = stringResource(id = R.string.allowed_slippage),
             onClosePress = closeClicked,
-            startImageResource = ImageResource.None,
             shouldShowDivider = false
         )
 

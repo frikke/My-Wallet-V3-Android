@@ -39,6 +39,7 @@ import com.blockchain.componentlib.icons.Send
 import com.blockchain.componentlib.icons.Swap
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.tablerow.DefaultTableRow
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppColors
@@ -50,15 +51,19 @@ import com.blockchain.earn.EarnAnalytics
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.presentation.extensions.getAccount
 import com.blockchain.presentation.extensions.putAccount
+import com.blockchain.presentation.koin.scopedInject
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
+import info.blockchain.balance.isLayer2Token
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewAnalytics
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewNetwork
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.assetActionEvent
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
@@ -66,6 +71,7 @@ import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 class AccountActionsBottomSheet : BottomSheetDialogFragment() {
 
     private val analytics: Analytics by inject()
+    private val assetCatalogue: AssetCatalogue by scopedInject()
 
     private val selectedAccount by lazy {
         arguments?.getAccount(SELECTED_ACCOUNT) as CryptoAccount
@@ -121,7 +127,14 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                             SheetHeader(
                                 title = selectedAccount.currency.name,
                                 onClosePress = { dismiss() },
-                                startImageResource = ImageResource.Remote(selectedAccount.currency.logo),
+                                startImage = selectedAccount.l1Network()?.let {
+                                    StackedIcon.SmallTag(
+                                        ImageResource.Remote(selectedAccount.currency.logo),
+                                        ImageResource.Remote(it.logo)
+                                    )
+                                } ?: StackedIcon.SingleIcon(
+                                    ImageResource.Remote(selectedAccount.currency.logo)
+                                ),
                                 shouldShowDivider = false
                             )
                             DefaultTableRow(
@@ -180,6 +193,17 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             layout.setBackgroundResource(android.R.color.transparent)
         }
         return dialog
+    }
+
+    private fun CryptoAccount.l1Network() : CoinViewNetwork? {
+        return (this as? NonCustodialAccount)?.let {
+            currency.takeIf { it.isLayer2Token }?.coinNetwork?.let {
+                CoinViewNetwork(
+                    logo = assetCatalogue.fromNetworkTicker(it.nativeAssetTicker)?.logo.orEmpty(),
+                    name = it.shortName
+                )
+            }
+        }
     }
 
     @Composable
