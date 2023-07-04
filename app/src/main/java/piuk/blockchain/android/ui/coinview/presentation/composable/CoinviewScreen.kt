@@ -55,7 +55,6 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinViewAnalytics
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetTradeableState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntent
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewNewsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPillAlertState
@@ -89,8 +88,6 @@ fun Coinview(
         onNewTimeSpanSelected = { timeSpan ->
             viewModel.onIntent(CoinviewIntent.NewTimeSpanSelected(timeSpan))
         },
-        tradeable = viewState.tradeable,
-
         watchlist = viewState.watchlist,
         onWatchlistClick = {
             viewModel.onIntent(CoinviewIntent.ToggleWatchlist)
@@ -142,8 +139,6 @@ fun CoinviewScreen(
     onChartEntryHighlighted: (Entry) -> Unit,
     resetPriceInformation: () -> Unit,
     onNewTimeSpanSelected: (HistoricalTimeSpan) -> Unit,
-
-    tradeable: CoinviewAssetTradeableState,
 
     watchlist: DataResource<Boolean>,
     onWatchlistClick: () -> Unit,
@@ -413,8 +408,6 @@ fun PreviewCoinviewScreen() {
         resetPriceInformation = {},
         onNewTimeSpanSelected = {},
 
-        tradeable = CoinviewAssetTradeableState.Tradeable,
-
         watchlist = DataResource.Loading,
         onWatchlistClick = {},
 
@@ -448,7 +441,6 @@ fun PreviewCoinviewScreen_Unknown() {
         analytics = previewAnalytics,
 
         backOnClick = {},
-
         asset = DataResource.Error(Exception()),
         onContactSupportClick = {},
 
@@ -458,8 +450,6 @@ fun PreviewCoinviewScreen_Unknown() {
         onChartEntryHighlighted = {},
         resetPriceInformation = {},
         onNewTimeSpanSelected = {},
-
-        tradeable = CoinviewAssetTradeableState.Tradeable,
 
         watchlist = DataResource.Loading,
         onWatchlistClick = {},

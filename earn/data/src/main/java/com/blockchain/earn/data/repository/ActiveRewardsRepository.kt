@@ -11,6 +11,7 @@ import com.blockchain.data.filterNotLoading
 import com.blockchain.data.flatMapData
 import com.blockchain.data.getDataOrThrow
 import com.blockchain.data.mapData
+import com.blockchain.data.onErrorReturn
 import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.data.dataresources.active.ActiveRewardsBalanceStore
 import com.blockchain.earn.data.dataresources.active.ActiveRewardsEligibilityStore
@@ -40,8 +41,6 @@ import info.blockchain.balance.Money
 import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
@@ -97,23 +96,13 @@ class ActiveRewardsRepository(
         }
 
     override fun getActiveAssets(refreshStrategy: FreshnessStrategy): Flow<Set<AssetInfo>> =
-        flow {
-            if (activeRewardsFeatureFlag.coEnabled()) {
-                emitAll(
-                    activeRewardsBalanceStore.stream(refreshStrategy)
-                        .getDataOrThrow().map {
-                            it.keys.map { assetTicker ->
-                                assetCatalogue.fromNetworkTicker(assetTicker) as? AssetInfo
-                                    ?: throw IllegalStateException(
-                                        "Failed mapping unknown asset $assetTicker for Staking"
-                                    )
-                            }.toSet()
-                        }
-                )
-            } else {
-                emit(emptySet())
-            }
-        }
+        activeRewardsBalanceStore.stream(refreshStrategy).filterNotLoading().mapData {
+            it.keys.mapNotNull { assetTicker ->
+                assetCatalogue.fromNetworkTicker(assetTicker) as? AssetInfo
+            }.toSet()
+        }.onErrorReturn {
+            emptySet()
+        }.getDataOrThrow()
 
     override fun getBalanceForAsset(
         currency: Currency,
@@ -284,9 +273,5 @@ class ActiveRewardsRepository(
 
     companion object {
         private const val AR_PRODUCT_NAME = "EARN_CC1W"
-
-        private const val DAILY = "Daily"
-        private const val WEEKLY = "Weekly"
-        private const val MONTHLY = "Monthly"
     }
 }

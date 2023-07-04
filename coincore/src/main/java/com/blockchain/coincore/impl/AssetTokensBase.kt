@@ -21,6 +21,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.asSingle
+import com.blockchain.data.onErrorReturn
 import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.InterestService
@@ -162,7 +163,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
         userFeaturePermissionService.isEligibleFor(
             Feature.CustodialAccounts,
             FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
-        ).asSingle()
+        ).asSingle().onErrorReturn { false }
 
     private fun loadCustodialAccounts(): Single<SingleAccountList> {
         if (currency.isCustodial.not()) {
@@ -196,7 +197,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
         }
         return custodialAccountsAccess.flatMap { hasCustodialAccess ->
             if (!hasCustodialAccess) return@flatMap Single.just(emptyList())
-            interestService.isAssetAvailableForInterest(currency).map {
+            interestService.isAssetAvailableForInterest(currency).onErrorReturn { false }.map {
                 if (it) {
                     listOf(
                         CustodialInterestAccount(
@@ -223,7 +224,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
         }
         return custodialAccountsAccess.flatMap { hasCustodialAccess ->
             if (!hasCustodialAccess) return@flatMap Single.just(emptyList())
-            stakingService.getAvailabilityForAsset(currency).asSingle().map {
+            stakingService.getAvailabilityForAsset(currency).onErrorReturn { false }.asSingle().map {
                 if (it) {
                     listOf(
                         CustodialStakingAccount(
@@ -257,24 +258,25 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                 if (!hasCustodialAccess) {
                     Single.just(emptyList())
                 } else
-                    activeRewardsService.getAvailabilityForAsset(currency).asSingle().map { avaialble ->
-                        if (avaialble) {
-                            listOf(
-                                CustodialActiveRewardsAccount(
-                                    currency = currency,
-                                    label = labels.getDefaultActiveRewardsWalletLabel(),
-                                    activeRewardsService = activeRewardsService,
-                                    exchangeRates = exchangeRates,
-                                    internalAccountLabel = labels.getDefaultTradingWalletLabel(),
-                                    identity = identity,
-                                    kycService = kycService,
-                                    custodialWalletManager = custodialManager
+                    activeRewardsService.getAvailabilityForAsset(currency).onErrorReturn { false }.asSingle()
+                        .map { avaialble ->
+                            if (avaialble) {
+                                listOf(
+                                    CustodialActiveRewardsAccount(
+                                        currency = currency,
+                                        label = labels.getDefaultActiveRewardsWalletLabel(),
+                                        activeRewardsService = activeRewardsService,
+                                        exchangeRates = exchangeRates,
+                                        internalAccountLabel = labels.getDefaultTradingWalletLabel(),
+                                        identity = identity,
+                                        kycService = kycService,
+                                        custodialWalletManager = custodialManager
+                                    )
                                 )
-                            )
-                        } else {
-                            emptyList()
+                            } else {
+                                emptyList()
+                            }
                         }
-                    }
             }
         }
     }

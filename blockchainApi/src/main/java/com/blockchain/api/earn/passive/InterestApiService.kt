@@ -21,11 +21,11 @@ class InterestApiService internal constructor(
 ) {
     fun getAccountBalances(): Single<Map<String, InterestAccountBalanceDto>> {
         return interestApi.getAccountBalances()
-            .map { response ->
+            .flatMap { response ->
                 when (response.code()) {
-                    HttpStatus.OK -> response.body() ?: emptyMap()
-                    HttpStatus.NO_CONTENT -> emptyMap()
-                    else -> throw HttpException(response)
+                    HttpStatus.OK -> Single.just(response.body() ?: emptyMap())
+                    HttpStatus.NO_CONTENT -> Single.just(emptyMap())
+                    else -> Single.error(HttpException(response))
                 }
             }.wrapErrorMessage()
     }

@@ -19,6 +19,7 @@ import com.blockchain.data.combineDataResourceFlows
 import com.blockchain.data.dataOrElse
 import com.blockchain.data.flatMapData
 import com.blockchain.data.map
+import com.blockchain.data.onErrorReturn
 import com.blockchain.earn.domain.models.ActiveRewardsRates
 import com.blockchain.earn.domain.models.StakingRewardsRates
 import com.blockchain.earn.domain.service.ActiveRewardsService
@@ -70,16 +71,20 @@ class LoadAssetAccountsUseCase(
                 interestService.getInterestRateFlow(
                     asset.currency,
                     FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
-                )
+                ).onErrorReturn {
+                    0.toDouble()
+                }
             } else {
-                flowOf(DataResource.Data(0.0))
+                flowOf(DataResource.Data(0.toDouble()))
             }
         }
 
         val stakingFlow =
             stakingService.getAvailabilityForAsset(asset.currency).flatMapData { available ->
                 if (available) {
-                    stakingService.getRatesForAsset(asset.currency)
+                    stakingService.getRatesForAsset(asset.currency).onErrorReturn {
+                        StakingRewardsRates(0.0, 0.0)
+                    }
                 } else {
                     flowOf(DataResource.Data(StakingRewardsRates(0.0, 0.0)))
                 }
@@ -90,7 +95,9 @@ class LoadAssetAccountsUseCase(
                 if (available) {
                     activeRewardsService.getRatesForAsset(
                         asset.currency, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
-                    )
+                    ).onErrorReturn {
+                        ActiveRewardsRates(0.0, 0.0, Money.zero(asset.currency))
+                    }
                 } else {
                     flowOf(DataResource.Data(ActiveRewardsRates(0.0, 0.0, Money.zero(asset.currency))))
                 }

@@ -19,6 +19,7 @@ import com.blockchain.data.filterNotLoading
 import com.blockchain.data.flatMapData
 import com.blockchain.data.getDataOrThrow
 import com.blockchain.data.mapData
+import com.blockchain.data.onErrorReturn
 import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.data.dataresources.interest.InterestAvailableAssetsStore
 import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
@@ -74,6 +75,8 @@ internal class InterestRepository(
                         asset to balanceDto.toInterestBalance(asset)
                     }
                 }.toMap()
+            }.onErrorReturn {
+                emptyMap()
             }
     }
 
@@ -164,6 +167,7 @@ internal class InterestRepository(
                     is AssetsWithEligibility ->
                         mapAssetTicketWithEligibility.assets[asset.networkTicker.uppercase()]
                             ?: EarnRewardsEligibilityDto.default()
+
                     is IneligibleReason -> mapAssetTicketWithEligibility.eligibility
                 }
 
