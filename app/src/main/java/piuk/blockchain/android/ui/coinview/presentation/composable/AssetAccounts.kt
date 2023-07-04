@@ -367,5 +367,6 @@ val previewCvAccount: CoinviewAccount = CoinviewAccount.PrivateKey(
     account = previewBlockchainAccount,
     cryptoBalance = DataResource.Data(Money.zero(CryptoCurrency.BTC)),
     fiatBalance = DataResource.Data(Money.zero(CryptoCurrency.BTC)),
+    address = "1234567890",
     isEnabled = false
 )

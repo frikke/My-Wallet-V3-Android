@@ -39,6 +39,7 @@ import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.system.CircularProgressBarWithSmallText
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.custom.TextWithTooltipTableRow
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.LargeVerticalSpacer
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
@@ -76,7 +77,7 @@ fun StakingSummarySheet(
 
             Column(
                 modifier = Modifier
-                    .background(color = AppTheme.colors.light)
+                    .background(color = AppColors.background)
                     .fillMaxWidth()
                     .padding(horizontal = AppTheme.dimensions.standardSpacing)
                     .verticalScroll(rememberScrollState()),

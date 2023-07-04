@@ -107,8 +107,6 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                     )
                 }
 
-        val assetColor = items.first().color
-
         dialog.setContentView(
             ComposeView(requireContext()).apply {
                 setContent {
@@ -121,15 +119,14 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             SheetHeader(
-                                title = selectedAccount.label,
+                                title = selectedAccount.currency.name,
                                 onClosePress = { dismiss() },
-                                startImageResource = getToolbarIcon(selectedAccount, assetColor),
+                                startImageResource = ImageResource.Remote(selectedAccount.currency.logo),
                                 shouldShowDivider = false
                             )
                             DefaultTableRow(
                                 primaryText = balanceFiat.toStringWithSymbol(),
                                 secondaryText = balanceCrypto.toStringWithSymbol(),
-                                backgroundColor = AppColors.background,
                                 endTag = when (selectedAccount) {
                                     is EarnRewardsAccount.Interest -> {
                                         TagViewState(
@@ -184,36 +181,6 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         }
         return dialog
     }
-
-    private fun getToolbarIcon(selectedAccount: CryptoAccount, color: Color): ImageResource =
-        when (selectedAccount) {
-            is NonCustodialAccount -> ImageResource.Local(
-                id = R.drawable.ic_non_custodial_explainer,
-                colorFilter = ColorFilter.tint(color)
-            )
-
-            is TradingAccount -> ImageResource.Local(
-                id = R.drawable.ic_custodial_explainer,
-                colorFilter = ColorFilter.tint(color)
-            )
-
-            is EarnRewardsAccount.Interest -> ImageResource.Local(
-                id = R.drawable.ic_rewards_explainer,
-                colorFilter = ColorFilter.tint(color)
-            )
-
-            is EarnRewardsAccount.Staking -> ImageResource.Local(
-                id = R.drawable.ic_staking_explainer,
-                colorFilter = ColorFilter.tint(color)
-            )
-
-            is EarnRewardsAccount.Active -> ImageResource.Local(
-                id = R.drawable.ic_active_rewards_explainer,
-                colorFilter = ColorFilter.tint(color)
-            )
-
-            else -> ImageResource.None
-        }
 
     @Composable
     private fun ActionsList(assetActionItem: List<AssetActionItem>) {

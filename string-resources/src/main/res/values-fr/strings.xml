@@ -2266,7 +2266,7 @@
     <string name="coinview_actions_error">Un problème est survenu lors de la récupération de vos actions disponibles, veuillez réessayer</string>
     <string name="coinview_no_asset_blurb">Il semble que nous n\'ayons aucune donnée sur cet actif. Si cette situation persiste, <annotation link="contact_support">contactez l\'assistance.</annotation></string>
     <string name="coinview_no_asset_title">Actif inconnu</string>
-    <string name="coinview_asset_info_cta">Visiter le site Web →</string>
+    <string name="coinview_asset_info_cta">Visiter le site Web</string>
     <string name="coinview_no_asset_description">Il semble que nous n\'ayons pas encore de description pour ce jeton ; pour en savoir plus, veuillez consulter leur site Web en appuyant sur le bouton ci-dessous.</string>
     <string name="coinview_no_balance_sheet_title">Nº %1$s à %2$s</string>
     <string name="coinview_no_balance_sheet_subtitle">Vous avez besoin de %1$s dans votre %2$s pour %3$s.</string>

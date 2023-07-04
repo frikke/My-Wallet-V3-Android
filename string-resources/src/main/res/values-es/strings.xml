@@ -2264,7 +2264,7 @@
     <string name="coinview_actions_error">Se ha producido un problema al cargar tus acciones disponibles. Vuelve a intentarlo.</string>
     <string name="coinview_no_asset_blurb">Parece que no tenemos ningún dato sobre este activo. Si esta situación continúa, <annotation link="contact_support"> póngase en contacto con el equipo de asistencia. </annotation></string>
     <string name="coinview_no_asset_title">Activo desconocido</string>
-    <string name="coinview_asset_info_cta">Visitar sitio web →</string>
+    <string name="coinview_asset_info_cta">Visitar sitio web</string>
     <string name="coinview_no_asset_description">Parece que todavía no tenemos una descripción para este token, consulta tu sitio web pulsando el botón de abajo para obtener más información.</string>
     <string name="coinview_no_balance_sheet_title">N.º %1$s para %2$s</string>
     <string name="coinview_no_balance_sheet_subtitle">Necesita %1$s en su %2$s para %3$s.</string>

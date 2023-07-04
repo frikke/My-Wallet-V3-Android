@@ -40,6 +40,7 @@ import com.blockchain.image.LogoValue
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.news.NewsService
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.utils.abbreviate
 import com.blockchain.utils.toFormattedDateWithoutYear
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
@@ -441,14 +442,14 @@ class CoinviewViewModel(
     )
 
     private fun makeAvailablePrivateKeyAccount(
-        cvAccount: CoinviewAccount,
+        cvAccount: CoinviewAccount.PrivateKey,
         account: CryptoAccount,
         asset: CryptoAsset,
         l1Network: CoinViewNetwork?
     ) = Available(
         cvAccount = cvAccount,
-        title = account.label,
-        subtitle = TextValue.StringValue(account.currency.displayTicker),
+        title = account.currency.name,
+        subtitle = TextValue.StringValue(cvAccount.address.abbreviate(startLength = 4, endLength = 4)),
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         logo = l1Network?.let { LogoValue.SmallTag(account.currency.logo, it.logo) }

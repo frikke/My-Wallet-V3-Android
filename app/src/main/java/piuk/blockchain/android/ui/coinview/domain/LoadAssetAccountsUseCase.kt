@@ -35,7 +35,6 @@ import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
@@ -49,6 +48,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccountDetail
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccounts
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetDetail
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
+import java.util.concurrent.TimeUnit
 
 class LoadAssetAccountsUseCase(
     private val walletModeService: WalletModeService,
@@ -193,9 +193,13 @@ class LoadAssetAccountsUseCase(
             }
             .map { account ->
                 combine(
+                    // balance
                     account.balance().map { DataResource.Data(it) as DataResource<AccountBalance> }.catch {
                         emit(DataResource.Error(it as Exception))
                     },
+                    // address
+                    flowOf(account.receiveAddress.map { it.address }.awaitOutcome().getOrDefault("")),
+                    // availability
                     flowOf(account.stateAwareActions.awaitOutcome().getOrDefault(emptySet())).map {
                         DataResource.Data(
                             it
@@ -207,10 +211,11 @@ class LoadAssetAccountsUseCase(
                     }.onStart {
                         emit(true)
                     }
-                ) { balance, hasAnyActionsAvailable ->
+                ) { balance, address, hasAnyActionsAvailable ->
                     CoinviewAccountDetail(
                         account = account,
                         balance = balance.map { it.total },
+                        address = address,
                         isAvailable = hasAnyActionsAvailable
                     )
                 }
@@ -303,7 +308,8 @@ class LoadAssetAccountsUseCase(
                         fiatBalance = it.balance.map {
                             exchangeRate.convert(it)
                         },
-                        isEnabled = it.isAvailable
+                        isEnabled = it.isAvailable,
+                        address = it.address
                     )
                 }.run { CoinviewAccounts.Defi(this) }
             }
