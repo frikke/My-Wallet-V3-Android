@@ -1,6 +1,7 @@
 package com.blockchain.walletconnect.koin
 
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.walletConnectV1FeatureFlag
 import com.blockchain.koin.walletConnectV2FeatureFlag
 import com.blockchain.walletconnect.data.EthWalletAddressProvider
 import com.blockchain.walletconnect.data.SignRequestHandler
@@ -112,7 +113,7 @@ val walletConnectModule = module {
                 walletConnectService = get(),
                 walletConnectV2Service = get(),
                 walletConnectV2FeatureFlag = get(walletConnectV2FeatureFlag),
-
+                walletConnectV1FeatureFlag = get(walletConnectV1FeatureFlag),
             )
         }
 

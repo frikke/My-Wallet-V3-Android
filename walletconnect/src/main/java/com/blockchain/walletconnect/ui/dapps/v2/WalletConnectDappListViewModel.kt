@@ -19,6 +19,7 @@ import com.blockchain.walletconnect.ui.composable.common.toDappSessionUiElement
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -26,7 +27,8 @@ class WalletConnectDappListViewModel(
     private val sessionsRepository: SessionRepository,
     private val walletConnectService: WalletConnectServiceAPI,
     private val walletConnectV2Service: WalletConnectV2Service,
-    private val walletConnectV2FeatureFlag: FeatureFlag
+    private val walletConnectV2FeatureFlag: FeatureFlag,
+    private val walletConnectV1FeatureFlag: FeatureFlag
 ) : MviViewModel<
     WalletConnectDappListIntent,
     WalletConnectDappListViewState,
@@ -79,8 +81,10 @@ class WalletConnectDappListViewModel(
     }
 
     private fun loadSessions() = viewModelScope.launch {
-        val sessionsV1Flow = sessionsRepository.retrieve()
-            .onErrorReturn { emptyList() }.asFlow()
+        val sessionsV1Flow =
+            if (walletConnectV1FeatureFlag.coEnabled())
+                sessionsRepository.retrieve().onErrorReturn { emptyList() }.asFlow()
+            else flowOf(emptyList())
 
         val sessionsV2Flow =
             if (walletConnectV2FeatureFlag.coEnabled()) walletConnectV2Service.getSessionsFlow()

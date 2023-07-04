@@ -57,6 +57,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onStart
@@ -163,15 +164,21 @@ class WalletConnectV2ServiceImpl(
 
     override fun resumeConnection() {
         Timber.d("WalletConnect V2: resuming connection")
-        CoreClient.Relay.connect { error: Core.Model.Error ->
-            Timber.e("WalletConnect V2: Connect Relay error: $error")
+        scope.launch {
+            if (walletConnectV2FeatureFlag.coEnabled()) {
+                CoreClient.Relay.connect { error: Core.Model.Error ->
+                    Timber.e("WalletConnect V2: Connect Relay error: $error")
+                }
+            }
         }
     }
 
     override suspend fun pair(pairingUrl: String) {
         Timber.d("WalletConnect V2: pairing with $pairingUrl")
         withContext(Dispatchers.IO) {
-
+            if (!walletConnectV2FeatureFlag.coEnabled()) {
+                return@withContext
+            }
             clearSessionProposals()
 
             val pairingParams = Wallet.Params.Pair(pairingUrl)
@@ -242,7 +249,11 @@ class WalletConnectV2ServiceImpl(
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun approveSession(sessionId: String) {
         Timber.d("WalletConnect V2: Approving last session")
+
         scope.launch {
+            if (!walletConnectV2FeatureFlag.coEnabled()) {
+                return@launch
+            }
             try {
                 Web3Wallet.getSessionProposals().find { it.pairingTopic == sessionId }?.let {
                     val sessionProposal = Web3Wallet.getSessionProposals().last()
@@ -275,9 +286,11 @@ class WalletConnectV2ServiceImpl(
     override suspend fun getSessions(): List<WalletConnectSession> =
         withContext(Dispatchers.IO) {
             try {
-                Web3Wallet.getListOfActiveSessions().map {
-                    it.toDomainWalletConnectSession()
-                }
+                if (walletConnectV2FeatureFlag.coEnabled()) {
+                    Web3Wallet.getListOfActiveSessions().map {
+                        it.toDomainWalletConnectSession()
+                    }
+                } else emptyList()
             } catch (e: Exception) {
                 Timber.e("WalletConnect V2: Error getting sessions: $e")
                 emptyList()
@@ -321,6 +334,7 @@ class WalletConnectV2ServiceImpl(
 
     override suspend fun getSession(sessionId: String): WalletConnectSession? =
         withContext(Dispatchers.IO) {
+            if (!walletConnectV2FeatureFlag.coEnabled()) return@withContext null
             try {
                 Web3Wallet.getActiveSessionByTopic(sessionId)?.toDomainWalletConnectSession()
             } catch (e: Exception) {
@@ -430,6 +444,7 @@ class WalletConnectV2ServiceImpl(
     override suspend fun disconnectAllSessions() {
         Timber.d("WalletConnect V2: Disconnecting all sessions")
         withContext(Dispatchers.IO) {
+            if (!walletConnectV2FeatureFlag.coEnabled()) return@withContext
             try {
                 Web3Wallet.getListOfActiveSessions().forEach { session ->
                     Web3Wallet.disconnectSession(
@@ -450,6 +465,7 @@ class WalletConnectV2ServiceImpl(
 
     override suspend fun disconnectSession(sessionTopic: String) {
         withContext(Dispatchers.IO) {
+            if (!walletConnectV2FeatureFlag.coEnabled()) return@withContext
             try {
                 Web3Wallet.disconnectSession(
                     params = Wallet.Params.SessionDisconnect(sessionTopic),
@@ -468,6 +484,7 @@ class WalletConnectV2ServiceImpl(
 
     override suspend fun getSessionProposal(sessionId: String): Wallet.Model.SessionProposal? =
         withContext(Dispatchers.IO) {
+            if (!walletConnectV2FeatureFlag.coEnabled()) return@withContext null
             try {
                 Web3Wallet.getSessionProposals().firstOrNull { it.pairingTopic == sessionId }
             } catch (e: Exception) {
@@ -479,6 +496,7 @@ class WalletConnectV2ServiceImpl(
     override fun clearSessionProposals() {
         Timber.d("WalletConnect V2: Clearing Session Proposals")
         scope.launch {
+            if (!walletConnectV2FeatureFlag.coEnabled()) return@launch
             try {
                 Web3Wallet.getSessionProposals().map { sessionProposal ->
                     Web3Wallet.rejectSession(
@@ -499,6 +517,7 @@ class WalletConnectV2ServiceImpl(
 
     override suspend fun getAuthRequest(authId: String): Wallet.Model.PendingAuthRequest? =
         withContext(Dispatchers.IO) {
+            if (!walletConnectV2FeatureFlag.coEnabled()) return@withContext null
             try {
                 Web3Wallet.getPendingAuthRequests().firstOrNull { it.id == authId.toLong() }
             } catch (e: Exception) {
@@ -509,7 +528,7 @@ class WalletConnectV2ServiceImpl(
 
     override suspend fun approveAuthRequest(authSigningPayload: WalletConnectAuthSigningPayload) {
         withContext(Dispatchers.IO) {
-
+            if (!walletConnectV2FeatureFlag.coEnabled()) return@withContext
             val messageHex = Hex.toHexString(authSigningPayload.authMessage.toByteArray(Charsets.UTF_8))
 
             // Sign the Ethereum message
@@ -551,6 +570,7 @@ class WalletConnectV2ServiceImpl(
     @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun buildAuthSigningPayload(authId: String): Flow<WalletConnectAuthSigningPayload> =
         withContext(Dispatchers.IO) {
+            if (!walletConnectV2FeatureFlag.coEnabled()) return@withContext flowOf<WalletConnectAuthSigningPayload>()
             // Retrieve the authentication request with the given ID
             getAuthRequest(authId)?.let { authRequest ->
                 // Retrieve the supported EVMs networks as a flow
@@ -582,6 +602,7 @@ class WalletConnectV2ServiceImpl(
 
     override suspend fun rejectAuthRequest(authId: String) {
         withContext(Dispatchers.IO) {
+            if (!walletConnectV2FeatureFlag.coEnabled()) return@withContext
             try {
                 Web3Wallet.respondAuthRequest(
                     params = Wallet.Params.AuthRequestResponse.Error(
@@ -602,7 +623,7 @@ class WalletConnectV2ServiceImpl(
         }
     }
 
-    override fun Wallet.Model.PendingAuthRequest.getAuthMessage(issuer: String) =
+    private fun Wallet.Model.PendingAuthRequest.getAuthMessage(issuer: String) =
         Web3Wallet.formatMessage(
             Wallet.Params.FormatMessage(this.payloadParams, issuer)
         ) ?: throw Exception("Error formatting message")
@@ -655,7 +676,8 @@ class WalletConnectV2ServiceImpl(
         // Triggered when a Dapp sends SessionProposal to connect
         Timber.d("(WalletConnect) Session proposal: $sessionProposal")
         scope.launch {
-            _walletEvents.emit(sessionProposal)
+            if (walletConnectV2FeatureFlag.coEnabled())
+                _walletEvents.emit(sessionProposal)
         }
     }
 
@@ -664,6 +686,7 @@ class WalletConnectV2ServiceImpl(
         Timber.d("(WalletConnect) Session request: $sessionRequest")
 
         scope.launch {
+            if (!walletConnectV2FeatureFlag.coEnabled()) return@launch
             when (sessionRequest.request.method) {
                 WC_METHOD_PERSONAL_SIGN,
                 WC_METHOD_ETH_SIGN -> ethSign(sessionRequest)
@@ -682,6 +705,7 @@ class WalletConnectV2ServiceImpl(
         // Triggered when Dapp / Requester makes an authorization request
         Timber.d("(WalletConnect) Auth request: $authRequest")
         scope.launch {
+            if (!walletConnectV2FeatureFlag.coEnabled()) return@launch
             _walletEvents.emit(authRequest)
         }
     }
@@ -690,6 +714,7 @@ class WalletConnectV2ServiceImpl(
         // Triggered when the session is deleted by the peer
         Timber.d("(WalletConnect) Session delete: $sessionDelete")
         scope.launch {
+            if (!walletConnectV2FeatureFlag.coEnabled()) return@launch
             _walletEvents.emit(sessionDelete)
         }
     }
@@ -698,6 +723,7 @@ class WalletConnectV2ServiceImpl(
         // Triggered when wallet receives the session settlement response from Dapp
         Timber.d("(WalletConnect) Session settle response: $settleSessionResponse")
         scope.launch {
+            if (!walletConnectV2FeatureFlag.coEnabled()) return@launch
             _walletEvents.emit(settleSessionResponse)
         }
     }

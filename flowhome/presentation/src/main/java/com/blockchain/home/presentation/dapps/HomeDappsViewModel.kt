@@ -19,6 +19,7 @@ import com.blockchain.walletconnect.ui.composable.common.toDappSessionUiElement
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -73,7 +74,7 @@ class HomeDappsViewModel(
         val sessionsV1Flow =
             if (walletConnectV1FeatureFlag.coEnabled())
                 sessionsRepository.retrieve().onErrorReturn { emptyList() }.asFlow()
-            else emptyFlow()
+            else flowOf(emptyList())
 
         val sessionsV2Flow =
             if (walletConnectV2FeatureFlag.coEnabled())

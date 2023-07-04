@@ -9,7 +9,7 @@ object Versions {
     const val compileSdk = 33
 
     const val versionCode = 26730
-    const val versionName = "202306.2.0"
+    const val versionName = "202307.2.0"
 
     const val buildTools = "30.0.3"
 
@@ -260,7 +260,6 @@ object Libraries {
     const val biometricsApi = "androidx.biometric:biometric:${Versions.biometrics}"
     const val adsIdentifier = "com.google.android.gms:play-services-ads-identifier:${Versions.adsIdentifier}"
 
-
     // Networking, RxJava
     const val retrofit = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
     const val retrofitRxJavaAdapter = "com.squareup.retrofit2:adapter-rxjava3:${Versions.retrofit}"
@@ -341,7 +340,8 @@ object Libraries {
     const val composeMaterial = "androidx.compose.material:material:${Versions.compose}"
     const val composePreview = "androidx.compose.ui:ui-tooling-preview:${Versions.compose}"
     const val composeUiTooling = "androidx.compose.ui:ui-tooling:${Versions.compose}"
-    const val composeUiPoolingContainer = "androidx.customview:customview-poolingcontainer:${Versions.composePoolingContainer}"
+    const val composeUiPoolingContainer =
+        "androidx.customview:customview-poolingcontainer:${Versions.composePoolingContainer}"
     const val composeActivity = "androidx.activity:activity-compose:${Versions.composeActivity}"
     const val composeUiTest = "androidx.compose.ui:ui-test-junit4:${Versions.compose}"
     const val composelifecycle = "androidx.lifecycle:lifecycle-runtime-compose:${Versions.composeLifecycle}"

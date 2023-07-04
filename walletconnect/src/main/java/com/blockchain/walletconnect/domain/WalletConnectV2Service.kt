@@ -41,7 +41,6 @@ interface WalletConnectV2Service {
     suspend fun approveAuthRequest(authSigningPayload: WalletConnectAuthSigningPayload)
     suspend fun rejectAuthRequest(authId: String)
 
-    fun Wallet.Model.PendingAuthRequest.getAuthMessage(issuer: String): String
     suspend fun sessionRequestComplete(
         sessionRequest: Wallet.Model.SessionRequest,
         hashedTxResult: TxResult.HashedTxResult
