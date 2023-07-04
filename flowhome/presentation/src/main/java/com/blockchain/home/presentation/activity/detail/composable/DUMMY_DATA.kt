@@ -6,11 +6,11 @@ import com.blockchain.home.presentation.activity.common.ActivityComponent
 import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.home.presentation.activity.detail.ActivityDetail
 import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
+import com.blockchain.image.LocalLogo
+import com.blockchain.image.LogoValue
+import com.blockchain.image.LogoValueSource
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIcon
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIconSource
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityLocalIcon
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextStyle
@@ -18,9 +18,9 @@ import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextTypo
 
 val DETAIL_DUMMY_DATA: DataResource<ActivityDetail> = DataResource.Data(
     ActivityDetail(
-        icon = ActivityIcon.SmallTag(
-            main = ActivityIconSource.Local(ActivityLocalIcon.Buy),
-            tag = ActivityIconSource.Local(ActivityLocalIcon.Buy)
+        icon = LogoValue.SmallTag(
+            main = LogoValueSource.Local(LocalLogo.Buy),
+            tag = LogoValueSource.Local(LocalLogo.Buy)
         ),
         title = TextValue.StringValue("Swapped BTC -> ETH"),
         subtitle = TextValue.StringValue("some subtitle"),

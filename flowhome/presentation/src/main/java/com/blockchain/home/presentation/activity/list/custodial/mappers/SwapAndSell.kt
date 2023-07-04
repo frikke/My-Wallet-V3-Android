@@ -2,10 +2,9 @@ package com.blockchain.home.presentation.activity.list.custodial.mappers
 
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
-import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView
+import com.blockchain.image.LocalLogo
 import com.blockchain.nabu.datamanagers.CustodialOrderState
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityLocalIcon
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.CurrencyType
@@ -17,10 +16,10 @@ internal fun TradeActivitySummaryItem.isSwapPair(): Boolean = currencyPair.sourc
 internal fun TradeActivitySummaryItem.isSellingPair(): Boolean =
     currencyPair.source.type == CurrencyType.CRYPTO && currencyPair.destination.type == CurrencyType.FIAT
 
-internal fun TradeActivitySummaryItem.iconSummary(): ActivityLocalIcon {
+internal fun TradeActivitySummaryItem.iconSummary(): LocalLogo {
     return when {
-        isSwapPair() -> ActivityLocalIcon.Swap
-        isSellingPair() -> ActivityLocalIcon.Sell
+        isSwapPair() -> LocalLogo.Swap
+        isSellingPair() -> LocalLogo.Sell
         else -> error("unsupported")
     }
 }

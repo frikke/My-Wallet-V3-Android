@@ -15,23 +15,23 @@ import com.blockchain.home.presentation.activity.detail.custodial.CustodialActiv
 import com.blockchain.home.presentation.activity.detail.custodial.PaymentDetails
 import com.blockchain.home.presentation.activity.list.custodial.mappers.basicTitleStyle
 import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
+import com.blockchain.image.LocalLogo
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityLocalIcon
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
 import com.blockchain.utils.abbreviate
 import com.blockchain.utils.toFormattedString
 import java.util.Currency
 import java.util.Locale
 
-internal fun CustodialTradingActivitySummaryItem.iconDetail(): ActivityLocalIcon {
+internal fun CustodialTradingActivitySummaryItem.iconDetail(): LocalLogo {
     return when (type) {
         OrderType.BUY,
-        OrderType.RECURRING_BUY -> ActivityLocalIcon.Buy
+        OrderType.RECURRING_BUY -> LocalLogo.Buy
 
-        OrderType.SELL -> ActivityLocalIcon.Sell
+        OrderType.SELL -> LocalLogo.Sell
     }
 }
 

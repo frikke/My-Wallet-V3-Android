@@ -2,18 +2,17 @@ package com.blockchain.home.presentation.activity.list.custodial.mappers
 
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
-import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView
+import com.blockchain.image.LocalLogo
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityLocalIcon
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.utils.toFormattedDate
 
-internal fun CustodialTransferActivitySummaryItem.iconSummary(): ActivityLocalIcon {
+internal fun CustodialTransferActivitySummaryItem.iconSummary(): LocalLogo {
     return when (type) {
-        TransactionType.DEPOSIT -> ActivityLocalIcon.Receive
-        TransactionType.WITHDRAWAL -> ActivityLocalIcon.Sell
+        TransactionType.DEPOSIT -> LocalLogo.Receive
+        TransactionType.WITHDRAWAL -> LocalLogo.Sell
     }
 }
 

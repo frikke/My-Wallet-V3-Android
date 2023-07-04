@@ -4,25 +4,24 @@ import com.blockchain.coincore.CustodialActiveRewardsActivitySummaryItem
 import com.blockchain.coincore.toStringWithSymbolOrLessThanOnePenny
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.earn.domain.models.EarnRewardsState
-import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityLocalIcon
+import com.blockchain.image.LocalLogo
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.FiatValue
 import info.blockchain.wallet.multiaddress.TransactionSummary
 
-internal fun CustodialActiveRewardsActivitySummaryItem.iconSummary(): ActivityLocalIcon {
+internal fun CustodialActiveRewardsActivitySummaryItem.iconSummary(): LocalLogo {
     return when (state) {
         EarnRewardsState.COMPLETE -> when (type) {
-            TransactionSummary.TransactionType.DEPOSIT -> ActivityLocalIcon.Buy
-            TransactionSummary.TransactionType.INTEREST_EARNED -> ActivityLocalIcon.Reward
-            TransactionSummary.TransactionType.WITHDRAW -> ActivityLocalIcon.Sell
-            TransactionSummary.TransactionType.DEBIT -> ActivityLocalIcon.Sell
-            else -> ActivityLocalIcon.Buy
+            TransactionSummary.TransactionType.DEPOSIT -> LocalLogo.Buy
+            TransactionSummary.TransactionType.INTEREST_EARNED -> LocalLogo.Rewards
+            TransactionSummary.TransactionType.WITHDRAW -> LocalLogo.Sell
+            TransactionSummary.TransactionType.DEBIT -> LocalLogo.Sell
+            else -> LocalLogo.Buy
         }
 
-        else -> ActivityLocalIcon.Reward
+        else -> LocalLogo.Rewards
     }
 }
 

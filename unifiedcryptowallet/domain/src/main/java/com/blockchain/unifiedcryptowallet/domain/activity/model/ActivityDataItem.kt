@@ -1,8 +1,10 @@
 package com.blockchain.unifiedcryptowallet.domain.activity.model
 
+import com.blockchain.image.LogoValue
+
 sealed interface ActivityDataItem {
     data class Stack(
-        val leadingImage: ActivityIcon,
+        val leadingImage: LogoValue,
         val leading: List<StackComponent>,
         val trailing: List<StackComponent>
     ) : ActivityDataItem

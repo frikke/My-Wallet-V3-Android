@@ -11,9 +11,9 @@ import com.blockchain.componentlib.tablerow.custom.MaskedCustomTableRow
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.TextValue
+import com.blockchain.image.LogoValue
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIcon
 
 /**
  * @property id Some components may want to be identified for later interaction
@@ -23,7 +23,7 @@ sealed interface ActivityComponent {
 
     data class StackView(
         override val id: String,
-        val leadingImage: ActivityIcon = ActivityIcon.None,
+        val leadingImage: LogoValue = LogoValue.None,
         val leading: List<ActivityStackView>,
         val trailing: List<ActivityStackView>
     ) : ActivityComponent {

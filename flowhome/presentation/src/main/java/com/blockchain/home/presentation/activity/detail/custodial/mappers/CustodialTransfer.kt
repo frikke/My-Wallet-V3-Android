@@ -11,19 +11,19 @@ import com.blockchain.home.presentation.activity.detail.custodial.CustodialActiv
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtraKey
 import com.blockchain.home.presentation.activity.list.custodial.mappers.basicTitleStyle
 import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
+import com.blockchain.image.LocalLogo
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityLocalIcon
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
 import com.blockchain.utils.abbreviate
 import com.blockchain.utils.toFormattedString
 
-internal fun CustodialTransferActivitySummaryItem.iconDetail(): ActivityLocalIcon {
+internal fun CustodialTransferActivitySummaryItem.iconDetail(): LocalLogo {
     return when (type) {
-        TransactionType.DEPOSIT -> ActivityLocalIcon.Buy
-        TransactionType.WITHDRAWAL -> ActivityLocalIcon.Sell
+        TransactionType.DEPOSIT -> LocalLogo.Buy
+        TransactionType.WITHDRAWAL -> LocalLogo.Sell
     }
 }
 

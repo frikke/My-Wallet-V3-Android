@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -41,14 +40,15 @@ import com.blockchain.componentlib.tablerow.BalanceFiatAndCryptoTableRow
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.utils.LocalLogo
-import com.blockchain.componentlib.utils.LogoValue
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.componentlib.utils.toImageResource
 import com.blockchain.componentlib.utils.value
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.image.LocalLogo
+import com.blockchain.image.LogoValue
+import com.blockchain.image.LogoValueSource
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
@@ -164,26 +164,7 @@ fun AssetAccountsData(
                                     subtitle = account.subtitle?.value(),
                                     valueFiat = account.fiatBalance,
                                     valueCrypto = account.cryptoBalance,
-                                    icon = when (account.logo) {
-                                        is LogoValue.Remote -> {
-                                            StackedIcon.SingleIcon(
-                                                ImageResource.Remote(url = account.logo.value, shape = CircleShape)
-                                            )
-                                        }
-
-                                        is LogoValue.Local -> {
-                                            StackedIcon.SingleIcon(
-                                                account.logo.value.toImageResource()
-                                                    .withTint(Color.White)
-                                                    .withBackground(
-                                                        backgroundSize = AppTheme.dimensions.standardSpacing,
-                                                        backgroundColor = Color(
-                                                            android.graphics.Color.parseColor(account.assetColor)
-                                                        )
-                                                    )
-                                            )
-                                        }
-                                    },
+                                    icon = account.logo.toIcon(account.assetColor),
                                     onClick = {
                                         account.cvAccount.account.let { account ->
                                             if (account is CryptoAccount && account is TradingAccount) {
@@ -208,19 +189,7 @@ fun AssetAccountsData(
                                 ActionTableRow(
                                     title = account.title,
                                     subtitle = account.subtitle.value(),
-                                    icon = when (account.logo) {
-                                        is LogoValue.Remote -> {
-                                            StackedIcon.SingleIcon(
-                                                ImageResource.Remote(url = account.logo.value, shape = CircleShape)
-                                            )
-                                        }
-
-                                        is LogoValue.Local -> {
-                                            StackedIcon.SingleIcon(
-                                                account.logo.value.toImageResource()
-                                            )
-                                        }
-                                    },
+                                    icon = account.logo.toIcon(assetColor = null),
                                     actionIcon = Icons.Filled.Lock,
                                     onClick = { onLockedAccountClick() }
                                 )
@@ -259,6 +228,42 @@ private fun CoinviewAccount.toAccountType() = when {
     else -> CoinViewAnalytics.Companion.AccountType.EXCHANGE_ACCOUNT
 }
 
+@Composable
+private fun LogoValueSource.toImageResource(assetColor: String?): ImageResource = when (this) {
+    is LogoValueSource.Local -> toImageResource().run {
+        assetColor?.let { assetColor ->
+            withTint(Color.White)
+                .withBackground(
+                    backgroundSize = AppTheme.dimensions.standardSpacing,
+                    backgroundColor = Color(
+                        android.graphics.Color.parseColor(assetColor)
+                    )
+                )
+        } ?: this
+    }
+
+    is LogoValueSource.Remote -> toImageResource()
+}
+
+@Composable
+private fun LogoValue.toIcon(assetColor: String?) = when (this) {
+    is LogoValue.SingleIcon -> {
+        StackedIcon.SingleIcon(
+            icon.toImageResource(assetColor)
+        )
+    }
+
+    is LogoValue.SmallTag -> {
+        StackedIcon.SmallTag(
+            main = main.toImageResource(assetColor),
+            tag = tag.toImageResource(assetColor)
+        )
+    }
+
+    is LogoValue.OverlappingPair,
+    LogoValue.None -> error("unsupported atm")
+}
+
 @Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
 fun PreviewAssetAccounts_Error() {
@@ -294,7 +299,7 @@ fun PreviewAssetAccounts_Data() {
                         subtitle = TextValue.StringValue("ETH"),
                         cryptoBalance = "0.90349281 ETH",
                         fiatBalance = "$2,000.00",
-                        logo = LogoValue.Local(LocalLogo.Rewards),
+                        logo = LogoValue.SingleIcon(LocalLogo.Rewards),
                         assetColor = "#324921"
                     ),
                     CoinviewAccountsState.CoinviewAccountState.Available(
@@ -303,14 +308,14 @@ fun PreviewAssetAccounts_Data() {
                         subtitle = TextValue.StringValue("ETH"),
                         cryptoBalance = "0.90349281 ETH",
                         fiatBalance = "$2,000.00",
-                        logo = LogoValue.Local(LocalLogo.Rewards),
+                        logo = LogoValue.SingleIcon(LocalLogo.Rewards),
                         assetColor = "#324921"
                     ),
                     CoinviewAccountsState.CoinviewAccountState.Unavailable(
                         cvAccount = previewCvAccount,
                         title = "Ethereum 2",
                         subtitle = TextValue.StringValue("ETH"),
-                        logo = LogoValue.Local(LocalLogo.Rewards),
+                        logo = LogoValue.SingleIcon(LocalLogo.Rewards),
                     )
                 ),
                 assetName = "Ethereum"
