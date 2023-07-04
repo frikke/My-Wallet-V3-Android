@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.Analytics
@@ -195,7 +194,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         return dialog
     }
 
-    private fun CryptoAccount.l1Network() : CoinViewNetwork? {
+    private fun CryptoAccount.l1Network(): CoinViewNetwork? {
         return (this as? NonCustodialAccount)?.let {
             currency.takeIf { it.isLayer2Token }?.coinNetwork?.let {
                 CoinViewNetwork(
