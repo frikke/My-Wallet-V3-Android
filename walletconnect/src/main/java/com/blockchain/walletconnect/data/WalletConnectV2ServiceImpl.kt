@@ -154,8 +154,12 @@ class WalletConnectV2ServiceImpl(
             lifecycleObservable.onStateUpdated.asFlow().collectLatest { appState ->
                 if (appState == AppState.BACKGROUNDED) {
                     Timber.d("WalletConnect V2: App is in background, disconnecting")
-                    CoreClient.Relay.disconnect { error: Core.Model.Error ->
-                        Timber.e("WalletConnect V2: Disconnect Relay error: $error")
+                    try {
+                        CoreClient.Relay.disconnect { error: Core.Model.Error ->
+                            Timber.e("WalletConnect V2: Disconnect Relay error: $error")
+                        }
+                    } catch (e: Exception) {
+                        Timber.e("WalletConnect V2: Disconnect Relay exception: $e")
                     }
                 }
             }
@@ -166,8 +170,12 @@ class WalletConnectV2ServiceImpl(
         Timber.d("WalletConnect V2: resuming connection")
         scope.launch {
             if (walletConnectV2FeatureFlag.coEnabled()) {
-                CoreClient.Relay.connect { error: Core.Model.Error ->
-                    Timber.e("WalletConnect V2: Connect Relay error: $error")
+                try {
+                    CoreClient.Relay.connect { error: Core.Model.Error ->
+                        Timber.e("WalletConnect V2: Connect Relay error: $error")
+                    }
+                } catch (e: Exception) {
+                    Timber.e("WalletConnect V2: Connect Relay exception: $e")
                 }
             }
         }
