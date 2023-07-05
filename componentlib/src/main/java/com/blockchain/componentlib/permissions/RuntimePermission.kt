@@ -3,6 +3,7 @@ package com.blockchain.componentlib.permissions
 import android.Manifest
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
@@ -10,13 +11,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
-import com.blockchain.componentlib.R
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Bell
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.system.DialogueButton
 import com.blockchain.componentlib.system.DialogueCard
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.preferences.RuntimePermissionsPrefs
+import com.blockchain.stringResources.R
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -28,12 +30,19 @@ import org.koin.androidx.compose.get
 @Immutable
 sealed class RuntimePermission(
     val name: String,
-    val coolOffMillis: Long
+    val coolOffMillis: Long,
+
+    val icon: ImageResource.Local,
+    @StringRes val title: Int,
+    @StringRes val description: Int
 ) {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     object Notification : RuntimePermission(
         name = Manifest.permission.POST_NOTIFICATIONS,
-        coolOffMillis = TimeUnit.DAYS.toMillis(30)
+        coolOffMillis = TimeUnit.DAYS.toMillis(30),
+        icon = Icons.Filled.Bell,
+        title = R.string.permission_notifications_title,
+        description = R.string.permission_notifications_description
     )
 }
 
@@ -85,11 +94,11 @@ fun RuntimePermission(
 
     if (showDialog && !permissionRequested) {
         DialogueCard(
-            icon = Icons.Filled.Bell.withTint(AppColors.primary),
-            title = stringResource(com.blockchain.stringResources.R.string.permission_notifications_title),
-            body = stringResource(com.blockchain.stringResources.R.string.permission_notifications_description),
+            icon = permission.icon.withTint(AppColors.primary),
+            title = stringResource(permission.title),
+            body = stringResource(permission.description),
             firstButton = DialogueButton(
-                text = stringResource(com.blockchain.stringResources.R.string.common_dont_allow),
+                text = stringResource(R.string.common_dont_allow),
                 onClick = {
                     runtimePermissionsPrefs.update(permission)
                     userDeniedPermission = true
@@ -97,7 +106,7 @@ fun RuntimePermission(
                 }
             ),
             secondButton = DialogueButton(
-                text = stringResource(com.blockchain.stringResources.R.string.common_ok),
+                text = stringResource(R.string.common_ok),
                 onClick = {
                     permissionRequested = true
                     permissionState.launchPermissionRequest()
