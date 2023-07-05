@@ -2,7 +2,6 @@ package com.dex.presentation
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,7 +22,6 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.basic.CloseIcon
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.basic.closeImageResource
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
@@ -83,9 +81,11 @@ private fun DexIntroductionScreen(
 ) {
     val pagerState = rememberPagerState()
 
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .background(AppColors.background)) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColors.background)
+    ) {
         HorizontalPager(
             modifier = Modifier.fillMaxSize(),
             count = items.size,
