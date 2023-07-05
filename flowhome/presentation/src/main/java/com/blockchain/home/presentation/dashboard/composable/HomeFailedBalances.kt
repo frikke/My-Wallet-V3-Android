@@ -15,7 +15,7 @@ import kotlinx.collections.immutable.ImmutableList
 internal fun LazyListScope.homeFailedBalances(
     failedNetworkNames: ImmutableList<String>?,
     dismissFailedNetworksWarning: () -> Unit,
-    failedNetworksLearnMore: () -> Unit
+    learnMoreOnClick: () -> Unit
 ) {
     failedNetworkNames?.let {
         paddedItem(
@@ -23,9 +23,9 @@ internal fun LazyListScope.homeFailedBalances(
                 PaddingValues(AppTheme.dimensions.smallSpacing)
             }
         ) {
-            FailedNetworksPartial(
+            FailedBalances(
                 networkNames = it,
-                learnMoreOnClick = failedNetworksLearnMore,
+                learnMoreOnClick = learnMoreOnClick,
                 closeOnClick = dismissFailedNetworksWarning
             )
         }
@@ -33,7 +33,7 @@ internal fun LazyListScope.homeFailedBalances(
 }
 
 @Composable
-private fun FailedNetworksPartial(
+private fun FailedBalances(
     networkNames: ImmutableList<String>,
     learnMoreOnClick: () -> Unit,
     closeOnClick: () -> Unit

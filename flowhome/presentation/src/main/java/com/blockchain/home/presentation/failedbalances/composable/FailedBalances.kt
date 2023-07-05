@@ -121,7 +121,7 @@ private fun FailedBalancesScreen(
 
 @Preview
 @Composable
-private fun PreviewMoreActionsScreen() {
+private fun PreviewFailedBalancesScreen() {
     FailedBalancesScreen(
         networkNames = persistentListOf("Ethereum"),
         dismiss = { }
@@ -130,6 +130,6 @@ private fun PreviewMoreActionsScreen() {
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun PreviewPreviewMoreActionsScreenDark() {
-    PreviewMoreActionsScreen()
+private fun PreviewFailedBalancesScreenDark() {
+    PreviewFailedBalancesScreen()
 }

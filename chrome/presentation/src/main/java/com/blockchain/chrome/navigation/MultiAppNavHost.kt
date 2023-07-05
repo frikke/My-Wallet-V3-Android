@@ -114,9 +114,7 @@ fun MultiAppNavHost(
         ModalBottomSheetLayout(
             modifier = Modifier.background(AppColors.background),
             bottomSheetNavigator = bottomSheetNavigator,
-            sheetShape = AppTheme.shapes.veryLarge.topOnly(),
-            sheetBackgroundColor = AppColors.background,
-            sheetElevation = 20.dp
+            sheetShape = AppTheme.shapes.veryLarge.topOnly()
         ) {
             val popupRoute: String?
 

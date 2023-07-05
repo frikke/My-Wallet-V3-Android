@@ -992,7 +992,7 @@ private fun DefiHomeDashboard(
                 dismissFailedNetworksWarning = {
                     failedBalancesViewModel.onIntent(FailedBalancesIntent.DismissFailedNetworksWarning)
                 },
-                failedNetworksLearnMore = openFailedBalancesInfo
+                learnMoreOnClick = openFailedBalancesInfo
             )
         }
 
