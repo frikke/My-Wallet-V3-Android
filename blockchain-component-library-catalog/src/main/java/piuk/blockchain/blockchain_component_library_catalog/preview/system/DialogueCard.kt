@@ -6,7 +6,6 @@ import com.blockchain.componentlib.system.DialogueButton
 import com.blockchain.componentlib.system.DialogueCard
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import piuk.blockchain.blockchain_component_library_catalog.R
 
 @Preview(name = "DialogueCard Icon + Title", group = "System")
 @Composable

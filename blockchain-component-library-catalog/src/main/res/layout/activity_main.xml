@@ -180,13 +180,6 @@
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/dialogue"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Dialogues"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
             android:id="@+id/progress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
