@@ -1,7 +1,6 @@
 package com.blockchain.chrome.navigation
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect

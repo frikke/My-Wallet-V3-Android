@@ -266,7 +266,7 @@ fun NavigationBar(
                         is NavigationBarButton.IconResource -> {
                             com.blockchain.componentlib.basic.Image(
                                 it.image.run {
-                                    if(this is ImageResource.Local) withTint(AppColors.title)
+                                    if (this is ImageResource.Local) withTint(AppColors.title)
                                     else this
                                 }
                             )

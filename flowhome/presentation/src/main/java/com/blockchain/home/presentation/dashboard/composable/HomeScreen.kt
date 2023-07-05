@@ -806,7 +806,8 @@ private fun DefiHomeDashboard(
     val failedBalancesViewModel: FailedBalancesViewModel = getViewModel(
         viewModelStoreOwner = LocalContext.current as ViewModelStoreOwner, scope = payloadScope
     )
-    val failedBalancesViewState: FailedBalancesViewState by failedBalancesViewModel.viewState.collectAsStateLifecycleAware()
+    val failedBalancesViewState: FailedBalancesViewState by failedBalancesViewModel.viewState
+        .collectAsStateLifecycleAware()
     val homeAssetsViewModel: AssetsViewModel = getViewModel(
         scope = payloadScope, key = WalletMode.NON_CUSTODIAL.name + "assets"
     )
