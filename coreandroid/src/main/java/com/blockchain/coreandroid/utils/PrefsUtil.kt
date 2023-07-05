@@ -1043,7 +1043,7 @@ class PrefsUtil(
         // theme
         private const val CURRENT_THEME = "CURRENT_THEME"
 
-        // theme
+        // permissions
         private const val NOTIFICATION_PERMISSION_LAST_REQUEST = "NOTIFICATION_PERMISSION_LAST_REQUEST"
     }
 

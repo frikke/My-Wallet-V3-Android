@@ -1,6 +1,5 @@
 package com.blockchain.home.presentation.dashboard.composable
 
-import android.Manifest
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues

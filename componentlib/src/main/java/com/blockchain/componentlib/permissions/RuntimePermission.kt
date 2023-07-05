@@ -56,7 +56,6 @@ fun RuntimePermission(
     var userDeniedPermission by remember(permission.name) { mutableStateOf(false) }
     val permissionState = rememberPermissionState(permission.name) { isAccepted ->
         userDeniedPermission = !isAccepted
-        showDialog = false
     }
 
     when {
