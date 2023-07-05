@@ -15,9 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.alert.AlertType
+import com.blockchain.componentlib.alert.CardAlert
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.MaskableText
+import com.blockchain.componentlib.card.CardButton
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.QuestionOff
 import com.blockchain.componentlib.lazylist.paddedItem
@@ -35,54 +38,37 @@ import com.blockchain.home.presentation.allassets.HomeCryptoAsset
 import com.blockchain.home.presentation.allassets.NonCustodialAssetState
 import com.blockchain.home.presentation.allassets.composable.BalanceWithFiatAndCryptoBalance
 import com.blockchain.home.presentation.allassets.composable.BalanceWithPriceChange
+import com.blockchain.stringResources.R
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
-
-@Composable
-fun FundLocksData(
-    total: Money,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .clickable(onClick = onClick),
-        backgroundColor = AppTheme.colors.backgroundSecondary,
-        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-        elevation = 0.dp
-    ) {
-        Row(
-            modifier = Modifier.padding(AppTheme.dimensions.smallSpacing),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(com.blockchain.stringResources.R.string.funds_locked_warning_title),
-                style = AppTheme.typography.paragraph2,
-                color = AppTheme.colors.muted
-            )
-
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
-
-            Image(Icons.QuestionOff.withTint(Grey400).withSize(14.dp))
-
-            Spacer(modifier = Modifier.weight(1F))
-
-            MaskableText(
-                text = total.toStringWithSymbol(),
-                style = AppTheme.typography.paragraph2,
-                color = AppTheme.colors.muted
-            )
-        }
-    }
-}
+import kotlinx.collections.immutable.ImmutableList
 
 internal fun LazyListScope.homeAssets(
     locks: FundsLocks?,
     data: List<HomeAsset>,
+    failedNetworkNames: ImmutableList<String>?,
+    dismissFailedNetworksWarning: () -> Unit = {},
+    failedNetworksLearnMore: () -> Unit = {},
     assetOnClick: (AssetInfo) -> Unit,
     openCryptoAssets: () -> Unit,
     fundsLocksOnClick: (FundsLocks) -> Unit,
     openFiatActionDetail: (String) -> Unit
 ) {
+
+    failedNetworkNames?.let {
+        paddedItem(
+            paddingValues = {
+                PaddingValues(AppTheme.dimensions.smallSpacing)
+            }
+        ) {
+            FailedNetworksPartial(
+                networkNames = it,
+                learnMoreOnClick = failedNetworksLearnMore,
+                closeOnClick = dismissFailedNetworksWarning
+            )
+        }
+    }
+
     paddedItem(
         paddingValues = {
             PaddingValues(
@@ -173,5 +159,70 @@ internal fun LazyListScope.homeAssets(
                 openFiatActionDetail(it.account.currency.networkTicker)
             }
         )
+    }
+}
+
+@Composable
+private fun FailedNetworksPartial(
+    networkNames: ImmutableList<String>,
+    learnMoreOnClick: () -> Unit,
+    closeOnClick: () -> Unit
+) {
+    require(networkNames.isNotEmpty())
+
+    CardAlert(
+        title = stringResource(R.string.balances_failed_title),
+        subtitle = if (networkNames.size == 1) {
+            stringResource(R.string.balances_failed_description_one, networkNames.first())
+        } else {
+            stringResource(
+                R.string.balances_failed_description_many,
+                networkNames.dropLast(1).joinToString(","),
+                networkNames.last()
+            )
+        },
+        alertType = AlertType.Warning,
+        onClose = closeOnClick,
+        primaryCta = CardButton(
+            text = stringResource(R.string.common_learn_more),
+            onClick = learnMoreOnClick
+        )
+    )
+}
+
+@Composable
+private fun FundLocksData(
+    total: Money,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .clickable(onClick = onClick),
+        backgroundColor = AppTheme.colors.backgroundSecondary,
+        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+        elevation = 0.dp
+    ) {
+        Row(
+            modifier = Modifier.padding(AppTheme.dimensions.smallSpacing),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(com.blockchain.stringResources.R.string.funds_locked_warning_title),
+                style = AppTheme.typography.paragraph2,
+                color = AppTheme.colors.muted
+            )
+
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
+
+            Image(Icons.QuestionOff.withTint(Grey400).withSize(14.dp))
+
+            Spacer(modifier = Modifier.weight(1F))
+
+            MaskableText(
+                text = total.toStringWithSymbol(),
+                style = AppTheme.typography.paragraph2,
+                color = AppTheme.colors.muted
+            )
+        }
     }
 }

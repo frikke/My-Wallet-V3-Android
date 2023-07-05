@@ -672,6 +672,7 @@ private fun CustodialHomeDashboard(
                                 homeAssets(
                                     locks = locks,
                                     data = assets,
+                                    failedNetworkNames = null,
                                     openCryptoAssets = { openCryptoAssets(data.size) },
                                     assetOnClick = assetOnClick,
                                     fundsLocksOnClick = fundsLocksOnClick,
@@ -968,10 +969,16 @@ private fun DefiHomeDashboard(
 
         // assets
         val assets = (assetsViewState.assets as? DataResource.Data)?.data
+        val failedNetworkNames = (assetsViewState.failedNetworkNames as? DataResource.Data)?.data
         assets?.takeIf { it.isNotEmpty() }?.let { data ->
             homeAssets(
                 locks = null,
                 data = assets,
+                failedNetworkNames = failedNetworkNames?.toImmutableList(),
+                dismissFailedNetworksWarning = {
+                    homeAssetsViewModel.onIntent(AssetsIntent.DismissFailedNetworksWarning)
+                },
+                failedNetworksLearnMore = {},
                 openCryptoAssets = { openCryptoAssets(data.size) },
                 assetOnClick = assetOnClick,
                 fundsLocksOnClick = {}, // n/a nc

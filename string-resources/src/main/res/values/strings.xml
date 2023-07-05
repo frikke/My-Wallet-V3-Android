@@ -3692,4 +3692,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="permission_notifications_title">Allow Notifications</string>
     <string name="permission_notifications_description">We’ll notify you when big changes happen in the market. We’ll also send you payment and security alerts.</string>
 
+    <string name="balances_failed_title">Failed to load some balances</string>
+    <string name="balances_failed_description_one">We couldn’t load the balances and activity of the %1$s network at this time.</string>
+    <string name="balances_failed_description_many">We couldn’t load the balances and activity of the %1$s and %1$s networks at this time.</string> <!--of the <bitcoin, eth> and <avax>-->
+
 </resources>

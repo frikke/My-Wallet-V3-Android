@@ -16,7 +16,6 @@ import com.blockchain.data.mapData
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.toDataResource
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.unifiedcryptowallet.domain.balances.FailedNetworkState
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkBalance
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalanceNotFoundException
@@ -25,6 +24,7 @@ import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import kotlinx.coroutines.flow.Flow
@@ -43,9 +43,9 @@ internal class UnifiedBalancesRepository(
     private val coincore: Coincore
 ) : UnifiedBalancesService {
 
-    override fun failedNetworks(
+    override fun failedBalancesCurrencies(
         freshnessStrategy: FreshnessStrategy
-    ): Flow<DataResource<FailedNetworkState>> {
+    ): Flow<DataResource<List<Currency>>> {
         val failedNetworksFlow = unifiedBalancesStore.stream(freshnessStrategy)
             .mapData { response -> response.networksStatus.filter { it.hasFailedToLoad } }
 
@@ -62,19 +62,7 @@ internal class UnifiedBalancesRepository(
 
             val activeFailedNetworks = activeAccountTickers.intersect(failedNetworkTickers)
 
-            when {
-                activeFailedNetworks.isEmpty() -> {
-                    FailedNetworkState.None
-                }
-                activeFailedNetworks.size == activeAccountCurrencies.size -> {
-                    FailedNetworkState.All
-                }
-                else -> {
-                    FailedNetworkState.Partial(
-                        activeAccountCurrencies.filter { activeFailedNetworks.contains(it.networkTicker) }
-                    )
-                }
-            }
+            activeAccountCurrencies.filter { activeFailedNetworks.contains(it.networkTicker) }
         }
     }
 

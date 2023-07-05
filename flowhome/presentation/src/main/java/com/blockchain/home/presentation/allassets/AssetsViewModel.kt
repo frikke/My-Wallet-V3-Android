@@ -22,6 +22,7 @@ import com.blockchain.data.filter
 import com.blockchain.data.flatMap
 import com.blockchain.data.getFirstError
 import com.blockchain.data.map
+import com.blockchain.data.mapList
 import com.blockchain.data.updateDataWith
 import com.blockchain.extensions.minus
 import com.blockchain.extensions.replace
@@ -102,7 +103,7 @@ class AssetsViewModel(
                 .toHomeAssets()
                 .allFiatAndSectionCrypto(sectionSize.size)
         },
-        failedNetworks = failedNetworks,
+        failedNetworkNames = failedBalancesCurrencies.takeIf { !dismissFailedNetworksWarning }?.mapList { it.name },
         filters = filters,
         showNoResults = assets.map { assets ->
             assets.none { it.shouldBeFiltered(this) } && assets.isNotEmpty()
@@ -192,6 +193,12 @@ class AssetsViewModel(
                 loadFailedNetworks(walletMode = intent.walletMode, forceRefresh = false)
             }
 
+            AssetsIntent.DismissFailedNetworksWarning -> {
+                updateState {
+                    copy(dismissFailedNetworksWarning = true)
+                }
+            }
+
             is AssetsIntent.LoadFundLocks -> {
                 loadFundsLocks(false)
             }
@@ -267,7 +274,7 @@ class AssetsViewModel(
                 freshnessStrategy = PullToRefresh.freshnessStrategy(shouldGetFresh = forceRefresh)
             ).collectLatest {
                 updateState {
-                    copy(failedNetworks = failedNetworks.updateDataWith(it))
+                    copy(failedBalancesCurrencies = failedBalancesCurrencies.updateDataWith(it))
                 }
             }
         }

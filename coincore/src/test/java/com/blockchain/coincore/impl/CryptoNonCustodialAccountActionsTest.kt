@@ -23,7 +23,6 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.unifiedcryptowallet.domain.balances.FailedNetworkState
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkBalance
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
@@ -36,6 +35,7 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Observable
@@ -57,10 +57,10 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
 
     private val unifiedBalancesService: UnifiedBalancesService = object : UnifiedBalancesService {
 
-        override fun failedNetworks(
+        override fun failedBalancesCurrencies(
             freshnessStrategy: FreshnessStrategy
-        ): Flow<DataResource<FailedNetworkState>> {
-            return flowOf(DataResource.Data(FailedNetworkState.All))
+        ): Flow<DataResource<List<Currency>>> {
+            return flowOf(DataResource.Data(emptyList()))
         }
 
         override fun balances(

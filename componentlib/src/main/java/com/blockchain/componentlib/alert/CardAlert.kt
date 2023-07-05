@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.alert
 
+import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -20,12 +21,12 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.basic.CloseIcon
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.SecondarySmallButton
 import com.blockchain.componentlib.card.CardButton
-import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
 enum class AlertType {
@@ -73,7 +74,7 @@ fun CardAlert(
                     )
                 }
                 if (isDismissable) {
-                    CardCloseButton(onClick = onClose)
+                    CloseIcon(onClick = onClose)
                 }
             }
 
@@ -121,99 +122,73 @@ fun CardAlert(
     }
 }
 
-@Composable
-fun CardCloseButton(
-    onClick: () -> Unit = {}
-) {
-    Box(
-        modifier = Modifier
-            .clickable {
-                onClick.invoke()
-            }
-            .size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
-    ) {
-        Image(
-            imageResource = ImageResource.Local(R.drawable.ic_close_circle),
-            modifier = Modifier.align(Alignment.Center)
-        )
-    }
-}
-
 @Preview
 @Composable
-fun DefaultCardAlert_Basic() {
-    AppTheme {
-        AppSurface {
-            CardAlert(title = "Title", subtitle = "Subtitle")
-        }
-    }
+private fun DefaultCardAlert_Basic() {
+    CardAlert(title = "Title", subtitle = "Subtitle")
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun DefaultCardAlert_BasicDark() {
+    DefaultCardAlert_Basic()
 }
 
 @Preview
 @Composable
 fun SuccessCardAlert_Basic() {
-    AppTheme {
-        AppSurface {
-            CardAlert(title = "Title", subtitle = "Subtitle", alertType = AlertType.Success)
-        }
-    }
+    CardAlert(title = "Title", subtitle = "Subtitle", alertType = AlertType.Success)
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun SuccessCardAlert_BasicDark() {
+    SuccessCardAlert_Basic()
 }
 
 @Preview
 @Composable
 fun SuccessCardAlert_OneButton() {
-    AppTheme {
-        AppSurface {
-            CardAlert(
-                title = "Title",
-                subtitle = "Subtitle",
-                alertType = AlertType.Default,
-                primaryCta = CardButton(
-                    text = "Primary button",
-                    onClick = {}
-                )
-            )
-        }
-    }
+    CardAlert(
+        title = "Title",
+        subtitle = "Subtitle",
+        alertType = AlertType.Default,
+        primaryCta = CardButton(
+            text = "Primary button",
+            onClick = {}
+        )
+    )
 }
 
 @Preview
 @Composable
 fun SuccessCardAlert_TwoButtons() {
-    AppTheme {
-        AppSurface {
-            CardAlert(
-                title = "Title",
-                subtitle = "Subtitle",
-                alertType = AlertType.Success,
-                primaryCta = CardButton(
-                    text = "Primary button",
-                    onClick = {}
-                ),
-                secondaryCta = CardButton(
-                    text = "Secondary button",
-                    onClick = {}
-                )
-            )
-        }
-    }
+    CardAlert(
+        title = "Title",
+        subtitle = "Subtitle",
+        alertType = AlertType.Success,
+        primaryCta = CardButton(
+            text = "Primary button",
+            onClick = {}
+        ),
+        secondaryCta = CardButton(
+            text = "Secondary button",
+            onClick = {}
+        )
+    )
 }
 
 @Preview
 @Composable
 fun SuccessCardAlert_NoTitle() {
-    AppTheme {
-        AppSurface {
-            CardAlert(
-                title = "",
-                subtitle = "Subtitle",
-                alertType = AlertType.Default,
-                primaryCta = CardButton(
-                    text = "Primary button",
-                    onClick = {}
-                ),
-                isDismissable = false
-            )
-        }
-    }
+    CardAlert(
+        title = "",
+        subtitle = "Subtitle",
+        alertType = AlertType.Default,
+        primaryCta = CardButton(
+            text = "Primary button",
+            onClick = {}
+        ),
+        isDismissable = false
+    )
 }
