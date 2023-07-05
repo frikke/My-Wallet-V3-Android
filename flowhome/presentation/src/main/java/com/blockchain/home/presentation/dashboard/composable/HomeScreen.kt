@@ -985,13 +985,15 @@ private fun DefiHomeDashboard(
 
         // failed network balances
         val failedNetworkNames = (failedBalancesViewState.failedNetworkNames as? DataResource.Data)?.data
-        homeFailedBalances(
-            failedNetworkNames = failedNetworkNames?.toImmutableList(),
-            dismissFailedNetworksWarning = {
-                failedBalancesViewModel.onIntent(FailedBalancesIntent.DismissFailedNetworksWarning)
-            },
-            failedNetworksLearnMore = openFailedBalancesInfo
-        )
+        if (!failedBalancesViewState.dismissWarning) {
+            homeFailedBalances(
+                failedNetworkNames = failedNetworkNames?.toImmutableList(),
+                dismissFailedNetworksWarning = {
+                    failedBalancesViewModel.onIntent(FailedBalancesIntent.DismissFailedNetworksWarning)
+                },
+                failedNetworksLearnMore = openFailedBalancesInfo
+            )
+        }
 
         // assets
         val assets = (assetsViewState.assets as? DataResource.Data)?.data
@@ -1002,7 +1004,9 @@ private fun DefiHomeDashboard(
                 openCryptoAssets = { openCryptoAssets(data.size) },
                 assetOnClick = assetOnClick,
                 fundsLocksOnClick = {}, // n/a nc
-                openFiatActionDetail = {} // n/a nc
+                openFiatActionDetail = {}, // n/a nc
+                showWarning = failedNetworkNames?.isNotEmpty() ?: false,
+                warningOnClick = openFailedBalancesInfo
             )
         }
 
@@ -1019,7 +1023,9 @@ private fun DefiHomeDashboard(
             activityState = activityViewState,
             openActivity = openActivity,
             openActivityDetail = openActivityDetail,
-            wMode = WalletMode.NON_CUSTODIAL
+            wMode = WalletMode.NON_CUSTODIAL,
+            showWarning = failedNetworkNames?.isNotEmpty() ?: false,
+            warningOnClick = openFailedBalancesInfo
         )
 
         // news

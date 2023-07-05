@@ -26,7 +26,8 @@ class FailedBalancesViewModel(
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
     override fun FailedBalancesModelState.reduce() = FailedBalancesViewState(
-        failedNetworkNames = failedBalancesCurrencies.takeIf { !dismissFailedNetworksWarning }?.mapList { it.name },
+        failedNetworkNames = failedBalancesCurrencies.mapList { it.name },
+        dismissWarning = dismissFailedNetworksWarning
     )
 
     override suspend fun handleIntent(modelState: FailedBalancesModelState, intent: FailedBalancesIntent) {

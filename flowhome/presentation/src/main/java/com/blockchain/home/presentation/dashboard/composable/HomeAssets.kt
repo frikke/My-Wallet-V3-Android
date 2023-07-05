@@ -18,12 +18,14 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.MaskableText
+import com.blockchain.componentlib.icons.Alert
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.QuestionOff
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
 import com.blockchain.componentlib.tablerow.MaskableBalanceChangeTableRow
 import com.blockchain.componentlib.tablerow.TableRowHeader
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.data.map
@@ -81,7 +83,9 @@ internal fun LazyListScope.homeAssets(
     assetOnClick: (AssetInfo) -> Unit,
     openCryptoAssets: () -> Unit,
     fundsLocksOnClick: (FundsLocks) -> Unit,
-    openFiatActionDetail: (String) -> Unit
+    openFiatActionDetail: (String) -> Unit,
+    showWarning: Boolean = false,
+    warningOnClick: () -> Unit = {}
 ) {
     paddedItem(
         paddingValues = {
@@ -96,6 +100,8 @@ internal fun LazyListScope.homeAssets(
         val showSeeAll = data.filterIsInstance<HomeCryptoAsset>().isNotEmpty()
         TableRowHeader(
             title = stringResource(com.blockchain.stringResources.R.string.ma_home_assets_title),
+            icon = Icons.Filled.Alert.withTint(AppColors.dark).takeIf { showWarning },
+            iconOnClick = warningOnClick,
             actionTitle = stringResource(com.blockchain.stringResources.R.string.see_all).takeIf { showSeeAll },
             actionOnClick = openCryptoAssets.takeIf { showSeeAll }
         )
