@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.chrome.backgroundColors
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.topOnly
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.componentlib.utils.conditional
 import com.blockchain.koin.payloadScope
@@ -99,7 +101,7 @@ private fun ChromeSingleScreen(
             )
             .then(
                 if (walletMode == null || screenType is ScreenType.BottomSheet) {
-                    Modifier.background(AppTheme.colors.backgroundSecondary)
+                    Modifier.background(Color.Unspecified)
                 } else {
                     Modifier.background(
                         brush = Brush.horizontalGradient(
@@ -119,17 +121,13 @@ private fun ChromeSingleScreen(
         )
 
         // content
-        Card(
+        Surface(
             modifier = Modifier
                 .conditional(screenType.shouldFillMaxHeight()) {
                     weight(1F)
                 },
-            backgroundColor = Color(0XFFF1F2F7),
-            shape = RoundedCornerShape(
-                topStart = AppTheme.dimensions.standardSpacing,
-                topEnd = AppTheme.dimensions.standardSpacing
-            ),
-            elevation = 0.dp
+            color = Color.Unspecified,
+            shape = AppTheme.shapes.veryLarge.topOnly()
         ) {
             content()
         }

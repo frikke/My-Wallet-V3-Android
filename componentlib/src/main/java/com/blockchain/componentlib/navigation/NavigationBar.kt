@@ -44,9 +44,11 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icon.CustomStackedIcon
+import com.blockchain.componentlib.icons.ArrowLeft
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.MenuKebabVertical
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.END_DEFI
 import com.blockchain.componentlib.theme.END_TRADING
@@ -105,10 +107,9 @@ fun NavigationBar(
         title = title,
         icon = icon,
         startNavigationBarButton = onBackButtonClick?.let { onClick ->
-            NavigationBarButton.Icon(
-                drawable = R.drawable.ic_nav_bar_back,
-                onIconClick = onClick,
-                contentDescription = com.blockchain.stringResources.R.string.accessibility_back
+            NavigationBarButton.IconResource(
+                Icons.ArrowLeft.withTint(AppColors.title),
+                onIconClick = onClick
             )
         },
         endNavigationBarButtons = navigationBarButtons
@@ -130,10 +131,9 @@ private fun NavigationBar(
         title = title,
         icon = icon,
         startNavigationBarButton = onBackButtonClick?.let { onClick ->
-            NavigationBarButton.Icon(
-                drawable = R.drawable.ic_nav_bar_back,
-                onIconClick = onClick,
-                contentDescription = com.blockchain.stringResources.R.string.accessibility_back
+            NavigationBarButton.IconResource(
+                Icons.ArrowLeft.withTint(AppColors.title),
+                onIconClick = onClick
             )
         },
         endNavigationBarButtons = navigationBarButtons
@@ -264,7 +264,12 @@ fun NavigationBar(
                         }
 
                         is NavigationBarButton.IconResource -> {
-                            com.blockchain.componentlib.basic.Image(imageResource = it.image)
+                            com.blockchain.componentlib.basic.Image(
+                                it.image.run {
+                                    if(this is ImageResource.Local) withTint(AppColors.title)
+                                    else this
+                                }
+                            )
                         }
 
                         is NavigationBarButton.Text -> {

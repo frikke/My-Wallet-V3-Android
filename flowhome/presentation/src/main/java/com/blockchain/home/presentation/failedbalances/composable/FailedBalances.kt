@@ -32,7 +32,6 @@ import com.blockchain.home.presentation.failedbalances.FailedBalancesViewState
 import com.blockchain.koin.payloadScope
 import com.blockchain.stringResources.R
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.immutableListOf
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import org.koin.androidx.compose.getViewModel
@@ -63,13 +62,12 @@ private fun FailedBalancesScreen(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppTheme.colors.background),
+            .background(AppColors.backgroundSecondary),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SheetHeader(
             onClosePress = dismiss,
-            shouldShowDivider = false,
-            backgroundSecondary = false
+            shouldShowDivider = false
         )
 
         Column(
@@ -79,6 +77,8 @@ private fun FailedBalancesScreen(
             ScreenStatusIcon(
                 main = Icons.Network,
                 tag = Icons.AlertOn.withTint(AppColors.warning),
+                iconBackground = AppColors.background,
+                borderColor = AppColors.backgroundSecondary
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))

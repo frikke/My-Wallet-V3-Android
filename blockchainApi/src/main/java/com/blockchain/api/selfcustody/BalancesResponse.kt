@@ -43,4 +43,3 @@ data class NetworkStatus(
     @SerialName("errorLoadingBalances")
     val hasFailedToLoad: Boolean
 )
-

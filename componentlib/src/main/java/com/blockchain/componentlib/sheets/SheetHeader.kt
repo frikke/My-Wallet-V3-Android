@@ -16,7 +16,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,15 +25,11 @@ import com.blockchain.componentlib.basic.AppDivider
 import com.blockchain.componentlib.basic.CloseIcon
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.icons.Close
-import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark200
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.theme.topOnly
-import com.blockchain.componentlib.utils.clickableNoEffect
 
 @Composable
 fun SheetHeader(
@@ -90,7 +85,6 @@ fun SheetHeader(
                         isScreenBackgroundSecondary = backgroundSecondary,
                         onClick = onClosePress
                     )
-
                 }
                 if (shouldShowDivider) {
                     AppDivider()
