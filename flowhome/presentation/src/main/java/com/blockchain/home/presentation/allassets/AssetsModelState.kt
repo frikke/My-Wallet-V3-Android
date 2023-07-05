@@ -9,6 +9,7 @@ import com.blockchain.home.domain.AssetBalance
 import com.blockchain.home.domain.AssetFilter
 import com.blockchain.home.domain.SingleAccountBalance
 import com.blockchain.home.presentation.SectionSize
+import com.blockchain.unifiedcryptowallet.domain.balances.FailedNetworkState
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
@@ -16,6 +17,7 @@ import info.blockchain.balance.total
 
 data class AssetsModelState(
     val accounts: DataResource<List<SingleAccountBalance>> = DataResource.Loading,
+    val failedNetworks: DataResource<FailedNetworkState> = DataResource.Loading,
     val fundsLocks: DataResource<FundsLocks?> = DataResource.Loading,
     val walletMode: WalletMode,
     private val _accountsForMode: MutableMap<WalletMode, DataResource<List<SingleAccountBalance>>> = mutableMapOf(),

@@ -13,6 +13,12 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 
 interface UnifiedBalancesService {
+    fun failedNetworks(
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
+            RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
+        )
+    ): Flow<DataResource<FailedNetworkState>>
+
     fun balances(
         wallet: NetworkWallet? = null,
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
@@ -43,6 +49,12 @@ data class NetworkBalance(
     val totalFiat: Money by lazy {
         exchangeRate.convert(balance)
     }
+}
+
+sealed interface FailedNetworkState {
+    object All : FailedNetworkState
+    data class Partial(val list: List<Currency>): FailedNetworkState
+    object None : FailedNetworkState
 }
 
 class UnifiedBalanceNotFoundException(currency: String, index: Int, name: String) :

@@ -75,6 +75,7 @@ class AssetsViewModel(
     AssetsModelState(walletMode = WalletMode.CUSTODIAL, userFiat = currencyPrefs.selectedFiatCurrency)
 ) {
     private var accountsJob: Job? = null
+    private var failedNetworksJob: Job? = null
     private var fundsLocksJob: Job? = null
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
         updateState {
@@ -101,7 +102,7 @@ class AssetsViewModel(
                 .toHomeAssets()
                 .allFiatAndSectionCrypto(sectionSize.size)
         },
-
+        failedNetworks = failedNetworks,
         filters = filters,
         showNoResults = assets.map { assets ->
             assets.none { it.shouldBeFiltered(this) } && assets.isNotEmpty()
@@ -187,6 +188,10 @@ class AssetsViewModel(
                 loadAccounts(intent.walletMode)
             }
 
+            is AssetsIntent.LoadFailedNetworks -> {
+                loadFailedNetworks(walletMode = intent.walletMode, forceRefresh = false)
+            }
+
             is AssetsIntent.LoadFundLocks -> {
                 loadFundsLocks(false)
             }
@@ -220,6 +225,7 @@ class AssetsViewModel(
                     copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
                 refreshAccounts()
+                loadFailedNetworks(walletMode = modelState.walletMode, forceRefresh = true)
                 if (modelState.walletMode == WalletMode.CUSTODIAL) {
                     loadFundsLocks(true)
                 }
@@ -250,6 +256,20 @@ class AssetsViewModel(
                         copy(fundsLocks = fundsLocks.updateDataWith(dataResource))
                     }
                 }
+        }
+    }
+
+    private fun loadFailedNetworks(walletMode: WalletMode, forceRefresh: Boolean) {
+        failedNetworksJob?.cancel()
+        failedNetworksJob = viewModelScope.launch {
+            homeAccountsService.failedNetworks(
+                walletMode = walletMode,
+                freshnessStrategy = PullToRefresh.freshnessStrategy(shouldGetFresh = forceRefresh)
+            ).collectLatest {
+                updateState {
+                    copy(failedNetworks = failedNetworks.updateDataWith(it))
+                }
+            }
         }
     }
 
@@ -387,7 +407,7 @@ class AssetsViewModel(
             is DataResource.Data -> {
                 val modelAccounts = stateAccounts.data
                 if (modelAccounts.size == accounts.size && modelAccounts.map { it.singleAccount.currency.networkTicker }
-                    .containsAll(
+                        .containsAll(
                             accounts.map { it.currency.networkTicker }
                         )
                 ) {

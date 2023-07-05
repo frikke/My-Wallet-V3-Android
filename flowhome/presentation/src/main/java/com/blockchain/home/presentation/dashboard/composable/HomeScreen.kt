@@ -827,6 +827,7 @@ private fun DefiHomeDashboard(
                         sectionSize = SectionSize.Limited(MAX_ASSET_COUNT)
                     )
                 )
+                homeAssetsViewModel.onIntent(AssetsIntent.LoadFailedNetworks(WalletMode.NON_CUSTODIAL))
                 // dapps
                 homeDappsViewModel.onIntent(HomeDappsIntent.LoadData)
                 // activity

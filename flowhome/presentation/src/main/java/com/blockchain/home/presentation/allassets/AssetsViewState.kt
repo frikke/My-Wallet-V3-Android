@@ -7,12 +7,14 @@ import com.blockchain.data.DataResource
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.home.domain.AssetFilter
 import com.blockchain.presentation.balance.WalletBalance
+import com.blockchain.unifiedcryptowallet.domain.balances.FailedNetworkState
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 
 data class AssetsViewState(
     val balance: WalletBalance,
     val assets: DataResource<List<HomeAsset>>,
+    val failedNetworks: DataResource<FailedNetworkState>,
     val filters: List<AssetFilter>,
     val showNoResults: Boolean,
     val showFilterIcon: Boolean,

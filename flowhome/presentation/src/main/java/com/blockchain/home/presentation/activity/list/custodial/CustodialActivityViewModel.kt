@@ -58,9 +58,7 @@ class CustodialActivityViewModel(
                 activityItems.take(sectionSize.size)
             }
             .map { activityItems ->
-                println("------- dataRes st")
                 val a = activityItems.reduceActivityPage()
-                println("------- dataRes fun")
                 a
             }
             .map { groupedComponents ->
@@ -117,7 +115,6 @@ class CustodialActivityViewModel(
                 activityJob?.cancel()
                 activityJob = viewModelScope.launch(Dispatchers.IO) {
                     loadData(intent.freshnessStrategy).collectLatest { dataRes ->
-                        println("------- dataRes $dataRes")
                         updateState {
                             copy(activityItems = activityItems.updateDataWith(dataRes))
                         }

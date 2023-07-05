@@ -23,6 +23,7 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.unifiedcryptowallet.domain.balances.FailedNetworkState
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkBalance
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
@@ -55,6 +56,12 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
     private val custodialManager: CustodialWalletManager = mock()
 
     private val unifiedBalancesService: UnifiedBalancesService = object : UnifiedBalancesService {
+
+        override fun failedNetworks(
+            freshnessStrategy: FreshnessStrategy
+        ): Flow<DataResource<FailedNetworkState>> {
+            return flowOf(DataResource.Data(FailedNetworkState.All))
+        }
 
         override fun balances(
             wallet: NetworkWallet?,
