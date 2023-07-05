@@ -1,5 +1,7 @@
 package com.dex.presentation
 
+import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,10 +18,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.analytics.Analytics
+import com.blockchain.componentlib.basic.CloseIcon
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.basic.closeImageResource
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.dex.presentation.R
@@ -30,9 +36,32 @@ import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
 import org.koin.androidx.compose.get
 
-@OptIn(ExperimentalPagerApi::class)
+private data class DexIntroItem(
+    val icon: Int,
+    val title: Int,
+    val subtitle: Int
+)
+
+private val items = listOf(
+    DexIntroItem(
+        icon = R.drawable.ic_dex_intro_0,
+        title = com.blockchain.stringResources.R.string.welcome_to_dex,
+        subtitle = com.blockchain.stringResources.R.string.welcome_to_dex_subtitle
+    ),
+    DexIntroItem(
+        icon = R.drawable.ic_dex_intro_1,
+        title = com.blockchain.stringResources.R.string.swap_1000_tokens,
+        subtitle = com.blockchain.stringResources.R.string.swap_1000_tokens_subtitle
+    ),
+    DexIntroItem(
+        icon = R.drawable.ic_dex_intro_2,
+        title = com.blockchain.stringResources.R.string.keep_control_of_funds,
+        subtitle = com.blockchain.stringResources.R.string.keep_control_of_funds_subtitle
+    )
+)
+
 @Composable
-fun DexIntroductionScreens(
+fun DexIntroduction(
     close: () -> Unit,
     dexIntroPrefs: DexPrefs = get(),
     analytics: Analytics = get(),
@@ -42,42 +71,35 @@ fun DexIntroductionScreens(
         analytics.logEvent(DexAnalyticsEvents.OnboardingViewed)
     }
 
+    DexIntroductionScreen(
+        close = close
+    )
+}
+
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+private fun DexIntroductionScreen(
+    close: () -> Unit,
+) {
     val pagerState = rememberPagerState()
-    val items =
-        listOf(
-            DexIntroItem(
-                icon = R.drawable.ic_dex_intro_0,
-                title = com.blockchain.stringResources.R.string.welcome_to_dex,
-                subtitle = com.blockchain.stringResources.R.string.welcome_to_dex_subtitle
-            ),
-            DexIntroItem(
-                icon = R.drawable.ic_dex_intro_1,
-                title = com.blockchain.stringResources.R.string.swap_1000_tokens,
-                subtitle = com.blockchain.stringResources.R.string.swap_1000_tokens_subtitle
-            ),
-            DexIntroItem(
-                icon = R.drawable.ic_dex_intro_2,
-                title = com.blockchain.stringResources.R.string.keep_control_of_funds,
-                subtitle = com.blockchain.stringResources.R.string.keep_control_of_funds_subtitle
-            )
-        )
-    Box(modifier = Modifier.fillMaxSize()) {
+
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(AppColors.background)) {
         HorizontalPager(
             modifier = Modifier.fillMaxSize(),
             count = items.size,
             state = pagerState
         ) { pageIndex ->
-            DexIntroductionScreen(items[pageIndex])
+            DexIntroductionPage(items[pageIndex])
         }
 
-        Image(
+        CloseIcon(
             modifier = Modifier
-                .clickable {
-                    close()
-                }
                 .align(Alignment.TopEnd)
                 .padding(AppTheme.dimensions.standardSpacing),
-            imageResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_close_circle)
+            isScreenBackgroundSecondary = false,
+            onClick = close
         )
 
         Column(
@@ -105,7 +127,7 @@ fun DexIntroductionScreens(
 }
 
 @Composable
-private fun DexIntroductionScreen(item: DexIntroItem) {
+private fun DexIntroductionPage(item: DexIntroItem) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -151,8 +173,16 @@ private fun DexIntroductionScreen(item: DexIntroItem) {
     }
 }
 
-private data class DexIntroItem(
-    val icon: Int,
-    val title: Int,
-    val subtitle: Int
-)
+@Preview
+@Composable
+private fun PreviewDexIntroductionScreen() {
+    DexIntroductionScreen(
+        close = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewDexIntroductionScreenDark() {
+    PreviewDexIntroductionScreen()
+}

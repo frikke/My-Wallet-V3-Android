@@ -11,7 +11,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.commonarch.presentation.mvi_v2.compose.getComposeArgument
 import com.blockchain.commonarch.presentation.mvi_v2.compose.wrappedArg
-import com.dex.presentation.DexIntroductionScreens
+import com.dex.presentation.DexIntroduction
 import com.dex.presentation.NoNetworkFundsBottomSheet
 import com.dex.presentation.SelectDestinationAccountBottomSheet
 import com.dex.presentation.SelectSourceAccountBottomSheet
@@ -30,7 +30,7 @@ import kotlinx.serialization.json.Json
 fun NavGraphBuilder.dexGraph(onBackPressed: () -> Unit, navController: NavController) {
     composable(navigationEvent = DexDestination.Intro) {
         ChromeSingleScreen {
-            DexIntroductionScreens(close = onBackPressed)
+            DexIntroduction(close = onBackPressed)
         }
     }
 
