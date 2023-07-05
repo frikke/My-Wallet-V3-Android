@@ -14,6 +14,7 @@ import androidx.compose.material.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -199,7 +200,7 @@ fun StakingSummarySheet(
                     val unlockTime = withdrawalTimestamp + timeBetweenWithdrawals
 
                     val timeUntilUnlock = remember {
-                        mutableStateOf(unlockTime - System.currentTimeMillis())
+                        mutableLongStateOf(unlockTime - System.currentTimeMillis())
                     }
 
                     LaunchedEffect(Unit) {
@@ -207,14 +208,14 @@ fun StakingSummarySheet(
                         while (true) {
                             delay(1000L)
                             val newTimeUntilUnlock = unlockTime - System.currentTimeMillis()
-                            if (newTimeUntilUnlock != timeUntilUnlock.value) {
-                                timeUntilUnlock.value = newTimeUntilUnlock
+                            if (newTimeUntilUnlock != timeUntilUnlock.longValue) {
+                                timeUntilUnlock.longValue = newTimeUntilUnlock
                             }
                         }
                     }
 
-                    if (timeUntilUnlock.value > 0) {
-                        val progress = (timeUntilUnlock.value.toFloat() / timeBetweenWithdrawals.toFloat())
+                    if (timeUntilUnlock.longValue > 0) {
+                        val progress = (timeUntilUnlock.longValue.toFloat() / timeBetweenWithdrawals.toFloat())
                             .coerceIn(0f, 1f)
                         CircularProgressBarWithSmallText(
                             progress = progress,
@@ -222,7 +223,7 @@ fun StakingSummarySheet(
                                 id =
                                 com.blockchain.stringResources.R
                                     .string.earn_staking_withdrawal_locked_countdown_message,
-                                formatDuration(timeUntilUnlock.value)
+                                formatDuration(timeUntilUnlock.longValue)
                             )
                         )
                         SmallVerticalSpacer()
