@@ -21,7 +21,6 @@ import com.blockchain.earn.domain.models.staking.StakingAccountBalance
 import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -53,7 +52,6 @@ class EarnDashboardViewModel(
     private val custodialWalletManager: CustodialWalletManager,
     private val walletStatusPrefs: WalletStatusPrefs,
     private val currencyPrefs: CurrencyPrefs,
-    private val activeRewardsFeatureFlag: FeatureFlag
 ) : MviViewModel<
     EarnDashboardIntent,
     EarnDashboardViewState,
@@ -595,8 +593,6 @@ class EarnDashboardViewModel(
         this.sortedByDescending { it.balanceFiat }
 
     private suspend fun loadEarn() {
-        val activeRewardsEnabled = activeRewardsFeatureFlag.coEnabled()
-
         updateState {
             copy(
                 isLoading = true,
@@ -604,12 +600,9 @@ class EarnDashboardViewModel(
                 filterList = listOf(
                     EarnDashboardListFilter.All,
                     EarnDashboardListFilter.Interest,
-                    EarnDashboardListFilter.Staking
-                ) + if (activeRewardsEnabled) {
-                    listOf(EarnDashboardListFilter.Active)
-                } else {
-                    emptyList()
-                }
+                    EarnDashboardListFilter.Staking,
+                    EarnDashboardListFilter.Active
+                )
             )
         }
 
@@ -682,50 +675,38 @@ class EarnDashboardViewModel(
             }
 
         val activeRewardsBalanceWithFiatFlow =
-            if (activeRewardsFeatureFlag.coEnabled()) {
-                activeRewardsService.getBalanceForAllAssets(
-                    FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
-                ).flatMapData { balancesMap ->
-                    if (balancesMap.isEmpty()) {
-                        return@flatMapData flowOf(DataResource.Data(emptyMap()))
+            activeRewardsService.getBalanceForAllAssets(
+                FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
+            ).flatMapData { balancesMap ->
+                if (balancesMap.isEmpty()) {
+                    return@flatMapData flowOf(DataResource.Data(emptyMap()))
+                }
+                val balancesWithFiatRates = balancesMap.map { (asset, balances) ->
+                    exchangeRatesDataManager.exchangeRateToUserFiatFlow(
+                        fromAsset = asset
+                    ).mapData { exchangeRate ->
+                        ActiveRewardsBalancesWithFiat(
+                            asset,
+                            balances,
+                            exchangeRate.convert(balances.totalBalance)
+                        )
                     }
-                    val balancesWithFiatRates = balancesMap.map { (asset, balances) ->
-                        exchangeRatesDataManager.exchangeRateToUserFiatFlow(
-                            fromAsset = asset
-                        ).mapData { exchangeRate ->
-                            ActiveRewardsBalancesWithFiat(
-                                asset,
-                                balances,
-                                exchangeRate.convert(balances.totalBalance)
-                            )
-                        }
-                    }
+                }
 
-                    combine(balancesWithFiatRates) { balancesResource ->
-                        combineDataResources(balancesResource.toList()) { balancesList ->
-                            balancesList.associateBy { balanceWithFiat ->
-                                balanceWithFiat.asset
-                            }
+                combine(balancesWithFiatRates) { balancesResource ->
+                    combineDataResources(balancesResource.toList()) { balancesList ->
+                        balancesList.associateBy { balanceWithFiat ->
+                            balanceWithFiat.asset
                         }
                     }
                 }
-            } else {
-                flowOf(DataResource.Data(emptyMap()))
             }
 
         val activeRewardsEligibilityFlow =
-            if (activeRewardsFeatureFlag.coEnabled()) {
-                activeRewardsService.getEligibilityForAssets(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
-            } else {
-                flowOf(DataResource.Data(emptyMap()))
-            }
+            activeRewardsService.getEligibilityForAssets(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
 
         val activeRewardsRatesFlow =
-            if (activeRewardsFeatureFlag.coEnabled()) {
-                activeRewardsService.getRatesForAllAssets(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
-            } else {
-                flowOf(DataResource.Data(emptyMap()))
-            }
+            activeRewardsService.getRatesForAllAssets(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
 
         combine(
             stakingBalanceWithFiatFlow,

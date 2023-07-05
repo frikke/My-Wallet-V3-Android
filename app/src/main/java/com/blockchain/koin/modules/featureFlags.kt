@@ -4,7 +4,6 @@ import com.blockchain.core.featureflag.CassyAlphaTesterUserTagFeatureFlag
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.activeRewardsAccountFeatureFlag
 import com.blockchain.koin.activeRewardsWithdrawalsFeatureFlag
 import com.blockchain.koin.assetOrderingFeatureFlag
 import com.blockchain.koin.bindFeatureFlag
@@ -12,7 +11,6 @@ import com.blockchain.koin.blockchainMembershipsFeatureFlag
 import com.blockchain.koin.buyIntercomBotFeatureFlag
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.cardPaymentAsyncFeatureFlag
-import com.blockchain.koin.cowboysPromoFeatureFlag
 import com.blockchain.koin.darkModeFeatureFlag
 import com.blockchain.koin.dexFeatureFlag
 import com.blockchain.koin.dynamicEthHotWalletAddressFeatureFlag
@@ -135,15 +133,6 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
-    single(cowboysPromoFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_cowboys_promo",
-                "Enable Cowboys promotion"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
     single(cardPaymentAsyncFeatureFlag) {
         CassyAlphaTesterUserTagFeatureFlag(
             IntegratedFeatureFlag(
@@ -189,15 +178,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_recurring_buy_frequency_experiment",
                 "Recurring Buy Experiment"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(activeRewardsAccountFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_active_rewards_account",
-                "Enable Active Rewards Account"
             )
         )
     }.bind(FeatureFlag::class)

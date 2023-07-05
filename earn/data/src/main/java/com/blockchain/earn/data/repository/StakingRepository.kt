@@ -12,6 +12,7 @@ import com.blockchain.data.filterNotLoading
 import com.blockchain.data.flatMapData
 import com.blockchain.data.getDataOrThrow
 import com.blockchain.data.mapData
+import com.blockchain.data.onErrorReturn
 import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.data.dataresources.staking.StakingBalanceStore
 import com.blockchain.earn.data.dataresources.staking.StakingEligibilityStore
@@ -42,8 +43,6 @@ import io.reactivex.rxjava3.core.Single
 import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.rxSingle
@@ -95,19 +94,13 @@ class StakingRepository(
         }
 
     override fun getActiveAssets(refreshStrategy: FreshnessStrategy): Flow<Set<AssetInfo>> =
-        flow {
-            emitAll(
-                stakingBalanceStore.stream(refreshStrategy)
-                    .getDataOrThrow().map {
-                        it.keys.map { assetTicker ->
-                            assetCatalogue.fromNetworkTicker(assetTicker) as? AssetInfo
-                                ?: throw IllegalStateException(
-                                    "Failed mapping unknown asset $assetTicker for Staking"
-                                )
-                        }.toSet()
-                    }
-            )
-        }
+        stakingBalanceStore.stream(refreshStrategy).filterNotLoading().mapData {
+            it.keys.mapNotNull { assetTicker ->
+                assetCatalogue.fromNetworkTicker(assetTicker) as? AssetInfo
+            }.toSet()
+        }.onErrorReturn {
+            emptySet()
+        }.getDataOrThrow()
 
     override fun getBalanceForAsset(
         currency: Currency,

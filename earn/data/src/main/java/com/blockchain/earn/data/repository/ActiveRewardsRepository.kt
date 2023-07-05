@@ -26,7 +26,6 @@ import com.blockchain.earn.domain.models.EarnRewardsFrequency.Companion.toReward
 import com.blockchain.earn.domain.models.active.ActiveRewardsAccountBalance
 import com.blockchain.earn.domain.models.active.ActiveRewardsLimits
 import com.blockchain.earn.domain.service.ActiveRewardsService
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
 import com.blockchain.preferences.CurrencyPrefs
@@ -49,7 +48,6 @@ class ActiveRewardsRepository(
     private val activeRewardsEligibilityStore: ActiveRewardsEligibilityStore,
     private val activeRewardsBalanceStore: ActiveRewardsBalanceStore,
     private val assetCatalogue: AssetCatalogue,
-    private val activeRewardsFeatureFlag: FeatureFlag,
     private val paymentTransactionHistoryStore: PaymentTransactionHistoryStore,
     private val activeRewardsLimitsStore: ActiveRewardsLimitsStore,
     private val currencyPrefs: CurrencyPrefs,

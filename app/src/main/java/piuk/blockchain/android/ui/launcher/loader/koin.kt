@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.launcher.loader
 
-import com.blockchain.koin.cowboysPromoFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -38,7 +37,6 @@ val loaderModule = module {
                 deepLinkPersistence = get(),
                 referralService = get(),
                 fiatCurrenciesService = get(),
-                cowboysPromoFeatureFlag = get(cowboysPromoFeatureFlag),
                 cowboysPrefs = get(),
                 userIdentity = get(),
                 kycService = get(),

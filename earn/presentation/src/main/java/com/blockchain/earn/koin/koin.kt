@@ -4,7 +4,6 @@ import com.blockchain.earn.activeRewards.viewmodel.ActiveRewardsSummaryViewModel
 import com.blockchain.earn.dashboard.viewmodel.EarnDashboardViewModel
 import com.blockchain.earn.interest.viewmodel.InterestSummaryViewModel
 import com.blockchain.earn.staking.viewmodel.StakingSummaryViewModel
-import com.blockchain.koin.activeRewardsAccountFeatureFlag
 import com.blockchain.koin.activeRewardsWithdrawalsFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.stakingWithdrawalsFeatureFlag
@@ -52,7 +51,6 @@ val earnPresentationModule = module {
                 assetCatalogue = get(),
                 custodialWalletManager = get(),
                 walletStatusPrefs = get(),
-                activeRewardsFeatureFlag = get(activeRewardsAccountFeatureFlag),
                 currencyPrefs = get()
             )
         }

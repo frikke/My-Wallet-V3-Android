@@ -26,8 +26,6 @@ import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.activeRewardsAccountFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.Logger
 import com.blockchain.logging.RemoteLogger
@@ -71,7 +69,6 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     private val kycService: KycService by scopedInject()
     private val stakingService: StakingService by scopedInject()
     private val activeRewardsService: ActiveRewardsService by scopedInject()
-    private val activeRewardsEnabledFlag: FeatureFlag by inject(activeRewardsAccountFeatureFlag)
     private val activeAccounts: ActiveAccountList by unsafeLazy {
         ActiveAccountList()
     }
@@ -250,34 +247,29 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             return Single.just(emptyList())
         }
 
-        return activeRewardsEnabledFlag.enabled.flatMap {
-            if (!it) {
-                return@flatMap Single.just(emptyList())
-            }
-            custodialAccountsAccess.flatMap { hasCustodialAccess ->
-                if (!hasCustodialAccess) {
-                    Single.just(emptyList())
-                } else
-                    activeRewardsService.getAvailabilityForAsset(currency).onErrorReturn { false }.asSingle()
-                        .map { avaialble ->
-                            if (avaialble) {
-                                listOf(
-                                    CustodialActiveRewardsAccount(
-                                        currency = currency,
-                                        label = labels.getDefaultActiveRewardsWalletLabel(),
-                                        activeRewardsService = activeRewardsService,
-                                        exchangeRates = exchangeRates,
-                                        internalAccountLabel = labels.getDefaultTradingWalletLabel(),
-                                        identity = identity,
-                                        kycService = kycService,
-                                        custodialWalletManager = custodialManager
-                                    )
+        return custodialAccountsAccess.flatMap { hasCustodialAccess ->
+            if (!hasCustodialAccess) {
+                Single.just(emptyList())
+            } else
+                activeRewardsService.getAvailabilityForAsset(currency).onErrorReturn { false }.asSingle()
+                    .map { avaialble ->
+                        if (avaialble) {
+                            listOf(
+                                CustodialActiveRewardsAccount(
+                                    currency = currency,
+                                    label = labels.getDefaultActiveRewardsWalletLabel(),
+                                    activeRewardsService = activeRewardsService,
+                                    exchangeRates = exchangeRates,
+                                    internalAccountLabel = labels.getDefaultTradingWalletLabel(),
+                                    identity = identity,
+                                    kycService = kycService,
+                                    custodialWalletManager = custodialManager
                                 )
-                            } else {
-                                emptyList()
-                            }
+                            )
+                        } else {
+                            emptyList()
                         }
-            }
+                    }
         }
     }
 

@@ -24,7 +24,6 @@ import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.extensions.minus
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.presentation.pulltorefresh.PullToRefresh
 import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.walletmode.WalletMode
@@ -39,7 +38,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -54,7 +52,6 @@ class EarnViewModel(
     private val coincore: Coincore,
     private val exchangeRates: ExchangeRatesDataManager,
     private val walletModeService: WalletModeService,
-    private val activeRewardsFeatureFlag: FeatureFlag
 ) :
     MviViewModel<
         EarnIntent,
@@ -249,7 +246,7 @@ class EarnViewModel(
                 }
             }
 
-        val activeRewards = if (activeRewardsFeatureFlag.coEnabled()) {
+        val activeRewards =
             activeRewardsService.getBalanceForAllAssets(
                 refreshStrategy =
                 FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
@@ -290,13 +287,6 @@ class EarnViewModel(
                     }
                 }
             }
-        } else {
-            flow {
-                updateState {
-                    copy(activeRewardsAssets = DataResource.Data(emptySet()))
-                }
-            }
-        }
 
         val interestRates = interestService.getAllInterestRates().doOnData { rates ->
             updateState {
@@ -314,7 +304,7 @@ class EarnViewModel(
             }
         }
 
-        val activeRewardsRates = if (activeRewardsFeatureFlag.coEnabled()) {
+        val activeRewardsRates =
             activeRewardsService.getRatesForAllAssets(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
                 .doOnData { rates ->
                     updateState {
@@ -323,15 +313,6 @@ class EarnViewModel(
                         )
                     }
                 }
-        } else {
-            flow {
-                updateState {
-                    copy(
-                        activeRewardsRates = emptyMap()
-                    )
-                }
-            }
-        }
 
         merge(
             staking,

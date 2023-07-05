@@ -6,7 +6,6 @@ import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.coincore.Coincore
 import com.blockchain.core.experiments.cache.ExperimentsStore
 import com.blockchain.core.kyc.domain.KycService
-import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.core.user.NabuUserDataManager
@@ -14,7 +13,6 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.referral.ReferralService
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.preferences.CowboysPrefs
@@ -58,7 +56,6 @@ class LoaderInteractor(
     private val ioScheduler: Scheduler,
     private val referralService: ReferralService,
     private val fiatCurrenciesService: FiatCurrenciesService,
-    private val cowboysPromoFeatureFlag: FeatureFlag,
     private val cowboysPrefs: CowboysPrefs,
     private val userIdentity: UserIdentity,
     private val coincore: Coincore,
@@ -121,9 +118,6 @@ class LoaderInteractor(
                 rxCompletable { invalidateExperiments() }
             }
             .then {
-                checkForCowboysUser()
-            }
-            .then {
                 WalletMode.values().map {
                     coincore.activeWalletsInModeRx(
                         walletMode = it,
@@ -163,24 +157,6 @@ class LoaderInteractor(
         ) {}.ignoreElement().onErrorComplete()
 
     private fun invalidateExperiments() = experimentsStore.markAsStale()
-
-    private fun checkForCowboysUser() = Single.zip(
-        userIdentity.isCowboysUser(),
-        kycService.getHighestApprovedTierLevelLegacy(),
-        cowboysPromoFeatureFlag.enabled
-    ) { isCowboysUser, highestTier, isCowboysFlagEnabled ->
-        if (isCowboysFlagEnabled && isCowboysUser) {
-            // reset flag on login
-            cowboysPrefs.hasCowboysReferralBeenDismissed = false
-
-            if (highestTier == KycTier.BRONZE && !cowboysPrefs.hasSeenCowboysFlow) {
-                cowboysPrefs.hasSeenCowboysFlow = true
-                emitter.onNext(
-                    LoaderIntents.UpdateCowboysPromo(isCowboysPromoUser = true)
-                )
-            }
-        }
-    }.ignoreElement()
 
     private fun syncFiatCurrencies(settings: Settings): Completable {
         val syncDisplayCurrency = when {

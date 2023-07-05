@@ -151,7 +151,7 @@ class NonCustodialBitcoinService internal constructor(
         ).onErrorResumeNext { e ->
             when {
                 e is HttpException && e.code() == HttpStatus.INTERNAL_SERVER_ERROR -> Single.just(UnspentOutputsDto())
-                else -> Single.error(ApiException(e))
+                else -> Single.error(ApiException(cause = e, message = ""))
             }
         }
     }
