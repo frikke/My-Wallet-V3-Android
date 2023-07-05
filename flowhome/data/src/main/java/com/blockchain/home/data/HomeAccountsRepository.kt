@@ -10,10 +10,8 @@ import com.blockchain.data.onErrorReturn
 import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.blockchain.walletmode.WalletMode
-import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.await
 
@@ -21,19 +19,6 @@ class HomeAccountsRepository(
     private val coincore: Coincore,
     private val unifiedBalancesService: UnifiedBalancesService
 ) : HomeAccountsService {
-
-    override fun failedNetworks(
-        walletMode: WalletMode,
-        freshnessStrategy: FreshnessStrategy
-    ): Flow<DataResource<List<Currency>>> {
-        return when (walletMode) {
-            WalletMode.CUSTODIAL -> flowOf(DataResource.Data(emptyList()))
-            WalletMode.NON_CUSTODIAL -> unifiedBalancesService.failedBalancesCurrencies(
-                freshnessStrategy = freshnessStrategy
-            )
-        }
-    }
-
     override fun accounts(
         walletMode: WalletMode,
         freshnessStrategy: FreshnessStrategy

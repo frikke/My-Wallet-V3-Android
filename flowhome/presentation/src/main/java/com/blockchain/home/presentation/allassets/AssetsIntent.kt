@@ -13,12 +13,6 @@ sealed interface AssetsIntent : Intent<AssetsModelState> {
         val sectionSize: SectionSize
     ) : AssetsIntent
 
-    data class LoadFailedNetworks(
-        val walletMode: WalletMode
-    ) : AssetsIntent
-
-    object DismissFailedNetworksWarning : AssetsIntent
-
     object LoadFundLocks : AssetsIntent {
         override fun isValidFor(modelState: AssetsModelState): Boolean {
             return modelState.fundsLocks !is DataResource.Data &&

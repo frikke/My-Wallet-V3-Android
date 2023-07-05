@@ -22,7 +22,6 @@ import com.blockchain.data.filter
 import com.blockchain.data.flatMap
 import com.blockchain.data.getFirstError
 import com.blockchain.data.map
-import com.blockchain.data.mapList
 import com.blockchain.data.updateDataWith
 import com.blockchain.extensions.minus
 import com.blockchain.extensions.replace
@@ -76,7 +75,6 @@ class AssetsViewModel(
     AssetsModelState(walletMode = WalletMode.CUSTODIAL, userFiat = currencyPrefs.selectedFiatCurrency)
 ) {
     private var accountsJob: Job? = null
-    private var failedNetworksJob: Job? = null
     private var fundsLocksJob: Job? = null
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
         updateState {
@@ -103,7 +101,6 @@ class AssetsViewModel(
                 .toHomeAssets()
                 .allFiatAndSectionCrypto(sectionSize.size)
         },
-        failedNetworkNames = failedBalancesCurrencies.takeIf { !dismissFailedNetworksWarning }?.mapList { it.name },
         filters = filters,
         showNoResults = assets.map { assets ->
             assets.none { it.shouldBeFiltered(this) } && assets.isNotEmpty()
@@ -189,16 +186,6 @@ class AssetsViewModel(
                 loadAccounts(intent.walletMode)
             }
 
-            is AssetsIntent.LoadFailedNetworks -> {
-                loadFailedNetworks(walletMode = intent.walletMode, forceRefresh = false)
-            }
-
-            AssetsIntent.DismissFailedNetworksWarning -> {
-                updateState {
-                    copy(dismissFailedNetworksWarning = true)
-                }
-            }
-
             is AssetsIntent.LoadFundLocks -> {
                 loadFundsLocks(false)
             }
@@ -232,7 +219,6 @@ class AssetsViewModel(
                     copy(lastFreshDataTime = CurrentTimeProvider.currentTimeMillis())
                 }
                 refreshAccounts()
-                loadFailedNetworks(walletMode = modelState.walletMode, forceRefresh = true)
                 if (modelState.walletMode == WalletMode.CUSTODIAL) {
                     loadFundsLocks(true)
                 }
@@ -263,20 +249,6 @@ class AssetsViewModel(
                         copy(fundsLocks = fundsLocks.updateDataWith(dataResource))
                     }
                 }
-        }
-    }
-
-    private fun loadFailedNetworks(walletMode: WalletMode, forceRefresh: Boolean) {
-        failedNetworksJob?.cancel()
-        failedNetworksJob = viewModelScope.launch {
-            homeAccountsService.failedNetworks(
-                walletMode = walletMode,
-                freshnessStrategy = PullToRefresh.freshnessStrategy(shouldGetFresh = forceRefresh)
-            ).collectLatest {
-                updateState {
-                    copy(failedBalancesCurrencies = failedBalancesCurrencies.updateDataWith(it))
-                }
-            }
         }
     }
 

@@ -13,7 +13,6 @@ import info.blockchain.balance.Money
 data class AssetsViewState(
     val balance: WalletBalance,
     val assets: DataResource<List<HomeAsset>>,
-    val failedNetworkNames: DataResource<List<String>>?,
     val filters: List<AssetFilter>,
     val showNoResults: Boolean,
     val showFilterIcon: Boolean,
