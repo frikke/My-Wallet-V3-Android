@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.AppDivider
+import com.blockchain.componentlib.basic.CloseIcon
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Close
@@ -43,11 +44,11 @@ fun SheetHeader(
     startImageResource: ImageResource = ImageResource.None,
     onClosePress: () -> Unit,
     shouldShowDivider: Boolean = true,
-    background: Color = AppColors.backgroundSecondary
+    backgroundSecondary: Boolean = true
 ) {
 
     Surface(
-        color = background,
+        color = if (backgroundSecondary) AppColors.backgroundSecondary else AppColors.background,
         shape = AppTheme.shapes.large.topOnly()
     ) {
         Box {
@@ -81,22 +82,15 @@ fun SheetHeader(
                             )
                     )
 
-                    Box(
+                    CloseIcon(
                         modifier = Modifier.padding(
                             top = AppTheme.dimensions.mediumSpacing,
                             end = AppTheme.dimensions.smallSpacing
-                        )
-                    ) {
-                        Image(
-                            modifier = Modifier
-                                .clickableNoEffect { onClosePress() },
-                            imageResource = Icons.Close.withTint(AppColors.muted)
-                                .withBackground(
-                                    backgroundColor = AppColors.light,
-                                    backgroundSize = AppTheme.dimensions.standardSpacing
-                                )
-                        )
-                    }
+                        ),
+                        isScreenBackgroundSecondary = backgroundSecondary,
+                        onClick = onClosePress
+                    )
+
                 }
                 if (shouldShowDivider) {
                     AppDivider()
