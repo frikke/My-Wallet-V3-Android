@@ -54,6 +54,7 @@ dependencies {
     implementation Libraries.exoPlayer
     implementation Libraries.accompanistSystemUi
     implementation Libraries.accompanistDrawablePainter
+    implementation Libraries.accompanistPermissions
     implementation Libraries.constraintLayoutCompose
     implementation Libraries.koin
     implementation Libraries.koinAndroid

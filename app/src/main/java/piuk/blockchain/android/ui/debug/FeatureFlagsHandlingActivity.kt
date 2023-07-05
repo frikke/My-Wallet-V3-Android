@@ -22,6 +22,7 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.HandholdPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
+import com.blockchain.preferences.RuntimePermissionsPrefs
 import com.blockchain.preferences.SessionPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.presentation.koin.scopedInject
@@ -56,6 +57,7 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
     private val getUserStore: GetUserStore by scopedInject()
     private val kycTiersStore: KycTiersStore by scopedInject()
     private val storeWiper: StoreWiper by scopedInject()
+    private val runtimePermissionsPrefs: RuntimePermissionsPrefs by inject()
 
     private val featuresAdapter: FeatureFlagAdapter = FeatureFlagAdapter()
 
@@ -87,6 +89,7 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
             }
             val parent = nestedParent
 
+            resetRuntimePermissionCooldown.setOnClickListener { resetRuntimePermissionCooldown() }
             btnResetUserCache.setOnClickListener { onResetUserCache() }
             btnResetStoreCaches.setOnClickListener { onResetStoreCaches() }
             btnShowReferralSheet.setOnClickListener { showInviteNow() }
@@ -170,6 +173,10 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
                 }
             }
         }
+    }
+
+    private fun resetRuntimePermissionCooldown() {
+        runtimePermissionsPrefs.notificationLastRequestMillis = 0
     }
 
     private fun showSnackbar(text: String) {

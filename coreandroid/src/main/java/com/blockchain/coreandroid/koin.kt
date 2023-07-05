@@ -32,6 +32,7 @@ import com.blockchain.preferences.PricesPrefs
 import com.blockchain.preferences.RecurringBuyPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
+import com.blockchain.preferences.RuntimePermissionsPrefs
 import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.SessionPrefs
@@ -98,6 +99,7 @@ val coreAndroidModule = module {
         bind(MaskedValuePrefs::class)
         bind(HandholdPrefs::class)
         bind(ThemePrefs::class)
+        bind(RuntimePermissionsPrefs::class)
     }
 
     factory {

@@ -12,7 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -42,6 +43,7 @@ import com.blockchain.componentlib.alert.CardAlert
 import com.blockchain.componentlib.card.CardButton
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.lazylist.paddedItem
+import com.blockchain.componentlib.permissions.RuntimePermission
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.componentlib.utils.openUrl
@@ -105,7 +107,6 @@ import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
 import com.blockchain.walletconnect.ui.navigation.WalletConnectDestination
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
-import com.walletconnect.android.internal.common.scope
 import info.blockchain.balance.AssetInfo
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.collectLatest
@@ -129,12 +130,14 @@ fun HomeScreen(
     val recurringBuyNavigation = LocalRecurringBuyNavigationProvider.current
     val supportNavigation = LocalSupportNavigationProvider.current
 
+    RuntimePermission(permission = RuntimePermission.Notification)
+
     // -----------------------------
     // header scroll animation
-    var menuOptionsHeight: Int by remember { mutableStateOf(0) }
-    var balanceOffsetToMenuOption: Float by remember { mutableStateOf(0F) }
+    var menuOptionsHeight: Int by remember { mutableIntStateOf(0) }
+    var balanceOffsetToMenuOption: Float by remember { mutableFloatStateOf(0F) }
     val balanceToMenuPaddingPx: Int = LocalDensity.current.run { 24.dp.toPx() }.toInt()
-    var balanceScrollRange: Float by remember { mutableStateOf(0F) }
+    var balanceScrollRange: Float by remember { mutableFloatStateOf(0F) }
 
     val showMenuOptionsBackground: Boolean = balanceOffsetToMenuOption <= 0F && menuOptionsHeight > 0F
     val showMenuOptionsBalance = balanceScrollRange <= 0.5 && menuOptionsHeight > 0F

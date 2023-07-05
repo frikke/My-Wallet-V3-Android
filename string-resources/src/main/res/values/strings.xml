@@ -96,6 +96,7 @@
     <string name="common_important_information">Important information</string>
     <string name="common_crypto">Crypto</string>
     <string name="common_completed">Completed</string>
+    <string name="common_dont_allow">Don’t Allow</string>
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>
@@ -3687,4 +3688,8 @@ If you want to know more about our verification process visit our <annotation li
         <item quantity="one">%d day ago</item>
         <item quantity="other">%d days ago</item>
     </plurals>
+
+    <string name="permission_notifications_title">Allow Notifications</string>
+    <string name="permission_notifications_description">We’ll notify you when big changes happen in the market. We’ll also send you payment and security alerts.</string>
+
 </resources>

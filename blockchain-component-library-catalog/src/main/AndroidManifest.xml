@@ -55,9 +55,6 @@
             android:name=".abstract_compose_view.TextInputActivity"
             android:exported="false" />
         <activity
-            android:name=".abstract_compose_view.DialogueActivity"
-            android:exported="false" />
-        <activity
             android:name=".abstract_compose_view.CardAlertActivity"
             android:exported="false" />
         <activity

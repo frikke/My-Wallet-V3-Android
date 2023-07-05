@@ -37,6 +37,7 @@ import com.blockchain.preferences.PricesPrefs
 import com.blockchain.preferences.RecurringBuyPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
+import com.blockchain.preferences.RuntimePermissionsPrefs
 import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.SessionPrefs
@@ -100,7 +101,8 @@ class PrefsUtil(
     IterableAnnouncementsPrefs,
     MaskedValuePrefs,
     HandholdPrefs,
-    ThemePrefs {
+    ThemePrefs,
+    RuntimePermissionsPrefs {
 
     private var isUnderAutomationTesting = false // Don't persist!
 
@@ -863,6 +865,10 @@ class PrefsUtil(
         get() = getValue(CURRENT_THEME, Theme.System.name)
         set(value) = setValue(CURRENT_THEME, value)
 
+    override var notificationLastRequestMillis: Long
+        get() = getValue(NOTIFICATION_PERMISSION_LAST_REQUEST, 0L)
+        set(value) = setValue(NOTIFICATION_PERMISSION_LAST_REQUEST, value)
+
     companion object {
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
 
@@ -1036,6 +1042,9 @@ class PrefsUtil(
 
         // theme
         private const val CURRENT_THEME = "CURRENT_THEME"
+
+        // permissions
+        private const val NOTIFICATION_PERMISSION_LAST_REQUEST = "NOTIFICATION_PERMISSION_LAST_REQUEST"
     }
 
     override val legacyWalletMode: String

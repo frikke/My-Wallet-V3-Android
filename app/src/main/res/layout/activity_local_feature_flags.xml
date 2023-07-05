@@ -36,6 +36,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <Button
+            android:id="@+id/reset_runtime_permission_cooldown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/tiny_spacing"
+            android:text="reset runtime permissions cooldown" />
+
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/Text.Semibold.16"
             android:layout_width="wrap_content"
