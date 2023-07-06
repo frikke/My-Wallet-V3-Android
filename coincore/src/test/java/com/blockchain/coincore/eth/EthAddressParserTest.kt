@@ -10,7 +10,6 @@ import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Single
@@ -21,7 +20,6 @@ import org.junit.Test
 class EthAddressParserTest : CoincoreTestBase() {
     private val ethDataManager: EthDataManager = mock()
     private val feeDataManager: FeeDataManager = mock()
-    private val lazyAssetCatalogue: Lazy<AssetCatalogue> = mock()
     private val walletPrefs: WalletStatusPrefs = mock()
     private val notificationUpdater: BackendNotificationUpdater = mock()
     private val labels: DefaultLabels = mock()
@@ -37,7 +35,6 @@ class EthAddressParserTest : CoincoreTestBase() {
         subject = EthAsset(
             ethDataManager = ethDataManager,
             feeDataManager = feeDataManager,
-            assetCatalogue = lazyAssetCatalogue,
             walletPrefs = walletPrefs,
             notificationUpdater = notificationUpdater,
             labels = labels,
