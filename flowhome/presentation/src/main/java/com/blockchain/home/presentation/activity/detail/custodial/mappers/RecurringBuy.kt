@@ -16,10 +16,10 @@ import com.blockchain.home.presentation.activity.detail.custodial.CustodialActiv
 import com.blockchain.home.presentation.activity.detail.custodial.PaymentDetails
 import com.blockchain.home.presentation.activity.list.custodial.mappers.basicTitleStyle
 import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
+import com.blockchain.image.LocalLogo
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityLocalIcon
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
 import com.blockchain.utils.abbreviate
 import com.blockchain.utils.capitalizeFirstChar
@@ -32,8 +32,8 @@ import java.time.format.TextStyle
 import java.util.Date
 import java.util.Locale
 
-internal fun RecurringBuyActivitySummaryItem.iconDetail(): ActivityLocalIcon {
-    return ActivityLocalIcon.Buy
+internal fun RecurringBuyActivitySummaryItem.iconDetail(): LocalLogo {
+    return LocalLogo.Buy
 }
 
 internal fun RecurringBuyActivitySummaryItem.title(): TextValue = TextValue.IntResValue(

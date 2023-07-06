@@ -11,17 +11,17 @@ import com.blockchain.home.presentation.activity.detail.custodial.CustodialActiv
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtraKey
 import com.blockchain.home.presentation.activity.list.custodial.mappers.basicTitleStyle
 import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
+import com.blockchain.image.LocalLogo
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityLocalIcon
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
 import com.blockchain.utils.abbreviate
 import com.blockchain.utils.toFormattedString
 import info.blockchain.balance.Money
 
-internal fun TradeActivitySummaryItem.sellIconDetail(): ActivityLocalIcon {
-    return ActivityLocalIcon.Sell
+internal fun TradeActivitySummaryItem.sellIconDetail(): LocalLogo {
+    return LocalLogo.Sell
 }
 
 internal fun TradeActivitySummaryItem.sellTitle(): TextValue = TextValue.IntResValue(

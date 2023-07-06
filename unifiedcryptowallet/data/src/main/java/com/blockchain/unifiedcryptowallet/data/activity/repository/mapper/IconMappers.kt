@@ -1,31 +1,31 @@
 package com.blockchain.unifiedcryptowallet.data.activity.repository.mapper
 
 import com.blockchain.api.selfcustody.activity.ActivityIconDto
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIcon
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIconSource
+import com.blockchain.image.LogoValue
+import com.blockchain.image.LogoValueSource
 
-internal fun ActivityIconDto?.toActivityIcon(): ActivityIcon = when (this) {
+internal fun ActivityIconDto?.toActivityIcon(): LogoValue = when (this) {
     is ActivityIconDto.OverlappingPair -> {
-        ActivityIcon.OverlappingPair(
-            front = ActivityIconSource.Remote(front),
-            back = ActivityIconSource.Remote(back)
+        LogoValue.OverlappingPair(
+            front = LogoValueSource.Remote(front),
+            back = LogoValueSource.Remote(back)
         )
     }
 
     is ActivityIconDto.SmallTag -> {
-        ActivityIcon.SmallTag(
-            main = ActivityIconSource.Remote(main),
-            tag = ActivityIconSource.Remote(tag)
+        LogoValue.SmallTag(
+            main = LogoValueSource.Remote(main),
+            tag = LogoValueSource.Remote(tag)
         )
     }
 
     is ActivityIconDto.SingleIcon -> {
-        ActivityIcon.SingleIcon(
-            icon = ActivityIconSource.Remote(url)
+        LogoValue.SingleIcon(
+            icon = LogoValueSource.Remote(url)
         )
     }
 
     is ActivityIconDto.Unknown, null -> {
-        ActivityIcon.None
+        LogoValue.None
     }
 }

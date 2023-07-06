@@ -121,7 +121,7 @@ private fun BottomSheet(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                AppColors.background,
+                AppColors.backgroundSecondary,
                 RoundedCornerShape(dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing))
             ),
         horizontalAlignment = Alignment.CenterHorizontally

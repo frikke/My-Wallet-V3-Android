@@ -4,15 +4,15 @@ import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView
+import com.blockchain.image.LocalLogo
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityLocalIcon
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.utils.toFormattedDate
 import java.util.Date
 
-internal fun RecurringBuyActivitySummaryItem.iconSummary(): ActivityLocalIcon {
-    return ActivityLocalIcon.Buy
+internal fun RecurringBuyActivitySummaryItem.iconSummary(): LocalLogo {
+    return LocalLogo.Buy
 }
 
 internal fun RecurringBuyActivitySummaryItem.leadingTitle(): ActivityStackView {

@@ -14,6 +14,7 @@ import piuk.blockchain.android.ui.coinview.domain.LoadAssetAccountsUseCase
 class CoinviewAccountDetail(
     val account: SingleAccount,
     val balance: DataResource<Money>,
+    val address: String,
     val isAvailable: Boolean
 ) {
     fun getIndexedValue(): Int {

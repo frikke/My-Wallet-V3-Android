@@ -5,11 +5,11 @@ import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tablerow.ValueChange
-import com.blockchain.componentlib.utils.LocalLogo
-import com.blockchain.componentlib.utils.LogoValue
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
+import com.blockchain.image.LocalLogo
+import com.blockchain.image.LogoValue
 import com.blockchain.news.NewsArticle
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount

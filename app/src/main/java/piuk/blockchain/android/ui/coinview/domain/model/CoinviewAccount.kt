@@ -80,7 +80,8 @@ sealed interface CoinviewAccount {
         override val account: SingleAccount,
         override val cryptoBalance: DataResource<Money>,
         override val fiatBalance: DataResource<Money>,
-        override val isEnabled: Boolean
+        override val isEnabled: Boolean,
+        val address: String
     ) : CoinviewAccount {
         override val filter: AssetFilter = AssetFilter.NonCustodial
     }

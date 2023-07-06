@@ -9,13 +9,12 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Star
 import com.blockchain.componentlib.tablerow.ValueChange
-import com.blockchain.componentlib.utils.LocalLogo
-import com.blockchain.componentlib.utils.LogoValue
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.core.kyc.domain.KycService
@@ -36,9 +35,12 @@ import com.blockchain.data.filterNotLoading
 import com.blockchain.data.map
 import com.blockchain.data.mapData
 import com.blockchain.data.updateDataWith
+import com.blockchain.image.LocalLogo
+import com.blockchain.image.LogoValue
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.news.NewsService
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.utils.abbreviate
 import com.blockchain.utils.toFormattedDateWithoutYear
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
@@ -184,16 +186,7 @@ class CoinviewViewModel(
             DataResource.Data(
                 CoinviewAssetState(
                     asset = asset.currency,
-                    l1Network = if (walletMode == WalletMode.NON_CUSTODIAL) {
-                        asset.currency.takeIf { it.isLayer2Token }?.coinNetwork?.let {
-                            CoinViewNetwork(
-                                logo = assetCatalogue.fromNetworkTicker(it.nativeAssetTicker)?.logo.orEmpty(),
-                                name = it.shortName
-                            )
-                        }
-                    } else {
-                        null
-                    }
+                    l1Network = l1Network()
                 )
             )
         }
@@ -291,6 +284,21 @@ class CoinviewViewModel(
                 ValueChange.fromValue(BigDecimal(it).setScale(2, RoundingMode.FLOOR).toDouble())
             } ?: ValueChange.None(percentChange)
 
+    private fun CoinviewModelState.l1Network(): CoinViewNetwork? {
+        return asset?.let {
+            if (walletMode == WalletMode.NON_CUSTODIAL) {
+                asset.currency.takeIf { it.isLayer2Token }?.coinNetwork?.let {
+                    CoinViewNetwork(
+                        logo = assetCatalogue.fromNetworkTicker(it.nativeAssetTicker)?.logo.orEmpty(),
+                        name = it.shortName
+                    )
+                }
+            } else {
+                null
+            }
+        }
+    }
+
     private fun reduceAccounts(
         state: CoinviewModelState
     ): DataResource<CoinviewAccountsState?> = state.run {
@@ -298,6 +306,7 @@ class CoinviewViewModel(
             false -> {
                 DataResource.Data(null)
             }
+
             else -> {
                 assetDetail.map {
                     if (it is CoinviewAssetDetail.Tradeable) {
@@ -338,7 +347,9 @@ class CoinviewViewModel(
                                                     makeAvailableActiveRewardsAccount(cvAccount, asset)
 
                                                 is CoinviewAccount.PrivateKey ->
-                                                    makeAvailablePrivateKeyAccount(cvAccount, account, asset)
+                                                    makeAvailablePrivateKeyAccount(
+                                                        cvAccount, account, asset, l1Network()
+                                                    )
                                             }
                                         }
 
@@ -357,7 +368,7 @@ class CoinviewViewModel(
                                                     makeUnavailableActiveRewardsAccount(cvAccount)
 
                                                 is CoinviewAccount.PrivateKey ->
-                                                    makeUnavailablePrivateKeyAccount(cvAccount, account)
+                                                    makeUnavailablePrivateKeyAccount(cvAccount, account, l1Network())
                                             }
                                         }
                                     }
@@ -374,12 +385,14 @@ class CoinviewViewModel(
 
     private fun makeUnavailablePrivateKeyAccount(
         cvAccount: CoinviewAccount,
-        account: CryptoAccount
+        account: CryptoAccount,
+        l1Network: CoinViewNetwork?
     ) = Unavailable(
         cvAccount = cvAccount,
         title = account.currency.name,
         subtitle = TextValue.IntResValue(com.blockchain.stringResources.R.string.coinview_nc_desc),
-        logo = LogoValue.Remote(account.currency.logo)
+        logo = l1Network?.let { LogoValue.SmallTag(account.currency.logo, it.logo) }
+            ?: LogoValue.SingleIcon(account.currency.logo)
     )
 
     private fun makeUnavailableStakingAccount(cvAccount: CoinviewAccount.Custodial.Staking) =
@@ -390,7 +403,7 @@ class CoinviewViewModel(
                 com.blockchain.stringResources.R.string.coinview_interest_no_balance,
                 listOf(DecimalFormat("0.#").format(cvAccount.stakingRate))
             ),
-            logo = LogoValue.Local(LocalLogo.Rewards)
+            logo = LogoValue.SingleIcon(LocalLogo.Rewards)
         )
 
     private fun makeUnavailableActiveRewardsAccount(cvAccount: CoinviewAccount.Custodial.ActiveRewards) =
@@ -401,7 +414,7 @@ class CoinviewViewModel(
                 com.blockchain.stringResources.R.string.coinview_interest_no_balance,
                 listOf(DecimalFormat("0.#").format(cvAccount.activeRewardsRate))
             ),
-            logo = LogoValue.Local(LocalLogo.Rewards)
+            logo = LogoValue.SingleIcon(LocalLogo.Rewards)
         )
 
     private fun makeUnavailableInterestAccount(cvAccount: CoinviewAccount.Custodial.Interest) =
@@ -412,7 +425,7 @@ class CoinviewViewModel(
                 com.blockchain.stringResources.R.string.coinview_interest_no_balance,
                 listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
             ),
-            logo = LogoValue.Local(LocalLogo.Rewards)
+            logo = LogoValue.SingleIcon(LocalLogo.Rewards)
         )
 
     private fun makeUnavailableTradingAccount(
@@ -425,20 +438,22 @@ class CoinviewViewModel(
             com.blockchain.stringResources.R.string.coinview_c_unavailable_desc,
             listOf(asset.currency.name)
         ),
-        logo = LogoValue.Remote(asset.currency.logo)
+        logo = LogoValue.SingleIcon(asset.currency.logo)
     )
 
     private fun makeAvailablePrivateKeyAccount(
-        cvAccount: CoinviewAccount,
+        cvAccount: CoinviewAccount.PrivateKey,
         account: CryptoAccount,
-        asset: CryptoAsset
+        asset: CryptoAsset,
+        l1Network: CoinViewNetwork?
     ) = Available(
         cvAccount = cvAccount,
-        title = account.label,
-        subtitle = TextValue.StringValue(account.currency.displayTicker),
+        title = account.currency.name,
+        subtitle = TextValue.StringValue(cvAccount.address.abbreviate(startLength = 4, endLength = 4)),
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
-        logo = LogoValue.Remote(account.currency.logo),
+        logo = l1Network?.let { LogoValue.SmallTag(account.currency.logo, it.logo) }
+            ?: LogoValue.SingleIcon(account.currency.logo),
         assetColor = asset.currency.colour
     )
 
@@ -454,7 +469,7 @@ class CoinviewViewModel(
         ),
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
-        logo = LogoValue.Local(LocalLogo.Rewards),
+        logo = LogoValue.SingleIcon(LocalLogo.Rewards),
         assetColor = asset.currency.colour
     )
 
@@ -470,7 +485,7 @@ class CoinviewViewModel(
         ),
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
-        logo = LogoValue.Local(LocalLogo.Rewards),
+        logo = LogoValue.SingleIcon(LocalLogo.Rewards),
         assetColor = asset.currency.colour
     )
 
@@ -486,7 +501,7 @@ class CoinviewViewModel(
         ),
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
-        logo = LogoValue.Local(LocalLogo.Rewards),
+        logo = LogoValue.SingleIcon(LocalLogo.Rewards),
         assetColor = asset.currency.colour
     )
 
@@ -499,7 +514,7 @@ class CoinviewViewModel(
         subtitle = null,
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
-        logo = LogoValue.Remote(asset.currency.logo),
+        logo = LogoValue.SingleIcon(asset.currency.logo),
         assetColor = asset.currency.colour
     )
 

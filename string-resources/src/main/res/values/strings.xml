@@ -2899,7 +2899,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="coinview_no_asset_blurb_2">contact support.</string>
     <string name="coinview_no_asset_blurb">Looks like we don’t have any data on this asset. If this continues, <annotation link="contact_support">contact support.</annotation></string>
     <string name="coinview_no_asset_title">Unknown Asset</string>
-    <string name="coinview_asset_info_cta">Visit Website →</string>
+    <string name="coinview_asset_info_cta">Visit Website</string>
     <string name="coinview_no_asset_description">It looks like we don’t have a description for this token yet, please check their website by tapping the button below to find out more.</string>
     <string name="coinview_no_balance_sheet_title">No %1$s to %2$s</string>
     <string name="coinview_no_balance_sheet_subtitle">You need %1$s in your %2$s to %3$s.</string>
