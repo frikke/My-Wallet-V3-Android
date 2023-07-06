@@ -6,6 +6,7 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.getOrNull
 import com.blockchain.outcome.map
 import com.blockchain.preferences.CurrencyPrefs
@@ -53,6 +54,13 @@ class DexAccountsRepository(
         dexDestinationAccounts(chainId = chainId).catch {
             emit(emptyList())
         }.flowOn(coroutineDispatcher)
+
+    override suspend fun nativeNetworkAccount(coinNetwork: CoinNetwork): Outcome<Exception, CryptoNonCustodialAccount> {
+        val nativeCurrency = assetCatalogue.assetInfoFromNetworkTicker(coinNetwork.nativeAssetTicker)
+        require(nativeCurrency != null)
+        return coincore[nativeCurrency].defaultAccount(AssetFilter.NonCustodial).map { it as CryptoNonCustodialAccount }
+            .awaitOutcome()
+    }
 
     override suspend fun defSourceAccount(
         coinNetwork: CoinNetwork

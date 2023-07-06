@@ -21,6 +21,7 @@ import com.blockchain.extensions.safeLet
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.getOrNull
 import com.blockchain.preferences.CurrencyPrefs
 import com.dex.domain.AllowanceService
@@ -255,6 +256,14 @@ class DexEnterAmountViewModel(
             InputAmountIntent.RevokeSourceCurrencyAllowance -> revokeSourceAllowance(modelState)
             InputAmountIntent.SubscribeForTxUpdates -> txProcessor.subscribeForTxUpdates()
             InputAmountIntent.UnSubscribeToTxUpdates -> txProcessor.unsubscribeToTxUpdates()
+            is InputAmountIntent.ReceiveCurrencyRequested -> {
+                (intent.currency as? AssetInfo)?.coinNetwork?.let {
+                    dexAccountsService.nativeNetworkAccount(it).doOnSuccess { account ->
+                        navigate(AmountNavigationEvent.ReceiveOnAccount(account))
+                    }
+                }
+            }
+
             InputAmountIntent.AllowanceTransactionDeclined -> {
                 modelState.transaction?.sourceAccount?.currency?.displayTicker?.let {
                     navigate(
@@ -701,6 +710,8 @@ sealed class AmountNavigationEvent : NavigationEvent {
     data class AllowanceTxCompleted(val currencyTicker: String) :
         AmountNavigationEvent()
 
+    data class ReceiveOnAccount(val account: CryptoNonCustodialAccount) : AmountNavigationEvent()
+
     data class AllowanceTxUrl(val url: String) :
         AmountNavigationEvent()
 }
@@ -725,6 +736,7 @@ sealed class InputAmountIntent : Intent<AmountModelState> {
     object AllowanceTransactionDeclined : InputAmountIntent()
     object BuildAllowanceTransaction : InputAmountIntent()
     object RevokeSourceCurrencyAllowance : InputAmountIntent()
+    data class ReceiveCurrencyRequested(val currency: Currency) : InputAmountIntent()
 
     data class DepositOnSourceAccountRequested(val receive: (CryptoNonCustodialAccount) -> Unit) : InputAmountIntent()
     data class PollForPendingAllowance(val currency: AssetInfo) : InputAmountIntent() {

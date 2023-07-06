@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
@@ -29,7 +30,7 @@ class SheetHeaderView @JvmOverloads constructor(
                 SheetHeader(
                     title = title,
                     byline = byline,
-                    startImageResource = startImageResource,
+                    startImage = StackedIcon.SingleIcon(startImageResource),
                     onClosePress = onClosePress,
                 )
             }

@@ -1,7 +1,6 @@
 package com.blockchain.componentlib.sheets
 
 import android.content.res.Configuration
-import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -23,8 +21,9 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.AppDivider
 import com.blockchain.componentlib.basic.CloseIcon
-import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icon.CustomStackedIcon
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark200
@@ -36,7 +35,7 @@ fun SheetHeader(
     modifier: Modifier = Modifier,
     title: String? = null,
     byline: String? = null,
-    startImageResource: ImageResource = ImageResource.None,
+    startImage: StackedIcon? = null,
     onClosePress: () -> Unit,
     shouldShowDivider: Boolean = true,
     backgroundSecondary: Boolean = true
@@ -56,13 +55,14 @@ fun SheetHeader(
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Spacer(Modifier.width(AppTheme.dimensions.smallSpacing))
 
-                    if (startImageResource != ImageResource.None) {
-                        Image(
-                            imageResource = startImageResource,
-                            modifier = Modifier
-                                .padding(top = dimensionResource(R.dimen.standard_spacing))
-                                .size(28.dp)
-                        )
+                    startImage?.let {
+                        Box(modifier = Modifier.padding(top = 27.dp)) {
+                            CustomStackedIcon(
+                                icon = it,
+                                iconBackground = AppColors.backgroundSecondary,
+                                borderColor = AppColors.backgroundSecondary,
+                            )
+                        }
                         Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
                     }
 
@@ -164,9 +164,11 @@ private fun SheetHeaderWithStartIconPreview() {
     SheetHeader(
         title = "Title",
         onClosePress = { /* no-op */ },
-        startImageResource = ImageResource.Local(
-            id = R.drawable.ic_qr_code,
-            contentDescription = null
+        startImage = StackedIcon.SingleIcon(
+            ImageResource.Local(
+                id = R.drawable.ic_qr_code,
+                contentDescription = null
+            )
         )
     )
 }
@@ -178,9 +180,11 @@ private fun SheetHeaderBylineWithStartIconPreview() {
         title = "Title",
         byline = "Byline",
         onClosePress = { /* no-op */ },
-        startImageResource = ImageResource.Local(
-            id = R.drawable.ic_qr_code,
-            contentDescription = null
+        startImage = StackedIcon.SingleIcon(
+            ImageResource.Local(
+                id = R.drawable.ic_qr_code,
+                contentDescription = null
+            )
         )
     )
 }

@@ -39,6 +39,7 @@
         android:id="@+id/view_empty_cta"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
         tools:text="@string/common_empty_cta" />
 

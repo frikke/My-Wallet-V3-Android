@@ -12,29 +12,29 @@ import com.blockchain.componentlib.icons.Swap
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.TextValue
+import com.blockchain.image.LocalLogo
+import com.blockchain.image.LogoValue
+import com.blockchain.image.LogoValueSource
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityDataItem
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIcon
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityIconSource
-import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityLocalIcon
 import com.blockchain.unifiedcryptowallet.domain.activity.model.StackComponent
 
 @Composable
-fun ActivityIcon.toStackedIcon() = when (this) {
-    is ActivityIcon.OverlappingPair -> StackedIcon.OverlappingPair(
+fun LogoValue.toStackedIcon() = when (this) {
+    is LogoValue.OverlappingPair -> StackedIcon.OverlappingPair(
         front = front.toImageResource(),
         back = back.toImageResource()
     )
 
-    is ActivityIcon.SmallTag -> StackedIcon.SmallTag(
+    is LogoValue.SmallTag -> StackedIcon.SmallTag(
         main = main.toImageResource(),
         tag = tag.toImageResource()
     )
 
-    is ActivityIcon.SingleIcon -> StackedIcon.SingleIcon(
+    is LogoValue.SingleIcon -> StackedIcon.SingleIcon(
         icon = icon.toImageResource()
     )
 
-    ActivityIcon.None -> StackedIcon.None
+    LogoValue.None -> StackedIcon.None
 }
 
 fun StackComponent.toStackView() = when (this) {
@@ -50,19 +50,19 @@ fun StackComponent.toStackView() = when (this) {
 }
 
 @Composable
-private fun ActivityIconSource.toImageResource(): ImageResource {
-    fun ActivityLocalIcon.toIconResource() = when (this) {
-        ActivityLocalIcon.Buy -> Icons.Plus
-        ActivityLocalIcon.Sell -> Icons.Minus
-        ActivityLocalIcon.Send -> Icons.Send
-        ActivityLocalIcon.Receive -> Icons.Receive
-        ActivityLocalIcon.Reward -> Icons.Rewards
-        ActivityLocalIcon.Swap -> Icons.Swap
+private fun LogoValueSource.toImageResource(): ImageResource {
+    fun LocalLogo.toIconResource() = when (this) {
+        LocalLogo.Buy -> Icons.Plus
+        LocalLogo.Sell -> Icons.Minus
+        LocalLogo.Send -> Icons.Send
+        LocalLogo.Receive -> Icons.Receive
+        LocalLogo.Rewards -> Icons.Rewards
+        LocalLogo.Swap -> Icons.Swap
     }
 
     return when (this) {
-        is ActivityIconSource.Remote -> ImageResource.Remote(url)
-        is ActivityIconSource.Local -> icon.toIconResource().withTint(AppTheme.colors.title)
+        is LogoValueSource.Remote -> ImageResource.Remote(url)
+        is LogoValueSource.Local -> icon.toIconResource().withTint(AppTheme.colors.title)
     }
 }
 

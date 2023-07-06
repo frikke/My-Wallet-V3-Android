@@ -38,6 +38,7 @@ import com.blockchain.componentlib.loader.LoadingIndicator
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.DefaultTableRow
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
@@ -161,10 +162,12 @@ fun FiatFundDetailScreenData(
                 SheetHeader(
                     title = detail.name,
                     onClosePress = onBackPressed,
-                    startImageResource = ImageResource.Remote(
-                        url = detail.logo,
-                        size = AppTheme.dimensions.standardSpacing,
-                        shape = CircleShape
+                    startImage = StackedIcon.SingleIcon(
+                        ImageResource.Remote(
+                            url = detail.logo,
+                            size = AppTheme.dimensions.standardSpacing,
+                            shape = CircleShape
+                        )
                     ),
                     shouldShowDivider = false
                 )

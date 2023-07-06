@@ -19,7 +19,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.analytics.Analytics
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.option.ChipOption
 import com.blockchain.componentlib.option.ChipOptionsGroup
 import com.blockchain.componentlib.sheets.SheetHeader
@@ -82,7 +81,6 @@ private fun SettingsBottomSheetScreen(
         SheetHeader(
             title = stringResource(id = R.string.allowed_slippage),
             onClosePress = closeClicked,
-            startImageResource = ImageResource.None,
             shouldShowDivider = false
         )
 

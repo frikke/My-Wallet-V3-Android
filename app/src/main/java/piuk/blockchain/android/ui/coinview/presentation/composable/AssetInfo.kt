@@ -12,6 +12,8 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.componentlib.button.MinimalPrimarySmallButton
 import com.blockchain.componentlib.expandables.ExpandableItem
+import com.blockchain.componentlib.icons.Globe
+import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.previewAnalytics
 import org.koin.androidx.compose.get
@@ -71,6 +73,7 @@ fun AssetInfoData(
         data.website?.let {
             MinimalPrimarySmallButton(
                 text = stringResource(com.blockchain.stringResources.R.string.coinview_asset_info_cta),
+                icon = Icons.Filled.Globe,
                 onClick = {
                     analytics.logEvent(
                         CoinViewAnalytics.HyperlinkClicked(

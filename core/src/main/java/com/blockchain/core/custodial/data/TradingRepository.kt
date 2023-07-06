@@ -12,6 +12,7 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asObservable
 
@@ -47,7 +48,9 @@ internal class TradingRepository(
 
     override fun getActiveAssets(refreshStrategy: FreshnessStrategy): Flow<Set<Currency>> {
         return getBalancesFlow(refreshStrategy)
-            .map { it.keys }
+            .map { it.keys }.catch {
+                emit(emptySet())
+            }
     }
 
     override fun markAsStale() {

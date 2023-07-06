@@ -193,9 +193,13 @@ class LoadAssetAccountsUseCase(
             }
             .map { account ->
                 combine(
+                    // balance
                     account.balance().map { DataResource.Data(it) as DataResource<AccountBalance> }.catch {
                         emit(DataResource.Error(it as Exception))
                     },
+                    // address
+                    flowOf(account.receiveAddress.map { it.address }.awaitOutcome().getOrDefault("")),
+                    // availability
                     flowOf(account.stateAwareActions.awaitOutcome().getOrDefault(emptySet())).map {
                         DataResource.Data(
                             it
@@ -207,10 +211,11 @@ class LoadAssetAccountsUseCase(
                     }.onStart {
                         emit(true)
                     }
-                ) { balance, hasAnyActionsAvailable ->
+                ) { balance, address, hasAnyActionsAvailable ->
                     CoinviewAccountDetail(
                         account = account,
                         balance = balance.map { it.total },
+                        address = address,
                         isAvailable = hasAnyActionsAvailable
                     )
                 }
@@ -303,7 +308,8 @@ class LoadAssetAccountsUseCase(
                         fiatBalance = it.balance.map {
                             exchangeRate.convert(it)
                         },
-                        isEnabled = it.isAvailable
+                        isEnabled = it.isAvailable,
+                        address = it.address
                     )
                 }.run { CoinviewAccounts.Defi(this) }
             }

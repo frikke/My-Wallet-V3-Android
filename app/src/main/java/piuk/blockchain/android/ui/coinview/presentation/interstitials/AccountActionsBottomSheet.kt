@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.Analytics
@@ -39,6 +38,7 @@ import com.blockchain.componentlib.icons.Send
 import com.blockchain.componentlib.icons.Swap
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.tablerow.DefaultTableRow
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppColors
@@ -50,15 +50,19 @@ import com.blockchain.earn.EarnAnalytics
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.presentation.extensions.getAccount
 import com.blockchain.presentation.extensions.putAccount
+import com.blockchain.presentation.koin.scopedInject
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
+import info.blockchain.balance.isLayer2Token
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewAnalytics
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewNetwork
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.assetActionEvent
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
@@ -66,6 +70,7 @@ import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 class AccountActionsBottomSheet : BottomSheetDialogFragment() {
 
     private val analytics: Analytics by inject()
+    private val assetCatalogue: AssetCatalogue by scopedInject()
 
     private val selectedAccount by lazy {
         arguments?.getAccount(SELECTED_ACCOUNT) as CryptoAccount
@@ -107,8 +112,6 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                     )
                 }
 
-        val assetColor = items.first().color
-
         dialog.setContentView(
             ComposeView(requireContext()).apply {
                 setContent {
@@ -121,15 +124,21 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             SheetHeader(
-                                title = selectedAccount.label,
+                                title = selectedAccount.currency.name,
                                 onClosePress = { dismiss() },
-                                startImageResource = getToolbarIcon(selectedAccount, assetColor),
+                                startImage = selectedAccount.l1Network()?.let {
+                                    StackedIcon.SmallTag(
+                                        ImageResource.Remote(selectedAccount.currency.logo),
+                                        ImageResource.Remote(it.logo)
+                                    )
+                                } ?: StackedIcon.SingleIcon(
+                                    ImageResource.Remote(selectedAccount.currency.logo)
+                                ),
                                 shouldShowDivider = false
                             )
                             DefaultTableRow(
                                 primaryText = balanceFiat.toStringWithSymbol(),
                                 secondaryText = balanceCrypto.toStringWithSymbol(),
-                                backgroundColor = AppColors.background,
                                 endTag = when (selectedAccount) {
                                     is EarnRewardsAccount.Interest -> {
                                         TagViewState(
@@ -185,35 +194,16 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         return dialog
     }
 
-    private fun getToolbarIcon(selectedAccount: CryptoAccount, color: Color): ImageResource =
-        when (selectedAccount) {
-            is NonCustodialAccount -> ImageResource.Local(
-                id = R.drawable.ic_non_custodial_explainer,
-                colorFilter = ColorFilter.tint(color)
-            )
-
-            is TradingAccount -> ImageResource.Local(
-                id = R.drawable.ic_custodial_explainer,
-                colorFilter = ColorFilter.tint(color)
-            )
-
-            is EarnRewardsAccount.Interest -> ImageResource.Local(
-                id = R.drawable.ic_rewards_explainer,
-                colorFilter = ColorFilter.tint(color)
-            )
-
-            is EarnRewardsAccount.Staking -> ImageResource.Local(
-                id = R.drawable.ic_staking_explainer,
-                colorFilter = ColorFilter.tint(color)
-            )
-
-            is EarnRewardsAccount.Active -> ImageResource.Local(
-                id = R.drawable.ic_active_rewards_explainer,
-                colorFilter = ColorFilter.tint(color)
-            )
-
-            else -> ImageResource.None
+    private fun CryptoAccount.l1Network(): CoinViewNetwork? {
+        return (this as? NonCustodialAccount)?.let {
+            currency.takeIf { it.isLayer2Token }?.coinNetwork?.let {
+                CoinViewNetwork(
+                    logo = assetCatalogue.fromNetworkTicker(it.nativeAssetTicker)?.logo.orEmpty(),
+                    name = it.shortName
+                )
+            }
         }
+    }
 
     @Composable
     private fun ActionsList(assetActionItem: List<AssetActionItem>) {

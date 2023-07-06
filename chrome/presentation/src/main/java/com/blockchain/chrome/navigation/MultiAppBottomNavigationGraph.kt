@@ -127,7 +127,7 @@ fun MultiAppBottomNavigationHost(
                         launchQrScanner = launchQrScanner,
                         receiveOnAccount = {
                             assetActionsNavigation.receive(it)
-                        }
+                        },
                     )
                 },
                 refreshComplete = refreshComplete,

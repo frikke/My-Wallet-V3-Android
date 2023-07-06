@@ -15,7 +15,6 @@ import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_ADDRESS_DESCRIPTOR
 import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
-import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.ethereum.EthereumAccount
 import io.reactivex.rxjava3.core.Completable
@@ -28,7 +27,6 @@ class EthCryptoWalletAccount internal constructor(
     private val fees: FeeDataManager,
     private val walletPreferences: WalletStatusPrefs,
     override val exchangeRates: ExchangeRatesDataManager,
-    private val assetCatalogue: AssetCatalogue,
     override val addressResolver: AddressResolver
 ) : CryptoNonCustodialAccount(
     CryptoCurrency.ETHER
@@ -65,11 +63,6 @@ class EthCryptoWalletAccount internal constructor(
         require(newLabel.isNotEmpty())
         return ethDataManager.updateAccountLabel(newLabel)
     }
-
-    fun isErc20FeeTransaction(to: String): Boolean =
-        assetCatalogue.supportedL2Assets(currency).firstOrNull { erc20 ->
-            to.equals(erc20.l2identifier, true)
-        } != null
 
     override val isDefault: Boolean = true // Only one ETH account, so always default
 

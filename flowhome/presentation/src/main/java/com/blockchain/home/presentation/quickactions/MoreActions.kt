@@ -73,7 +73,6 @@ private fun MoreActionsScreen(
         SheetHeader(
             title = stringResource(id = com.blockchain.stringResources.R.string.common_more),
             onClosePress = dismiss,
-            startImageResource = ImageResource.None,
             shouldShowDivider = false
         )
 

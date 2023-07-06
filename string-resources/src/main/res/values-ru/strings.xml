@@ -2268,7 +2268,7 @@
     <string name="coinview_actions_error">При получении доступных действий возникла проблема. Попробуйте еще раз.</string>
     <string name="coinview_no_asset_blurb">Похоже, что у нас нет данных об этом активе. Если это повторится, <annotation link="contact_support">обратитесь в службу поддержки.</annotation></string>
     <string name="coinview_no_asset_title">Неизвестный актив</string>
-    <string name="coinview_asset_info_cta">Посетить сайт →</string>
+    <string name="coinview_asset_info_cta">Посетить сайт</string>
     <string name="coinview_no_asset_description">Похоже, у нас еще нет описания для этого токена. Проверьте их веб-сайт, нажав кнопку ниже, чтобы узнать больше.</string>
     <string name="coinview_no_balance_sheet_title">Добавить %1$s к %2$s</string>
     <string name="coinview_no_balance_sheet_subtitle">Вам нужно %1$s в %2$s до %3$s.</string>

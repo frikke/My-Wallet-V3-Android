@@ -73,7 +73,6 @@ private fun NoNetworkFundsScreen(
     ) {
         SheetHeader(
             onClosePress = closeClicked,
-            startImageResource = ImageResource.None,
             shouldShowDivider = false
         )
 

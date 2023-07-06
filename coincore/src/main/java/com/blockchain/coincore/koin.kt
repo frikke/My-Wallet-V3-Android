@@ -91,7 +91,6 @@ val coincoreModule = module {
                 walletPrefs = get(),
                 labels = get(),
                 notificationUpdater = get(),
-                assetCatalogue = lazy { get() },
                 formatUtils = get(),
                 addressResolver = get()
             )

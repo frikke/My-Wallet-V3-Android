@@ -37,6 +37,7 @@ import com.blockchain.componentlib.icons.Star
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
@@ -191,11 +192,8 @@ fun CoinviewScreen(
                                 Icons.Filled.Star
                             } else {
                                 Icons.Star
-                            }.copy(
-                                contentDescription = stringResource(
-                                    com.blockchain.stringResources.R.string.accessibility_filter
-                                )
-                            ),
+                            }.withTint(AppColors.title)
+                                .copy(contentDescription = stringResource(R.string.accessibility_filter)),
                             onIconClick = {
                                 (asset as? DataResource.Data)?.data?.asset?.networkTicker?.let {
                                     analytics.logEvent(
