@@ -869,6 +869,10 @@ class PrefsUtil(
         get() = getValue(NOTIFICATION_PERMISSION_LAST_REQUEST, 0L)
         set(value) = setValue(NOTIFICATION_PERMISSION_LAST_REQUEST, value)
 
+    override var notificationDoNotAskAgain: Boolean
+        get() = getValue(NOTIFICATION_PERMISSION_DO_NOT_ASK_AGAIN, false)
+        set(value) = setValue(NOTIFICATION_PERMISSION_DO_NOT_ASK_AGAIN, value)
+
     companion object {
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
 
@@ -1045,6 +1049,7 @@ class PrefsUtil(
 
         // permissions
         private const val NOTIFICATION_PERMISSION_LAST_REQUEST = "NOTIFICATION_PERMISSION_LAST_REQUEST"
+        private const val NOTIFICATION_PERMISSION_DO_NOT_ASK_AGAIN = "NOTIFICATION_PERMISSION_DO_NOT_ASK_AGAIN"
     }
 
     override val legacyWalletMode: String

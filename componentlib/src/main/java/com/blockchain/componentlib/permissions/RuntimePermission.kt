@@ -67,12 +67,30 @@ fun RuntimePermission(
         userDeniedPermission = !isAccepted
     }
 
+    // if user denies the permission with "do not ask again", we flag it locally, because we can only base
+    // our checks on isGranted and shouldShowRationale
+
+    // with user rejecting every time:
+    // first run  -> isGranted=false, shouldShowRationale=false
+    // second run -> isGranted=false, shouldShowRationale=true
+    // third run  -> isGranted=false, shouldShowRationale=false
+    // -> we need a way to flag if user requested before or not
+    // and use that in combination with shouldShowRationale
+    // to know if it's the first time or user rejected for good
     when {
         permissionState.status.isGranted -> {
             grantedContent()
         }
 
         userDeniedPermission -> {
+            if (!permissionState.status.shouldShowRationale) {
+                // we cannot request again - unless user enables from settings
+                // see below conditions
+                runtimePermissionsPrefs.updateDoNotAskAgain(
+                    permission = permission,
+                    doNotAskAgain = true
+                )
+            }
             runtimePermissionsPrefs.update(permission)
             deniedContent(PermissionRequestDeniedReason.User)
         }
@@ -81,13 +99,18 @@ fun RuntimePermission(
             deniedContent(PermissionRequestDeniedReason.CoolOff)
         }
 
-        !permissionState.status.shouldShowRationale -> {
-            // if permission is not granted + !shouldShowRationale -> means we cannot ask, should go to settings
+        runtimePermissionsPrefs.isDoNotAskAgainSet(permission) && !permissionState.status.shouldShowRationale -> {
+            // if user set donoasagain, and shouldShowRationale is true
+            // means user enabled it from settings
+            // (and off again at some point since isGranted is false at this point)
             deniedContent(PermissionRequestDeniedReason.System)
         }
 
         else -> {
-            // is not granted, and showRationale is true -> we can ask for it
+            runtimePermissionsPrefs.updateDoNotAskAgain(
+                permission = permission,
+                doNotAskAgain = false
+            )
             showDialog = true
         }
     }
@@ -135,5 +158,20 @@ private fun RuntimePermissionsPrefs.update(permission: RuntimePermission) {
 
     when (permission) {
         RuntimePermission.Notification -> notificationLastRequestMillis = now
+    }
+}
+
+private fun RuntimePermissionsPrefs.updateDoNotAskAgain(
+    permission: RuntimePermission,
+    doNotAskAgain: Boolean
+) {
+    when (permission) {
+        RuntimePermission.Notification -> notificationDoNotAskAgain = doNotAskAgain
+    }
+}
+
+private fun RuntimePermissionsPrefs.isDoNotAskAgainSet(permission: RuntimePermission): Boolean {
+    return when (permission) {
+        RuntimePermission.Notification -> notificationDoNotAskAgain
     }
 }
