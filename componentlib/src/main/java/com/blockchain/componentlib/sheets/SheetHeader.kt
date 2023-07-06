@@ -14,26 +14,21 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.AppDivider
-import com.blockchain.componentlib.basic.Image
+import com.blockchain.componentlib.basic.CloseIcon
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icon.CustomStackedIcon
-import com.blockchain.componentlib.icons.Close
-import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark200
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.theme.topOnly
-import com.blockchain.componentlib.utils.clickableNoEffect
 
 @Composable
 fun SheetHeader(
@@ -43,11 +38,11 @@ fun SheetHeader(
     startImage: StackedIcon? = null,
     onClosePress: () -> Unit,
     shouldShowDivider: Boolean = true,
-    background: Color = AppColors.backgroundSecondary
-) {
+    backgroundSecondary: Boolean = true)
+{
 
     Surface(
-        color = background,
+        color = if (backgroundSecondary) AppColors.backgroundSecondary else AppColors.background,
         shape = AppTheme.shapes.large.topOnly()
     ) {
         Box {
@@ -82,22 +77,14 @@ fun SheetHeader(
                             )
                     )
 
-                    Box(
+                    CloseIcon(
                         modifier = Modifier.padding(
                             top = AppTheme.dimensions.mediumSpacing,
                             end = AppTheme.dimensions.smallSpacing
-                        )
-                    ) {
-                        Image(
-                            modifier = Modifier
-                                .clickableNoEffect { onClosePress() },
-                            imageResource = Icons.Close.withTint(AppColors.muted)
-                                .withBackground(
-                                    backgroundColor = AppColors.light,
-                                    backgroundSize = AppTheme.dimensions.standardSpacing
-                                )
-                        )
-                    }
+                        ),
+                        isScreenBackgroundSecondary = backgroundSecondary,
+                        onClick = onClosePress
+                    )
                 }
                 if (shouldShowDivider) {
                     AppDivider()

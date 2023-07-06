@@ -16,7 +16,6 @@ import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.utils.then
 import com.blockchain.utils.thenSingle
 import com.blockchain.wallet.DefaultLabels
-import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -27,7 +26,6 @@ import io.reactivex.rxjava3.core.Single
 internal class EthAsset(
     private val ethDataManager: EthDataManager,
     private val feeDataManager: FeeDataManager,
-    private val assetCatalogue: Lazy<AssetCatalogue>,
     private val walletPrefs: WalletStatusPrefs,
     private val notificationUpdater: BackendNotificationUpdater,
     private val formatUtils: FormatUtilities,
@@ -59,7 +57,6 @@ internal class EthAsset(
                         jsonAccount = ethDataManager.ehtAccount,
                         walletPreferences = walletPrefs,
                         exchangeRates = exchangeRates,
-                        assetCatalogue = assetCatalogue.value,
                         addressResolver = addressResolver
                     )
                 )

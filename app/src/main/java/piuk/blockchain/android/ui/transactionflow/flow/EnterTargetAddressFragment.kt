@@ -195,8 +195,8 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
 
     private fun setupLabels(state: TransactionState) {
         with(binding) {
-            titleFrom.title = customiser.selectTargetSourceLabel(state)
-            titleTo.title = customiser.selectTargetDestinationLabel(state)
+            titleFromText.text = customiser.selectTargetSourceLabel(state)
+            titleToText.text = customiser.selectTargetDestinationLabel(state)
             warningMessage.apply {
                 (state.sendingAsset as? AssetInfo)?.takeIf { it.isLayer2Token }?.coinNetwork?.let {
                     visible()
@@ -211,7 +211,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
             }
             titlePick.apply {
                 visibleIf { customiser.selectTargetShouldShowTargetPickTitle(state) }
-                title = customiser.selectTargetAddressTitlePick(state)
+                titlePickText.text = customiser.selectTargetAddressTitlePick(state)
             }
         }
     }

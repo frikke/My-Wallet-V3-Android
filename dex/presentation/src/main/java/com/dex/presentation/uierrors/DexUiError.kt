@@ -27,7 +27,9 @@ sealed class DexUiError {
 
     data class NotEnoughGas(val gasCurrency: Currency) : DexUiError(), AlertError, ActionRequiredError {
         override fun message(context: Context): String =
-            context.getString(com.blockchain.stringResources.R.string.not_enough_gas, gasCurrency.displayTicker)
+            context.getString(
+                com.blockchain.stringResources.R.string.not_enough_gas, gasCurrency.displayTicker
+            )
 
         override val priority: Int
             get() = 2

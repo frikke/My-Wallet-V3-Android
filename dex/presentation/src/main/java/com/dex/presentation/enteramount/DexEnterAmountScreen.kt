@@ -235,6 +235,7 @@ fun DexEnterAmountScreen(
                 }
 
                 is AmountNavigationEvent.AllowanceTxUrl -> uriHandler.openUri(event.url)
+                is AmountNavigationEvent.ReceiveOnAccount -> receiveOnAccount(event.account)
             }
         }
     }
@@ -310,6 +311,9 @@ fun DexEnterAmountScreen(
                                 description = description
                             )
                         )
+                    },
+                    requestDepositOnCurrency = {
+                        viewModel.onIntent(InputAmountIntent.ReceiveCurrencyRequested(it))
                     },
                     onNoSourceAccountFunds = {
                         navController.navigate(
@@ -524,6 +528,7 @@ fun InputScreen(
     viewAllowanceTx: (AssetInfo, String) -> Unit,
     selectNetworkOnClick: () -> Unit,
     receive: (CryptoNonCustodialAccount) -> Unit,
+    requestDepositOnCurrency: (Currency) -> Unit,
     onNoSourceAccountFunds: (Currency) -> Unit,
     viewState: InputAmountViewState.TransactionInputState
 ) {
@@ -642,6 +647,18 @@ fun InputScreen(
                 text = stringResource(id = R.string.deposit_more, it.account.currency.displayTicker),
                 onClick = {
                     receive(it.account)
+                }
+            )
+        }
+
+        (viewState.alertError as? DexUiError.NotEnoughGas)?.let {
+            MinimalPrimaryButton(
+                modifier = Modifier
+                    .padding(top = dimensionResource(id = com.blockchain.componentlib.R.dimen.smallest_spacing))
+                    .fillMaxWidth(),
+                text = stringResource(id = R.string.deposit_more, it.gasCurrency.displayTicker),
+                onClick = {
+                    requestDepositOnCurrency(it.gasCurrency)
                 }
             )
         }
@@ -924,7 +941,7 @@ private fun PreviewNetworkSelection_LoadingDark() {
 @Composable
 private fun PreviewInputScreen_NetworkSelection() {
     InputScreen(
-        {}, {}, {}, {}, {}, { _, _ -> }, {}, {}, {}, { _, _ -> }, {}, {}, { },
+        {}, {}, {}, {}, {}, { _, _ -> }, {}, {}, {}, { _, _ -> }, {}, {}, { }, { },
         InputAmountViewState.TransactionInputState(
             selectedNetwork = DataResource.Data(
                 DexNetworkViewState(
