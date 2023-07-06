@@ -591,6 +591,7 @@ class PrefsUtil(
             ?: AppInfoPrefs.DEFAULT_APP_VERSION_NAME
         val firebaseToken = store.getString(KEY_FIREBASE_TOKEN, "").orEmpty()
         val isLandingCtaDismissed = store.getBoolean(KEY_IS_LANDING_CTA_DISMISSED, false)
+        val currentThemeValue = currentTheme
 
         store.edit().clear().apply()
 
@@ -598,6 +599,7 @@ class PrefsUtil(
         setValue(APP_INSTALLATION_VERSION_NAME, installedVersion)
         setValue(KEY_FIREBASE_TOKEN, firebaseToken)
         setValue(KEY_IS_LANDING_CTA_DISMISSED, isLandingCtaDismissed)
+        currentTheme = currentThemeValue
 
         clearBackup()
     }

@@ -23,6 +23,7 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.MinimalErrorButton
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.system.ShimmerLoadingCard
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.LargeVerticalSpacer
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
@@ -87,19 +88,24 @@ fun WalletConnectDappSessionManage(
     onDisconnectClicked: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    Box(modifier = Modifier.background(AppTheme.colors.light)) {
+    Column(
+        modifier = Modifier.background(AppColors.backgroundSecondary)
+    ) {
+        SheetHeader(
+            shouldShowDivider = false,
+            onClosePress = onDismiss
+        )
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(AppTheme.dimensions.mediumSpacing),
+                .padding(
+                    start = AppTheme.dimensions.smallSpacing,
+                    end = AppTheme.dimensions.smallSpacing,
+                    bottom = AppTheme.dimensions.smallSpacing
+                ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            SheetHeader(
-                shouldShowDivider = false,
-                onClosePress = onDismiss,
-            )
-
             Image(
                 imageResource = session.dappLogoUrl.takeIf { it.isNotEmpty() }?.let {
                     ImageResource.Remote(it, size = 88.dp)
