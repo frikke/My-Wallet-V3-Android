@@ -38,8 +38,8 @@ fun SheetHeader(
     startImage: StackedIcon? = null,
     onClosePress: () -> Unit,
     shouldShowDivider: Boolean = true,
-    backgroundSecondary: Boolean = true)
-{
+    backgroundSecondary: Boolean = true
+) {
 
     Surface(
         color = if (backgroundSecondary) AppColors.backgroundSecondary else AppColors.background,
