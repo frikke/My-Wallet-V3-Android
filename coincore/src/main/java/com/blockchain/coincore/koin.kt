@@ -39,6 +39,7 @@ import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.sellSwapBrokerageQuoteFeatureFlag
 import com.blockchain.koin.stakingBalanceStore
+import com.blockchain.logging.Logger
 import com.blockchain.unifiedcryptowallet.domain.balances.CoinNetworksService
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
 import info.blockchain.balance.AssetCatalogue
@@ -154,7 +155,7 @@ val coincoreModule = module {
 
         scoped {
             HotWalletService(
-                walletApi = get()
+                walletOptionsStore = get()
             )
         }
 
@@ -166,6 +167,7 @@ val coincoreModule = module {
             EthHotWalletAddressResolver(
                 hotWalletService = get(),
                 nabuService = get(),
+                logger = Logger,
                 dynamicEthHotWalletAddressFF = get(dynamicEthHotWalletAddressFeatureFlag)
             )
         }
