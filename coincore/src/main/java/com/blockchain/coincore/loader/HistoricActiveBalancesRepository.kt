@@ -21,7 +21,6 @@ internal class HistoricActiveBalancesRepository(private val activeBalancesStore:
                 balancesResp.balances.filter { entry -> entry.balance?.amount?.signum() == 1 }
                     .map { balance -> balance.currency }
             }.doAfterSuccess {
-                println("LALALA ACTIVE --- $activeCurrencies")
                 activeCurrencies = it
             }.onErrorReturn {
                 emptyList()
