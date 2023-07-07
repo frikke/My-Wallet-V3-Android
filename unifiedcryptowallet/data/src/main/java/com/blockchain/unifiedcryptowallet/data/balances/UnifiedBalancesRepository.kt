@@ -1,10 +1,7 @@
 package com.blockchain.unifiedcryptowallet.data.balances
 
 import com.blockchain.api.selfcustody.AccountInfo
-import com.blockchain.api.selfcustody.BalanceEntry
-import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.api.selfcustody.CommonResponse
-import com.blockchain.api.selfcustody.NetworkStatus
 import com.blockchain.api.selfcustody.PubKeyInfo
 import com.blockchain.api.selfcustody.SubscriptionInfo
 import com.blockchain.data.DataResource
@@ -14,7 +11,6 @@ import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.firstOutcome
 import com.blockchain.data.flatMapData
 import com.blockchain.data.mapData
-import com.blockchain.extensions.replace
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.toDataResource
 import com.blockchain.preferences.CurrencyPrefs

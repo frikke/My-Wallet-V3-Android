@@ -438,8 +438,8 @@ class Coincore internal constructor(
             Single.just(it)
         } ?: walletModeService.walletModeSingle
         ).flatMap {
-            activeWalletsInModeRx(it, freshnessStrategy).firstOrError()
-        }
+        activeWalletsInModeRx(it, freshnessStrategy).firstOrError()
+    }
 
     fun availableCryptoAssets(): Single<List<AssetInfo>> =
         Single.just(assetCatalogue.supportedCryptoAssets)
