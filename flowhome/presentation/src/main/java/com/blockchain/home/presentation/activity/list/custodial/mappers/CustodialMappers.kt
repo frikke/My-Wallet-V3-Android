@@ -79,5 +79,7 @@ fun ActivitySummaryItem.toActivityComponent(): ActivityComponent {
         leadingImage = LogoValue.SingleIcon(LogoValueSource.Local(iconSummary())),
         leading = leading(),
         trailing = trailing()
-    )
+    ).run {
+        copy(leadingImageDark = leadingImage)
+    }
 }

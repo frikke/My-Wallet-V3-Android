@@ -13,6 +13,8 @@ sealed class ActivityViewItemDto {
     data class Stack(
         @SerialName("leadingImage")
         val leadingImage: ActivityIconDto?,
+        @SerialName("leadingImageDark")
+        val leadingImageDark: ActivityIconDto? = null,
         @SerialName("leading")
         val leading: List<StackComponentDto>,
         @SerialName("trailing")

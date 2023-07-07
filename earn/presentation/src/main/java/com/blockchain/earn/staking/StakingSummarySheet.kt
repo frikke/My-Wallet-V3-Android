@@ -76,6 +76,7 @@ fun StakingSummarySheet(
                     ImageResource.Remote(state.balanceCrypto?.currency?.logo.orEmpty())
                 ),
                 shouldShowDivider = false,
+                backgroundSecondary = false,
                 onClosePress = onClosePressed
             )
 
@@ -83,7 +84,7 @@ fun StakingSummarySheet(
                 modifier = Modifier
                     .background(color = AppColors.background)
                     .fillMaxWidth()
-                    .padding(horizontal = AppTheme.dimensions.standardSpacing)
+                    .padding(horizontal = AppTheme.dimensions.smallSpacing)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {

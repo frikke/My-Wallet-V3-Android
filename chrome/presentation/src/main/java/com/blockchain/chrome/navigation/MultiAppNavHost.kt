@@ -1,10 +1,12 @@
 package com.blockchain.chrome.navigation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -52,6 +54,10 @@ import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
+
+private val scrimColorLight = Color(0XA3121D33)
+private val scrimColorDark = Color(0XCC121D33)
+private val scrimColor @Composable get() = if (isSystemInDarkTheme()) scrimColorDark else scrimColorLight
 
 @OptIn(ExperimentalMaterialNavigationApi::class)
 @Composable
@@ -113,7 +119,9 @@ fun MultiAppNavHost(
         ModalBottomSheetLayout(
             modifier = Modifier.background(AppColors.background),
             bottomSheetNavigator = bottomSheetNavigator,
-            sheetShape = AppTheme.shapes.veryLarge.topOnly()
+            sheetShape = AppTheme.shapes.veryLarge.topOnly(),
+            sheetBackgroundColor = Color.Unspecified,
+            scrimColor = scrimColor
         ) {
             val popupRoute: String?
 

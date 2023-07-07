@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
@@ -29,7 +30,8 @@ private fun TableRow(
     contentBottom: @Composable (() -> Unit)? = null,
     onContentClicked: (() -> Unit)? = null,
     backgroundColor: Color = AppTheme.colors.backgroundSecondary,
-    backgroundShape: Shape = RectangleShape
+    backgroundShape: Shape = RectangleShape,
+    contentAlpha: Float = 1F
 ) {
     Column(
         modifier = modifier
@@ -42,7 +44,7 @@ private fun TableRow(
             .padding(paddingValues)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().alpha(contentAlpha),
             verticalAlignment = Alignment.CenterVertically
         ) {
             contentStart?.invoke(this)
@@ -69,7 +71,8 @@ fun TableRow(
     contentBottom: @Composable (() -> Unit)? = null,
     onContentClicked: (() -> Unit)? = null,
     backgroundColor: Color = AppTheme.colors.backgroundSecondary,
-    backgroundShape: Shape = RectangleShape
+    backgroundShape: Shape = RectangleShape,
+    contentAlpha: Float = 1F
 ) {
     TableRow(
         modifier = modifier,
@@ -80,7 +83,8 @@ fun TableRow(
         contentBottom = contentBottom,
         onContentClicked = onContentClicked,
         backgroundColor = backgroundColor,
-        backgroundShape = backgroundShape
+        backgroundShape = backgroundShape,
+        contentAlpha = contentAlpha
     )
 }
 

@@ -1,5 +1,6 @@
 package com.blockchain.home.presentation.activity.common
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -24,6 +25,7 @@ sealed interface ActivityComponent {
     data class StackView(
         override val id: String,
         val leadingImage: LogoValue = LogoValue.None,
+        val leadingImageDark: LogoValue = LogoValue.None,
         val leading: List<ActivityStackView>,
         val trailing: List<ActivityStackView>
     ) : ActivityComponent {
@@ -73,7 +75,8 @@ fun ActivityComponentItem(component: ActivityComponent, onClick: ((ClickAction) 
         is ActivityComponent.StackView -> {
             MaskedCustomTableRow(
                 ellipsiseLeading = true,
-                icon = component.leadingImage.toStackedIcon(),
+                icon = (if (isSystemInDarkTheme()) component.leadingImageDark else component.leadingImage)
+                    .toStackedIcon(),
                 leadingComponents = component.leading.map { it.toViewType() },
                 trailingComponents = component.trailing.map { it.toViewType() },
                 onClick = { onClick?.invoke(ClickAction.Stack(data = component.id)) }

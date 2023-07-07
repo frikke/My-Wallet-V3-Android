@@ -5,6 +5,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.widget.FrameLayout
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +18,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -89,7 +91,7 @@ private fun ThemeScreen(
     onClick: (Theme) -> Unit
 ) {
     Surface(
-        color = AppColors.backgroundSecondary,
+        color = AppColors.background,
         shape = AppTheme.shapes.large.topOnly()
     ) {
         Column(
@@ -99,21 +101,30 @@ private fun ThemeScreen(
             SheetHeader(
                 title = stringResource(id = R.string.settings_theme_title),
                 onClosePress = closeOnClick,
-                shouldShowDivider = false
+                shouldShowDivider = false,
+                backgroundSecondary = false
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
-            Theme.values().forEachIndexed { index, theme ->
-                ThemeItem(
-                    name = stringResource(theme.textResource()),
-                    icon = theme.icon(),
-                    selected = selectedTheme == theme,
-                    onClick = { onClick(theme) }
-                )
+            Surface(
+                modifier = Modifier.padding(AppTheme.dimensions.smallSpacing),
+                shape = AppTheme.shapes.large,
+                color = Color.Unspecified
+            ) {
+                Column {
+                    Theme.values().forEachIndexed { index, theme ->
+                        ThemeItem(
+                            name = stringResource(theme.textResource()),
+                            icon = theme.icon(),
+                            selected = selectedTheme == theme,
+                            onClick = { onClick(theme) }
+                        )
 
-                if (index < Theme.values().lastIndex) {
-                    AppDivider(AppTheme.colors.light)
+                        if (index < Theme.values().lastIndex) {
+                            AppDivider()
+                        }
+                    }
                 }
             }
 
@@ -132,6 +143,7 @@ private fun ThemeItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .background(AppColors.backgroundSecondary)
             .clickable(onClick = onClick)
             .padding(AppTheme.dimensions.smallSpacing)
     ) {

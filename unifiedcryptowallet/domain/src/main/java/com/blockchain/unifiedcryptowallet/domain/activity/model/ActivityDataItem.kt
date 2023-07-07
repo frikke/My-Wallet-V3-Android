@@ -5,6 +5,7 @@ import com.blockchain.image.LogoValue
 sealed interface ActivityDataItem {
     data class Stack(
         val leadingImage: LogoValue,
+        val leadingImageDark: LogoValue,
         val leading: List<StackComponent>,
         val trailing: List<StackComponent>
     ) : ActivityDataItem
