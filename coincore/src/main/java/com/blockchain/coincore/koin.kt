@@ -113,8 +113,8 @@ val coincoreModule = module {
         scoped {
             NetworkAccountsRepository(
                 coincore = get(),
+                assetCatalogue = get(),
                 coinsNetworksRepository = get(),
-                assetCatalogue = get()
             )
         }.bind(NetworkAccountsService::class)
 

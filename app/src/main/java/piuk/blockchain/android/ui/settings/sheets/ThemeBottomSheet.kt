@@ -99,7 +99,7 @@ private fun ThemeScreen(
             SheetHeader(
                 title = stringResource(id = R.string.settings_theme_title),
                 onClosePress = closeOnClick,
-                shouldShowDivider = false,
+                shouldShowDivider = false
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))

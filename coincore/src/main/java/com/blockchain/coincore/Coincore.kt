@@ -470,6 +470,19 @@ internal class NetworkAccountsRepository(
             }
         }
     }
+
+    override suspend fun activelySupportedNetworks(): List<CoinNetwork> {
+        val networksOutcome = coinsNetworksRepository.allCoinNetworks().firstOutcome()
+        val coinNetworks = (networksOutcome as? Outcome.Success)?.value ?: return emptyList()
+        return coinNetworks.filter { it.activelySupported() }
+    }
+
+    private suspend fun CoinNetwork.activelySupported(): Boolean {
+        val coincoreAccountOutcome = coincore[nativeAssetTicker]?.accountGroup(AssetFilter.NonCustodial)
+            ?.map { it.accounts.any { account -> account !is NullCryptoAccount } }?.switchIfEmpty(Single.just(false))
+            ?.awaitOutcome()
+        return (coincoreAccountOutcome as? Outcome.Success)?.value ?: false
+    }
 }
 
 internal class CoinNetworksRepository(private val dynamicAssetService: DynamicAssetsService) : CoinNetworksService {

@@ -101,7 +101,6 @@ class AssetsViewModel(
                 .toHomeAssets()
                 .allFiatAndSectionCrypto(sectionSize.size)
         },
-
         filters = filters,
         showNoResults = assets.map { assets ->
             assets.none { it.shouldBeFiltered(this) } && assets.isNotEmpty()

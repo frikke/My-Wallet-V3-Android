@@ -20,8 +20,9 @@ import com.blockchain.extensions.safeLet
 @Composable
 fun TableRowHeader(
     title: String,
+    icon: ImageResource.Local? = null,
+    iconOnClick: () -> Unit = {},
     actionTitle: String? = null,
-    icon: ImageResource = ImageResource.None,
     actionOnClick: (() -> Unit)? = null
 ) {
     Row(
@@ -34,9 +35,12 @@ fun TableRowHeader(
             color = AppTheme.colors.body
         )
 
-        if (icon != ImageResource.None) {
+        icon?.let {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
-            Image(icon)
+            Image(
+                modifier = Modifier.clickableNoEffect(onClick = iconOnClick),
+                imageResource = icon.withSize(AppTheme.dimensions.smallSpacing)
+            )
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -59,7 +63,6 @@ private fun PreviewTableRowHeader() {
         title = "Assets",
         actionTitle = "See all",
         icon = Icons.Filled.Fire
-            .withSize(AppTheme.dimensions.smallSpacing)
             .withTint(AppTheme.colors.warningMuted),
         actionOnClick = {}
     )

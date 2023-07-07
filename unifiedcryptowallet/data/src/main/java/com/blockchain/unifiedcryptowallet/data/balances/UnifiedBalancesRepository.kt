@@ -21,6 +21,7 @@ import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import kotlinx.coroutines.flow.Flow
@@ -36,6 +37,19 @@ internal class UnifiedBalancesRepository(
     private val assetCatalogue: AssetCatalogue,
     private val currencyPrefs: CurrencyPrefs
 ) : UnifiedBalancesService {
+
+    override fun failedBalancesNetworks(
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<List<CoinNetwork>>> {
+        val failedNetworksFlow = unifiedBalancesStore.stream(freshnessStrategy)
+            .mapData { response -> response.networksStatus.filter { it.hasFailedToLoad } }
+
+        return failedNetworksFlow.mapData { failedNetworks ->
+            networkAccountsService.activelySupportedNetworks()
+                .filter { it.networkTicker in failedNetworks.map { failedNetwork -> failedNetwork.ticker } }
+        }
+    }
+
     /**
      * Specify those to get the balance of a specific Wallet.
      */
@@ -51,6 +65,7 @@ internal class UnifiedBalancesRepository(
                 is Outcome.Failure -> {
                     emit(subscribeResult.toDataResource())
                 }
+
                 is Outcome.Success -> {
                     emitAll(
                         unifiedBalancesStore.stream(freshnessStrategy)

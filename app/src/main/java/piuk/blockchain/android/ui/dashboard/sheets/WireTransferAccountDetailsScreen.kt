@@ -66,7 +66,7 @@ fun WireTransferAccountDetailsScreen(
                 stringResource(com.blockchain.stringResources.R.string.deposit_currency, currency)
             },
             onClosePress = backClicked,
-            shouldShowDivider = true,
+            shouldShowDivider = true
         )
 
         Column(

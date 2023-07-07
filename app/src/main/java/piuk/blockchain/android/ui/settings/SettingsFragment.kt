@@ -20,6 +20,8 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.Chat
+import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
@@ -230,13 +232,13 @@ class SettingsFragment :
         updateToolbar(
             toolbarTitle = getString(com.blockchain.stringResources.R.string.toolbar_settings),
             menuItems = listOf(
-                NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_support_chat,
-                    contentDescription = com.blockchain.stringResources.R.string.accessibility_support
-                ) {
-                    analytics.logEvent(AnalyticsEvents.Support)
-                    navigator().goToSupportCentre()
-                }
+                NavigationBarButton.IconResource(
+                    image = Icons.Filled.Chat,
+                    onIconClick = {
+                        analytics.logEvent(AnalyticsEvents.Support)
+                        navigator().goToSupportCentre()
+                    }
+                )
             )
         )
     }

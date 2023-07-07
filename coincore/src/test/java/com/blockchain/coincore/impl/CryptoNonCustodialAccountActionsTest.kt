@@ -34,6 +34,7 @@ import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
@@ -55,6 +56,12 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
     private val custodialManager: CustodialWalletManager = mock()
 
     private val unifiedBalancesService: UnifiedBalancesService = object : UnifiedBalancesService {
+
+        override fun failedBalancesNetworks(
+            freshnessStrategy: FreshnessStrategy
+        ): Flow<DataResource<List<CoinNetwork>>> {
+            return flowOf(DataResource.Data(emptyList()))
+        }
 
         override fun balances(
             wallet: NetworkWallet?,

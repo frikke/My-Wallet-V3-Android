@@ -72,6 +72,9 @@ import com.blockchain.home.presentation.dapps.HomeDappsIntent
 import com.blockchain.home.presentation.dapps.HomeDappsViewModel
 import com.blockchain.home.presentation.dapps.HomeDappsViewState
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
+import com.blockchain.home.presentation.failedbalances.FailedBalancesIntent
+import com.blockchain.home.presentation.failedbalances.FailedBalancesViewModel
+import com.blockchain.home.presentation.failedbalances.FailedBalancesViewState
 import com.blockchain.home.presentation.handhold.HandholdIntent
 import com.blockchain.home.presentation.handhold.HandholdViewModel
 import com.blockchain.home.presentation.handhold.HandholdViewState
@@ -159,6 +162,10 @@ fun HomeScreen(
 
     // -----------------------------
     // navigation
+    fun openFailedBalancesInfo() {
+        navController.navigate(HomeDestination.FailedBalances)
+    }
+
     fun openAssetsList(assetsCount: Int) {
         navController.navigate(HomeDestination.CryptoAssets)
         analytics.logEvent(
@@ -317,6 +324,8 @@ fun HomeScreen(
                     assetActionsNavigation = assetActionsNavigation,
                     openDexSwapOptions = ::openSwapDexOptions,
                     openMoreQuickActions = { openMoreQuickActions(WalletMode.NON_CUSTODIAL) },
+
+                    openFailedBalancesInfo = ::openFailedBalancesInfo,
 
                     openCryptoAssets = ::openAssetsList,
                     assetOnClick = ::openCoinview,
@@ -762,6 +771,8 @@ private fun DefiHomeDashboard(
     openDexSwapOptions: () -> Unit,
     openMoreQuickActions: () -> Unit,
 
+    openFailedBalancesInfo: () -> Unit,
+
     assetOnClick: (AssetInfo) -> Unit,
     openCryptoAssets: (count: Int) -> Unit,
 
@@ -792,6 +803,11 @@ private fun DefiHomeDashboard(
     val maxQuickActions = maxQuickActionsOnScreen
     val announcementsViewModel: AnnouncementsViewModel = getViewModel(scope = payloadScope)
     val announcementsState: AnnouncementsViewState by announcementsViewModel.viewState.collectAsStateLifecycleAware()
+    val failedBalancesViewModel: FailedBalancesViewModel = getViewModel(
+        viewModelStoreOwner = LocalContext.current as ViewModelStoreOwner, scope = payloadScope
+    )
+    val failedBalancesViewState: FailedBalancesViewState by failedBalancesViewModel.viewState
+        .collectAsStateLifecycleAware()
     val homeAssetsViewModel: AssetsViewModel = getViewModel(
         scope = payloadScope, key = WalletMode.NON_CUSTODIAL.name + "assets"
     )
@@ -822,6 +838,8 @@ private fun DefiHomeDashboard(
                         walletMode = WalletMode.CUSTODIAL,
                     )
                 )
+                // failed balances
+                failedBalancesViewModel.onIntent(FailedBalancesIntent.LoadData)
                 // accounts
                 homeAssetsViewModel.onIntent(AssetsIntent.LoadFilters)
                 homeAssetsViewModel.onIntent(
@@ -845,6 +863,7 @@ private fun DefiHomeDashboard(
     LaunchedEffect(isSwipingToRefresh) {
         if (isSwipingToRefresh) {
             announcementsViewModel.onIntent(AnnouncementsIntent.Refresh)
+            failedBalancesViewModel.onIntent(FailedBalancesIntent.Refresh)
             homeAssetsViewModel.onIntent(AssetsIntent.Refresh)
             quickActionsViewModel.onIntent(QuickActionsIntent.Refresh)
             activityViewModel.onIntent(ActivityIntent.Refresh())
@@ -966,6 +985,18 @@ private fun DefiHomeDashboard(
                 }
             }
 
+        // failed network balances
+        val failedNetworkNames = (failedBalancesViewState.failedNetworkNames as? DataResource.Data)?.data
+        if (!failedBalancesViewState.dismissWarning) {
+            homeFailedBalances(
+                failedNetworkNames = failedNetworkNames?.toImmutableList(),
+                dismissFailedNetworksWarning = {
+                    failedBalancesViewModel.onIntent(FailedBalancesIntent.DismissFailedNetworksWarning)
+                },
+                learnMoreOnClick = openFailedBalancesInfo
+            )
+        }
+
         // assets
         val assets = (assetsViewState.assets as? DataResource.Data)?.data
         assets?.takeIf { it.isNotEmpty() }?.let { data ->
@@ -975,7 +1006,9 @@ private fun DefiHomeDashboard(
                 openCryptoAssets = { openCryptoAssets(data.size) },
                 assetOnClick = assetOnClick,
                 fundsLocksOnClick = {}, // n/a nc
-                openFiatActionDetail = {} // n/a nc
+                openFiatActionDetail = {}, // n/a nc
+                showWarning = failedNetworkNames?.isNotEmpty() ?: false,
+                warningOnClick = openFailedBalancesInfo
             )
         }
 
@@ -992,7 +1025,9 @@ private fun DefiHomeDashboard(
             activityState = activityViewState,
             openActivity = openActivity,
             openActivityDetail = openActivityDetail,
-            wMode = WalletMode.NON_CUSTODIAL
+            wMode = WalletMode.NON_CUSTODIAL,
+            showWarning = failedNetworkNames?.isNotEmpty() ?: false,
+            warningOnClick = openFailedBalancesInfo
         )
 
         // news
