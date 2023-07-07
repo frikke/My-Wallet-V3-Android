@@ -2,7 +2,6 @@ package com.blockchain.home.presentation.dashboard.composable
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.ui.res.stringResource
 import com.blockchain.analytics.Analytics

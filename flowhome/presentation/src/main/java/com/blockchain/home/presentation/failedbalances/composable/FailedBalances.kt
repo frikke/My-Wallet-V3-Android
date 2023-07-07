@@ -62,12 +62,13 @@ private fun FailedBalancesScreen(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppColors.backgroundSecondary),
+            .background(AppColors.background),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SheetHeader(
             onClosePress = dismiss,
-            shouldShowDivider = false
+            shouldShowDivider = false,
+            backgroundSecondary = false
         )
 
         Column(
@@ -76,9 +77,7 @@ private fun FailedBalancesScreen(
         ) {
             ScreenStatusIcon(
                 main = Icons.Network,
-                tag = Icons.AlertOn.withTint(AppColors.warning),
-                iconBackground = AppColors.background,
-                borderColor = AppColors.backgroundSecondary
+                tag = Icons.AlertOn.withTint(AppColors.warning)
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
