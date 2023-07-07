@@ -93,10 +93,6 @@ class EnterAmountFragment :
         enumValueOfOrNull<AssetAction>(arguments?.getString(ACTION).orEmpty())
     }
 
-    private val errorContainer by lazy {
-        binding.errorLayout.errorContainer
-    }
-
     private val inputCurrency: Currency
         get() = binding.amountSheetInput.configuration.inputCurrency
 
@@ -133,11 +129,13 @@ class EnterAmountFragment :
                                         binding.amountSheetInput.updateExchangeAmount(it)
                                     }
                                 }
+
                                 amount is FiatValue &&
                                     state.amount is FiatValue &&
                                     amount.currencyCode != state.amount.currencyCode -> {
                                     rate.inverse().convert(amount)
                                 }
+
                                 else -> {
                                     amount
                                 }
@@ -158,9 +156,11 @@ class EnterAmountFragment :
                             onCtaClick(state)
                         }
                     }
+
                     PrefixedOrSuffixedEditText.ImeOptions.BACK -> {
                         hideKeyboard()
                     }
+
                     else -> {
                         // do nothing
                     }
@@ -333,9 +333,11 @@ class EnterAmountFragment :
             state.pendingTx?.isLowOnBalance() == true && customiser.shouldDisplayFeesErrorMessage(state) -> {
                 showError(state, customiser.issueFeesTooHighMessage(state))
             }
+
             errorState == TransactionErrorState.NONE -> {
                 showCta()
             }
+
             errorState.isAmountRelated() -> {
                 if (isAmountPositive) {
                     showError(state, customiser.issueFlashMessage(state, inputCurrency.type))
@@ -343,6 +345,7 @@ class EnterAmountFragment :
                     showCta()
                 }
             }
+
             !errorState.isAmountRelated() -> {
                 showError(state, customiser.issueFlashMessage(state, inputCurrency.type))
             }
@@ -350,15 +353,15 @@ class EnterAmountFragment :
     }
 
     private fun showCta() {
-        errorContainer.gone()
+        binding.errorButton.gone()
         binding.amountSheetCtaButton.visible()
     }
 
     private fun showError(state: TransactionState, message: String?) {
         message?.let {
             binding.amountSheetCtaButton.gone()
-            binding.errorLayout.errorMessage.text = it
-            errorContainer.visible()
+            binding.errorButton.text = it
+            binding.errorButton.visible()
 
             val infoType = when (state.errorState) {
                 TransactionErrorState.INSUFFICIENT_FUNDS -> InfoBottomSheetType.INSUFFICIENT_FUNDS
@@ -368,8 +371,10 @@ class EnterAmountFragment :
                 // suggested upgrade
                 TransactionErrorState.OVER_GOLD_TIER_LIMIT,
                 TransactionErrorState.OVER_SILVER_TIER_LIMIT -> InfoBottomSheetType.OVER_MAX_LIMIT
+
                 TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT ->
                     InfoBottomSheetType.ABOVE_MAX_PAYMENT_METHOD_LIMIT
+
                 else -> null
             }
 
@@ -381,11 +386,11 @@ class EnterAmountFragment :
                 )
             }
             bottomSheetInfo?.let { info ->
-                errorContainer.setOnClickListener {
+                binding.errorButton.onClick = {
                     showBottomSheet(TransactionFlowInfoBottomSheet.newInstance(info))
                     infoActionCallback = handlePossibleInfoAction(info, state)
                 }
-            } ?: errorContainer.setOnClickListener {}
+            } ?: kotlin.run { binding.errorButton.onClick = {} }
         }
     }
 
@@ -401,6 +406,7 @@ class EnterAmountFragment :
                     require(asset != null)
                     return { startBuyForCurrency(asset) }
                 }
+
                 InfoActionType.KYC_UPGRADE -> return {
                     showBottomSheet(
                         KycUpgradeNowSheet.newInstance()
@@ -556,6 +562,7 @@ class EnterAmountFragment :
                     predefinedAmount = state.amount
                 )
             }
+
             else -> {
                 val fiatRate = state.fiatRate ?: return
                 val isCryptoWithFiatExchange =

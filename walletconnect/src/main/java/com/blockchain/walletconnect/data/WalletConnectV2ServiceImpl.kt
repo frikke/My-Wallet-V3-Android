@@ -87,6 +87,7 @@ class WalletConnectV2ServiceImpl(
 
     private val _dappRedirectEvents: MutableSharedFlow<DappRedirectUri> = MutableSharedFlow()
     override val dappRedirectEvents: SharedFlow<DappRedirectUri> = _dappRedirectEvents.asSharedFlow()
+    private var walletConnectInitialised = false
 
     private val ethDataManager: EthDataManager
         get() = payloadScope.get()
@@ -142,7 +143,9 @@ class WalletConnectV2ServiceImpl(
                         Timber.e("WalletConnect V2: Web3Wallet init error: $error")
                     }
                 )
+                walletConnectInitialised = true
             } catch (t: Throwable) {
+                walletConnectInitialised = false
                 Timber.e(t, "WalletConnect V2: Web3Wallet exception")
             }
         }
@@ -152,7 +155,7 @@ class WalletConnectV2ServiceImpl(
             if (!walletConnectV2FeatureFlag.coEnabled()) return@launch
 
             lifecycleObservable.onStateUpdated.asFlow().collectLatest { appState ->
-                if (appState == AppState.BACKGROUNDED) {
+                if (appState == AppState.BACKGROUNDED && walletConnectInitialised) {
                     Timber.d("WalletConnect V2: App is in background, disconnecting")
                     try {
                         CoreClient.Relay.disconnect { error: Core.Model.Error ->
@@ -169,7 +172,7 @@ class WalletConnectV2ServiceImpl(
     override fun resumeConnection() {
         Timber.d("WalletConnect V2: resuming connection")
         scope.launch {
-            if (walletConnectV2FeatureFlag.coEnabled()) {
+            if (walletConnectV2FeatureFlag.coEnabled() && walletConnectInitialised) {
                 try {
                     CoreClient.Relay.connect { error: Core.Model.Error ->
                         Timber.e("WalletConnect V2: Connect Relay error: $error")
@@ -184,7 +187,7 @@ class WalletConnectV2ServiceImpl(
     override suspend fun pair(pairingUrl: String) {
         Timber.d("WalletConnect V2: pairing with $pairingUrl")
         withContext(Dispatchers.IO) {
-            if (!walletConnectV2FeatureFlag.coEnabled()) {
+            if (!walletConnectV2FeatureFlag.coEnabled() || !walletConnectInitialised) {
                 return@withContext
             }
             clearSessionProposals()
