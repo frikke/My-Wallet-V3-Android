@@ -1,13 +1,11 @@
 package com.blockchain.chrome.navigation
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavGraphBuilder
@@ -28,6 +26,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.rememberBottomSheet
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SystemColors
+import com.blockchain.componentlib.theme.topOnly
 import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.home.presentation.navigation.ARG_IS_FROM_MODE_SWITCH
 import com.blockchain.home.presentation.navigation.ARG_RECURRING_BUY_ID
@@ -114,10 +113,7 @@ fun MultiAppNavHost(
         ModalBottomSheetLayout(
             modifier = Modifier.background(AppColors.background),
             bottomSheetNavigator = bottomSheetNavigator,
-            sheetShape = AppTheme.shapes.large.copy(
-                bottomStart = CornerSize(0.dp),
-                bottomEnd = CornerSize(0.dp)
-            )
+            sheetShape = AppTheme.shapes.veryLarge.topOnly()
         ) {
             val popupRoute: String?
 

@@ -85,7 +85,7 @@ fun ScreenStatusIcon(
             main = main
                 .withTint(AppColors.title)
                 .withBackground(
-                    backgroundColor = AppColors.backgroundSecondary, iconSize = 58.dp, backgroundSize = 88.dp
+                    backgroundColor = iconBackground, iconSize = 58.dp, backgroundSize = 88.dp
                 ),
             tag = tag,
         ),

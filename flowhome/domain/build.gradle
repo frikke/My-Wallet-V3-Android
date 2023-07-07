@@ -6,4 +6,5 @@ dependencies {
     implementation project(':common:interface')
     implementation project(':coincore')
     implementation project(':core')
+    implementation project(':unifiedcryptowallet:domain')
 }

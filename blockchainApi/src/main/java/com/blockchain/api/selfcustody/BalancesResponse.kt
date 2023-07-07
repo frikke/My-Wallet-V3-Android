@@ -9,7 +9,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class BalancesResponse(
     @SerialName("currencies")
-    val balances: List<BalanceEntry>
+    val balances: List<BalanceEntry>,
+    @SerialName("networks")
+    val networksStatus: List<NetworkStatus> = emptyList()
 )
 
 @Serializable
@@ -32,4 +34,12 @@ data class BalanceInfo(
     val amount: @Contextual BigInteger,
     @SerialName("precision")
     val precision: Int
+)
+
+@Serializable
+data class NetworkStatus(
+    @SerialName("ticker")
+    val ticker: String,
+    @SerialName("errorLoadingBalances")
+    val hasFailedToLoad: Boolean
 )

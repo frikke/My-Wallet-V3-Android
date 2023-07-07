@@ -12,6 +12,7 @@ import com.blockchain.network.websocket.ConnectionEvent
 import com.blockchain.network.websocket.WebSocket
 import java.util.Locale
 import java.util.TimeZone
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -27,7 +28,8 @@ class ActivityWebSocketService(
     private val activityCacheService: ActivityCacheService,
     private val lifecycleObservable: LifecycleObservable,
     private val credentials: SelfCustodyServiceAuthCredentials,
-    private val wsScope: CoroutineScope
+    private val wsScope: CoroutineScope,
+    private val coroutineContext: CoroutineContext
 ) {
     private var isActive: Boolean = false
     private var activityJob: Job? = null
@@ -85,13 +87,15 @@ class ActivityWebSocketService(
 
     fun open(fiatCurrency: String) {
         openSocket = {
-            if (isActive.not()) {
-                webSocket.open()
-                send(
-                    fiatCurrency = fiatCurrency,
-                    acceptLanguage = Locale.getDefault().range,
-                    timeZone = TimeZone.getDefault().id
-                )
+            wsScope.launch(coroutineContext) {
+                if (isActive.not()) {
+                    webSocket.open()
+                    send(
+                        fiatCurrency = fiatCurrency,
+                        acceptLanguage = Locale.getDefault().range,
+                        timeZone = TimeZone.getDefault().id
+                    )
+                }
             }
         }
         openSocket()

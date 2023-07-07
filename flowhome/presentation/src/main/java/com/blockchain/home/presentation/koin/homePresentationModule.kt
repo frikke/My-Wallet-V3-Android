@@ -9,6 +9,7 @@ import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.allassets.EmptyScreenViewModel
 import com.blockchain.home.presentation.dapps.HomeDappsViewModel
 import com.blockchain.home.presentation.earn.EarnViewModel
+import com.blockchain.home.presentation.failedbalances.FailedBalancesViewModel
 import com.blockchain.home.presentation.fiat.actions.FiatActionsNavigator
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailViewModel
 import com.blockchain.home.presentation.handhold.HandholdViewModel
@@ -45,6 +46,12 @@ val homePresentationModule = module {
                 backupPhraseService = get(),
                 announcementsService = get(),
                 iterableAnnouncementsFF = get(iterableAnnouncementsFeatureFlag)
+            )
+        }
+
+        viewModel {
+            FailedBalancesViewModel(
+                unifiedBalancesService = get()
             )
         }
 

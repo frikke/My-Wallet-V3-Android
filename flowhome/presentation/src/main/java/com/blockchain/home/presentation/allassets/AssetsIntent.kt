@@ -10,8 +10,7 @@ import com.blockchain.walletmode.WalletMode
 sealed interface AssetsIntent : Intent<AssetsModelState> {
     data class LoadAccounts(
         val walletMode: WalletMode,
-        val sectionSize: SectionSize,
-        val forceRefresh: Boolean = false
+        val sectionSize: SectionSize
     ) : AssetsIntent
 
     object LoadFundLocks : AssetsIntent {

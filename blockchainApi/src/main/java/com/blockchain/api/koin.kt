@@ -118,6 +118,8 @@ import com.blockchain.serializers.IsoDateSerializer
 import com.blockchain.serializers.KZonedDateTimeSerializer
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlin.coroutines.coroutineContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
@@ -595,6 +597,7 @@ val blockchainApiModule = module {
                 activityCacheService = get(),
                 credentials = get(),
                 lifecycleObservable = get(),
+                coroutineContext = Dispatchers.IO,
                 wsScope = get(applicationScope)
             )
         }

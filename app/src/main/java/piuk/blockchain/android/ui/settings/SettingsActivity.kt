@@ -10,6 +10,8 @@ import com.blockchain.chrome.navigation.SettingsDestination
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.addTransactionAnimation
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.icons.Chat
+import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
@@ -72,6 +74,7 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
             SettingsDestination.Home -> {
                 // do nothing
             }
+
             SettingsDestination.Account -> goToAccount()
             SettingsDestination.Notifications -> goToNotifications()
             SettingsDestination.Security -> goToSecurity()
@@ -93,13 +96,13 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
     private fun setupSupportButton() {
         updateToolbarMenuItems(
             listOf(
-                NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_support_chat,
-                    contentDescription = com.blockchain.stringResources.R.string.accessibility_support
-                ) {
-                    analytics.logEvent(AnalyticsEvents.Support)
-                    startActivity(SupportCentreActivity.newIntent(this))
-                }
+                NavigationBarButton.IconResource(
+                    image = Icons.Filled.Chat,
+                    onIconClick = {
+                        analytics.logEvent(AnalyticsEvents.Support)
+                        startActivity(SupportCentreActivity.newIntent(this))
+                    }
+                )
             )
         )
     }
