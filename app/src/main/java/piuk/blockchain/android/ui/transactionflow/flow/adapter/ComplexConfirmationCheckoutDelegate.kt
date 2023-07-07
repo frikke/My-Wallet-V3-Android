@@ -90,11 +90,11 @@ private class ComplexConfirmationCheckoutItemItemViewHolder(
 
     private fun TextView.highlightNewQuote(isHighlight: Boolean) {
         if (isHighlight) {
-            this.setTextColor(ContextCompat.getColor(this.context, com.blockchain.common.R.color.blue_600))
-            this.setTextColor(ContextCompat.getColor(this.context, com.blockchain.common.R.color.blue_600))
+            this.setTextColor(ContextCompat.getColor(this.context, com.blockchain.componentlib.R.color.primary))
+            this.setTextColor(ContextCompat.getColor(this.context, com.blockchain.componentlib.R.color.primary))
         } else {
-            this.setTextColor(ContextCompat.getColor(this.context, com.blockchain.common.R.color.grey_800))
-            this.setTextColor(ContextCompat.getColor(this.context, com.blockchain.common.R.color.grey_800))
+            this.setTextColor(ContextCompat.getColor(this.context, com.blockchain.componentlib.R.color.body))
+            this.setTextColor(ContextCompat.getColor(this.context, com.blockchain.componentlib.R.color.body))
         }
     }
 }

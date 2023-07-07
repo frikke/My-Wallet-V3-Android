@@ -94,12 +94,12 @@ private class ExpandableComplexConfirmationCheckoutItemViewHolder(
         with(binding) {
             when {
                 item.isNewQuote -> {
-                    expandableComplexItemTitle.updateColour(com.blockchain.common.R.color.blue_600)
-                    expandableComplexItemSubtitle.updateColour(com.blockchain.common.R.color.blue_600)
+                    expandableComplexItemTitle.updateColour(com.blockchain.componentlib.R.color.primary)
+                    expandableComplexItemSubtitle.updateColour(com.blockchain.componentlib.R.color.primary)
                 }
                 else -> {
-                    expandableComplexItemTitle.updateColour(com.blockchain.common.R.color.grey_800)
-                    expandableComplexItemSubtitle.updateColour(com.blockchain.common.R.color.grey_600)
+                    expandableComplexItemTitle.updateColour(com.blockchain.componentlib.R.color.body)
+                    expandableComplexItemSubtitle.updateColour(com.blockchain.componentlib.R.color.body)
                 }
             }
         }

@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="@color/background"
     android:layout_height="match_parent">
 
     <FrameLayout
@@ -15,7 +16,7 @@
     <View
         android:id="@+id/amount_sheet_separator"
         style="@style/SeparatorWithoutMargins"
-        android:background="@color/grey_100"
+        android:background="@color/light"
         android:layout_marginTop="@dimen/small_spacing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -70,17 +71,16 @@
         android:contentDescription="@string/common_next"
         app:layout_constraintTop_toBottomOf="@id/frame_lower_slot" />
 
-    <include
-        android:id="@+id/error_layout"
-        layout="@layout/error_container_layout"
+    <com.blockchain.componentlib.button.AlertButtonView
+        android:id="@+id/error_button"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/small_spacing"
         android:layout_marginTop="@dimen/very_small_spacing"
         android:layout_marginEnd="@dimen/small_spacing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/frame_lower_slot" />
+        app:layout_constraintTop_toBottomOf="@id/frame_lower_slot"
+        android:layout_height="wrap_content"/>
 
     <com.blockchain.componentlib.system.CircularProgressBarView
         android:id="@+id/enter_amount_loading"

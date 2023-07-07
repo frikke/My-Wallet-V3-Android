@@ -100,7 +100,6 @@ private fun ThemeScreen(
                 title = stringResource(id = R.string.settings_theme_title),
                 onClosePress = closeOnClick,
                 shouldShowDivider = false,
-                background = AppColors.backgroundSecondary
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))

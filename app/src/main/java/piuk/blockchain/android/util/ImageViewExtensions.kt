@@ -12,7 +12,8 @@ import com.blockchain.presentation.getResolvedDrawable
 import info.blockchain.balance.Currency
 import piuk.blockchain.android.R
 
-private const val TINT_ALPHA = 0x26
+private const val TINT_ALPHA_LIGHT = 0x26
+private const val TINT_ALPHA_DARK = 0x50
 
 fun ImageView.setImageDrawable(@DrawableRes res: Int) {
     setImageDrawable(context.getResolvedDrawable(res))
@@ -20,7 +21,11 @@ fun ImageView.setImageDrawable(@DrawableRes res: Int) {
 
 fun ImageView.setAssetIconColoursWithTint(asset: Currency) {
     val main = tryParseColour(asset.colour)
-    val tint = ColorUtils.setAlphaComponent(main, TINT_ALPHA)
+    val tint = ColorUtils.setAlphaComponent(
+        main,
+        if (context.resources.getBoolean(com.blockchain.componentlib.R.bool.isDarkMode)) TINT_ALPHA_DARK
+        else TINT_ALPHA_LIGHT
+    )
     setAssetIconColours(tint, main)
 }
 

@@ -67,7 +67,6 @@ fun WireTransferAccountDetailsScreen(
             },
             onClosePress = backClicked,
             shouldShowDivider = true,
-            background = AppColors.backgroundSecondary
         )
 
         Column(
