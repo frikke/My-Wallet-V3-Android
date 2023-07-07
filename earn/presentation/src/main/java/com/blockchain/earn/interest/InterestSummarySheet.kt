@@ -73,13 +73,14 @@ fun InterestSummarySheet(
                     ImageResource.Remote(state.balanceCrypto?.currency?.logo.orEmpty())
                 ),
                 shouldShowDivider = false,
+                backgroundSecondary = false,
                 onClosePress = onClosePressed
             )
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = AppTheme.dimensions.standardSpacing)
+                    .padding(horizontal = AppTheme.dimensions.smallSpacing)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {

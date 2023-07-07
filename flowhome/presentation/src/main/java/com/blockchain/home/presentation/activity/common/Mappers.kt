@@ -1,6 +1,5 @@
 package com.blockchain.home.presentation.activity.common
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.withBackground
@@ -50,7 +49,7 @@ private fun LogoValueSource.toImageResource(): ImageResource {
         is LogoValueSource.Remote -> ImageResource.Remote(url)
         is LogoValueSource.Local -> icon.toImageResource().withTint(AppTheme.colors.title)
             .withBackground(
-                backgroundColor = if (isSystemInDarkTheme()) AppTheme.colors.medium else AppTheme.colors.light,
+                backgroundColor = AppTheme.colors.light,
                 backgroundSize = AppTheme.dimensions.standardSpacing
             )
     }

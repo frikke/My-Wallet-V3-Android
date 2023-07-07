@@ -47,7 +47,8 @@ fun DefaultTableRow(
     endImageResource: ImageResource = Icons.ChevronRight.withTint(AppColors.body),
     backgroundColor: Color = AppTheme.colors.backgroundSecondary,
     primaryTextColor: Color = AppTheme.colors.title,
-    secondaryTextColor: Color = AppTheme.colors.body
+    secondaryTextColor: Color = AppTheme.colors.body,
+    contentAlpha: Float = 1F
 ) {
     DefaultTableRow(
         modifier = modifier,
@@ -62,7 +63,8 @@ fun DefaultTableRow(
         endImageResource = endImageResource,
         backgroundColor = backgroundColor,
         primaryTextColor = primaryTextColor,
-        secondaryTextColor = secondaryTextColor
+        secondaryTextColor = secondaryTextColor,
+        contentAlpha = contentAlpha
     )
 }
 
@@ -84,7 +86,8 @@ fun DefaultTableRow(
     titleColor: Color = AppTheme.colors.title,
     titleStyle: TextStyle = AppTheme.typography.body2,
     bylineColor: Color = AppTheme.colors.muted,
-    bylineStyle: TextStyle = AppTheme.typography.paragraph1
+    bylineStyle: TextStyle = AppTheme.typography.paragraph1,
+    contentAlpha: Float = 1F
 ) {
     DefaultTableRow(
         modifier = modifier,
@@ -103,7 +106,8 @@ fun DefaultTableRow(
         titleColor = titleColor,
         titleStyle = titleStyle,
         bylineColor = bylineColor,
-        bylineStyle = bylineStyle
+        bylineStyle = bylineStyle,
+        contentAlpha = contentAlpha
     )
 }
 
@@ -121,7 +125,8 @@ fun DefaultTableRow(
     endImageResource: ImageResource = Icons.ChevronRight.withTint(Grey400),
     backgroundColor: Color = AppTheme.colors.backgroundSecondary,
     primaryTextColor: Color = AppTheme.colors.title,
-    secondaryTextColor: Color = AppTheme.colors.muted
+    secondaryTextColor: Color = AppTheme.colors.muted,
+    contentAlpha: Float = 1F
 ) {
     DefaultTableRow(
         modifier = modifier,
@@ -137,7 +142,8 @@ fun DefaultTableRow(
         endImageResource = endImageResource,
         backgroundColor = backgroundColor,
         titleColor = primaryTextColor,
-        bylineColor = secondaryTextColor
+        bylineColor = secondaryTextColor,
+        contentAlpha = contentAlpha
     )
 }
 
@@ -159,7 +165,8 @@ fun DefaultTableRow(
     titleColor: Color = AppTheme.colors.title,
     titleStyle: TextStyle = AppTheme.typography.body2,
     bylineColor: Color = AppTheme.colors.muted,
-    bylineStyle: TextStyle = AppTheme.typography.paragraph1
+    bylineStyle: TextStyle = AppTheme.typography.paragraph1,
+    contentAlpha: Float = 1F
 ) {
     TableRow(
         modifier = modifier,
@@ -254,7 +261,8 @@ fun DefaultTableRow(
             }
         },
         backgroundColor = backgroundColor,
-        backgroundShape = backgroundShape
+        backgroundShape = backgroundShape,
+        contentAlpha = contentAlpha
     )
 }
 
