@@ -15,10 +15,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.button.SecondarySmallButton
 import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Sync
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey800
 
@@ -60,7 +62,8 @@ fun ButtonTableRow(
         contentStart = {
             CustomStackedIcon(
                 icon = icon,
-                size = defaultIconSize
+                size = defaultIconSize,
+                iconBackground = AppColors.backgroundSecondary
             )
         },
         actionText = actionText,
@@ -99,14 +102,7 @@ private fun ButtonTableRow(
         },
         contentEnd = {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
-            Text(
-                modifier = Modifier
-                    .background(Grey800, RoundedCornerShape(AppTheme.dimensions.borderRadiiLarge))
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                text = actionText,
-                style = AppTheme.typography.paragraph2,
-                color = AppTheme.colors.backgroundSecondary
-            )
+            SecondarySmallButton(text = actionText, onClick = onClick)
         },
         onContentClicked = onClick
     )

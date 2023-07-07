@@ -12,6 +12,7 @@ import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
 import com.blockchain.componentlib.tablerow.ButtonTableRow
 import com.blockchain.componentlib.tablerow.TableRowHeader
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.value
 import com.blockchain.home.presentation.recurringbuy.RecurringBuysAnalyticsEvents
@@ -59,7 +60,8 @@ internal fun LazyListScope.homeRecurringBuys(
             }
         ) {
             Surface(
-                shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
+                shape = AppTheme.shapes.large,
+                color = AppColors.backgroundSecondary
             ) {
                 ButtonTableRow(
                     title = stringResource(com.blockchain.stringResources.R.string.recurring_buy_automate_title),
