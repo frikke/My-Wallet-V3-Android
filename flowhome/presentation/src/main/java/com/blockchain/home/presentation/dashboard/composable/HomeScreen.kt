@@ -805,6 +805,9 @@ private fun DefiHomeDashboard(
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_CREATE) {
+                activityViewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.Limited(MAX_ACTIVITY_COUNT)))
+            }
             if (event == Lifecycle.Event.ON_RESUME) {
                 // quick action
                 quickActionsViewModel.onIntent(
@@ -829,8 +832,6 @@ private fun DefiHomeDashboard(
                 )
                 // dapps
                 homeDappsViewModel.onIntent(HomeDappsIntent.LoadData)
-                // activity
-                activityViewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.Limited(MAX_ACTIVITY_COUNT)))
                 // news
                 newsViewModel.onIntent(NewsIntent.LoadData)
             }
