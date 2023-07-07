@@ -29,7 +29,6 @@ val unifiedCryptoWalletModule = module {
                 unifiedBalancesSubscribeStore = get(),
                 assetCatalogue = get(),
                 currencyPrefs = get(),
-                coincore = get()
             )
         }.bind(UnifiedBalancesService::class)
 

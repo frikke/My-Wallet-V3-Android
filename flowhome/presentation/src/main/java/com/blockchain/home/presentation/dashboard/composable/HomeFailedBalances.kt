@@ -17,7 +17,7 @@ internal fun LazyListScope.homeFailedBalances(
     dismissFailedNetworksWarning: () -> Unit,
     learnMoreOnClick: () -> Unit
 ) {
-    failedNetworkNames?.let {
+    failedNetworkNames?.takeIf { it.isNotEmpty() }?.let {
         paddedItem(
             paddingValues = {
                 PaddingValues(AppTheme.dimensions.smallSpacing)
@@ -39,7 +39,6 @@ private fun FailedBalances(
     closeOnClick: () -> Unit
 ) {
     require(networkNames.isNotEmpty())
-
     CardAlert(
         title = stringResource(R.string.balances_failed_title),
         subtitle = if (networkNames.size == 1) {

@@ -26,7 +26,7 @@ class FailedBalancesViewModel(
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
     override fun FailedBalancesModelState.reduce() = FailedBalancesViewState(
-        failedNetworkNames = failedBalancesCurrencies.mapList { it.name },
+        failedNetworkNames = failedBalancesNetworks.mapList { it.shortName },
         dismissWarning = dismissFailedNetworksWarning
     )
 
@@ -51,11 +51,11 @@ class FailedBalancesViewModel(
     private fun loadFailedNetworks(forceRefresh: Boolean) {
         failedNetworksJob?.cancel()
         failedNetworksJob = viewModelScope.launch {
-            unifiedBalancesService.failedBalancesCurrencies(
+            unifiedBalancesService.failedBalancesNetworks(
                 freshnessStrategy = PullToRefresh.freshnessStrategy(shouldGetFresh = forceRefresh)
             ).collectLatest {
                 updateState {
-                    copy(failedBalancesCurrencies = failedBalancesCurrencies.updateDataWith(it))
+                    copy(failedBalancesNetworks = failedBalancesNetworks.updateDataWith(it))
                 }
             }
         }

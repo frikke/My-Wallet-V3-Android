@@ -1,18 +1,20 @@
 package com.blockchain.unifiedcryptowallet.data.balances
 
 import com.blockchain.api.selfcustody.AccountInfo
+import com.blockchain.api.selfcustody.BalanceEntry
+import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.api.selfcustody.CommonResponse
+import com.blockchain.api.selfcustody.NetworkStatus
 import com.blockchain.api.selfcustody.PubKeyInfo
 import com.blockchain.api.selfcustody.SubscriptionInfo
-import com.blockchain.coincore.Coincore
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
-import com.blockchain.data.combineDataResourceFlows
 import com.blockchain.data.firstOutcome
 import com.blockchain.data.flatMapData
 import com.blockchain.data.mapData
+import com.blockchain.extensions.replace
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.toDataResource
 import com.blockchain.preferences.CurrencyPrefs
@@ -22,9 +24,8 @@ import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalanceNotFound
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
-import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetCatalogue
-import info.blockchain.balance.Currency
+import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import kotlinx.coroutines.flow.Flow
@@ -32,37 +33,24 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 
 internal class UnifiedBalancesRepository(
     private val networkAccountsService: NetworkAccountsService,
     private val unifiedBalancesSubscribeStore: UnifiedBalancesSubscribeStore,
     private val unifiedBalancesStore: UnifiedBalancesStore,
     private val assetCatalogue: AssetCatalogue,
-    private val currencyPrefs: CurrencyPrefs,
-    private val coincore: Coincore
+    private val currencyPrefs: CurrencyPrefs
 ) : UnifiedBalancesService {
 
-    override fun failedBalancesCurrencies(
+    override fun failedBalancesNetworks(
         freshnessStrategy: FreshnessStrategy
-    ): Flow<DataResource<List<Currency>>> {
+    ): Flow<DataResource<List<CoinNetwork>>> {
         val failedNetworksFlow = unifiedBalancesStore.stream(freshnessStrategy)
             .mapData { response -> response.networksStatus.filter { it.hasFailedToLoad } }
 
-        val activeAccountCurrenciesFlow = coincore
-            .activeWalletsInMode(walletMode = WalletMode.NON_CUSTODIAL, freshnessStrategy = freshnessStrategy)
-            .map { DataResource.Data(it.accounts.map { it.currency }) }
-
-        return combineDataResourceFlows(
-            failedNetworksFlow,
-            activeAccountCurrenciesFlow
-        ) { failedNetworks, activeAccountCurrencies ->
-            val failedNetworkTickers = failedNetworks.map { it.ticker }.toSet()
-            val activeAccountTickers = activeAccountCurrencies.map { it.networkTicker }.toSet()
-
-            val activeFailedNetworks = activeAccountTickers.intersect(failedNetworkTickers)
-
-            activeAccountCurrencies.filter { activeFailedNetworks.contains(it.networkTicker) }
+        return failedNetworksFlow.mapData { failedNetworks ->
+            networkAccountsService.activelySupportedNetworks()
+                .filter { it.networkTicker in failedNetworks.map { failedNetwork -> failedNetwork.ticker } }
         }
     }
 

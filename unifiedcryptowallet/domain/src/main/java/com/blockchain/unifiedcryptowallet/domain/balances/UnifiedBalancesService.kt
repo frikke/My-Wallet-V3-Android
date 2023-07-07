@@ -13,11 +13,11 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 
 interface UnifiedBalancesService {
-    fun failedBalancesCurrencies(
+    fun failedBalancesNetworks(
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
             RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
         )
-    ): Flow<DataResource<List<Currency>>>
+    ): Flow<DataResource<List<CoinNetwork>>>
 
     fun balances(
         wallet: NetworkWallet? = null,
@@ -34,6 +34,7 @@ interface UnifiedBalancesService {
 
 interface NetworkAccountsService {
     suspend fun allNetworkWallets(): List<NetworkWallet>
+    suspend fun activelySupportedNetworks(): List<CoinNetwork>
 }
 
 interface CoinNetworksService {

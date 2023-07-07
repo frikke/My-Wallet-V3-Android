@@ -1,6 +1,5 @@
 package com.blockchain.coincore.loader
 
-import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.data.asSingle
@@ -18,15 +17,16 @@ internal class HistoricActiveBalancesRepository(private val activeBalancesStore:
             return Single.just(currency.networkTicker in activeCurrencies)
         }
         return activeBalancesStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)).asSingle()
-            .doOnSuccess {
-                activeCurrencies =
-                    it.balances.filter { entry -> entry.balance?.amount?.signum() == 1 }
-                        .map { balance -> balance.currency }
-            }
-            .onErrorReturn {
-                BalancesResponse(emptyList())
-            }.map { balancesResp ->
-                currency.networkTicker in balancesResp.balances.map { balance -> balance.currency }
+            .map { balancesResp ->
+                balancesResp.balances.filter { entry -> entry.balance?.amount?.signum() == 1 }
+                    .map { balance -> balance.currency }
+            }.doAfterSuccess {
+                println("LALALA ACTIVE --- $activeCurrencies")
+                activeCurrencies = it
+            }.onErrorReturn {
+                emptyList()
+            }.map {
+                currency.networkTicker in it
             }
     }
 }
