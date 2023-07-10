@@ -29,6 +29,7 @@ android {
 
 dependencies {
     implementation project(':commonarch')
+    implementation project(':componentlib')
 
     implementation Libraries.composeUi
     implementation Libraries.composeMaterial
