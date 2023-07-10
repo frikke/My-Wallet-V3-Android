@@ -1,6 +1,8 @@
 package com.blockchain.transactions.upsell.interest
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,6 +21,7 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.betternavigation.utils.Bindable
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.impl.CustodialInterestAccount
+import com.blockchain.componentlib.basic.CloseIcon
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -32,6 +35,7 @@ import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Rewards
 import com.blockchain.componentlib.sheets.SheetFlatHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.EpicVerticalSpacer
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
@@ -43,9 +47,9 @@ import com.blockchain.stringResources.R
 import com.blockchain.transactions.swap.SwapService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
+import org.koin.androidx.compose.get
 import java.io.Serializable
 import java.text.DecimalFormat
-import org.koin.androidx.compose.get
 
 data class UpsellInterestArgs(
     val sourceAccount: Bindable<CryptoAccount>,
@@ -55,8 +59,8 @@ data class UpsellInterestArgs(
 
 @Composable
 fun UpsellInterestAfterSwapScreen(
-    args: UpsellInterestArgs,
     analytics: Analytics = get(),
+    args: UpsellInterestArgs,
     swapService: SwapService = get(scope = payloadScope),
     navigateToInterestDeposit: (source: CryptoAccount, target: CustodialInterestAccount) -> Unit,
     exitFlow: () -> Unit,
@@ -70,36 +74,28 @@ fun UpsellInterestAfterSwapScreen(
         analytics.logEvent(UpsellInterestAfterSwapViewed(assetToUpsell.networkTicker))
     }
 
-    Column {
-        SheetFlatHeader(
-            icon = StackedIcon.None,
-            title = "",
-            onCloseClick = {
-                analytics.logEvent(UpsellInterestAfterSwapDismissed(assetToUpsell.networkTicker))
-                exitFlow()
-            }
-        )
+    val context = LocalContext.current
 
-        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
-
-        val context = LocalContext.current
-        Content(
-            assetToUpsell = assetToUpsell,
-            interestRate = interestRate,
-            onLearnMore = {
-                context.openUrl(EARN_LEARN_MORE_URL)
-            },
-            onStartEarning = {
-                analytics.logEvent(UpsellInterestAfterSwapStartEarningClicked(assetToUpsell.networkTicker))
-                navigateToInterestDeposit(sourceAccount, targetAccount)
-            },
-            onMaybeLater = {
-                analytics.logEvent(UpsellInterestAfterSwapMaybeLaterClicked(assetToUpsell.networkTicker))
-                swapService.dismissUpsellPassiveRewardsAfterSwap()
-                exitFlow()
-            },
-        )
-    }
+    Content(
+        assetToUpsell = assetToUpsell,
+        interestRate = interestRate,
+        onLearnMore = {
+            context.openUrl(EARN_LEARN_MORE_URL)
+        },
+        onStartEarning = {
+            analytics.logEvent(UpsellInterestAfterSwapStartEarningClicked(assetToUpsell.networkTicker))
+            navigateToInterestDeposit(sourceAccount, targetAccount)
+        },
+        onMaybeLater = {
+            analytics.logEvent(UpsellInterestAfterSwapMaybeLaterClicked(assetToUpsell.networkTicker))
+            swapService.dismissUpsellPassiveRewardsAfterSwap()
+            exitFlow()
+        },
+        onCloseClick = {
+            analytics.logEvent(UpsellInterestAfterSwapDismissed(assetToUpsell.networkTicker))
+            exitFlow()
+        }
+    )
 }
 
 @Composable
@@ -109,14 +105,28 @@ private fun Content(
     onLearnMore: () -> Unit,
     onStartEarning: () -> Unit,
     onMaybeLater: () -> Unit,
+    onCloseClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier
-            .background(color = AppTheme.colors.light)
+            .background(color = AppColors.background)
             .fillMaxWidth()
-            .padding(horizontal = AppTheme.dimensions.standardSpacing),
+            .padding(horizontal = AppTheme.dimensions.smallSpacing),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = AppTheme.dimensions.smallSpacing),
+        ) {
+            CloseIcon(
+                modifier = Modifier.align(Alignment.CenterEnd),
+                isScreenBackgroundSecondary = false,
+                onClick = onCloseClick
+            )
+        }
+
         EpicVerticalSpacer()
 
         val assetIcon = ImageResource.Remote(
@@ -196,7 +206,7 @@ private fun Content(
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
+@Preview
 @Composable
 private fun UpSellAnotherAssetScreenPreview() {
     AppTheme {
@@ -205,7 +215,15 @@ private fun UpSellAnotherAssetScreenPreview() {
             interestRate = 4.5,
             onLearnMore = {},
             onStartEarning = {},
-            onMaybeLater = {}
+            onMaybeLater = {},
+            onCloseClick = {}
         )
     }
 }
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun UpSellAnotherAssetScreenPreviewDark() {
+    UpSellAnotherAssetScreenPreview()
+}
+
