@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.analytics.Analytics
+import com.blockchain.componentlib.basic.CloseIcon
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -102,18 +103,13 @@ private fun TxInProgressWarning(
             .fillMaxWidth()
             .background(
                 shape = RoundedCornerShape(AppTheme.dimensions.smallSpacing),
-                color = Color.White
+                color = AppColors.backgroundSecondary
             )
     ) {
         Row(Modifier.padding(all = AppTheme.dimensions.tinySpacing)) {
             Spacer(modifier = Modifier.weight(1f))
-            Image(
-                modifier = Modifier.clickable { close() },
-                imageResource = Icons.Close.withTint(Grey400)
-                    .withBackground(
-                        backgroundColor = Grey000,
-                        backgroundSize = AppTheme.dimensions.standardSpacing
-                    )
+            CloseIcon(
+                onClick = close
             )
         }
         Column(Modifier.padding(all = AppTheme.dimensions.smallSpacing)) {
