@@ -187,7 +187,7 @@ fun WalletConnectDappList(
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0XFF292012)
+@Preview
 @Composable
 fun WalletConnectDappsListPreview() {
     AppTheme {
