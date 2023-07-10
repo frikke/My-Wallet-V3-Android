@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.analytics.Analytics
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Viewfinder
@@ -40,7 +39,6 @@ import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.MediumHorizontalSpacer
-import com.blockchain.componentlib.theme.Pink700
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.koin.payloadScope
@@ -51,7 +49,6 @@ import com.blockchain.walletconnect.ui.composable.common.WalletConnectDappTableR
 import com.blockchain.walletconnect.ui.dapps.v2.WalletConnectDappListIntent
 import com.blockchain.walletconnect.ui.dapps.v2.WalletConnectDappListViewModel
 import com.blockchain.walletconnect.ui.dapps.v2.WalletConnectDappListViewState
-import com.blockchain.walletmode.WalletMode
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import timber.log.Timber
@@ -331,4 +328,3 @@ fun WalletConnectDappsListPreview() {
 private fun WalletConnectDappsListPreviewDark() {
     WalletConnectDappsListPreview()
 }
-
