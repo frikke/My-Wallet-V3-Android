@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
@@ -59,7 +60,7 @@ private fun NewsArticles(
 
         when (newsArticles) {
             is DataResource.Loading -> {
-                ShimmerLoadingCard()
+                ShimmerLoadingCard(modifier = Modifier.padding(AppTheme.dimensions.smallSpacing))
             }
 
             is DataResource.Error -> {

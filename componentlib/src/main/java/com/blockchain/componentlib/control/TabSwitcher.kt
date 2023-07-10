@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.control
 
+import android.content.res.Configuration
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -8,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -30,6 +30,7 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.utils.clickableNoEffect
@@ -66,14 +67,14 @@ fun TabSwitcher(tabs: ImmutableList<String>, initialTabIndex: Int, onTabChanged:
             }
 
             Card(
-                shape = RoundedCornerShape(AppTheme.dimensions.largeSpacing),
-                elevation = 2.dp,
                 modifier = Modifier
                     .width(width = indicatorWithDp)
                     .fillMaxHeight()
                     .graphicsLayer { translationX = indicatorPosition.value }
-                    .padding(AppTheme.dimensions.composeSmallestSpacing)
-                    .background(White, RoundedCornerShape(AppTheme.dimensions.largeSpacing))
+                    .padding(AppTheme.dimensions.composeSmallestSpacing),
+                shape = RoundedCornerShape(AppTheme.dimensions.largeSpacing),
+                backgroundColor = AppColors.backgroundSecondary,
+                elevation = 2.dp
             ) {
                 /* This is empty since we are just using it to have a white composable that we can animate
                 to display the indicator*/
@@ -98,7 +99,7 @@ fun TabSwitcher(tabs: ImmutableList<String>, initialTabIndex: Int, onTabChanged:
                             text = tab,
                             style = ComposeTypographies.Paragraph2,
                             color = if (currentTabIndex == index) {
-                                ComposeColors.Primary
+                                ComposeColors.Title
                             } else {
                                 ComposeColors.Body
                             },
@@ -121,10 +122,14 @@ fun TabSwitcherLayoutPreview() {
     LaunchedEffect(Unit) {
         pagerState.scrollToPage(0)
     }
-    AppTheme {
-        TabSwitcher(
-            initialTabIndex = 0,
-            tabs = persistentListOf("Tab 1", "Tab 2")
-        )
-    }
+    TabSwitcher(
+        initialTabIndex = 0,
+        tabs = persistentListOf("Tab 1", "Tab 2")
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun TabSwitcherLayoutPreviewDark() {
+    TabSwitcherLayoutPreview()
 }

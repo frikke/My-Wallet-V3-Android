@@ -1,5 +1,6 @@
 package com.blockchain.earn.dashboard
 
+import android.content.res.Configuration
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -69,6 +70,7 @@ import com.blockchain.componentlib.theme.SmallestVerticalSpacer
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.EarnAnalytics
 import com.blockchain.earn.R
@@ -321,7 +323,7 @@ private fun DiscoverScreen(
         }
 
         stickyHeader {
-            Column(modifier = Modifier.background(color = AppTheme.colors.light)) {
+            Column(modifier = Modifier.background(color = AppTheme.colors.background)) {
                 Box(
                     modifier = Modifier.padding(
                         top = AppTheme.dimensions.smallSpacing,
@@ -710,4 +712,47 @@ fun EarnLoadError(onRefresh: () -> Unit) {
             }
         }
     )
+}
+
+@Preview
+@Composable
+private fun PreviewEarningAndDiscover() {
+    EarningAndDiscover(
+        analytics = previewAnalytics,
+        state = DashboardState.EarningAndDiscover(
+            earning = listOf(),
+            totalEarningBalance = "12",
+            totalEarningBalanceSymbol = "211",
+            discover = listOf(),
+            filterList = listOf()
+        ),
+        discoverTabFilterBy = EarnDashboardListFilter.All,
+        discoverTabFilterAction = {},
+        discoverTabQueryFilter = {},
+        onEarningItemClicked = {},
+        onDiscoverItemClicked = {},
+        discoverTabQueryBy = "",
+        onCompareProductsClicked = {}
+    )
+}
+
+@Preview
+@Composable
+private fun PreviewDiscoverScreen() {
+    DiscoverScreen(
+        queryFilter = {},
+        filterAction = {},
+        filterBy = EarnDashboardListFilter.All,
+        filtersAvailable = EarnDashboardListFilter.values().toList(),
+        discoverAssetList = listOf(),
+        onItemClicked = {},
+        discoverTabQueryBy = "",
+        onOpenProductComparator = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewDiscoverScreenDark() {
+    PreviewDiscoverScreen()
 }

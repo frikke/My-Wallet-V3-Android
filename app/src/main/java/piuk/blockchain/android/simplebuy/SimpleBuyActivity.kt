@@ -173,6 +173,7 @@ class SimpleBuyActivity :
             toolbarTitle = getString(com.blockchain.stringResources.R.string.common_buy),
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
+        updateToolbarBackground(mutedBackground = true)
         analytics.logEvent(BuyAssetScreenViewedEvent)
         if (savedInstanceState == null) {
             if (startedFromApprovalDeepLink) {
