@@ -3,6 +3,7 @@ package com.blockchain.coincore.impl
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.ExchangeAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.featureflag.FeatureFlag
@@ -26,6 +27,11 @@ class EthHotWalletAddressResolver(
     ): Single<String> {
         if (action !in ethWalletAddressActions) {
             logger.e("No HotWalletAddress for action $action")
+            return Single.just("")
+        }
+
+        if (target is ExchangeAccount) {
+            logger.e("No HotWalletAddress for $target --- $action")
             return Single.just("")
         }
 
@@ -58,6 +64,7 @@ class EthHotWalletAddressResolver(
         val product = when (action) {
             AssetAction.Swap,
             AssetAction.Sell -> "swap"
+
             AssetAction.Send -> "simplebuy"
             else -> throw UnsupportedOperationException()
         }
