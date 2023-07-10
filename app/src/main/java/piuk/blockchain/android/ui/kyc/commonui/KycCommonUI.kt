@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.White
 
@@ -29,7 +30,7 @@ fun ColumnScope.UserIcon(
             },
             imageResource = ImageResource.LocalWithBackground(
                 id = iconRes,
-                iconColor = White,
+                iconColor = AppColors.background,
                 backgroundColor = AppTheme.colors.primary,
                 alpha = 1f,
                 size = AppTheme.dimensions.epicSpacing,

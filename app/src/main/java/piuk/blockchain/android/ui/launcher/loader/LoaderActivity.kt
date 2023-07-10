@@ -186,7 +186,7 @@ class LoaderActivity :
             supportFragmentManager.beginTransaction()
                 .replace(
                     R.id.content_frame,
-                    KycEmailVerificationFragment.newInstance(canBeSkipped = true, legacyBg = false),
+                    KycEmailVerificationFragment.newInstance(canBeSkipped = true),
                     KycEmailVerificationFragment::class.simpleName
                 )
                 .commitAllowingStateLoss()

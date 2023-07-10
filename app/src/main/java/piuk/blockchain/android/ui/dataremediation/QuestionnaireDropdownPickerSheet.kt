@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.dataremediation
 
 import android.os.Bundle
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,8 +22,10 @@ import com.blockchain.commonarch.presentation.base.ComposeModalBottomDialog
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.controls.OutlinedTextInput
 import com.blockchain.componentlib.sheets.SheetHeader
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -155,36 +158,30 @@ private fun Screen(
     }
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColors.background)
     ) {
         SheetHeader(
             title = title,
             byline = instructions,
             onClosePress = onClosePress,
-            shouldShowDivider = false
+            shouldShowDivider = false,
+            backgroundSecondary = false
         )
 
-        val searchInputIcon =
-            if (stateSearchInput.isNotEmpty()) {
-                ImageResource.Local(
-                    com.blockchain.componentlib.R.drawable.ic_close_circle
-                )
-            } else ImageResource.None
-        OutlinedTextInput(
+
+        CancelableOutlinedSearch(
             modifier = Modifier
-                .fillMaxWidth()
                 .padding(
                     top = AppTheme.dimensions.standardSpacing,
                     start = AppTheme.dimensions.standardSpacing,
                     end = AppTheme.dimensions.standardSpacing
                 ),
-            value = stateSearchInput,
-            label = stringResource(com.blockchain.stringResources.R.string.common_search),
-            onValueChange = { stateSearchInput = it },
-            singleLine = true,
-            focusedTrailingIcon = searchInputIcon,
-            unfocusedTrailingIcon = searchInputIcon,
-            onTrailingIconClicked = { stateSearchInput = "" }
+            onValueChange = {
+                stateSearchInput = it
+            },
+            placeholder = stringResource(com.blockchain.stringResources.R.string.search)
         )
 
         LazyColumn(

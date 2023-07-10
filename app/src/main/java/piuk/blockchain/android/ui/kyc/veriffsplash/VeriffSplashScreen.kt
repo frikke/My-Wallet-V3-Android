@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.kyc.veriffsplash
 
 import android.content.Context
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
@@ -58,7 +60,7 @@ fun VeriffSplashScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White)
+                .background(AppColors.background)
                 .padding(padding)
                 .padding(all = AppTheme.dimensions.standardSpacing),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -134,6 +136,12 @@ fun VeriffSplashScreen(
     }
 }
 
+private fun VeriffSplashError.errorMessage(context: Context) = when (this) {
+    VeriffSplashError.Generic -> context.getString(
+        com.blockchain.stringResources.R.string.kyc_veriff_splash_verification_error
+    )
+}
+
 @Preview
 @Composable
 private fun PreviewVeriffSplashScreen() {
@@ -152,8 +160,8 @@ private fun PreviewVeriffSplashScreen() {
     )
 }
 
-private fun VeriffSplashError.errorMessage(context: Context) = when (this) {
-    VeriffSplashError.Generic -> context.getString(
-        com.blockchain.stringResources.R.string.kyc_veriff_splash_verification_error
-    )
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewVeriffSplashScreenDark() {
+    PreviewVeriffSplashScreen()
 }

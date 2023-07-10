@@ -83,6 +83,9 @@ class KycNavHostActivity :
         updateToolbar(
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
+
+        updateToolbarBackground()
+
         analytics.logEvent(
             KYCAnalyticsEvents.UpgradeKycVeriffClicked(
                 entryPoint.toLaunchOrigin(),
