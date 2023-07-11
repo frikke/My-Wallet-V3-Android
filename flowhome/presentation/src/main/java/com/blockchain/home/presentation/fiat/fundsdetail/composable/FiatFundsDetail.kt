@@ -39,6 +39,7 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.basic.AppDivider
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Bank
+import com.blockchain.componentlib.icons.ChevronRight
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.loader.LoadingIndicator
@@ -220,7 +221,7 @@ fun FiatFundDetailScreenData(
                                             iconSize = AppTheme.dimensions.standardSpacing
                                         )*/,
                                     endImageResource = if (data.data.depositEnabled && showWithdrawChecksLoading.not()) {
-                                        ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_chevron_end)
+                                        Icons.ChevronRight.withTint(AppColors.body)
                                     } else {
                                         ImageResource.None
                                     },
