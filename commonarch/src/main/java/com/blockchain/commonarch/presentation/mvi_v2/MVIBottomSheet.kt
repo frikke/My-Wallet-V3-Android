@@ -1,6 +1,5 @@
 package com.blockchain.commonarch.presentation.mvi_v2
 
-import android.app.Dialog
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.Lifecycle

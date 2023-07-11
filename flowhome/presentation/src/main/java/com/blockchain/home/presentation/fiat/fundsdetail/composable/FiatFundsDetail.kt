@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Divider
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -23,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
@@ -41,7 +39,6 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Bank
 import com.blockchain.componentlib.icons.ChevronRight
 import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.loader.LoadingIndicator
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.system.ShimmerLoadingCard
@@ -214,13 +211,15 @@ fun FiatFundDetailScreenData(
                                     secondaryText = stringResource(
                                         com.blockchain.stringResources.R.string.fiat_funds_detail_deposit_details
                                     ),
-                                    startImageResource = Icons.Filled.Bank.withTint(AppColors.title)
-                                       /* .withBackground(
-                                            backgroundColor = AppColors.background,
-                                            backgroundSize = AppTheme.dimensions.standardSpacing,
-                                            iconSize = AppTheme.dimensions.standardSpacing
-                                        )*/,
-                                    endImageResource = if (data.data.depositEnabled && showWithdrawChecksLoading.not()) {
+                                    startImageResource = Icons.Filled.Bank.withTint(AppColors.title),
+                                    /* .withBackground(
+                                         backgroundColor = AppColors.background,
+                                         backgroundSize = AppTheme.dimensions.standardSpacing,
+                                         iconSize = AppTheme.dimensions.standardSpacing
+                                     )*/
+                                    endImageResource = if (data.data.depositEnabled &&
+                                        showWithdrawChecksLoading.not()
+                                    ) {
                                         Icons.ChevronRight.withTint(AppColors.body)
                                     } else {
                                         ImageResource.None
@@ -248,7 +247,9 @@ fun FiatFundDetailScreenData(
                                             com.blockchain.stringResources.R.string.fiat_funds_detail_withdraw_details
                                         ),
                                         startImageResource = ImageResource.Local(R.drawable.ic_fiat_withdraw),
-                                        endImageResource = if (data.data.withdrawEnabled && showWithdrawChecksLoading.not()) {
+                                        endImageResource = if (data.data.withdrawEnabled &&
+                                            showWithdrawChecksLoading.not()
+                                        ) {
                                             Icons.ChevronRight.withTint(AppColors.body)
                                         } else {
                                             ImageResource.None

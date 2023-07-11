@@ -12,7 +12,6 @@ import androidx.viewbinding.ViewBinding
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.commonarch.presentation.base.ThemedBottomSheetFragment
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import kotlinx.parcelize.Parcelize
 import org.koin.android.ext.android.inject

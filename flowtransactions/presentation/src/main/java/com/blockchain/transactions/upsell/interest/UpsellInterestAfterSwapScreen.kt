@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
@@ -33,7 +32,6 @@ import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.icon.SmallTagIcon
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Rewards
-import com.blockchain.componentlib.sheets.SheetFlatHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
@@ -47,9 +45,9 @@ import com.blockchain.stringResources.R
 import com.blockchain.transactions.swap.SwapService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
-import org.koin.androidx.compose.get
 import java.io.Serializable
 import java.text.DecimalFormat
+import org.koin.androidx.compose.get
 
 data class UpsellInterestArgs(
     val sourceAccount: Bindable<CryptoAccount>,
@@ -226,4 +224,3 @@ private fun UpSellAnotherAssetScreenPreview() {
 private fun UpSellAnotherAssetScreenPreviewDark() {
     UpSellAnotherAssetScreenPreview()
 }
-

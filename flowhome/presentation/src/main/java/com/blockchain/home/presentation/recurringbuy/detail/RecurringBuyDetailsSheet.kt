@@ -1,6 +1,5 @@
 package com.blockchain.home.presentation.recurringbuy.detail
 
-import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,11 +9,8 @@ import androidx.compose.material.Surface
 import androidx.compose.ui.platform.ComposeView
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.base.ThemedBottomSheetFragment
-import com.blockchain.commonarch.presentation.mvi_v2.forceExpanded
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.home.presentation.recurringbuy.detail.composable.RecurringBuyDetail
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class RecurringBuyDetailsSheet : ThemedBottomSheetFragment() {
 

@@ -12,7 +12,6 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.theme.AppTheme
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.koin.android.ext.android.inject
 
 abstract class ComposeModalBottomDialog : ThemedBottomSheetFragment() {

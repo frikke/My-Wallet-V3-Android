@@ -26,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -53,11 +52,8 @@ import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.controls.OutlinedTextInput
 import com.blockchain.componentlib.controls.TextInputState
-import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.icons.ChevronRight
-import com.blockchain.componentlib.icons.Close
 import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.loader.LoadingIndicator
 import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.system.DialogueButton

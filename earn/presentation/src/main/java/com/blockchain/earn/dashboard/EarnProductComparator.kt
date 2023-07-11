@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Card
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,11 +21,8 @@ import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.tablerow.SingleIconTableRow
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey300
-import com.blockchain.componentlib.theme.HugeVerticalSpacer
 import com.blockchain.componentlib.theme.LargeVerticalSpacer
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
-import com.blockchain.componentlib.theme.UltraLight
 import com.blockchain.componentlib.theme.topOnly
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -122,15 +118,15 @@ fun EarnProductComparator(
 fun EarnProductComparatorPage(product: EarnProductUiElement, modifier: Modifier = Modifier) {
     Surface(
         modifier = modifier,
-            color = AppColors.backgroundSecondary,
+        color = AppColors.backgroundSecondary,
         shape = AppTheme.shapes.large,
-        border =  BorderStroke(1.dp, AppColors.medium),
+        border = BorderStroke(1.dp, AppColors.medium),
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Surface(
                 color = AppColors.background,
                 shape = AppTheme.shapes.large,
-                border =  BorderStroke(1.dp, AppColors.medium),
+                border = BorderStroke(1.dp, AppColors.medium),
             ) {
                 SingleIconTableRow(
                     primaryText = stringResource(id = product.header.primaryTextId),

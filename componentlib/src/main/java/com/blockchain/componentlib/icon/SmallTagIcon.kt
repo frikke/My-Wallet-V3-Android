@@ -49,7 +49,7 @@ fun SmallTagIcon(
             modifier = Modifier
                 .size(mainIconSize),
             shape = mainIconShape,
-            color =  (icon.main as? ImageResource.LocalWithBackground)?.backgroundColor ?: iconBackground
+            color = (icon.main as? ImageResource.LocalWithBackground)?.backgroundColor ?: iconBackground
         ) {
             Box(
                 modifier = Modifier.matchParentSize(),

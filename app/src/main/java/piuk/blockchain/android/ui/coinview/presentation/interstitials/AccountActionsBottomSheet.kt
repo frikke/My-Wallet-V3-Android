@@ -1,12 +1,9 @@
 package piuk.blockchain.android.ui.coinview.presentation.interstitials
 
-import android.app.Dialog
-import android.graphics.drawable.TransitionDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
-import androidx.core.content.res.ResourcesCompat
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.ActionState
@@ -57,9 +53,6 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.presentation.extensions.getAccount
 import com.blockchain.presentation.extensions.putAccount
 import com.blockchain.presentation.koin.scopedInject
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency

@@ -29,7 +29,6 @@ import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.MinimalErrorButton
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Sync
-import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.sheets.SheetFloatingHeader
 import com.blockchain.componentlib.system.ShimmerLoadingCard

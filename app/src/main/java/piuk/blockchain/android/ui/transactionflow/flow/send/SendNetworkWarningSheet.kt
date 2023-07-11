@@ -15,7 +15,6 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.BottomSheetOneButton
 import com.blockchain.componentlib.sheets.ButtonType
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.lang.IllegalStateException
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R

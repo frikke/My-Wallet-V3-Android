@@ -3,7 +3,6 @@ package com.blockchain.componentlib.alert
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -22,7 +21,6 @@ import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue400
-import com.blockchain.componentlib.theme.Dark800
 import com.blockchain.componentlib.theme.Green400
 import com.blockchain.componentlib.theme.Orange400
 import com.blockchain.componentlib.theme.Red400

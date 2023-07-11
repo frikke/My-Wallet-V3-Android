@@ -20,10 +20,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.commonarch.presentation.base.ComposeModalBottomDialog
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.control.CancelableOutlinedSearch
-import com.blockchain.componentlib.controls.OutlinedTextInput
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
@@ -169,7 +167,6 @@ private fun Screen(
             shouldShowDivider = false,
             backgroundSecondary = false
         )
-
 
         CancelableOutlinedSearch(
             modifier = Modifier

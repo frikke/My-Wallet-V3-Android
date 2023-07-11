@@ -1,11 +1,9 @@
 package piuk.blockchain.android.ui
 
-import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import androidx.annotation.DrawableRes
 import androidx.compose.ui.platform.ComposeView
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
@@ -15,9 +13,6 @@ import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.BottomSheetOneButton
 import com.blockchain.componentlib.sheets.BottomSheetTwoButtons
 import com.blockchain.componentlib.sheets.ButtonType
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import piuk.blockchain.android.R
 
 class BottomSheetInformation : ThemedBottomSheetFragment() {

@@ -33,7 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -44,7 +43,6 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
@@ -59,9 +57,6 @@ import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue600
-import com.blockchain.componentlib.theme.Grey000
-import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.domain.dataremediation.model.NodeId
 import com.blockchain.domain.dataremediation.model.QuestionnaireHeader
 import piuk.blockchain.android.R
@@ -362,7 +357,7 @@ private fun DropdownRow(
                                     .padding(
                                         start = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)
                                     ),
-                                imageResource =Icons.Filled.Check
+                                imageResource = Icons.Filled.Check
                                     .withTint(AppColors.primary)
                                     .withSize(16.dp)
                             )

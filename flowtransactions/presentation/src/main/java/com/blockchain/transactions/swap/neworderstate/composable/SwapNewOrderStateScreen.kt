@@ -45,7 +45,6 @@ import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.TinyHorizontalSpacer
-import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.utils.checkValidUrlAndOpen
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.deeplinking.processor.DeepLinkResult
@@ -60,8 +59,8 @@ import com.blockchain.transactions.upsell.interest.UpsellInterestArgs
 import com.blockchain.utils.awaitOutcome
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
-import org.koin.androidx.compose.get
 import java.io.Serializable
+import org.koin.androidx.compose.get
 
 sealed interface SwapNewOrderState : Serializable {
     object PendingDeposit : SwapNewOrderState

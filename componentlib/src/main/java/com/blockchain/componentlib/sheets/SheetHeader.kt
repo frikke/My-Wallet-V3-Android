@@ -88,7 +88,7 @@ fun SheetHeader(
                 }
                 if (shouldShowDivider) {
                     AppDivider(
-                        if(backgroundSecondary) {
+                        if (backgroundSecondary) {
                             AppColors.background
                         } else {
                             AppColors.medium

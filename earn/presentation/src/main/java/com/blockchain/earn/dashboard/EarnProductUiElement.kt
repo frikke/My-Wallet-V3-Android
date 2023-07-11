@@ -1,16 +1,12 @@
 package com.blockchain.earn.dashboard
 
 import androidx.annotation.StringRes
-import androidx.compose.ui.graphics.Color
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Lock
 import com.blockchain.componentlib.icons.Prices
 import com.blockchain.componentlib.icons.Rewards
-import com.blockchain.componentlib.theme.BackgroundMuted
-import com.blockchain.componentlib.theme.Blue600
-import com.blockchain.componentlib.theme.Grey900
 
 val targetAudienceIcon = ImageResource.Local(
     id = com.blockchain.componentlib.icons.R.drawable.users_off,

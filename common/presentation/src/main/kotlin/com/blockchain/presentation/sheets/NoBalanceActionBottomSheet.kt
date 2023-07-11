@@ -1,11 +1,9 @@
 package com.blockchain.presentation.sheets
 
-import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import com.blockchain.analytics.Analytics
@@ -21,9 +19,6 @@ import com.blockchain.componentlib.sheets.BottomSheetTwoButtons
 import com.blockchain.componentlib.sheets.ButtonType
 import com.blockchain.presentation.extensions.getAccount
 import com.blockchain.presentation.extensions.putAccount
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import org.koin.android.ext.android.inject
 
