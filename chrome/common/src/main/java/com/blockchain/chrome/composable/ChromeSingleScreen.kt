@@ -99,7 +99,7 @@ private fun ChromeSingleScreen(
             )
             .then(
                 if (walletMode == null || screenType is ScreenType.BottomSheet) {
-                    Modifier.background(Color.Unspecified)
+                    Modifier.background(Color.Transparent)
                 } else {
                     Modifier.background(
                         brush = Brush.horizontalGradient(
@@ -124,7 +124,7 @@ private fun ChromeSingleScreen(
                 .conditional(screenType.shouldFillMaxHeight()) {
                     weight(1F)
                 },
-            color = Color.Unspecified,
+            color = Color.Transparent,
             shape = AppTheme.shapes.veryLarge.topOnly()
         ) {
             content()

@@ -510,21 +510,14 @@ fun OutlinedTextInput(
     val enabled = state !is TextInputState.Disabled
 
     val assistiveTextColor = when (state) {
-        is TextInputState.Default, is TextInputState.Disabled -> if (!isSystemInDarkTheme()) {
-            Grey600
-        } else {
-            Color.White
-        }
+        is TextInputState.Default,
+        is TextInputState.Disabled -> AppTheme.colors.body
         is TextInputState.Error -> AppTheme.colors.error
         is TextInputState.Success -> AppTheme.colors.success
     }
 
     val unfocusedColor = when (state) {
-        is TextInputState.Default, is TextInputState.Disabled -> if (!isSystemInDarkTheme()) {
-            Grey000
-        } else {
-            Dark600
-        }
+        is TextInputState.Default, is TextInputState.Disabled -> Color.Transparent
         is TextInputState.Error -> AppTheme.colors.error
         is TextInputState.Success -> AppTheme.colors.success
     }
@@ -538,24 +531,16 @@ fun OutlinedTextInput(
     val textColor = if (enabled) {
         AppTheme.colors.title
     } else {
-        Grey600
+        AppTheme.colors.body
     }
 
     val backgroundColor = if (enabled) {
         AppTheme.colors.backgroundSecondary
     } else {
-        if (!isSystemInDarkTheme()) {
-            Grey000
-        } else {
-            Dark700
-        }
+        AppTheme.colors.medium
     }
 
-    val placeholderColor = if (!isSystemInDarkTheme()) {
-        Grey600
-    } else {
-        Dark200
-    }
+    val placeholderColor = AppTheme.colors.body
 
     val borderColor = if (hasFocus.value) {
         focusedColor

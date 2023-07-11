@@ -25,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.basic.closeImageResource
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.VerifiedOff
 import com.blockchain.componentlib.lazylist.roundedCornersItems
@@ -34,7 +35,6 @@ import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.BackgroundMuted
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.core.kyc.domain.KycService
@@ -64,13 +64,13 @@ fun SwapDexOptionScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = BackgroundMuted),
+            .background(color = AppColors.background),
     ) {
         NavigationBar(
             title = stringResource(id = com.blockchain.stringResources.R.string.select_an_option),
             navigationBarButtons = listOf(
                 NavigationBarButton.IconResource(
-                    ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_close_circle),
+                    image = closeImageResource(isScreenBackgroundSecondary = false),
                     onIconClick = { onBackPressed() }
                 )
             )

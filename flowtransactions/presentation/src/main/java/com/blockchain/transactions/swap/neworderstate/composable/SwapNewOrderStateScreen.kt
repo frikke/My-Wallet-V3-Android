@@ -1,5 +1,6 @@
 package com.blockchain.transactions.swap.neworderstate.composable
 
+import android.content.res.Configuration
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -44,7 +45,6 @@ import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.TinyHorizontalSpacer
-import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.utils.checkValidUrlAndOpen
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.deeplinking.processor.DeepLinkResult
@@ -142,7 +142,7 @@ private fun NewOrderStateContent(
     doneClicked: () -> Unit
 ) {
     Column(
-        modifier = Modifier.background(AppTheme.colors.light)
+        modifier = Modifier.background(AppTheme.colors.background)
     ) {
         Spacer(Modifier.weight(0.33f))
 
@@ -152,7 +152,7 @@ private fun NewOrderStateContent(
             val swapIcon = Icons.Swap
                 .withTint(AppTheme.colors.title)
                 .withBackground(
-                    backgroundColor = White,
+                    backgroundColor = AppTheme.colors.backgroundSecondary,
                     iconSize = 59.dp,
                     backgroundSize = 88.dp
                 )
@@ -176,10 +176,10 @@ private fun NewOrderStateContent(
 
             SmallTagIcon(
                 icon = stackedIcon,
-                iconBackground = AppTheme.colors.light,
+                iconBackground = AppTheme.colors.backgroundSecondary,
                 mainIconSize = 88.dp,
                 tagIconSize = 44.dp,
-                borderColor = AppTheme.colors.light
+                borderColor = AppTheme.colors.background
             )
 
             SmallVerticalSpacer()
@@ -351,6 +351,12 @@ private fun PreviewPendingDeposit() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewPendingDepositDark() {
+    PreviewPendingDeposit()
+}
+
 @Preview
 @Composable
 private fun PreviewSucceeded() {
@@ -361,6 +367,12 @@ private fun PreviewSucceeded() {
         handleDeeplinkUrlAndExit = {},
         doneClicked = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewSucceededDark() {
+    PreviewSucceeded()
 }
 
 @Preview
@@ -395,4 +407,10 @@ private fun PreviewError() {
         handleDeeplinkUrlAndExit = {},
         doneClicked = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewErrorDark() {
+    PreviewError()
 }

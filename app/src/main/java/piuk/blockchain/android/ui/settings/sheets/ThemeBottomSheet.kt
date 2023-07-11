@@ -1,9 +1,10 @@
 package piuk.blockchain.android.ui.settings.sheets
 
-import android.app.Dialog
 import android.content.res.Configuration
 import android.os.Bundle
-import android.widget.FrameLayout
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.commonarch.presentation.base.ThemedBottomSheetFragment
 import com.blockchain.componentlib.basic.AppDivider
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
@@ -37,44 +39,27 @@ import com.blockchain.componentlib.theme.topOnly
 import com.blockchain.stringResources.R
 import com.blockchain.theme.Theme
 import com.blockchain.theme.ThemeService
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.koin.android.ext.android.inject
 
-class ThemeBottomSheet : BottomSheetDialogFragment() {
+class ThemeBottomSheet : ThemedBottomSheetFragment() {
 
     private val themeService: ThemeService by inject()
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialog = BottomSheetDialog(requireActivity())
-
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val selectedTheme = themeService.currentTheme()
 
-        dialog.setContentView(
-            ComposeView(requireContext()).apply {
-                setContent {
-                    ThemeScreen(
-                        selectedTheme = selectedTheme,
-                        closeOnClick = this@ThemeBottomSheet::dismiss,
-                        onClick = {
-                            themeService.setTheme(it)
-                            dismiss()
-                        }
-                    )
-                }
+        return ComposeView(requireContext()).apply {
+            setContent {
+                ThemeScreen(
+                    selectedTheme = selectedTheme,
+                    closeOnClick = this@ThemeBottomSheet::dismiss,
+                    onClick = {
+                        themeService.setTheme(it)
+                        dismiss()
+                    }
+                )
             }
-        )
-
-        dialog.setOnShowListener {
-            val d = it as BottomSheetDialog
-            val layout =
-                d.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet) as FrameLayout
-            BottomSheetBehavior.from(layout).state = BottomSheetBehavior.STATE_EXPANDED
-
-            layout.setBackgroundResource(android.R.color.transparent)
         }
-        return dialog
     }
 
     companion object {
@@ -110,7 +95,7 @@ private fun ThemeScreen(
             Surface(
                 modifier = Modifier.padding(AppTheme.dimensions.smallSpacing),
                 shape = AppTheme.shapes.large,
-                color = Color.Unspecified
+                color = Color.Transparent
             ) {
                 Column {
                     Theme.values().forEachIndexed { index, theme ->

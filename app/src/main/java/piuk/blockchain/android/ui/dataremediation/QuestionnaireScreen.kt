@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.dataremediation
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -32,7 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -43,7 +43,6 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
@@ -51,12 +50,13 @@ import com.blockchain.componentlib.control.Checkbox
 import com.blockchain.componentlib.control.CheckboxState
 import com.blockchain.componentlib.control.Radio
 import com.blockchain.componentlib.control.RadioButtonState
+import com.blockchain.componentlib.icons.Check
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.User
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue600
-import com.blockchain.componentlib.theme.Grey000
-import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.domain.dataremediation.model.NodeId
 import com.blockchain.domain.dataremediation.model.QuestionnaireHeader
 import piuk.blockchain.android.R
@@ -76,7 +76,7 @@ fun QuestionnaireScreen(
 ) {
     Column(
         Modifier
-            .background(Color.White)
+            .background(AppColors.background)
             .fillMaxWidth()
     ) {
         val listState = rememberLazyListState()
@@ -127,7 +127,7 @@ fun QuestionnaireScreen(
                     listOf(
                         NavigationBarButton.Text(
                             stringResource(com.blockchain.stringResources.R.string.common_skip),
-                            Blue600,
+                            AppColors.primary,
                             onSkipClicked
                         )
                     )
@@ -208,6 +208,7 @@ private fun NodeRow(
         is FlatNode.Dropdown,
         is FlatNode.MultipleSelection
         -> dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)
+
         is FlatNode.OpenEnded,
         is FlatNode.Selection
         -> 0.dp
@@ -230,6 +231,7 @@ private fun NodeRow(
             onSelectionClicked,
             onDropdownOpenPickerClicked
         )
+
         is FlatNode.MultipleSelection -> MultipleSelectionRow(commonModifier, node, isInvalid)
         is FlatNode.OpenEnded -> OpenEndedRow(commonModifier, node, isInvalid, onOpenEndedInputChanged)
         is FlatNode.Selection -> SelectionRow(commonModifier, node, onSelectionClicked)
@@ -249,7 +251,7 @@ private fun SingleSelectionRow(
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
             style = ComposeTypographies.Paragraph2,
-            color = ComposeColors.Body,
+            color = ComposeColors.Title,
             gravity = ComposeGravities.Start
         )
         SimpleText(
@@ -258,7 +260,7 @@ private fun SingleSelectionRow(
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
             style = ComposeTypographies.Caption1,
-            color = ComposeColors.Muted,
+            color = ComposeColors.Body,
             gravity = ComposeGravities.Start
         )
     }
@@ -280,7 +282,7 @@ private fun DropdownRow(
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
             style = ComposeTypographies.Paragraph2,
-            color = ComposeColors.Body,
+            color = ComposeColors.Title,
             gravity = ComposeGravities.Start
         )
         SimpleText(
@@ -290,7 +292,7 @@ private fun DropdownRow(
                 .padding(vertical = 4.dp)
                 .padding(bottom = dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)),
             style = ComposeTypographies.Caption1,
-            color = ComposeColors.Muted,
+            color = ComposeColors.Body,
             gravity = ComposeGravities.Start
         )
 
@@ -310,15 +312,17 @@ private fun DropdownRow(
                         painterResource(R.drawable.ic_chevron_down),
                         null,
                         Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)),
-                        Grey400
+                        AppColors.body
                     )
                 },
                 textStyle = AppTheme.typography.body1,
                 shape = RoundedCornerShape(8.dp),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = Grey000,
-                    unfocusedBorderColor = Grey000
+                    textColor = AppColors.title,
+                    focusedBorderColor = AppColors.medium,
+                    unfocusedBorderColor = AppColors.medium
                 )
+
             )
             // TextFields are not clickable so this workaround is necessary
             Box(
@@ -336,6 +340,7 @@ private fun DropdownRow(
 
         if (showChoicesAsMenu) {
             DropdownMenu(
+                modifier = Modifier.background(AppColors.backgroundSecondary),
                 expanded = isExpanded,
                 onDismissRequest = { isExpanded = false }
             ) {
@@ -344,18 +349,17 @@ private fun DropdownRow(
                         if (!node.isMultiSelection) isExpanded = false
                         onSelectionClicked(choice)
                     }) {
-                        Text(choice.text)
+                        Text(choice.text, color = AppColors.title)
 
                         if (choice.id == node.selectedChoices.firstOrNull()?.id) {
-                            Icon(
-                                painterResource(R.drawable.ic_success_check),
-                                null,
-                                Modifier
+                            Image(
+                                modifier = Modifier
                                     .padding(
                                         start = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)
-                                    )
-                                    .size(16.dp),
-                                Blue600
+                                    ),
+                                imageResource = Icons.Filled.Check
+                                    .withTint(AppColors.primary)
+                                    .withSize(16.dp)
                             )
                         }
                     }
@@ -378,7 +382,7 @@ private fun MultipleSelectionRow(
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
             style = ComposeTypographies.Paragraph2,
-            color = ComposeColors.Body,
+            color = ComposeColors.Title,
             gravity = ComposeGravities.Start
         )
         SimpleText(
@@ -387,7 +391,7 @@ private fun MultipleSelectionRow(
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
             style = ComposeTypographies.Caption1,
-            color = ComposeColors.Muted,
+            color = ComposeColors.Body,
             gravity = ComposeGravities.Start
         )
     }
@@ -412,7 +416,7 @@ private fun OpenEndedRow(
                     .padding(vertical = 4.dp),
                 text = node.text,
                 style = ComposeTypographies.Paragraph2,
-                color = ComposeColors.Body,
+                color = ComposeColors.Title,
                 gravity = ComposeGravities.Start
             )
         }
@@ -435,8 +439,9 @@ private fun OpenEndedRow(
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             shape = RoundedCornerShape(8.dp),
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Grey000,
-                unfocusedBorderColor = Grey000
+                textColor = AppColors.title,
+                focusedBorderColor = AppColors.medium,
+                unfocusedBorderColor = AppColors.medium
             )
         )
     }
@@ -453,7 +458,7 @@ internal fun SelectionRow(
         modifier = modifier
             .fillMaxWidth()
             .clickable { onSelectionClicked(node) }
-            .border(1.dp, Grey000, RoundedCornerShape(8.dp))
+            .border(1.dp, AppColors.medium, RoundedCornerShape(8.dp))
             .padding(
                 start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
                 end = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)
@@ -469,7 +474,7 @@ internal fun SelectionRow(
                     bottom = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)
                 ),
             style = ComposeTypographies.Body2,
-            color = if (node.isChecked) ComposeColors.Body else ComposeColors.Muted,
+            color = if (node.isChecked) ComposeColors.Title else ComposeColors.Body,
             gravity = ComposeGravities.Start
         )
 
@@ -488,7 +493,7 @@ internal fun SelectionRow(
 private fun Header(header: QuestionnaireHeader) {
     Column {
         Image(
-            imageResource = ImageResource.Local(R.drawable.ic_bank_user, colorFilter = ColorFilter.tint(Blue600)),
+            imageResource = Icons.Filled.User.withTint(AppColors.primary),
             modifier = Modifier
                 .padding(top = dimensionResource(com.blockchain.componentlib.R.dimen.huge_spacing))
                 .align(Alignment.CenterHorizontally)
@@ -680,4 +685,10 @@ private fun ScreenPreview() {
         onSkipClicked = {},
         onBackClicked = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun ScreenPreviewDark() {
+    ScreenPreview()
 }

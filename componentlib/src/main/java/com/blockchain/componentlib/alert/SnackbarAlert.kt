@@ -3,7 +3,6 @@ package com.blockchain.componentlib.alert
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -22,7 +21,6 @@ import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue400
-import com.blockchain.componentlib.theme.Dark800
 import com.blockchain.componentlib.theme.Green400
 import com.blockchain.componentlib.theme.Orange400
 import com.blockchain.componentlib.theme.Red400
@@ -34,11 +32,6 @@ fun SnackbarAlert(
     onActionClicked: () -> Unit = {},
     type: SnackbarType = SnackbarType.Info
 ) {
-    val backgroundColour = if (!isSystemInDarkTheme()) {
-        Dark800
-    } else {
-        Color.Black
-    }
 
     val icon = when (type) {
         SnackbarType.Success -> R.drawable.ic_success
@@ -57,7 +50,7 @@ fun SnackbarAlert(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(backgroundColour)
+            .background(Color(0XFF20242C))
             // prevents click throughs to views underneath the snack bar
             .clickable(true, onClick = {})
             .padding(horizontal = AppTheme.dimensions.smallSpacing, vertical = 14.dp)

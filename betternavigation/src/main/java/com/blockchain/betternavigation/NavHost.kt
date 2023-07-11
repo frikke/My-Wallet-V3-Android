@@ -1,15 +1,18 @@
 package com.blockchain.betternavigation
 
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.commonarch.presentation.mvi_v2.compose.rememberBottomSheetNavigator
+import com.blockchain.componentlib.theme.AppColors
+import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.topOnly
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 import kotlinx.coroutines.flow.collectLatest
@@ -52,8 +55,11 @@ fun TypedNavHost(
         LocalNavControllerProvider provides navController
     ) {
         ModalBottomSheetLayout(
-            bottomSheetNavigator,
-            sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+            modifier = Modifier.background(AppColors.background),
+            bottomSheetNavigator = bottomSheetNavigator,
+            sheetShape = AppTheme.shapes.veryLarge.topOnly(),
+            sheetBackgroundColor = Color.Transparent,
+            scrimColor = AppColors.scrim
         ) {
             NavHost(
                 navController = navController,

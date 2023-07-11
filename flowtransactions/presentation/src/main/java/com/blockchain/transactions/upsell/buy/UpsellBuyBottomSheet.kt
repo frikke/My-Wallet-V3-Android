@@ -4,10 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Card
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.Analytics
@@ -68,7 +66,7 @@ class UpsellBuyBottomSheet :
                                 analytics.logEvent(UpsellBuyDismissed)
                                 dismiss()
                             },
-                            modifier = Modifier.background(color = AppTheme.colors.light)
+                            backgroundSecondary = false
                         )
 
                         UpsellBuyScreen(

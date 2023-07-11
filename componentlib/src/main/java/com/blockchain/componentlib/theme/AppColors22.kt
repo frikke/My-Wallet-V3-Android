@@ -44,6 +44,9 @@ private val BackgroundNight = Color(0XFF07080D)
 private val BackgroundSecondary = Color(0XFFFFFFFF)
 private val BackgroundSecondaryNight = Color(0XFF20242C)
 
+private val Scrim = Color(0XA3121D33)
+private val ScrimNight = Color(0XCC121D33)
+
 val defLightColors = SemanticColors(
     title = Title, //
     body = Body, //
@@ -69,6 +72,7 @@ val defLightColors = SemanticColors(
     negativeMuted = Negative,
     semidark = Grey400,
     explorer = ExplorerLight,
+    scrim = Scrim, //
     isLight = true
 )
 
@@ -97,5 +101,6 @@ val defDarkColors = SemanticColors(
     negativeMuted = NegativeNight,
     semidark = Grey800,
     explorer = ExplorerNight,
+    scrim = ScrimNight,
     isLight = false,
 )

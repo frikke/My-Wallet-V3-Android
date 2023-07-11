@@ -33,6 +33,7 @@ import com.blockchain.componentlib.lazylist.PaginatedLazyVerticalGrid
 import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.media.UrlType
 import com.blockchain.componentlib.system.CircularProgressBar
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.clickableWithIndication
 import com.blockchain.componentlib.utils.clickableNoEffect
@@ -72,7 +73,7 @@ fun NftCollectionDataScreen(
                     modifier = Modifier.clickableWithIndication {
                         changeDisplayTypeOnClick(displayType.change())
                     },
-                    imageResource = displayType.icon
+                    imageResource = displayType.icon.withTint(AppColors.title)
                 )
             }
         }

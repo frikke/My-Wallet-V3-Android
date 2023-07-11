@@ -1,5 +1,6 @@
 package com.blockchain.nfts.detail.screen
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,6 +41,7 @@ import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.media.UrlType
 import com.blockchain.componentlib.sheets.SheetNub
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.componentlib.utils.openUrl
@@ -104,7 +106,7 @@ fun NftDetailScreen(
     onExternalViewClick: (NftAsset) -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().background(AppColors.background)
     ) {
         Box(
             modifier = Modifier
@@ -302,7 +304,7 @@ fun NftTrait(trait: NftTrait) {
 // PREVIEWS
 // ///////////////
 
-@Preview(showBackground = true, backgroundColor = 0XFFF1F2F7)
+@Preview
 @Composable
 fun PreviewNftCollectionScreen_Data() {
     NftDetailScreen(
@@ -321,13 +323,19 @@ fun PreviewNftCollectionScreen_Data() {
                     isVerified = true
                 ),
                 traits = listOf(
-                    NftTrait("name", "value"),
-                    NftTrait("name", "value"),
-                    NftTrait("name", "value"),
-                    NftTrait("name", "value")
+                    NftTrait("name1", "value"),
+                    NftTrait("name2", "value"),
+                    NftTrait("name3", "value"),
+                    NftTrait("name4", "value")
                 )
             )
         ),
         {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewNftCollectionScreen_DataDark() {
+    PreviewNftCollectionScreen_Data()
 }

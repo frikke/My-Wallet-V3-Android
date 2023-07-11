@@ -1,5 +1,6 @@
 package com.blockchain.transactions.upsell.buy
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -105,7 +106,7 @@ private fun Content(
 ) {
     Column(
         modifier = Modifier
-            .background(color = AppTheme.colors.light)
+            .background(color = AppTheme.colors.background)
             .fillMaxWidth()
             .padding(horizontal = AppTheme.dimensions.standardSpacing),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -162,7 +163,7 @@ fun MostPopularAssets(assets: ImmutableList<PriceItemViewState>, onBuyMostPopula
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
+@Preview
 @Composable
 private fun UpSellAnotherAssetScreenPreview() {
     AppTheme {
@@ -228,4 +229,10 @@ private fun UpSellAnotherAssetScreenPreview() {
             onBuyMostPopularAsset = { }
         )
     }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun UpSellAnotherAssetScreenPreviewDark() {
+    UpSellAnotherAssetScreenPreview()
 }

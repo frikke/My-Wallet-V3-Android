@@ -290,11 +290,16 @@ fun NavigationBar(
                         }
 
                         is NavigationBarButton.DropdownMenu -> {
-                            com.blockchain.componentlib.basic.Image(imageResource = Icons.MenuKebabVertical)
+                            com.blockchain.componentlib.basic.Image(
+                                imageResource = Icons.MenuKebabVertical.withTint(AppColors.title)
+                            )
 
                             // DropdownMenu uses MaterialTheme.shapes.medium for its shape, so we need to override it
                             MaterialTheme(shapes = MaterialTheme.shapes.copy(medium = AppTheme.shapes.large)) {
                                 DropdownMenu(
+                                    modifier = Modifier.background(
+                                        AppColors.backgroundSecondary, AppTheme.shapes.large
+                                    ),
                                     expanded = it.expanded.value,
                                     onDismissRequest = { it.expanded.value = false },
                                     content = it.content

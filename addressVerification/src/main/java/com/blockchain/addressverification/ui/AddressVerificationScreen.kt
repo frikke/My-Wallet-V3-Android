@@ -26,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -41,24 +40,25 @@ import com.blockchain.addressverification.R
 import com.blockchain.addressverification.domain.model.AutocompleteAddress
 import com.blockchain.addressverification.domain.model.AutocompleteAddressType
 import com.blockchain.commonarch.presentation.mvi_v2.compose.bindViewModel
+import com.blockchain.componentlib.basic.AppDivider
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.basic.closeImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.controls.OutlinedTextInput
 import com.blockchain.componentlib.controls.TextInputState
-import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.icons.ChevronRight
-import com.blockchain.componentlib.icons.Close
 import com.blockchain.componentlib.icons.Icons
-import com.blockchain.componentlib.icons.withBackground
+import com.blockchain.componentlib.loader.LoadingIndicator
 import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.system.DialogueButton
 import com.blockchain.componentlib.system.DialogueCard
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.utils.BackHandlerCallback
@@ -162,7 +162,7 @@ private fun Content(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(AppColors.background)
                 .padding(padding)
                 .padding(AppTheme.dimensions.standardSpacing)
         ) {
@@ -181,11 +181,7 @@ private fun ColumnScope.SearchStep(
 ) {
     val searchInputIcon =
         if (state.searchInput.text.isNotEmpty()) {
-            Icons.Close.withTint(Grey400)
-                .withBackground(
-                    backgroundSize = AppTheme.dimensions.standardSpacing,
-                    iconSize = AppTheme.dimensions.standardSpacing
-                )
+            closeImageResource()
         } else {
             ImageResource.None
         }
@@ -262,7 +258,7 @@ private fun ColumnScope.SearchStep(
                             )
                         }
                         if (index < suggestions.lastIndex) {
-                            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                            AppDivider(color = AppColors.medium)
                         }
                     }
                 )
@@ -462,11 +458,11 @@ fun AutoCompleteItem(
         } else {
             // Always put the loading in the screen and change the alpha so the space is reserved
             // and the text doesn't jump around
-            CircularProgressBar(
-                Modifier
+            LoadingIndicator(
+                modifier = Modifier
                     .padding(start = AppTheme.dimensions.smallSpacing)
-                    .size(24.dp)
-                    .alpha(if (isLoading) 1f else 0f)
+                    .alpha(if (isLoading) 1f else 0f),
+                color = AppColors.primary
             )
         }
     }

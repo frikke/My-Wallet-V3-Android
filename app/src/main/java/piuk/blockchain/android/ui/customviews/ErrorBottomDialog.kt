@@ -11,13 +11,13 @@ import androidx.annotation.StringRes
 import androidx.viewbinding.ViewBinding
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.AnalyticsEvents
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.blockchain.commonarch.presentation.base.ThemedBottomSheetFragment
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import kotlinx.parcelize.Parcelize
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 
-abstract class ErrorBottomDialog<E : ViewBinding> : BottomSheetDialogFragment() {
+abstract class ErrorBottomDialog<E : ViewBinding> : ThemedBottomSheetFragment() {
 
     @Parcelize
     data class

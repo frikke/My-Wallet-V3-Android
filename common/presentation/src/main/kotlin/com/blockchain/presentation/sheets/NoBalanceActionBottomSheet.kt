@@ -1,8 +1,9 @@
 package com.blockchain.presentation.sheets
 
-import android.app.Dialog
 import android.os.Bundle
-import android.widget.FrameLayout
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import com.blockchain.analytics.Analytics
@@ -10,6 +11,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.common.R
+import com.blockchain.commonarch.presentation.base.ThemedBottomSheetFragment
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.BottomSheetOneButton
@@ -17,13 +19,10 @@ import com.blockchain.componentlib.sheets.BottomSheetTwoButtons
 import com.blockchain.componentlib.sheets.ButtonType
 import com.blockchain.presentation.extensions.getAccount
 import com.blockchain.presentation.extensions.putAccount
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import org.koin.android.ext.android.inject
 
-class NoBalanceActionBottomSheet : BottomSheetDialogFragment() {
+class NoBalanceActionBottomSheet : ThemedBottomSheetFragment() {
 
     interface Host {
         fun navigateToAction(
@@ -49,26 +48,14 @@ class NoBalanceActionBottomSheet : BottomSheetDialogFragment() {
 
     private val canBuy by lazy { arguments?.getBoolean(CAN_BUY) ?: false }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialog = BottomSheetDialog(requireActivity())
-
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val details = getNoBalanceExplainerDetails(selectedAccount, assetAction, canBuy)
 
-        dialog.setContentView(
-            ComposeView(requireContext()).apply {
-                setContent {
-                    ScreenContent(details)
-                }
+        return ComposeView(requireContext()).apply {
+            setContent {
+                ScreenContent(details)
             }
-        )
-
-        dialog.setOnShowListener {
-            val d = it as BottomSheetDialog
-            val layout =
-                d.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet) as FrameLayout
-            BottomSheetBehavior.from(layout).state = BottomSheetBehavior.STATE_EXPANDED
         }
-        return dialog
     }
 
     @Composable

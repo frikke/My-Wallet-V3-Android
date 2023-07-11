@@ -38,6 +38,7 @@ import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.tablerow.TableRowHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tag.DefaultTag
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 import com.blockchain.componentlib.theme.SmallestVerticalSpacer
@@ -214,7 +215,7 @@ private fun NoBalanceDexAccountTableRow(dexAccount: DexAccount, onAccountSelecte
                 }
 
                 Spacer(modifier = Modifier.weight(1F))
-                Image(Icons.ChevronRight)
+                Image(Icons.ChevronRight.withTint(AppColors.body))
             }
         },
         onContentClicked = {

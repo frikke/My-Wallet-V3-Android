@@ -1,8 +1,9 @@
 package piuk.blockchain.android.ui.coinview.presentation.interstitials
 
-import android.app.Dialog
 import android.os.Bundle
-import android.widget.FrameLayout
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.DrawableRes
 import androidx.compose.ui.platform.ComposeView
 import com.blockchain.analytics.Analytics
@@ -13,21 +14,19 @@ import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
+import com.blockchain.commonarch.presentation.base.ThemedBottomSheetFragment
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.BottomSheetOneButton
 import com.blockchain.componentlib.sheets.ButtonType
 import com.blockchain.presentation.extensions.getAccount
 import com.blockchain.presentation.extensions.putAccount
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewAnalytics
 
-class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
+class AccountExplainerBottomSheet : ThemedBottomSheetFragment() {
 
     interface Host {
         fun navigateToActionSheet(actions: Array<StateAwareAction>, account: BlockchainAccount)
@@ -51,44 +50,33 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
     private val stakingRate by lazy { arguments?.getDouble(STAKING_RATE) as Double }
     private val activeRewardsRate by lazy { arguments?.getDouble(ACTIVE_REWARDS_RATE) as Double }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialog = BottomSheetDialog(requireActivity())
-
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         explainerViewedToAnalytics(selectedAccount, networkTicker)
+
         val account = getAccountExplainerDetails(selectedAccount, interestRate, stakingRate)
 
-        dialog.setContentView(
-            ComposeView(requireContext()).apply {
-                setContent {
-                    BottomSheetOneButton(
-                        title = account.title,
-                        subtitle = account.description,
-                        headerImageResource = ImageResource.Local(account.icon),
-                        onCloseClick = {
-                            dismiss()
-                        },
-                        button = BottomSheetButton(
-                            type = ButtonType.PRIMARY,
-                            text = account.buttonText,
-                            onClick = {
-                                host.navigateToActionSheet(accountActions, selectedAccount)
-                                explainerAcceptedToAnalytics(selectedAccount, networkTicker)
-                                super.dismiss()
-                            }
-                        ),
-                        shouldShowHeaderDivider = false
-                    )
-                }
+        return ComposeView(requireContext()).apply {
+            setContent {
+                BottomSheetOneButton(
+                    title = account.title,
+                    subtitle = account.description,
+                    headerImageResource = ImageResource.Local(account.icon),
+                    onCloseClick = {
+                        dismiss()
+                    },
+                    button = BottomSheetButton(
+                        type = ButtonType.PRIMARY,
+                        text = account.buttonText,
+                        onClick = {
+                            host.navigateToActionSheet(accountActions, selectedAccount)
+                            explainerAcceptedToAnalytics(selectedAccount, networkTicker)
+                            super.dismiss()
+                        }
+                    ),
+                    shouldShowHeaderDivider = false
+                )
             }
-        )
-
-        dialog.setOnShowListener {
-            val d = it as BottomSheetDialog
-            val layout =
-                d.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet) as FrameLayout
-            BottomSheetBehavior.from(layout).state = BottomSheetBehavior.STATE_EXPANDED
         }
-        return dialog
     }
 
     private fun getAccountExplainerDetails(

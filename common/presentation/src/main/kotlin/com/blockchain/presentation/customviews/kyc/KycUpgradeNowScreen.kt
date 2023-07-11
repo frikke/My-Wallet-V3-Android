@@ -1,11 +1,13 @@
 package com.blockchain.presentation.customviews.kyc
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -15,13 +17,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.analytics.Analytics
+import com.blockchain.componentlib.basic.AppDivider
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.MinimalPrimaryButton
-import com.blockchain.componentlib.divider.HorizontalDivider
+import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.icons.Check
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Interest
@@ -34,7 +36,6 @@ import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
@@ -173,91 +174,80 @@ fun CustomTabLayout(pagerState: PagerState, coroutineScope: CoroutineScope) {
 */
 
 @Composable
-private fun Verified(ctaClicked: () -> Unit) {
-    Column(
+private fun ColumnScope.Verified(ctaClicked: () -> Unit) {
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = AppTheme.dimensions.standardSpacing)
-            .background(AppTheme.colors.primary, RoundedCornerShape(AppTheme.dimensions.tinySpacing))
+            .padding(top = AppTheme.dimensions.standardSpacing),
+        shape = AppTheme.shapes.medium,
+        color = Color.Transparent
     ) {
         Column {
             DefaultTableRow(
                 modifier = Modifier.fillMaxWidth(),
-                backgroundColor = Color.Transparent,
-                startImageResource = Icons.Filled.Verified.withTint(White),
+                startImageResource = Icons.Filled.Verified.withTint(AppColors.primary),
                 primaryText = stringResource(com.blockchain.stringResources.R.string.kyc_upgrade_now_verified_level),
-                primaryTextColor = White,
                 endTag = TagViewState(
                     stringResource(com.blockchain.stringResources.R.string.kyc_upgrade_now_verified_full_access),
                     TagType.InfoAlt()
                 ),
-                secondaryTextColor = AppTheme.colors.light,
                 onClick = null
             )
-            HorizontalDivider(Modifier.fillMaxWidth())
+            AppDivider()
             DefaultTableRow(
                 modifier = Modifier.fillMaxWidth(),
-                backgroundColor = Color.Transparent,
-                startImageResource = Icons.Filled.Swap.withTint(White),
+                startImageResource = Icons.Filled.Swap.withTint(AppColors.primary),
                 primaryText = stringResource(
                     com.blockchain.stringResources.R.string.kyc_upgrade_now_verified_swap_title
                 ),
-                primaryTextColor = White,
                 secondaryText = stringResource(
                     com.blockchain.stringResources.R.string.kyc_upgrade_now_verified_swap_description
                 ),
-                secondaryTextColor = AppTheme.colors.light,
-                endImageResource = Icons.Check.withTint(White),
+                endImageResource = Icons.Check.withTint(AppColors.body),
                 onClick = null
             )
-            HorizontalDivider(Modifier.fillMaxWidth())
+            AppDivider()
             DefaultTableRow(
                 modifier = Modifier.fillMaxWidth(),
-                backgroundColor = Color.Transparent,
-                startImageResource = Icons.Filled.Plus.withTint(White),
+                startImageResource = Icons.Filled.Plus.withTint(AppColors.primary),
                 primaryText = stringResource(
                     com.blockchain.stringResources.R.string.kyc_upgrade_now_verified_buy_title
                 ),
-                primaryTextColor = White,
                 secondaryText = stringResource(
                     com.blockchain.stringResources.R.string.kyc_upgrade_now_verified_buy_description
                 ),
-                secondaryTextColor = AppTheme.colors.light,
-                endImageResource = Icons.Check.withTint(White),
+                endImageResource = Icons.Check.withTint(AppColors.body),
                 onClick = null
             )
-            HorizontalDivider(Modifier.fillMaxWidth())
+            AppDivider()
             DefaultTableRow(
                 modifier = Modifier.fillMaxWidth(),
-                backgroundColor = Color.Transparent,
                 startImageResource = Icons.Filled.Interest
-                    .withTint(AppTheme.colors.primary)
+                    .withTint(AppColors.backgroundSecondary)
                     .withBackground(
-                        backgroundColor = White,
+                        backgroundColor = AppColors.primary,
                         iconSize = AppTheme.dimensions.smallSpacing,
                         backgroundSize = AppTheme.dimensions.standardSpacing
                     ),
                 primaryText = stringResource(
                     com.blockchain.stringResources.R.string.kyc_upgrade_now_verified_interest_title
                 ),
-                primaryTextColor = White,
                 secondaryText = stringResource(
                     com.blockchain.stringResources.R.string.kyc_upgrade_now_verified_interest_description
                 ),
-                secondaryTextColor = AppTheme.colors.light,
-                endImageResource = Icons.Check.withTint(White),
+                endImageResource = Icons.Check.withTint(AppColors.body),
                 onClick = null
-            )
-
-            MinimalPrimaryButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(AppTheme.dimensions.standardSpacing),
-                text = stringResource(com.blockchain.stringResources.R.string.kyc_upgrade_now_verified_cta),
-                onClick = ctaClicked
             )
         }
     }
+
+    PrimaryButton(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(AppTheme.dimensions.standardSpacing),
+        text = stringResource(com.blockchain.stringResources.R.string.kyc_upgrade_now_verified_cta),
+        onClick = ctaClicked
+    )
 }
 
 private fun AnalyticsType.log(analytics: Analytics, highestTier: KycTier) {
@@ -279,14 +269,14 @@ private enum class AnalyticsType {
 
 @Preview
 @Composable
-private fun Preview() {
+private fun PreviewKycUpgradeNow() {
     KycUpgradeNow(
         ctaClicked = {}
     )
 }
 
-@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun PreviewVerified() {
-    Verified({})
+private fun PreviewKycUpgradeNowDark() {
+    PreviewKycUpgradeNow()
 }

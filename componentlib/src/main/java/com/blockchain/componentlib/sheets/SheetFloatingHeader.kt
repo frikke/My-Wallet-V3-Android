@@ -71,7 +71,7 @@ private fun SheetHeader(
             ) {
                 CustomStackedIcon(
                     icon = icon,
-                    borderColor = AppTheme.colors.light
+                    borderColor = color
                 )
 
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))

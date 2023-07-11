@@ -15,10 +15,11 @@
     <color name="medium">#FFDFE3EB</color>
     <color name="dark">#FFB1B8C7</color>
 
+    <color name="scrim">#A3121D33</color>
+
     <!-- special for split button-->
     <color name="minimal_bg">#FFFFFFFF</color>
     <color name="minimal_border">#FFF0F2F7</color>
-
     <!-- special for split button-->
 
 

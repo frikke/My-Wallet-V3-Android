@@ -21,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -36,6 +35,7 @@ import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.controls.OutlinedTextInput
 import com.blockchain.componentlib.controls.TextInputState
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import java.text.SimpleDateFormat
@@ -73,7 +73,7 @@ fun KycProfileScreen(
 
         Column(
             modifier = Modifier
-                .background(Color.White)
+                .background(AppColors.background)
                 .padding(padding)
                 .padding(all = AppTheme.dimensions.standardSpacing)
                 .fillMaxWidth(),

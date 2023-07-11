@@ -33,6 +33,7 @@ import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.sheets.SheetFloatingHeader
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
@@ -104,7 +105,7 @@ private fun RecurringBuyDetailScreen(
             icon = if (recurringBuy is DataResource.Data) {
                 StackedIcon.SmallTag(
                     main = ImageResource.Remote(recurringBuy.data.iconUrl),
-                    tag = Icons.Filled.Sync
+                    tag = Icons.Filled.Sync.withTint(AppColors.title)
                 )
             } else {
                 StackedIcon.None

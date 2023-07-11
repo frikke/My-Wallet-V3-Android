@@ -1,14 +1,14 @@
 package piuk.blockchain.android.ui.coinview.presentation.interstitials
 
-import android.app.Dialog
 import android.os.Bundle
-import android.widget.FrameLayout
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Divider
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
@@ -27,6 +27,7 @@ import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
+import com.blockchain.commonarch.presentation.base.ThemedBottomSheetFragment
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.ChevronRight
 import com.blockchain.componentlib.icons.Icons
@@ -36,6 +37,7 @@ import com.blockchain.componentlib.icons.Plus
 import com.blockchain.componentlib.icons.Receive
 import com.blockchain.componentlib.icons.Send
 import com.blockchain.componentlib.icons.Swap
+import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
@@ -51,9 +53,6 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.presentation.extensions.getAccount
 import com.blockchain.presentation.extensions.putAccount
 import com.blockchain.presentation.koin.scopedInject
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -67,7 +66,7 @@ import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.assetActionEvent
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 
-class AccountActionsBottomSheet : BottomSheetDialogFragment() {
+class AccountActionsBottomSheet : ThemedBottomSheetFragment() {
 
     private val analytics: Analytics by inject()
     private val assetCatalogue: AssetCatalogue by scopedInject()
@@ -100,9 +99,9 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             ?: throw IllegalStateException("Host activity is not a AccountActionsBottomSheet.Host")
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         logEventWalletViewed(selectedAccount)
-        val dialog = BottomSheetDialog(requireActivity())
+
         val items =
             stateAwareActions.filter { it.state != ActionState.Unavailable }
                 .map { action ->
@@ -112,86 +111,75 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                     )
                 }
 
-        dialog.setContentView(
-            ComposeView(requireContext()).apply {
-                setContent {
-                    Surface(
-                        color = AppColors.background,
-                        shape = AppTheme.shapes.large.topOnly()
+        return ComposeView(requireContext()).apply {
+            setContent {
+                Surface(
+                    color = AppColors.background,
+                    shape = AppTheme.shapes.large.topOnly()
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            SheetHeader(
-                                title = selectedAccount.currency.name,
-                                onClosePress = { dismiss() },
-                                startImage = selectedAccount.l1Network()?.let {
-                                    StackedIcon.SmallTag(
-                                        ImageResource.Remote(selectedAccount.currency.logo),
-                                        ImageResource.Remote(it.logo)
+                        SheetHeader(
+                            title = selectedAccount.currency.name,
+                            onClosePress = { dismiss() },
+                            startImage = selectedAccount.l1Network()?.let {
+                                StackedIcon.SmallTag(
+                                    ImageResource.Remote(selectedAccount.currency.logo),
+                                    ImageResource.Remote(it.logo)
+                                )
+                            } ?: StackedIcon.SingleIcon(
+                                ImageResource.Remote(selectedAccount.currency.logo)
+                            ),
+                            shouldShowDivider = false,
+                            backgroundSecondary = false,
+                        )
+                        DefaultTableRow(
+                            backgroundColor = AppColors.background,
+                            primaryText = balanceFiat.toStringWithSymbol(),
+                            secondaryText = balanceCrypto.toStringWithSymbol(),
+                            endTag = when (selectedAccount) {
+                                is EarnRewardsAccount.Interest -> {
+                                    TagViewState(
+                                        getString(
+                                            com.blockchain.stringResources.R.string.actions_sheet_percentage_rate,
+                                            interestRate.toString()
+                                        ),
+                                        TagType.Success()
                                     )
-                                } ?: StackedIcon.SingleIcon(
-                                    ImageResource.Remote(selectedAccount.currency.logo)
-                                ),
-                                shouldShowDivider = false
-                            )
-                            DefaultTableRow(
-                                primaryText = balanceFiat.toStringWithSymbol(),
-                                secondaryText = balanceCrypto.toStringWithSymbol(),
-                                endTag = when (selectedAccount) {
-                                    is EarnRewardsAccount.Interest -> {
-                                        TagViewState(
-                                            getString(
-                                                com.blockchain.stringResources.R.string.actions_sheet_percentage_rate,
-                                                interestRate.toString()
-                                            ),
-                                            TagType.Success()
-                                        )
-                                    }
+                                }
 
-                                    is EarnRewardsAccount.Staking -> {
-                                        TagViewState(
-                                            getString(
-                                                com.blockchain.stringResources.R.string.actions_sheet_percentage_rate,
-                                                stakingRate.toString()
-                                            ),
-                                            TagType.Success()
-                                        )
-                                    }
+                                is EarnRewardsAccount.Staking -> {
+                                    TagViewState(
+                                        getString(
+                                            com.blockchain.stringResources.R.string.actions_sheet_percentage_rate,
+                                            stakingRate.toString()
+                                        ),
+                                        TagType.Success()
+                                    )
+                                }
 
-                                    is EarnRewardsAccount.Active -> {
-                                        TagViewState(
-                                            getString(
-                                                com.blockchain.stringResources.R.string.actions_sheet_percentage_rate,
-                                                activeRewardsRate.toString()
-                                            ),
-                                            TagType.Success()
-                                        )
-                                    }
+                                is EarnRewardsAccount.Active -> {
+                                    TagViewState(
+                                        getString(
+                                            com.blockchain.stringResources.R.string.actions_sheet_percentage_rate,
+                                            activeRewardsRate.toString()
+                                        ),
+                                        TagType.Success()
+                                    )
+                                }
 
-                                    else -> null
-                                },
-                                endImageResource = ImageResource.None,
-                                onClick = { }
-                            )
-                            Divider(color = AppTheme.colors.light, thickness = 1.dp)
-                            ActionsList(items)
-                        }
+                                else -> null
+                            },
+                            endImageResource = ImageResource.None,
+                            onClick = { }
+                        )
+                        ActionsList(items)
                     }
                 }
             }
-        )
-
-        dialog.setOnShowListener {
-            val d = it as BottomSheetDialog
-            val layout =
-                d.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet) as FrameLayout
-            BottomSheetBehavior.from(layout).state = BottomSheetBehavior.STATE_EXPANDED
-
-            layout.setBackgroundResource(android.R.color.transparent)
         }
-        return dialog
     }
 
     private fun CryptoAccount.l1Network(): CoinViewNetwork? {
@@ -208,12 +196,14 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
     @Composable
     private fun ActionsList(assetActionItem: List<AssetActionItem>) {
         LazyColumn {
-            items(
+            paddedRoundedCornersItems(
                 items = assetActionItem,
-                itemContent = {
-                    ActionListItem(it)
+                paddingValues = {
+                    PaddingValues(AppTheme.dimensions.smallSpacing)
                 }
-            )
+            ) {
+                ActionListItem(it)
+            }
         }
     }
 

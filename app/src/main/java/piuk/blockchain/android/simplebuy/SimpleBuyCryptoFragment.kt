@@ -220,7 +220,6 @@ class SimpleBuyCryptoFragment :
                     activity.onBackPressedDispatcher.onBackPressed()
                 }
             )
-            updateToolbarBackground(mutedBackground = true)
         }
 
         analytics.logEvent(BuyAmountScreenViewedEvent)

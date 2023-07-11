@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.compose.material.Surface
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import com.blockchain.api.NabuApiException
@@ -101,7 +102,8 @@ class WireTransferAccountDetailsBottomSheet :
                     binding.composeView.visible()
                     binding.composeView.setContent {
                         Surface(
-                            modifier = Modifier.nestedScroll(rememberNestedScrollInteropConnection())
+                            modifier = Modifier.nestedScroll(rememberNestedScrollInteropConnection()),
+                            color = Color.Transparent
                         ) {
                             WireTransferAccountDetailsScreen(
                                 isForLink = isForLink,

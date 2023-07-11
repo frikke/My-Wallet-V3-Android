@@ -43,6 +43,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/small_spacing"
         android:layout_marginBottom="@dimen/standard_spacing"
+        android:textColor="@color/title"
         android:visibility="gone"
         android:background="@drawable/bkgd_white_large_rounding"
         android:padding="@dimen/tiny_spacing"

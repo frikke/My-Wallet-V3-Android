@@ -1,5 +1,6 @@
 package com.blockchain.walletconnect.ui.composable
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.analytics.Analytics
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Viewfinder
@@ -36,10 +36,11 @@ import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.system.ShimmerLoadingCard
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.MediumHorizontalSpacer
-import com.blockchain.componentlib.theme.Pink700
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.koin.payloadScope
 import com.blockchain.stringResources.R.string
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
@@ -48,7 +49,6 @@ import com.blockchain.walletconnect.ui.composable.common.WalletConnectDappTableR
 import com.blockchain.walletconnect.ui.dapps.v2.WalletConnectDappListIntent
 import com.blockchain.walletconnect.ui.dapps.v2.WalletConnectDappListViewModel
 import com.blockchain.walletconnect.ui.dapps.v2.WalletConnectDappListViewState
-import com.blockchain.walletmode.WalletMode
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import timber.log.Timber
@@ -107,45 +107,46 @@ fun WalletConnectDappList(
     analytics: Analytics = get()
 ) {
 
-    Box(modifier = Modifier.fillMaxSize()) {
-
-        Column(modifier = Modifier.fillMaxWidth()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColors.background)
+    ) {
+        Column(modifier = Modifier.fillMaxWidth().weight(1F)) {
 
             Box(contentAlignment = Alignment.TopEnd) {
 
                 val expanded = remember { mutableStateOf(false) }
                 NavigationBar(
-                    walletMode = WalletMode.NON_CUSTODIAL,
-                    mutedBg = true,
                     title = stringResource(string.dapps_list_title),
-                    startNavigationBarButton = NavigationBarButton.Icon(
-                        drawable = R.drawable.ic_nav_bar_back,
-                        onIconClick = onBackPressed,
-                        contentDescription = com.blockchain.stringResources.R.string.accessibility_back
-                    ),
-                    endNavigationBarButtons = listOf(
+                    onBackButtonClick = onBackPressed,
+                    navigationBarButtons = listOf(
                         NavigationBarButton.DropdownMenu(
                             expanded = expanded,
                             onMenuClick = { expanded.value = !expanded.value },
                         ) {
-                            DropdownMenuItem(onClick = onDisconnectAllSessions) {
+                            DropdownMenuItem(
+                                modifier = Modifier.background(AppColors.backgroundSecondary),
+                                onClick = onDisconnectAllSessions
+                            ) {
                                 MediumHorizontalSpacer()
                                 Text(
                                     text = stringResource(
                                         string.common_disconnect_all
                                     ),
-                                    color = Pink700,
+                                    color = AppColors.negative,
                                     style = AppTheme.typography.title3
                                 )
                                 MediumHorizontalSpacer()
                             }
                         }
-                    ),
-                    spaceBetweenArrangement = true
+                    )
                 )
             }
 
-            LazyColumn {
+            LazyColumn(
+                modifier = Modifier.padding(vertical = AppTheme.dimensions.smallSpacing)
+            ) {
                 paddedRoundedCornersItems(
                     items = sessions,
                     paddingValues = { PaddingValues(horizontal = AppTheme.dimensions.smallSpacing) }
@@ -172,8 +173,7 @@ fun WalletConnectDappList(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                .background(AppTheme.colors.light)
-                .align(Alignment.BottomCenter),
+                .background(AppColors.backgroundSecondary),
             contentAlignment = Alignment.Center,
         ) {
             PrimaryButton(
@@ -187,7 +187,7 @@ fun WalletConnectDappList(
     }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun WalletConnectDappsListPreview() {
     AppTheme {
@@ -204,7 +204,7 @@ fun WalletConnectDappsListPreview() {
                     isV2 = true
                 ),
                 DappSessionUiElement(
-                    dappName = "My Dapp",
+                    dappName = "My Dapp 2",
                     dappDescription = "This is a description of my dapp",
                     dappUrl = "https://mydapp.com",
                     dappLogoUrl = "https://mydapp.com/logo.png",
@@ -214,7 +214,7 @@ fun WalletConnectDappsListPreview() {
                     isV2 = true
                 ),
                 DappSessionUiElement(
-                    dappName = "My Dapp",
+                    dappName = "My Dapp 3",
                     dappDescription = "This is a description of my dapp",
                     dappUrl = "https://mydapp.com",
                     dappLogoUrl = "https://mydapp.com/logo.png",
@@ -224,7 +224,7 @@ fun WalletConnectDappsListPreview() {
                     isV2 = true
                 ),
                 DappSessionUiElement(
-                    dappName = "My Dapp",
+                    dappName = "My Dapp 4",
                     dappDescription = "This is a description of my dapp",
                     dappUrl = "https://mydapp.com",
                     dappLogoUrl = "https://mydapp.com/logo.png",
@@ -234,7 +234,7 @@ fun WalletConnectDappsListPreview() {
                     isV2 = true
                 ),
                 DappSessionUiElement(
-                    dappName = "My Dapp",
+                    dappName = "My Dapp 5",
                     dappDescription = "This is a description of my dapp",
                     dappUrl = "https://mydapp.com",
                     dappLogoUrl = "https://mydapp.com/logo.png",
@@ -242,12 +242,19 @@ fun WalletConnectDappsListPreview() {
                     chainLogo = "https://ethereum.org/logo.png",
                     sessionId = "1234567890",
                     isV2 = true
-                ),
+                )
             ),
             onBackPressed = {},
             onDisconnectAllSessions = {},
             onSessionClicked = {},
-            onLaunchQrCodeScan = {}
+            onLaunchQrCodeScan = {},
+            analytics = previewAnalytics
         )
     }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun WalletConnectDappsListPreviewDark() {
+    WalletConnectDappsListPreview()
 }
