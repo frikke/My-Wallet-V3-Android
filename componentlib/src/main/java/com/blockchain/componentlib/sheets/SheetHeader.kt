@@ -87,7 +87,13 @@ fun SheetHeader(
                     )
                 }
                 if (shouldShowDivider) {
-                    AppDivider()
+                    AppDivider(
+                        if(backgroundSecondary) {
+                            AppColors.background
+                        } else {
+                            AppColors.medium
+                        }
+                    )
                 }
             }
         }

@@ -68,7 +68,7 @@ class UpsellBuyBottomSheet :
                                 analytics.logEvent(UpsellBuyDismissed)
                                 dismiss()
                             },
-                            modifier = Modifier.background(color = AppTheme.colors.light)
+                            backgroundSecondary = false
                         )
 
                         UpsellBuyScreen(

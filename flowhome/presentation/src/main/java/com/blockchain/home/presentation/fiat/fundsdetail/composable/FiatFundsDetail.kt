@@ -249,7 +249,7 @@ fun FiatFundDetailScreenData(
                                         ),
                                         startImageResource = ImageResource.Local(R.drawable.ic_fiat_withdraw),
                                         endImageResource = if (data.data.withdrawEnabled && showWithdrawChecksLoading.not()) {
-                                            ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_chevron_end)
+                                            Icons.ChevronRight.withTint(AppColors.body)
                                         } else {
                                             ImageResource.None
                                         },

@@ -66,12 +66,13 @@ fun WireTransferAccountDetailsScreen(
                 stringResource(com.blockchain.stringResources.R.string.deposit_currency, currency)
             },
             onClosePress = backClicked,
-            shouldShowDivider = true
+            shouldShowDivider = true,
+            backgroundSecondary = false,
         )
 
         Column(
             Modifier
-                .background(AppColors.backgroundSecondary)
+                .background(AppColors.background)
                 .padding(horizontal = AppTheme.dimensions.smallSpacing)
                 .verticalScroll(rememberScrollState())
         ) {
