@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.commonarch.presentation.base.ThemedBottomSheetFragment
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.BottomSheetOneButton
@@ -25,7 +26,7 @@ data class SendNetworkWarningInfo(
     val network: String
 ) : Parcelable
 
-class SendNetworkWarningSheet : BottomSheetDialogFragment() {
+class SendNetworkWarningSheet : ThemedBottomSheetFragment() {
 
     private val info: SendNetworkWarningInfo by lazy {
         arguments?.getParcelable<SendNetworkWarningInfo>(INFO) ?: throw IllegalStateException(

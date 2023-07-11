@@ -9,13 +9,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.ui.platform.ComposeView
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.commonarch.presentation.base.ThemedBottomSheetFragment
 import com.blockchain.commonarch.presentation.mvi_v2.forceExpanded
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.home.presentation.recurringbuy.detail.composable.RecurringBuyDetail
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-class RecurringBuyDetailsSheet : BottomSheetDialogFragment() {
+class RecurringBuyDetailsSheet : ThemedBottomSheetFragment() {
 
     interface Host : SlidingModalBottomDialog.Host {
         fun onRecurringBuyDeleted()
@@ -27,12 +28,6 @@ class RecurringBuyDetailsSheet : BottomSheetDialogFragment() {
 
     private val recurringBuyId: String by lazy {
         arguments?.getString(RECURRING_BUY_ID, "").orEmpty()
-    }
-
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return (super.onCreateDialog(savedInstanceState) as BottomSheetDialog).apply {
-            forceExpanded()
-        }
     }
 
     override fun onCreateView(

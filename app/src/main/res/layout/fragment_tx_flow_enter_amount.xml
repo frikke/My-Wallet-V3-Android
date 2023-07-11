@@ -75,6 +75,7 @@
         android:id="@+id/error_button"
         android:layout_width="match_parent"
         android:layout_marginStart="@dimen/small_spacing"
+        android:visibility="gone"
         android:layout_marginTop="@dimen/very_small_spacing"
         android:layout_marginEnd="@dimen/small_spacing"
         app:layout_constraintEnd_toEndOf="parent"

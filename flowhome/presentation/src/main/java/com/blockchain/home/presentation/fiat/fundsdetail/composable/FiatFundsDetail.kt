@@ -1,7 +1,9 @@
 package com.blockchain.home.presentation.fiat.fundsdetail.composable
 
+import android.content.res.Configuration
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Divider
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -33,7 +36,11 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullFiatAccount
 import com.blockchain.componentlib.alert.SnackbarAlert
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.componentlib.basic.AppDivider
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.Bank
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.loader.LoadingIndicator
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.system.ShimmerLoadingCard
@@ -156,7 +163,11 @@ fun FiatFundDetailScreenData(
     retryLoadData: () -> Unit,
     onBackPressed: () -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(AppColors.background)
+    ) {
         Box(contentAlignment = Alignment.BottomCenter) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 SheetHeader(
@@ -169,7 +180,8 @@ fun FiatFundDetailScreenData(
                             shape = CircleShape
                         )
                     ),
-                    shouldShowDivider = false
+                    shouldShowDivider = false,
+                    backgroundSecondary = false
                 )
 
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
@@ -187,58 +199,78 @@ fun FiatFundDetailScreenData(
                             color = AppTheme.colors.title
                         )
 
-                        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+                        Surface(
+                            modifier = Modifier.padding(AppTheme.dimensions.smallSpacing),
+                            shape = AppTheme.shapes.large,
+                            color = Color.Unspecified
+                        ) {
+                            Column {
 
-                        DefaultTableRow(
-                            modifier = Modifier.alpha(
-                                if (data.data.depositEnabled && showWithdrawChecksLoading.not()) 1F else 0.5F
-                            ),
-                            primaryText = stringResource(com.blockchain.stringResources.R.string.common_add_cash),
-                            secondaryText = stringResource(
-                                com.blockchain.stringResources.R.string.fiat_funds_detail_deposit_details
-                            ),
-                            startImageResource = ImageResource.Local(R.drawable.ic_fiat_deposit),
-                            endImageResource = if (data.data.depositEnabled && showWithdrawChecksLoading.not()) {
-                                ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_chevron_end)
-                            } else {
-                                ImageResource.None
-                            },
-                            onClick = {
-                                if (data.data.depositEnabled && showWithdrawChecksLoading.not()) {
-                                    depositOnClick(detail.account)
-                                }
-                            }
-                        )
+                                DefaultTableRow(
+                                    primaryText = stringResource(
+                                        com.blockchain.stringResources.R.string.common_add_cash
+                                    ),
+                                    secondaryText = stringResource(
+                                        com.blockchain.stringResources.R.string.fiat_funds_detail_deposit_details
+                                    ),
+                                    startImageResource = Icons.Filled.Bank.withTint(AppColors.title)
+                                       /* .withBackground(
+                                            backgroundColor = AppColors.background,
+                                            backgroundSize = AppTheme.dimensions.standardSpacing,
+                                            iconSize = AppTheme.dimensions.standardSpacing
+                                        )*/,
+                                    endImageResource = if (data.data.depositEnabled && showWithdrawChecksLoading.not()) {
+                                        ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_chevron_end)
+                                    } else {
+                                        ImageResource.None
+                                    },
+                                    onClick = {
+                                        if (data.data.depositEnabled && showWithdrawChecksLoading.not()) {
+                                            depositOnClick(detail.account)
+                                        }
+                                    },
+                                    contentAlpha = if (data.data.depositEnabled && !showWithdrawChecksLoading) {
+                                        1F
+                                    } else {
+                                        0.5F
+                                    },
+                                )
 
-                        Divider(color = Color(0XFFF1F2F7))
+                                AppDivider()
 
-                        Box(contentAlignment = Alignment.Center) {
-                            DefaultTableRow(
-                                modifier = Modifier.alpha(
-                                    if (data.data.withdrawEnabled && showWithdrawChecksLoading.not()) 1F else 0.5F
-                                ),
-                                primaryText = stringResource(com.blockchain.stringResources.R.string.common_cash_out),
-                                secondaryText = stringResource(
-                                    com.blockchain.stringResources.R.string.fiat_funds_detail_withdraw_details
-                                ),
-                                startImageResource = ImageResource.Local(R.drawable.ic_fiat_withdraw),
-                                endImageResource = if (data.data.withdrawEnabled && showWithdrawChecksLoading.not()) {
-                                    ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_chevron_end)
-                                } else {
-                                    ImageResource.None
-                                },
-                                onClick = {
-                                    if (data.data.withdrawEnabled && showWithdrawChecksLoading.not()) {
-                                        withdrawOnClick(detail.account)
+                                Box(contentAlignment = Alignment.Center) {
+                                    DefaultTableRow(
+                                        primaryText = stringResource(
+                                            com.blockchain.stringResources.R.string.common_cash_out
+                                        ),
+                                        secondaryText = stringResource(
+                                            com.blockchain.stringResources.R.string.fiat_funds_detail_withdraw_details
+                                        ),
+                                        startImageResource = ImageResource.Local(R.drawable.ic_fiat_withdraw),
+                                        endImageResource = if (data.data.withdrawEnabled && showWithdrawChecksLoading.not()) {
+                                            ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_chevron_end)
+                                        } else {
+                                            ImageResource.None
+                                        },
+                                        onClick = {
+                                            if (data.data.withdrawEnabled && showWithdrawChecksLoading.not()) {
+                                                withdrawOnClick(detail.account)
+                                            }
+                                        },
+                                        contentAlpha = if (data.data.withdrawEnabled && !showWithdrawChecksLoading) {
+                                            1F
+                                        } else {
+                                            0.5F
+                                        },
+                                    )
+
+                                    if (showWithdrawChecksLoading) {
+                                        LoadingIndicator(
+                                            modifier = Modifier.align(Alignment.Center),
+                                            color = AppColors.primary
+                                        )
                                     }
                                 }
-                            )
-
-                            if (showWithdrawChecksLoading) {
-                                LoadingIndicator(
-                                    modifier = Modifier.align(Alignment.Center),
-                                    color = AppColors.primary
-                                )
                             }
                         }
                     }
@@ -273,7 +305,7 @@ fun FiatFundDetailScreenData(
     }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun PreviewFiatFundDetailScreen() {
     var error: FiatActionErrorState? by remember {
@@ -302,7 +334,13 @@ fun PreviewFiatFundDetailScreen() {
     )
 }
 
-@Preview(showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewFiatFundDetailScreenDark() {
+    PreviewFiatFundDetailScreen()
+}
+
+@Preview
 @Composable
 fun PreviewFiatFundDetailScreenLoading() {
     FiatFundDetailScreen(
@@ -323,7 +361,13 @@ fun PreviewFiatFundDetailScreenLoading() {
     )
 }
 
-@Preview(showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewFiatFundDetailScreenLoadingDark() {
+    PreviewFiatFundDetailScreenLoading()
+}
+
+@Preview
 @Composable
 fun PreviewFiatFundDetailScreenError() {
     FiatFundDetailScreen(
@@ -336,4 +380,10 @@ fun PreviewFiatFundDetailScreenError() {
         retryLoadData = {},
         onBackPressed = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewFiatFundDetailScreenErrorDark() {
+    PreviewFiatFundDetailScreenError()
 }

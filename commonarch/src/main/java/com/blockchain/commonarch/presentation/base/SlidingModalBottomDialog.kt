@@ -27,7 +27,7 @@ interface HostedBottomSheet {
     val host: Host
 }
 
-abstract class SlidingModalBottomDialog<T : ViewBinding> : BottomSheetDialogFragment() {
+abstract class SlidingModalBottomDialog<T : ViewBinding> : ThemedBottomSheetFragment() {
 
     interface Host : HostedBottomSheet.Host
 

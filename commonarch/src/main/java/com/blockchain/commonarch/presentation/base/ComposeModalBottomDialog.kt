@@ -15,7 +15,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.koin.android.ext.android.inject
 
-abstract class ComposeModalBottomDialog : BottomSheetDialogFragment() {
+abstract class ComposeModalBottomDialog : ThemedBottomSheetFragment() {
 
     interface Host : HostedBottomSheet.Host
 

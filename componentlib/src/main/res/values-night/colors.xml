@@ -14,6 +14,8 @@
     <color name="medium">#FF3B3E46</color>
     <color name="dark">#FF98A1B2</color>
 
+    <color name="scrim">#CC121D33</color>
+
     <!-- special for split button-->
     <color name="minimal_bg">#FF07080D</color>
     <color name="minimal_border">#FF2C3038</color>

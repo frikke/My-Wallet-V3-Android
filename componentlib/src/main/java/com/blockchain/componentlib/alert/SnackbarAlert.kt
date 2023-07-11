@@ -34,11 +34,6 @@ fun SnackbarAlert(
     onActionClicked: () -> Unit = {},
     type: SnackbarType = SnackbarType.Info
 ) {
-    val backgroundColour = if (!isSystemInDarkTheme()) {
-        Dark800
-    } else {
-        Color.Black
-    }
 
     val icon = when (type) {
         SnackbarType.Success -> R.drawable.ic_success
@@ -57,7 +52,7 @@ fun SnackbarAlert(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(backgroundColour)
+            .background(Color(0XFF20242C))
             // prevents click throughs to views underneath the snack bar
             .clickable(true, onClick = {})
             .padding(horizontal = AppTheme.dimensions.smallSpacing, vertical = 14.dp)
