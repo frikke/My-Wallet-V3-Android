@@ -49,7 +49,7 @@ fun SmallTagIcon(
             modifier = Modifier
                 .size(mainIconSize),
             shape = mainIconShape,
-            color = iconBackground
+            color =  (icon.main as? ImageResource.LocalWithBackground)?.backgroundColor ?: iconBackground
         ) {
             Box(
                 modifier = Modifier.matchParentSize(),
@@ -65,7 +65,10 @@ fun SmallTagIcon(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .size(tagIconSize + borderSize * 2)
-                .background(color = iconBackground, shape = CircleShape)
+                .background(
+                    color = (icon.tag as? ImageResource.LocalWithBackground)?.backgroundColor ?: iconBackground,
+                    shape = CircleShape
+                )
                 .border(width = borderSize, borderColor, CircleShape)
                 .padding(borderSize),
             imageResource = icon.tag

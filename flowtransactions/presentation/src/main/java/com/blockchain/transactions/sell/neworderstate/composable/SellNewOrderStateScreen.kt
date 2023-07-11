@@ -134,7 +134,7 @@ private fun NewOrderStateContent(
     doneClicked: () -> Unit
 ) {
     Column(
-        modifier = Modifier.background(AppTheme.colors.light)
+        modifier = Modifier.background(AppTheme.colors.background)
     ) {
         Spacer(Modifier.weight(0.33f))
 
@@ -166,10 +166,10 @@ private fun NewOrderStateContent(
 
             SmallTagIcon(
                 icon = stackedIcon,
-                iconBackground = AppTheme.colors.light,
+                iconBackground = AppTheme.colors.backgroundSecondary,
                 mainIconSize = 88.dp,
                 tagIconSize = 44.dp,
-                borderColor = AppTheme.colors.light
+                borderColor = AppTheme.colors.background
             )
 
             SmallVerticalSpacer()
