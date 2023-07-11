@@ -18,6 +18,7 @@ abstract class ThemedBottomSheetFragment(
 
             // animate background screen scrim color because otherwise it looks like
             // a solid sheet going up with the content
+            // needed for dark mode especially since sheet and screen bg are both black so now bg is tinted
             val transition: TransitionDrawable = ResourcesCompat.getDrawable(
                 resources, com.blockchain.componentlib.R.drawable.scrimanim, null
             ) as TransitionDrawable

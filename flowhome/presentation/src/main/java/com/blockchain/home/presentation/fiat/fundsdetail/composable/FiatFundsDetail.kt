@@ -37,6 +37,7 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.basic.AppDivider
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Bank
+import com.blockchain.componentlib.icons.Cash
 import com.blockchain.componentlib.icons.ChevronRight
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.loader.LoadingIndicator
@@ -212,11 +213,6 @@ fun FiatFundDetailScreenData(
                                         com.blockchain.stringResources.R.string.fiat_funds_detail_deposit_details
                                     ),
                                     startImageResource = Icons.Filled.Bank.withTint(AppColors.title),
-                                    /* .withBackground(
-                                         backgroundColor = AppColors.background,
-                                         backgroundSize = AppTheme.dimensions.standardSpacing,
-                                         iconSize = AppTheme.dimensions.standardSpacing
-                                     )*/
                                     endImageResource = if (data.data.depositEnabled &&
                                         showWithdrawChecksLoading.not()
                                     ) {
@@ -246,7 +242,7 @@ fun FiatFundDetailScreenData(
                                         secondaryText = stringResource(
                                             com.blockchain.stringResources.R.string.fiat_funds_detail_withdraw_details
                                         ),
-                                        startImageResource = ImageResource.Local(R.drawable.ic_fiat_withdraw),
+                                        startImageResource = Icons.Filled.Cash.withTint(AppColors.title),
                                         endImageResource = if (data.data.withdrawEnabled &&
                                             showWithdrawChecksLoading.not()
                                         ) {

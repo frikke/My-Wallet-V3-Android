@@ -30,6 +30,7 @@ class SemanticColors(
     negative: Color,
     negativeMuted: Color,
     explorer: Color,
+    scrim: Color,
     isLight: Boolean
 ) {
 
@@ -81,6 +82,8 @@ class SemanticColors(
         private set
     var explorer by mutableStateOf(explorer)
         private set
+    var scrim by mutableStateOf(scrim)
+        private set
     var isLight by mutableStateOf(isLight)
         private set
 
@@ -108,6 +111,7 @@ class SemanticColors(
         negative: Color = this.negative,
         negativeMuted: Color = this.negativeMuted,
         explorer: Color = this.explorer,
+        scrim: Color = this.scrim,
         isLight: Boolean = this.isLight
     ) = SemanticColors(
         title = title,
@@ -134,6 +138,7 @@ class SemanticColors(
         negative = negative,
         negativeMuted = negativeMuted,
         explorer = explorer,
+        scrim = scrim,
         isLight = isLight,
     )
 
@@ -161,6 +166,7 @@ class SemanticColors(
         negative = colors.negative
         negativeMuted = colors.negativeMuted
         explorer = colors.explorer
+        scrim = colors.scrim
 
         isLight = colors.isLight
     }
