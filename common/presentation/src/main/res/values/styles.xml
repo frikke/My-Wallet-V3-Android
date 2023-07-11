@@ -292,7 +292,7 @@
     <style name="SeparatorWithoutMargins">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
-        <item name="android:background">@color/grey_000</item>
+        <item name="android:background">@color/medium</item>
     </style>
 
     <style name="HalfSeparatorWithoutMargins">

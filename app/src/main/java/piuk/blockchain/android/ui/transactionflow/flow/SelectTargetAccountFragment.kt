@@ -48,6 +48,7 @@ class SelectTargetAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
             if (customiser.selectTargetShouldShowSubtitle(newState)) {
                 accountListSubtitle.text = customiser.selectTargetAccountDescription(newState)
                 accountListSubtitle.visible()
+                accountListSeparator.visible()
             } else {
                 accountListSubtitle.gone()
                 accountListSeparator.gone()
