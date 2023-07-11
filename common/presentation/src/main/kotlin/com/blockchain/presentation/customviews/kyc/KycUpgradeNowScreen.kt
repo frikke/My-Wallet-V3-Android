@@ -180,7 +180,7 @@ private fun ColumnScope.Verified(ctaClicked: () -> Unit) {
             .fillMaxWidth()
             .padding(top = AppTheme.dimensions.standardSpacing),
         shape = AppTheme.shapes.medium,
-        color = Color.Unspecified
+        color = Color.Transparent
     ) {
         Column {
             DefaultTableRow(

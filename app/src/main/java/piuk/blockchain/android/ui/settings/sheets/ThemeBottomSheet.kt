@@ -95,7 +95,7 @@ private fun ThemeScreen(
             Surface(
                 modifier = Modifier.padding(AppTheme.dimensions.smallSpacing),
                 shape = AppTheme.shapes.large,
-                color = Color.Unspecified
+                color = Color.Transparent
             ) {
                 Column {
                     Theme.values().forEachIndexed { index, theme ->

@@ -103,7 +103,7 @@ class WireTransferAccountDetailsBottomSheet :
                     binding.composeView.setContent {
                         Surface(
                             modifier = Modifier.nestedScroll(rememberNestedScrollInteropConnection()),
-                            color = Color.Unspecified
+                            color = Color.Transparent
                         ) {
                             WireTransferAccountDetailsScreen(
                                 isForLink = isForLink,

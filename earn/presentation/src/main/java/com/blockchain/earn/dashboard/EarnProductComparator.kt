@@ -133,7 +133,7 @@ fun EarnProductComparatorPage(product: EarnProductUiElement, modifier: Modifier 
                     secondaryText = product.header.secondaryTextId?.let { stringResource(id = it) },
                     imageResource = product.header.imageResource,
                     tint = AppColors.primary,
-                    backgroundColor = Color.Unspecified
+                    backgroundColor = Color.Transparent
                 )
             }
 

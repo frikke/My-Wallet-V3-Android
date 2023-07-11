@@ -115,7 +115,7 @@ fun MultiAppNavHost(
             modifier = Modifier.background(AppColors.background),
             bottomSheetNavigator = bottomSheetNavigator,
             sheetShape = AppTheme.shapes.veryLarge.topOnly(),
-            sheetBackgroundColor = Color.Unspecified,
+            sheetBackgroundColor = Color.Transparent,
             scrimColor = AppColors.scrim
         ) {
             val popupRoute: String?

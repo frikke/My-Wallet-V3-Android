@@ -517,7 +517,7 @@ fun OutlinedTextInput(
     }
 
     val unfocusedColor = when (state) {
-        is TextInputState.Default, is TextInputState.Disabled -> Color.Unspecified
+        is TextInputState.Default, is TextInputState.Disabled -> Color.Transparent
         is TextInputState.Error -> AppTheme.colors.error
         is TextInputState.Success -> AppTheme.colors.success
     }
