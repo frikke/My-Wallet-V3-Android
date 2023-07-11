@@ -14,23 +14,22 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
 fun SingleIconTableRow(
     primaryText: String,
     onClick: () -> Unit = {},
-    imageResource: ImageResource.LocalWithBackground,
+    imageResource: ImageResource.Local,
+    tint : Color = AppColors.title,
     secondaryText: String? = null,
     endImageResource: ImageResource = ImageResource.None,
     backgroundColor: Color = AppTheme.colors.backgroundSecondary
 ) {
     TableRow(
         contentStart = {
-            CustomStackedIcon(
-                icon = StackedIcon.SingleIcon(imageResource),
-                iconBackground = imageResource.backgroundColor
-            )
+            Image(imageResource = imageResource.withTint(tint))
         },
         content = {
             Column(
@@ -72,11 +71,8 @@ fun SingleIconTableRowPreview() {
     AppTheme {
         SingleIconTableRow(
             primaryText = "Primary Text",
-            imageResource = ImageResource.LocalWithBackground(
+            imageResource = ImageResource.Local(
                 id = R.drawable.ic_blockchain,
-                contentDescription = null,
-                backgroundColor = AppTheme.colors.light,
-                iconColor = AppTheme.colors.title
             ),
             secondaryText = "Secondary Text"
         )

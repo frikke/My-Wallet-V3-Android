@@ -1,14 +1,17 @@
 package com.blockchain.earn.dashboard
 
+import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Card
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -17,12 +20,14 @@ import androidx.compose.ui.util.lerp
 import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.tablerow.SingleIconTableRow
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey300
 import com.blockchain.componentlib.theme.HugeVerticalSpacer
 import com.blockchain.componentlib.theme.LargeVerticalSpacer
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.UltraLight
+import com.blockchain.componentlib.theme.topOnly
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
@@ -40,13 +45,14 @@ fun EarnProductComparator(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppTheme.colors.background, shape = AppTheme.shapes.medium),
+            .background(AppTheme.colors.background, shape = AppTheme.shapes.large.topOnly()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SheetHeader(
             title = stringResource(com.blockchain.stringResources.R.string.earn_product_comparator_title),
             onClosePress = onClose,
-            shouldShowDivider = false
+            shouldShowDivider = false,
+            backgroundSecondary = false
         )
 
         LargeVerticalSpacer()
@@ -57,6 +63,7 @@ fun EarnProductComparator(
             state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
+                .weight(1F, true)
                 .padding(horizontal = AppTheme.dimensions.verySmallSpacing),
             verticalAlignment = Alignment.Top
         ) { pageIndex ->
@@ -87,8 +94,6 @@ fun EarnProductComparator(
             )
         }
 
-        HugeVerticalSpacer()
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -113,41 +118,26 @@ fun EarnProductComparator(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun EarnProductComparatorPreview() {
-    AppTheme {
-        EarnProductComparator(
-            products = listOf(
-                EarnProductUiElement.PassiveRewardsUiElement,
-                EarnProductUiElement.StakingRewardsUiElement,
-                EarnProductUiElement.ActiveRewardsUiElement
-            ),
-            onLearnMore = {},
-            onClose = {}
-        )
-    }
-}
-
 @Composable
 fun EarnProductComparatorPage(product: EarnProductUiElement, modifier: Modifier = Modifier) {
-    Card(
-        elevation = 0.dp,
-        border = BorderStroke(1.dp, Grey300),
+    Surface(
+        modifier = modifier,
+            color = AppColors.backgroundSecondary,
         shape = AppTheme.shapes.large,
-        modifier = modifier
+        border =  BorderStroke(1.dp, AppColors.medium),
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            Card(
-                elevation = 0.dp,
-                border = BorderStroke(1.dp, Grey300),
-                shape = AppTheme.shapes.large
+            Surface(
+                color = AppColors.background,
+                shape = AppTheme.shapes.large,
+                border =  BorderStroke(1.dp, AppColors.medium),
             ) {
                 SingleIconTableRow(
                     primaryText = stringResource(id = product.header.primaryTextId),
                     secondaryText = product.header.secondaryTextId?.let { stringResource(id = it) },
                     imageResource = product.header.imageResource,
-                    backgroundColor = UltraLight
+                    tint = AppColors.primary,
+                    backgroundColor = Color.Unspecified
                 )
             }
 
@@ -189,12 +179,28 @@ fun EarnProductComparatorPage(product: EarnProductUiElement, modifier: Modifier 
 
 @Preview(showBackground = true)
 @Composable
+fun EarnProductComparatorPreview() {
+    EarnProductComparator(
+        products = listOf(
+            EarnProductUiElement.PassiveRewardsUiElement,
+            EarnProductUiElement.StakingRewardsUiElement,
+            EarnProductUiElement.ActiveRewardsUiElement
+        ),
+        onLearnMore = {},
+        onClose = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun EarnProductComparatorPreviewDark() {
+    EarnProductComparatorPreview()
+}
+
+@Preview(showBackground = true)
+@Composable
 fun EarnProductComparatorPagePreview() {
     AppTheme {
         EarnProductComparatorPage(EarnProductUiElement.PassiveRewardsUiElement)
     }
-}
-
-@Composable
-fun EarnProductComparatorCta() {
 }

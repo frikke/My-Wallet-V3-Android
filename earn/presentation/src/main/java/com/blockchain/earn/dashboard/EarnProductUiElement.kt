@@ -4,50 +4,36 @@ import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Lock
+import com.blockchain.componentlib.icons.Prices
+import com.blockchain.componentlib.icons.Rewards
 import com.blockchain.componentlib.theme.BackgroundMuted
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.Grey900
 
-val targetAudienceIcon = ImageResource.LocalWithBackground(
+val targetAudienceIcon = ImageResource.Local(
     id = com.blockchain.componentlib.icons.R.drawable.users_off,
-    iconColor = Grey900,
-    backgroundColor = Color.White,
-    contentDescription = null
 )
 
-val availableAssetsIcon = ImageResource.LocalWithBackground(
+val availableAssetsIcon = ImageResource.Local(
     id = com.blockchain.componentlib.icons.R.drawable.coins_off,
-    iconColor = Grey900,
-    backgroundColor = Color.White,
-    contentDescription = null
 )
 
-val earnRateIcon = ImageResource.LocalWithBackground(
+val earnRateIcon = ImageResource.Local(
     id = com.blockchain.componentlib.icons.R.drawable.rewards_off,
-    iconColor = Grey900,
-    backgroundColor = Color.White,
-    contentDescription = null
 )
 
-val earnFrequencyIcon = ImageResource.LocalWithBackground(
+val earnFrequencyIcon = ImageResource.Local(
     id = com.blockchain.componentlib.icons.R.drawable.usd_off,
-    iconColor = Grey900,
-    backgroundColor = Color.White,
-    contentDescription = null
 )
 
-val payoutFrequencyIcon = ImageResource.LocalWithBackground(
+val payoutFrequencyIcon = ImageResource.Local(
     id = com.blockchain.componentlib.icons.R.drawable.wallet_off,
-    iconColor = Grey900,
-    backgroundColor = Color.White,
-    contentDescription = null
 )
 
-val withdrawalFrequencyIcon = ImageResource.LocalWithBackground(
+val withdrawalFrequencyIcon = ImageResource.Local(
     id = com.blockchain.componentlib.icons.R.drawable.send_off,
-    iconColor = Grey900,
-    backgroundColor = Color.White,
-    contentDescription = null
 )
 
 sealed class EarnProductUiElement(
@@ -63,12 +49,7 @@ sealed class EarnProductUiElement(
         header = EarnProductPropertyRow(
             primaryTextId = com.blockchain.stringResources.R.string.earn_rewards_label_passive,
             secondaryTextId = com.blockchain.stringResources.R.string.earn_passive_rewards_description,
-            imageResource = ImageResource.LocalWithBackground(
-                id = com.blockchain.componentlib.icons.R.drawable.rewards_on,
-                iconColor = Blue600,
-                backgroundColor = BackgroundMuted,
-                contentDescription = null
-            )
+            imageResource = Icons.Filled.Rewards
         ),
 
         targetAudience = EarnProductPropertyRow(
@@ -107,12 +88,7 @@ sealed class EarnProductUiElement(
         header = EarnProductPropertyRow(
             primaryTextId = com.blockchain.stringResources.R.string.earn_rewards_label_staking,
             secondaryTextId = com.blockchain.stringResources.R.string.earn_staking_rewards_description,
-            imageResource = ImageResource.LocalWithBackground(
-                id = com.blockchain.componentlib.icons.R.drawable.lock_on,
-                iconColor = Blue600,
-                backgroundColor = BackgroundMuted,
-                contentDescription = null
-            )
+            imageResource = Icons.Filled.Lock
         ),
 
         targetAudience = EarnProductPropertyRow(
@@ -151,12 +127,7 @@ sealed class EarnProductUiElement(
         header = EarnProductPropertyRow(
             primaryTextId = com.blockchain.stringResources.R.string.earn_rewards_label_active,
             secondaryTextId = com.blockchain.stringResources.R.string.earn_active_rewards_description,
-            imageResource = ImageResource.LocalWithBackground(
-                id = com.blockchain.componentlib.icons.R.drawable.prices_on,
-                iconColor = Blue600,
-                backgroundColor = BackgroundMuted,
-                contentDescription = null
-            )
+            imageResource = Icons.Filled.Prices
         ),
 
         targetAudience = EarnProductPropertyRow(
@@ -195,5 +166,5 @@ sealed class EarnProductUiElement(
 data class EarnProductPropertyRow(
     @StringRes val primaryTextId: Int,
     @StringRes val secondaryTextId: Int? = null,
-    val imageResource: ImageResource.LocalWithBackground
+    val imageResource: ImageResource.Local
 )
