@@ -33,6 +33,7 @@ import com.blockchain.transactions.common.OnChainDepositEngineInteractor
 import com.blockchain.transactions.common.OnChainDepositInputValidationError
 import com.blockchain.transactions.swap.SwapService
 import com.blockchain.utils.removeLeadingZeros
+import com.blockchain.utils.toBigDecimalFromLocalisedInput
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
@@ -155,8 +156,8 @@ class SwapEnterAmountViewModel(
 
     override fun SwapEnterAmountModelState.reduce(): SwapEnterAmountViewState {
         val rate = config.dataOrNull()?.sourceAccountToFiatRate
-        val toUserFiat: CryptoValue.() -> FiatValue? = {
-            rate?.convert(this) as FiatValue?
+        val toUserFiat: Money.() -> Money? = {
+            rate?.convert(this)
         }
         Logger.e(
             """
@@ -398,7 +399,7 @@ class SwapEnterAmountViewModel(
     private suspend fun fiatInputChanged(newInput: String) {
         val fiatCurrency = fiatCurrency
         val fiatAmount = newInput.takeIf { it.isNotEmpty() }
-            ?.let { FiatValue.fromMajor(fiatCurrency, it.toBigDecimal()) }
+            ?.let { FiatValue.fromMajor(fiatCurrency, it.toBigDecimalFromLocalisedInput()) }
             ?: FiatValue.zero(fiatCurrency)
 
         val cryptoAmount: CryptoValue? = modelState.config.map { it.sourceAccountToFiatRate }.dataOrElse(null)
@@ -423,12 +424,10 @@ class SwapEnterAmountViewModel(
         check(fromCurrency != null)
 
         val cryptoAmount = newInput.takeIf { it.isNotEmpty() }
-            ?.let { CryptoValue.fromMajor(fromCurrency, it.toBigDecimal()) }
+            ?.let { CryptoValue.fromMajor(fromCurrency, it.toBigDecimalFromLocalisedInput()) }
             ?: CryptoValue.zero(fromAccount.currency)
-
         val fiatAmount: FiatValue? = modelState.config.map { it.sourceAccountToFiatRate }.dataOrElse(null)
             ?.convert(cryptoAmount) as FiatValue?
-
         updateState {
             copy(
                 cryptoAmountUserInput = newInput.removeLeadingZeros(),
@@ -659,6 +658,7 @@ class SwapEnterAmountViewModel(
                         displayTicker = asset?.displayTicker ?: "-"
                     )
                 }
+
                 is OnChainDepositInputValidationError.Unknown -> SwapEnterAmountInputError.Unknown(error.error)
                 null -> null
             }
@@ -716,9 +716,11 @@ private fun initialTargetAccountRule(fromTicker: String) = when (fromTicker) {
     else -> "BTC"
 }
 
-private fun Money?.toInputString(): String = this?.toBigDecimal()
-    ?.setScale(this.userDecimalPlaces, RoundingMode.FLOOR)
-    ?.stripTrailingZeros()
-    ?.takeIf { it != BigDecimal.ZERO }
-    ?.toPlainString()
-    .orEmpty()
+private fun Money?.toInputString(): String {
+    return this?.toBigDecimal()
+        ?.setScale(this.userDecimalPlaces, RoundingMode.FLOOR)
+        ?.stripTrailingZeros()
+        ?.takeIf { it != BigDecimal.ZERO }
+        ?.toPlainString()
+        .orEmpty()
+}

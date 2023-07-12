@@ -30,7 +30,6 @@ import java.util.Locale
 import kotlin.properties.Delegates
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.EnterFiatCryptoLayoutBinding
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 
@@ -185,7 +184,9 @@ class FiatCryptoInputView(
     }
 
     private fun setInputTypeToView() {
-        binding.enterAmount.inputType = inputAmountKeyboard.inputTypeForAmount()
+        inputAmountKeyboard.specialInputForAmounts()?.let {
+            binding.enterAmount.inputType = it
+        }
     }
 
     private fun placeFakeHint(textSize: Int, hasPrefix: Boolean) {

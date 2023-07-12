@@ -21,7 +21,6 @@ buildscript {
         classpath Libraries.navigationControllerSafeArgsPlugin
         classpath Libraries.firebaseCrashlyticsPlugin
         classpath Libraries.sqlDelightPlugin
-      //  classpath Libraries.embraceIOSwazzler
         classpath Libraries.kotlin
         classpath Libraries.detekt
         classpath Libraries.kotlinGradlePlugin

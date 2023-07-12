@@ -24,6 +24,7 @@ import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.getOrNull
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.utils.toBigDecimalOrNullFromLocalisedInput
 import com.dex.domain.AllowanceService
 import com.dex.domain.AllowanceTransactionProcessor
 import com.dex.domain.AllowanceTransactionState
@@ -240,8 +241,7 @@ class DexEnterAmountViewModel(
             is InputAmountIntent.AmountUpdated -> {
                 val amount = when {
                     intent.amountString.isEmpty() -> BigDecimal.ZERO
-                    intent.amountString.toBigDecimalOrNull() != null -> intent.amountString.toBigDecimal()
-                    else -> null
+                    else -> intent.amountString.toBigDecimalOrNullFromLocalisedInput()
                 }
                 amount?.let {
                     txProcessor.updateTransactionAmount(amount)

@@ -32,6 +32,7 @@ import com.blockchain.transactions.common.OnChainDepositInputValidationError
 import com.blockchain.transactions.sell.SellAnalyticsEvents
 import com.blockchain.transactions.sell.SellService
 import com.blockchain.utils.removeLeadingZeros
+import com.blockchain.utils.toBigDecimalFromLocalisedInput
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -195,8 +196,20 @@ class SellEnterAmountViewModel(
             selectedInput: $selectedInput
             inputError: ${validateAmount()}
             fatalError: $fatalError
-            minLimit: ${try {minLimit} catch (ex: Exception) {ex}}
-            maxLimit: ${try {maxLimit} catch (ex: Exception) {ex}}
+            minLimit: ${
+            try {
+                minLimit
+            } catch (ex: Exception) {
+                ex
+            }
+            }
+            maxLimit: ${
+            try {
+                maxLimit
+            } catch (ex: Exception) {
+                ex
+            }
+            }
             """.trimIndent()
         )
         val isInputAmountZero = when (selectedInput) {
@@ -403,6 +416,7 @@ class SellEnterAmountViewModel(
                         updateState { copy(selectedInput = CurrencyType.CRYPTO) }
                         cryptoInputChanged(userInputBalance)
                     }
+
                     CurrencyType.CRYPTO -> {
                         cryptoInputChanged(userInputBalance)
                     }
@@ -441,7 +455,7 @@ class SellEnterAmountViewModel(
         check(fiatCurrency != null)
 
         val fiatAmount = newInput.takeIf { it.isNotEmpty() }
-            ?.let { FiatValue.fromMajor(fiatCurrency, it.toBigDecimal()) }
+            ?.let { FiatValue.fromMajor(fiatCurrency, it.toBigDecimalFromLocalisedInput()) }
             ?: FiatValue.zero(fiatCurrency)
 
         val cryptoAmount: CryptoValue? = modelState.sourceToTargetExchangeRate
@@ -466,7 +480,7 @@ class SellEnterAmountViewModel(
         check(fromCurrency != null)
 
         val cryptoAmount = newInput.takeIf { it.isNotEmpty() }
-            ?.let { CryptoValue.fromMajor(fromCurrency, it.toBigDecimal()) }
+            ?.let { CryptoValue.fromMajor(fromCurrency, it.toBigDecimalFromLocalisedInput()) }
             ?: CryptoValue.zero(fromAccount.currency)
 
         val fiatAmount: FiatValue? = modelState.sourceToTargetExchangeRate
@@ -569,6 +583,7 @@ class SellEnterAmountViewModel(
                                     )
                                 }
                             }
+
                             CurrencyType.FIAT -> {
                                 val fiatAmount = modelState.fiatAmount ?: FiatValue.zero(targetAccount.currency)
                                 val newCryptoAmount = rate.inverse().convert(fiatAmount) as CryptoValue
@@ -697,13 +712,16 @@ class SellEnterAmountViewModel(
                     displayTicker = spendableBalance?.currency?.displayTicker ?: "-",
                     balance = spendableBalanceString,
                 )
+
                 OnChainDepositInputValidationError.InsufficientGas -> {
                     val asset = (sourceNetworkFees?.feeForAmount ?: spendableBalance)?.currency
                     SellEnterAmountInputError.InsufficientGas(
                         networkName = asset?.name ?: "-",
                         displayTicker = asset?.displayTicker ?: "-"
                     )
-                } is OnChainDepositInputValidationError.Unknown -> SellEnterAmountInputError.Unknown(error.error)
+                }
+
+                is OnChainDepositInputValidationError.Unknown -> SellEnterAmountInputError.Unknown(error.error)
                 null -> null
             }
         }
@@ -749,6 +767,7 @@ private val SellEnterAmountModelState.currencyAwareMaxAmount: Money?
         ) { rate, limit ->
             rate.convert(limit, RoundingMode.FLOOR)
         }
+
         CurrencyType.CRYPTO -> maxLimit
     }
 
@@ -837,18 +856,23 @@ private fun getRoundedFiatAndCryptoValues(
         1 -> {
             roundToNearest(prefillFiat, roundingValues[0])
         }
+
         2 -> {
             roundToNearest(prefillFiat, roundingValues[1])
         }
+
         3 -> {
             roundToNearest(prefillFiat, roundingValues[2])
         }
+
         4 -> {
             roundToNearest(prefillFiat, roundingValues[3])
         }
+
         5 -> {
             roundToNearest(prefillFiat, roundingValues[4])
         }
+
         else -> {
             roundToNearest(prefillFiat, roundingValues[5])
         }

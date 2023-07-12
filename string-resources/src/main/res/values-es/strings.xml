@@ -1194,12 +1194,12 @@
     <string name="withdrawal_amount">%1$s retirada</string>
     <string name="withdrawing_amount">Retirando %1$s</string>
     <string name="withdrawing_amount_message">Estamos completando su retirada en este momento.</string>
-    <string name="withdrawal_success_message">¡Genial! Estamos retirando el efectivo de su monedero de %1$s. Los fondos deberían estar en su banco en 1-3 días hábiles.</string>
+    <string name="withdrawal_success_message">¡Genial! Estamos retirando el efectivo de su monedero de %1$s. Los fondos deberían estar en su banco en 1–3 días hábiles.</string>
     <string name="send_enter_amount_from">De: %1$s</string>
     <string name="send_enter_amount_to">Para: %1$s</string>
     <string name="send_enter_amount_title">Enviar %1$s</string>
     <string name="send_enter_amount_available">Disponibles</string>
-    <string name="send_enter_amount_max">Cantidad máxima para una transferencia</string>
+    <string name="send_enter_amount_max">Enviar max</string>
     <string name="sell_enter_amount_max">Vender Max</string>
     <string name="withdraw_enter_amount_max">Retirar Max</string>
     <string name="sell_enter_amount_min_error">%1$s mín.</string>

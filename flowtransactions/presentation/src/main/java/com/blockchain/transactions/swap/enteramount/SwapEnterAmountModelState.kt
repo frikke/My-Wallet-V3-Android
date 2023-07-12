@@ -16,6 +16,7 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
 import java.io.Serializable
 
 data class SwapEnterAmountModelState(
@@ -59,7 +60,7 @@ data class SwapEnterAmountModelState(
      *  [minLimit] will be 8 XLM, order value will be 8 XLM, user spend 10 XLM total and will, crucially, get 5 XLM worth of
      *  the target currency back, honoring the min product limit for the amount received.
      */
-    val minLimit: CryptoValue?
+    val minLimit: Money?
         get() {
             val fromAccount = fromAccount ?: return null
             val sourceAsset = fromAccount.account.currency
@@ -69,29 +70,26 @@ data class SwapEnterAmountModelState(
 
             val minProductLimitInSourceValue =
                 config.dataOrNull()?.productLimits?.min?.amount ?: CryptoValue.zero(sourceAsset)
-            val minLimit = minProductLimitInSourceValue + targetNetworkFeeInSourceValue
-
-            return minLimit as CryptoValue
+            return minProductLimitInSourceValue + targetNetworkFeeInSourceValue
         }
 
-    val maxLimit: CryptoValue?
+    val maxLimit: Money?
         get() {
             val spendableBalance = spendableBalance ?: return null
 
             val maxProductLimitInSourceValue =
                 (config.dataOrNull()?.productLimits?.max as? TxLimit.Limited)?.amount ?: spendableBalance
-            val maxLimit = listOf(spendableBalance, maxProductLimitInSourceValue).min()
-            return maxLimit as CryptoValue
+            return listOf(spendableBalance, maxProductLimitInSourceValue).min()
         }
 
-    val spendableBalance: CryptoValue?
+    val spendableBalance: Money?
         get() = safeLet(fromAccount?.balanceCrypto, sourceNetworkFees) { balance, sourceNetworkFees ->
             if (balance.currency == sourceNetworkFees.feeForFullAvailable.currency) {
                 balance - sourceNetworkFees.feeForFullAvailable
             } else {
                 balance
             }
-        } as CryptoValue?
+        }
 }
 
 data class EnterAmountConfig(
@@ -106,6 +104,7 @@ sealed interface SwapEnterAmountInputError : Serializable {
         val displayTicker: String,
         val balance: String,
     ) : SwapEnterAmountInputError
+
     data class InsufficientGas(val networkName: String, val displayTicker: String) : SwapEnterAmountInputError
     data class Unknown(val error: String?) : SwapEnterAmountInputError
 }

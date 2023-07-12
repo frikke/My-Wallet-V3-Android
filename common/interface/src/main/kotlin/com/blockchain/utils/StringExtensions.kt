@@ -1,5 +1,11 @@
 package com.blockchain.utils
 
+import java.math.BigDecimal
+import java.text.DecimalFormat
+import java.text.NumberFormat
+import java.text.ParseException
+import java.util.Locale
+
 fun String.capitalizeFirstChar(): String =
     this.lowercase().replaceFirstChar { it.uppercase() }
 
@@ -35,4 +41,30 @@ fun String.removeLeadingZeros(): String {
     val parts = split(".")
     val nonZeroLeading = parts[0].replaceFirst("^0+(?!$)".toRegex(), "")
     return nonZeroLeading.ifEmpty { "0" } + parts.getOrNull(1)?.let { "." + parts[1] }.orEmpty()
+}
+
+fun String.toBigDecimalFromLocalisedInput(): BigDecimal {
+    toBigDecimalOrNull()?.let {
+        return it
+    }
+    val df = NumberFormat.getInstance(Locale.getDefault()) as DecimalFormat
+    df.isParseBigDecimal = true
+    return try {
+        df.parseObject(this) as BigDecimal
+    } catch (e: ParseException) {
+        toBigDecimal()
+    }
+}
+
+fun String.toBigDecimalOrNullFromLocalisedInput(): BigDecimal? {
+    toBigDecimalOrNull()?.let {
+        return it
+    }
+    val df = NumberFormat.getInstance(Locale.getDefault()) as DecimalFormat
+    df.isParseBigDecimal = true
+    return try {
+        df.parseObject(this) as BigDecimal
+    } catch (e: ParseException) {
+        toBigDecimalOrNull()
+    }
 }

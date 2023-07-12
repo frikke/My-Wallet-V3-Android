@@ -63,9 +63,11 @@ import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.dex.presentation.R
+import com.blockchain.utils.toBigDecimalOrNullFromLocalisedInput
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
+import java.text.DecimalFormatSymbols
 
 @Composable
 fun SendAndReceiveAmountFields(
@@ -113,8 +115,9 @@ fun SendAndReceiveAmountFields(
                         },
                         onValueChanged = {
                             if (!sendAmountFieldConfig.isReadOnly &&
-                                (it.text.isEmpty() || it.text.toDoubleOrNull() != null)
+                                (it.text.isEmpty() || it.text.isValidDecimalNumber())
                             ) {
+
                                 input = it
                                 onValueChanged(it)
                             }
@@ -212,6 +215,12 @@ fun SendAndReceiveAmountFields(
     }
 }
 
+private fun String.isValidDecimalNumber(): Boolean {
+    val decimalRegex =
+        """^-?\d*${Regex.escape(DecimalFormatSymbols.getInstance().decimalSeparator.toString())}?\d*$""".toRegex()
+    return matches(decimalRegex) && toBigDecimalOrNullFromLocalisedInput() != null
+}
+
 @Composable
 private fun ReceiveAmountAndCurrencySelection(
     input: String,
@@ -283,7 +292,7 @@ private fun AmountAndCurrencySelection(
             enabled = enabled,
             textStyle = AppTheme.typography.title2SlashedZero.copy(color = AppColors.title),
             readOnly = isReadOnly,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             onValueChange = onValueChanged,
             maxLines = 1,
             interactionSource = interactionSource,
