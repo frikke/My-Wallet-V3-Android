@@ -1,6 +1,7 @@
 package com.blockchain.transactions.koin
 
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.transactions.swap.confirmation.FeeExplainerDismissState
 import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
 import com.blockchain.transactions.swap.confirmation.SwapConfirmationViewModel
 import com.blockchain.transactions.swap.enteramount.SwapEnterAmountArgs
@@ -46,6 +47,8 @@ val swapTransactionsPresentationModule = module {
                 assetCatalogue = get()
             )
         }
+
+        scoped { FeeExplainerDismissState() }
 
         viewModel { (sourceTicker: String) ->
             SwapTargetAssetsViewModel(

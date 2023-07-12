@@ -2301,12 +2301,16 @@ If you want to know more about our verification process visit our <annotation li
     <string name="checkout_item_send_to">Send to</string>
     <string name="checkout_item_sale">Sale amount</string>
     <string name="checkout_item_network_fee">%s Network fee</string>
+    <string name="checkout_item_subtotal">Subtotal</string>
+    <string name="checkout_item_net_amount">Amount to be received</string>
     <string name="checkout_item_erc20_network_fee">%1$s Network fee - %2$s</string>
     <string name="checkout_item_network_fee_label">Network fees</string>
     <string name="checkout_item_network_fee_level_label">Network fees - %s</string>
     <string name="checkout_item_network_fee_estimate">~ %1$s</string>
     <string name="checkout_item_price_note">Blockchain.com provides the best market price we receive and applies a spread.&#160;</string>
     <string name="checkout_item_network_fee_note">Pays for %1$s miners to confirm your transaction on the blockchain network.&#160;</string>
+    <string name="checkout_item_two_fees_title">Why are there two network fees?</string>
+    <string name="checkout_item_two_fees_description">Network fees are set by the origin and destination network. In order to swap between them, you need to pay fees on each network.</string>
     <string name="swap_confirmation_disclaimer_1">Final amount may change due to market activity. By approving this Swap you agree to Blockchain.com’s\n<annotation link="refund_policy">Refund Policy</annotation></string>
     <string name="sell_confirmation_disclaimer">Final amount may change due to market activity. By approving this Sell you agree to Blockchain.com’s\n<annotation link="refund_policy">Refund Policy</annotation></string>
     <string name="checkout_swap_exchange_note">The exchange rate is the best price available for %1$s in terms of 1 %2$s&#160;</string>
