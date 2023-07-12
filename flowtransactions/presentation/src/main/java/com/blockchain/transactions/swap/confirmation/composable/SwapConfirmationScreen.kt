@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -108,7 +109,6 @@ fun SwapConfirmationScreen(
     }
 
     val state by viewModel.viewState.collectAsStateLifecycleAware()
-
 
     ConfirmationContent(
         state = state,
@@ -268,7 +268,6 @@ private fun ConfirmationContent(
                     StandardVerticalSpacer()
                 }
 
-
                 SwapExchangeRate(
                     rate = state.sourceToTargetExchangeRate,
                     rateExplainerOnClick = rateExplainerOnClick
@@ -371,22 +370,19 @@ private fun SwapExchangeRate(
     rateExplainerOnClick: (output: String, input: String) -> Unit,
 ) {
     rate?.let {
-
-        Column(
-            Modifier
-                .background(
-                    color = AppColors.backgroundSecondary,
-                    shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
-                )
-                .padding(AppTheme.dimensions.smallSpacing)
+        Surface(
+            color = AppColors.backgroundSecondary,
+            shape = AppTheme.shapes.large
         ) {
             Row(
-                modifier = Modifier.clickable {
-                    rateExplainerOnClick(
-                        rate.to.symbol,
-                        rate.from.symbol
-                    )
-                },
+                modifier = Modifier
+                    .clickable {
+                        rateExplainerOnClick(
+                            rate.to.symbol,
+                            rate.from.symbol
+                        )
+                    }
+                    .padding(AppTheme.dimensions.smallSpacing),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 SimpleText(

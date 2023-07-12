@@ -261,7 +261,7 @@ class SwapConfirmationViewModel(
                 fiatValue = targetNetworkFeeCryptoAmount.toUserFiat()
             )
         },
-        targetNetAmount =  safeLet(
+        targetNetAmount = safeLet(
             targetCryptoAmount,
             targetNetworkFeeCryptoAmount?.takeIf { !it.isZero }
         ) { targetCryptoAmount, targetNetworkFeeCryptoAmount ->

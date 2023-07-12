@@ -25,8 +25,8 @@ import com.dex.presentation.enteramount.AllowanceTxUiData
 import com.dex.presentation.inprogress.DexInProgressTransaction
 import com.dex.presentation.network.SelectNetwork
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
-import kotlinx.serialization.json.Json
 import java.util.Base64
+import kotlinx.serialization.json.Json
 
 @OptIn(ExperimentalMaterialNavigationApi::class)
 fun NavGraphBuilder.dexGraph(onBackPressed: () -> Unit, navController: NavController) {

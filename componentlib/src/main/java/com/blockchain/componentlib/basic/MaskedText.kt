@@ -1,6 +1,5 @@
 package com.blockchain.componentlib.basic
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -29,6 +28,7 @@ import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Visible
 import com.blockchain.componentlib.icons.VisibleOff
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.clickableWithIndication
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.mask.MaskedValueService
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -149,11 +149,9 @@ fun MaskableTextWithToggle(
             ) {
                 Image(
                     modifier = Modifier
-                        .clickable(
-                            onClick = {
-                                maskedValueService.toggleMaskState()
-                            }
-                        )
+                        .clickableWithIndication {
+                            maskedValueService.toggleMaskState()
+                        }
                         .padding(AppTheme.dimensions.smallestSpacing),
                     imageResource = if (isMaskActive) {
                         Icons.Filled.VisibleOff

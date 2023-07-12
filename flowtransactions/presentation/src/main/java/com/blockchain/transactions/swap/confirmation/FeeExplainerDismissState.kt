@@ -1,5 +1,9 @@
 package com.blockchain.transactions.swap.confirmation
 
-data class FeeExplainerDismissState(
-    var isDismissed: Boolean = false
-)
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+
+class FeeExplainerDismissState {
+    var isDismissed: Boolean by mutableStateOf(false)
+}

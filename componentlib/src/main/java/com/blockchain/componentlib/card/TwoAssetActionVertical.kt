@@ -3,7 +3,6 @@ package com.blockchain.componentlib.card
 import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -38,7 +37,6 @@ import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 import com.blockchain.componentlib.theme.SmallestVerticalSpacer
 import com.blockchain.componentlib.utils.conditional
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.immutableListOf
 import kotlinx.collections.immutable.persistentListOf
 
 @Stable
@@ -87,7 +85,6 @@ fun TwoAssetAction(
                     Extra(extra = extra)
                 }
             }
-
         }
 
         Spacer(

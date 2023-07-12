@@ -92,4 +92,5 @@ const val ETH_STAKING_CONSIDERATIONS = "https://ethereum.org/staking/"
 
 const val EXCHANGE_DYNAMIC_LINK = "https://blockchainexchange.page.link/exchange"
 
-const val SWAP_FEES_URL = "https://support.blockchain.com/hc/en-us/articles/4417062865300-What-network-fees-are-applied-to-my-Swap-order-"
+const val SWAP_FEES_URL =
+    "https://support.blockchain.com/hc/en-us/articles/4417062865300-What-network-fees-are-applied-to-my-Swap-order-"
