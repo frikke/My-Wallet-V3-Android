@@ -55,6 +55,8 @@ import com.blockchain.componentlib.button.SecondarySmallButton
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.control.NonCancelableOutlinedSearch
 import com.blockchain.componentlib.control.TabSwitcher
+import com.blockchain.componentlib.icons.ChevronRight
+import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tablerow.BalanceTableRow
@@ -65,6 +67,7 @@ import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.tag.button.TagButtonRow
 import com.blockchain.componentlib.tag.button.TagButtonValue
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallestVerticalSpacer
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
@@ -417,9 +420,7 @@ private fun DiscoverScreen(
                             )
                         ),
                         isInlineTags = true,
-                        endImageResource = ImageResource.Local(
-                            com.blockchain.componentlib.R.drawable.ic_chevron_end
-                        ),
+                        endImageResource = Icons.ChevronRight.withTint(AppColors.body),
                         onClick = {
                             onItemClicked(asset)
                         }

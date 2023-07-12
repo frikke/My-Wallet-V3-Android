@@ -1,7 +1,6 @@
 package com.blockchain.earn.activeRewards
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,6 +35,7 @@ import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tablerow.custom.TextWithTooltipTableRow
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.LargeVerticalSpacer
 import com.blockchain.componentlib.theme.TinyHorizontalSpacer
@@ -50,12 +50,6 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.activeRewardsWithdrawalsFeatureFlag
 import org.koin.androidx.compose.get
 
-private sealed class InfoSnackbarState {
-    object Hidden : InfoSnackbarState()
-    object BondingInfo : InfoSnackbarState()
-    object RateInfo : InfoSnackbarState()
-}
-
 @Composable
 fun ActiveRewardsSummarySheet(
     state: ActiveRewardsSummaryViewState,
@@ -65,228 +59,227 @@ fun ActiveRewardsSummarySheet(
     onExplainerClicked: (EarnFieldExplainer) -> Unit,
     onClosePressed: () -> Unit
 ) {
-    Box {
-        Column {
-            SheetHeader(
-                title = stringResource(
-                    id = com.blockchain.stringResources.R.string.active_rewards_summary_title,
-                    state.balanceCrypto?.currency?.networkTicker.orEmpty()
-                ),
-                startImage = StackedIcon.SingleIcon(
-                    ImageResource.Remote(state.balanceCrypto?.currency?.logo.orEmpty())
-                ),
-                shouldShowDivider = false,
-                onClosePress = onClosePressed
-            )
+    Column {
+        SheetHeader(
+            title = stringResource(
+                id = com.blockchain.stringResources.R.string.active_rewards_summary_title,
+                state.balanceCrypto?.currency?.networkTicker.orEmpty()
+            ),
+            startImage = StackedIcon.SingleIcon(
+                ImageResource.Remote(state.balanceCrypto?.currency?.logo.orEmpty())
+            ),
+            shouldShowDivider = false,
+            onClosePress = onClosePressed,
+            backgroundSecondary = false
+        )
 
-            Column(
-                modifier = Modifier
-                    .background(color = AppTheme.colors.light)
-                    .fillMaxWidth()
-                    .padding(horizontal = AppTheme.dimensions.standardSpacing)
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally
+        Column(
+            modifier = Modifier
+                .background(color = AppColors.background)
+                .fillMaxWidth()
+                .padding(horizontal = AppTheme.dimensions.standardSpacing)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            LargeVerticalSpacer()
+
+            state.balanceFiat?.let { balance ->
+                SimpleText(
+                    text = balance.toStringWithSymbol(),
+                    style = ComposeTypographies.Title1,
+                    color = ComposeColors.Title,
+                    gravity = ComposeGravities.Centre
+                )
+                TinyVerticalSpacer()
+            }
+
+            state.balanceCrypto?.let { balance ->
+                SimpleText(
+                    text = balance.toStringWithSymbol(),
+                    style = ComposeTypographies.Body2,
+                    color = ComposeColors.Body,
+                    gravity = ComposeGravities.Centre
+                )
+            }
+
+            LargeVerticalSpacer()
+
+            Card(
+                backgroundColor = AppTheme.colors.backgroundSecondary,
+                shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+                elevation = 0.dp
             ) {
-                LargeVerticalSpacer()
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    TinyVerticalSpacer()
 
-                state.balanceFiat?.let { balance ->
-                    SimpleText(
-                        text = balance.toStringWithSymbol(),
-                        style = ComposeTypographies.Title1,
-                        color = ComposeColors.Title,
-                        gravity = ComposeGravities.Centre
-                    )
+                    safeLet(
+                        state.balanceCrypto?.currency?.networkTicker,
+                        state.assetFiatPrice
+                    ) { currencyTicker, assetFiatPrice ->
+                        TextWithTooltipTableRow(
+                            startText = stringResource(
+                                id = com.blockchain.stringResources.R.string.quote_price,
+                                currencyTicker
+                            ),
+                            endTitle = assetFiatPrice.toStringWithSymbol()
+                        )
+                    }
+
+                    if (state.totalEarnedFiat != null && state.totalEarnedCrypto != null) {
+                        TextWithTooltipTableRow(
+                            startText = stringResource(
+                                com.blockchain.stringResources.R.string.earn_active_rewards_earnings
+                            ),
+                            endTitle = state.totalEarnedFiat.toStringWithSymbol(),
+                            endSubtitle = state.totalEarnedCrypto.toStringWithSymbol(),
+                            onClick = {
+                                onExplainerClicked(EarnFieldExplainer.ActiveRewardsEarnings)
+                            }
+                        )
+                    }
+
+                    if (state.totalSubscribedFiat != null && state.totalSubscribedCrypto != null) {
+                        TextWithTooltipTableRow(
+                            startText = stringResource(
+                                com.blockchain.stringResources.R.string.earn_total_subscribed
+                            ),
+                            endTitle = state.totalSubscribedFiat.toStringWithSymbol(),
+                            endSubtitle = state.totalSubscribedCrypto.toStringWithSymbol()
+                        )
+                    }
+
+                    if (state.totalOnHoldFiat != null && state.totalOnHoldCrypto != null) {
+                        TextWithTooltipTableRow(
+                            startText = stringResource(
+                                com.blockchain.stringResources.R.string.earn_active_rewards_on_hold
+                            ),
+                            endTitle = state.totalOnHoldFiat.toStringWithSymbol(),
+                            endSubtitle = state.totalOnHoldCrypto.toStringWithSymbol(),
+                            onClick = {
+                                onExplainerClicked(EarnFieldExplainer.ActiveRewardsOnHold)
+                            }
+                        )
+                    }
                     TinyVerticalSpacer()
                 }
+            }
 
-                state.balanceCrypto?.let { balance ->
-                    SimpleText(
-                        text = balance.toStringWithSymbol(),
-                        style = ComposeTypographies.Body2,
-                        color = ComposeColors.Body,
-                        gravity = ComposeGravities.Centre
-                    )
-                }
+            LargeVerticalSpacer()
 
-                LargeVerticalSpacer()
+            Card(
+                backgroundColor = AppTheme.colors.backgroundSecondary,
+                shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+                elevation = 0.dp
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    TinyVerticalSpacer()
 
-                Card(
-                    backgroundColor = AppTheme.colors.backgroundSecondary,
-                    shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-                    elevation = 0.dp
-                ) {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        TinyVerticalSpacer()
-
-                        safeLet(
-                            state.balanceCrypto?.currency?.networkTicker,
-                            state.assetFiatPrice
-                        ) { currencyTicker, assetFiatPrice ->
-                            TextWithTooltipTableRow(
-                                startText = stringResource(
-                                    id = com.blockchain.stringResources.R.string.quote_price,
-                                    currencyTicker
-                                ),
-                                endTitle = assetFiatPrice.toStringWithSymbol()
-                            )
-                        }
-
-                        if (state.totalEarnedFiat != null && state.totalEarnedCrypto != null) {
-                            TextWithTooltipTableRow(
-                                startText = stringResource(
-                                    com.blockchain.stringResources.R.string.earn_active_rewards_earnings
-                                ),
-                                endTitle = state.totalEarnedFiat.toStringWithSymbol(),
-                                endSubtitle = state.totalEarnedCrypto.toStringWithSymbol(),
-                                onClick = {
-                                    onExplainerClicked(EarnFieldExplainer.ActiveRewardsEarnings)
-                                }
-                            )
-                        }
-
-                        if (state.totalSubscribedFiat != null && state.totalSubscribedCrypto != null) {
-                            TextWithTooltipTableRow(
-                                startText = stringResource(
-                                    com.blockchain.stringResources.R.string.earn_total_subscribed
-                                ),
-                                endTitle = state.totalSubscribedFiat.toStringWithSymbol(),
-                                endSubtitle = state.totalSubscribedCrypto.toStringWithSymbol()
-                            )
-                        }
-
-                        if (state.totalOnHoldFiat != null && state.totalOnHoldCrypto != null) {
-                            TextWithTooltipTableRow(
-                                startText = stringResource(
-                                    com.blockchain.stringResources.R.string.earn_active_rewards_on_hold
-                                ),
-                                endTitle = state.totalOnHoldFiat.toStringWithSymbol(),
-                                endSubtitle = state.totalOnHoldCrypto.toStringWithSymbol(),
-                                onClick = {
-                                    onExplainerClicked(EarnFieldExplainer.ActiveRewardsOnHold)
-                                }
-                            )
-                        }
-                        TinyVerticalSpacer()
-                    }
-                }
-
-                LargeVerticalSpacer()
-
-                Card(
-                    backgroundColor = AppTheme.colors.backgroundSecondary,
-                    shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-                    elevation = 0.dp
-                ) {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        TinyVerticalSpacer()
-
-                        TextWithTooltipTableRow(
-                            startText = stringResource(com.blockchain.stringResources.R.string.earn_annual_rate),
-                            endTitle = "${state.activeRewardsRate}%",
-                            onClick = {
-                                onExplainerClicked(EarnFieldExplainer.ActiveRewardsEarnRate)
-                            }
-                        )
-
-                        if (state.triggerPrice != null) {
-                            TextWithTooltipTableRow(
-                                startText = stringResource(
-                                    com.blockchain.stringResources.R.string.earn_active_rewards_trigger_price
-                                ),
-                                endTitle = state.triggerPrice.toStringWithSymbol(),
-                                onClick = {
-                                    onExplainerClicked(EarnFieldExplainer.ActiveRewardsTriggerPrice)
-                                }
-                            )
-                        }
-
-                        TextWithTooltipTableRow(
-                            startText = stringResource(com.blockchain.stringResources.R.string.earn_payment_frequency),
-                            endTitle = when (state.rewardsFrequency) {
-                                EarnRewardsFrequency.Daily ->
-                                    stringResource(
-                                        id = com.blockchain.stringResources.R.string.earn_payment_frequency_daily
-                                    )
-
-                                EarnRewardsFrequency.Weekly ->
-                                    stringResource(
-                                        id = com.blockchain.stringResources.R.string.earn_payment_frequency_weekly
-                                    )
-
-                                EarnRewardsFrequency.Monthly ->
-                                    stringResource(
-                                        id = com.blockchain.stringResources.R.string.earn_payment_frequency_monthly
-                                    )
-
-                                else ->
-                                    stringResource(
-                                        id = com.blockchain.stringResources.R.string.earn_payment_frequency_unknown
-                                    )
-                            }
-                        )
-
-                        TinyVerticalSpacer()
-                    }
-                }
-
-                LargeVerticalSpacer()
-
-                // TODO(labreu): no point in adding doing this check in the viewmodel since this will all be removed very soon once withdrawals are enabled in prod
-                var activeRewardsWithdrawalsEnabled by remember { mutableStateOf(false) }
-                val activeRewardsWithdrawalsFF = get<FeatureFlag>(activeRewardsWithdrawalsFeatureFlag)
-                LaunchedEffect(activeRewardsWithdrawalsFF) {
-                    activeRewardsWithdrawalsEnabled = activeRewardsWithdrawalsFF.coEnabled()
-                }
-
-                if (activeRewardsWithdrawalsEnabled.not()) {
-                    ActiveRewardsWithdrawalNotice(onLearnMorePressed = withdrawDisabledLearnMore)
-                    LargeVerticalSpacer()
-                } else {
-                    if (state.hasOngoingWithdrawals) {
-                        state.balanceCrypto?.currency?.networkTicker?.let {
-                            EarnPendingWithdrawalFullBalance(it)
-                            LargeVerticalSpacer()
-                        }
-                    }
-                    ActiveRewardsTradingWarning(onLearnMorePressed = withdrawDisabledLearnMore)
-                    LargeVerticalSpacer()
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    SecondaryButton(
-                        modifier = Modifier.weight(1F),
-                        text = stringResource(id = com.blockchain.stringResources.R.string.common_withdraw),
-                        icon = ImageResource.Local(
-                            com.blockchain.componentlib.icons.R.drawable.send_off,
-                            colorFilter = ColorFilter.tint(Color.White)
-                        ),
-                        state = if (state.canWithdraw) ButtonState.Enabled else ButtonState.Disabled,
+                    TextWithTooltipTableRow(
+                        startText = stringResource(com.blockchain.stringResources.R.string.earn_annual_rate),
+                        endTitle = "${state.activeRewardsRate}%",
                         onClick = {
-                            safeLet(state.account, state.tradingAccount) { account, tradingAccount ->
-                                onWithdrawPressed(account, tradingAccount)
-                            }
+                            onExplainerClicked(EarnFieldExplainer.ActiveRewardsEarnRate)
                         }
                     )
 
-                    TinyHorizontalSpacer()
+                    if (state.triggerPrice != null) {
+                        TextWithTooltipTableRow(
+                            startText = stringResource(
+                                com.blockchain.stringResources.R.string.earn_active_rewards_trigger_price
+                            ),
+                            endTitle = state.triggerPrice.toStringWithSymbol(),
+                            onClick = {
+                                onExplainerClicked(EarnFieldExplainer.ActiveRewardsTriggerPrice)
+                            }
+                        )
+                    }
 
-                    SecondaryButton(
-                        modifier = Modifier.weight(1F),
-                        text = stringResource(id = com.blockchain.stringResources.R.string.common_add),
-                        icon = ImageResource.Local(
-                            com.blockchain.componentlib.icons.R.drawable.receive_off,
-                            colorFilter = ColorFilter.tint(Color.White)
-                        ),
-                        onClick = { state.account?.let { onDepositPressed(it as EarnRewardsAccount.Active) } },
-                        state = if (state.canDeposit) ButtonState.Enabled else ButtonState.Disabled
+                    TextWithTooltipTableRow(
+                        startText = stringResource(com.blockchain.stringResources.R.string.earn_payment_frequency),
+                        endTitle = when (state.rewardsFrequency) {
+                            EarnRewardsFrequency.Daily ->
+                                stringResource(
+                                    id = com.blockchain.stringResources.R.string.earn_payment_frequency_daily
+                                )
+
+                            EarnRewardsFrequency.Weekly ->
+                                stringResource(
+                                    id = com.blockchain.stringResources.R.string.earn_payment_frequency_weekly
+                                )
+
+                            EarnRewardsFrequency.Monthly ->
+                                stringResource(
+                                    id = com.blockchain.stringResources.R.string.earn_payment_frequency_monthly
+                                )
+
+                            else ->
+                                stringResource(
+                                    id = com.blockchain.stringResources.R.string.earn_payment_frequency_unknown
+                                )
+                        }
                     )
-                }
 
+                    TinyVerticalSpacer()
+                }
+            }
+
+            LargeVerticalSpacer()
+
+            // TODO(labreu): no point in adding doing this check in the viewmodel since this will all be removed very soon once withdrawals are enabled in prod
+            var activeRewardsWithdrawalsEnabled by remember { mutableStateOf(false) }
+            val activeRewardsWithdrawalsFF = get<FeatureFlag>(activeRewardsWithdrawalsFeatureFlag)
+            LaunchedEffect(activeRewardsWithdrawalsFF) {
+                activeRewardsWithdrawalsEnabled = activeRewardsWithdrawalsFF.coEnabled()
+            }
+
+            if (activeRewardsWithdrawalsEnabled.not()) {
+                ActiveRewardsWithdrawalNotice(onLearnMorePressed = withdrawDisabledLearnMore)
+                LargeVerticalSpacer()
+            } else {
+                if (state.hasOngoingWithdrawals) {
+                    state.balanceCrypto?.currency?.networkTicker?.let {
+                        EarnPendingWithdrawalFullBalance(it)
+                        LargeVerticalSpacer()
+                    }
+                }
+                ActiveRewardsTradingWarning(onLearnMorePressed = withdrawDisabledLearnMore)
                 LargeVerticalSpacer()
             }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                SecondaryButton(
+                    modifier = Modifier.weight(1F),
+                    text = stringResource(id = com.blockchain.stringResources.R.string.common_withdraw),
+                    icon = ImageResource.Local(
+                        com.blockchain.componentlib.icons.R.drawable.send_off,
+                        colorFilter = ColorFilter.tint(Color.White)
+                    ),
+                    state = if (state.canWithdraw) ButtonState.Enabled else ButtonState.Disabled,
+                    onClick = {
+                        safeLet(state.account, state.tradingAccount) { account, tradingAccount ->
+                            onWithdrawPressed(account, tradingAccount)
+                        }
+                    }
+                )
+
+                TinyHorizontalSpacer()
+
+                SecondaryButton(
+                    modifier = Modifier.weight(1F),
+                    text = stringResource(id = com.blockchain.stringResources.R.string.common_add),
+                    icon = ImageResource.Local(
+                        com.blockchain.componentlib.icons.R.drawable.receive_off,
+                        colorFilter = ColorFilter.tint(Color.White)
+                    ),
+                    onClick = { state.account?.let { onDepositPressed(it as EarnRewardsAccount.Active) } },
+                    state = if (state.canDeposit) ButtonState.Enabled else ButtonState.Disabled
+                )
+            }
+
+            LargeVerticalSpacer()
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.blockchain.walletconnect.ui.composable
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,9 +15,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -31,6 +32,7 @@ import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.system.CircularProgressBar
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.LargeVerticalSpacer
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
@@ -71,33 +73,51 @@ fun WalletConnectAuthRequest(
         }
     }
 
+    WalletConnectAuthRequestScreen(
+        authRequestViewState = authRequestViewState,
+        connectOnClick = {
+            authRequestViewModel.onIntent(WalletConnectAuthRequestIntent.ApproveAuth)
+            onDismiss()
+        },
+        cancelOnClick = {
+            authRequestViewModel.onIntent(WalletConnectAuthRequestIntent.ApproveAuth)
+            onDismiss()
+        },
+        onDismiss = onDismiss
+    )
+}
+
+@Composable
+private fun WalletConnectAuthRequestScreen(
+    authRequestViewState: WalletConnectAuthRequestViewState,
+    connectOnClick: () -> Unit,
+    cancelOnClick: () -> Unit,
+    onDismiss: () -> Unit
+) {
     Box(modifier = Modifier.background(AppTheme.colors.background)) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(AppTheme.dimensions.mediumSpacing),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Column {
 
             SheetHeader(
                 shouldShowDivider = false,
                 onClosePress = {
                     onDismiss()
-                }
+                },
+                backgroundSecondary = false
             )
 
-            when (authRequestViewState) {
-                is WalletConnectAuthRequestViewState.WalletConnectAuthRequestLoading -> {
-                    CircularProgressBar()
-                }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(AppTheme.dimensions.mediumSpacing),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
-                is WalletConnectAuthRequestViewState.WalletConnectAuthRequestData -> {
+                when (authRequestViewState) {
+                    is WalletConnectAuthRequestViewState.WalletConnectAuthRequestLoading -> {
+                        CircularProgressBar()
+                    }
 
-                    (
-                        authRequestViewState
-                            as WalletConnectAuthRequestViewState.WalletConnectAuthRequestData
-                        ).let { viewState ->
-
+                    is WalletConnectAuthRequestViewState.WalletConnectAuthRequestData -> {
                         Image(
                             imageResource = ImageResource.Local(R.drawable.ic_walletconnect_logo),
                             modifier = Modifier
@@ -121,7 +141,7 @@ fun WalletConnectAuthRequest(
                             SmallVerticalSpacer()
 
                             SimpleText(
-                                text = viewState.domain,
+                                text = authRequestViewState.domain,
                                 style = ComposeTypographies.Body1,
                                 color = ComposeColors.Body,
                                 gravity = ComposeGravities.Centre
@@ -139,9 +159,13 @@ fun WalletConnectAuthRequest(
 
                                 TinyVerticalSpacer()
 
-                                Box(modifier = Modifier.background(Color.White, AppTheme.shapes.medium)) {
+                                Box(
+                                    modifier = Modifier.background(
+                                        AppColors.backgroundSecondary, AppTheme.shapes.medium
+                                    )
+                                ) {
                                     SimpleText(
-                                        text = viewState.authMessage,
+                                        text = authRequestViewState.authMessage,
                                         style = ComposeTypographies.Body1,
                                         color = ComposeColors.Body,
                                         gravity = ComposeGravities.Start,
@@ -156,10 +180,7 @@ fun WalletConnectAuthRequest(
                                 PrimaryButton(
                                     modifier = Modifier.weight(1f),
                                     text = stringResource(string.common_connect),
-                                    onClick = {
-                                        authRequestViewModel.onIntent(WalletConnectAuthRequestIntent.ApproveAuth)
-                                        onDismiss()
-                                    }
+                                    onClick = connectOnClick
                                 )
 
                                 Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
@@ -167,10 +188,7 @@ fun WalletConnectAuthRequest(
                                 SecondaryButton(
                                     modifier = Modifier.weight(1f),
                                     text = stringResource(string.common_cancel),
-                                    onClick = {
-                                        authRequestViewModel.onIntent(WalletConnectAuthRequestIntent.ApproveAuth)
-                                        onDismiss()
-                                    }
+                                    onClick = cancelOnClick
                                 )
                             }
                         }
@@ -179,4 +197,24 @@ fun WalletConnectAuthRequest(
             }
         }
     }
+}
+
+@Preview
+@Composable
+private fun PreviewWalletConnectAuthRequestScreen() {
+    WalletConnectAuthRequestScreen(
+        authRequestViewState = WalletConnectAuthRequestViewState.WalletConnectAuthRequestData(
+            domain = "domain",
+            authMessage = "authMessage"
+        ),
+        connectOnClick = {},
+        cancelOnClick = {},
+        onDismiss = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewWalletConnectAuthRequestScreenDark() {
+    PreviewWalletConnectAuthRequestScreen()
 }

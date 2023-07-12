@@ -1,5 +1,6 @@
 package com.blockchain.walletconnect.ui.composable
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -88,11 +89,12 @@ fun WalletConnectDappSessionManage(
     onDismiss: () -> Unit
 ) {
     Column(
-        modifier = Modifier.background(AppColors.backgroundSecondary)
+        modifier = Modifier.background(AppColors.background)
     ) {
         SheetHeader(
             shouldShowDivider = false,
-            onClosePress = onDismiss
+            onClosePress = onDismiss,
+            backgroundSecondary = false
         )
 
         Column(
@@ -161,4 +163,10 @@ fun WalletConnectDappSessionManagePreview() {
             onDismiss = {}
         )
     }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun WalletConnectDappSessionManagePreviewDark() {
+    WalletConnectDappSessionManagePreview()
 }
