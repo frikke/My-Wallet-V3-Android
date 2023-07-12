@@ -18,20 +18,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.AlertDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.analytics.Analytics
+import com.blockchain.betternavigation.NavContext
+import com.blockchain.betternavigation.navigateTo
 import com.blockchain.componentlib.alert.CardAlert
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
@@ -39,7 +36,6 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.AlertButtonView
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.card.CardButton
@@ -55,15 +51,18 @@ import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.utils.AnnotatedStringUtils
+import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.urllinks.CHECKOUT_REFUND_POLICY
-import com.blockchain.presentation.urllinks.EXCHANGE_SWAP_RATE_EXPLANATION
 import com.blockchain.presentation.urllinks.SWAP_FEES_URL
+import com.blockchain.stringResources.R
 import com.blockchain.transactions.swap.SwapAnalyticsEvents
 import com.blockchain.transactions.swap.SwapAnalyticsEvents.Companion.accountType
+import com.blockchain.transactions.swap.SwapGraph
 import com.blockchain.transactions.swap.confirmation.AmountViewState
+import com.blockchain.transactions.swap.confirmation.FeeExplainerDismissState
 import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
 import com.blockchain.transactions.swap.confirmation.SwapConfirmationIntent
 import com.blockchain.transactions.swap.confirmation.SwapConfirmationNavigation
@@ -79,8 +78,6 @@ import kotlinx.collections.immutable.toImmutableList
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
-import com.blockchain.stringResources.R
-import com.blockchain.transactions.swap.confirmation.FeeExplainerDismissState
 
 @Composable
 fun SwapConfirmationScreen(
@@ -90,6 +87,7 @@ fun SwapConfirmationScreen(
         parameters = { parametersOf(args) }
     ),
     analytics: Analytics = get(),
+    navContextProvider: () -> NavContext,
     openNewOrderState: (SwapNewOrderStateArgs) -> Unit,
     backClicked: () -> Unit
 ) {
@@ -111,6 +109,7 @@ fun SwapConfirmationScreen(
 
     val state by viewModel.viewState.collectAsStateLifecycleAware()
 
+
     ConfirmationContent(
         state = state,
         submitOnClick = {
@@ -125,6 +124,27 @@ fun SwapConfirmationScreen(
                 )
             )
         },
+        feeExplainerOnClick = {
+            navContextProvider().navigateTo(
+                destination = SwapGraph.ExtraInfoSheet,
+                args = Pair(
+                    TextValue.IntResValue(R.string.checkout_item_network_fee_label),
+                    TextValue.IntResValue(R.string.checkout_item_fee_explainer_description)
+                )
+            )
+        },
+        rateExplainerOnClick = { output, input ->
+            navContextProvider().navigateTo(
+                destination = SwapGraph.ExtraInfoSheet,
+                args = Pair(
+                    TextValue.IntResValue(R.string.tx_confirmation_exchange_rate_label),
+                    TextValue.IntResValue(
+                        R.string.checkout_swap_exchange_note,
+                        args = listOf(TextValue.StringValue(output), TextValue.StringValue(input))
+                    ),
+                )
+            )
+        },
         backClicked = backClicked
     )
 }
@@ -133,6 +153,8 @@ fun SwapConfirmationScreen(
 private fun ConfirmationContent(
     feeExplainerDismissState: FeeExplainerDismissState = get(scope = payloadScope),
     state: SwapConfirmationViewState,
+    feeExplainerOnClick: () -> Unit,
+    rateExplainerOnClick: (output: String, input: String) -> Unit,
     submitOnClick: () -> Unit,
     backClicked: () -> Unit
 ) {
@@ -168,7 +190,7 @@ private fun ConfirmationContent(
                         ),
                         endTitle = sourceNetworkFee.fiatValue.toStringWithSymbol().withApproximationPrefix(),
                         endSubtitle = sourceNetworkFee.cryptoValue?.toStringWithSymbol(),
-                        onClick = { }
+                        onClick = feeExplainerOnClick
                     )
                 }
                 val sourceSubtotal = state.sourceSubtotal?.let { sourceSubtotal ->
@@ -195,7 +217,7 @@ private fun ConfirmationContent(
                         ),
                         endTitle = targetNetworkFee.fiatValue.toStringWithSymbol().withApproximationPrefix(),
                         endSubtitle = targetNetworkFee.cryptoValue?.toStringWithSymbol(),
-                        onClick = { }
+                        onClick = feeExplainerOnClick
                     )
                 }
                 val targetNetAmount = state.targetNetAmount?.let { targetNetAmount ->
@@ -247,7 +269,10 @@ private fun ConfirmationContent(
                 }
 
 
-                SwapExchangeRate(state.sourceToTargetExchangeRate)
+                SwapExchangeRate(
+                    rate = state.sourceToTargetExchangeRate,
+                    rateExplainerOnClick = rateExplainerOnClick
+                )
 
                 StandardVerticalSpacer()
 
@@ -341,86 +366,58 @@ fun SwapQuoteTimer(remainingSeconds: Int, remainingPercentage: Float, modifier: 
 }
 
 @Composable
-private fun SwapExchangeRate(rate: ExchangeRate?, modifier: Modifier = Modifier) {
-    var isExplainerVisible by remember { mutableStateOf(false) }
-    Column(
-        Modifier
-            .background(
-                color = AppColors.backgroundSecondary,
-                shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
-            )
-            .clickable {
-                isExplainerVisible = !isExplainerVisible
-            }
-            .padding(AppTheme.dimensions.smallSpacing)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
+private fun SwapExchangeRate(
+    rate: ExchangeRate?,
+    rateExplainerOnClick: (output: String, input: String) -> Unit,
+) {
+    rate?.let {
+
+        Column(
+            Modifier
+                .background(
+                    color = AppColors.backgroundSecondary,
+                    shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
+                )
+                .padding(AppTheme.dimensions.smallSpacing)
         ) {
-            SimpleText(
-                text = stringResource(R.string.tx_confirmation_exchange_rate_label),
-                style = ComposeTypographies.Paragraph2,
-                color = ComposeColors.Title,
-                gravity = ComposeGravities.Start
-            )
-
-            Image(
-                modifier = Modifier.padding(start = AppTheme.dimensions.smallestSpacing),
-                imageResource = Icons.Filled.Question
-                    .withSize(AppTheme.dimensions.smallSpacing)
-                    .withTint(AppTheme.colors.dark)
-            )
-
-            Spacer(Modifier.weight(1f))
-
-            if (rate != null) {
+            Row(
+                modifier = Modifier.clickable {
+                    rateExplainerOnClick(
+                        rate.to.symbol,
+                        rate.from.symbol
+                    )
+                },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 SimpleText(
-                    text = stringResource(
-                        R.string.tx_confirmation_exchange_rate_value,
-                        rate.from.displayTicker,
-                        rate.price.toStringWithSymbol()
-                    ),
+                    text = stringResource(R.string.tx_confirmation_exchange_rate_label),
                     style = ComposeTypographies.Paragraph2,
                     color = ComposeColors.Title,
                     gravity = ComposeGravities.Start
                 )
-            }
-        }
 
-        if (isExplainerVisible) {
-            val context = LocalContext.current
-            val learnMoreString = AnnotatedStringUtils.getAnnotatedStringWithMappedAnnotations(
-                context = context,
-                stringId = R.string.common_linked_learn_more,
-                linksMap = mapOf("learn_more_link" to EXCHANGE_SWAP_RATE_EXPLANATION)
-            )
-            val explainerString = buildAnnotatedString {
-                append(
-                    stringResource(
-                        R.string.checkout_swap_exchange_note,
-                        rate!!.to.symbol,
-                        rate.from.symbol
-                    )
+                Image(
+                    modifier = Modifier.padding(start = AppTheme.dimensions.smallestSpacing),
+                    imageResource = Icons.Filled.Question
+                        .withSize(AppTheme.dimensions.smallSpacing)
+                        .withTint(AppTheme.colors.dark)
                 )
-                append(" ")
-                append(learnMoreString)
-            }
-            SimpleText(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = AppTheme.dimensions.tinySpacing),
-                text = explainerString,
-                style = ComposeTypographies.Caption1,
-                color = ComposeColors.Body,
-                gravity = ComposeGravities.Start,
-                onAnnotationClicked = { tag, value ->
-                    if (tag == AnnotatedStringUtils.TAG_URL) {
-                        Intent(Intent.ACTION_VIEW, Uri.parse(value))
-                            .apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
-                            .also { context.startActivity(it) }
-                    }
+
+                Spacer(Modifier.weight(1f))
+
+                if (rate != null) {
+                    SimpleText(
+                        text = stringResource(
+                            R.string.tx_confirmation_exchange_rate_value,
+                            rate.from.displayTicker,
+                            rate.price.toStringWithSymbol()
+                        ),
+                        style = ComposeTypographies.Paragraph2,
+                        color = ComposeColors.Title,
+                        gravity = ComposeGravities.Start
+                    )
                 }
-            )
+            }
         }
     }
 }
@@ -455,6 +452,8 @@ private fun PreviewInitialState() {
     ConfirmationContent(
         feeExplainerDismissState = FeeExplainerDismissState(),
         state = state,
+        feeExplainerOnClick = {},
+        rateExplainerOnClick = { _, _ -> },
         submitOnClick = {},
         backClicked = {}
     )
@@ -513,6 +512,8 @@ private fun PreviewLoadedState() {
     ConfirmationContent(
         feeExplainerDismissState = FeeExplainerDismissState(),
         state = state,
+        feeExplainerOnClick = {},
+        rateExplainerOnClick = { _, _ -> },
         submitOnClick = {},
         backClicked = {}
     )

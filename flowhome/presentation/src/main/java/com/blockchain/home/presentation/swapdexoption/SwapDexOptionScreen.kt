@@ -175,8 +175,8 @@ private fun SwapOptionCell(
                 ),
                 imageResource = ImageResource.Local(
                     when (item.type) {
-                        SwapType.BCDC_SWAP -> R.drawable.ic_bcdc_swap_currencies
-                        SwapType.DEX -> R.drawable.ic_dex_currencies
+                        SwapType.BCDC_SWAP -> R.drawable.ic_bc_swap_logos
+                        SwapType.DEX -> R.drawable.ic_dex_swap_logos
                     }
                 )
             )

@@ -1,4 +1,4 @@
-package com.dex.presentation.confirmation
+package com.blockchain.componentlib.sheets
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
@@ -11,31 +11,35 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
-fun DexInfoSheet(closeClicked: () -> Unit, title: String, description: String) {
+fun BasicSheet(
+    title: String,
+    description: String,
+    actionText: String,
+    closeClicked: () -> Unit
+) {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
         SheetHeader(
             onClosePress = closeClicked,
-            shouldShowDivider = false
+            shouldShowDivider = false,
+            backgroundSecondary = false
         )
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(AppColors.backgroundSecondary),
+                .background(AppColors.background),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -63,7 +67,7 @@ fun DexInfoSheet(closeClicked: () -> Unit, title: String, description: String) {
                         horizontal = AppTheme.dimensions.smallSpacing,
                         vertical = AppTheme.dimensions.standardSpacing
                     ),
-                text = stringResource(id = com.blockchain.stringResources.R.string.common_got_it),
+                text = actionText,
                 onClick = closeClicked
             )
         }
@@ -72,16 +76,17 @@ fun DexInfoSheet(closeClicked: () -> Unit, title: String, description: String) {
 
 @Preview
 @Composable
-private fun PreviewDexInfoSheet() {
-    DexInfoSheet(
+private fun PreviewBasicSheet() {
+    BasicSheet(
         closeClicked = {},
         title = "title",
-        description = "description description description"
+        description = "description description description",
+        actionText = "Got it"
     )
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun PreviewDexInfoSheetDark() {
-    PreviewDexInfoSheet()
+private fun PreviewBasicSheetDark() {
+    PreviewBasicSheet()
 }

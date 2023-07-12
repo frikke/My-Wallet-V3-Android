@@ -1,6 +1,8 @@
 package com.blockchain.transactions.swap
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import com.blockchain.betternavigation.Destination
 import com.blockchain.betternavigation.DestinationWithArgs
 import com.blockchain.betternavigation.NavGraph
@@ -16,7 +18,13 @@ import com.blockchain.chrome.composable.ChromeBottomSheet
 import com.blockchain.chrome.composable.ChromeSingleScreen
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.impl.CustodialInterestAccount
+import com.blockchain.componentlib.permissions.RuntimePermission.Notification.description
+import com.blockchain.componentlib.permissions.RuntimePermission.Notification.title
+import com.blockchain.componentlib.sheets.BasicSheet
+import com.blockchain.componentlib.utils.TextValue
+import com.blockchain.componentlib.utils.value
 import com.blockchain.koin.payloadScope
+import com.blockchain.stringResources.R
 import com.blockchain.transactions.common.entersecondpassword.EnterSecondPasswordArgs
 import com.blockchain.transactions.common.entersecondpassword.composable.EnterSecondPassword
 import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
@@ -47,6 +55,7 @@ object SwapGraph : NavGraph() {
     object TargetAsset : DestinationWithArgs<String>()
     object TargetAccount : DestinationWithArgs<SwapTargetAccountsArgs>()
     object Confirmation : DestinationWithArgs<SwapConfirmationArgs>()
+    object ExtraInfoSheet : DestinationWithArgs<Pair<TextValue/*title*/, TextValue/*subtitle*/>>()
     object NewOrderState : DestinationWithArgs<SwapNewOrderStateArgs>()
     object UpsellInterest : DestinationWithArgs<UpsellInterestArgs>()
 }
@@ -153,12 +162,24 @@ fun SwapGraphHost(
             ChromeSingleScreen {
                 SwapConfirmationScreen(
                     args = args,
+                    navContextProvider = { this },
                     openNewOrderState = { args ->
                         navigateTo(SwapGraph.NewOrderState, args) {
                             popUpTo(SwapGraph)
                         }
                     },
                     backClicked = { navigateUp() }
+                )
+            }
+        }
+
+        typedBottomSheet(SwapGraph.ExtraInfoSheet) { (title, description) ->
+            ChromeBottomSheet(onClose = ::navigateUp) {
+                BasicSheet(
+                    closeClicked = ::navigateUp,
+                    title = title.value(),
+                    description = description.value(),
+                    actionText = stringResource(id = R.string.common_got_it)
                 )
             }
         }
