@@ -56,6 +56,7 @@ class RecurringBuyOnboardingActivity : BlockchainActivity() {
             onBackPressedDispatcher.onBackPressed()
         }
         updateToolbarTitle(getString(com.blockchain.stringResources.R.string.recurring_buy_toolbar))
+        updateToolbarBackground()
 
         val recurringBuyOnBoardingPagerAdapter =
             RecurringBuyOnBoardingPagerAdapter(this, createListOfRecurringBuyInfo())
