@@ -188,6 +188,7 @@ val homePresentationModule = module {
 
         viewModel {
             NewsViewModel(
+                walletModeService = get(),
                 newsService = get(),
                 dispatcher = Dispatchers.IO
             )
