@@ -1,5 +1,6 @@
 package com.blockchain.earn.common
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -7,9 +8,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -19,13 +22,15 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.icon.CustomStackedIcon
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Send
 import com.blockchain.componentlib.tablerow.FlexibleTableRow
 import com.blockchain.componentlib.tablerow.TableRowHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 import com.blockchain.componentlib.theme.SmallestVerticalSpacer
-import com.blockchain.earn.R
 import com.blockchain.earn.staking.viewmodel.EarnWithdrawalUiElement
 
 @Composable
@@ -34,20 +39,17 @@ fun EarnPendingWithdrawalFullBalance(currencyTicker: String) {
         TableRowHeader(title = stringResource(id = com.blockchain.stringResources.R.string.common_pending_activity))
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
-        Card(
-            modifier = Modifier
-                .fillMaxWidth(),
+        Surface(
+            modifier = Modifier .fillMaxWidth(),
             shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-            elevation = 0.dp
+            color = Color.Transparent
         ) {
             FlexibleTableRow(
                 paddingValues = PaddingValues(AppTheme.dimensions.smallSpacing),
                 contentStart = {
                     CustomStackedIcon(
                         icon = StackedIcon.SingleIcon(
-                            ImageResource.Local(
-                                com.blockchain.componentlib.icons.R.drawable.send_off
-                            )
+                            Icons.Send.withTint(AppColors.title)
                         )
                     )
                 },
@@ -101,17 +103,22 @@ fun PreviewEarnPendingWithdrawalFullBalance() {
     }
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewEarnPendingWithdrawalFullBalanceDark() {
+    PreviewEarnPendingWithdrawalFullBalance()
+}
+
 @Composable
 fun EarnPendingWithdrawals(pendingWithdrawals: List<EarnWithdrawalUiElement>) {
     Column(modifier = Modifier.fillMaxWidth()) {
         TableRowHeader(title = stringResource(id = com.blockchain.stringResources.R.string.common_pending_activity))
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
-        Card(
-            modifier = Modifier
-                .fillMaxWidth(),
+        Surface(
+            modifier = Modifier .fillMaxWidth(),
             shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-            elevation = 0.dp
+            color = Color.Transparent
         ) {
             Column {
                 pendingWithdrawals.forEach { pendingWithdrawal ->
@@ -120,9 +127,7 @@ fun EarnPendingWithdrawals(pendingWithdrawals: List<EarnWithdrawalUiElement>) {
                         contentStart = {
                             CustomStackedIcon(
                                 icon = StackedIcon.SingleIcon(
-                                    ImageResource.Local(
-                                        com.blockchain.componentlib.icons.R.drawable.send_off
-                                    )
+                                    Icons.Send.withTint(AppColors.title)
                                 )
                             )
                         },
@@ -208,4 +213,10 @@ fun PreviewEarnPendingWithdrawals() {
             )
         )
     }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewEarnPendingWithdrawalsDark() {
+    PreviewEarnPendingWithdrawals()
 }
