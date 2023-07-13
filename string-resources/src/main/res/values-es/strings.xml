@@ -1194,12 +1194,12 @@
     <string name="withdrawal_amount">%1$s retirada</string>
     <string name="withdrawing_amount">Retirando %1$s</string>
     <string name="withdrawing_amount_message">Estamos completando su retirada en este momento.</string>
-    <string name="withdrawal_success_message">¡Genial! Estamos retirando el efectivo de su monedero de %1$s. Los fondos deberían estar en su banco en 1–3 días hábiles.</string>
+    <string name="withdrawal_success_message">¡Genial! Estamos retirando el efectivo de su monedero de %1$s. Los fondos deberían estar en su banco en 1-3 días hábiles.</string>
     <string name="send_enter_amount_from">De: %1$s</string>
     <string name="send_enter_amount_to">Para: %1$s</string>
     <string name="send_enter_amount_title">Enviar %1$s</string>
     <string name="send_enter_amount_available">Disponibles</string>
-    <string name="send_enter_amount_max">Enviar max</string>
+    <string name="send_enter_amount_max">Cantidad máxima para una transferencia</string>
     <string name="sell_enter_amount_max">Vender Max</string>
     <string name="withdraw_enter_amount_max">Retirar Max</string>
     <string name="sell_enter_amount_min_error">%1$s mín.</string>
@@ -1318,7 +1318,7 @@
     <string name="send_enter_amount_error_invalid_amount_1">Enviar %1$s o más.</string>
     <string name="send_enter_invalid_password">La contraseña es incorrecta.</string>
     <string name="send_enter_unexpected_error">Se ha producido un error inesperado. Inténtelo de nuevo.</string>
-    <string name="send_enter_insufficient_gas">No tiene suficientes %1$s para procesar esta transacción.</string>
+    <string name="send_enter_insufficient_gas">No tiene suficientes ETH para procesar esta transacción.</string>
     <string name="send_select_a_wallet_title">o Seleccionar una Wallet</string>
     <string name="send_select_a_wallet_warning">Solo envía %1$s a billeteras de la red (%2$s).\n<annotation link="send_network_options">Más información</annotation></string>
     <string name="send_select_wallet_warning_sheet_desc">%1$s (%2$s) es un token que puede estar disponible en varias redes. Asegúrate de conocer la red de la dirección de la billetera a la que estás haciendo el envío antes.</string>
@@ -2264,7 +2264,7 @@
     <string name="coinview_actions_error">Se ha producido un problema al cargar tus acciones disponibles. Vuelve a intentarlo.</string>
     <string name="coinview_no_asset_blurb">Parece que no tenemos ningún dato sobre este activo. Si esta situación continúa, <annotation link="contact_support"> póngase en contacto con el equipo de asistencia. </annotation></string>
     <string name="coinview_no_asset_title">Activo desconocido</string>
-    <string name="coinview_asset_info_cta">Visitar sitio web</string>
+    <string name="coinview_asset_info_cta">Visitar sitio web →</string>
     <string name="coinview_no_asset_description">Parece que todavía no tenemos una descripción para este token, consulta tu sitio web pulsando el botón de abajo para obtener más información.</string>
     <string name="coinview_no_balance_sheet_title">N.º %1$s para %2$s</string>
     <string name="coinview_no_balance_sheet_subtitle">Necesita %1$s en su %2$s para %3$s.</string>
@@ -2834,7 +2834,6 @@
     <string name="buy_crypto_today">Compre criptomonedas hoy</string>
     <string name="complete_your_profile">Complete su perfil</string>
     <string name="other_amount">Otro importe</string>
-    <string name="to_get_started_buy_your_first_btc">Para empezar, compre su primer BTC.</string>
     <string name="earn_dashboard_filter_all">Todas</string>
     <string name="earn_dashboard_filter_staking">Staking</string>
     <string name="staking_dashboard_search">Buscar monedas</string>
@@ -2935,7 +2934,6 @@
     <string name="intro_custodial_tag_description">Los fondos almacenados en su cuenta de Blockchain.com permanecen en nuestro sistema de custodia.</string>
     <string name="intro_swipe_hint">Deslice para continuar -&gt;</string>
     <string name="common_other">Otros</string>
-    <string name="buy_different_crypto">Comprar una criptomoneda distinta</string>
     <string name="common_swap_from">Cambiar de</string>
     <string name="common_swap_to">Cambiar a</string>
     <string name="announcement_recovery_title">No pierda nunca el acceso a su DeFi Wallet</string>
@@ -3145,4 +3143,66 @@
     <string name="sell_neworderstate_succeeded_description">Ha vendido %1$s por %2$s.</string>
     <string name="sell_asset_upsell_title">¿Le gustaría comprar un activo?</string>
     <string name="sell_asset_upsell_subtitle">Con todo este dinero, podría comprar otra criptomoneda.</string>
+    <string name="empty_dapp_description">Una Dapp quiere conectarse\na su Wallet</string>
+    <string name="empty_dapp_title">la Dapp</string>
+    <string name="common_dapp">Dapp</string>
+    <string name="total_balance_loading">Cargando...</string>
+    <string name="total_balance_error">Error al cargar</string>
+    <string name="deposit_more">Deposite más %1$s</string>
+    <string name="walletconnect_auth_request_title">Solicitud de firma de mensajes</string>
+    <string name="common_message">Mensaje</string>
+    <string name="interest_upsell_after_swap_title">Ponga sus %1$s a trabajar</string>
+    <string name="interest_upsell_after_swap_subtitle">Con Passive Rewards, puede ganar hasta %1$s %% en su %2$s.</string>
+    <string name="interest_upsell_after_swap_cta">Empezar a ganar</string>
+    <string name="minimum_swap_custodial_error_message">La cantidad mínima que puede intercambiar es %1$s.</string>
+    <string name="buy_enter_amount_quote_error">Error al obtener la cotización</string>
+    <string name="sell_sourceaccounts_available_to_sell">Disponible para vender</string>
+    <string name="confirm_status_msg_insufficient_gas_description">Necesita más %1$s para cubrir las tarifas de red.</string>
+    <string name="approving_token">Aprobando %1$s</string>
+    <string name="could_take_few_seconds">Esto puede tardar varios segundos.</string>
+    <string name="no_assets_on_network">No hay activos en %1$s</string>
+    <string name="no_assets_on_network_description">No tiene ningún activo en la red %1$s. Deposite %2$s para empezar.</string>
+    <string name="common_new">Novedad</string>
+    <string name="common_completed">Completada</string>
+    <string name="resend_email">Reenviar Correo Electrónico</string>
+    <string name="handhold_title">Complete su perfil</string>
+    <string name="handhold_subtitle">Compre criptomonedas hoy</string>
+    <string name="handhold_completion_minutes">Completar en %1$s minutos aproximadamente</string>
+    <string name="handhold_completion_seconds">Completar en %1$s segundos aproximadamente</string>
+    <string name="handhold_email">Verifique su correo electrónico</string>
+    <string name="handhold_kyc">Verifique su identidad</string>
+    <string name="handhold_buy">Comprar criptomonedas</string>
+    <string name="tx_in_process_for_network">Puede que sus saldos no sean exactos ya que tiene transacciones en curso en la red %1$s.</string>
+    <string name="dashboard_kyc_rejected_with_balance_title">Su cuenta ahora es una cuenta exclusiva de Defi Wallet.</string>
+    <string name="dashboard_kyc_rejected_with_balance_description">Los fondos que tuviera en la sección de la cuenta están seguros. Para enviarlos a Defi Wallet, póngase en contacto con nuestro centro de asistencia.</string>
+    <string name="dashboard_kyc_rejected_with_balance_support">Contactar con el servicio de asistencia</string>
+    <string name="dashboard_kyc_blocked_title">No pudimos verificar su identidad</string>
+    <string name="dashboard_kyc_blocked_description">Parece que no podemos verificar su identidad.\n\nSin embargo, todavía puede seguir utilizando Defi Wallet.</string>
+    <string name="go_to_defi">Ir a DeFi Wallet</string>
+    <string name="currently_unavailable">Actualmente no está disponible</string>
+    <string name="default_dex_not_available_message">El dex todavía no está disponible para su cuenta</string>
+    <plurals name="years_ago">
+        <item quantity="one">Hace %d año</item>
+        <item quantity="other">Hace %d años</item>
+    </plurals>
+    <plurals name="months_ago">
+        <item quantity="one">Hace %d mes</item>
+        <item quantity="other">Hace %d meses</item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="one">Hace %d día</item>
+        <item quantity="other">Hace %d días</item>
+    </plurals>
+    <string name="settings_theme_title">Tema</string>
+    <string name="settings_theme_subtitle">Tema de la aplicación: %1$s</string>
+    <string name="settings_theme_system">Sistema</string>
+    <string name="settings_theme_light">Claro</string>
+    <string name="settings_theme_dark">Oscuro</string>
+    <string name="wallet_issue_message_clear">Hay un aviso sobre el estado de nuestra página. Es posible que la función completa del monedero no esté disponible. Puede estar tranquilo/a, sus fondos están a salvo. Más información</string>
+    <string name="common_dont_allow">No permitir</string>
+    <string name="permission_notifications_title">Permitir notificaciones</string>
+    <string name="permission_notifications_description">Le avisaremos cuando se produzcan grandes cambios en el mercado. También le enviaremos alertas de pago y seguridad.</string>
+    <string name="balances_failed_title">Error al cargar algunos saldos</string>
+    <string name="balances_failed_description_one">No hemos podido cargar los saldos y la actividad de la red %1$s en este momento.</string>
+    <string name="balances_failed_description_many">No hemos podido cargar los saldos y la actividad de las redes %1$s y %1$s en este momento.</string>
 </resources>
