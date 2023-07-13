@@ -338,6 +338,7 @@
         <item name="android:paddingBottom">@dimen/minuscule_spacing</item>
         <item name="enableValidation">true</item>
         <item name="isRequired">true</item>
+        <item name="textColor">@color/title</item>
     </style>
 
     <style name="LightEditTextThemeOverlay" parent="ThemeOverlay.AppCompat">
