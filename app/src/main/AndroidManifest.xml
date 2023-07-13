@@ -175,6 +175,7 @@
         <activity
             android:name=".ui.settings.security.pin.PinActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
+            android:theme="@style/AppTheme.PinActivity"
             android:exported="true" />
 
         <activity
