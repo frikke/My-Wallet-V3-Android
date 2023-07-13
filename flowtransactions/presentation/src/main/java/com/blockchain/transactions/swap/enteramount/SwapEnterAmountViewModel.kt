@@ -33,6 +33,7 @@ import com.blockchain.transactions.common.OnChainDepositEngineInteractor
 import com.blockchain.transactions.common.OnChainDepositInputValidationError
 import com.blockchain.transactions.swap.SwapService
 import com.blockchain.utils.removeLeadingZeros
+import com.blockchain.utils.stripThousandSeparators
 import com.blockchain.utils.toBigDecimalFromLocalisedInput
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetCatalogue
@@ -232,8 +233,6 @@ class SwapEnterAmountViewModel(
                 value = if (selectedInput == CurrencyType.FIAT) {
                     fiatAmountUserInput
                 } else {
-                    // fiatAmountUserInput.ifEmpty { "0" }
-                    // format the unfocused value?
                     fiatAmount?.toStringWithoutSymbol().orEmpty().ifEmpty { "0" }
                 },
                 maxFractionDigits = fiatAmount?.userDecimalPlaces ?: 2,
@@ -720,7 +719,7 @@ private fun Money?.toInputString(): String {
     return this?.toBigDecimal()
         ?.setScale(this.userDecimalPlaces, RoundingMode.FLOOR)
         ?.stripTrailingZeros()
-        ?.takeIf { it != BigDecimal.ZERO }
-        ?.toPlainString()
-        .orEmpty()
+        ?.takeIf { it != BigDecimal.ZERO }?.let {
+            Money.fromMajor(currency, it).toStringWithoutSymbol()
+        }?.stripThousandSeparators().orEmpty()
 }

@@ -32,6 +32,7 @@ import com.blockchain.transactions.common.OnChainDepositInputValidationError
 import com.blockchain.transactions.sell.SellAnalyticsEvents
 import com.blockchain.transactions.sell.SellService
 import com.blockchain.utils.removeLeadingZeros
+import com.blockchain.utils.stripThousandSeparators
 import com.blockchain.utils.toBigDecimalFromLocalisedInput
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
@@ -771,12 +772,14 @@ private val SellEnterAmountModelState.currencyAwareMaxAmount: Money?
         CurrencyType.CRYPTO -> maxLimit
     }
 
-private fun Money?.toInputString(): String = this?.toBigDecimal()
-    ?.setScale(this.userDecimalPlaces, RoundingMode.FLOOR)
-    ?.stripTrailingZeros()
-    ?.takeIf { it != BigDecimal.ZERO }
-    ?.toPlainString()
-    .orEmpty()
+private fun Money?.toInputString(): String {
+    return this?.toBigDecimal()
+        ?.setScale(this.userDecimalPlaces, RoundingMode.FLOOR)
+        ?.stripTrailingZeros()
+        ?.takeIf { it != BigDecimal.ZERO }?.let {
+            Money.fromMajor(currency, it).toStringWithoutSymbol()
+        }?.stripThousandSeparators().orEmpty()
+}
 
 private fun getQuickFillCryptoButtonData(
     spendableBalance: CryptoValue,

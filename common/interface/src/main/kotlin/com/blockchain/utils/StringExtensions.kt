@@ -2,6 +2,7 @@ package com.blockchain.utils
 
 import java.math.BigDecimal
 import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
 import java.text.ParseException
 import java.util.Locale
@@ -37,10 +38,15 @@ fun String.abbreviate(startLength: Int, endLength: Int, indicator: String = "...
  */
 fun String.removeLeadingZeros(): String {
     if (isBlank()) return this
-
-    val parts = split(".")
+    val decimalSeparator = DecimalFormatSymbols(Locale.getDefault()).decimalSeparator
+    val parts = split(decimalSeparator)
     val nonZeroLeading = parts[0].replaceFirst("^0+(?!$)".toRegex(), "")
-    return nonZeroLeading.ifEmpty { "0" } + parts.getOrNull(1)?.let { "." + parts[1] }.orEmpty()
+    return nonZeroLeading.ifEmpty { "0" } + parts.getOrNull(1)?.let { "$decimalSeparator" + parts[1] }.orEmpty()
+}
+
+fun String.stripThousandSeparators(): String {
+    val decimalFormatSymbols = DecimalFormatSymbols(Locale.getDefault())
+    return this.replace(decimalFormatSymbols.groupingSeparator.toString(), "")
 }
 
 fun String.toBigDecimalFromLocalisedInput(): BigDecimal {
