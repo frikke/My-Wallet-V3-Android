@@ -11,12 +11,15 @@ import com.blockchain.data.updateDataWith
 import com.blockchain.news.NewsService
 import com.blockchain.presentation.pulltorefresh.PullToRefresh
 import com.blockchain.utils.CurrentTimeProvider
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class NewsViewModel(
+    private val walletModeService: WalletModeService,
     private val newsService: NewsService,
     private val dispatcher: CoroutineDispatcher,
 ) : MviViewModel<
@@ -30,15 +33,32 @@ class NewsViewModel(
 ) {
     private var newsJob: Job? = null
 
+    init {
+        viewModelScope.launch {
+            walletModeService.availableModes().let {
+                updateState {
+                    copy(availableModes = it)
+                }
+            }
+        }
+    }
+
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
     override fun NewsModelState.reduce() = NewsViewState(
-        newsArticles = newsArticles.dataOrElse(emptyList())
+        newsArticles = if (walletMode?.isEligible() == true) {
+            newsArticles.dataOrElse(emptyList())
+        } else {
+            null
+        }
     )
 
     override suspend fun handleIntent(modelState: NewsModelState, intent: NewsIntent) {
         when (intent) {
             is NewsIntent.LoadData -> {
+                updateState {
+                    copy(walletMode = intent.walletMode)
+                }
                 loadNews()
             }
 
@@ -69,6 +89,17 @@ class NewsViewModel(
                     copy(newsArticles = newsArticles.updateDataWith(newsArticlesResource))
                 }
             }
+        }
+    }
+
+    /**
+     * news is always on custodial
+     * is only on defi if custodial mode is disabled
+     */
+    private fun WalletMode.isEligible(): Boolean {
+        return when (this) {
+            WalletMode.CUSTODIAL -> true
+            WalletMode.NON_CUSTODIAL -> !modelState.availableModes.contains(WalletMode.CUSTODIAL)
         }
     }
 

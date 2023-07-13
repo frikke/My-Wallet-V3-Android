@@ -4,9 +4,12 @@ import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrElse
 import com.blockchain.presentation.pulltorefresh.PullToRefresh
+import com.blockchain.walletmode.WalletMode
 
 sealed interface NewsIntent : Intent<NewsModelState> {
-    object LoadData : NewsIntent {
+    data class LoadData(
+        val walletMode: WalletMode
+    ) : NewsIntent {
         override fun isValidFor(modelState: NewsModelState): Boolean {
             return (modelState.newsArticles as? DataResource.Data)?.dataOrElse(emptyList())?.isEmpty() ?: true
         }

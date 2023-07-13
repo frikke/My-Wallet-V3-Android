@@ -416,7 +416,9 @@ private fun CustodialHomeDashboard(
     val pricesViewState: PricesViewState by pricesViewModel.viewState.collectAsStateLifecycleAware()
     val activityViewModel: CustodialActivityViewModel = getViewModel(scope = payloadScope)
     val activityViewState: ActivityViewState by activityViewModel.viewState.collectAsStateLifecycleAware()
-    val newsViewModel: NewsViewModel = getViewModel(scope = payloadScope)
+    val newsViewModel: NewsViewModel = getViewModel(
+        scope = payloadScope, key = WalletMode.CUSTODIAL.name + "news"
+    )
     val newsViewState: NewsViewState by newsViewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(lifecycleOwner) {
@@ -453,7 +455,7 @@ private fun CustodialHomeDashboard(
                 // activity
                 activityViewModel.onIntent(ActivityIntent.LoadActivity(SectionSize.Limited(MAX_ACTIVITY_COUNT)))
                 // news
-                newsViewModel.onIntent(NewsIntent.LoadData)
+                newsViewModel.onIntent(NewsIntent.LoadData(walletMode = WalletMode.CUSTODIAL))
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -816,7 +818,9 @@ private fun DefiHomeDashboard(
     val homeDappsState: HomeDappsViewState by homeDappsViewModel.viewState.collectAsStateLifecycleAware()
     val activityViewModel: PrivateKeyActivityViewModel = getViewModel(scope = payloadScope)
     val activityViewState: ActivityViewState by activityViewModel.viewState.collectAsStateLifecycleAware()
-    val newsViewModel: NewsViewModel = getViewModel(scope = payloadScope)
+    val newsViewModel: NewsViewModel = getViewModel(
+        scope = payloadScope, key = WalletMode.NON_CUSTODIAL.name + "news"
+    )
     val newsViewState: NewsViewState by newsViewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(lifecycleOwner) {
@@ -851,7 +855,7 @@ private fun DefiHomeDashboard(
                 // dapps
                 homeDappsViewModel.onIntent(HomeDappsIntent.LoadData)
                 // news
-                newsViewModel.onIntent(NewsIntent.LoadData)
+                newsViewModel.onIntent(NewsIntent.LoadData(walletMode = WalletMode.NON_CUSTODIAL))
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
