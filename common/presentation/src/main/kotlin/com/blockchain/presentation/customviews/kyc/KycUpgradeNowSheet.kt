@@ -57,21 +57,6 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
     override fun initControls(binding: DialogSheetKycUpgradeNowBinding): Unit = with(binding) {
         if (!showsDialog) {
             sheetIndicator.gone()
-            toolbar.gone()
-        } else {
-            toolbar.apply {
-                startNavigationButton = null
-                endNavigationBarButtons = listOf(
-                    NavigationBarButton.Icon(
-                        drawable = R.drawable.ic_close_circle_v2,
-                        color = null,
-                        contentDescription = com.blockchain.stringResources.R.string.accessibility_close,
-                        onIconClick = {
-                            if (showsDialog) dismiss()
-                        }
-                    )
-                )
-            }
         }
         // prep stream for onDestroyView call
         getHighestTier.emptySubscribe()
