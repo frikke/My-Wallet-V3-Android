@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,11 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.icons.Icons
@@ -40,7 +37,7 @@ fun EarnPendingWithdrawalFullBalance(currencyTicker: String) {
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
         Surface(
-            modifier = Modifier .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
             color = Color.Transparent
         ) {
@@ -116,7 +113,7 @@ fun EarnPendingWithdrawals(pendingWithdrawals: List<EarnWithdrawalUiElement>) {
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
         Surface(
-            modifier = Modifier .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
             color = Color.Transparent
         ) {

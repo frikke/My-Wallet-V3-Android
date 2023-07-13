@@ -4,10 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.blockchain.common.R
 import com.blockchain.common.databinding.DialogSheetKycUpgradeNowBinding
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
-import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
