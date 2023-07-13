@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
+import androidx.lifecycle.lifecycleScope
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
@@ -18,12 +19,16 @@ import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.disableBackPress
 import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.spinner.SpinnerAnalyticsAction
+import com.blockchain.spinner.SpinnerAnalyticsScreen
+import com.blockchain.spinner.SpinnerAnalyticsTimer
 import com.checkout.android_sdk.PaymentForm
 import com.checkout.android_sdk.Utils.Environment
 import com.stripe.android.PaymentAuthConfig
 import com.stripe.android.PaymentConfiguration
 import com.stripe.android.model.ConfirmPaymentIntentParams
 import org.koin.android.ext.android.inject
+import org.koin.core.parameter.parametersOf
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentCardVerificationBinding
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
@@ -41,6 +46,13 @@ class CardVerificationFragment :
 
     private val environmentConfig: EnvironmentConfig by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
+
+    private val spinnerTimer: SpinnerAnalyticsTimer by inject {
+        parametersOf(
+            SpinnerAnalyticsScreen.AddCard,
+            lifecycleScope
+        )
+    }
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentCardVerificationBinding =
         FragmentCardVerificationBinding.inflate(inflater, container, false)
@@ -71,9 +83,20 @@ class CardVerificationFragment :
 
         newState.cardRequestStatus?.let {
             when (it) {
-                is CardRequestStatus.Loading -> renderLoadingState()
-                is CardRequestStatus.Error -> renderErrorState(it.type)
-                is CardRequestStatus.Success -> renderSuccessState(it.card)
+                is CardRequestStatus.Loading -> {
+                    spinnerTimer.start(SpinnerAnalyticsAction.Default)
+                    renderLoadingState()
+                }
+
+                is CardRequestStatus.Error -> {
+                    spinnerTimer.stop()
+                    renderErrorState(it.type)
+                }
+
+                is CardRequestStatus.Success -> {
+                    spinnerTimer.stop()
+                    renderSuccessState(it.card)
+                }
             }
         }
 
@@ -91,12 +114,14 @@ class CardVerificationFragment :
                     cardAcquirerCredentials.exitLink
                 )
             }
+
             is CardAcquirerCredentials.FakeCardAcquirer -> {
                 openWebView(
                     cardAcquirerCredentials.paymentLink,
                     cardAcquirerCredentials.exitLink
                 )
             }
+
             is CardAcquirerCredentials.Stripe -> {
                 // TODO: Clean this up along with the one in SimpleBuyPaymentFragment
                 PaymentConfiguration.init(requireContext(), cardAcquirerCredentials.apiKey)
@@ -123,6 +148,7 @@ class CardVerificationFragment :
                 // Start polling in absence of a callback in the case of Stripe
                 model.process(CardIntent.CheckCardStatus())
             }
+
             is CardAcquirerCredentials.Checkout -> {
                 // For Checkout no 3DS is required if the link is empty. For Stripe they take care of all scenarios.
                 if (cardAcquirerCredentials.paymentLink.isNotEmpty()) {
@@ -221,78 +247,97 @@ class CardVerificationFragment :
                         }
                     )
                 }
+
                 CardError.ActivationFailed -> renderLegacyError(
                     title = com.blockchain.stringResources.R.string.title_cardCreateBankDeclined,
                     subtitle = com.blockchain.stringResources.R.string.could_not_activate_card
                 )
+
                 CardError.CardAcquirerDeclined -> renderLegacyError(
                     title = com.blockchain.stringResources.R.string.title_cardCreateBankDeclined,
                     subtitle = com.blockchain.stringResources.R.string.msg_cardAcquirerDecline
                 )
+
                 CardError.CardBankDeclined -> renderLegacyError(
                     title = com.blockchain.stringResources.R.string.title_cardBankDecline,
                     subtitle = com.blockchain.stringResources.R.string.msg_cardBankDecline
                 )
+
                 CardError.CardBlockchainDeclined -> renderLegacyError(
                     title = com.blockchain.stringResources.R.string.title_cardBlockchainDecline,
                     subtitle = com.blockchain.stringResources.R.string.msg_cardBlockchainDecline
                 )
+
                 CardError.CardCreateBankDeclined -> renderLegacyError(
                     title = com.blockchain.stringResources.R.string.title_cardCreateBankDeclined,
                     subtitle = com.blockchain.stringResources.R.string.msg_cardCreateBankDeclined
                 )
+
                 CardError.CardCreateDebitOnly -> renderLegacyError(
                     title = com.blockchain.stringResources.R.string.title_cardCreateDebitOnly,
                     subtitle = com.blockchain.stringResources.R.string.msg_cardCreateDebitOnly
                 )
+
                 CardError.CardCreateNoToken -> renderLegacyError(
                     title = com.blockchain.stringResources.R.string.title_cardCreateNoToken,
                     subtitle = com.blockchain.stringResources.R.string.msg_cardCreateNoToken
                 )
+
                 CardError.CardCreatedAbandoned -> renderLegacyError(
                     title = com.blockchain.stringResources.R.string.title_cardCreateAbandoned,
                     subtitle = com.blockchain.stringResources.R.string.msg_cardCreateAbandoned
                 )
+
                 CardError.CardCreatedExpired -> renderLegacyError(
                     title = com.blockchain.stringResources.R.string.title_cardCreateExpired,
                     subtitle = com.blockchain.stringResources.R.string.msg_cardCreateExpired
                 )
+
                 CardError.CardCreatedFailed -> renderLegacyError(
                     title = com.blockchain.stringResources.R.string.title_cardCreateFailed,
                     subtitle = com.blockchain.stringResources.R.string.msg_cardCreateFailed
                 )
+
                 CardError.CardDuplicated -> renderLegacyError(
                     title = com.blockchain.stringResources.R.string.title_cardDuplicate,
                     subtitle = com.blockchain.stringResources.R.string.msg_cardDuplicate
                 )
+
                 CardError.CardLimitReach -> renderLegacyError(
                     title = com.blockchain.stringResources.R.string.card_limit_reached_title,
                     subtitle = com.blockchain.stringResources.R.string.card_limit_reached_desc
                 )
+
                 CardError.CardPaymentDebitOnly -> renderLegacyError(
                     title = com.blockchain.stringResources.R.string.title_cardPaymentDebitOnly,
                     subtitle = com.blockchain.stringResources.R.string.msg_cardPaymentDebitOnly
                 )
+
                 CardError.CardPaymentFailed -> renderLegacyError(
                     title = com.blockchain.stringResources.R.string.title_cardPaymentFailed,
                     subtitle = com.blockchain.stringResources.R.string.msg_cardPaymentFailed
                 )
+
                 CardError.CardPaymentNotSupportedDeclined -> renderLegacyError(
                     title = com.blockchain.stringResources.R.string.title_cardPaymentNotSupported,
                     subtitle = com.blockchain.stringResources.R.string.msg_cardPaymentNotSupported
                 )
+
                 CardError.CreationFailed -> renderLegacyError(
                     title = com.blockchain.stringResources.R.string.linking_card_error_title,
                     subtitle = com.blockchain.stringResources.R.string.could_not_save_card
                 )
+
                 CardError.InsufficientCardBalance -> renderLegacyError(
                     title = com.blockchain.stringResources.R.string.title_cardInsufficientFunds,
                     subtitle = com.blockchain.stringResources.R.string.msg_cardInsufficientFunds
                 )
+
                 CardError.LinkFailed -> renderLegacyError(
                     title = com.blockchain.stringResources.R.string.linking_card_error_title,
                     subtitle = com.blockchain.stringResources.R.string.card_link_failed
                 )
+
                 CardError.PendingAfterPoll -> renderLegacyError(
                     title = com.blockchain.stringResources.R.string.card_still_pending,
                     subtitle = com.blockchain.stringResources.R.string.card_link_failed
@@ -322,6 +367,11 @@ class CardVerificationFragment :
                 analytics.logEvent(SimpleBuyAnalytics.CARD_3DS_COMPLETED)
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        spinnerTimer.backgrounded()
     }
 
     override val navigator: AddCardNavigator
