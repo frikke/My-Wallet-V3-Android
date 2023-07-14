@@ -17,7 +17,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 sealed class SpinnerAnalyticsAction(val name: String)*/
 
 enum class SpinnerAnalyticsScreen {
-    AddCard, BuyCheckout
+    AddCard, BuyCheckout, BuyOrder
 }
 
 enum class SpinnerAnalyticsAction {

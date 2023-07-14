@@ -6,13 +6,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import com.blockchain.api.NabuApiException
 import com.blockchain.coincore.AssetAction
 import com.blockchain.domain.paymentmethods.model.BankAuthSource
 import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.nabu.datamanagers.TransactionError
+import com.blockchain.presentation.spinner.SpinnerAnalyticsAction
+import com.blockchain.presentation.spinner.SpinnerAnalyticsScreen
+import com.blockchain.presentation.spinner.SpinnerAnalyticsTimer
 import java.util.Locale
 import org.koin.android.ext.android.inject
+import org.koin.core.parameter.parametersOf
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTxFlowInProgressBinding
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
@@ -51,6 +56,13 @@ import timber.log.Timber
 
 class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProgressBinding>() {
 
+    private val spinnerTimer: SpinnerAnalyticsTimer by inject {
+        parametersOf(
+            SpinnerAnalyticsScreen.BuyOrder,
+            lifecycleScope
+        )
+    }
+
     private val refreshBankResultLauncher = registerForActivityResult(BankAuthRefreshContract()) { refreshSuccess ->
         if (refreshSuccess) {
             activity.finish()
@@ -64,6 +76,9 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        lifecycle.addObserver(spinnerTimer)
+
         binding.txProgressView.setupPrimaryCta(
             text = getString(com.blockchain.stringResources.R.string.common_ok),
             onClick = { activity.finish() }
@@ -84,11 +99,21 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
         newState: TransactionState
     ) {
         when (newState.executionStatus) {
-            is TxExecutionStatus.InProgress -> binding.txProgressView.showTxInProgress(
-                customiser.transactionProgressTitle(newState),
-                customiser.transactionProgressMessage(newState)
-            )
+            is TxExecutionStatus.InProgress -> {
+                if(newState.action == AssetAction.Buy) {
+                    spinnerTimer.start(SpinnerAnalyticsAction.Default)
+                }
+
+                binding.txProgressView.showTxInProgress(
+                    customiser.transactionProgressTitle(newState),
+                    customiser.transactionProgressMessage(newState)
+                )
+            }
             is TxExecutionStatus.Completed -> {
+                if(newState.action == AssetAction.Buy) {
+                    spinnerTimer.stop(isDestroyed = false)
+                }
+
                 analyticsHooks.onTransactionSuccess(newState)
                 binding.txProgressView.showTxSuccess(
                     customiser.transactionCompleteTitle(newState),
@@ -97,6 +122,10 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
                 )
             }
             is TxExecutionStatus.ApprovalRequired -> {
+                if(newState.action == AssetAction.Buy) {
+                    spinnerTimer.start(SpinnerAnalyticsAction.Default)
+                }
+
                 binding.txProgressView.showTxInProgress(
                     customiser.transactionProgressTitle(newState),
                     customiser.transactionProgressMessage(newState)
@@ -112,6 +141,9 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
                 )
             }
             is TxExecutionStatus.Error -> {
+                if(newState.action == AssetAction.Buy) {
+                    spinnerTimer.stop(isDestroyed = false)
+                }
                 analyticsHooks.onTransactionFailure(
                     newState,
                     collectStackTraceString(newState.executionStatus.exception)
