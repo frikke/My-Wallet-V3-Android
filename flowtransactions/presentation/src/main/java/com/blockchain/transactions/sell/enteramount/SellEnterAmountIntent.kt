@@ -11,7 +11,11 @@ sealed interface SellEnterAmountIntent : Intent<SellEnterAmountModelState> {
 
     data class KeyboardClicked(
         val button: KeyboardButton
-    ) : SellEnterAmountIntent
+    ) : SellEnterAmountIntent {
+        override fun isValidFor(modelState: SellEnterAmountModelState): Boolean {
+            return modelState.toAccount != null
+        }
+    }
 
     data class FromAccountChanged(
         val account: CryptoAccountWithBalance,
@@ -34,9 +38,17 @@ sealed interface SellEnterAmountIntent : Intent<SellEnterAmountModelState> {
         }
     }
 
-    data class QuickFillEntryClicked(val entry: QuickFillDisplayAndAmount) : SellEnterAmountIntent
+    data class QuickFillEntryClicked(val entry: QuickFillDisplayAndAmount) : SellEnterAmountIntent {
+        override fun isValidFor(modelState: SellEnterAmountModelState): Boolean {
+            return modelState.toAccount != null
+        }
+    }
 
-    object MaxSelected : SellEnterAmountIntent
+    object MaxSelected : SellEnterAmountIntent {
+        override fun isValidFor(modelState: SellEnterAmountModelState): Boolean {
+            return modelState.toAccount != null
+        }
+    }
 
     object PreviewClicked : SellEnterAmountIntent
 
