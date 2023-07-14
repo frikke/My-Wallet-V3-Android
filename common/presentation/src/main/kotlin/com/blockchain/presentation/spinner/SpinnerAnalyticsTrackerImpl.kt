@@ -52,7 +52,7 @@ internal class SpinnerAnalyticsTrackerImpl(
         timerJob = coroutineScope.launch(coroutineDispatcher) {
             timer.collectLatest { elapsedTime ->
                 analytics.logEvent(
-                    SpinnerAnalyticsEvents.SpinnerLaunched(
+                    SpinnerAnalyticsEvents.SpinnerState(
                         flowId = flowId,
                         duration = elapsedTime,
                         screen = screen,
@@ -70,7 +70,7 @@ internal class SpinnerAnalyticsTrackerImpl(
 
         timerJob.cancel()
         analytics.logEvent(
-            SpinnerAnalyticsEvents.SpinnerLaunched(
+            SpinnerAnalyticsEvents.SpinnerState(
                 flowId = flowId,
                 duration = elapsedTimeSeconds,
                 screen = screen,
@@ -87,7 +87,7 @@ internal class SpinnerAnalyticsTrackerImpl(
         if (timerJob == null || timerJob.isCancelled || timerJob.isCompleted) return
 
         analytics.logEvent(
-            SpinnerAnalyticsEvents.SpinnerLaunched(
+            SpinnerAnalyticsEvents.SpinnerState(
                 flowId = flowId,
                 duration = elapsedTimeSeconds,
                 screen = screen,

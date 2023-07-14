@@ -8,7 +8,7 @@ internal sealed class SpinnerAnalyticsEvents(
     override val params: Map<String, String> = emptyMap()
 ) : AnalyticsEvent {
 
-    data class SpinnerLaunched(
+    data class SpinnerState(
         val flowId: String,
         val duration: Int,
         val screen: SpinnerAnalyticsScreen,

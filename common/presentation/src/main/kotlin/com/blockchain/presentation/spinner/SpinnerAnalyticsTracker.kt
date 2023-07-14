@@ -2,8 +2,6 @@ package com.blockchain.presentation.spinner
 
 import androidx.lifecycle.DefaultLifecycleObserver
 
-// another idea - if we need detailed actions
-
 sealed class SpinnerAnalyticsScreen(val name: String) {
     object AddCard : SpinnerAnalyticsScreen("AddCard")
 
@@ -21,7 +19,7 @@ sealed class SpinnerAnalyticsAction(val name: String) {
 
 /**
  * DO NOT FORGET lifecycle.addObserver(spinnerTracker) in the fragment/activity/compose
- * to be able to call stop when the screen is destroyed or paused
+ * to be able to call stop/paused when lifecycle changes
  *
  * [start] the timer and it will send events every 5 seconds, when loading stop call [stop]
  *
