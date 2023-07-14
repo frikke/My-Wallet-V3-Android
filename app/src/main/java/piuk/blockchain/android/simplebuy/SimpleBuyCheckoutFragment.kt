@@ -55,7 +55,6 @@ import com.blockchain.payments.googlepay.manager.request.defaultAllowedCardNetwo
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import com.blockchain.presentation.disableBackPress
 import com.blockchain.presentation.koin.scopedInject
-import com.blockchain.presentation.spinner.SpinnerAnalyticsAction
 import com.blockchain.presentation.spinner.SpinnerAnalyticsScreen
 import com.blockchain.presentation.spinner.SpinnerAnalyticsTimer
 import com.blockchain.utils.capitalizeFirstChar
@@ -68,6 +67,10 @@ import info.blockchain.balance.isCustodialOnly
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import java.time.ZonedDateTime
+import java.time.format.TextStyle
+import java.util.Locale
+import kotlin.math.max
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
 import piuk.blockchain.android.R
@@ -97,10 +100,6 @@ import piuk.blockchain.android.urllinks.URL_OPEN_BANKING_PRIVACY_POLICY
 import piuk.blockchain.android.util.StringLocalizationUtil.Companion.getFormattedDepositTerms
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.animateChange
-import java.time.ZonedDateTime
-import java.time.format.TextStyle
-import java.util.Locale
-import kotlin.math.max
 
 class SimpleBuyCheckoutFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimplebuyCheckoutBinding>(),
@@ -187,9 +186,9 @@ class SimpleBuyCheckoutFragment :
             compositeDisposable += it.loading
                 .subscribeBy {
                     if (it) {
-                        spinnerTimer.start(SpinnerAnalyticsAction.Default)
+                        spinnerTimer.start()
                     } else {
-                        spinnerTimer.stop(isDestroyed = false)
+                        spinnerTimer.stop()
                     }
                 }
         }
@@ -772,6 +771,7 @@ class SimpleBuyCheckoutFragment :
                         }
                     )
                     onClick = {
+                        spinnerTimer.updateAction(action = SpinnerAnalyticsScreen.BuyCheckout.BuyButtonClick)
                         trackFraudFlow()
                         when (
                             getSettlementReason(
@@ -865,6 +865,8 @@ class SimpleBuyCheckoutFragment :
             buttonGooglePay.apply {
                 visibleIf { isGooglePay }
                 setOnClickListener {
+                    spinnerTimer.updateAction(action = SpinnerAnalyticsScreen.BuyCheckout.GooglePayButtonClick)
+
                     trackFraudFlow()
                     buttonGooglePay.showLoading()
                     model.process(SimpleBuyIntent.GooglePayInfoRequested)
@@ -1145,7 +1147,6 @@ class SimpleBuyCheckoutFragment :
     override fun onPause() {
         super.onPause()
         model.process(SimpleBuyIntent.NavigationHandled)
-        spinnerTimer.backgrounded()
     }
 
     override fun onDestroy() {

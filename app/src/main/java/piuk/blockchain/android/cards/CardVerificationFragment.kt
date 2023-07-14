@@ -19,7 +19,6 @@ import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.disableBackPress
 import com.blockchain.presentation.koin.scopedInject
-import com.blockchain.presentation.spinner.SpinnerAnalyticsAction
 import com.blockchain.presentation.spinner.SpinnerAnalyticsScreen
 import com.blockchain.presentation.spinner.SpinnerAnalyticsTimer
 import com.checkout.android_sdk.PaymentForm
@@ -85,17 +84,17 @@ class CardVerificationFragment :
         newState.cardRequestStatus?.let {
             when (it) {
                 is CardRequestStatus.Loading -> {
-                    spinnerTimer.start(SpinnerAnalyticsAction.Default)
+                    spinnerTimer.start()
                     renderLoadingState()
                 }
 
                 is CardRequestStatus.Error -> {
-                    spinnerTimer.stop(isDestroyed = false)
+                    spinnerTimer.stop()
                     renderErrorState(it.type)
                 }
 
                 is CardRequestStatus.Success -> {
-                    spinnerTimer.stop(isDestroyed = false)
+                    spinnerTimer.stop()
                     renderSuccessState(it.card)
                 }
             }
@@ -368,11 +367,6 @@ class CardVerificationFragment :
                 analytics.logEvent(SimpleBuyAnalytics.CARD_3DS_COMPLETED)
             }
         }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        spinnerTimer.backgrounded()
     }
 
     override val navigator: AddCardNavigator
