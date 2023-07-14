@@ -1,22 +1,21 @@
 package com.blockchain.presentation.spinner
 
+import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.lifecycle.LifecycleOwner
 import com.blockchain.analytics.Analytics
-import com.blockchain.spinner.SpinnerAnalyticsAction
-import com.blockchain.spinner.SpinnerAnalyticsScreen
-import com.blockchain.spinner.SpinnerAnalyticsTimer
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
-enum class SpinnerAnalyticsState {
-    Started, Running, Backgrounded, Ended
+internal enum class SpinnerAnalyticsState {
+    Started, Running, Backgrounded, Ended, Canceled
 }
 
 internal class SpinnerAnalyticsTimerImpl(
@@ -29,34 +28,28 @@ internal class SpinnerAnalyticsTimerImpl(
     private val flowId = UUID.randomUUID().toString()
 
     private val tickSeconds = 5
-    private var elapsedTimeSeconds = 0 // 5 second jumps(tickSeconds), doesnt have to be second exact
+    private var elapsedTimeSeconds = 0
 
     private val timer = flow {
         while (true) {
             emit(elapsedTimeSeconds)
-            delay(TimeUnit.SECONDS.toMillis(tickSeconds.toLong()))
-            elapsedTimeSeconds += tickSeconds
+            delay(TimeUnit.SECONDS.toMillis(1L))
+            elapsedTimeSeconds++
         }
-    }
+    }.filter { it % tickSeconds == 0 }
 
     private var timerJob: Job? = null
 
     private lateinit var action: SpinnerAnalyticsAction
 
-    override fun start(
-        action: SpinnerAnalyticsAction,
-    ) {
-        if(timerJob?.isActive == true) return
+    override fun start(action: SpinnerAnalyticsAction) {
+        if (timerJob?.isActive == true) return
 
         this.action = action
 
         timerJob?.cancel()
         timerJob = coroutineScope.launch(coroutineDispatcher) {
-            timer
-                .onCompletion {
-                    stop()
-                }
-                .collectLatest { elapsedTime ->
+            timer.collectLatest { elapsedTime ->
                     analytics.logEvent(
                         SpinnerAnalyticsEvents.SpinnerLaunched(
                             flowId = flowId,
@@ -70,8 +63,8 @@ internal class SpinnerAnalyticsTimerImpl(
         }
     }
 
-    override fun stop() {
-        if(timerJob?.isCancelled == true || timerJob?.isCompleted == true) return
+    override fun stop(isDestroyed: Boolean) {
+        if (timerJob?.isCancelled == true || timerJob?.isCompleted == true || !::action.isInitialized) return
 
         timerJob?.cancel()
         analytics.logEvent(
@@ -80,14 +73,14 @@ internal class SpinnerAnalyticsTimerImpl(
                 duration = elapsedTimeSeconds,
                 screen = screen,
                 screenEvent = action,
-                state = SpinnerAnalyticsState.Ended,
+                state = if(isDestroyed) SpinnerAnalyticsState.Canceled else SpinnerAnalyticsState.Ended,
             )
         )
         elapsedTimeSeconds = 0
     }
 
     override fun backgrounded() {
-        if(timerJob?.isCancelled == true || timerJob?.isCompleted == true) return
+        if (timerJob?.isCancelled == true || timerJob?.isCompleted == true || !::action.isInitialized) return
 
         analytics.logEvent(
             SpinnerAnalyticsEvents.SpinnerLaunched(
@@ -98,5 +91,10 @@ internal class SpinnerAnalyticsTimerImpl(
                 state = SpinnerAnalyticsState.Backgrounded,
             )
         )
+    }
+
+    override fun onDestroy(owner: LifecycleOwner) {
+        super.onDestroy(owner)
+        stop(isDestroyed = true)
     }
 }

@@ -19,9 +19,9 @@ import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.disableBackPress
 import com.blockchain.presentation.koin.scopedInject
-import com.blockchain.spinner.SpinnerAnalyticsAction
-import com.blockchain.spinner.SpinnerAnalyticsScreen
-import com.blockchain.spinner.SpinnerAnalyticsTimer
+import com.blockchain.presentation.spinner.SpinnerAnalyticsAction
+import com.blockchain.presentation.spinner.SpinnerAnalyticsScreen
+import com.blockchain.presentation.spinner.SpinnerAnalyticsTimer
 import com.checkout.android_sdk.PaymentForm
 import com.checkout.android_sdk.Utils.Environment
 import com.stripe.android.PaymentAuthConfig
@@ -67,6 +67,7 @@ class CardVerificationFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        lifecycle.addObserver(spinnerTimer)
         activity.updateToolbarTitle(getString(com.blockchain.stringResources.R.string.card_verification))
         binding.checkoutCardForm.initCheckoutPaymentForm()
     }
@@ -89,12 +90,12 @@ class CardVerificationFragment :
                 }
 
                 is CardRequestStatus.Error -> {
-                    spinnerTimer.stop()
+                    spinnerTimer.stop(isDestroyed = false)
                     renderErrorState(it.type)
                 }
 
                 is CardRequestStatus.Success -> {
-                    spinnerTimer.stop()
+                    spinnerTimer.stop(isDestroyed = false)
                     renderSuccessState(it.card)
                 }
             }

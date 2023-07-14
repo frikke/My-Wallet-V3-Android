@@ -2,10 +2,8 @@ package com.blockchain.presentation.spinner
 
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
-import com.blockchain.spinner.SpinnerAnalyticsAction
-import com.blockchain.spinner.SpinnerAnalyticsScreen
 
-sealed class SpinnerAnalyticsEvents(
+internal sealed class SpinnerAnalyticsEvents(
     override val event: String,
     override val params: Map<String, String> = emptyMap()
 ) : AnalyticsEvent {
