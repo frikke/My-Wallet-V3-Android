@@ -21,7 +21,7 @@
         <item name="colorControlActivated">@color/primary_blue_accent</item>
         <item name="colorControlHighlight">@color/primary_blue_accent</item>
 
-        <item name="android:statusBarColor">@color/backgroundSecondary</item>
+        <item name="android:statusBarColor">@color/background</item>
     </style>
 
     <style name="AppTheme" parent="BaseTheme">
@@ -31,6 +31,10 @@
         <item name="toolbarStyle">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
         <item name="bottomSheetDialogTheme">@style/BottomSheetDialog</item>
         <item name="android:textColorHint">@color/body</item>
+    </style>
+
+    <style name="AppTheme.PinActivity">
+        <item name="android:statusBarColor">@color/backgroundSecondary</item>
     </style>
 
     <style name="AppTheme.MainActivity">
@@ -334,6 +338,7 @@
         <item name="android:paddingBottom">@dimen/minuscule_spacing</item>
         <item name="enableValidation">true</item>
         <item name="isRequired">true</item>
+        <item name="textColor">@color/title</item>
     </style>
 
     <style name="LightEditTextThemeOverlay" parent="ThemeOverlay.AppCompat">

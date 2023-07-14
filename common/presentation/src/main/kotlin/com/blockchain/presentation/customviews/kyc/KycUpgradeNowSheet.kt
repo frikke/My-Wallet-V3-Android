@@ -4,10 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.blockchain.common.R
 import com.blockchain.common.databinding.DialogSheetKycUpgradeNowBinding
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
-import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
@@ -57,21 +55,6 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
     override fun initControls(binding: DialogSheetKycUpgradeNowBinding): Unit = with(binding) {
         if (!showsDialog) {
             sheetIndicator.gone()
-            toolbar.gone()
-        } else {
-            toolbar.apply {
-                startNavigationButton = null
-                endNavigationBarButtons = listOf(
-                    NavigationBarButton.Icon(
-                        drawable = R.drawable.ic_close_circle_v2,
-                        color = null,
-                        contentDescription = com.blockchain.stringResources.R.string.accessibility_close,
-                        onIconClick = {
-                            if (showsDialog) dismiss()
-                        }
-                    )
-                )
-            }
         }
         // prep stream for onDestroyView call
         getHighestTier.emptySubscribe()

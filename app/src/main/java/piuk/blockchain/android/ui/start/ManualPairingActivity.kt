@@ -76,6 +76,7 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
             toolbarTitle = getString(com.blockchain.stringResources.R.string.manual_pairing),
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
+        updateToolbarBackground()
         with(binding) {
             binding.walletId.disableInputForDemoAccount()
             commandNext.apply {
