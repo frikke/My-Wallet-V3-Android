@@ -2268,7 +2268,7 @@
     <string name="coinview_actions_error">При получении доступных действий возникла проблема. Попробуйте еще раз.</string>
     <string name="coinview_no_asset_blurb">Похоже, что у нас нет данных об этом активе. Если это повторится, <annotation link="contact_support">обратитесь в службу поддержки.</annotation></string>
     <string name="coinview_no_asset_title">Неизвестный актив</string>
-    <string name="coinview_asset_info_cta">Посетить сайт</string>
+    <string name="coinview_asset_info_cta">Посетить сайт →</string>
     <string name="coinview_no_asset_description">Похоже, у нас еще нет описания для этого токена. Проверьте их веб-сайт, нажав кнопку ниже, чтобы узнать больше.</string>
     <string name="coinview_no_balance_sheet_title">Добавить %1$s к %2$s</string>
     <string name="coinview_no_balance_sheet_subtitle">Вам нужно %1$s в %2$s до %3$s.</string>
@@ -2840,7 +2840,6 @@
     <string name="buy_crypto_today">Купить криптовалюту сегодня</string>
     <string name="complete_your_profile">Заполните ваш профиль</string>
     <string name="other_amount">Другая сумма</string>
-    <string name="to_get_started_buy_your_first_btc">Чтобы начать, купите свой первый BTC.</string>
     <string name="earn_dashboard_filter_all">Все</string>
     <string name="earn_dashboard_filter_staking">Staking</string>
     <string name="staking_dashboard_search">Поиск койнов</string>
@@ -2941,7 +2940,6 @@
     <string name="intro_custodial_tag_description">Средства, хранящиеся на вашем счете Blockchain.com, хранятся в нашей системе хранения.</string>
     <string name="intro_swipe_hint">Проведите, чтобы продолжить -&gt;</string>
     <string name="common_other">Другое</string>
-    <string name="buy_different_crypto">Купить другую криптовалюту</string>
     <string name="common_swap_from">Обменять с</string>
     <string name="common_swap_to">Обменять на</string>
     <string name="announcement_recovery_title">Никогда не теряйте доступ к своему DeFi Wallet</string>
@@ -3151,4 +3149,72 @@
     <string name="sell_neworderstate_succeeded_description">Вы продали %1$s за %2$s.</string>
     <string name="sell_asset_upsell_title">Хотите купить актив?</string>
     <string name="sell_asset_upsell_subtitle">Со всеми этими свежими деньгами вы могли бы купить еще  одну криптовалюту.</string>
+    <string name="empty_dapp_description">Децентрализованное приложение хочет подключиться к вашему кошельку.</string>
+    <string name="empty_dapp_title">децентрализованное приложение</string>
+    <string name="common_dapp">децентрализованное приложение</string>
+    <string name="total_balance_loading">Загрузка...</string>
+    <string name="total_balance_error">Не удалось загрузить</string>
+    <string name="deposit_more">Внесите еще %1$s</string>
+    <string name="walletconnect_auth_request_title">Запрос на подписание сообщения</string>
+    <string name="common_message">Сообщение</string>
+    <string name="interest_upsell_after_swap_title">Заставьте свой %1$s работать</string>
+    <string name="interest_upsell_after_swap_subtitle">С помощью Passive Rewards вы можете заработать до %1$s%% на ваш %2$s.</string>
+    <string name="interest_upsell_after_swap_cta">Начать зарабатывать</string>
+    <string name="minimum_swap_custodial_error_message">Минимальная сумма, которую вы можете обменять, составляет %1$s.</string>
+    <string name="buy_enter_amount_quote_error">Ошибка при получении предложения</string>
+    <string name="sell_sourceaccounts_available_to_sell">Доступно для продажи</string>
+    <string name="confirm_status_msg_insufficient_gas_description">Вам нужно больше %1$s для покрытия сетевых сборов.</string>
+    <string name="approving_token">Утверждение %1$s</string>
+    <string name="could_take_few_seconds">Это может занять несколько секунд.</string>
+    <string name="no_assets_on_network">Нет активов на %1$s</string>
+    <string name="no_assets_on_network_description">У вас нет активов в сети %1$s. Для начала работы внесите депозит %2$s.</string>
+    <string name="common_new">Новый</string>
+    <string name="common_completed">Завершено</string>
+    <string name="resend_email">Отправить письмо повторно</string>
+    <string name="handhold_title">Заполните свой профиль</string>
+    <string name="handhold_subtitle">Купить криптовалюту сегодня</string>
+    <string name="handhold_completion_minutes">Выполняется примерно за %1$s минут</string>
+    <string name="handhold_completion_seconds">Выполняется примерно за %1$s секунд</string>
+    <string name="handhold_email">Подтвердите свой адрес электронной почты</string>
+    <string name="handhold_kyc">Подтвердите свою личность</string>
+    <string name="handhold_buy">Купить криптовалюту</string>
+    <string name="tx_in_process_for_network">Ваши балансы могут быть неточными, так как у вас есть транзакции в сети %1$s.</string>
+    <string name="dashboard_kyc_rejected_with_balance_title">Теперь ваш счет является только счетом DeFi Wallet.</string>
+    <string name="dashboard_kyc_rejected_with_balance_description">Все средства, находившиеся в разделе «Счет», находятся в безопасности. Чтобы отправить их в DeFi Wallet, обратитесь в наш центр поддержки.</string>
+    <string name="dashboard_kyc_rejected_with_balance_support">Обратиться в центр поддержки</string>
+    <string name="dashboard_kyc_blocked_title">Мы не смогли подтвердить вашу личность</string>
+    <string name="dashboard_kyc_blocked_description">Похоже, мы не можем подтвердить вашу личность. \n\nОднако вы по-прежнему можете использовать наш DeFi Wallet.</string>
+    <string name="go_to_defi">Перейти в DeFi Wallet</string>
+    <string name="currently_unavailable">В настоящее время недоступно</string>
+    <string name="default_dex_not_available_message">Для вашего счета DEX пока недоступна</string>
+    <plurals name="years_ago">
+        <item quantity="one" tools:ignore="ImpliedQuantity">год назад</item>
+        <item quantity="few">года назад</item>
+        <item quantity="many">лет назад</item>
+        <item quantity="other">год назад</item>
+    </plurals>
+    <plurals name="months_ago">
+        <item quantity="one" tools:ignore="ImpliedQuantity">месяц назад</item>
+        <item quantity="few">месяца назад</item>
+        <item quantity="many">месяцев назад</item>
+        <item quantity="other">месяц назад</item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="one" tools:ignore="ImpliedQuantity">день назад</item>
+        <item quantity="few">дня назад</item>
+        <item quantity="many">дней назад</item>
+        <item quantity="other">день назад</item>
+    </plurals>
+    <string name="settings_theme_title">Тема</string>
+    <string name="settings_theme_subtitle">Тема приложения: %1$s</string>
+    <string name="settings_theme_system">Система</string>
+    <string name="settings_theme_light">Светлая</string>
+    <string name="settings_theme_dark">Темная</string>
+    <string name="wallet_issue_message_clear">На странице статуса появилось уведомление. Полная функциональность кошелька может быть недоступна. Будьте уверены, что ваши средства в безопасности. Подробнее</string>
+    <string name="common_dont_allow">Не разрешать</string>
+    <string name="permission_notifications_title">Разрешить уведомления</string>
+    <string name="permission_notifications_description">Мы будем сообщать вам, когда на рынке будут происходить большие изменения. Мы также будем отправлять вам уведомления об оплате и безопасности.</string>
+    <string name="balances_failed_title">Не удалось загрузить некоторые балансы</string>
+    <string name="balances_failed_description_one">В настоящее время нам не удалось загрузить балансы и активности сети %1$s.</string>
+    <string name="balances_failed_description_many">В настоящее время нам не удалось загрузить балансы и активности сетей %1$s и %1$s.</string>
 </resources>

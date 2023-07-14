@@ -2266,7 +2266,7 @@
     <string name="coinview_actions_error">Un problème est survenu lors de la récupération de vos actions disponibles, veuillez réessayer</string>
     <string name="coinview_no_asset_blurb">Il semble que nous n\'ayons aucune donnée sur cet actif. Si cette situation persiste, <annotation link="contact_support">contactez l\'assistance.</annotation></string>
     <string name="coinview_no_asset_title">Actif inconnu</string>
-    <string name="coinview_asset_info_cta">Visiter le site Web</string>
+    <string name="coinview_asset_info_cta">Visiter le site Web →</string>
     <string name="coinview_no_asset_description">Il semble que nous n\'ayons pas encore de description pour ce jeton ; pour en savoir plus, veuillez consulter leur site Web en appuyant sur le bouton ci-dessous.</string>
     <string name="coinview_no_balance_sheet_title">Nº %1$s à %2$s</string>
     <string name="coinview_no_balance_sheet_subtitle">Vous avez besoin de %1$s dans votre %2$s pour %3$s.</string>
@@ -2837,7 +2837,6 @@
     <string name="buy_crypto_today">Achetez de la crypto aujourd\'hui</string>
     <string name="complete_your_profile">Compléter votre profil</string>
     <string name="other_amount">Autre montant</string>
-    <string name="to_get_started_buy_your_first_btc">Pour commencer, achetez vos premiers BTC.</string>
     <string name="earn_dashboard_filter_all">Tout</string>
     <string name="earn_dashboard_filter_staking">Staking</string>
     <string name="staking_dashboard_search">Rechercher des jetons</string>
@@ -2938,7 +2937,6 @@
     <string name="intro_custodial_tag_description">Les fonds stockés sur votre compte Blockchain.com sont conservés dans notre système de garde.</string>
     <string name="intro_swipe_hint">Balayez pour continuer -&gt;</string>
     <string name="common_other">Autre</string>
-    <string name="buy_different_crypto">Achetez une crypto différente</string>
     <string name="common_swap_from">Échanger de</string>
     <string name="common_swap_to">Échanger en</string>
     <string name="announcement_recovery_title">Ne perdez jamais l\'accès à votre Wallet de finance décentralisée</string>
@@ -3146,4 +3144,71 @@
     <string name="sell_neworderstate_pending_deposit_l2_description">Votre vente de %1$s de %2$s le %3$s est en cours de traitement (cette opération prend en général %4$s minutes). Votre solde sera mis à jour une fois l\'opération terminée.</string>
     <string name="sell_neworderstate_succeeded_title">Vente terminée !</string>
     <string name="sell_neworderstate_succeeded_description">Vous avez vendu %1$s contre %2$s</string>
+    <string name="sell_asset_upsell_title">Souhaitez-vous acheter un actif ?</string>
+    <string name="sell_asset_upsell_subtitle">Grâce à tout cet argent fraîchement obtenu, vous pouvez acheter une autre crypto.</string>
+    <string name="empty_dapp_description">Une Dapp souhaite se connecter\nà votre portefeuille</string>
+    <string name="empty_dapp_title">la Dapp</string>
+    <string name="common_dapp">Dapp</string>
+    <string name="total_balance_loading">Chargement en cours...</string>
+    <string name="total_balance_error">Échec du chargement</string>
+    <string name="deposit_more">Déposer plus de %1$s</string>
+    <string name="walletconnect_auth_request_title">Demande de signature du message</string>
+    <string name="common_message">Message</string>
+    <string name="interest_upsell_after_swap_title">Mettez votre %1$s au travail</string>
+    <string name="interest_upsell_after_swap_subtitle">Avec Passive Rewards, vous pouvez gagner jusqu\'à %1$s %% sur votre %2$s.</string>
+    <string name="interest_upsell_after_swap_cta">Commencez à gagner</string>
+    <string name="minimum_swap_custodial_error_message">Le montant minimum que vous pouvez échanger est de %1$s.</string>
+    <string name="buy_enter_amount_quote_error">Erreur lors de l\'obtention du devis</string>
+    <string name="sell_sourceaccounts_available_to_sell">Disponible pour la vente</string>
+    <string name="confirm_status_msg_insufficient_gas_description">Il vous faut plus de %1$s pour couvrir les frais de réseau.</string>
+    <string name="approving_token">Approbation du %1$s</string>
+    <string name="could_take_few_seconds">Cela peut prendre quelques secondes.</string>
+    <string name="no_assets_on_network">Aucun actif sur %1$s</string>
+    <string name="no_assets_on_network_description">Vous ne disposez d\'aucun actif sur le réseau %1$s. Déposez %2$s pour commencer.</string>
+    <string name="common_new">Nouveau</string>
+    <string name="common_completed">Terminée</string>
+    <string name="resend_email">Renvoyer le courriel</string>
+    <string name="handhold_title">Complétez votre profil</string>
+    <string name="handhold_subtitle">Achetez de la crypto aujourd\'hui</string>
+    <string name="handhold_completion_minutes">Terminé dans environ %1$s minutes</string>
+    <string name="handhold_completion_seconds">Terminé dans environ %1$s secondes</string>
+    <string name="handhold_email">Vérifiez votre adresse électronique</string>
+    <string name="handhold_kyc">Vérifier votre identité</string>
+    <string name="handhold_buy">Acheter de la crypto</string>
+    <string name="tx_in_process_for_network">Vos soldes peuvent être inexacts car certaines de vos transactions sont en cours sur le réseau %1$s.</string>
+    <string name="dashboard_kyc_rejected_with_balance_title">Votre compte est désormais un compte DeFi Wallet uniquement.</string>
+    <string name="dashboard_kyc_rejected_with_balance_description">Tous les fonds dont vous disposiez dans la section Compte sont en sécurité. Pour les envoyer vers le DeFi Wallet, veuillez contacter notre Centre d\'assistance.</string>
+    <string name="dashboard_kyc_rejected_with_balance_support">Contacter le centre d\'assistance</string>
+    <string name="dashboard_kyc_blocked_title">Nous n\'avons pas été en mesure de vérifier votre identité</string>
+    <string name="dashboard_kyc_blocked_description">Apparemment, nous ne sommes pas en mesure de vérifier votre identité.\n\nCependant, vous avez toujours la possibilité d\'utiliser notre DeFi Wallet.</string>
+    <string name="go_to_defi">Activer le Wallet de finance décentralisée</string>
+    <string name="currently_unavailable">Actuellement indisponible</string>
+    <string name="default_dex_not_available_message">Le dex n\'est pas encore disponible pour votre compte.</string>
+    <plurals name="years_ago">
+        <item quantity="one">Il y a %d an</item>
+        <item quantity="other">Il y a %d ans</item>
+        <item quantity="many">Il y a %d ans</item>
+    </plurals>
+    <plurals name="months_ago">
+        <item quantity="one">Il y a %d mois</item>
+        <item quantity="other">Il y a %d mois</item>
+        <item quantity="many">Il y a %d mois</item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="one">Il y a %d jour</item>
+        <item quantity="other">Il y a %d jours</item>
+        <item quantity="many">Il y a %d jours</item>
+    </plurals>
+    <string name="settings_theme_title">Thème</string>
+    <string name="settings_theme_subtitle">Thème de l\'application : %1$s</string>
+    <string name="settings_theme_system">Système</string>
+    <string name="settings_theme_light">Clair</string>
+    <string name="settings_theme_dark">Sombre</string>
+    <string name="wallet_issue_message_clear">Notre page de statut comporte une notification. La fonctionnalité complète du portefeuille peut être indisponible. Ne vous inquiétez pas, vos fonds sont en sécurité. En savoir plus</string>
+    <string name="common_dont_allow">Ne pas autoriser</string>
+    <string name="permission_notifications_title">Autoriser les notifications</string>
+    <string name="permission_notifications_description">Nous vous informons des évolutions majeures du marché. Nous vous enverrons également des alertes de paiement et de sécurité.</string>
+    <string name="balances_failed_title">Échec du chargement de certains soldes</string>
+    <string name="balances_failed_description_one">Pour le moment, nous n\'avons pas pu charger les soldes et l\'activité du réseau %1$s.</string>
+    <string name="balances_failed_description_many">Pour le moment, nous n\'avons pas pu charger les soldes et l\'activité des réseaux %1$s et %1$s.</string>
 </resources>
