@@ -36,7 +36,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -95,6 +94,7 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.preferences.DexPrefs
 import com.blockchain.presentation.urllinks.URL_LEARN_MORE_DEX_NOT_ELIGIBLE
 import com.blockchain.stringResources.R
+import com.dex.domain.ExchangeAmount
 import com.dex.presentation.ALLOWANCE_TRANSACTION_APPROVED
 import com.dex.presentation.AmountFieldConfig
 import com.dex.presentation.DEPOSIT_FOR_ACCOUNT_REQUESTED
@@ -275,11 +275,14 @@ fun DexEnterAmountScreen(
                         keyboardController?.hide()
                     },
                     viewState = viewState,
-                    onValueChanged = {
-                        viewModel.onIntent(InputAmountIntent.AmountUpdated(it.text))
+                    onInputValueChanged = {
+                        viewModel.onIntent(InputAmountIntent.InputAmountUpdated(it))
                         viewState.sourceCurrency?.networkTicker?.let { networkTicker ->
                             analytics.logEvent(DexAnalyticsEvents.AmountEntered(sourceTicker = networkTicker))
                         }
+                    },
+                    onOutputValueChanged = {
+                        viewModel.onIntent(InputAmountIntent.OutputAmountUpdated(it))
                     },
                     settingsOnClick = {
                         navController.navigate(DexDestination.Settings.route)
@@ -523,7 +526,8 @@ fun InputScreen(
     onPreviewClicked: () -> Unit,
     onAlertErrorClicked: (String, String) -> Unit,
     revokeAllowance: () -> Unit,
-    onValueChanged: (TextFieldValue) -> Unit,
+    onInputValueChanged: (String) -> Unit,
+    onOutputValueChanged: (String) -> Unit,
     settingsOnClick: () -> Unit,
     viewAllowanceTx: (AssetInfo, String) -> Unit,
     selectNetworkOnClick: () -> Unit,
@@ -553,29 +557,35 @@ fun InputScreen(
             settingsOnClick = settingsOnClick
         )
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
-
+        println("eeeee ${viewState.sellAmount?.toStringWithSymbol()}")
+        println("eeeee ${viewState.buyAmount?.toStringWithSymbol()}")
         SendAndReceiveAmountFields(
-            onValueChanged = onValueChanged,
             sendAmountFieldConfig = AmountFieldConfig(
                 isReadOnly = false,
-                isEnabled = true,
-                exchange = viewState.inputExchangeAmount,
+                isEnabled = (viewState.operationInProgress as? DexOperation.PriceFetching)?.amount?.let {
+                    it !is ExchangeAmount.BuyAmount
+                } ?: true,
+                onValueChanged = onInputValueChanged,
+                exchange = viewState.sellExchangeAmount,
                 currency = viewState.sourceCurrency,
-                max = viewState.maxAmount,
+                max = viewState.maxSourceAmount,
                 onCurrencyClicked = selectSourceAccount,
-                amount = viewState.txAmount,
+                amount = viewState.sellAmount,
                 balance = viewState.sourceAccountBalance,
                 canChangeCurrency = viewState.canChangeInputCurrency()
             ),
-            reset = viewState.txAmount == null,
+            reset = viewState.sellAmount == null,
             receiveAmountFieldConfig = AmountFieldConfig(
-                isReadOnly = true,
-                isEnabled = viewState.operationInProgress == DexOperation.None,
-                exchange = viewState.outputExchangeAmount,
+                isReadOnly = viewState.destinationCurrency == null,
+                isEnabled = (viewState.operationInProgress as? DexOperation.PriceFetching)?.amount?.let {
+                    it !is ExchangeAmount.SellAmount
+                } ?: true,
+                exchange = viewState.buyExchangeAmount,
                 currency = viewState.destinationCurrency,
+                onValueChanged = onOutputValueChanged,
                 max = null,
                 onCurrencyClicked = selectDestinationAccount,
-                amount = viewState.outputAmount,
+                amount = viewState.buyAmount,
                 balance = viewState.destinationAccountBalance,
                 canChangeCurrency = true
             )
@@ -584,7 +594,7 @@ fun InputScreen(
         viewState.uiFee.takeIf { viewState.operationInProgress == DexOperation.None }?.let { uiFee ->
             Fee(uiFee)
         }
-        viewState.operationInProgress.takeIf { it == DexOperation.PriceFetching }?.let {
+        viewState.operationInProgress.takeIf { it is DexOperation.PriceFetching }?.let {
             PriceFetching()
         }
 
@@ -941,7 +951,7 @@ private fun PreviewNetworkSelection_LoadingDark() {
 @Composable
 private fun PreviewInputScreen_NetworkSelection() {
     InputScreen(
-        {}, {}, {}, {}, {}, { _, _ -> }, {}, {}, {}, { _, _ -> }, {}, {}, { }, { },
+        {}, {}, {}, {}, {}, { _, _ -> }, {}, {}, {}, { }, { _, _ -> }, {}, {}, { }, { },
         InputAmountViewState.TransactionInputState(
             selectedNetwork = DataResource.Data(
                 DexNetworkViewState(
@@ -951,14 +961,14 @@ private fun PreviewInputScreen_NetworkSelection() {
             allowNetworkSelection = true,
             sourceCurrency = CryptoCurrency.ETHER,
             destinationCurrency = CryptoCurrency.BTC,
-            maxAmount = Money.fromMajor(CryptoCurrency.ETHER, 100.toBigDecimal()),
-            txAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
+            maxSourceAmount = Money.fromMajor(CryptoCurrency.ETHER, 100.toBigDecimal()),
+            sellAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
             operationInProgress = DexOperation.None,
             destinationAccountBalance = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
             sourceAccountBalance = Money.fromMajor(CryptoCurrency.ETHER, 200.toBigDecimal()),
-            inputExchangeAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
-            outputExchangeAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
-            outputAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
+            sellExchangeAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
+            buyExchangeAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
+            buyAmount = Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),
             allowanceCanBeRevoked = false,
             uiFee = UiNetworkFee.DefinedFee(
                 Money.fromMajor(CryptoCurrency.ETHER, 20.toBigDecimal()),

@@ -14,6 +14,7 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.dex.domain.DexQuote
 import com.dex.domain.DexTransaction
 import com.dex.domain.DexTransactionProcessor
+import com.dex.domain.ExchangeAmount
 import com.dex.presentation.uierrors.AlertError
 import com.dex.presentation.uierrors.DexUiError
 import com.dex.presentation.uierrors.uiErrors
@@ -45,30 +46,40 @@ class DexConfirmationViewModel(
 
     override fun ConfirmationModelState.reduce(): ConfirmationScreenViewState {
         val transaction = transaction ?: return ConfirmationScreenViewState.Loading
+        val sellAmount = (transaction.inputAmount as? ExchangeAmount.SellAmount)?.amount
+            ?: transaction.quote?.sellAmount?.amount
+        val buyAmount = (transaction.inputAmount as? ExchangeAmount.BuyAmount)?.amount
+            ?: transaction.quote?.buyAmount?.amount
+        val minAmount = transaction.quote?.buyAmount?.minAmount
+        val minAmountExchangeRate = when {
+            transaction.quote?.buyAmount?.minAmount != null -> buyAmountToFiatExchangeRate
+            transaction.quote?.sellAmount?.minAmount != null -> sellAmountToFiatExchangeRate
+            else -> throw IllegalStateException("Unknown min amount exchange rate")
+        }
         return ConfirmationScreenViewState.DataConfirmationViewState(
-            inputAmount = transaction.amount,
-            exchangeInputAmount = safeLet(transaction.amount, inputToFiatExchangeRate) { amount, rate ->
+            sellAmount = sellAmount,
+            exchangeSellAmount = safeLet(sellAmount, sellAmountToFiatExchangeRate) { amount, rate ->
                 rate.convert(amount)
             } ?: Money.zero(currencyPrefs.selectedFiatCurrency),
-            outputAmount = transaction.quote?.outputAmount?.expectedOutput,
-            outputExchangeAmount = safeLet(
-                transaction.quote?.outputAmount?.expectedOutput,
-                outputToFiatExchangeRate
+            buyAmount = buyAmount,
+            buyExchangeAmount = safeLet(
+                buyAmount,
+                buyAmountToFiatExchangeRate
             ) { amount, rate ->
                 rate.convert(amount)
-            } ?: Money.zero(currencyPrefs.selectedFiatCurrency),
-            inputCurrency = transaction.sourceAccount.currency,
-            outputCurrency = transaction.destinationAccount?.currency,
-            inputBalance = transaction.sourceAccount.balance,
+            },
+            sellCurrency = transaction.sourceAccount.currency,
+            buyCurrency = transaction.destinationAccount?.currency,
+            sellAccountBalance = transaction.sourceAccount.balance,
             operationInProgress = operationInProgress,
-            outputBalance = transaction.destinationAccount?.balance,
+            buyAccountBalance = transaction.destinationAccount?.balance,
             dexExchangeRate = transaction.quote?.price?.toBigDecimal()?.setScale(2, RoundingMode.HALF_UP)?.max(
                 BigDecimal("0.001")
             ),
             slippage = transaction.slippage,
             minAmount = safeLet(
-                transaction.quote?.outputAmount?.minOutputAmount,
-                outputToFiatExchangeRate
+                minAmount,
+                minAmountExchangeRate
             ) { amount, exchangeRate ->
                 ConfirmationScreenExchangeAmount(
                     value = amount,
@@ -86,7 +97,7 @@ class DexConfirmationViewModel(
             },
             blockchainFee = safeLet(
                 transaction.quote?.blockchainFees,
-                outputToFiatExchangeRate
+                buyAmountToFiatExchangeRate
             ) { amount, exchangeRate ->
                 ConfirmationScreenExchangeAmount(
                     value = amount,
@@ -213,7 +224,7 @@ class DexConfirmationViewModel(
                 (it as? DataResource.Data)?.data?.let { rate ->
                     updateState {
                         copy(
-                            inputToFiatExchangeRate = rate
+                            sellAmountToFiatExchangeRate = rate
                         )
                     }
                 }
@@ -227,7 +238,7 @@ class DexConfirmationViewModel(
                 (it as? DataResource.Data)?.data?.let { rate ->
                     updateState {
                         copy(
-                            outputToFiatExchangeRate = rate
+                            buyAmountToFiatExchangeRate = rate
                         )
                     }
                 }
@@ -238,8 +249,8 @@ class DexConfirmationViewModel(
 
 data class ConfirmationModelState(
     val transaction: DexTransaction?,
-    val inputToFiatExchangeRate: ExchangeRate?,
-    val outputToFiatExchangeRate: ExchangeRate?,
+    val sellAmountToFiatExchangeRate: ExchangeRate?,
+    val buyAmountToFiatExchangeRate: ExchangeRate?,
     val priceUpdatedAndNotAccepted: Boolean,
     val acceptedQuoteRates: List<Money> = emptyList(),
     val networkFeesToFiatExchangeRate: ExchangeRate?,
@@ -263,16 +274,16 @@ sealed class ConfirmationScreenViewState : ViewState {
     object Loading : ConfirmationScreenViewState()
 
     data class DataConfirmationViewState(
-        val inputAmount: Money?,
-        val exchangeInputAmount: Money?,
-        val outputAmount: Money?,
-        val outputExchangeAmount: Money?,
-        val inputCurrency: AssetInfo?,
-        val outputCurrency: AssetInfo?,
-        val inputBalance: Money?,
+        val sellAmount: Money?,
+        val exchangeSellAmount: Money?,
+        val buyAmount: Money?,
+        val buyExchangeAmount: Money?,
+        val sellCurrency: AssetInfo?,
+        val buyCurrency: AssetInfo?,
+        val sellAccountBalance: Money?,
         val operationInProgress: Boolean,
         val newPriceAvailable: Boolean,
-        val outputBalance: Money?,
+        val buyAccountBalance: Money?,
         val dexExchangeRate: BigDecimal?,
         val slippage: Double?,
         val network: String?,

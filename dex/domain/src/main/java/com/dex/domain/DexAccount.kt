@@ -13,14 +13,14 @@ data class DexAccount(
 
 sealed class DexQuote {
     data class ExchangeQuote(
-        val amount: Money,
+        val sellAmount: ExchangeAmount,
+        val buyAmount: ExchangeAmount,
         val price: Money,
         val value: String,
         val data: String,
         val gasLimit: String,
         val quoteTtl: Long,
         val destinationContractAddress: String,
-        val outputAmount: OutputAmount,
         val networkFees: Money,
         val gasPrice: String,
         val blockchainFees: Money
@@ -32,7 +32,7 @@ sealed class DexQuote {
 data class DexQuoteParams(
     val sourceAccount: DexAccount,
     val destinationAccount: DexAccount,
-    val amount: Money,
+    val inputAmount: ExchangeAmount,
     val slippage: Double,
     val sourceHasBeenAllowed: Boolean
 )

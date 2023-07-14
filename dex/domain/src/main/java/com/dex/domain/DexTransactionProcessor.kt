@@ -236,20 +236,35 @@ class DexTransactionProcessor(
         }
     }
 
+    /*
+    *
+    * when updating the source account, we check if the sell amount is what user has typed,
+    * if yes, we just change the amount to the selected currency otherwise we just set the quote (if any) to zero
+    * */
     fun updateSourceAccount(sourceAccount: DexAccount) {
         _dexTransaction.update { dexTx ->
-            dexTx.copy(
-                _sourceAccount = sourceAccount,
-                amount = dexTx.amount?.let { current ->
+            val sourceIsSameAsDestination = dexTx.destinationAccount?.currency == sourceAccount.currency
+            val updatedAmount = when (dexTx.inputAmount) {
+                is ExchangeAmount.SellAmount -> ExchangeAmount.SellAmount(
                     Money.fromMajor(
                         sourceAccount.currency,
-                        current.toBigDecimal()
-                    )
-                },
-                quoteError = null,
-                destinationAccount = if (dexTx.destinationAccount?.currency == sourceAccount.currency) {
+                        dexTx.inputAmount.amount.toBigDecimal()
+                    ),
                     null
-                } else dexTx.destinationAccount
+                )
+
+                is ExchangeAmount.BuyAmount -> if (!sourceIsSameAsDestination) dexTx.inputAmount else null
+                else -> null
+            }
+
+            dexTx.copy(
+                _sourceAccount = sourceAccount,
+                inputAmount = updatedAmount,
+                quote = if (dexTx.inputAmount is ExchangeAmount.BuyAmount) null else dexTx.quote,
+                quoteError = null,
+                destinationAccount = if (sourceIsSameAsDestination) {
+                    null
+                } else dexTx.destinationAccount,
             )
         }
     }
@@ -263,10 +278,19 @@ class DexTransactionProcessor(
         }
     }
 
-    fun updateTransactionAmount(amount: BigDecimal) {
+    fun updateSellAmount(amount: BigDecimal) {
         _dexTransaction.update { tx ->
             tx.copy(
-                amount = Money.fromMajor(tx.sourceAccount.currency, amount),
+                inputAmount = ExchangeAmount.SellAmount(Money.fromMajor(tx.sourceAccount.currency, amount), null),
+            )
+        }
+    }
+
+    fun updateBuyAmount(amount: BigDecimal) {
+        _dexTransaction.update { tx ->
+            val destinationCurrency = tx.destinationAccount?.currency ?: return@update tx
+            tx.copy(
+                inputAmount = ExchangeAmount.BuyAmount(Money.fromMajor(destinationCurrency, amount), null),
             )
         }
     }
@@ -340,7 +364,7 @@ class DexTransactionProcessor(
     private suspend fun DexTransaction.validateAllowance(): DexTransaction {
         return if (
             destinationAccount == null ||
-            amount?.isPositive == false ||
+            inputAmount?.amount?.isPositive == false ||
             sourceAccount.currency.isNetworkNativeAsset()
         ) {
             this
@@ -363,8 +387,9 @@ class DexTransactionProcessor(
     }
 
     private fun DexTransaction.validateSufficientFunds(): DexTransaction {
-        val validationAmount = amount ?: Money.zero(sourceAccount.currency)
-        return if (sourceAccount.balance >= validationAmount)
+        val sellAmount =
+            (inputAmount as? ExchangeAmount.SellAmount)?.amount ?: quote?.sellAmount?.amount ?: return this
+        return if (sourceAccount.balance >= sellAmount)
             this
         else copy(
             txErrors = txErrors.plus(DexTxError.NotEnoughFunds)
@@ -372,11 +397,13 @@ class DexTransactionProcessor(
     }
 
     private suspend fun DexTransaction.validateSufficientNetworkFees(): DexTransaction {
-        amount ?: return this
+        if (inputAmount !is ExchangeAmount.SellAmount) return this
         return quote?.networkFees?.let {
             val networkBalance = balanceService.networkBalance(sourceAccount)
             val availableForFees =
-                if (sourceAccount.currency.isNetworkNativeAsset()) networkBalance.minus(amount) else networkBalance
+                if (sourceAccount.currency.isNetworkNativeAsset()) networkBalance.minus(
+                    inputAmount.amount
+                ) else networkBalance
             if (availableForFees >= it) {
                 this
             } else copy(
@@ -387,11 +414,11 @@ class DexTransactionProcessor(
 }
 
 private fun DexTransaction.quoteParams(): DexQuoteParams? {
-    return safeLet(sourceAccount, destinationAccount, amount) { s, d, a ->
+    return safeLet(sourceAccount, destinationAccount, inputAmount) { s, d, a ->
         return DexQuoteParams(
             sourceAccount = s,
             destinationAccount = d,
-            amount = a,
+            inputAmount = a,
             slippage = slippage,
             sourceHasBeenAllowed = txErrors.any { it is DexTxError.TokenNotAllowed }.not()
         )
@@ -402,10 +429,10 @@ private fun DexTransaction.quoteParams(): DexQuoteParams? {
  * We are able to fetch a quote when amount > 0 AND ( no error or error is quote related )
  */
 private fun DexTransaction.canBeQuoted() =
-    this.amount?.isPositive == true && txErrors.all { it.allowsQuotesFetching }
+    this.inputAmount?.amount?.isPositive == true && txErrors.all { it.allowsQuotesFetching }
 
 data class DexTransaction internal constructor(
-    val amount: Money?,
+    val inputAmount: ExchangeAmount?,
     val quote: DexQuote.ExchangeQuote?,
     private val _sourceAccount: DexAccount?,
     val destinationAccount: DexAccount?,
@@ -421,8 +448,6 @@ data class DexTransaction internal constructor(
         txResult != null
 }
 
-data class OutputAmount(val expectedOutput: Money, val minOutputAmount: Money)
-
 private val EmptyDexTransaction = DexTransaction(
     null,
     null,
@@ -433,6 +458,20 @@ private val EmptyDexTransaction = DexTransaction(
     listOf(),
     null,
 )
+
+/*
+* This class represents the constant amount that is given to quote as input. Is the amount user inputed in the
+* text-field
+* */
+sealed class ExchangeAmount {
+    abstract val amount: Money
+    abstract val minAmount: Money?
+    val isPositive: Boolean
+        get() = amount.isPositive
+
+    data class SellAmount(override val amount: Money, override val minAmount: Money?) : ExchangeAmount()
+    data class BuyAmount(override val amount: Money, override val minAmount: Money?) : ExchangeAmount()
+}
 
 sealed class DexTxError {
 

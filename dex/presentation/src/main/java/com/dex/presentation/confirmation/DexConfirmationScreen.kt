@@ -130,20 +130,20 @@ fun DexConfirmationScreen(
                 with(dataState) {
                     analytics.logEvent(
                         DexAnalyticsEvents.PreviewViewed(
-                            inputTicker = inputCurrency?.networkTicker.orEmpty(),
-                            inputAmount = inputAmount?.toStringWithoutSymbol().orEmpty(),
-                            outputTicker = outputCurrency?.networkTicker.orEmpty(),
-                            outputAmount = outputAmount?.toStringWithoutSymbol().orEmpty(),
+                            inputTicker = sellCurrency?.networkTicker.orEmpty(),
+                            inputAmount = sellAmount?.toStringWithoutSymbol().orEmpty(),
+                            outputTicker = buyCurrency?.networkTicker.orEmpty(),
+                            outputAmount = buyAmount?.toStringWithoutSymbol().orEmpty(),
                             minOutputAmount = minAmount?.value?.toStringWithoutSymbol().orEmpty(),
                             slippage = slippage?.toString().orEmpty(),
                             networkFee = networkFee?.value?.toStringWithoutSymbol().orEmpty(),
                             networkFeeTicker = networkFee?.value?.currency?.networkTicker.orEmpty(),
                             blockchainFee = blockchainFee?.value?.toStringWithoutSymbol().orEmpty(),
                             blockchainFeeTicker = blockchainFee?.value?.currency?.networkTicker.orEmpty(),
-                            inputNetwork = inputCurrency?.takeIf { it.isLayer2Token }?.coinNetwork?.networkTicker
-                                ?: inputCurrency?.networkTicker.orEmpty(),
-                            outputNetwork = outputCurrency?.takeIf { it.isLayer2Token }?.coinNetwork?.networkTicker
-                                ?: dataState.inputCurrency?.networkTicker.orEmpty()
+                            inputNetwork = sellCurrency?.takeIf { it.isLayer2Token }?.coinNetwork?.networkTicker
+                                ?: sellCurrency?.networkTicker.orEmpty(),
+                            outputNetwork = buyCurrency?.takeIf { it.isLayer2Token }?.coinNetwork?.networkTicker
+                                ?: dataState.sellCurrency?.networkTicker.orEmpty()
                         )
                     )
                 }
@@ -174,18 +174,19 @@ fun DexConfirmationScreen(
                 ) {
                     item {
                         SendAndReceiveAmountFields(
-                            onValueChanged = { },
                             reset = false,
                             sendAmountFieldConfig = AmountFieldConfig(
                                 isReadOnly = true,
+                                onValueChanged = { },
                                 isEnabled = true,
-                                exchange = dataState.exchangeInputAmount,
-                                currency = dataState.inputCurrency,
+                                exchange = dataState.exchangeSellAmount,
+                                currency = dataState.sellCurrency,
                                 max = null,
+                                shouldAnimateChanges = true,
                                 canChangeCurrency = false,
                                 onCurrencyClicked = { },
-                                amount = dataState.inputAmount,
-                                balance = dataState.inputBalance
+                                amount = dataState.sellAmount,
+                                balance = dataState.sellAccountBalance
                             ),
 
                             receiveAmountFieldConfig = AmountFieldConfig(
@@ -193,12 +194,13 @@ fun DexConfirmationScreen(
                                 isEnabled = true,
                                 shouldAnimateChanges = true,
                                 canChangeCurrency = false,
-                                exchange = dataState.outputExchangeAmount,
-                                currency = dataState.outputCurrency,
+                                onValueChanged = { },
+                                exchange = dataState.buyExchangeAmount,
+                                currency = dataState.buyCurrency,
                                 max = null,
                                 onCurrencyClicked = { },
-                                amount = dataState.outputAmount,
-                                balance = dataState.outputBalance
+                                amount = dataState.buyAmount,
+                                balance = dataState.buyAccountBalance
                             )
                         )
                     }
@@ -316,20 +318,20 @@ fun DexConfirmationScreen(
                         with(dataState) {
                             analytics.logEvent(
                                 DexAnalyticsEvents.ConfirmSwapClicked(
-                                    inputTicker = inputCurrency?.networkTicker.orEmpty(),
-                                    inputAmount = inputAmount?.toStringWithoutSymbol().orEmpty(),
-                                    outputTicker = outputCurrency?.networkTicker.orEmpty(),
-                                    outputAmount = outputAmount?.toStringWithoutSymbol().orEmpty(),
+                                    inputTicker = sellCurrency?.networkTicker.orEmpty(),
+                                    inputAmount = sellAmount?.toStringWithoutSymbol().orEmpty(),
+                                    outputTicker = buyCurrency?.networkTicker.orEmpty(),
+                                    outputAmount = buyAmount?.toStringWithoutSymbol().orEmpty(),
                                     minOutputAmount = minAmount?.value?.toStringWithoutSymbol().orEmpty(),
                                     slippage = slippage?.toString().orEmpty(),
                                     networkFee = networkFee?.value?.toStringWithoutSymbol().orEmpty(),
                                     networkFeeTicker = networkFee?.value?.currency?.networkTicker.orEmpty(),
                                     blockchainFee = blockchainFee?.value?.toStringWithoutSymbol().orEmpty(),
                                     blockchainFeeTicker = blockchainFee?.value?.currency?.networkTicker.orEmpty(),
-                                    inputNetwork = inputCurrency?.takeIf { it.isLayer2Token }
-                                        ?.coinNetwork?.networkTicker ?: inputCurrency?.networkTicker.orEmpty(),
-                                    outputNetwork = outputCurrency?.takeIf { it.isLayer2Token }
-                                        ?.coinNetwork?.networkTicker ?: dataState.inputCurrency?.networkTicker.orEmpty()
+                                    inputNetwork = sellCurrency?.takeIf { it.isLayer2Token }
+                                        ?.coinNetwork?.networkTicker ?: sellCurrency?.networkTicker.orEmpty(),
+                                    outputNetwork = buyCurrency?.takeIf { it.isLayer2Token }
+                                        ?.coinNetwork?.networkTicker ?: dataState.sellCurrency?.networkTicker.orEmpty()
                                 )
                             )
                         }
@@ -367,7 +369,7 @@ fun DexConfirmationScreen(
 
 private fun ConfirmationScreenViewState.DataConfirmationViewState.toAnimatedState(): AnimatedConfirmationState {
     return AnimatedConfirmationState(
-        confirmationExchangeRate = safeLet(dexExchangeRate, inputCurrency, outputCurrency) { rate, input, output ->
+        confirmationExchangeRate = safeLet(dexExchangeRate, sellCurrency, buyCurrency) { rate, input, output ->
             ConfirmationExchangeRate(
                 rate = rate,
                 inputCurrency = input,

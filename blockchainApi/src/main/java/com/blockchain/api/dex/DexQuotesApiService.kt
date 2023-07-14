@@ -76,14 +76,15 @@ data class FromCurrency(
     private val chainId: Int,
     private val symbol: String,
     private val address: String,
-    private val amount: String
+    private val amount: String?
 )
 
 @kotlinx.serialization.Serializable
 data class ToCurrency(
     private val chainId: Int,
     private val symbol: String,
-    private val address: String
+    private val address: String,
+    private val amount: String?
 )
 
 @kotlinx.serialization.Serializable

@@ -19,7 +19,7 @@ import com.dex.domain.DexQuote
 import com.dex.domain.DexQuoteParams
 import com.dex.domain.DexQuotesService
 import com.dex.domain.DexTxError
-import com.dex.domain.OutputAmount
+import com.dex.domain.ExchangeAmount
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
@@ -41,7 +41,7 @@ class DexQuotesRepository(
     ): Outcome<DexTxError, DexQuote> {
         println(
             "--- Fetching quote with input" +
-                " ${dexQuoteParams.amount.toStringWithSymbol()} ---" +
+                " ${dexQuoteParams.inputAmount.amount.toStringWithSymbol()} ---" +
                 " @${Date().toUtcIso8601()} "
         )
         val address = defiWalletReceiveAddressService.receiveAddress(dexQuoteParams.sourceAccount.currency)
@@ -58,30 +58,47 @@ class DexQuotesRepository(
                     chainId = dexQuoteParams.sourceAccount.currency.chainId,
                     symbol = dexQuoteParams.sourceAccount.currency.networkTicker,
                     address = dexQuoteParams.sourceAccount.currency.contractAddress ?: PLACEHOLDER_CONTRACT_ADDRESS,
-                    amount = dexQuoteParams.amount.toBigInteger().toString()
+                    amount = dexQuoteParams.inputAmount.takeIf { exchange ->
+                        exchange is ExchangeAmount.SellAmount
+                    }?.amount?.toBigInteger()?.toString()
                 ),
                 toCurrency = ToCurrency(
                     chainId = dexQuoteParams.destinationAccount.currency.chainId,
                     symbol = dexQuoteParams.destinationAccount.currency.networkTicker,
                     address = dexQuoteParams.destinationAccount.currency.contractAddress
-                        ?: PLACEHOLDER_CONTRACT_ADDRESS
+                        ?: PLACEHOLDER_CONTRACT_ADDRESS,
+                    amount = dexQuoteParams.inputAmount.takeIf { amount -> amount is ExchangeAmount.BuyAmount }
+                        ?.amount?.toBigInteger()
+                        ?.toString()
                 ),
                 slippage = dexQuoteParams.slippage,
                 address = it.address,
                 skipValidation = dexQuoteParams.sourceHasBeenAllowed.not()
             ).map { resp ->
                 DexQuote.ExchangeQuote(
-                    amount = dexQuoteParams.amount,
-                    outputAmount = OutputAmount(
-                        expectedOutput = Money.fromMinor(
+                    sellAmount = ExchangeAmount.SellAmount(
+                        amount = Money.fromMinor(
+                            currency = dexQuoteParams.sourceAccount.currency,
+                            value = resp.quote.sellAmount.amount.toBigInteger()
+                        ),
+                        minAmount = resp.quote.sellAmount.minAmount?.toBigInteger()?.let { amount ->
+                            Money.fromMinor(
+                                currency = dexQuoteParams.sourceAccount.currency,
+                                value = amount
+                            )
+                        }
+                    ),
+                    buyAmount = ExchangeAmount.BuyAmount(
+                        amount = Money.fromMinor(
                             currency = dexQuoteParams.destinationAccount.currency,
                             value = resp.quote.buyAmount.amount.toBigInteger()
                         ),
-                        minOutputAmount = Money.fromMinor(
-                            currency = dexQuoteParams.destinationAccount.currency,
-                            value = resp.quote.buyAmount.minAmount?.toBigInteger()
-                                ?: resp.quote.buyAmount.amount.toBigInteger()
-                        )
+                        minAmount = resp.quote.buyAmount.minAmount?.toBigInteger()?.let { amount ->
+                            Money.fromMinor(
+                                currency = dexQuoteParams.destinationAccount.currency,
+                                value = amount
+                            )
+                        }
                     ),
                     networkFees = calculateEstimatedQuoteFee(
                         nativeCurrency,

@@ -34,6 +34,7 @@ import com.dex.domain.DexNetworkService
 import com.dex.domain.DexTransaction
 import com.dex.domain.DexTransactionProcessor
 import com.dex.domain.DexTxError
+import com.dex.domain.ExchangeAmount
 import com.dex.domain.SlippageService
 import com.dex.presentation.network.DexNetworkViewState
 import com.dex.presentation.uierrors.ActionRequiredError
@@ -51,10 +52,12 @@ import info.blockchain.balance.canConvert
 import info.blockchain.balance.isLayer2Token
 import info.blockchain.balance.isNetworkNativeAsset
 import java.math.BigDecimal
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
@@ -79,8 +82,8 @@ class DexEnterAmountViewModel(
     >(
     initialState = AmountModelState(
         transaction = null,
-        inputToFiatExchangeRate = null,
-        outputToFiatExchangeRate = null,
+        sellCurrencyToFiatExchangeRate = null,
+        buyCurrencyToFiatExchangeRate = null,
         feeToFiatExchangeRate = null,
         dexAllowanceState = DataResource.Loading
     )
@@ -138,24 +141,24 @@ class DexEnterAmountViewModel(
 
     private fun showInputUi(state: AmountModelState): InputAmountViewState {
         val transaction = state.transaction
-
+        val buyAmount = (transaction?.inputAmount as? ExchangeAmount.BuyAmount)?.amount
+            ?: transaction?.quote?.buyAmount?.amount
+        val sellAmount = (transaction?.inputAmount as? ExchangeAmount.SellAmount)?.amount
+            ?: transaction?.quote?.sellAmount?.amount
         return InputAmountViewState.TransactionInputState(
             selectedNetwork = state.reduceSelectedNetwork(),
             allowNetworkSelection = state.reduceAllowNetworkSelection(),
             sourceCurrency = transaction?.sourceAccount?.currency,
             destinationCurrency = transaction?.destinationAccount?.currency,
-            maxAmount = transaction?.sourceAccount?.takeIf { !it.currency.isNetworkNativeAsset() }?.balance,
-            txAmount = transaction?.amount,
+            maxSourceAmount = transaction?.sourceAccount?.takeIf { !it.currency.isNetworkNativeAsset() }?.balance,
+            sellAmount = sellAmount,
             errors = state.transaction?.uiErrors()?.filter { it !in state.ignoredTxErrors }
                 ?.withOnlyTopPriorityActionRequired() ?: emptyList(),
-            inputExchangeAmount = safeLet(transaction?.amount, state.inputToFiatExchangeRate) { amount, rate ->
+            sellExchangeAmount = safeLet(sellAmount, state.sellCurrencyToFiatExchangeRate) { amount, rate ->
                 fiatAmount(amount, rate)
             } ?: Money.zero(currencyPrefs.selectedFiatCurrency),
-            outputAmount = transaction?.quote?.outputAmount?.expectedOutput,
-            outputExchangeAmount = safeLet(
-                transaction?.quote?.outputAmount?.expectedOutput,
-                state.outputToFiatExchangeRate
-            ) { amount, rate ->
+            buyAmount = buyAmount,
+            buyExchangeAmount = safeLet(buyAmount, state.buyCurrencyToFiatExchangeRate) { amount, rate ->
                 fiatAmount(amount, rate)
             } ?: Money.zero(currencyPrefs.selectedFiatCurrency),
             destinationAccountBalance = transaction?.destinationAccount?.balance,
@@ -190,7 +193,7 @@ class DexEnterAmountViewModel(
         }
 
         return when {
-            transaction.txErrors.isEmpty() -> if (transaction.amount?.isPositive == true) {
+            transaction.txErrors.isEmpty() -> if (transaction.inputAmount?.isPositive == true) {
                 return ActionButtonState.ENABLED
             } else {
                 ActionButtonState.DISABLED
@@ -238,13 +241,13 @@ class DexEnterAmountViewModel(
                 tryToInitTransaction()
             }
 
-            is InputAmountIntent.AmountUpdated -> {
+            is InputAmountIntent.InputAmountUpdated -> {
                 val amount = when {
                     intent.amountString.isEmpty() -> BigDecimal.ZERO
                     else -> intent.amountString.toBigDecimalOrNullFromLocalisedInput()
                 }
                 amount?.let {
-                    txProcessor.updateTransactionAmount(amount)
+                    txProcessor.updateSellAmount(amount)
                 }
             }
 
@@ -293,6 +296,17 @@ class DexEnterAmountViewModel(
 
             InputAmountIntent.RevalidateTransaction -> viewModelScope.launch {
                 txProcessor.revalidate()
+            }
+
+            is InputAmountIntent.OutputAmountUpdated -> {
+                val amount = when {
+                    intent.amountString.isEmpty() -> BigDecimal.ZERO
+                    intent.amountString.toBigDecimalOrNull() != null -> intent.amountString.toBigDecimal()
+                    else -> null
+                }
+                amount?.let {
+                    txProcessor.updateBuyAmount(amount)
+                }
             }
         }
     }
@@ -488,6 +502,7 @@ class DexEnterAmountViewModel(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun subscribeForTxUpdates() {
         viewModelScope.launch {
             txProcessor.transaction.onEach {
@@ -504,18 +519,20 @@ class DexEnterAmountViewModel(
         }
 
         viewModelScope.launch {
-            txProcessor.quoteFetching.collectLatest { isFetchingQuote ->
+            txProcessor.quoteFetching.mapLatest { isFetchingQuote ->
+                when {
+                    isFetchingQuote && modelState.operationInProgress == DexOperation.None ->
+                        DexOperation.PriceFetching(amount = txProcessor.transaction.first().inputAmount!!)
+
+                    !isFetchingQuote && modelState.operationInProgress is DexOperation.PriceFetching ->
+                        DexOperation.None
+
+                    else -> modelState.operationInProgress
+                }
+            }.collectLatest { operation ->
                 updateState {
                     copy(
-                        operationInProgress = when {
-                            isFetchingQuote && operationInProgress == DexOperation.None ->
-                                DexOperation.PriceFetching
-
-                            !isFetchingQuote && operationInProgress == DexOperation.PriceFetching ->
-                                DexOperation.None
-
-                            else -> operationInProgress
-                        }
+                        operationInProgress = operation
                     )
                 }
             }
@@ -553,7 +570,7 @@ class DexEnterAmountViewModel(
     }
 
     private fun updateFiatExchangeRatesIfNeeded(dexTransaction: DexTransaction) {
-        if (modelState.inputToFiatExchangeRate?.from != dexTransaction.sourceAccount.currency) {
+        if (modelState.sellCurrencyToFiatExchangeRate?.from != dexTransaction.sourceAccount.currency) {
             updateInputFiatExchangeRate(
                 from = dexTransaction.sourceAccount.currency,
                 to = currencyPrefs.selectedFiatCurrency
@@ -570,7 +587,7 @@ class DexEnterAmountViewModel(
         }
 
         dexTransaction.destinationAccount?.currency?.let {
-            if (modelState.outputToFiatExchangeRate?.from != it) {
+            if (modelState.buyCurrencyToFiatExchangeRate?.from != it) {
                 updateOutputFiatExchangeRate(
                     from = it,
                     to = currencyPrefs.selectedFiatCurrency
@@ -599,7 +616,7 @@ class DexEnterAmountViewModel(
                 (it as? DataResource.Data)?.data?.let { rate ->
                     updateState {
                         copy(
-                            inputToFiatExchangeRate = rate
+                            sellCurrencyToFiatExchangeRate = rate
                         )
                     }
                 }
@@ -613,7 +630,7 @@ class DexEnterAmountViewModel(
                 (it as? DataResource.Data)?.data?.let { rate ->
                     updateState {
                         copy(
-                            outputToFiatExchangeRate = rate
+                            buyCurrencyToFiatExchangeRate = rate
                         )
                     }
                 }
@@ -628,14 +645,14 @@ sealed class InputAmountViewState : ViewState {
         val allowNetworkSelection: Boolean,
         val sourceCurrency: Currency?,
         val destinationCurrency: Currency?,
-        val maxAmount: Money?,
-        val txAmount: Money?,
+        val maxSourceAmount: Money?,
+        val sellAmount: Money?,
         val operationInProgress: DexOperation,
         val destinationAccountBalance: Money?,
         val sourceAccountBalance: Money?,
-        val inputExchangeAmount: Money?,
-        val outputExchangeAmount: Money?,
-        val outputAmount: Money?,
+        val sellExchangeAmount: Money?,
+        val buyExchangeAmount: Money?,
+        val buyAmount: Money?,
         val allowanceCanBeRevoked: Boolean,
         val uiFee: UiNetworkFee,
         val previewActionButtonState: ActionButtonState,
@@ -696,8 +713,8 @@ data class AmountModelState(
     val transaction: DexTransaction?,
     val ignoredTxErrors: List<DexUiError> = emptyList(),
     val operationInProgress: DexOperation = DexOperation.None,
-    val inputToFiatExchangeRate: ExchangeRate?,
-    val outputToFiatExchangeRate: ExchangeRate?,
+    val sellCurrencyToFiatExchangeRate: ExchangeRate?,
+    val buyCurrencyToFiatExchangeRate: ExchangeRate?,
     val feeToFiatExchangeRate: ExchangeRate?,
     val canRevokeAllowance: Boolean = false
 ) : ModelState
@@ -745,12 +762,17 @@ sealed class InputAmountIntent : Intent<AmountModelState> {
         }
     }
 
-    class AmountUpdated(val amountString: String) : InputAmountIntent()
+    class InputAmountUpdated(val amountString: String) : InputAmountIntent()
+    class OutputAmountUpdated(val amountString: String) : InputAmountIntent()
 }
 
 sealed class DexOperation {
     object None : DexOperation()
-    object PriceFetching : DexOperation()
+
+    /**
+     * the amount that price is requested for
+     */
+    data class PriceFetching(val amount: ExchangeAmount) : DexOperation()
     object PushingAllowance : DexOperation()
     data class PollingAllowance(
         val asset: AssetInfo,
