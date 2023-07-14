@@ -4,8 +4,8 @@ import com.blockchain.mask.MaskedValueService
 import com.blockchain.presentation.maskedvalue.MaskedValueImpl
 import com.blockchain.presentation.rx.AndroidMainScheduler
 import com.blockchain.presentation.spinner.SpinnerAnalyticsScreen
-import com.blockchain.presentation.spinner.SpinnerAnalyticsTimer
-import com.blockchain.presentation.spinner.SpinnerAnalyticsTimerImpl
+import com.blockchain.presentation.spinner.SpinnerAnalyticsTracker
+import com.blockchain.presentation.spinner.SpinnerAnalyticsTrackerImpl
 import com.blockchain.presentation.theme.ThemeRepository
 import com.blockchain.rx.IMainScheduler
 import com.blockchain.theme.ThemeService
@@ -30,8 +30,8 @@ val commonPresentationModule = module {
         )
     }
 
-    factory<SpinnerAnalyticsTimer> { (screen: SpinnerAnalyticsScreen, coroutineScope: CoroutineScope) ->
-        SpinnerAnalyticsTimerImpl(
+    factory<SpinnerAnalyticsTracker> { (screen: SpinnerAnalyticsScreen, coroutineScope: CoroutineScope) ->
+        SpinnerAnalyticsTrackerImpl(
             screen = screen,
             analytics = get(),
             coroutineScope = coroutineScope,

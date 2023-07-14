@@ -17,12 +17,12 @@ internal enum class SpinnerAnalyticsState {
     Started, Running, Backgrounded, Ended, Canceled
 }
 
-internal class SpinnerAnalyticsTimerImpl(
+internal class SpinnerAnalyticsTrackerImpl(
     private val screen: SpinnerAnalyticsScreen,
     private val analytics: Analytics,
     private val coroutineScope: CoroutineScope,
     private val coroutineDispatcher: CoroutineDispatcher
-) : SpinnerAnalyticsTimer {
+) : SpinnerAnalyticsTracker {
 
     private val flowId = UUID.randomUUID().toString()
 

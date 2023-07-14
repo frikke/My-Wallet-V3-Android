@@ -20,7 +20,7 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.disableBackPress
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.presentation.spinner.SpinnerAnalyticsScreen
-import com.blockchain.presentation.spinner.SpinnerAnalyticsTimer
+import com.blockchain.presentation.spinner.SpinnerAnalyticsTracker
 import com.checkout.android_sdk.PaymentForm
 import com.checkout.android_sdk.Utils.Environment
 import com.stripe.android.PaymentAuthConfig
@@ -46,7 +46,7 @@ class CardVerificationFragment :
     private val environmentConfig: EnvironmentConfig by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
 
-    private val spinnerTimer: SpinnerAnalyticsTimer by inject {
+    private val spinnerTracker: SpinnerAnalyticsTracker by inject {
         parametersOf(
             SpinnerAnalyticsScreen.AddCard,
             lifecycleScope
@@ -66,7 +66,7 @@ class CardVerificationFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        lifecycle.addObserver(spinnerTimer)
+        lifecycle.addObserver(spinnerTracker)
         activity.updateToolbarTitle(getString(com.blockchain.stringResources.R.string.card_verification))
         binding.checkoutCardForm.initCheckoutPaymentForm()
     }
@@ -84,17 +84,17 @@ class CardVerificationFragment :
         newState.cardRequestStatus?.let {
             when (it) {
                 is CardRequestStatus.Loading -> {
-                    spinnerTimer.start()
+                    spinnerTracker.start()
                     renderLoadingState()
                 }
 
                 is CardRequestStatus.Error -> {
-                    spinnerTimer.stop()
+                    spinnerTracker.stop()
                     renderErrorState(it.type)
                 }
 
                 is CardRequestStatus.Success -> {
-                    spinnerTimer.stop()
+                    spinnerTracker.stop()
                     renderSuccessState(it.card)
                 }
             }

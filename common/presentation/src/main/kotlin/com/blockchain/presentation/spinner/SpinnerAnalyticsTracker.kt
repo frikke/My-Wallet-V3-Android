@@ -20,8 +20,8 @@ sealed class SpinnerAnalyticsAction(val name: String) {
 }
 
 /**
- * DO NOT FORGET lifecycle.addObserver(spinnerTimer) in the fragment/activity/compose
- * to be able to call stop when the screen is destroyed
+ * DO NOT FORGET lifecycle.addObserver(spinnerTracker) in the fragment/activity/compose
+ * to be able to call stop when the screen is destroyed or paused
  *
  * [start] the timer and it will send events every 5 seconds, when loading stop call [stop]
  *
@@ -30,7 +30,7 @@ sealed class SpinnerAnalyticsAction(val name: String) {
  *
  * if a loading is triggered by some other event you can [updateAction] and it will be sent in following events
  */
-interface SpinnerAnalyticsTimer : DefaultLifecycleObserver {
+interface SpinnerAnalyticsTracker : DefaultLifecycleObserver {
     fun updateAction(action: SpinnerAnalyticsAction)
     fun start()
     fun stop(isDestroyed: Boolean = false)

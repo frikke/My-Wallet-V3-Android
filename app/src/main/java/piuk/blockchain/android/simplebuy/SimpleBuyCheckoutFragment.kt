@@ -56,7 +56,7 @@ import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import com.blockchain.presentation.disableBackPress
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.presentation.spinner.SpinnerAnalyticsScreen
-import com.blockchain.presentation.spinner.SpinnerAnalyticsTimer
+import com.blockchain.presentation.spinner.SpinnerAnalyticsTracker
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.secondsToDays
 import com.blockchain.utils.unsafeLazy
@@ -160,7 +160,7 @@ class SimpleBuyCheckoutFragment :
         arguments?.getBoolean(PENDING_PAYMENT_ORDER_KEY, false) ?: false
     }
 
-    private val spinnerTimer: SpinnerAnalyticsTimer by inject {
+    private val spinnerTracker: SpinnerAnalyticsTracker by inject {
         parametersOf(
             SpinnerAnalyticsScreen.BuyCheckout,
             lifecycleScope
@@ -186,13 +186,13 @@ class SimpleBuyCheckoutFragment :
             compositeDisposable += it.loading
                 .subscribeBy {
                     if (it) {
-                        spinnerTimer.start()
+                        spinnerTracker.start()
                     } else {
-                        spinnerTimer.stop()
+                        spinnerTracker.stop()
                     }
                 }
         }
-        lifecycle.addObserver(spinnerTimer)
+        lifecycle.addObserver(spinnerTracker)
 
         binding.recycler.apply {
             layoutManager = LinearLayoutManager(activity)
@@ -771,7 +771,7 @@ class SimpleBuyCheckoutFragment :
                         }
                     )
                     onClick = {
-                        spinnerTimer.updateAction(action = SpinnerAnalyticsScreen.BuyCheckout.BuyButtonClick)
+                        spinnerTracker.updateAction(action = SpinnerAnalyticsScreen.BuyCheckout.BuyButtonClick)
                         trackFraudFlow()
                         when (
                             getSettlementReason(
@@ -865,7 +865,7 @@ class SimpleBuyCheckoutFragment :
             buttonGooglePay.apply {
                 visibleIf { isGooglePay }
                 setOnClickListener {
-                    spinnerTimer.updateAction(action = SpinnerAnalyticsScreen.BuyCheckout.GooglePayButtonClick)
+                    spinnerTracker.updateAction(action = SpinnerAnalyticsScreen.BuyCheckout.GooglePayButtonClick)
 
                     trackFraudFlow()
                     buttonGooglePay.showLoading()
