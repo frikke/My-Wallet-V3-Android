@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import com.blockchain.api.NabuApiException
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.BlockchainSnackbar
@@ -28,6 +29,8 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.presentation.disableBackPress
 import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.presentation.spinner.SpinnerAnalyticsScreen
+import com.blockchain.presentation.spinner.SpinnerAnalyticsTracker
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.secondsToDays
 import com.checkout.android_sdk.PaymentForm
@@ -38,8 +41,8 @@ import com.stripe.android.PaymentConfiguration
 import com.stripe.android.model.ConfirmPaymentIntentParams
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
-import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+import org.koin.core.parameter.parametersOf
 import piuk.blockchain.android.R
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.cards.CardAuthoriseWebViewActivity
@@ -105,6 +108,13 @@ class SimpleBuyPaymentFragment :
             }
         }
 
+    private val spinnerTracker: SpinnerAnalyticsTracker by inject {
+        parametersOf(
+            SpinnerAnalyticsScreen.BuyConfirmOrder,
+            lifecycleScope
+        )
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity.disableBackPress(owner = this)
@@ -120,6 +130,8 @@ class SimpleBuyPaymentFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        lifecycle.addObserver(spinnerTracker)
+
         activity.updateToolbarTitle(getString(com.blockchain.stringResources.R.string.common_payment))
         binding.checkoutCardForm.initCheckoutPaymentForm()
         model.process(SimpleBuyIntent.LoadAssetUpSellDismissState)
@@ -618,6 +630,7 @@ class SimpleBuyPaymentFragment :
         serverSideUxErrorInfo: ServerSideUxErrorInfo,
         currencyCode: String
     ) {
+        spinnerTracker.stop()
         logErrorAnalytics(
             errorId = serverSideUxErrorInfo.id,
             categories = serverSideUxErrorInfo.categories,
@@ -644,6 +657,7 @@ class SimpleBuyPaymentFragment :
         nabuApiException: NabuApiException? = null,
         currencyCode: String
     ) {
+        spinnerTracker.stop()
         logErrorAnalytics(
             title = title,
             error = errorState,
@@ -754,6 +768,7 @@ class SimpleBuyPaymentFragment :
                 }
 
                 if (lockedFundDays <= 0L) {
+                    spinnerTracker.stop()
                     binding.transactionProgressView.showTxSuccess(
                         title = getString(
                             com.blockchain.stringResources.R.string.card_purchased,
@@ -762,6 +777,7 @@ class SimpleBuyPaymentFragment :
                         subtitle = messageOnPayment
                     )
                 } else {
+                    spinnerTracker.stop()
                     binding.transactionProgressView.showPendingTx(
                         title = getString(
                             com.blockchain.stringResources.R.string.card_purchased,
@@ -778,6 +794,7 @@ class SimpleBuyPaymentFragment :
                 checkForUnlockHigherLimits(newState.shouldShowUnlockHigherFunds)
             }
             newState.isLoading && newState.orderValue != null -> {
+                spinnerTracker.start()
                 binding.transactionProgressView.showTxInProgress(
                     getString(
                         com.blockchain.stringResources.R.string.card_buying,
@@ -797,6 +814,7 @@ class SimpleBuyPaymentFragment :
             newState.paymentPending && newState.orderValue != null -> {
                 when (newState.selectedPaymentMethod.paymentMethodType) {
                     PaymentMethodType.BANK_TRANSFER -> {
+                        spinnerTracker.stop()
                         binding.transactionProgressView.showTxPending(
                             getString(
                                 com.blockchain.stringResources.R.string.bank_transfer_in_progress_title,
@@ -829,6 +847,7 @@ class SimpleBuyPaymentFragment :
                         )
                     }
                     else -> {
+                        spinnerTracker.stop()
                         binding.transactionProgressView.showTxPending(
                             getString(
                                 com.blockchain.stringResources.R.string.card_in_progress,

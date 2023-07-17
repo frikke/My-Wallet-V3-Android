@@ -467,7 +467,10 @@ enum class AnalyticsNames(val eventName: String) {
 
     // Wallet Connect V2
     WALLETCONNECT_HOME_CONNECTED_APP_CLICKED("Wallet Dashboard Connected App Clicked"),
-    WALLETCONNECT_HOME_CTA_CLICKED("Wallet Dashboard Connect A Dapp Through Wallet Connect Clicked")
+    WALLETCONNECT_HOME_CTA_CLICKED("Wallet Dashboard Connect A Dapp Through Wallet Connect Clicked"),
+
+    // Spinner tracking
+    SPINNER_LAUNCHED("Spinner Launched")
 }
 
 enum class LaunchOrigin {
