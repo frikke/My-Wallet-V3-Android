@@ -11,9 +11,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Scaffold
@@ -57,16 +62,22 @@ import com.blockchain.componentlib.control.Checkbox
 import com.blockchain.componentlib.control.CheckboxState
 import com.blockchain.componentlib.controls.OutlinedTextInput
 import com.blockchain.componentlib.controls.TextInputState
+import com.blockchain.componentlib.icons.Globe
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.User
 import com.blockchain.componentlib.icons.withBackground
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.SmallVerticalSpacer
+import com.blockchain.componentlib.theme.StandardVerticalSpacer
+import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.componentlib.utils.AnnotatedStringUtils
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.domain.eligibility.model.Region
+import com.blockchain.walletmode.WalletMode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import piuk.blockchain.android.R
@@ -114,6 +125,7 @@ fun CreateWalletScreen(
                 .fillMaxWidth()
         ) {
             NavigationBar(
+                modeColor = ModeBackgroundColor.Override(WalletMode.CUSTODIAL),
                 title = "",
                 onBackButtonClick = { onIntent(CreateWalletIntent.BackClicked) }
             )
@@ -152,19 +164,24 @@ private fun RegionAndReferralStep(
             .padding(horizontal = AppTheme.dimensions.smallSpacing),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        SmallVerticalSpacer()
+
         Box(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .background(Color.White, CircleShape)
+                .size(88.dp),
             contentAlignment = Alignment.Center
         ) {
             Image(
-                modifier = Modifier.padding(top = AppTheme.dimensions.hugeSpacing),
-                imageResource = ImageResource.Local(R.drawable.ic_world_blue)
+                modifier = Modifier.size(58.dp),
+                imageResource = Icons.Filled.Globe
             )
         }
         SimpleText(
             modifier = Modifier.padding(top = AppTheme.dimensions.standardSpacing),
             text = stringResource(com.blockchain.stringResources.R.string.create_wallet_step_1_header),
-            style = ComposeTypographies.Title2,
+            style = ComposeTypographies.Title3,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Centre
         )
@@ -174,8 +191,8 @@ private fun RegionAndReferralStep(
                 bottom = AppTheme.dimensions.standardSpacing
             ),
             text = stringResource(com.blockchain.stringResources.R.string.create_wallet_step_1_subheader),
-            style = ComposeTypographies.Paragraph1,
-            color = ComposeColors.Title,
+            style = ComposeTypographies.Body1,
+            color = ComposeColors.Body,
             gravity = ComposeGravities.Centre
         )
 
@@ -185,19 +202,31 @@ private fun RegionAndReferralStep(
                 ImageResource.None
             } else ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_arrow_down)
         Box {
-            OutlinedTextInput(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(countryFocusRequester),
-                value = (state.countryInputState as? CountryInputState.Loaded)?.selected?.name.orEmpty(),
-                readOnly = true,
-                placeholder = stringResource(com.blockchain.stringResources.R.string.create_wallet_country),
-                focusedTrailingIcon = countryInputIcon,
-                unfocusedTrailingIcon = countryInputIcon,
-                onValueChange = {
-                    // no op readonly
-                }
-            )
+            Column {
+                SimpleText(
+                    text = stringResource(com.blockchain.stringResources.R.string.create_wallet_country),
+                    style = ComposeTypographies.Paragraph2,
+                    color = ComposeColors.Title,
+                    gravity = ComposeGravities.Centre
+                )
+
+                TinyVerticalSpacer()
+
+                OutlinedTextInput(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(countryFocusRequester),
+                    value = (state.countryInputState as? CountryInputState.Loaded)?.selected?.name.orEmpty(),
+                    readOnly = true,
+                    placeholder = stringResource(com.blockchain.stringResources.R.string.create_wallet_country),
+                    focusedTrailingIcon = countryInputIcon,
+                    unfocusedTrailingIcon = countryInputIcon,
+                    onValueChange = {
+                        // no op readonly
+                    },
+                    shape = AppTheme.shapes.large,
+                )
+            }
             if (state.countryInputState is CountryInputState.Loading) {
                 CircularProgressBar(
                     Modifier
@@ -222,26 +251,39 @@ private fun RegionAndReferralStep(
         }
 
         if (state.stateInputState !is StateInputState.Hidden) {
+            StandardVerticalSpacer()
+
             val stateFocusRequester = remember { FocusRequester() }
             val stateInputIcon =
                 if (state.stateInputState is StateInputState.Loading) {
                     ImageResource.None
                 } else ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_arrow_down)
+
             Box {
-                OutlinedTextInput(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(stateFocusRequester),
-                    value = (state.stateInputState as? StateInputState.Loaded)?.selected?.name.orEmpty(),
-                    readOnly = true,
-                    label = stringResource(com.blockchain.stringResources.R.string.create_wallet_state),
-                    placeholder = stringResource(com.blockchain.stringResources.R.string.state_not_selected),
-                    focusedTrailingIcon = stateInputIcon,
-                    unfocusedTrailingIcon = stateInputIcon,
-                    onValueChange = {
-                        // no op readonly
-                    }
-                )
+                Column {
+                    SimpleText(
+                        text = "State", style = ComposeTypographies.Paragraph2,
+                        color = ComposeColors.Title, gravity = ComposeGravities.Centre
+                    )
+
+                    TinyVerticalSpacer()
+
+                    OutlinedTextInput(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(stateFocusRequester),
+                        value = (state.stateInputState as? StateInputState.Loaded)?.selected?.name.orEmpty(),
+                        readOnly = true,
+                        label = stringResource(com.blockchain.stringResources.R.string.create_wallet_state),
+                        placeholder = stringResource(com.blockchain.stringResources.R.string.state_not_selected),
+                        focusedTrailingIcon = stateInputIcon,
+                        unfocusedTrailingIcon = stateInputIcon,
+                        onValueChange = {
+                            // no op readonly
+                        },
+                        shape = AppTheme.shapes.large,
+                    )
+                }
                 if (state.stateInputState is StateInputState.Loading) {
                     CircularProgressBar(
                         Modifier
@@ -266,36 +308,49 @@ private fun RegionAndReferralStep(
             }
         }
 
-        val referralInputState = if (state.isInvalidReferralErrorShowing) {
-            TextInputState.Error(
-                stringResource(com.blockchain.stringResources.R.string.new_account_referral_code_invalid)
+        StandardVerticalSpacer()
+
+        Column {
+            SimpleText(
+                text = stringResource(com.blockchain.stringResources.R.string.create_wallet_referral_code_label),
+                style = ComposeTypographies.Paragraph2,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Centre
             )
-        } else {
-            TextInputState.Default(null)
-        }
-        val trailingIcon = if (state.referralCodeInput.isNotEmpty()) {
-            closeImageResource()
-        } else {
-            ImageResource.None
-        }
-        OutlinedTextInput(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = AppTheme.dimensions.standardSpacing),
-            value = state.referralCodeInput,
-            label = stringResource(com.blockchain.stringResources.R.string.new_account_referral_code_label),
-            placeholder = stringResource(com.blockchain.stringResources.R.string.new_account_referral_code),
-            focusedTrailingIcon = trailingIcon,
-            unfocusedTrailingIcon = trailingIcon,
-            singleLine = true,
-            onTrailingIconClicked = {
-                onIntent(CreateWalletIntent.ReferralInputChanged(""))
-            },
-            state = referralInputState,
-            onValueChange = {
-                onIntent(CreateWalletIntent.ReferralInputChanged(it))
+
+            TinyVerticalSpacer()
+
+            val referralInputState = if (state.isInvalidReferralErrorShowing) {
+                TextInputState.Error(
+                    stringResource(com.blockchain.stringResources.R.string.new_account_referral_code_invalid)
+                )
+            } else {
+                TextInputState.Default(null)
             }
-        )
+            val trailingIcon =
+                if (state.referralCodeInput.isNotEmpty()) {
+                    closeImageResource()
+                } else {
+                    ImageResource.None
+                }
+            OutlinedTextInput(
+                modifier = Modifier.fillMaxWidth(),
+                value = state.referralCodeInput,
+                label = stringResource(com.blockchain.stringResources.R.string.new_account_referral_code_label),
+                placeholder = stringResource(com.blockchain.stringResources.R.string.new_account_referral_code),
+                focusedTrailingIcon = trailingIcon,
+                unfocusedTrailingIcon = trailingIcon,
+                singleLine = true,
+                onTrailingIconClicked = {
+                    onIntent(CreateWalletIntent.ReferralInputChanged(""))
+                },
+                state = referralInputState,
+                onValueChange = {
+                    onIntent(CreateWalletIntent.ReferralInputChanged(it))
+                },
+                shape = AppTheme.shapes.large,
+            )
+        }
 
         Spacer(Modifier.weight(1f))
 
@@ -306,11 +361,44 @@ private fun RegionAndReferralStep(
                     horizontal = AppTheme.dimensions.smallSpacing,
                     vertical = AppTheme.dimensions.standardSpacing
                 ),
-            text = stringResource(com.blockchain.stringResources.R.string.common_next),
+            text = stringResource(com.blockchain.stringResources.R.string.common_get_started),
             state = state.nextButtonState,
             onClick = {
                 onIntent(CreateWalletIntent.RegionNextClicked)
             }
+        )
+
+        val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+        Spacer(modifier = Modifier.height(navBarHeight))
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun RegionAndReferralStepPreview() {
+    AppTheme {
+        RegionAndReferralStep(
+            state = CreateWalletViewState(
+                screen = CreateWalletScreen.REGION_AND_REFERRAL,
+                emailInput = "",
+                isShowingInvalidEmailError = false,
+                passwordInput = "",
+                passwordInputError = null,
+                countryInputState = CountryInputState.Loaded(
+                    countries = listOf(), selected = null, suggested = null
+                ),
+                stateInputState = StateInputState.Hidden,
+                areTermsOfServiceChecked = false,
+                referralCodeInput = "",
+                isInvalidReferralErrorShowing = false,
+                isCreateWalletLoading = false,
+                nextButtonState = ButtonState.Enabled,
+                error = null
+            ),
+            onIntent = {},
+            showCountryBottomSheet = {},
+            showStateBottomSheet = {}
+
         )
     }
 }

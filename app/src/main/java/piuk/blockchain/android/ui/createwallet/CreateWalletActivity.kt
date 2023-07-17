@@ -5,15 +5,22 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
+import androidx.compose.ui.graphics.Color
+import androidx.core.view.WindowCompat
+import com.blockchain.chrome.composable.ChromeSingleScreen
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.commonarch.presentation.base.setContent
 import com.blockchain.commonarch.presentation.mvi_v2.MVIActivity
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
+import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.payloadScope
+import com.blockchain.walletmode.WalletMode
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.gms.recaptcha.RecaptchaActionType
 import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent
@@ -63,30 +70,40 @@ class CreateWalletActivity :
             viewModel.onIntent(CreateWalletIntent.BackClicked)
         }
 
+        // allow to draw on status and navigation bars
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         setContent {
-            CreateWalletScreen(
-                viewState = viewModel.viewState,
-                onIntent = viewModel::onIntent,
-                showCountryBottomSheet = {
-                    showBottomSheet(
-                        SearchPickerItemBottomSheet.newInstance(
-                            it.countries.map { country ->
-                                CountryPickerItem(country.countryCode)
-                            },
-                            it.suggested?.let { CountryPickerItem(it.countryCode) }
-                        )
-                    )
-                },
-                showStateBottomSheet = {
-                    showBottomSheet(
-                        SearchPickerItemBottomSheet.newInstance(
-                            it.states.map { state ->
-                                StatePickerItem(state.stateCode, state.name)
-                            }
-                        )
+            val systemUiController = rememberSystemUiController()
+            systemUiController.setStatusBarColor(Color.Transparent)
+
+            AppTheme {
+                ChromeSingleScreen(backgroundColor = ModeBackgroundColor.Override(WalletMode.CUSTODIAL)) {
+                    CreateWalletScreen(
+                        viewState = viewModel.viewState,
+                        onIntent = viewModel::onIntent,
+                        showCountryBottomSheet = {
+                            showBottomSheet(
+                                SearchPickerItemBottomSheet.newInstance(
+                                    it.countries.map { country ->
+                                        CountryPickerItem(country.countryCode)
+                                    },
+                                    it.suggested?.let { CountryPickerItem(it.countryCode) }
+                                )
+                            )
+                        },
+                        showStateBottomSheet = {
+                            showBottomSheet(
+                                SearchPickerItemBottomSheet.newInstance(
+                                    it.states.map { state ->
+                                        StatePickerItem(state.stateCode, state.name)
+                                    }
+                                )
+                            )
+                        }
                     )
                 }
-            )
+            }
         }
     }
 

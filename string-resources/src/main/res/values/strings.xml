@@ -242,8 +242,8 @@
     <string name="password_disclaimer">I agree to Blockchain.com’s <annotation link="terms">Terms of Service</annotation> &amp; <annotation link="privacy">Privacy Policy</annotation>.</string>
     <string name="new_account_cta_text">Next</string>
     <string name="new_account_title_1">New Account</string>
-    <string name="new_account_referral_code_label">Have a referral code?</string>
-    <string name="new_account_referral_code">Enter referral code (optional)</string>
+    <string name="new_account_referral_code_label">Enter referral code</string>
+    <string name="new_account_referral_code">Enter a referral code (optional)</string>
     <string name="new_account_referral_code_invalid">Please enter a valid referral code</string>
     <string name="create_wallet_state">State</string>
     <string name="create_wallet_country">Country of Residence</string>
@@ -3701,4 +3701,5 @@ If you want to know more about our verification process visit our <annotation li
     <string name="balances_failed_description_one">We couldn’t load the balances and activity of the %1$s network at this time.</string>
     <string name="balances_failed_description_many">We couldn’t load the balances and activity of the %1$s and %1$s networks at this time.</string> <!--of the <bitcoin, eth> and <avax>-->
 
+    <string name="create_wallet_referral_code_label">Do you have a referral code?</string>
 </resources>
