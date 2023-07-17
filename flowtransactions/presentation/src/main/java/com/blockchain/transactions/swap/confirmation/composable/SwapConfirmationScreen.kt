@@ -18,19 +18,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.analytics.Analytics
+import com.blockchain.betternavigation.NavContext
+import com.blockchain.betternavigation.navigateTo
+import com.blockchain.componentlib.alert.CardAlert
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -39,10 +39,10 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.card.CardButton
 import com.blockchain.componentlib.card.TwoAssetAction
-import com.blockchain.componentlib.divider.HorizontalDivider
-import com.blockchain.componentlib.icons.ChevronDown
-import com.blockchain.componentlib.icons.ChevronUp
+import com.blockchain.componentlib.card.TwoAssetActionAsset
+import com.blockchain.componentlib.card.TwoAssetActionExtra
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Question
 import com.blockchain.componentlib.navigation.NavigationBar
@@ -52,14 +52,18 @@ import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.utils.AnnotatedStringUtils
+import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.urllinks.CHECKOUT_REFUND_POLICY
-import com.blockchain.presentation.urllinks.EXCHANGE_SWAP_RATE_EXPLANATION
-import com.blockchain.transactions.common.confirmation.composable.ConfirmationSection
-import com.blockchain.transactions.common.confirmation.composable.ConfirmationTableRow
+import com.blockchain.presentation.urllinks.SWAP_FEES_URL
+import com.blockchain.stringResources.R
 import com.blockchain.transactions.swap.SwapAnalyticsEvents
 import com.blockchain.transactions.swap.SwapAnalyticsEvents.Companion.accountType
+import com.blockchain.transactions.swap.SwapGraph
+import com.blockchain.transactions.swap.confirmation.AmountViewState
+import com.blockchain.transactions.swap.confirmation.FeeExplainerDismissState
 import com.blockchain.transactions.swap.confirmation.SwapConfirmationArgs
 import com.blockchain.transactions.swap.confirmation.SwapConfirmationIntent
 import com.blockchain.transactions.swap.confirmation.SwapConfirmationNavigation
@@ -71,6 +75,7 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
+import kotlinx.collections.immutable.toImmutableList
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
@@ -83,6 +88,7 @@ fun SwapConfirmationScreen(
         parameters = { parametersOf(args) }
     ),
     analytics: Analytics = get(),
+    navContextProvider: () -> NavContext,
     openNewOrderState: (SwapNewOrderStateArgs) -> Unit,
     backClicked: () -> Unit
 ) {
@@ -118,21 +124,47 @@ fun SwapConfirmationScreen(
                 )
             )
         },
+        feeExplainerOnClick = {
+            navContextProvider().navigateTo(
+                destination = SwapGraph.ExtraInfoSheet,
+                args = Pair(
+                    TextValue.IntResValue(R.string.checkout_item_network_fee_label),
+                    TextValue.IntResValue(R.string.checkout_item_fee_explainer_description)
+                )
+            )
+        },
+        rateExplainerOnClick = { output, input ->
+            navContextProvider().navigateTo(
+                destination = SwapGraph.ExtraInfoSheet,
+                args = Pair(
+                    TextValue.IntResValue(R.string.tx_confirmation_exchange_rate_label),
+                    TextValue.IntResValue(
+                        R.string.checkout_swap_exchange_note,
+                        args = listOf(TextValue.StringValue(output), TextValue.StringValue(input))
+                    ),
+                )
+            )
+        },
         backClicked = backClicked
     )
 }
 
 @Composable
 private fun ConfirmationContent(
+    feeExplainerDismissState: FeeExplainerDismissState = get(scope = payloadScope),
     state: SwapConfirmationViewState,
+    feeExplainerOnClick: () -> Unit,
+    rateExplainerOnClick: (output: String, input: String) -> Unit,
     submitOnClick: () -> Unit,
     backClicked: () -> Unit
 ) {
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier.background(AppColors.background)
     ) {
         NavigationBar(
-            title = stringResource(com.blockchain.stringResources.R.string.swap_confirmation_navbar),
+            title = stringResource(R.string.swap_confirmation_navbar),
             onBackButtonClick = backClicked
         )
 
@@ -150,6 +182,24 @@ private fun ConfirmationContent(
                 } else {
                     StackedIcon.SingleIcon(ImageResource.Remote(state.sourceAsset.logo))
                 }
+                val sourceFee = state.sourceNetworkFee?.let { sourceNetworkFee ->
+                    TwoAssetActionExtra(
+                        title = stringResource(
+                            R.string.checkout_item_network_fee,
+                            sourceNetworkFee.cryptoValue?.currency?.displayTicker.orEmpty()
+                        ),
+                        endTitle = sourceNetworkFee.fiatValue.toStringWithSymbol().withApproximationPrefix(),
+                        endSubtitle = sourceNetworkFee.cryptoValue?.toStringWithSymbol(),
+                        onClick = feeExplainerOnClick
+                    )
+                }
+                val sourceSubtotal = state.sourceSubtotal?.let { sourceSubtotal ->
+                    TwoAssetActionExtra(
+                        title = stringResource(R.string.checkout_item_subtotal),
+                        endTitle = sourceSubtotal.fiatValue.toStringWithSymbol().withApproximationPrefix(),
+                        endSubtitle = sourceSubtotal.cryptoValue?.toStringWithSymbol()
+                    )
+                }
 
                 val bottomIcon = if (state.targetNativeAssetIconUrl != null) {
                     StackedIcon.SmallTag(
@@ -159,39 +209,71 @@ private fun ConfirmationContent(
                 } else {
                     StackedIcon.SingleIcon(ImageResource.Remote(state.targetAsset.logo))
                 }
+                val targetFee = state.targetNetworkFee?.let { targetNetworkFee ->
+                    TwoAssetActionExtra(
+                        title = stringResource(
+                            R.string.checkout_item_network_fee,
+                            targetNetworkFee.cryptoValue?.currency?.displayTicker.orEmpty()
+                        ),
+                        endTitle = targetNetworkFee.fiatValue.toStringWithSymbol().withApproximationPrefix(),
+                        endSubtitle = targetNetworkFee.cryptoValue?.toStringWithSymbol(),
+                        onClick = feeExplainerOnClick
+                    )
+                }
+                val targetNetAmount = state.targetNetAmount?.let { targetNetAmount ->
+                    TwoAssetActionExtra(
+                        title = stringResource(R.string.checkout_item_net_amount),
+                        endTitle = targetNetAmount.fiatValue.toStringWithSymbol().withApproximationPrefix(),
+                        endSubtitle = targetNetAmount.cryptoValue?.toStringWithSymbol()
+                    )
+                }
 
                 TwoAssetAction(
-                    topTitle = state.sourceAsset.name,
-                    topSubtitle = state.sourceAssetDescription,
-                    topEndTitle = state.sourceCryptoAmount.toStringWithSymbol(),
-                    topEndSubtitle = state.sourceFiatAmount?.toStringWithSymbol().orEmpty(),
-                    topIcon = topIcon,
-                    bottomTitle = state.targetAsset.name,
-                    bottomSubtitle = state.targetAssetDescription,
-                    bottomEndTitle = state.targetCryptoAmount?.toStringWithSymbol().orEmpty(),
-                    bottomEndSubtitle = state.targetFiatAmount?.toStringWithSymbol().orEmpty(),
-                    bottomIcon = bottomIcon
+                    topAsset = TwoAssetActionAsset(
+                        title = state.sourceAsset.name,
+                        subtitle = state.sourceAssetDescription,
+                        endTitle = state.sourceAmount.fiatValue.toStringWithSymbol(),
+                        endSubtitle = state.sourceAmount.cryptoValue?.toStringWithSymbol().orEmpty(),
+                        icon = topIcon,
+                    ),
+                    topExtras = listOfNotNull(sourceFee, sourceSubtotal).toImmutableList(),
+                    bottomAsset = TwoAssetActionAsset(
+                        title = state.targetAsset.name,
+                        subtitle = state.targetAssetDescription,
+                        endTitle = state.targetAmount?.fiatValue?.toStringWithSymbol().orEmpty(),
+                        endSubtitle = state.targetAmount?.cryptoValue?.toStringWithSymbol().orEmpty(),
+                        icon = bottomIcon
+                    ),
+                    bottomExtras = listOfNotNull(targetFee, targetNetAmount).toImmutableList(),
                 )
 
                 StandardVerticalSpacer()
 
-                SwapExchangeRate(state.sourceToTargetExchangeRate)
-
-                StandardVerticalSpacer()
-
-                if (
-                    (state.sourceNetworkFeeCryptoAmount != null && !state.sourceNetworkFeeCryptoAmount.isZero) ||
-                    (state.targetNetworkFeeCryptoAmount != null && !state.targetNetworkFeeCryptoAmount.isZero)
-                ) {
-                    NetworkFees(
-                        sourceNetworkFeeCryptoAmount = state.sourceNetworkFeeCryptoAmount,
-                        sourceNetworkFeeFiatAmount = state.sourceNetworkFeeFiatAmount,
-                        targetNetworkFeeCryptoAmount = state.targetNetworkFeeCryptoAmount,
-                        targetNetworkFeeFiatAmount = state.targetNetworkFeeFiatAmount
+                val showNetworkFeeExplainer = state.sourceNetworkFee != null && state.targetNetworkFee != null
+                if (showNetworkFeeExplainer && !feeExplainerDismissState.isDismissed) {
+                    CardAlert(
+                        title = stringResource(R.string.checkout_item_two_fees_title),
+                        subtitle = stringResource(R.string.checkout_item_two_fees_description),
+                        isBordered = false,
+                        onClose = {
+                            feeExplainerDismissState.isDismissed = true
+                        },
+                        primaryCta = CardButton(
+                            stringResource(R.string.common_learn_more),
+                            onClick = {
+                                context.openUrl(SWAP_FEES_URL)
+                            }
+                        )
                     )
-
                     StandardVerticalSpacer()
                 }
+
+                SwapExchangeRate(
+                    rate = state.sourceToTargetExchangeRate,
+                    rateExplainerOnClick = rateExplainerOnClick
+                )
+
+                StandardVerticalSpacer()
 
                 SwapQuoteTimer(
                     remainingSeconds = state.quoteRefreshRemainingSeconds ?: 90,
@@ -211,7 +293,7 @@ private fun ConfirmationContent(
                     .fillMaxWidth()
                     .padding(AppTheme.dimensions.smallSpacing)
                     .align(Alignment.BottomCenter),
-                text = stringResource(com.blockchain.stringResources.R.string.common_swap),
+                text = stringResource(R.string.common_swap),
                 state = state.submitButtonState,
                 onClick = submitOnClick
             )
@@ -224,7 +306,7 @@ fun SwapDisclaimer() {
     val context = LocalContext.current
     val map = mapOf("refund_policy" to CHECKOUT_REFUND_POLICY)
     val disclaimer = AnnotatedStringUtils.getAnnotatedStringWithMappedAnnotations(
-        stringId = com.blockchain.stringResources.R.string.swap_confirmation_disclaimer_1,
+        stringId = R.string.swap_confirmation_disclaimer_1,
         linksMap = map,
         context = context
     )
@@ -258,7 +340,7 @@ fun SwapQuoteTimer(remainingSeconds: Int, remainingPercentage: Float, modifier: 
     ) {
         val formattedTime = DateUtils.formatElapsedTime(remainingSeconds.toLong())
         SimpleText(
-            text = stringResource(com.blockchain.stringResources.R.string.tx_confirmation_quote_refresh_timer),
+            text = stringResource(R.string.tx_confirmation_quote_refresh_timer),
             style = ComposeTypographies.Paragraph2,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Start
@@ -283,148 +365,60 @@ fun SwapQuoteTimer(remainingSeconds: Int, remainingPercentage: Float, modifier: 
 }
 
 @Composable
-private fun SwapExchangeRate(rate: ExchangeRate?, modifier: Modifier = Modifier) {
-    var isExplainerVisible by remember { mutableStateOf(false) }
-    Column(
-        Modifier
-            .background(
-                color = AppColors.backgroundSecondary,
-                shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
-            )
-            .clickable {
-                isExplainerVisible = !isExplainerVisible
-            }
-            .padding(AppTheme.dimensions.smallSpacing)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
+private fun SwapExchangeRate(
+    rate: ExchangeRate?,
+    rateExplainerOnClick: (output: String, input: String) -> Unit,
+) {
+    rate?.let {
+        Surface(
+            color = AppColors.backgroundSecondary,
+            shape = AppTheme.shapes.large
         ) {
-            SimpleText(
-                text = stringResource(com.blockchain.stringResources.R.string.tx_confirmation_exchange_rate_label),
-                style = ComposeTypographies.Paragraph2,
-                color = ComposeColors.Title,
-                gravity = ComposeGravities.Start
-            )
-
-            Image(
-                modifier = Modifier.padding(start = AppTheme.dimensions.smallestSpacing),
-                imageResource = Icons.Filled.Question
-                    .withSize(AppTheme.dimensions.smallSpacing)
-                    .withTint(AppTheme.colors.medium)
-            )
-
-            Spacer(Modifier.weight(1f))
-
-            if (rate != null) {
+            Row(
+                modifier = Modifier
+                    .clickable {
+                        rateExplainerOnClick(
+                            rate.to.symbol,
+                            rate.from.symbol
+                        )
+                    }
+                    .padding(AppTheme.dimensions.smallSpacing),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 SimpleText(
-                    text = stringResource(
-                        com.blockchain.stringResources.R.string.tx_confirmation_exchange_rate_value,
-                        rate.from.displayTicker,
-                        rate.price.toStringWithSymbol()
-                    ),
+                    text = stringResource(R.string.tx_confirmation_exchange_rate_label),
                     style = ComposeTypographies.Paragraph2,
                     color = ComposeColors.Title,
                     gravity = ComposeGravities.Start
                 )
-            }
-        }
 
-        if (isExplainerVisible) {
-            val context = LocalContext.current
-            val learnMoreString = AnnotatedStringUtils.getAnnotatedStringWithMappedAnnotations(
-                context = context,
-                stringId = com.blockchain.stringResources.R.string.common_linked_learn_more,
-                linksMap = mapOf("learn_more_link" to EXCHANGE_SWAP_RATE_EXPLANATION)
-            )
-            val explainerString = buildAnnotatedString {
-                append(
-                    stringResource(
-                        com.blockchain.stringResources.R.string.checkout_swap_exchange_note,
-                        rate!!.to.symbol,
-                        rate.from.symbol
+                Image(
+                    modifier = Modifier.padding(start = AppTheme.dimensions.smallestSpacing),
+                    imageResource = Icons.Filled.Question
+                        .withSize(AppTheme.dimensions.smallSpacing)
+                        .withTint(AppTheme.colors.dark)
+                )
+
+                Spacer(Modifier.weight(1f))
+
+                if (rate != null) {
+                    SimpleText(
+                        text = stringResource(
+                            R.string.tx_confirmation_exchange_rate_value,
+                            rate.from.displayTicker,
+                            rate.price.toStringWithSymbol()
+                        ),
+                        style = ComposeTypographies.Paragraph2,
+                        color = ComposeColors.Title,
+                        gravity = ComposeGravities.Start
                     )
-                )
-                append(" ")
-                append(learnMoreString)
-            }
-            SimpleText(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = AppTheme.dimensions.tinySpacing),
-                text = explainerString,
-                style = ComposeTypographies.Caption1,
-                color = ComposeColors.Body,
-                gravity = ComposeGravities.Start,
-                onAnnotationClicked = { tag, value ->
-                    if (tag == AnnotatedStringUtils.TAG_URL) {
-                        Intent(Intent.ACTION_VIEW, Uri.parse(value))
-                            .apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
-                            .also { context.startActivity(it) }
-                    }
                 }
-            )
-        }
-    }
-}
-
-@Composable
-private fun NetworkFees(
-    sourceNetworkFeeCryptoAmount: CryptoValue?,
-    sourceNetworkFeeFiatAmount: FiatValue?,
-    targetNetworkFeeCryptoAmount: CryptoValue?,
-    targetNetworkFeeFiatAmount: FiatValue?,
-    modifier: Modifier = Modifier
-) {
-    var isExpanded by remember { mutableStateOf(false) }
-    ConfirmationSection(modifier = modifier) {
-        val fiatCurrency = sourceNetworkFeeFiatAmount?.currency ?: targetNetworkFeeFiatAmount?.currency
-        val totalNetworkFeesFiatAmount = fiatCurrency?.let {
-            (sourceNetworkFeeFiatAmount ?: FiatValue.zero(fiatCurrency)) +
-                (targetNetworkFeeFiatAmount ?: FiatValue.zero(fiatCurrency))
-        }
-        val expandedIcon = if (isExpanded) Icons.ChevronUp else Icons.ChevronDown
-        ConfirmationTableRow(
-            startTitle = stringResource(com.blockchain.stringResources.R.string.checkout_item_network_fee_label),
-            endTitle = totalNetworkFeesFiatAmount?.toStringWithSymbol()?.withApproximationPrefix(),
-            endImageResource = expandedIcon.withTint(AppTheme.colors.muted),
-            onClick = {
-                isExpanded = !isExpanded
-            }
-        )
-
-        if (isExpanded) {
-            if (sourceNetworkFeeCryptoAmount != null && !sourceNetworkFeeCryptoAmount.isZero) {
-                HorizontalDivider(Modifier.fillMaxWidth())
-
-                ConfirmationTableRow(
-                    startTitle = stringResource(
-                        com.blockchain.stringResources.R.string.checkout_item_network_fee,
-                        sourceNetworkFeeCryptoAmount.currency.displayTicker
-                    ),
-                    endTitle = sourceNetworkFeeFiatAmount?.toStringWithSymbol()?.withApproximationPrefix(),
-                    endByline = sourceNetworkFeeCryptoAmount.toStringWithSymbol(),
-                    onClick = null
-                )
-            }
-
-            if (targetNetworkFeeCryptoAmount != null && !targetNetworkFeeCryptoAmount.isZero) {
-                HorizontalDivider(Modifier.fillMaxWidth())
-
-                ConfirmationTableRow(
-                    startTitle = stringResource(
-                        com.blockchain.stringResources.R.string.checkout_item_network_fee,
-                        targetNetworkFeeCryptoAmount.currency.displayTicker
-                    ),
-                    endTitle = targetNetworkFeeFiatAmount?.toStringWithSymbol()?.withApproximationPrefix(),
-                    endByline = targetNetworkFeeCryptoAmount.toStringWithSymbol(),
-                    onClick = null
-                )
             }
         }
     }
 }
 
-private fun String?.withApproximationPrefix() = if (this != null) "~ $this" else null
+private fun String.withApproximationPrefix() = "~ $this"
 
 @Preview
 @Composable
@@ -437,21 +431,25 @@ private fun PreviewInitialState() {
         targetAsset = CryptoCurrency.BTC,
         targetNativeAssetIconUrl = null,
         targetAssetDescription = "BTC",
-        sourceCryptoAmount = CryptoValue.fromMajor(CryptoCurrency.ETHER, 0.05.toBigDecimal()),
-        sourceFiatAmount = null,
-        targetCryptoAmount = null,
-        targetFiatAmount = null,
+        sourceAmount = AmountViewState(
+            CryptoValue.fromMajor(CryptoCurrency.ETHER, 0.05.toBigDecimal()),
+            FiatValue.fromMajor(FiatCurrency.Dollars, 0.05.toBigDecimal())
+        ),
+        targetAmount = null,
         sourceToTargetExchangeRate = null,
-        sourceNetworkFeeCryptoAmount = null,
-        sourceNetworkFeeFiatAmount = null,
-        targetNetworkFeeCryptoAmount = null,
-        targetNetworkFeeFiatAmount = null,
+        sourceNetworkFee = null,
+        sourceSubtotal = null,
+        targetNetworkFee = null,
+        targetNetAmount = null,
         quoteRefreshRemainingPercentage = null,
         quoteRefreshRemainingSeconds = null,
         submitButtonState = ButtonState.Disabled
     )
     ConfirmationContent(
+        feeExplainerDismissState = FeeExplainerDismissState(),
         state = state,
+        feeExplainerOnClick = {},
+        rateExplainerOnClick = { _, _ -> },
         submitOnClick = {},
         backClicked = {}
     )
@@ -474,25 +472,44 @@ private fun PreviewLoadedState() {
         targetAsset = CryptoCurrency.BTC,
         targetNativeAssetIconUrl = null,
         targetAssetDescription = "BTC",
-        sourceCryptoAmount = CryptoValue.fromMinor(CryptoCurrency.ETHER, 1234567890.toBigDecimal()),
-        sourceFiatAmount = FiatValue.fromMajor(FiatCurrency.Dollars, 100.0.toBigDecimal()),
-        targetCryptoAmount = CryptoValue.fromMinor(CryptoCurrency.BTC, 1234567.toBigInteger()),
-        targetFiatAmount = FiatValue.fromMajor(FiatCurrency.Dollars, 96.12.toBigDecimal()),
+        sourceAmount = AmountViewState(
+            CryptoValue.fromMinor(CryptoCurrency.ETHER, 1234567890.toBigDecimal()),
+            FiatValue.fromMajor(FiatCurrency.Dollars, 100.0.toBigDecimal()),
+        ),
+        targetAmount = AmountViewState(
+            CryptoValue.fromMinor(CryptoCurrency.BTC, 1234567.toBigInteger()),
+            FiatValue.fromMajor(FiatCurrency.Dollars, 96.12.toBigDecimal()),
+        ),
         sourceToTargetExchangeRate = ExchangeRate(
             rate = 12345678.0.toBigDecimal(),
             to = CryptoCurrency.ETHER,
             from = CryptoCurrency.BTC
         ),
-        sourceNetworkFeeCryptoAmount = CryptoValue.fromMinor(CryptoCurrency.ETHER, 123456.toBigDecimal()),
-        sourceNetworkFeeFiatAmount = FiatValue.fromMajor(FiatCurrency.Dollars, 1.0.toBigDecimal()),
-        targetNetworkFeeCryptoAmount = CryptoValue.fromMinor(CryptoCurrency.BTC, 12345.toBigInteger()),
-        targetNetworkFeeFiatAmount = FiatValue.fromMajor(FiatCurrency.Dollars, 6.12.toBigDecimal()),
+        sourceNetworkFee = AmountViewState(
+            CryptoValue.fromMinor(CryptoCurrency.ETHER, 123456.toBigDecimal()),
+            FiatValue.fromMajor(FiatCurrency.Dollars, 1.0.toBigDecimal()),
+        ),
+        sourceSubtotal = AmountViewState(
+            CryptoValue.fromMinor(CryptoCurrency.ETHER, 123456.toBigDecimal()),
+            FiatValue.fromMajor(FiatCurrency.Dollars, 1.0.toBigDecimal()),
+        ),
+        targetNetworkFee = AmountViewState(
+            CryptoValue.fromMinor(CryptoCurrency.BTC, 12345.toBigInteger()),
+            FiatValue.fromMajor(FiatCurrency.Dollars, 6.12.toBigDecimal()),
+        ),
+        targetNetAmount = AmountViewState(
+            CryptoValue.fromMinor(CryptoCurrency.ETHER, 123456.toBigDecimal()),
+            FiatValue.fromMajor(FiatCurrency.Dollars, 1.0.toBigDecimal()),
+        ),
         quoteRefreshRemainingPercentage = 0.5f,
         quoteRefreshRemainingSeconds = 45,
         submitButtonState = ButtonState.Enabled
     )
     ConfirmationContent(
+        feeExplainerDismissState = FeeExplainerDismissState(),
         state = state,
+        feeExplainerOnClick = {},
+        rateExplainerOnClick = { _, _ -> },
         submitOnClick = {},
         backClicked = {}
     )

@@ -2,71 +2,133 @@ package com.blockchain.componentlib.card
 
 import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
+import com.blockchain.componentlib.basic.AppDivider
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.icons.ArrowDown
 import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Question
 import com.blockchain.componentlib.icons.withBackground
+import com.blockchain.componentlib.permissions.RuntimePermission.Notification.icon
+import com.blockchain.componentlib.permissions.RuntimePermission.Notification.title
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 import com.blockchain.componentlib.theme.SmallestVerticalSpacer
+import com.blockchain.componentlib.utils.conditional
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+
+@Stable
+data class TwoAssetActionAsset(
+    val title: String,
+    val subtitle: String,
+    val endTitle: String,
+    val endSubtitle: String,
+    val icon: StackedIcon,
+)
+
+@Stable
+data class TwoAssetActionExtra(
+    val title: String,
+    val endTitle: String,
+    val endSubtitle: String? = null,
+    val onClick: (() -> Unit)? = null
+)
 
 @Composable
 fun TwoAssetAction(
-    topTitle: String,
-    topSubtitle: String,
-    topEndTitle: String,
-    topEndSubtitle: String,
-    topIcon: StackedIcon,
-    bottomTitle: String,
-    bottomSubtitle: String,
-    bottomEndTitle: String,
-    bottomEndSubtitle: String,
-    bottomIcon: StackedIcon
+    topAsset: TwoAssetActionAsset,
+    topExtras: ImmutableList<TwoAssetActionExtra> = persistentListOf(),
+    bottomAsset: TwoAssetActionAsset,
+    bottomExtras: ImmutableList<TwoAssetActionExtra> = persistentListOf()
 ) {
-    Box {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Asset(
-                title = topTitle,
-                subtitle = topSubtitle,
-                endTitle = topEndTitle,
-                endSubtitle = topEndSubtitle,
-                icon = topIcon
-            )
+    ConstraintLayout {
+        val (topSection, bottomSection, spacer, arrow) = createRefs()
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .constrainAs(topSection) {
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                },
+            shape = AppTheme.shapes.large,
+            color = AppTheme.colors.backgroundSecondary
+        ) {
+            Column {
+                Asset(topAsset)
 
-            Asset(
-                title = bottomTitle,
-                subtitle = bottomSubtitle,
-                endTitle = bottomEndTitle,
-                endSubtitle = bottomEndSubtitle,
-                icon = bottomIcon
-            )
+                topExtras.forEach { extra ->
+                    AppDivider()
+                    Extra(extra = extra)
+                }
+            }
+        }
+
+        Spacer(
+            modifier = Modifier
+                .size(AppTheme.dimensions.tinySpacing)
+                .constrainAs(spacer) {
+                    top.linkTo(topSection.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+        )
+
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .constrainAs(bottomSection) {
+                    top.linkTo(spacer.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    bottom.linkTo(parent.bottom)
+                },
+            shape = AppTheme.shapes.large,
+            color = AppTheme.colors.backgroundSecondary
+        ) {
+            Column {
+                Asset(bottomAsset)
+                bottomExtras.forEach { extra ->
+                    AppDivider()
+                    Extra(extra = extra)
+                }
+            }
         }
 
         Surface(
             modifier = Modifier
                 .size(AppTheme.dimensions.hugeSpacing)
-                .align(Alignment.Center),
+                .constrainAs(arrow) {
+                    top.linkTo(spacer.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    bottom.linkTo(spacer.bottom)
+                },
             shape = CircleShape,
+            color = AppColors.background,
             border = BorderStroke(AppTheme.dimensions.tinySpacing, AppTheme.colors.background)
         ) {
             Image(
@@ -82,55 +144,98 @@ fun TwoAssetAction(
 
 @Composable
 private fun Asset(
-    title: String,
-    subtitle: String,
-    endTitle: String,
-    endSubtitle: String,
-    icon: StackedIcon
+    asset: TwoAssetActionAsset
 ) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = AppTheme.shapes.large,
-        color = AppTheme.colors.backgroundSecondary
+    Row(
+        modifier = Modifier
+            .heightIn(min = 80.dp)
+            .padding(AppTheme.dimensions.smallSpacing),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        CustomStackedIcon(icon = asset.icon)
+
+        SmallHorizontalSpacer()
+
+        Column(
+            modifier = Modifier.weight(weight = 1F, fill = true)
+        ) {
+            Text(
+                text = asset.title,
+                style = AppTheme.typography.paragraph2,
+                color = AppTheme.colors.title
+            )
+            SmallestVerticalSpacer()
+            Text(
+                text = asset.subtitle,
+                style = AppTheme.typography.paragraph1,
+                color = AppTheme.colors.body
+            )
+        }
+
+        SmallHorizontalSpacer()
+
+        Column(
+            horizontalAlignment = Alignment.End
+        ) {
+            Text(
+                text = asset.endTitle,
+                style = AppTheme.typography.paragraph2,
+                color = AppTheme.colors.title
+            )
+            SmallestVerticalSpacer()
+            Text(
+                text = asset.endSubtitle,
+                style = AppTheme.typography.paragraph1,
+                color = AppTheme.colors.body
+            )
+        }
+    }
+}
+
+@Composable
+private fun Extra(
+    extra: TwoAssetActionExtra
+) {
+    Row(
+        modifier = Modifier
+            .conditional(extra.onClick != null) {
+                clickable(onClick = extra.onClick!!)
+            }
+            .heightIn(min = 80.dp)
+            .padding(AppTheme.dimensions.smallSpacing),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
-            modifier = Modifier
-                .padding(AppTheme.dimensions.smallSpacing),
+            modifier = Modifier.weight(weight = 1F, fill = true),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CustomStackedIcon(icon = icon)
-
-            SmallHorizontalSpacer()
-
-            Column(
-                modifier = Modifier.weight(weight = 1F, fill = true)
-            ) {
-                Text(
-                    text = title,
-                    style = AppTheme.typography.paragraph2,
-                    color = AppTheme.colors.title
-                )
-                SmallestVerticalSpacer()
-                Text(
-                    text = subtitle,
-                    style = AppTheme.typography.paragraph1,
-                    color = AppTheme.colors.body
+            Text(
+                text = extra.title,
+                style = AppTheme.typography.paragraph2,
+                color = AppColors.body
+            )
+            extra.onClick?.let {
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.minusculeSpacing))
+                Image(
+                    Icons.Filled.Question.withTint(AppColors.dark).withSize(AppTheme.dimensions.smallSpacing)
                 )
             }
+        }
 
-            SmallHorizontalSpacer()
+        SmallHorizontalSpacer()
 
-            Column(
-                horizontalAlignment = Alignment.End
-            ) {
-                Text(
-                    text = endTitle,
-                    style = AppTheme.typography.paragraph2,
-                    color = AppTheme.colors.title
-                )
+        Column(
+            horizontalAlignment = Alignment.End
+        ) {
+            Text(
+                text = extra.endTitle,
+                style = AppTheme.typography.paragraph2,
+                color = AppTheme.colors.title
+            )
+            extra.endSubtitle?.let {
                 SmallestVerticalSpacer()
                 Text(
-                    text = endSubtitle,
+                    text = extra.endSubtitle,
                     style = AppTheme.typography.paragraph1,
                     color = AppTheme.colors.body
                 )
@@ -139,43 +244,79 @@ private fun Asset(
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0XFFF1F2F7)
+@Preview(showBackground = true, backgroundColor = 0XFF0000FF)
 @Composable
 private fun PreviewTwoAssetAction() {
     TwoAssetAction(
-        topTitle = "From",
-        topSubtitle = "Ethereum",
-        topEndTitle = "0.05459411 ETH",
-        topEndSubtitle = "100.00",
-        StackedIcon.SingleIcon(ImageResource.Remote("")),
-        bottomTitle = "To",
-        bottomSubtitle = "Bitcoin",
-        bottomEndTitle = "0.00350795 BTC",
-        bottomEndSubtitle = "96.99",
-        StackedIcon.SingleIcon(ImageResource.Remote("")),
+        topAsset = TwoAssetActionAsset(
+            title = "From",
+            subtitle = "Ethereum",
+            endTitle = "0.05459411 ETH",
+            endSubtitle = "100.00",
+            icon = StackedIcon.SingleIcon(ImageResource.Remote(""))
+        ),
+        topExtras = persistentListOf(
+            TwoAssetActionExtra(
+                title = "ETH network fees",
+                endTitle = "~4.39",
+                endSubtitle = "0.0011234 ETH",
+                onClick = {}
+            ),
+            TwoAssetActionExtra(
+                title = "Subtotal",
+                endTitle = "~104.39"
+            )
+        ),
+        bottomAsset = TwoAssetActionAsset(
+            title = "To",
+            subtitle = "Bitcoin",
+            endTitle = "0.00350795 BTC",
+            endSubtitle = "96.99",
+            icon = StackedIcon.SingleIcon(ImageResource.Remote("")),
+        )
     )
 }
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true, backgroundColor = 0XFF07080D)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true, backgroundColor = 0XFF0000FF)
 @Composable
 private fun PreviewTwoAssetActionDark() {
     PreviewTwoAssetAction()
 }
 
-@Preview
+@Preview(showBackground = true, backgroundColor = 0XFF0000FF)
 @Composable
 private fun PreviewAssetStart() {
     Asset(
-        title = "From",
-        subtitle = "ETH",
-        endTitle = "0.05459411 ETH",
-        endSubtitle = "100.00",
-        StackedIcon.SingleIcon(ImageResource.Remote("")),
+        TwoAssetActionAsset(
+            title = "From",
+            subtitle = "Ethereum",
+            endTitle = "0.05459411 ETH",
+            endSubtitle = "100.00",
+            icon = StackedIcon.SingleIcon(ImageResource.Remote(""))
+        )
     )
 }
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true, backgroundColor = 0XFF07080D)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true, backgroundColor = 0XFF0000FF)
 @Composable
 private fun PreviewAssetStartDark() {
     PreviewAssetStart()
+}
+
+@Preview(showBackground = true, backgroundColor = 0XFF0000FF)
+@Composable
+private fun PreviewExtra() {
+    Extra(
+        TwoAssetActionExtra(
+            title = "From",
+            endTitle = "0.05459411 ETH",
+            endSubtitle = "100.00",
+        )
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true, backgroundColor = 0XFF0000FF)
+@Composable
+private fun PreviewExtraDark() {
+    PreviewExtra()
 }

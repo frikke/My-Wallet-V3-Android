@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -32,6 +33,7 @@ import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.User
 import com.blockchain.componentlib.icons.Viewfinder
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.clickableWithIndication
 
 const val BALANCE_OFFSET_TARGET = 120
 const val BALANCE_OFFSET_ANIM_DURATION = 200
@@ -114,36 +116,36 @@ fun MenuOptionsScreen(
                     .padding(AppTheme.dimensions.tinySpacing),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
-                    imageResource = Icons.User.withTint(AppTheme.colors.title),
-                    modifier = Modifier
-                        .padding(AppTheme.dimensions.tinySpacing)
-                        .clickable {
-                            openSettings()
-                        }
+                Surface(
+                    shape = AppTheme.shapes.medium,
+                    color = Color.Transparent
+                ) {
+                    Image(
+                        imageResource = Icons.User.withTint(AppTheme.colors.title),
+                        modifier = Modifier
+                            .clickableWithIndication {
+                                openSettings()
+                            }
+                            .padding(AppTheme.dimensions.tinySpacing)
 
-                )
+                    )
+                }
 
-                Spacer(
-                    Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                )
+                Spacer(modifier = Modifier.weight(1F))
 
-                Spacer(
-                    Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                )
-
-                Image(
-                    imageResource = Icons.Viewfinder.withTint(AppTheme.colors.title),
-                    modifier = Modifier
-                        .padding(AppTheme.dimensions.tinySpacing)
-                        .clickable {
-                            launchQrScanner()
-                        }
-                )
+                Surface(
+                    shape = AppTheme.shapes.small,
+                    color = Color.Transparent
+                ) {
+                    Image(
+                        imageResource = Icons.Viewfinder.withTint(AppTheme.colors.title),
+                        modifier = Modifier
+                            .clickableWithIndication {
+                                launchQrScanner()
+                            }
+                            .padding(AppTheme.dimensions.tinySpacing)
+                    )
+                }
             }
         }
     }

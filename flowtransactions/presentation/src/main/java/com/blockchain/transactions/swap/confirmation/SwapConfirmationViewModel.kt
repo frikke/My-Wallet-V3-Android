@@ -222,15 +222,62 @@ class SwapConfirmationViewModel(
         } else {
             targetAccount.label
         },
-        sourceCryptoAmount = sourceCryptoAmount,
-        sourceFiatAmount = sourceCryptoAmount.toUserFiat(),
-        targetCryptoAmount = targetCryptoAmount,
-        targetFiatAmount = targetCryptoAmount?.toUserFiat(),
+        sourceAmount = AmountViewState(
+            cryptoValue = sourceCryptoAmount,
+            fiatValue = sourceCryptoAmount.toUserFiat()
+        ),
+        sourceNetworkFee = sourceNetworkFeeCryptoAmount?.takeIf { !it.isZero }?.let {
+            AmountViewState(
+                cryptoValue = sourceNetworkFeeCryptoAmount,
+                fiatValue = sourceNetworkFeeCryptoAmount.toUserFiat()
+            )
+        },
+        sourceSubtotal = safeLet(
+            sourceCryptoAmount,
+            sourceNetworkFeeCryptoAmount?.takeIf { !it.isZero }
+        ) { sourceCryptoAmount, sourceNetworkFeeCryptoAmount ->
+            val cryptoValue = if (sourceCryptoAmount.currency == sourceNetworkFeeCryptoAmount.currency) {
+                sourceCryptoAmount + sourceNetworkFeeCryptoAmount
+            } else {
+                null
+            }
+            val fiatValue = sourceCryptoAmount.toUserFiat() + sourceNetworkFeeCryptoAmount.toUserFiat()
+
+            AmountViewState(
+                cryptoValue = cryptoValue as? CryptoValue,
+                fiatValue = fiatValue as FiatValue
+            )
+        },
+        targetAmount = targetCryptoAmount?.let {
+            AmountViewState(
+                cryptoValue = targetCryptoAmount,
+                fiatValue = targetCryptoAmount.toUserFiat()
+            )
+        },
+
+        targetNetworkFee = targetNetworkFeeCryptoAmount?.takeIf { !it.isZero }?.let {
+            AmountViewState(
+                cryptoValue = targetNetworkFeeCryptoAmount,
+                fiatValue = targetNetworkFeeCryptoAmount.toUserFiat()
+            )
+        },
+        targetNetAmount = safeLet(
+            targetCryptoAmount,
+            targetNetworkFeeCryptoAmount?.takeIf { !it.isZero }
+        ) { targetCryptoAmount, targetNetworkFeeCryptoAmount ->
+            val cryptoValue = if (targetCryptoAmount.currency == targetNetworkFeeCryptoAmount.currency) {
+                targetCryptoAmount - targetNetworkFeeCryptoAmount
+            } else {
+                null
+            }
+            val fiatValue = targetCryptoAmount.toUserFiat() - targetNetworkFeeCryptoAmount.toUserFiat()
+
+            AmountViewState(
+                cryptoValue = cryptoValue as? CryptoValue,
+                fiatValue = fiatValue as FiatValue
+            )
+        },
         sourceToTargetExchangeRate = sourceToTargetExchangeRate,
-        sourceNetworkFeeCryptoAmount = sourceNetworkFeeCryptoAmount,
-        sourceNetworkFeeFiatAmount = sourceNetworkFeeCryptoAmount?.toUserFiat(),
-        targetNetworkFeeCryptoAmount = targetNetworkFeeCryptoAmount,
-        targetNetworkFeeFiatAmount = targetNetworkFeeCryptoAmount?.toUserFiat(),
         quoteRefreshRemainingPercentage = safeLet(
             quoteRefreshRemainingSeconds,
             quoteRefreshTotalSeconds

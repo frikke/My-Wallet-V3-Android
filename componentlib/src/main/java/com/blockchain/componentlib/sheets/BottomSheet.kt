@@ -31,6 +31,7 @@ import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
+// todo othman fix design
 @Composable
 fun BottomSheetTwoButtons(
     onCloseClick: () -> Unit,
@@ -154,7 +155,7 @@ private fun BottomSheet(
                 text = subtitle,
                 style = AppTheme.typography.paragraph1,
                 textAlign = subtitleAlign,
-                color = AppTheme.colors.title,
+                color = AppTheme.colors.body,
                 modifier = Modifier.padding(
                     start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
                     end = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)

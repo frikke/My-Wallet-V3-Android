@@ -34,25 +34,26 @@ data class SwapConfirmationViewState(
     val sourceAsset: AssetInfo,
     val sourceNativeAssetIconUrl: String?,
     val sourceAssetDescription: String,
+    val sourceAmount: AmountViewState,
+    val sourceNetworkFee: AmountViewState?,
+    val sourceSubtotal: AmountViewState?,
+
     val targetAsset: AssetInfo,
     val targetNativeAssetIconUrl: String?,
     val targetAssetDescription: String,
-
-    val sourceCryptoAmount: CryptoValue,
-    val sourceFiatAmount: FiatValue?,
-
-    val targetCryptoAmount: CryptoValue?,
-    val targetFiatAmount: FiatValue?,
+    val targetAmount: AmountViewState?,
+    val targetNetworkFee: AmountViewState?,
+    val targetNetAmount: AmountViewState?,
 
     val sourceToTargetExchangeRate: ExchangeRate?,
-
-    val sourceNetworkFeeCryptoAmount: CryptoValue?,
-    val sourceNetworkFeeFiatAmount: FiatValue?,
-    val targetNetworkFeeCryptoAmount: CryptoValue?,
-    val targetNetworkFeeFiatAmount: FiatValue?,
 
     val quoteRefreshRemainingPercentage: Float?,
     val quoteRefreshRemainingSeconds: Int?,
 
     val submitButtonState: ButtonState = ButtonState.Disabled
 ) : ViewState
+
+data class AmountViewState(
+    val cryptoValue: CryptoValue?,
+    val fiatValue: FiatValue
+)
