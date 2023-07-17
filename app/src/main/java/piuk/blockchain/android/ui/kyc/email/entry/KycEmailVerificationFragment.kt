@@ -4,11 +4,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
+import com.blockchain.chrome.composable.ChromeSingleScreen
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
+import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.koin.payloadScope
 import com.blockchain.kyc.email.EmailVerification
+import com.blockchain.walletmode.WalletMode
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import org.koin.android.scope.AndroidScopeComponent
 import org.koin.core.scope.Scope
 import piuk.blockchain.android.EmailVerificationArgs
@@ -37,17 +44,29 @@ class KycEmailVerificationFragment :
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = ComposeView(requireContext()).apply {
-        setContent {
-            EmailVerification(
-                verificationRequired = emailMustBeValidated,
-                showHeader = false,
-                closeOnClick = {}, // n/a
-                nextOnClick = {
-                    emailEntryHost.onEmailEntryFragmentUpdated(showSkipButton = false)
-                    emailEntryHost.onEmailVerified()
+    ): View {
+        // allow to draw on status and navigation bars
+        WindowCompat.setDecorFitsSystemWindows(requireActivity().window, false)
+
+        return ComposeView(requireContext()).apply {
+            setContent {
+
+                val systemUiController = rememberSystemUiController()
+                systemUiController.setStatusBarColor(Color.Transparent)
+
+                AppTheme {
+                    ChromeSingleScreen(backgroundColor = ModeBackgroundColor.Override(WalletMode.CUSTODIAL)) {
+                        EmailVerification(
+                            verificationRequired = emailMustBeValidated,
+                            closeOnClick = {}, // n/a
+                            nextOnClick = {
+                                emailEntryHost.onEmailEntryFragmentUpdated(showSkipButton = false)
+                                emailEntryHost.onEmailVerified()
+                            }
+                        )
+                    }
                 }
-            )
+            }
         }
     }
 

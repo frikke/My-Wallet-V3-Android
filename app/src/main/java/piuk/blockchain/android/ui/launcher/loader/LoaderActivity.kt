@@ -181,6 +181,7 @@ class LoaderActivity :
     private fun launchEmailVerification() {
         binding.progress.gone()
         binding.contentFrame.visible()
+        binding.toolbar.navigationToolbar.gone()
         analytics.logEvent(KYCAnalyticsEvents.EmailVeriffRequested(LaunchOrigin.SIGN_UP))
         if (supportFragmentManager.findFragmentById(R.id.content_frame) !is KycEmailVerificationFragment) {
             supportFragmentManager.beginTransaction()

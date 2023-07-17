@@ -5,10 +5,12 @@ import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarDuration
@@ -17,6 +19,9 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -24,6 +29,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.anim.AnimatedStateContent
+import com.blockchain.componentlib.anim.AnimatedStateIndicatorImage
+import com.blockchain.componentlib.anim.TargetState
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
@@ -37,10 +45,12 @@ import com.blockchain.componentlib.tag.SuccessTag
 import com.blockchain.componentlib.tag.WarningTag
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.componentlib.utils.openEmailClient
 import com.blockchain.koin.payloadScope
 import com.blockchain.stringResources.R
+import kotlinx.coroutines.delay
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -52,8 +62,6 @@ fun EmailVerification(
         key = verificationRequired.toString(),
         parameters = { parametersOf(verificationRequired) }
     ),
-    showHeader: Boolean = true,
-    legacyBackground: Boolean = false,
     closeOnClick: () -> Unit,
     nextOnClick: () -> Unit
 ) {
@@ -64,8 +72,6 @@ fun EmailVerification(
         status = viewState.status,
         showResendingEmailInProgress = viewState.showResendingEmailInProgress,
         snackbarMessage = viewState.snackbarMessage,
-        showHeader = showHeader,
-        legacyBackground = legacyBackground,
         resendEmailClicked = {
             viewModel.onIntent(EmailVerificationIntent.ResendEmailClicked)
         },
@@ -80,8 +86,6 @@ private fun EmailVerificationScreen(
     status: EmailVerificationStatus,
     showResendingEmailInProgress: Boolean,
     snackbarMessage: EmailVerificationNotification?,
-    showHeader: Boolean = true,
-    legacyBackground: Boolean = false,
     resendEmailClicked: () -> Unit,
     closeOnClick: () -> Unit,
     nextOnClick: () -> Unit
@@ -115,15 +119,16 @@ private fun EmailVerificationScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(if (legacyBackground) AppColors.backgroundSecondary else AppColors.background)
+                .background(AppColors.background)
         ) {
-            if (showHeader) {
-                SheetFlatHeader(
-                    icon = StackedIcon.None,
-                    title = "",
-                    onCloseClick = closeOnClick
-                )
-            }
+
+            TinyVerticalSpacer()
+
+            SheetFlatHeader(
+                icon = StackedIcon.None,
+                title = "",
+                onCloseClick = closeOnClick
+            )
 
             Column(
                 modifier = Modifier
@@ -134,58 +139,45 @@ private fun EmailVerificationScreen(
             ) {
                 Spacer(modifier = Modifier.weight(1F))
 
-                VerificationStatusIcon(
-                    status = status,
-                    legacyBackground = legacyBackground
+                AnimatedStateIndicatorImage(
+                    imageResource = Icons.Filled.Email,
+                    state = status.toTargetState()
                 )
 
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
-                Text(
-                    text = status.title(),
-                    style = AppTheme.typography.title3,
-                    color = AppColors.title
-                )
-
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-
-                Text(
-                    text = status.subtitle(),
-                    style = AppTheme.typography.body1,
-                    color = AppColors.body,
-                    textAlign = TextAlign.Center
-                )
-
-                Text(
-                    text = email,
-                    style = AppTheme.typography.body2,
-                    color = AppColors.title,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
-
-                VerificationStatusTag(
-                    status = status
+                AnimatedStateContent(
+                    state = status.toTargetState(),
+                    defaultContent = {
+                        VerificationInProgress(email = email)
+                    },
+                    successContent = {
+                        VerificationSuccess(email = email)
+                    },
+                    failureContent = {
+                        VerificationFailed(email = email)
+                    }
                 )
 
                 Spacer(modifier = Modifier.weight(2.5F))
 
-                // buttons
                 when (status) {
-                    EmailVerificationStatus.Default,
-                    EmailVerificationStatus.Error -> {
+                    EmailVerificationStatus.Default -> {
+
                         PrimaryButton(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .requiredHeightIn(min = 60.dp),
                             text = stringResource(R.string.check_my_inbox),
-                        ) {
-                            context.openEmailClient()
-                        }
+                            onClick = { context.openEmailClient() }
+                        )
 
                         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
                         MinimalPrimaryButton(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .requiredHeightIn(min = 60.dp),
                             text = stringResource(R.string.resend_email),
                             state = if (showResendingEmailInProgress) ButtonState.Loading else ButtonState.Enabled,
                             onClick = resendEmailClicked
@@ -194,15 +186,136 @@ private fun EmailVerificationScreen(
 
                     EmailVerificationStatus.Success -> {
                         PrimaryButton(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .requiredHeightIn(min = 60.dp),
                             text = stringResource(R.string.common_next),
                             onClick = nextOnClick
+                        )
+                    }
+
+                    EmailVerificationStatus.Error -> {
+                        PrimaryButton(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .requiredHeightIn(min = 60.dp),
+                            text = stringResource(R.string.check_my_inbox),
+                            onClick = { context.openEmailClient() }
+                        )
+
+                        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+
+                        MinimalPrimaryButton(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .requiredHeightIn(min = 60.dp),
+                            text = stringResource(R.string.resend_email),
+                            state = if (showResendingEmailInProgress) ButtonState.Loading else ButtonState.Enabled,
+                            onClick = resendEmailClicked
                         )
                     }
                 }
             }
         }
     }
+}
+
+private fun EmailVerificationStatus.toTargetState() =
+    when (this) {
+        EmailVerificationStatus.Default -> TargetState.DEFAULT
+        EmailVerificationStatus.Error -> TargetState.FAILURE
+        EmailVerificationStatus.Success -> TargetState.SUCCESS
+    }
+
+@Composable
+private fun ColumnScope.VerificationInProgress(
+    email: String,
+) {
+    Text(
+        text = stringResource(R.string.email_verify),
+        style = AppTheme.typography.title3,
+        color = AppColors.title
+    )
+
+    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+    Text(
+        text = stringResource(R.string.email_verification_subtitle),
+        style = AppTheme.typography.body1,
+        color = AppColors.body,
+        textAlign = TextAlign.Center
+    )
+
+    Text(
+        text = email,
+        style = AppTheme.typography.body2,
+        color = AppColors.title,
+        textAlign = TextAlign.Center
+    )
+
+    Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
+
+    WarningTag(text = stringResource(R.string.not_verified))
+}
+
+@Composable
+private fun ColumnScope.VerificationSuccess(email: String) {
+    Text(
+        text = stringResource(R.string.email_verified),
+        style = AppTheme.typography.title3,
+        color = AppColors.title
+    )
+
+    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+    Text(
+        text = stringResource(R.string.success_email_veriff),
+        style = AppTheme.typography.body1,
+        color = AppColors.body,
+        textAlign = TextAlign.Center
+    )
+
+    Text(
+        text = email,
+        style = AppTheme.typography.body2,
+        color = AppColors.title,
+        textAlign = TextAlign.Center
+    )
+
+    Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
+
+    SuccessTag(text = stringResource(R.string.verified))
+}
+
+@Composable
+private fun ColumnScope.VerificationFailed(
+    email: String
+) {
+    Text(
+        text = stringResource(R.string.error_email_veriff_title),
+        style = AppTheme.typography.title3,
+        color = AppColors.title
+    )
+
+    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+    Text(
+        text = stringResource(R.string.error_email_veriff),
+        style = AppTheme.typography.body1,
+        color = AppColors.body,
+        textAlign = TextAlign.Center
+    )
+
+    Text(
+        text = email,
+        style = AppTheme.typography.body2,
+        color = AppColors.title,
+        textAlign = TextAlign.Center
+    )
+
+    Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
+
+    WarningTag(text = stringResource(R.string.not_verified))
 }
 
 @Composable
@@ -276,14 +389,37 @@ private fun EmailVerificationError.errorMessage(context: Context): String = when
 @Preview
 @Composable
 private fun PreviewEmailVerificationScreen() {
+
+    var status by remember { mutableStateOf(EmailVerificationStatus.Default) }
+    LaunchedEffect(Unit) {
+        // change status every 1500ms
+        while (true) {
+            delay(2000)
+            status = EmailVerificationStatus.Success
+            delay(2000)
+            status = EmailVerificationStatus.Default
+            delay(2000)
+            status = EmailVerificationStatus.Error
+            delay(2000)
+            status = EmailVerificationStatus.Default
+        }
+    }
+
     EmailVerificationScreen(
         email = "johnsmith@gmail.com",
-        status = EmailVerificationStatus.Default,
+        status = status,
         showResendingEmailInProgress = false,
         snackbarMessage = null,
         resendEmailClicked = {},
-        closeOnClick = {},
-        nextOnClick = {}
+        closeOnClick = {
+            status = when (status) {
+                EmailVerificationStatus.Default -> EmailVerificationStatus.Error
+                EmailVerificationStatus.Error -> EmailVerificationStatus.Success
+                EmailVerificationStatus.Success -> EmailVerificationStatus.Default
+            }
+        },
+        nextOnClick = {
+        }
     )
 }
 
@@ -301,7 +437,6 @@ private fun PreviewEmailVerificationScreenLegacy() {
         status = EmailVerificationStatus.Default,
         showResendingEmailInProgress = false,
         snackbarMessage = null,
-        legacyBackground = true,
         resendEmailClicked = {},
         closeOnClick = {},
         nextOnClick = {}
