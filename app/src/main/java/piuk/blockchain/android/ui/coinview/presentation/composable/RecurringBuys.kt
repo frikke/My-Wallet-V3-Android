@@ -136,7 +136,7 @@ fun RecurringBuysUpsell(
         ButtonTableRow(
             title = title,
             subtitle = stringResource(com.blockchain.stringResources.R.string.recurring_buy_automate_description),
-            imageResource = Icons.Filled.Sync.withTint(AppTheme.colors.primary),
+            imageResource = Icons.Filled.Sync.withTint(AppColors.muted),
             actionText = stringResource(com.blockchain.stringResources.R.string.common_go),
             onClick = {
                 analytics.logEvent(RecurringBuyAnalytics.RecurringBuyLearnMoreClicked(LaunchOrigin.CURRENCY_PAGE))
@@ -164,7 +164,7 @@ fun RecurringBuysData(
                 ActionTableRow(
                     title = recurringBuy.description.value(),
                     subtitle = recurringBuy.status.value(),
-                    icon = StackedIcon.SingleIcon(Icons.Filled.Sync.withTint(AppColors.primary)),
+                    icon = StackedIcon.SingleIcon(Icons.Filled.Sync.withTint(AppColors.muted)),
                     onClick = {
                         analytics.logEvent(
                             RecurringBuyAnalytics.RecurringBuyDetailsClicked(

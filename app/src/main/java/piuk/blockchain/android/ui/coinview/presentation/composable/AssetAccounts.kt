@@ -164,7 +164,7 @@ fun AssetAccountsData(
                                     subtitle = account.subtitle?.value(),
                                     valueFiat = account.fiatBalance,
                                     valueCrypto = account.cryptoBalance,
-                                    icon = account.logo.toIcon(account.assetColor),
+                                    icon = account.logo.toIcon(AppColors.muted),
                                     onClick = {
                                         account.cvAccount.account.let { account ->
                                             if (account is CryptoAccount && account is TradingAccount) {
@@ -189,7 +189,7 @@ fun AssetAccountsData(
                                 ActionTableRow(
                                     title = account.title,
                                     subtitle = account.subtitle.value(),
-                                    icon = account.logo.toIcon(assetColor = null),
+                                    icon = account.logo.toIcon(color = null),
                                     actionIcon = Icons.Filled.Lock,
                                     onClick = { onLockedAccountClick() }
                                 )
@@ -229,15 +229,13 @@ private fun CoinviewAccount.toAccountType() = when {
 }
 
 @Composable
-private fun LogoValueSource.toImageResource(assetColor: String?): ImageResource = when (this) {
+private fun LogoValueSource.toImageResource(color: Color?): ImageResource = when (this) {
     is LogoValueSource.Local -> toImageResource().run {
-        assetColor?.let { assetColor ->
-            withTint(Color.White)
+        color?.let { color ->
+            withTint(AppColors.backgroundSecondary)
                 .withBackground(
                     backgroundSize = AppTheme.dimensions.standardSpacing,
-                    backgroundColor = Color(
-                        android.graphics.Color.parseColor(assetColor)
-                    )
+                    backgroundColor = color
                 )
         } ?: this
     }
@@ -246,17 +244,17 @@ private fun LogoValueSource.toImageResource(assetColor: String?): ImageResource 
 }
 
 @Composable
-private fun LogoValue.toIcon(assetColor: String?) = when (this) {
+private fun LogoValue.toIcon(color: Color?) = when (this) {
     is LogoValue.SingleIcon -> {
         StackedIcon.SingleIcon(
-            icon.toImageResource(assetColor)
+            icon.toImageResource(color)
         )
     }
 
     is LogoValue.SmallTag -> {
         StackedIcon.SmallTag(
-            main = main.toImageResource(assetColor),
-            tag = tag.toImageResource(assetColor)
+            main = main.toImageResource(color),
+            tag = tag.toImageResource(color)
         )
     }
 
