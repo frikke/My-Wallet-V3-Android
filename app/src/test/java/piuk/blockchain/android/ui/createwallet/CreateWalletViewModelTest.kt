@@ -26,7 +26,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
 import io.reactivex.rxjava3.core.Single
@@ -229,8 +228,6 @@ class CreateWalletViewModelTest {
                 awaitItem().nextButtonState shouldBeEqualTo ButtonState.Disabled
                 subject.onIntent(CreateWalletIntent.PasswordInputChanged("1234"))
                 awaitItem().nextButtonState shouldBeEqualTo ButtonState.Disabled
-                subject.onIntent(CreateWalletIntent.TermsOfServiceStateChanged(true))
-                awaitItem().nextButtonState shouldBeEqualTo ButtonState.Enabled
             }
         }
 
@@ -248,31 +245,55 @@ class CreateWalletViewModelTest {
     }
 
     @Test
-    fun `clicking next should validate password and show error if invalid`() = runTest {
-        every { formatChecker.isValidEmailAddress(any()) } returns true
-        populateEmailAndPasswordNextEnabledState()
+    fun `typing a password should check if the password is valid`() = runTest {
         subject.viewState.test {
-            subject.onIntent(CreateWalletIntent.PasswordInputChanged("1"))
             expectMostRecentItem()
-            subject.onIntent(CreateWalletIntent.EmailPasswordNextClicked)
-            awaitItem().passwordInputError shouldBeEqualTo CreateWalletPasswordError.InvalidPasswordTooShort
+            subject.onIntent(CreateWalletIntent.PasswordInputChanged("1"))
+            awaitItem().passwordInputErrors.containsAll(
+                listOf(
+                    CreateWalletPasswordError.InvalidPasswordTooShort,
+                    CreateWalletPasswordError.InvalidPasswordNoLowerCaseFound,
+                    CreateWalletPasswordError.InvalidPasswordNoUpperCaseFound,
+                    CreateWalletPasswordError.InvalidPasswordNoSpecialCharFound
+                )
+            ) shouldBeEqualTo true
 
             subject.onIntent(CreateWalletIntent.PasswordInputChanged("1".repeat(256)))
-            expectMostRecentItem()
-            subject.onIntent(CreateWalletIntent.EmailPasswordNextClicked)
-            awaitItem().passwordInputError shouldBeEqualTo CreateWalletPasswordError.InvalidPasswordTooLong
+            awaitItem().passwordInputErrors.containsAll(
+                listOf(
+                    CreateWalletPasswordError.InvalidPasswordTooLong,
+                    CreateWalletPasswordError.InvalidPasswordNoLowerCaseFound,
+                    CreateWalletPasswordError.InvalidPasswordNoUpperCaseFound,
+                    CreateWalletPasswordError.InvalidPasswordNoSpecialCharFound
+                )
+            ) shouldBeEqualTo true
 
-            mockkStatic(PasswordUtil::class)
-            every { environmentConfig.isRunningInDebugMode() } returns false
-            every { PasswordUtil.getStrength(any()) } returns 49.0
-            subject.onIntent(CreateWalletIntent.PasswordInputChanged("1234"))
-            expectMostRecentItem()
-            subject.onIntent(CreateWalletIntent.EmailPasswordNextClicked)
-            awaitItem().passwordInputError shouldBeEqualTo CreateWalletPasswordError.InvalidPasswordTooWeak
-            verify { PasswordUtil.getStrength("1234") }
-            unmockkStatic(PasswordUtil::class)
+            subject.onIntent(CreateWalletIntent.PasswordInputChanged("12345678"))
+            awaitItem().passwordInputErrors.containsAll(
+                listOf(
+                    CreateWalletPasswordError.InvalidPasswordNoLowerCaseFound,
+                    CreateWalletPasswordError.InvalidPasswordNoUpperCaseFound,
+                    CreateWalletPasswordError.InvalidPasswordNoSpecialCharFound
+                )
+            ) shouldBeEqualTo true
 
-            expectNoEvents()
+            subject.onIntent(CreateWalletIntent.PasswordInputChanged("12345678a"))
+            awaitItem().passwordInputErrors.containsAll(
+                listOf(
+                    CreateWalletPasswordError.InvalidPasswordNoUpperCaseFound,
+                    CreateWalletPasswordError.InvalidPasswordNoSpecialCharFound
+                )
+            ) shouldBeEqualTo true
+
+            subject.onIntent(CreateWalletIntent.PasswordInputChanged("12345678aA"))
+            awaitItem().passwordInputErrors.containsAll(
+                listOf(
+                    CreateWalletPasswordError.InvalidPasswordNoSpecialCharFound
+                )
+            ) shouldBeEqualTo true
+
+            subject.onIntent(CreateWalletIntent.PasswordInputChanged("12345678aA!"))
+            awaitItem().passwordInputErrors.isEmpty() shouldBeEqualTo true
         }
     }
 
@@ -317,7 +338,7 @@ class CreateWalletViewModelTest {
             every { defaultLabels.getDefaultNonCustodialWalletLabel() } returns "default_nc_name"
             every {
                 payloadDataManager.createHdWallet(
-                    "1234",
+                    "123456789Aa!",
                     "default_nc_name",
                     "bla@something.com",
                     recaptcha
@@ -329,7 +350,7 @@ class CreateWalletViewModelTest {
                 subject.onIntent(CreateWalletIntent.RecaptchaVerificationSucceeded(recaptcha))
                 verify {
                     payloadDataManager.createHdWallet(
-                        "1234",
+                        "123456789Aa!",
                         "default_nc_name",
                         "bla@something.com",
                         recaptcha
@@ -356,7 +377,7 @@ class CreateWalletViewModelTest {
             every { defaultLabels.getDefaultNonCustodialWalletLabel() } returns "default_nc_name"
             every {
                 payloadDataManager.createHdWallet(
-                    "1234",
+                    "123456789Aa!",
                     "default_nc_name",
                     "bla@something.com",
                     recaptcha
@@ -367,7 +388,7 @@ class CreateWalletViewModelTest {
                 subject.onIntent(CreateWalletIntent.RecaptchaVerificationSucceeded(recaptcha))
                 verify {
                     payloadDataManager.createHdWallet(
-                        "1234",
+                        "123456789Aa!",
                         "default_nc_name",
                         "bla@something.com",
                         recaptcha
@@ -387,15 +408,13 @@ class CreateWalletViewModelTest {
     private fun populateEmailAndPasswordNextEnabledState() {
         advanceToEmailAndPasswordStep()
         subject.onIntent(CreateWalletIntent.EmailInputChanged("bla@something.com"))
-        subject.onIntent(CreateWalletIntent.PasswordInputChanged("1234"))
-        subject.onIntent(CreateWalletIntent.TermsOfServiceStateChanged(true))
+        subject.onIntent(CreateWalletIntent.PasswordInputChanged("123456789Aa!"))
+        subject.onIntent(CreateWalletIntent.ConfirmPasswordInputChanged("123456789Aa!"))
     }
 
     private fun populateValidInputsState() {
         every { formatChecker.isValidEmailAddress(any()) } returns true
-        mockkStatic(PasswordUtil::class)
         every { environmentConfig.isRunningInDebugMode() } returns false
-        every { PasswordUtil.getStrength(any()) } returns 50.0
         populateEmailAndPasswordNextEnabledState()
     }
 

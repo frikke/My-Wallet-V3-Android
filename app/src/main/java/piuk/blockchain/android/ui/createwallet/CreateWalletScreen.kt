@@ -1,26 +1,26 @@
 package piuk.blockchain.android.ui.createwallet
 
 import android.content.Context
-import android.content.Intent
 import android.content.res.Configuration
-import android.net.Uri
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.Text
@@ -30,24 +30,28 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -58,8 +62,6 @@ import com.blockchain.componentlib.basic.closeImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.control.Checkbox
-import com.blockchain.componentlib.control.CheckboxState
 import com.blockchain.componentlib.controls.OutlinedTextInput
 import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.icons.Globe
@@ -74,17 +76,15 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
-import com.blockchain.componentlib.utils.AnnotatedStringUtils
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.domain.eligibility.model.Region
+import com.blockchain.stringResources.R.string
 import com.blockchain.walletmode.WalletMode
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.customviews.PasswordStrengthView
-import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
-import piuk.blockchain.android.urllinks.URL_TOS_POLICY
-import piuk.blockchain.android.util.StringUtils
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -110,7 +110,7 @@ fun CreateWalletScreen(
                         scaffoldState.snackbarHostState.showSnackbar(
                             message = error.errorMessage(context),
                             duration = SnackbarDuration.Long,
-                            actionLabel = context.getString(com.blockchain.stringResources.R.string.common_retry)
+                            actionLabel = context.getString(string.common_retry)
                         )
                         onIntent(CreateWalletIntent.ErrorHandled)
                     }
@@ -122,7 +122,7 @@ fun CreateWalletScreen(
             Modifier
                 .background(AppColors.background)
                 .padding(padding)
-                .fillMaxWidth()
+                .fillMaxSize()
         ) {
             NavigationBar(
                 modeColor = ModeBackgroundColor.Override(WalletMode.CUSTODIAL),
@@ -180,7 +180,7 @@ private fun RegionAndReferralStep(
         }
         SimpleText(
             modifier = Modifier.padding(top = AppTheme.dimensions.standardSpacing),
-            text = stringResource(com.blockchain.stringResources.R.string.create_wallet_step_1_header),
+            text = stringResource(string.create_wallet_step_1_header),
             style = ComposeTypographies.Title3,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Centre
@@ -190,7 +190,7 @@ private fun RegionAndReferralStep(
                 top = AppTheme.dimensions.tinySpacing,
                 bottom = AppTheme.dimensions.standardSpacing
             ),
-            text = stringResource(com.blockchain.stringResources.R.string.create_wallet_step_1_subheader),
+            text = stringResource(string.create_wallet_step_1_subheader),
             style = ComposeTypographies.Body1,
             color = ComposeColors.Body,
             gravity = ComposeGravities.Centre
@@ -204,7 +204,7 @@ private fun RegionAndReferralStep(
         Box {
             Column {
                 SimpleText(
-                    text = stringResource(com.blockchain.stringResources.R.string.create_wallet_country),
+                    text = stringResource(string.create_wallet_country),
                     style = ComposeTypographies.Paragraph2,
                     color = ComposeColors.Title,
                     gravity = ComposeGravities.Centre
@@ -218,7 +218,7 @@ private fun RegionAndReferralStep(
                         .focusRequester(countryFocusRequester),
                     value = (state.countryInputState as? CountryInputState.Loaded)?.selected?.name.orEmpty(),
                     readOnly = true,
-                    placeholder = stringResource(com.blockchain.stringResources.R.string.create_wallet_country),
+                    placeholder = stringResource(string.create_wallet_country),
                     focusedTrailingIcon = countryInputIcon,
                     unfocusedTrailingIcon = countryInputIcon,
                     onValueChange = {
@@ -262,7 +262,7 @@ private fun RegionAndReferralStep(
             Box {
                 Column {
                     SimpleText(
-                        text = "State", style = ComposeTypographies.Paragraph2,
+                        text = stringResource(string.create_wallet_state), style = ComposeTypographies.Paragraph2,
                         color = ComposeColors.Title, gravity = ComposeGravities.Centre
                     )
 
@@ -274,8 +274,8 @@ private fun RegionAndReferralStep(
                             .focusRequester(stateFocusRequester),
                         value = (state.stateInputState as? StateInputState.Loaded)?.selected?.name.orEmpty(),
                         readOnly = true,
-                        label = stringResource(com.blockchain.stringResources.R.string.create_wallet_state),
-                        placeholder = stringResource(com.blockchain.stringResources.R.string.state_not_selected),
+                        label = stringResource(string.create_wallet_state),
+                        placeholder = stringResource(string.state_not_selected),
                         focusedTrailingIcon = stateInputIcon,
                         unfocusedTrailingIcon = stateInputIcon,
                         onValueChange = {
@@ -312,7 +312,7 @@ private fun RegionAndReferralStep(
 
         Column {
             SimpleText(
-                text = stringResource(com.blockchain.stringResources.R.string.create_wallet_referral_code_label),
+                text = stringResource(string.create_wallet_referral_code_label),
                 style = ComposeTypographies.Paragraph2,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
@@ -322,7 +322,7 @@ private fun RegionAndReferralStep(
 
             val referralInputState = if (state.isInvalidReferralErrorShowing) {
                 TextInputState.Error(
-                    stringResource(com.blockchain.stringResources.R.string.new_account_referral_code_invalid)
+                    stringResource(string.new_account_referral_code_invalid)
                 )
             } else {
                 TextInputState.Default(null)
@@ -336,8 +336,8 @@ private fun RegionAndReferralStep(
             OutlinedTextInput(
                 modifier = Modifier.fillMaxWidth(),
                 value = state.referralCodeInput,
-                label = stringResource(com.blockchain.stringResources.R.string.new_account_referral_code_label),
-                placeholder = stringResource(com.blockchain.stringResources.R.string.new_account_referral_code),
+                label = stringResource(string.new_account_referral_code_label),
+                placeholder = stringResource(string.new_account_referral_code),
                 focusedTrailingIcon = trailingIcon,
                 unfocusedTrailingIcon = trailingIcon,
                 singleLine = true,
@@ -357,214 +357,234 @@ private fun RegionAndReferralStep(
         PrimaryButton(
             modifier = Modifier
                 .fillMaxWidth()
+                .requiredHeightIn(min = 80.dp)
                 .padding(
                     horizontal = AppTheme.dimensions.smallSpacing,
                     vertical = AppTheme.dimensions.standardSpacing
                 ),
-            text = stringResource(com.blockchain.stringResources.R.string.common_get_started),
+            text = stringResource(string.common_get_started),
             state = state.nextButtonState,
             onClick = {
                 onIntent(CreateWalletIntent.RegionNextClicked)
             }
         )
-
-        val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-        Spacer(modifier = Modifier.height(navBarHeight))
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun RegionAndReferralStepPreview() {
-    AppTheme {
-        RegionAndReferralStep(
-            state = CreateWalletViewState(
-                screen = CreateWalletScreen.REGION_AND_REFERRAL,
-                emailInput = "",
-                isShowingInvalidEmailError = false,
-                passwordInput = "",
-                passwordInputError = null,
-                countryInputState = CountryInputState.Loaded(
-                    countries = listOf(), selected = null, suggested = null
-                ),
-                stateInputState = StateInputState.Hidden,
-                areTermsOfServiceChecked = false,
-                referralCodeInput = "",
-                isInvalidReferralErrorShowing = false,
-                isCreateWalletLoading = false,
-                nextButtonState = ButtonState.Enabled,
-                error = null
-            ),
-            onIntent = {},
-            showCountryBottomSheet = {},
-            showStateBottomSheet = {}
-
-        )
-    }
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
 private fun EmailAndPasswordStep(
     state: CreateWalletViewState,
     onIntent: (CreateWalletIntent) -> Unit
 ) {
+
+    val scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = AppTheme.dimensions.smallSpacing),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .imePadding()
     ) {
-        val emailFocusRequester = FocusRequester()
-        val passwordFocusRequester = FocusRequester()
-
-        LaunchedEffect(state.isShowingInvalidEmailError) {
-            if (state.isShowingInvalidEmailError) emailFocusRequester.requestFocus()
-        }
-        LaunchedEffect(state.passwordInputError) {
-            if (state.passwordInputError != null) passwordFocusRequester.requestFocus()
-        }
-
-        SimpleText(
-            modifier = Modifier.padding(top = AppTheme.dimensions.standardSpacing),
-            text = stringResource(com.blockchain.stringResources.R.string.create_wallet_step_2_header),
-            style = ComposeTypographies.Title2,
-            color = ComposeColors.Title,
-            gravity = ComposeGravities.Centre
-        )
-        SimpleText(
-            modifier = Modifier.padding(
-                top = AppTheme.dimensions.tinySpacing,
-                bottom = AppTheme.dimensions.standardSpacing
-            ),
-            text = stringResource(com.blockchain.stringResources.R.string.create_wallet_step_2_subheader),
-            style = ComposeTypographies.Paragraph1,
-            color = ComposeColors.Title,
-            gravity = ComposeGravities.Centre
-        )
-
-        val emailTextState =
-            if (state.isShowingInvalidEmailError) {
-                TextInputState.Error(stringResource(com.blockchain.stringResources.R.string.invalid_email))
-            } else TextInputState.Default(null)
-        OutlinedTextInput(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .focusRequester(emailFocusRequester),
-            value = state.emailInput,
-            label = stringResource(com.blockchain.stringResources.R.string.sign_up_email),
-            state = emailTextState,
-            placeholder = stringResource(com.blockchain.stringResources.R.string.create_wallet_email_hint),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = { passwordFocusRequester.requestFocus() }),
-            onValueChange = {
-                onIntent(CreateWalletIntent.EmailInputChanged(it))
-            }
-        )
-
-        var isPasswordVisible by remember { mutableStateOf(false) }
-        val trailingIconRes = if (isPasswordVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility_on
-        val keyboardController = LocalSoftwareKeyboardController.current
-        val passwordTextState = when (state.passwordInputError) {
-            CreateWalletPasswordError.InvalidPasswordTooLong ->
-                TextInputState.Error(stringResource(com.blockchain.stringResources.R.string.invalid_password))
-
-            CreateWalletPasswordError.InvalidPasswordTooShort ->
-                TextInputState.Error(stringResource(com.blockchain.stringResources.R.string.invalid_password_too_short))
-
-            CreateWalletPasswordError.InvalidPasswordTooWeak ->
-                TextInputState.Error(stringResource(com.blockchain.stringResources.R.string.weak_password))
-
-            null -> TextInputState.Default(null)
-        }
-        OutlinedTextInput(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = AppTheme.dimensions.standardSpacing)
-                .focusRequester(passwordFocusRequester),
-            value = state.passwordInput,
-            label = stringResource(com.blockchain.stringResources.R.string.password),
-            state = passwordTextState,
-            placeholder = stringResource(com.blockchain.stringResources.R.string.create_wallet_password_hint),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-            visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            focusedTrailingIcon = ImageResource.Local(trailingIconRes),
-            unfocusedTrailingIcon = ImageResource.Local(trailingIconRes),
-            singleLine = true,
-            onTrailingIconClicked = {
-                isPasswordVisible = !isPasswordVisible
-            },
-            onValueChange = {
-                onIntent(CreateWalletIntent.PasswordInputChanged(it))
-            }
-        )
-
-        var isPasswordStrengthVisible by remember { mutableStateOf(false) }
-        if (!isPasswordStrengthVisible && state.passwordInput.isNotEmpty()) {
-            isPasswordStrengthVisible = true
-        }
-        if (isPasswordStrengthVisible) {
-            AndroidView(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        top = AppTheme.dimensions.smallestSpacing,
-                        start = AppTheme.dimensions.tinySpacing,
-                        end = AppTheme.dimensions.tinySpacing
-                    ),
-                factory = { context ->
-                    PasswordStrengthView(context, null)
-                },
-                update = {
-                    it.updatePassword(state.passwordInput)
-                }
-            )
-        }
-
-        val checkboxTopPadding =
-            if (isPasswordStrengthVisible) {
-                AppTheme.dimensions.smallSpacing
-            } else AppTheme.dimensions.standardSpacing
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(top = checkboxTopPadding, bottom = AppTheme.dimensions.verySmallSpacing),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(horizontal = AppTheme.dimensions.smallSpacing),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Checkbox(
-                state = if (state.areTermsOfServiceChecked) CheckboxState.Checked else CheckboxState.Unchecked,
-                onCheckChanged = { isChecked ->
-                    keyboardController?.hide()
-                    onIntent(CreateWalletIntent.TermsOfServiceStateChanged(isChecked))
-                }
+            val emailFocusRequester = FocusRequester()
+            val passwordFocusRequester = FocusRequester()
+            val passwordConfirmationFocusRequester = FocusRequester()
+
+            val keyboardController = LocalSoftwareKeyboardController.current
+
+            LaunchedEffect(state.isShowingInvalidEmailError) {
+                if (state.isShowingInvalidEmailError) emailFocusRequester.requestFocus()
+            }
+            LaunchedEffect(state.passwordInputErrors) {
+                if (state.passwordInputErrors.isNotEmpty()) passwordFocusRequester.requestFocus()
+            }
+
+            Box(
+                modifier = Modifier
+                    .background(Color.White, CircleShape)
+                    .size(88.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    modifier = Modifier.size(58.dp),
+                    imageResource = Icons.Filled.User
+                )
+            }
+
+            StandardVerticalSpacer()
+
+            SimpleText(
+                text = stringResource(string.create_wallet_step_2_header),
+                style = ComposeTypographies.Title3,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Centre
             )
 
-            val context = LocalContext.current
-            val linksMap = mapOf(
-                "terms" to URL_TOS_POLICY,
-                "privacy" to URL_PRIVACY_POLICY
-            )
-            val disclaimerText = AnnotatedStringUtils.getAnnotatedStringWithMappedAnnotations(
-                context,
-                com.blockchain.stringResources.R.string.password_disclaimer,
-                linksMap
-            )
+            TinyVerticalSpacer()
+
             SimpleText(
-                modifier = Modifier.padding(start = AppTheme.dimensions.tinySpacing),
-                text = disclaimerText,
-                style = ComposeTypographies.Micro2,
+                text = stringResource(string.create_wallet_step_2_subheader),
+                style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Title,
-                gravity = ComposeGravities.Start,
-                onAnnotationClicked = { tag, value ->
-                    if (tag == StringUtils.TAG_URL) {
-                        Intent(Intent.ACTION_VIEW, Uri.parse(value))
-                            .apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
-                            .also { context.startActivity(it) }
-                    }
-                }
+                gravity = ComposeGravities.Centre
             )
+
+            StandardVerticalSpacer()
+
+            Column {
+
+                SimpleText(
+                    text = stringResource(string.sign_up_email),
+                    style = ComposeTypographies.Paragraph2,
+                    color = ComposeColors.Title,
+                    gravity = ComposeGravities.Centre
+                )
+
+                TinyVerticalSpacer()
+
+                val emailTextState =
+                    if (state.isShowingInvalidEmailError) {
+                        TextInputState.Error(stringResource(string.invalid_email))
+                    } else TextInputState.Default(null)
+                OutlinedTextInput(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(emailFocusRequester),
+                    value = state.emailInput,
+                    label = stringResource(string.sign_up_email),
+                    state = emailTextState,
+                    placeholder = stringResource(string.create_wallet_email_hint),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(onNext = { passwordFocusRequester.requestFocus() }),
+                    onValueChange = {
+                        onIntent(CreateWalletIntent.EmailInputChanged(it))
+                    },
+                    shape = AppTheme.shapes.large,
+                )
+            }
+
+            StandardVerticalSpacer()
+
+            Column {
+
+                SimpleText(
+                    text = stringResource(string.common_create_password),
+                    style = ComposeTypographies.Paragraph2,
+                    color = ComposeColors.Title,
+                    gravity = ComposeGravities.Centre
+                )
+
+                TinyVerticalSpacer()
+
+                var isPasswordVisible by remember { mutableStateOf(false) }
+                val trailingIconRes = if (isPasswordVisible)
+                    R.drawable.ic_visibility_off else R.drawable.ic_visibility_on
+                val passwordTextState = if (state.passwordInputErrors.isNotEmpty()) {
+                    TextInputState.Error("Insecure")
+                } else if (state.passwordInput.isNotEmpty()) {
+                    TextInputState.Success("Secure")
+                } else {
+                    TextInputState.Default(null)
+                }
+
+                OutlinedTextInput(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(passwordFocusRequester),
+                    value = state.passwordInput,
+                    label = stringResource(string.password),
+                    state = passwordTextState,
+                    placeholder = stringResource(string.create_wallet_password_hint),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                    visualTransformation = if (isPasswordVisible) VisualTransformation.None
+                    else PasswordVisualTransformation(),
+                    focusedTrailingIcon = ImageResource.Local(trailingIconRes),
+                    unfocusedTrailingIcon = ImageResource.Local(trailingIconRes),
+                    singleLine = true,
+                    onTrailingIconClicked = {
+                        isPasswordVisible = !isPasswordVisible
+                    },
+                    onValueChange = {
+                        onIntent(CreateWalletIntent.PasswordInputChanged(it))
+                    },
+                    shape = AppTheme.shapes.large,
+                )
+
+                TinyVerticalSpacer()
+
+                PasswordInstructions(state.passwordInputErrors)
+            }
+
+            StandardVerticalSpacer()
+
+            Column {
+
+                SimpleText(
+                    text = stringResource(id = string.confirm_password),
+                    style = ComposeTypographies.Paragraph2,
+                    color = ComposeColors.Title,
+                    gravity = ComposeGravities.Centre
+                )
+
+                TinyVerticalSpacer()
+
+                var isPasswordVisible by remember { mutableStateOf(false) }
+
+                val trailingIconRes =
+                    if (isPasswordVisible)
+                        R.drawable.ic_visibility_off
+                    else
+                        R.drawable.ic_visibility_on
+
+                var passwordConfirmationInput by remember { mutableStateOf("") }
+
+                var showPasswordDoesntMatchError by remember { mutableStateOf(false) }
+
+                val coroutineScope = rememberCoroutineScope()
+                OutlinedTextInput(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(passwordConfirmationFocusRequester)
+                        .onFocusChanged {
+                            if (it.isFocused) {
+                                coroutineScope.launch {
+                                    delay(300)
+                                    scrollState.animateScrollTo(scrollState.maxValue)
+                                }
+                            }
+                        },
+                    value = passwordConfirmationInput,
+                    label = stringResource(string.password),
+                    state = if (showPasswordDoesntMatchError) TextInputState.Error(
+                        stringResource(string.passwords_do_not_match)
+                    ) else TextInputState.Default(null),
+                    placeholder = stringResource(string.signup_re_enter_password),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                    visualTransformation = if (isPasswordVisible) VisualTransformation.None
+                    else PasswordVisualTransformation(),
+                    focusedTrailingIcon = ImageResource.Local(trailingIconRes),
+                    unfocusedTrailingIcon = ImageResource.Local(trailingIconRes),
+                    singleLine = true,
+                    onTrailingIconClicked = {
+                        isPasswordVisible = !isPasswordVisible
+                    },
+                    onValueChange = {
+                        passwordConfirmationInput = it
+                        showPasswordDoesntMatchError = it.isNotEmpty() && it != state.passwordInput
+                        onIntent(CreateWalletIntent.ConfirmPasswordInputChanged(it))
+                    },
+                    shape = AppTheme.shapes.large,
+                )
+            }
         }
 
         Spacer(Modifier.weight(1f))
@@ -572,17 +592,84 @@ private fun EmailAndPasswordStep(
         PrimaryButton(
             modifier = Modifier
                 .fillMaxWidth()
+                .requiredHeightIn(min = 80.dp)
                 .padding(
                     horizontal = AppTheme.dimensions.smallSpacing,
                     vertical = AppTheme.dimensions.standardSpacing
                 ),
-            text = stringResource(com.blockchain.stringResources.R.string.create_wallet_create_account),
+            text = stringResource(string.create_wallet_create_account),
             state = state.nextButtonState,
             onClick = {
                 onIntent(CreateWalletIntent.EmailPasswordNextClicked)
             }
         )
     }
+}
+
+@Composable
+private fun PasswordInstructions(passwordInputErrors: List<CreateWalletPasswordError>) {
+    // Your password must contain at least one lowercase letter, one uppercase letter, one number,
+    // one special character and be at least 8 characters long.
+    val passwordFormatInstructions = buildAnnotatedString {
+        append(stringResource(string.password_input_instruction_beginning))
+
+        val oneLowerCaseLetterStyle =
+            if (passwordInputErrors.any { it == CreateWalletPasswordError.InvalidPasswordNoLowerCaseFound })
+                SpanStyle(color = ComposeColors.Error.toComposeColor())
+            else
+                SpanStyle(color = ComposeColors.Body.toComposeColor())
+        withStyle(style = oneLowerCaseLetterStyle) {
+            append(stringResource(string.password_input_instruction_lowercase))
+        }
+
+        val oneUpperCaseLetterStyle =
+            if (passwordInputErrors.any { it == CreateWalletPasswordError.InvalidPasswordNoUpperCaseFound })
+                SpanStyle(color = ComposeColors.Error.toComposeColor())
+            else
+                SpanStyle(color = ComposeColors.Body.toComposeColor())
+
+        withStyle(style = oneUpperCaseLetterStyle) {
+            append(stringResource(string.password_input_instruction_uppercase))
+        }
+
+        val oneNumberStyle =
+            if (passwordInputErrors.any { it == CreateWalletPasswordError.InvalidPasswordNoNumberFound })
+                SpanStyle(color = ComposeColors.Error.toComposeColor())
+            else
+                SpanStyle(color = ComposeColors.Body.toComposeColor())
+
+        withStyle(style = oneNumberStyle) {
+            append(stringResource(string.password_input_instruction_number))
+        }
+
+        val oneSpecialCharacterStyle =
+            if (passwordInputErrors.any { it == CreateWalletPasswordError.InvalidPasswordNoSpecialCharFound })
+                SpanStyle(color = ComposeColors.Error.toComposeColor())
+            else
+                SpanStyle(color = ComposeColors.Body.toComposeColor())
+
+        withStyle(style = oneSpecialCharacterStyle) {
+            append(stringResource(string.password_input_instruction_special_char))
+        }
+
+        val atLeastEightCharactersStyle =
+            if (passwordInputErrors.any { it == CreateWalletPasswordError.InvalidPasswordTooShort })
+                SpanStyle(color = ComposeColors.Error.toComposeColor())
+            else
+                SpanStyle(color = ComposeColors.Body.toComposeColor())
+
+        withStyle(style = atLeastEightCharactersStyle) {
+            append(stringResource(string.password_input_instruction_length))
+        }
+    }
+
+    SimpleText(
+        text = passwordFormatInstructions,
+        style = ComposeTypographies.Caption1,
+        color = ComposeColors.Body,
+        gravity = ComposeGravities.Start,
+        modifier = Modifier.fillMaxWidth()
+    )
 }
 
 @Composable
@@ -613,7 +700,7 @@ private fun CreateWalletFailed(
 
             Text(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(com.blockchain.stringResources.R.string.create_wallet_error_title),
+                text = stringResource(string.create_wallet_error_title),
                 style = AppTheme.typography.title3,
                 color = AppTheme.colors.title,
                 textAlign = TextAlign.Center
@@ -623,7 +710,7 @@ private fun CreateWalletFailed(
 
             Text(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(com.blockchain.stringResources.R.string.create_wallet_error_description),
+                text = stringResource(string.create_wallet_error_description),
                 style = AppTheme.typography.body1,
                 color = AppTheme.colors.body,
                 textAlign = TextAlign.Center
@@ -637,7 +724,7 @@ private fun CreateWalletFailed(
                     horizontal = AppTheme.dimensions.smallSpacing,
                     vertical = AppTheme.dimensions.standardSpacing
                 ),
-            text = stringResource(com.blockchain.stringResources.R.string.common_go_back),
+            text = stringResource(string.common_go_back),
             onClick = backOnClick
         )
     }
@@ -663,10 +750,9 @@ private fun Preview_RegionAndReferral() {
         emailInput = "test@blockchain.com",
         isShowingInvalidEmailError = true,
         passwordInput = "Somepassword",
-        passwordInputError = CreateWalletPasswordError.InvalidPasswordTooShort,
+        passwordInputErrors = listOf(CreateWalletPasswordError.InvalidPasswordTooShort),
         countryInputState = CountryInputState.Loaded(countries = countries, selected = countries[1], suggested = null),
         stateInputState = StateInputState.Loading,
-        areTermsOfServiceChecked = false,
         referralCodeInput = "12345678",
         isInvalidReferralErrorShowing = true,
         isCreateWalletLoading = false,
@@ -695,10 +781,9 @@ private fun Preview_EmailAndPassword() {
         emailInput = "test@blockchain.com",
         isShowingInvalidEmailError = true,
         passwordInput = "Somepassword",
-        passwordInputError = CreateWalletPasswordError.InvalidPasswordTooShort,
+        passwordInputErrors = listOf(CreateWalletPasswordError.InvalidPasswordTooShort),
         countryInputState = CountryInputState.Loaded(countries = countries, selected = countries[1], suggested = null),
         stateInputState = StateInputState.Loading,
-        areTermsOfServiceChecked = false,
         referralCodeInput = "12345678",
         isInvalidReferralErrorShowing = false,
         isCreateWalletLoading = true,
@@ -729,8 +814,8 @@ private val countries = listOf(
 )
 
 private fun CreateWalletError.errorMessage(context: Context): String = when (this) {
-    CreateWalletError.RecaptchaFailed -> context.getString(com.blockchain.stringResources.R.string.recaptcha_failed)
+    CreateWalletError.RecaptchaFailed -> context.getString(string.recaptcha_failed)
     is CreateWalletError.Unknown -> this.message ?: context.getString(
-        com.blockchain.stringResources.R.string.something_went_wrong_try_again
+        string.something_went_wrong_try_again
     )
 }

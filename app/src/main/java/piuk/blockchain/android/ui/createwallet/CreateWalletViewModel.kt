@@ -24,7 +24,6 @@ import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.utils.awaitOutcome
 import com.blockchain.wallet.DefaultLabels
 import com.google.android.gms.recaptcha.RecaptchaActionType
-import info.blockchain.wallet.util.PasswordUtil
 import java.util.Locale
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -36,7 +35,10 @@ import piuk.blockchain.android.util.FormatChecker
 enum class CreateWalletPasswordError {
     InvalidPasswordTooLong,
     InvalidPasswordTooShort,
-    InvalidPasswordTooWeak
+    InvalidPasswordNoLowerCaseFound,
+    InvalidPasswordNoUpperCaseFound,
+    InvalidPasswordNoNumberFound,
+    InvalidPasswordNoSpecialCharFound,
 }
 
 data class CreateWalletModelState(
@@ -46,12 +48,11 @@ data class CreateWalletModelState(
     val isShowingInvalidEmailError: Boolean = false,
 
     val passwordInput: String = "",
-    val passwordInputError: CreateWalletPasswordError? = null,
+    val passwordInputErrors: List<CreateWalletPasswordError> = emptyList(),
+    val confirmPasswordInput: String = "",
 
     val countryInputState: CountryInputState = CountryInputState.Loading,
     val stateInputState: StateInputState = StateInputState.Hidden,
-
-    val areTermsOfServiceChecked: Boolean = false,
 
     val referralCodeInput: String = "",
     val isInvalidReferralErrorShowing: Boolean = false,
@@ -76,7 +77,8 @@ data class CreateWalletModelState(
         CreateWalletScreen.EMAIL_AND_PASSWORD -> {
             emailInput.isNotEmpty() &&
                 passwordInput.isNotEmpty() &&
-                areTermsOfServiceChecked
+                passwordInputErrors.isEmpty() &&
+                passwordInput == confirmPasswordInput
         }
 
         else -> true
@@ -163,10 +165,9 @@ class CreateWalletViewModel(
         emailInput = emailInput,
         isShowingInvalidEmailError = isShowingInvalidEmailError,
         passwordInput = passwordInput,
-        passwordInputError = passwordInputError,
+        passwordInputErrors = passwordInputErrors,
         countryInputState = countryInputState,
         stateInputState = stateInputState,
-        areTermsOfServiceChecked = areTermsOfServiceChecked,
         referralCodeInput = referralCodeInput,
         isInvalidReferralErrorShowing = isInvalidReferralErrorShowing,
         isCreateWalletLoading = isCreateWalletLoading,
@@ -206,8 +207,18 @@ class CreateWalletViewModel(
 
             is CreateWalletIntent.PasswordInputChanged -> {
                 analytics.logEventOnce(AnalyticsEvents.WalletSignupClickPasswordFirst)
+                val passwordInputErrors: MutableList<CreateWalletPasswordError> = mutableListOf()
+                if (intent.input.isNotEmpty()) {
+                    passwordInputErrors.addAll(checkPasswordErrors(intent.input))
+                }
                 updateState {
-                    copy(passwordInput = intent.input, passwordInputError = null)
+                    copy(passwordInput = intent.input, passwordInputErrors = passwordInputErrors)
+                }
+            }
+
+            is CreateWalletIntent.ConfirmPasswordInputChanged -> {
+                updateState {
+                    copy(confirmPasswordInput = intent.input)
                 }
             }
 
@@ -257,10 +268,6 @@ class CreateWalletViewModel(
                 copy(referralCodeInput = intent.input, isInvalidReferralErrorShowing = false)
             }
 
-            is CreateWalletIntent.TermsOfServiceStateChanged -> updateState {
-                copy(areTermsOfServiceChecked = intent.isChecked)
-            }
-
             CreateWalletIntent.RegionNextClicked -> {
                 if (modelState.referralCodeInput.isEmpty()) {
                     updateState { copy(screen = CreateWalletScreen.EMAIL_AND_PASSWORD) }
@@ -287,27 +294,13 @@ class CreateWalletViewModel(
                 }
             }
 
-            CreateWalletIntent.EmailPasswordNextClicked -> {
+            is CreateWalletIntent.EmailPasswordNextClicked -> {
                 analytics.logEventOnce(AnalyticsEvents.WalletSignupCreated)
 
-                when {
-                    !formatChecker.isValidEmailAddress(modelState.emailInput) -> updateState {
-                        copy(isShowingInvalidEmailError = true)
-                    }
-
-                    modelState.passwordInput.length < MIN_PWD_LENGTH -> updateState {
-                        copy(passwordInputError = CreateWalletPasswordError.InvalidPasswordTooShort)
-                    }
-
-                    modelState.passwordInput.length > MAX_PWD_LENGTH -> updateState {
-                        copy(passwordInputError = CreateWalletPasswordError.InvalidPasswordTooLong)
-                    }
-
-                    !PasswordUtil.getStrength(modelState.passwordInput).isStrongEnough() -> updateState {
-                        copy(passwordInputError = CreateWalletPasswordError.InvalidPasswordTooWeak)
-                    }
-
-                    else -> navigate(CreateWalletNavigation.RecaptchaVerification(RecaptchaActionType.SIGNUP))
+                if (!formatChecker.isValidEmailAddress(modelState.emailInput)) {
+                    updateState { copy(isShowingInvalidEmailError = true) }
+                } else if (modelState.passwordInputErrors.isEmpty()) { // Is it worth checking this again??
+                    navigate(CreateWalletNavigation.RecaptchaVerification(RecaptchaActionType.SIGNUP))
                 }
             }
 
@@ -349,8 +342,7 @@ class CreateWalletViewModel(
                                 isCreateWalletLoading = false,
                                 screen = CreateWalletScreen.CREATION_FAILED,
                                 emailInput = "",
-                                passwordInput = "",
-                                areTermsOfServiceChecked = false
+                                passwordInput = ""
                             )
                         }
                         appUtil.clearCredentials()
@@ -370,8 +362,31 @@ class CreateWalletViewModel(
         val limit = if (environmentConfig.isRunningInDebugMode()) 1 else 50
         return this >= limit
     }
+
+    private fun checkPasswordErrors(password: String): List<CreateWalletPasswordError> {
+        return listOfNotNull(
+            CreateWalletPasswordError.InvalidPasswordTooLong.takeIf {
+                password.length > MAX_PWD_LENGTH
+            },
+            CreateWalletPasswordError.InvalidPasswordTooShort.takeIf {
+                password.length < MIN_PWD_LENGTH
+            },
+            CreateWalletPasswordError.InvalidPasswordNoLowerCaseFound.takeIf {
+                !password.any { it.isLowerCase() }
+            },
+            CreateWalletPasswordError.InvalidPasswordNoUpperCaseFound.takeIf {
+                !password.any { it.isUpperCase() }
+            },
+            CreateWalletPasswordError.InvalidPasswordNoNumberFound.takeIf {
+                !password.any { it.isDigit() }
+            },
+            CreateWalletPasswordError.InvalidPasswordNoSpecialCharFound.takeIf {
+                !password.any { !it.isLetterOrDigit() }
+            }
+        )
+    }
 }
 
-private const val MIN_PWD_LENGTH = 4
+private const val MIN_PWD_LENGTH = 8
 private const val MAX_PWD_LENGTH = 255
 private const val REFERRAL_CODE_LENGTH = 8

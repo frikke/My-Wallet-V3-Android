@@ -10,12 +10,10 @@ data class CreateWalletViewState(
     val emailInput: String,
     val isShowingInvalidEmailError: Boolean,
     val passwordInput: String,
-    val passwordInputError: CreateWalletPasswordError?,
+    val passwordInputErrors: List<CreateWalletPasswordError>,
 
     val countryInputState: CountryInputState,
     val stateInputState: StateInputState,
-
-    val areTermsOfServiceChecked: Boolean,
 
     val referralCodeInput: String,
     val isInvalidReferralErrorShowing: Boolean,

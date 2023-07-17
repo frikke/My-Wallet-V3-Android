@@ -3702,4 +3702,16 @@ If you want to know more about our verification process visit our <annotation li
     <string name="balances_failed_description_many">We couldn’t load the balances and activity of the %1$s and %1$s networks at this time.</string> <!--of the <bitcoin, eth> and <avax>-->
 
     <string name="create_wallet_referral_code_label">Do you have a referral code?</string>
+    <string name="common_create_password">Create Password</string>
+    <string name="signup_re_enter_password">Re-enter your password</string>
+    <string name="passwords_do_not_match">Passwords do not match</string>
+    <string name="common_week">Week</string>
+    <string name="common_regular">Regular</string>
+    <string name="common_strong">Strong</string>
+    <string name="password_input_instruction_beginning">Your password must contain at least</string>
+    <string name="password_input_instruction_lowercase">" one lowercase letter,"</string>
+    <string name="password_input_instruction_uppercase">" one uppercase letter,"</string>
+    <string name="password_input_instruction_number">" one number,"</string>
+    <string name="password_input_instruction_special_char">" one special character"</string>
+    <string name="password_input_instruction_length">" and be at least 8 characters long."</string>
 </resources>
