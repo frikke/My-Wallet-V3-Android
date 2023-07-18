@@ -66,7 +66,6 @@ class CardVerificationFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        lifecycle.addObserver(spinnerTracker)
         activity.updateToolbarTitle(getString(com.blockchain.stringResources.R.string.card_verification))
         binding.checkoutCardForm.initCheckoutPaymentForm()
     }

@@ -192,7 +192,6 @@ class SimpleBuyCheckoutFragment :
                     }
                 }
         }
-        lifecycle.addObserver(spinnerTracker)
 
         binding.recycler.apply {
             layoutManager = LinearLayoutManager(activity)
@@ -771,7 +770,6 @@ class SimpleBuyCheckoutFragment :
                         }
                     )
                     onClick = {
-                        spinnerTracker.updateAction(action = SpinnerAnalyticsScreen.BuyCheckout.BuyButtonClick)
                         trackFraudFlow()
                         when (
                             getSettlementReason(
@@ -865,8 +863,6 @@ class SimpleBuyCheckoutFragment :
             buttonGooglePay.apply {
                 visibleIf { isGooglePay }
                 setOnClickListener {
-                    spinnerTracker.updateAction(action = SpinnerAnalyticsScreen.BuyCheckout.GooglePayButtonClick)
-
                     trackFraudFlow()
                     buttonGooglePay.showLoading()
                     model.process(SimpleBuyIntent.GooglePayInfoRequested)

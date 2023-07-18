@@ -1,109 +1,57 @@
 package com.blockchain.presentation.spinner
 
-import androidx.lifecycle.LifecycleOwner
 import com.blockchain.analytics.Analytics
-import java.util.UUID
+import com.blockchain.domain.experiments.RemoteConfigService
+import com.blockchain.outcome.getOrDefault
+import com.blockchain.utils.awaitOutcome
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-
-internal enum class SpinnerAnalyticsState {
-    Started, Running, Backgrounded, Ended, Canceled
-}
 
 internal class SpinnerAnalyticsTrackerImpl(
     private val screen: SpinnerAnalyticsScreen,
     private val analytics: Analytics,
     private val coroutineScope: CoroutineScope,
-    private val coroutineDispatcher: CoroutineDispatcher
+    private val coroutineDispatcher: CoroutineDispatcher,
+    private val remoteConfigService: RemoteConfigService,
 ) : SpinnerAnalyticsTracker {
 
-    private val flowId = UUID.randomUUID().toString()
-
-    private val tickSeconds = 5
-    private var elapsedTimeSeconds = 0
-
-    private val timer = flow {
-        while (true) {
-            emit(elapsedTimeSeconds)
-            delay(TimeUnit.SECONDS.toMillis(1L))
-            elapsedTimeSeconds++
-        }
-    }.filter { it % tickSeconds == 0 }
+    companion object {
+        private const val TIMEOUT_KEY = "blockchain_app_configuration_spinner_timeout"
+    }
 
     private var timerJob: Job? = null
-
-    private var action: SpinnerAnalyticsAction = SpinnerAnalyticsAction.Default
-
-    override fun updateAction(action: SpinnerAnalyticsAction) {
-        this.action = action
-    }
+    private var timeout: Int? = null
 
     override fun start() {
         if (timerJob?.isActive == true) return
 
         timerJob?.cancel()
         timerJob = coroutineScope.launch(coroutineDispatcher) {
-            timer.collectLatest { elapsedTime ->
-                analytics.logEvent(
-                    SpinnerAnalyticsEvents.SpinnerState(
-                        flowId = flowId,
-                        duration = elapsedTime,
-                        screen = screen,
-                        screenEvent = action,
-                        state = if (elapsedTime == 0) SpinnerAnalyticsState.Started else SpinnerAnalyticsState.Running,
-                    )
+            delay(TimeUnit.SECONDS.toMillis(getTimeout().toLong()))
+
+            analytics.logEvent(
+                SpinnerAnalyticsEvents.SpinnerTimeout(
+                    duration = getTimeout(),
+                    screen = screen,
                 )
-            }
+            )
         }
     }
 
-    override fun stop(isDestroyed: Boolean) {
+    override fun stop() {
         val timerJob = timerJob
         if (timerJob == null || timerJob.isCancelled || timerJob.isCompleted) return
 
         timerJob.cancel()
-        analytics.logEvent(
-            SpinnerAnalyticsEvents.SpinnerState(
-                flowId = flowId,
-                duration = elapsedTimeSeconds,
-                screen = screen,
-                screenEvent = action,
-                state = if (isDestroyed) SpinnerAnalyticsState.Canceled else SpinnerAnalyticsState.Ended,
-            )
-        )
-        elapsedTimeSeconds = 0
     }
 
-    private fun backgrounded() {
-        val timerJob = timerJob
-
-        if (timerJob == null || timerJob.isCancelled || timerJob.isCompleted) return
-
-        analytics.logEvent(
-            SpinnerAnalyticsEvents.SpinnerState(
-                flowId = flowId,
-                duration = elapsedTimeSeconds,
-                screen = screen,
-                screenEvent = action,
-                state = SpinnerAnalyticsState.Backgrounded,
-            )
-        )
-    }
-
-    override fun onDestroy(owner: LifecycleOwner) {
-        super.onDestroy(owner)
-        stop(isDestroyed = true)
-    }
-
-    override fun onPause(owner: LifecycleOwner) {
-        super.onPause(owner)
-        backgrounded()
+    private suspend fun getTimeout(): Int {
+        return timeout ?: remoteConfigService.getRawJson(TIMEOUT_KEY)
+            .awaitOutcome().getOrDefault("5").toInt()
+            .also { timeout = it }
     }
 }

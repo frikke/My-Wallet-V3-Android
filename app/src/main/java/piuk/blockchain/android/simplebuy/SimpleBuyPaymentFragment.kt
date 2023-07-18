@@ -130,7 +130,6 @@ class SimpleBuyPaymentFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        lifecycle.addObserver(spinnerTracker)
 
         activity.updateToolbarTitle(getString(com.blockchain.stringResources.R.string.common_payment))
         binding.checkoutCardForm.initCheckoutPaymentForm()
