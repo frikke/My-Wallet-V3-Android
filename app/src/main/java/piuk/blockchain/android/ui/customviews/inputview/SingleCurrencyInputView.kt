@@ -123,18 +123,6 @@ class SingleCurrencyInputView(context: Context, attrs: AttributeSet) :
                 )
             )
     }
-
-    fun showError(errorMessage: String) {
-        with(binding) {
-            error.text = errorMessage
-            error.visible()
-            exchangeAmount.gone()
-            currencySwap.let {
-                it.isEnabled = false
-                it.alpha = .6f
-            }
-        }
-    }
 }
 
 sealed class SingleInputViewConfiguration {

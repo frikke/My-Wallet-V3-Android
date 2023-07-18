@@ -19,7 +19,6 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewAccountBankOverviewBinding
-import piuk.blockchain.android.ui.customviews.StatusPill
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
@@ -107,26 +106,26 @@ class AccountInfoBank @JvmOverloads constructor(
                         bankStatusFee.visible()
                         if (it.fee.isZero) {
                             bankStatusFee.tag = TagViewState(
-                                context.getString(com.blockchain.stringResources.R.string.common_free),
-                                TagType.Success()
+                                value = context.getString(com.blockchain.stringResources.R.string.common_free),
+                                type = TagType.Success()
                             )
                         } else {
                             bankStatusFee.tag = TagViewState(
-                                context.getString(
+                                value = context.getString(
                                     com.blockchain.stringResources.R.string.bank_wire_transfer_fee,
                                     it.fee.toStringWithSymbol()
                                 ),
-                                TagType.Warning()
+                                type = TagType.Warning()
                             )
                         }
                         if (!it.minLimit.isZero) {
                             bankStatusMin.visible()
                             bankStatusMin.tag = TagViewState(
-                                context.getString(
+                                value = context.getString(
                                     com.blockchain.stringResources.R.string.bank_wire_transfer_min_withdrawal,
                                     it.minLimit.toStringWithSymbol()
                                 ),
-                                TagType.Default()
+                                type = TagType.Default()
                             )
                         }
                     },
