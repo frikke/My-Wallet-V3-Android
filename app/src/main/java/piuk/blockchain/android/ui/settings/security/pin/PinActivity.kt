@@ -46,7 +46,6 @@ import piuk.blockchain.android.data.biometrics.WalletBiometricData
 import piuk.blockchain.android.databinding.ActivityPinBinding
 import piuk.blockchain.android.fraud.domain.service.FraudFlow
 import piuk.blockchain.android.fraud.domain.service.FraudService
-import piuk.blockchain.android.ui.auth.BiometricsEnrollmentBottomSheet
 import piuk.blockchain.android.ui.auth.MobileNoticeDialog
 import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
 import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
@@ -54,6 +53,7 @@ import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
 import piuk.blockchain.android.ui.home.MobileNoticeDialogFragment
 import piuk.blockchain.android.ui.launcher.loader.LoaderActivity
 import piuk.blockchain.android.ui.launcher.loader.LoginMethod
+import piuk.blockchain.android.ui.settings.security.biometrics.RequestBiometricsDialog
 import piuk.blockchain.android.urllinks.APP_STORE_URI
 import piuk.blockchain.android.urllinks.APP_STORE_URL
 import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
@@ -69,7 +69,7 @@ class PinActivity :
         PinState,
         ActivityPinBinding
         >(),
-    BiometricsEnrollmentBottomSheet.Host {
+    RequestBiometricsDialog.Host {
 
     override val model: PinModel by scopedInject()
     private val fraudService: FraudService by inject()
@@ -252,10 +252,6 @@ class PinActivity :
     }
 
     override fun cancel() {
-        finishSignupProcess()
-    }
-
-    override fun onSheetClosed() {
         finishSignupProcess()
     }
 
@@ -970,7 +966,7 @@ class PinActivity :
 
     private fun askToUseBiometrics() {
         if (!isBiometricsVisible) {
-            BiometricsEnrollmentBottomSheet.newInstance().show(supportFragmentManager, "BIOMETRICS_BOTTOM_SHEET")
+            RequestBiometricsDialog.newInstance().show(supportFragmentManager, RequestBiometricsDialog.TAG)
             isBiometricsVisible = true
         }
     }

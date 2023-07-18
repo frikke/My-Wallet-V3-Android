@@ -1,13 +1,16 @@
 package com.blockchain.componentlib.system
 
 import android.content.res.Configuration
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Card
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -15,6 +18,7 @@ import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,6 +34,7 @@ import com.blockchain.componentlib.theme.AppTheme
 
 data class DialogueButton(
     val text: String,
+    val showIndication: Boolean = false,
     val onClick: () -> Unit
 )
 
@@ -107,14 +112,27 @@ fun DialogueCard(
                         }
 
                         if (secondButton != null) {
-                            TextButton(
-                                onClick = secondButton.onClick
-                            ) {
-                                Text(
-                                    secondButton.text,
-                                    style = AppTheme.typography.paragraph2,
-                                    color = AppTheme.colors.primary
-                                )
+                            Box(contentAlignment = Alignment.Center) {
+                                TextButton(
+                                    onClick = secondButton.onClick,
+                                ) {
+                                    Text(
+                                        secondButton.text,
+                                        style = AppTheme.typography.paragraph2,
+                                        color = AppTheme.colors.primary
+                                    )
+                                }
+
+                                if (secondButton.showIndication) {
+                                    val indicationColor = AppTheme.colors.primary
+                                    Canvas(modifier = Modifier.wrapContentSize()) {
+                                        drawCircle(
+                                            color = indicationColor,
+                                            radius = 30.dp.toPx(),
+                                            style = Stroke(width = 1.dp.toPx())
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -130,8 +148,8 @@ private fun DialogueCardPreview() {
     DialogueCard(
         title = "Some title",
         body = "Body 2: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ",
-        firstButton = DialogueButton("Button 1", {}),
-        secondButton = DialogueButton("Button2", {})
+        firstButton = DialogueButton("Button 1", false, {}),
+        secondButton = DialogueButton("Button2", false, {})
     )
 }
 
@@ -148,8 +166,8 @@ private fun DialogueCardIconPreview() {
         icon = Icons.Filled.Bell.withTint(AppColors.primary),
         title = "Some title",
         body = "Body 2: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ",
-        firstButton = DialogueButton("Button 1", {}),
-        secondButton = DialogueButton("Button2", {})
+        firstButton = DialogueButton("Button 1", false, {}),
+        secondButton = DialogueButton("Button2", false, {})
     )
 }
 

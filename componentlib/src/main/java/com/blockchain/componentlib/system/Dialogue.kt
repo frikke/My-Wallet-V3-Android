@@ -23,7 +23,7 @@ fun DialoguePreview() {
     AppTheme {
         Dialogue(
             body = "Body 2: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ",
-            firstButton = DialogueButton("Button 1", {})
+            firstButton = DialogueButton("Button 1", false, {})
         )
     }
 }

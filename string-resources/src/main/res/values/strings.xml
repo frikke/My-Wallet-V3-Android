@@ -3714,4 +3714,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="password_input_instruction_number">" one number,"</string>
     <string name="password_input_instruction_special_char">" one special character"</string>
     <string name="password_input_instruction_length">" and be at least 8 characters long."</string>
+    <string name="biometric_request_dialog_title">Allow Biometric Credentials</string>
+    <string name="biometric_request_dialog_body">Log into your Wallet and approve transactions with a single tap.</string>
 </resources>

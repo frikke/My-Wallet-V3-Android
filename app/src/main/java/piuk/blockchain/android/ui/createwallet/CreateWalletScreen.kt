@@ -62,6 +62,7 @@ import com.blockchain.componentlib.basic.closeImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.controls.ClearFocusOnKeyboardDismiss
 import com.blockchain.componentlib.controls.OutlinedTextInput
 import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.icons.Globe
@@ -151,6 +152,7 @@ fun CreateWalletScreen(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
 @Composable
 private fun RegionAndReferralStep(
     state: CreateWalletViewState,
@@ -158,9 +160,16 @@ private fun RegionAndReferralStep(
     showCountryBottomSheet: (CountryInputState.Loaded) -> Unit,
     showStateBottomSheet: (StateInputState.Loaded) -> Unit
 ) {
+
+    ClearFocusOnKeyboardDismiss()
+
+    val scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .imePadding()
             .padding(horizontal = AppTheme.dimensions.smallSpacing),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -242,7 +251,6 @@ private fun RegionAndReferralStep(
                     .clickable(
                         enabled = state.countryInputState is CountryInputState.Loaded
                     ) {
-                        countryFocusRequester.requestFocus()
                         if (state.countryInputState is CountryInputState.Loaded) {
                             showCountryBottomSheet(state.countryInputState)
                         }
@@ -299,7 +307,6 @@ private fun RegionAndReferralStep(
                         .clickable(
                             enabled = state.stateInputState is StateInputState.Loaded
                         ) {
-                            stateFocusRequester.requestFocus()
                             if (state.stateInputState is StateInputState.Loaded) {
                                 showStateBottomSheet(state.stateInputState)
                             }
@@ -333,8 +340,19 @@ private fun RegionAndReferralStep(
                 } else {
                     ImageResource.None
                 }
+
+            val coroutineScope = rememberCoroutineScope()
             OutlinedTextInput(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onFocusChanged {
+                        if (it.isFocused) {
+                            coroutineScope.launch {
+                                delay(300)
+                                scrollState.animateScrollTo(scrollState.maxValue)
+                            }
+                        }
+                    },
                 value = state.referralCodeInput,
                 label = stringResource(string.new_account_referral_code_label),
                 placeholder = stringResource(string.new_account_referral_code),
@@ -377,6 +395,8 @@ private fun EmailAndPasswordStep(
     state: CreateWalletViewState,
     onIntent: (CreateWalletIntent) -> Unit
 ) {
+
+    ClearFocusOnKeyboardDismiss()
 
     val scrollState = rememberScrollState()
 
@@ -502,8 +522,8 @@ private fun EmailAndPasswordStep(
                     label = stringResource(string.password),
                     state = passwordTextState,
                     placeholder = stringResource(string.create_wallet_password_hint),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(onNext = { passwordConfirmationFocusRequester.requestFocus() }),
                     visualTransformation = if (isPasswordVisible) VisualTransformation.None
                     else PasswordVisualTransformation(),
                     focusedTrailingIcon = ImageResource.Local(trailingIconRes),
