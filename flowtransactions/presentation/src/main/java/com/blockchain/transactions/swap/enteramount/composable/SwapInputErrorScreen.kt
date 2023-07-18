@@ -1,5 +1,6 @@
 package com.blockchain.transactions.swap.enteramount.composable
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,6 +12,7 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.sheets.SheetHeader
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.SmallestVerticalSpacer
@@ -26,8 +28,13 @@ fun SwapInputErrorScreen(
     Column(
         Modifier
             .fillMaxWidth()
+            .background(AppColors.background)
     ) {
-        SheetHeader(onClosePress = closeClicked, shouldShowDivider = false)
+        SheetHeader(
+            onClosePress = closeClicked,
+            shouldShowDivider = false,
+            backgroundSecondary = false
+        )
 
         val title = when (inputError) {
             is SwapEnterAmountInputError.AboveBalance ->
@@ -89,7 +96,7 @@ fun SwapInputErrorScreen(
                 .padding(horizontal = AppTheme.dimensions.smallSpacing),
             text = description,
             style = ComposeTypographies.Paragraph1,
-            color = ComposeColors.Title,
+            color = ComposeColors.Body,
             gravity = ComposeGravities.Start,
         )
         SmallVerticalSpacer()

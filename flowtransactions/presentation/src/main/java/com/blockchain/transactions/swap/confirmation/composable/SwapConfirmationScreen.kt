@@ -182,22 +182,22 @@ private fun ConfirmationContent(
                 } else {
                     StackedIcon.SingleIcon(ImageResource.Remote(state.sourceAsset.logo))
                 }
-                val sourceFee = state.sourceNetworkFee?.let { sourceNetworkFee ->
+                val sourceFeeExtra = state.sourceNetworkFee?.let { sourceNetworkFee ->
                     TwoAssetActionExtra(
                         title = stringResource(
                             R.string.checkout_item_network_fee,
                             sourceNetworkFee.cryptoValue?.currency?.displayTicker.orEmpty()
                         ),
                         endTitle = sourceNetworkFee.fiatValue.toStringWithSymbol().withApproximationPrefix(),
-                        endSubtitle = sourceNetworkFee.cryptoValue?.toStringWithSymbol(),
+                        endSubtitle = sourceNetworkFee.cryptoValue?.toStringWithSymbol()?.withApproximationPrefix(),
                         onClick = feeExplainerOnClick
                     )
                 }
-                val sourceSubtotal = state.sourceSubtotal?.let { sourceSubtotal ->
+                val sourceSubtotalExtra = state.sourceSubtotal?.let { sourceSubtotal ->
                     TwoAssetActionExtra(
                         title = stringResource(R.string.checkout_item_subtotal),
                         endTitle = sourceSubtotal.fiatValue.toStringWithSymbol().withApproximationPrefix(),
-                        endSubtitle = sourceSubtotal.cryptoValue?.toStringWithSymbol()
+                        endSubtitle = sourceSubtotal.cryptoValue?.toStringWithSymbol()?.withApproximationPrefix()
                     )
                 }
 
@@ -209,22 +209,22 @@ private fun ConfirmationContent(
                 } else {
                     StackedIcon.SingleIcon(ImageResource.Remote(state.targetAsset.logo))
                 }
-                val targetFee = state.targetNetworkFee?.let { targetNetworkFee ->
+                val targetFeeExtra = state.targetNetworkFee?.let { targetNetworkFee ->
                     TwoAssetActionExtra(
                         title = stringResource(
                             R.string.checkout_item_network_fee,
                             targetNetworkFee.cryptoValue?.currency?.displayTicker.orEmpty()
                         ),
                         endTitle = targetNetworkFee.fiatValue.toStringWithSymbol().withApproximationPrefix(),
-                        endSubtitle = targetNetworkFee.cryptoValue?.toStringWithSymbol(),
+                        endSubtitle = targetNetworkFee.cryptoValue?.toStringWithSymbol()?.withApproximationPrefix(),
                         onClick = feeExplainerOnClick
                     )
                 }
-                val targetNetAmount = state.targetNetAmount?.let { targetNetAmount ->
+                val targetNetAmountExtra = state.targetNetAmount?.let { targetNetAmount ->
                     TwoAssetActionExtra(
                         title = stringResource(R.string.checkout_item_net_amount),
                         endTitle = targetNetAmount.fiatValue.toStringWithSymbol().withApproximationPrefix(),
-                        endSubtitle = targetNetAmount.cryptoValue?.toStringWithSymbol()
+                        endSubtitle = targetNetAmount.cryptoValue?.toStringWithSymbol()?.withApproximationPrefix()
                     )
                 }
 
@@ -236,15 +236,17 @@ private fun ConfirmationContent(
                         endSubtitle = state.sourceAmount.cryptoValue?.toStringWithSymbol().orEmpty(),
                         icon = topIcon,
                     ),
-                    topExtras = listOfNotNull(sourceFee, sourceSubtotal).toImmutableList(),
+                    topExtras = listOfNotNull(sourceFeeExtra, sourceSubtotalExtra).toImmutableList(),
                     bottomAsset = TwoAssetActionAsset(
                         title = state.targetAsset.name,
                         subtitle = state.targetAssetDescription,
-                        endTitle = state.targetAmount?.fiatValue?.toStringWithSymbol().orEmpty(),
-                        endSubtitle = state.targetAmount?.cryptoValue?.toStringWithSymbol().orEmpty(),
+                        endTitle = state.targetAmount?.fiatValue?.toStringWithSymbol()
+                            ?.withApproximationPrefix().orEmpty(),
+                        endSubtitle = state.targetAmount?.cryptoValue?.toStringWithSymbol()
+                            ?.withApproximationPrefix().orEmpty(),
                         icon = bottomIcon
                     ),
-                    bottomExtras = listOfNotNull(targetFee, targetNetAmount).toImmutableList(),
+                    bottomExtras = listOfNotNull(targetFeeExtra, targetNetAmountExtra).toImmutableList(),
                 )
 
                 StandardVerticalSpacer()
