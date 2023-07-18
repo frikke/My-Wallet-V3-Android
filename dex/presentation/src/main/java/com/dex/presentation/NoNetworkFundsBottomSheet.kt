@@ -65,54 +65,61 @@ private fun NoNetworkFundsScreen(
     val coinNetwork = currency.coinNetwork ?: return
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(AppTheme.colors.background)
-            .padding(horizontal = AppTheme.dimensions.smallSpacing),
+        modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SheetHeader(
             onClosePress = closeClicked,
-            shouldShowDivider = false
+            shouldShowDivider = false,
+            backgroundSecondary = false
         )
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
-
-        SmallTagIcon(
-            icon = StackedIcon.SmallTag(
-                main = ImageResource.Remote(currency.logo),
-                tag = Icons.AlertOn.withTint(AppColors.warning)
-            ),
-            mainIconSize = 88.dp,
-            tagIconSize = 44.dp,
-        )
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
-        SimpleText(
-            text = stringResource(id = R.string.no_assets_on_network, coinNetwork.shortName),
-            style = ComposeTypographies.Title3,
-            color = ComposeColors.Title,
-            gravity = ComposeGravities.Centre
-        )
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-        SimpleText(
-            text = stringResource(
-                id = R.string.no_assets_on_network_description,
-                coinNetwork.shortName,
-                currency.displayTicker
-            ),
-            style = ComposeTypographies.Body1,
-            color = ComposeColors.Body,
-            gravity = ComposeGravities.Centre
-        )
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
-        PrimaryButton(
+        Column(
             modifier = Modifier
-                .fillMaxWidth(),
-            text = stringResource(id = R.string.common_deposit)
+                .fillMaxWidth()
+                .background(AppTheme.colors.background)
+                .padding(horizontal = AppTheme.dimensions.smallSpacing),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            depositOnClick()
+
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
+
+            SmallTagIcon(
+                icon = StackedIcon.SmallTag(
+                    main = ImageResource.Remote(currency.logo),
+                    tag = Icons.AlertOn.withTint(AppColors.warning)
+                ),
+                mainIconSize = 88.dp,
+                tagIconSize = 44.dp,
+            )
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
+            SimpleText(
+                text = stringResource(id = R.string.no_assets_on_network, coinNetwork.shortName),
+                style = ComposeTypographies.Title3,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Centre
+            )
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+            SimpleText(
+                text = stringResource(
+                    id = R.string.no_assets_on_network_description,
+                    coinNetwork.shortName,
+                    currency.displayTicker
+                ),
+                style = ComposeTypographies.Body1,
+                color = ComposeColors.Body,
+                gravity = ComposeGravities.Centre
+            )
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
+            PrimaryButton(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                text = stringResource(id = R.string.common_deposit)
+            ) {
+                depositOnClick()
+            }
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
         }
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
     }
 }
 
