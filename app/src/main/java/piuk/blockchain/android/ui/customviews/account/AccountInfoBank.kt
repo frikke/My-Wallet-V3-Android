@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.fiat.LinkedBankAccount
+import com.blockchain.componentlib.tag.TagType
+import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.visible
@@ -104,27 +106,27 @@ class AccountInfoBank @JvmOverloads constructor(
                     onSuccess = {
                         bankStatusFee.visible()
                         if (it.fee.isZero) {
-                            bankStatusFee.update(
+                            bankStatusFee.tag = TagViewState(
                                 context.getString(com.blockchain.stringResources.R.string.common_free),
-                                StatusPill.StatusType.UPSELL
+                                TagType.Success()
                             )
                         } else {
-                            bankStatusFee.update(
+                            bankStatusFee.tag = TagViewState(
                                 context.getString(
                                     com.blockchain.stringResources.R.string.bank_wire_transfer_fee,
                                     it.fee.toStringWithSymbol()
                                 ),
-                                StatusPill.StatusType.WARNING
+                                TagType.Warning()
                             )
                         }
                         if (!it.minLimit.isZero) {
                             bankStatusMin.visible()
-                            bankStatusMin.update(
+                            bankStatusMin.tag = TagViewState(
                                 context.getString(
                                     com.blockchain.stringResources.R.string.bank_wire_transfer_min_withdrawal,
                                     it.minLimit.toStringWithSymbol()
                                 ),
-                                StatusPill.StatusType.LABEL
+                                TagType.Default()
                             )
                         }
                     },
@@ -162,6 +164,7 @@ class AccountInfoBank @JvmOverloads constructor(
                         }
                     }
                 }
+
             AssetAction.FiatWithdraw ->
                 if (state.selectedTarget is LinkedBankAccount) {
                     updateAccount(false, state.selectedTarget, state.action) {
@@ -170,6 +173,7 @@ class AccountInfoBank @JvmOverloads constructor(
                         }
                     }
                 }
+
             else -> {
                 // do nothing
             }
