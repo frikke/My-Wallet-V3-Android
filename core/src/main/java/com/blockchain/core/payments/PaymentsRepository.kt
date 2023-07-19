@@ -855,6 +855,12 @@ class PaymentsRepository(
         }
 
     private fun BankTransferCapabilitiesResponse.toDomain(): LinkedBankCapabilities = LinkedBankCapabilities(
+        deposit = deposit?.let {
+            LinkedBankCapability(
+                enabled = it.enabled,
+                ux = it.ux?.toDomain()
+            )
+        },
         withdrawal = withdrawal?.let {
             LinkedBankCapability(
                 enabled = it.enabled,

@@ -4,7 +4,7 @@ import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import java.io.Serializable
 
 data class LinkedBankCapabilities(
-//    val deposit: LinkedBankCapability?, // not implemented
+    val deposit: LinkedBankCapability?,
     val withdrawal: LinkedBankCapability?
 //    val brokerage: LinkedBankCapability?, // not implemented
 ) : Serializable

@@ -478,7 +478,12 @@ private class BankAccountViewHolder(
         isLastItemInList: Boolean
     ) {
         val account = selectableAccountItem.item.account as LinkedBankAccount
-        val isDisabled = account.capabilities?.withdrawal?.enabled == false
+
+        val isDisabled = when (assetAction) {
+            AssetAction.FiatWithdraw -> account.capabilities?.withdrawal?.enabled == false
+            AssetAction.FiatDeposit -> account.capabilities?.deposit?.enabled == false
+            else -> false
+        }
 
         with(binding) {
             bankContainer.updateItemBackground(isFirstItemInList, isLastItemInList)
