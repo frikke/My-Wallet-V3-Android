@@ -15,62 +15,62 @@ class AppDimensions {
 
     val borderSmall: Dp
         @Composable
-        get() = dimensionResource(id = com.blockchain.componentlib.R.dimen.compose_border_small_spacing)
+        get() = dimensionResource(id = R.dimen.compose_border_small_spacing)
 
     val noSpacing: Dp
         get() = 0.dp
 
     val composeSmallestSpacing: Dp
         @Composable
-        get() = dimensionResource(id = com.blockchain.componentlib.R.dimen.compose_smallest_spacing)
+        get() = dimensionResource(id = R.dimen.compose_smallest_spacing)
 
     val smallestSpacing: Dp
         @Composable
-        get() = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
+        get() = dimensionResource(R.dimen.smallest_spacing)
 
     val minusculeSpacing: Dp
         @Composable
-        get() = dimensionResource(com.blockchain.componentlib.R.dimen.minuscule_spacing)
+        get() = dimensionResource(R.dimen.minuscule_spacing)
 
     val tinySpacing: Dp
         @Composable
-        get() = dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)
+        get() = dimensionResource(R.dimen.tiny_spacing)
 
     val verySmallSpacing: Dp
         @Composable
-        get() = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)
+        get() = dimensionResource(R.dimen.very_small_spacing)
 
     val smallSpacing: Dp
         @Composable
-        get() = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)
+        get() = dimensionResource(R.dimen.small_spacing)
 
     val mediumSpacing: Dp
         @Composable
-        get() = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)
+        get() = dimensionResource(R.dimen.medium_spacing)
 
     val standardSpacing: Dp
         @Composable
-        get() = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
+        get() = dimensionResource(R.dimen.standard_spacing)
 
     val largeSpacing: Dp
         @Composable
-        get() = dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)
+        get() = dimensionResource(R.dimen.large_spacing)
 
     val xLargeSpacing: Dp
         @Composable
-        get() = dimensionResource(com.blockchain.componentlib.R.dimen.xlarge_spacing)
+        get() = dimensionResource(R.dimen.xlarge_spacing)
 
     val hugeSpacing: Dp
         @Composable
-        get() = dimensionResource(com.blockchain.componentlib.R.dimen.huge_spacing)
+        get() = dimensionResource(R.dimen.huge_spacing)
 
     val xHugeSpacing: Dp
         @Composable
-        get() = dimensionResource(com.blockchain.componentlib.R.dimen.xhuge_spacing)
+        get() = dimensionResource(R.dimen.xhuge_spacing)
 
     val epicSpacing: Dp
         @Composable
-        get() = dimensionResource(com.blockchain.componentlib.R.dimen.epic_spacing)
+        get() = dimensionResource(R.dimen.epic_spacing)
 
     val borderRadiiSmallest: Dp
         @Composable
@@ -94,11 +94,11 @@ class AppDimensions {
 
     val smallElevation: Dp
         @Composable
-        get() = dimensionResource(com.blockchain.componentlib.R.dimen.small_elevation)
+        get() = dimensionResource(R.dimen.small_elevation)
 
     val mediumElevation: Dp
         @Composable
-        get() = dimensionResource(com.blockchain.componentlib.R.dimen.medium_elevation)
+        get() = dimensionResource(R.dimen.medium_elevation)
 }
 
 // Vertical Spacers
