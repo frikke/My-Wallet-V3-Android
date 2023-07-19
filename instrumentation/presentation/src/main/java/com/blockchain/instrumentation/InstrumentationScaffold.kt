@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -48,8 +47,8 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue400
 import com.blockchain.componentlib.theme.Dark800
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey700
@@ -111,7 +110,7 @@ private fun BoxScope.Panel(
     ) {
         val fabColor by rememberInfiniteTransition().animateColor(
             initialValue = White,
-            targetValue = Blue400,
+            targetValue = AppColors.primary,
             animationSpec = infiniteRepeatable(
                 animation = tween(500, easing = LinearEasing),
                 repeatMode = RepeatMode.Reverse

@@ -130,7 +130,7 @@ class LoaderActivity :
                 listOf(
                     NavigationBarButton.TextWithColorInt(
                         getString(com.blockchain.stringResources.R.string.common_skip),
-                        com.blockchain.common.R.color.blue_600,
+                        com.blockchain.componentlib.R.color.primary,
                         buttonAction
                     )
                 )

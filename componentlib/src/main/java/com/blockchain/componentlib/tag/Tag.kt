@@ -20,7 +20,6 @@ import com.blockchain.componentlib.icons.ChevronRight
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Info
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue400
 import com.blockchain.componentlib.theme.Dark600
 import com.blockchain.componentlib.utils.conditional
 
@@ -96,7 +95,7 @@ fun ClickableTagLargeText() {
             "Rest assured that your funds are safe. Learn more",
         size = TagSize.Primary,
         backgroundColor = Dark600,
-        textColor = Blue400,
+        textColor = Color.Blue,
         onClick = { }
     )
 }
@@ -108,7 +107,7 @@ fun ClickableTag() {
         text = "Clickable",
         size = TagSize.Primary,
         backgroundColor = Dark600,
-        textColor = Blue400,
+        textColor = Color.Blue,
         onClick = { }
     )
 }
@@ -120,7 +119,7 @@ fun NonClickableTag() {
         text = "Dummy",
         size = TagSize.Primary,
         backgroundColor = Dark600,
-        textColor = Blue400,
+        textColor = Color.Blue,
         onClick = null
     )
 }

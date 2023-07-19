@@ -6,7 +6,6 @@ import android.os.Bundle
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
-import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.presentation.koin.scopedInject
 import piuk.blockchain.android.R
@@ -39,9 +38,9 @@ class LandingCtaActivity : BlockchainActivity() {
                 }
             )
             endNavigationBarButtons = listOf(
-                NavigationBarButton.Text(
+                NavigationBarButton.TextWithColorInt(
                     text = getString(com.blockchain.stringResources.R.string.landing_cta_login),
-                    color = Blue600,
+                    colorId = com.blockchain.componentlib.R.color.primary,
                     onTextClick = {
                         analytics.logEvent(LandingAnalytics.LogInClicked)
                         onboardingPrefs.isLandingCtaDismissed = true

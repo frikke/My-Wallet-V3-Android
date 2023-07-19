@@ -50,11 +50,7 @@ import com.blockchain.componentlib.icons.MenuKebabVertical
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.END_DEFI
-import com.blockchain.componentlib.theme.END_TRADING
 import com.blockchain.componentlib.theme.Grey400
-import com.blockchain.componentlib.theme.START_DEFI
-import com.blockchain.componentlib.theme.START_TRADING
 import com.blockchain.componentlib.theme.clickableWithIndication
 import com.blockchain.componentlib.theme.topOnly
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
@@ -179,14 +175,13 @@ fun NavigationBar(
                 when (walletMode) {
                     WalletMode.CUSTODIAL -> Modifier.background(
                         brush = Brush.horizontalGradient(
-                            colors = listOf(START_TRADING, END_TRADING)
+                            colors = listOf(AppColors.backgroundCustodialStart, AppColors.backgroundCustodialEnd)
                         )
                     )
 
                     WalletMode.NON_CUSTODIAL -> Modifier.background(
                         brush = Brush.horizontalGradient(
-                            colors = listOf(START_DEFI, END_DEFI)
-
+                            colors = listOf(AppColors.backgroundDefiStart, AppColors.backgroundDefiEnd)
                         )
                     )
 

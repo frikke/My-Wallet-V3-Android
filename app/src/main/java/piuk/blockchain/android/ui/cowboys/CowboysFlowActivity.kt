@@ -40,9 +40,9 @@ import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.system.EmbeddedFragment
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.BUY_URL
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.KYC_URL
 import com.blockchain.domain.common.model.PromotionStyleInfo
@@ -56,7 +56,6 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
@@ -304,7 +303,7 @@ fun EmailKycHost(
             endNavigationBarButtons = if (shouldShowEmailSkipButton) {
                 listOf(
                     NavigationBarButton.Text(
-                        color = Blue600,
+                        color = AppColors.primary,
                         text = stringResource(com.blockchain.stringResources.R.string.common_skip),
                         onTextClick = emailSkipAction
                     )

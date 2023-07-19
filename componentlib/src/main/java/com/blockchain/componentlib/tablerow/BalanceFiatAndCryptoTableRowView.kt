@@ -20,7 +20,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
 
 class BalanceFiatAndCryptoTableRowView @JvmOverloads constructor(
@@ -61,7 +60,7 @@ class BalanceFiatAndCryptoTableRowView @JvmOverloads constructor(
                 bottomStart = getRoundSize(roundedBottom),
                 bottomEnd = getRoundSize(roundedBottom)
             ),
-            border = BorderStroke(1.dp, Blue600).takeIf { withBorder }
+            border = BorderStroke(1.dp, AppColors.primary).takeIf { withBorder }
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 BalanceFiatAndCryptoTableRow(

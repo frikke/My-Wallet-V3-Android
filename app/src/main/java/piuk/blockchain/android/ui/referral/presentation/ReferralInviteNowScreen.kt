@@ -20,8 +20,8 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.sheets.SheetHeader
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue600
 import piuk.blockchain.android.R
 
 @Composable
@@ -35,7 +35,7 @@ fun ReferralInviteNowScreen(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = Blue600,
+                color = AppColors.primary,
                 shape = RoundedCornerShape(dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing))
             )
     ) {

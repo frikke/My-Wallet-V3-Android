@@ -1,11 +1,11 @@
 package com.blockchain.home.presentation.accouncement
 
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Unlock
-import com.blockchain.componentlib.theme.Pink600
 import com.blockchain.componentlib.utils.ImageValue
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.data.DataResource
@@ -196,7 +196,8 @@ class AnnouncementsViewModel(
                                 subtitle = TextValue.IntResValue(
                                     com.blockchain.stringResources.R.string.announcement_recovery_subtitle
                                 ),
-                                icon = ImageValue.Local(Icons.Filled.Unlock.id, tint = Pink600)
+                                icon = ImageValue.Local(Icons.Filled.Unlock.id, tint = Color(0XFFF00699))
+                                //todo ref color usage
                             )
                         )
                     }

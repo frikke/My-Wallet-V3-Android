@@ -80,8 +80,6 @@ import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Green700
-import com.blockchain.componentlib.theme.Red400
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.utils.TextValue
@@ -185,6 +183,8 @@ fun DexEnterAmountScreen(
     }
     val uriHandler = LocalUriHandler.current
 
+    val successColor = AppColors.success
+    val errorColor = AppColors.error
     LaunchedEffect(key1 = viewModel) {
         navEventsFlowLifecycleAware.collectLatest { event ->
             when (event) {
@@ -209,7 +209,7 @@ fun DexEnterAmountScreen(
                                         event.currencyTicker
                                     )
                                 ),
-                                icon = Icons.Filled.Alert.withTint(Red400),
+                                icon = Icons.Filled.Alert.withTint(errorColor),
                                 type = PillAlertType.Error
                             )
                         )
@@ -226,7 +226,7 @@ fun DexEnterAmountScreen(
                                         event.currencyTicker
                                     )
                                 ),
-                                icon = Icons.Filled.Check.withTint(Green700),
+                                icon = Icons.Filled.Check.withTint(successColor),
                                 type = PillAlertType.Success
                             )
                         )

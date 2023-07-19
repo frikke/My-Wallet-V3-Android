@@ -72,6 +72,7 @@ sealed class TextInputState(val message: String? = null) {
 @Composable
 fun TextInput(
     modifier: Modifier = Modifier,
+    secondaryBackground: Boolean = false, // relying on this for bg while we change some remaining screens bg
     value: String,
     onValueChange: (String) -> Unit,
     autoSize: Boolean = false,
@@ -105,6 +106,7 @@ fun TextInput(
 
     TextInput(
         modifier = modifier,
+        secondaryBackground = secondaryBackground,
         value = textFieldValue,
         onValueChange = { newTextFieldValueState ->
             textFieldValueState = newTextFieldValueState
@@ -135,10 +137,10 @@ fun TextInput(
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun TextInput(
     modifier: Modifier = Modifier,
+    secondaryBackground: Boolean = false, // relying on this for bg while we change some remaining screens bg
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     autoSize: Boolean = false,
@@ -193,7 +195,7 @@ fun TextInput(
     }
 
     val backgroundColor = if (enabled) {
-        AppTheme.colors.light
+        if(secondaryBackground) AppTheme.colors.backgroundSecondary else AppTheme.colors.background
     } else {
         if (!isSystemInDarkTheme()) {
             Grey000

@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -33,8 +32,6 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey100
-import com.blockchain.componentlib.theme.Red000
-import com.blockchain.componentlib.theme.Red900
 import com.blockchain.componentlib.theme.White
 
 @Composable
@@ -43,14 +40,12 @@ fun NoPaddingRadio(
     state: RadioButtonState,
     onSelectedChanged: ((Boolean) -> Unit)? = null,
     enabled: Boolean = true,
-    isDarkMode: Boolean = isSystemInDarkTheme()
 ) {
     Radio(
         state = state,
         onSelectedChanged = onSelectedChanged,
         modifier = modifier,
         enabled = enabled,
-        isDarkMode = isDarkMode,
         withPadding = false
     )
 }
@@ -61,14 +56,12 @@ fun Radio(
     onSelectedChanged: ((Boolean) -> Unit)? = null,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    isDarkMode: Boolean = isSystemInDarkTheme()
 ) {
     Radio(
         state = state,
         onSelectedChanged = onSelectedChanged,
         modifier = modifier,
         enabled = enabled,
-        isDarkMode = isDarkMode,
         withPadding = true
     )
 }
@@ -79,13 +72,12 @@ private fun Radio(
     onSelectedChanged: ((Boolean) -> Unit)? = null,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    isDarkMode: Boolean = isSystemInDarkTheme(),
     withPadding: Boolean = true
 ) {
     val selectedColor = AppTheme.colors.primary
     val unselectedColor = AppTheme.colors.medium
     val errorColor = AppTheme.colors.error
-    val errorFillColor = if (isDarkMode) Red900 else Red000
+    val errorFillColor = AppTheme.colors.errorLight
 
     var radioRingColor by remember(
         state,

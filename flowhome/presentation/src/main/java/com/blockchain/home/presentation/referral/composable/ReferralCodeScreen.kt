@@ -42,8 +42,8 @@ import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.icons.ArrowLeft
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.media.AsyncMediaItem
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.CowboysDark
 import com.blockchain.componentlib.theme.UltraLight
 import com.blockchain.componentlib.utils.CopyText
@@ -314,7 +314,7 @@ fun ReferralCode(
             modifier = Modifier
                 .clickable { copyToClipboard() },
             style = AppTheme.typography.paragraph2,
-            color = Blue600,
+            color = AppColors.primary,
             text = stringResource(
                 if (confirmCopiedToClipboard) com.blockchain.stringResources.R.string.common_copied else
                     com.blockchain.stringResources.R.string.common_copy

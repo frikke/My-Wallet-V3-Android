@@ -26,6 +26,7 @@ import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
 fun SmallTagIcon(
+    modifier : Modifier= Modifier,
     icon: StackedIcon.SmallTag,
     iconBackground: Color = AppTheme.colors.light,
     borderColor: Color = AppTheme.colors.backgroundSecondary,
@@ -39,7 +40,7 @@ fun SmallTagIcon(
     val overlap = mainIconSize.times(.4f)
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .graphicsLayer {
                 alpha = alphaProvider()
             }
@@ -78,12 +79,14 @@ fun SmallTagIcon(
 
 @Composable
 fun ScreenStatusIcon(
+    modifier : Modifier = Modifier,
     main: ImageResource.Local,
     tag: ImageResource.Local,
     iconBackground: Color = AppColors.backgroundSecondary,
     borderColor: Color = AppColors.background,
 ) {
     SmallTagIcon(
+        modifier = modifier,
         icon = StackedIcon.SmallTag(
             main = main
                 .withTint(AppColors.title)

@@ -17,12 +17,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.theme.Blue600
+import com.blockchain.componentlib.theme.AppColors
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 
+// unused but could be useful later
 @Composable
 fun PulseLoading(
     modifier: Modifier = Modifier,
@@ -99,21 +100,21 @@ fun PulseLoading(
             modifier = Modifier
                 .size(firstCircleSize.dp)
                 .alpha(firstCircleAlpha)
-                .background(color = Blue600, shape = CircleShape)
+                .background(color = AppColors.primary, shape = CircleShape)
                 .align(Alignment.Center)
         )
         Box(
             modifier = Modifier
                 .size(secondCircleSize.dp)
                 .alpha(secondCircleAlpha)
-                .background(color = Blue600, shape = CircleShape)
+                .background(color = AppColors.primary, shape = CircleShape)
                 .align(Alignment.Center)
         )
         Box(
             modifier = Modifier
                 .size(thirdCircleSize.dp)
                 .alpha(thirdCircleAlpha)
-                .background(color = Blue600, shape = CircleShape)
+                .background(color = AppColors.primary, shape = CircleShape)
                 .align(Alignment.Center)
         )
     }

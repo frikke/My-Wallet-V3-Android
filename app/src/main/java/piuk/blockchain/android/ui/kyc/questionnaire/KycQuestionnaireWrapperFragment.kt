@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.blockchain.componentlib.navigation.NavigationBarButton
-import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.fiatActions.QuestionnaireSheetHost
 import org.koin.android.ext.android.inject
@@ -53,9 +52,9 @@ class KycQuestionnaireWrapperFragment : Fragment(), QuestionnaireSheetHost {
 
         val hostNavBarButtons = if (!questionnaire.isMandatory) {
             listOf(
-                NavigationBarButton.Text(
+                NavigationBarButton.TextWithColorInt(
                     text = getString(com.blockchain.stringResources.R.string.common_skip),
-                    color = Blue600,
+                    colorId = com.blockchain.componentlib.R.color.primary,
                     onTextClick = ::questionnaireSkipped
                 )
             )

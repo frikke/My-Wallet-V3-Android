@@ -24,12 +24,12 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.MinimalErrorButton
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.domain.paymentmethods.model.YapilyInstitution
-import java.net.URL
 import piuk.blockchain.android.urllinks.URL_OPEN_BANKING_PRIVACY_POLICY
+import java.net.URL
 
 @Composable
 fun OpenBankingPermissionScreen(
@@ -114,7 +114,7 @@ private fun TermAndPrivacyText(
             tag = tosTag,
             annotation = termsOfServiceLink
         )
-        withStyle(style = SpanStyle(color = Blue600)) {
+        withStyle(style = SpanStyle(color = AppColors.primary)) {
             append(stringResource(id = com.blockchain.stringResources.R.string.open_banking_permission_terms_service))
         }
         pop()
@@ -125,7 +125,7 @@ private fun TermAndPrivacyText(
             tag = privacyTag,
             annotation = URL_OPEN_BANKING_PRIVACY_POLICY
         )
-        withStyle(style = SpanStyle(color = Blue600)) {
+        withStyle(style = SpanStyle(color = AppColors.primary)) {
             append(stringResource(id = com.blockchain.stringResources.R.string.open_banking_permission_privacy_policy))
         }
         pop()

@@ -1,6 +1,7 @@
 package piuk.blockchain.android.cards.cvv
 
 import android.content.Context
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
@@ -44,18 +45,21 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.controls.TextInput
+import com.blockchain.componentlib.icon.ScreenStatusIcon
 import com.blockchain.componentlib.icons.Card
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Security
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.theme.UltraLight
 import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import kotlinx.coroutines.NonDisposableHandle.parent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import piuk.blockchain.android.R
@@ -98,7 +102,7 @@ fun SecurityCodeScreen(
 
         Column(
             modifier = Modifier
-                .background(Color.White)
+                .background(AppColors.background)
                 .fillMaxSize()
                 .padding(padding)
                 .padding(
@@ -107,37 +111,12 @@ fun SecurityCodeScreen(
         ) {
             Spacer(Modifier.height(AppTheme.dimensions.largeSpacing))
 
-            ConstraintLayout(
+            ScreenStatusIcon(
                 modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .size(width = 88.dp, height = 88.dp)
-            ) {
-                val (backgroundImage, foregroundImage) = createRefs()
-
-                Image(
-                    imageResource = Icons.Filled.Card.withTint(Grey900).withBackground(
-                        iconSize = 48.dp,
-                        backgroundSize = 88.dp
-                    ),
-                    modifier = Modifier.constrainAs(backgroundImage) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
-                )
-                Image(
-                    imageResource = Icons.Filled.Security.withTint(Grey900).withBackground(
-                        backgroundColor = White,
-                        iconSize = 30.dp,
-                        backgroundSize = 40.dp
-                    ),
-                    modifier = Modifier.constrainAs(foregroundImage) {
-                        bottom.linkTo(parent.bottom)
-                        end.linkTo(parent.end)
-                    }
-                )
-            }
+                    .align(Alignment.CenterHorizontally),
+                main = Icons.Filled.Card.withTint(AppColors.title),
+                tag = Icons.Filled.Security.withTint(AppColors.title)
+            )
 
             SimpleText(
                 text = stringResource(com.blockchain.stringResources.R.string.security_code),
@@ -171,6 +150,7 @@ fun SecurityCodeScreen(
             )
 
             TextInput(
+                secondaryBackground = true,
                 value = state.cvv,
                 placeholder = StringBuilder().apply { repeat(state.cvvLength) { append("0") } }.toString(),
                 maxLength = state.cvvLength,
@@ -196,7 +176,7 @@ fun SecurityCodeScreen(
 
             Row(
                 modifier = Modifier
-                    .background(color = UltraLight, shape = RoundedCornerShape(8.dp))
+                    .background(color = AppColors.backgroundSecondary, shape = RoundedCornerShape(8.dp))
                     .fillMaxWidth()
                     .border(1.dp, AppTheme.colors.light, shape = RoundedCornerShape(8.dp))
             ) {
@@ -259,6 +239,7 @@ private fun UpdateSecurityCodeError.errorMessage(context: Context): String = whe
         if (message.isNullOrEmpty()) context.getString(
             com.blockchain.stringResources.R.string.something_went_wrong_try_again
         ) else message
+
     is UpdateSecurityCodeError.UpdateCvvFailed ->
         if (message.isNullOrEmpty()) context.getString(
             com.blockchain.stringResources.R.string.something_went_wrong_try_again
@@ -284,4 +265,10 @@ fun SecurityCodeScreenPreview() {
             onBackButtonClick = {}
         )
     }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun SecurityCodeScreenPreviewDark() {
+    SecurityCodeScreenPreview()
 }
