@@ -35,7 +35,8 @@ val commonPresentationModule = module {
             screen = screen,
             analytics = get(),
             coroutineScope = coroutineScope,
-            coroutineDispatcher = Dispatchers.IO
+            coroutineDispatcher = Dispatchers.IO,
+            remoteConfigService = get()
         )
     }
 }
