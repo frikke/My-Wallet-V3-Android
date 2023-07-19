@@ -653,4 +653,3 @@ fun PreviewAutoCompleteContainerItemWithHighlight() {
         descriptionHighlightRange = listOf(IntRange(0, 1), IntRange(2, 4), IntRange(5, 6))
     )
 }
-

@@ -197,7 +197,7 @@ class AnnouncementsViewModel(
                                     com.blockchain.stringResources.R.string.announcement_recovery_subtitle
                                 ),
                                 icon = ImageValue.Local(Icons.Filled.Unlock.id, tint = Color(0XFFF00699))
-                                //todo ref color usage
+                                // todo ref color usage
                             )
                         )
                     }

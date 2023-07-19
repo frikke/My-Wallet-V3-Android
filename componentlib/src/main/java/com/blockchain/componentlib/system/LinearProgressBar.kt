@@ -7,7 +7,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey100
 
 @Composable
 fun LinearProgressBar(
@@ -15,7 +14,7 @@ fun LinearProgressBar(
     progress: Float? = null
 ) {
     val color = AppColors.primary
-    val backgroundColor = Grey100
+    val backgroundColor = AppColors.medium
 
     if (progress != null) {
         LinearProgressIndicator(

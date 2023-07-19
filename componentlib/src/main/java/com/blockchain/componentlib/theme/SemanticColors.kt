@@ -9,7 +9,6 @@ class SemanticColors(
     title: Color,
     titleSecondary: Color,
     body: Color,
-    overlay: Color,
     muted: Color,
     dark: Color,
     semidark: Color,
@@ -45,8 +44,6 @@ class SemanticColors(
     var titleSecondary by mutableStateOf(titleSecondary)
         private set
     var body by mutableStateOf(body)
-        private set
-    var overlay by mutableStateOf(overlay)
         private set
     var muted by mutableStateOf(muted)
         private set
@@ -109,7 +106,6 @@ class SemanticColors(
         title: Color = this.title,
         titleSecondary: Color = this.titleSecondary,
         body: Color = this.body,
-        overlay: Color = this.overlay,
         muted: Color = this.muted,
         dark: Color = this.dark,
         medium: Color = this.medium,
@@ -141,7 +137,6 @@ class SemanticColors(
         title = title,
         titleSecondary = titleSecondary,
         body = body,
-        overlay = overlay,
         muted = muted,
         dark = dark,
         medium = medium,
@@ -176,7 +171,6 @@ class SemanticColors(
         title = colors.title
         titleSecondary = colors.titleSecondary
         body = colors.body
-        overlay = colors.overlay
         muted = colors.muted
         dark = colors.dark
         medium = colors.medium

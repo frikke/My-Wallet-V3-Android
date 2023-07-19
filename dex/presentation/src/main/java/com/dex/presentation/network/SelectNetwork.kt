@@ -27,8 +27,8 @@ import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.system.ShimmerLoadingCard
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
 import com.blockchain.koin.payloadScope
@@ -143,11 +143,12 @@ private fun Network(
                     .withTint(AppTheme.colors.primary)
             )
         } else {
+            val color = AppColors.medium
             Canvas(
                 modifier = Modifier.size(AppTheme.dimensions.standardSpacing),
                 onDraw = {
                     drawCircle(
-                        color = Grey100,
+                        color = color,
                         style = Stroke(width = 2.dp.toPx())
                     )
                 }

@@ -1,5 +1,6 @@
 package com.blockchain.kycproviders.prove.presentation.screens
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -49,7 +50,6 @@ import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.User
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.White
 import com.blockchain.kycproviders.prove.presentation.ProvePrefillIntent
 import com.blockchain.kycproviders.prove.presentation.ProvePrefillViewState
 import com.blockchain.kycproviders.prove.presentation.defaultViewState
@@ -67,7 +67,7 @@ internal fun ViewPrefillData(
     val localFocusManager = LocalFocusManager.current
 
     Column(
-        Modifier.background(White)
+        Modifier.background(AppColors.background)
     ) {
         Column(
             modifier = Modifier
@@ -363,6 +363,12 @@ private fun PreviewMultipleAddressesUnselected() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewMultipleAddressesUnselectedDark() {
+    PreviewMultipleAddressesUnselected()
+}
+
 @Preview
 @Composable
 private fun PreviewMultipleAddressesUnselectedDropdownOpen() {
@@ -380,6 +386,12 @@ private fun PreviewMultipleAddressesUnselectedDropdownOpen() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewMultipleAddressesUnselectedDropdownOpenDark() {
+    PreviewMultipleAddressesUnselectedDropdownOpen()
+}
+
 @Preview
 @Composable
 private fun PreviewMultipleAddressesWithSelected() {
@@ -394,6 +406,12 @@ private fun PreviewMultipleAddressesWithSelected() {
         ),
         onIntent = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewMultipleAddressesWithSelectedDark() {
+    PreviewMultipleAddressesWithSelected()
 }
 
 @Preview
@@ -414,6 +432,12 @@ private fun PreviewOnlyOneAddress() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewOnlyOneAddressDark() {
+    PreviewOnlyOneAddress()
+}
+
 @Preview
 @Composable
 private fun PreviewNoAddresses() {
@@ -427,6 +451,12 @@ private fun PreviewNoAddresses() {
         ),
         onIntent = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewNoAddressesDark() {
+    PreviewNoAddresses()
 }
 
 @Preview
@@ -446,6 +476,12 @@ private fun PreviewComplete() {
         ),
         onIntent = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewCompleteDark() {
+    PreviewComplete()
 }
 
 private val address1 = AddressDetails(

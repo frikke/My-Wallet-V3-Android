@@ -44,8 +44,6 @@ import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.CowboysDark
-import com.blockchain.componentlib.theme.UltraLight
 import com.blockchain.componentlib.utils.CopyText
 import com.blockchain.componentlib.utils.Share
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
@@ -292,7 +290,7 @@ fun ReferralCode(
 ) {
     Column(
         modifier = Modifier
-            .background(if (isCustomBackground) CowboysDark else UltraLight)
+            .background(AppColors.backgroundSecondary)
             .padding(
                 top = AppTheme.dimensions.standardSpacing,
                 bottom = AppTheme.dimensions.standardSpacing

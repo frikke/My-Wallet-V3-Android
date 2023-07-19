@@ -21,7 +21,6 @@ import com.blockchain.outcome.doOnSuccess
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.awaitOutcome
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity

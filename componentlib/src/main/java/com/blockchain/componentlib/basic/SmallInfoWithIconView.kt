@@ -12,7 +12,6 @@ import com.blockchain.componentlib.icons.Info
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey300
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
 
 class SmallInfoWithIconView @JvmOverloads constructor(

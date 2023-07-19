@@ -20,19 +20,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.Check
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey100
-import com.blockchain.componentlib.theme.White
 
 @Composable
 fun NoPaddingRadio(
@@ -259,30 +257,19 @@ fun RadioCheckMark(state: RadioButtonState, onSelectedChanged: () -> Unit, modif
         contentAlignment = Alignment.Center
     ) {
         if (state == RadioButtonState.Selected) {
-            Box(
+            Image(
+                imageResource = Icons.Filled.Check
+                    .withTint(AppColors.primary),
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(CircleShape)
-                    .background(AppTheme.colors.primary),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    imageResource = ImageResource.Local(
-                        R.drawable.ic_check_green,
-                        colorFilter = ColorFilter.tint(White)
-                    ),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(AppTheme.dimensions.smallestSpacing)
-                )
-            }
+            )
         } else {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .border(
                         width = AppTheme.dimensions.composeSmallestSpacing,
-                        color = Grey100,
+                        color = AppColors.medium,
                         shape = CircleShape
                     )
             )

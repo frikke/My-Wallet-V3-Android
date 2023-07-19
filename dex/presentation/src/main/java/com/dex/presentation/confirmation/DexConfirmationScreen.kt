@@ -63,11 +63,11 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
+import java.math.BigDecimal
+import java.math.BigInteger
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
-import java.math.BigDecimal
-import java.math.BigInteger
 
 @Composable
 fun DexConfirmationScreen(

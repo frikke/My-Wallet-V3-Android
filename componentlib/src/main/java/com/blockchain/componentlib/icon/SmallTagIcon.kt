@@ -26,7 +26,7 @@ import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
 fun SmallTagIcon(
-    modifier : Modifier= Modifier,
+    modifier: Modifier = Modifier,
     icon: StackedIcon.SmallTag,
     iconBackground: Color = AppTheme.colors.light,
     borderColor: Color = AppTheme.colors.backgroundSecondary,
@@ -79,7 +79,7 @@ fun SmallTagIcon(
 
 @Composable
 fun ScreenStatusIcon(
-    modifier : Modifier = Modifier,
+    modifier: Modifier = Modifier,
     main: ImageResource.Local,
     tag: ImageResource.Local,
     iconBackground: Color = AppColors.backgroundSecondary,
