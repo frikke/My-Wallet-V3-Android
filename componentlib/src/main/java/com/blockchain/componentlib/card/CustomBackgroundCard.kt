@@ -2,7 +2,6 @@ package com.blockchain.componentlib.card
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,11 +28,9 @@ import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.media.AsyncMediaItem
-import com.blockchain.componentlib.theme.AppSurface
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Dark800
 import com.blockchain.componentlib.theme.Grey800
-import com.blockchain.componentlib.theme.Grey900
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
@@ -46,14 +43,8 @@ fun CustomBackgroundCard(
     isCloseable: Boolean = true,
     onClose: () -> Unit = {},
     onClick: () -> Unit = {},
-    isDarkTheme: Boolean = isSystemInDarkTheme(),
-    textColor: Color = Color.White
+    textColor: Color = AppColors.title
 ) {
-    val backgroundColor = if (!isDarkTheme) {
-        Grey900
-    } else {
-        Dark800
-    }
 
     Box(
         modifier = Modifier
@@ -62,7 +53,7 @@ fun CustomBackgroundCard(
             .wrapContentHeight()
             .clickable(onClick = onClick)
             .defaultMinSize(minWidth = 340.dp)
-            .background(color = backgroundColor, shape = AppTheme.shapes.medium)
+            .background(color = AppColors.backgroundSecondary, shape = AppTheme.shapes.medium)
     ) {
         if (backgroundResource is ImageResource.Remote) {
             AsyncMediaItem(
@@ -91,10 +82,10 @@ fun CustomBackgroundCard(
             modifier = Modifier
                 .background(Color.Transparent)
                 .padding(
-                    start = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
-                    end = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
-                    top = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing),
-                    bottom = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)
+                    start = dimensionResource(R.dimen.medium_spacing),
+                    end = dimensionResource(R.dimen.medium_spacing),
+                    top = dimensionResource(R.dimen.very_small_spacing),
+                    bottom = dimensionResource(R.dimen.very_small_spacing)
                 ),
             color = Color.Transparent
         ) {
@@ -108,20 +99,22 @@ fun CustomBackgroundCard(
                     is ImageResource.Remote -> {
                         AsyncMediaItem(
                             modifier = Modifier.size(
-                                dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)
+                                dimensionResource(R.dimen.large_spacing)
                             ),
                             url = iconResource.url,
                             contentDescription = "",
                             contentScale = ContentScale.Inside
                         )
                     }
+
                     is ImageResource.None -> {
                         // do nothing
                     }
+
                     else -> {
                         Image(
                             modifier = Modifier.size(
-                                dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)
+                                dimensionResource(R.dimen.large_spacing)
                             ),
                             contentScale = ContentScale.Inside,
                             imageResource = iconResource
@@ -134,9 +127,9 @@ fun CustomBackgroundCard(
                         .weight(1f, true)
                         .padding(
                             start = if (iconResource !is ImageResource.None) {
-                                dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)
+                                dimensionResource(R.dimen.medium_spacing)
                             } else 0.dp,
-                            end = dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)
+                            end = dimensionResource(R.dimen.tiny_spacing)
                         )
                         .align(Alignment.Top)
                 ) {
@@ -168,68 +161,43 @@ fun CustomBackgroundCard(
 @Preview
 @Composable
 fun CustomBackgroundCard_Non_Closeable() {
-    AppTheme {
-        AppSurface {
-            CustomBackgroundCard(
-                title = "Title",
-                subtitle = "Subtitle",
-                iconResource = ImageResource.Local(R.drawable.ic_star),
-                backgroundResource = ImageResource.Local(R.drawable.ic_blockchain_logo_with_text),
-                isCloseable = false
-            )
-        }
-    }
+    CustomBackgroundCard(
+        title = "Title",
+        subtitle = "Subtitle",
+        iconResource = ImageResource.Local(R.drawable.ic_star),
+        isCloseable = false
+    )
 }
 
 @Preview
 @Composable
 fun CustomBackgroundCard_Closeable() {
-    AppTheme {
-        AppSurface {
-            CustomBackgroundCard(
-                title = "Title",
-                subtitle = "Subtitle",
-                iconResource = ImageResource.Local(R.drawable.ic_star),
-                backgroundResource = ImageResource.Local(R.drawable.ic_blockchain_logo_with_text),
-                isCloseable = true
-            )
-        }
-    }
+    CustomBackgroundCard(
+        title = "Title",
+        subtitle = "Subtitle",
+        iconResource = ImageResource.Local(R.drawable.ic_star),
+        isCloseable = true
+    )
 }
 
 @Preview
 @Composable
 fun CustomBackgroundCard_Remote() {
-    AppTheme {
-        AppSurface {
-            CustomBackgroundCard(
-                title = "Title",
-                subtitle = "Subtitle",
-                iconResource = ImageResource.Remote(
-                    "https://firebasestorage.googleapis.com/v0/b/fir-staging-92d79.appspot.com/o/announcement.png"
-                ),
-                backgroundResource = ImageResource.Remote(
-                    "https://firebasestorage.googleapis.com/v0/b/" +
-                        "fir-staging-92d79.appspot.com/o/icon-cowboys-circle.svg?"
-                ),
-                isCloseable = true
-            )
-        }
-    }
+    CustomBackgroundCard(
+        title = "Title",
+        subtitle = "Subtitle",
+        iconResource = ImageResource.Local(R.drawable.ic_star),
+        isCloseable = true
+    )
 }
 
 @Preview
 @Composable
 fun CustomBackgroundCard_NoIcon() {
-    AppTheme {
-        AppSurface {
-            CustomBackgroundCard(
-                title = "Title",
-                subtitle = "Subtitle",
-                iconResource = ImageResource.None,
-                backgroundResource = ImageResource.Local(R.drawable.ic_blockchain_logo_with_text),
-                isCloseable = false
-            )
-        }
-    }
+    CustomBackgroundCard(
+        title = "Title",
+        subtitle = "Subtitle",
+        iconResource = ImageResource.None,
+        isCloseable = false
+    )
 }

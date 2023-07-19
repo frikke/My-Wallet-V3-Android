@@ -1,20 +1,12 @@
 package com.blockchain.componentlib.alert
 
 import android.content.res.Configuration
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.SnackbarDefaults.backgroundColor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppColors
-import com.blockchain.componentlib.theme.AppSurface
-import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Dark800
-import com.blockchain.componentlib.theme.Grey300
-import com.blockchain.componentlib.theme.Grey600
-import com.blockchain.componentlib.theme.Grey900
 
 @Composable
 fun DefaultToastAlert(

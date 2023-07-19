@@ -1,5 +1,7 @@
 package piuk.blockchain.android.maintenance.presentation
 
+import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,8 +22,8 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey900
 
 /**
  * Figma: https://www.figma.com/file/Khjv2OKUvZ7xwTx2qmSadw/iOS---Upgrade-Prompts?node-id=0%3A1
@@ -35,7 +37,7 @@ fun AppMaintenanceScreen(
     button2OnClick: (AppMaintenanceIntents) -> Unit
 ) {
     with(uiState) {
-        Box {
+        Box(modifier = Modifier.background(AppColors.background)) {
             Image(
                 modifier = Modifier.fillMaxSize(),
                 imageResource = ImageResource.Local(
@@ -72,7 +74,7 @@ fun AppMaintenanceScreen(
                         start = dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)
                     ),
                     style = AppTheme.typography.title3,
-                    color = Grey900,
+                    color = AppColors.title,
                     text = stringResource(id = title)
                 )
 
@@ -83,7 +85,7 @@ fun AppMaintenanceScreen(
                         start = dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)
                     ),
                     style = AppTheme.typography.body1,
-                    color = Grey900,
+                    color = AppColors.body,
                     textAlign = TextAlign.Center,
                     text = stringResource(id = description)
                 )
@@ -123,38 +125,74 @@ fun AppMaintenanceScreen(
     }
 }
 
-@Preview(name = "NO_STATUS", showBackground = true)
+@Preview(name = "NO_STATUS")
 @Composable
 fun PreviewAppMaintenanceScreenNO_STATUS() {
     AppMaintenanceScreen(isDebugBuild = false, debugSkip = {}, AppMaintenanceViewState.NO_STATUS, {}, {})
 }
 
-@Preview(name = "OS_NOT_SUPPORTED", showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewAppMaintenanceScreenNO_STATUSDark() {
+    PreviewAppMaintenanceScreenNO_STATUS()
+}
+
+@Preview(name = "OS_NOT_SUPPORTED")
 @Composable
 fun PreviewAppMaintenanceScreenOS_NOT_SUPPORTED() {
     AppMaintenanceScreen(isDebugBuild = false, debugSkip = {}, AppMaintenanceViewState.OS_NOT_SUPPORTED, {}, {})
 }
 
-@Preview(name = "SITE_WIDE_MAINTENANCE", showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewAppMaintenanceScreenOS_NOT_SUPPORTEDDark() {
+    PreviewAppMaintenanceScreenOS_NOT_SUPPORTED()
+}
+
+@Preview(name = "SITE_WIDE_MAINTENANCE")
 @Composable
 fun PreviewAppMaintenanceScreenSITE_WIDE_MAINTENANCE() {
     AppMaintenanceScreen(isDebugBuild = false, debugSkip = {}, AppMaintenanceViewState.SITE_WIDE_MAINTENANCE, {}, {})
 }
 
-@Preview(name = "REDIRECT_TO_WEBSITE", showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewAppMaintenanceScreenSITE_WIDE_MAINTENANCEDark() {
+    PreviewAppMaintenanceScreenSITE_WIDE_MAINTENANCE()
+}
+
+@Preview(name = "REDIRECT_TO_WEBSITE")
 @Composable
 fun PreviewAppMaintenanceScreenREDIRECT_TO_WEBSITE() {
     AppMaintenanceScreen(isDebugBuild = false, debugSkip = {}, AppMaintenanceViewState.REDIRECT_TO_WEBSITE, {}, {})
 }
 
-@Preview(name = "MANDATORY_UPDATE", showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewAppMaintenanceScreenREDIRECT_TO_WEBSITEDark() {
+    PreviewAppMaintenanceScreenREDIRECT_TO_WEBSITE()
+}
+
+@Preview(name = "MANDATORY_UPDATE")
 @Composable
 fun PreviewAppMaintenanceScreenMANDATORY_UPDATE() {
     AppMaintenanceScreen(isDebugBuild = false, debugSkip = {}, AppMaintenanceViewState.MANDATORY_UPDATE, {}, {})
 }
 
-@Preview(name = "OPTIONAL_UPDATE", showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewAppMaintenanceScreenMANDATORY_UPDATEDark() {
+    PreviewAppMaintenanceScreenMANDATORY_UPDATE()
+}
+
+@Preview(name = "OPTIONAL_UPDATE")
 @Composable
 fun PreviewAppMaintenanceScreenOPTIONAL_UPDATE() {
     AppMaintenanceScreen(isDebugBuild = false, debugSkip = {}, AppMaintenanceViewState.OPTIONAL_UPDATE, {}, {})
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewAppMaintenanceScreenOPTIONAL_UPDATEDark() {
+    PreviewAppMaintenanceScreenOPTIONAL_UPDATE()
 }

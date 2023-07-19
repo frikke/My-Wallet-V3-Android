@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -25,7 +24,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -35,7 +33,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -49,17 +46,12 @@ import com.blockchain.componentlib.icon.ScreenStatusIcon
 import com.blockchain.componentlib.icons.Card
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Security
-import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey400
-import com.blockchain.componentlib.theme.Grey900
-import com.blockchain.componentlib.theme.UltraLight
-import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
-import kotlinx.coroutines.NonDisposableHandle.parent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import piuk.blockchain.android.R

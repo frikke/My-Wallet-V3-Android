@@ -53,8 +53,6 @@ import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey700
-import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.dex.presentation.R
 import com.blockchain.utils.removeLeadingZeros
@@ -494,13 +492,13 @@ private fun RowScope.Balance() {
         Text(
             text = stringResource(id = com.blockchain.stringResources.R.string.common_balance),
             style = AppTheme.typography.micro2,
-            color = Grey700
+            color = AppColors.body
         )
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
         Text(
             text = "",
             style = AppTheme.typography.micro2,
-            color = Grey900
+            color = AppColors.title
         )
     }
 }

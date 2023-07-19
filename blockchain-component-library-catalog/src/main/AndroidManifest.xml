@@ -67,9 +67,6 @@
             android:name=".abstract_compose_view.ProgressActivity"
             android:exported="false" />
         <activity
-            android:name=".abstract_compose_view.DatePickerActivity"
-            android:exported="false" />
-        <activity
             android:name=".abstract_compose_view.SimpleTextViewActivity"
             android:exported="false" />
         <activity
