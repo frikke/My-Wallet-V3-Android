@@ -80,6 +80,7 @@ fun InterestSummarySheet(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .weight(1F)
                     .padding(horizontal = AppTheme.dimensions.smallSpacing)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -225,37 +226,40 @@ fun InterestSummarySheet(
                 }
 
                 LargeVerticalSpacer()
+            }
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    SecondaryButton(
-                        modifier = Modifier.weight(1F),
-                        text = stringResource(id = com.blockchain.stringResources.R.string.common_withdraw),
-                        icon = ImageResource.Local(
-                            com.blockchain.componentlib.icons.R.drawable.send_off,
-                            colorFilter = ColorFilter.tint(Color.White)
-                        ),
-                        state = if (state.canWithdraw) ButtonState.Enabled else ButtonState.Disabled,
-                        onClick = { state.account?.let { onWithdrawPressed(it) } }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = AppColors.backgroundSecondary,
+                        shape = AppTheme.shapes.large.topOnly()
                     )
+                    .padding(AppTheme.dimensions.smallSpacing)
+            ) {
+                SecondaryButton(
+                    modifier = Modifier.weight(1F),
+                    text = stringResource(id = com.blockchain.stringResources.R.string.common_withdraw),
+                    icon = ImageResource.Local(
+                        com.blockchain.componentlib.icons.R.drawable.send_off,
+                        colorFilter = ColorFilter.tint(Color.White)
+                    ),
+                    state = if (state.canWithdraw) ButtonState.Enabled else ButtonState.Disabled,
+                    onClick = { state.account?.let { onWithdrawPressed(it) } }
+                )
 
-                    TinyHorizontalSpacer()
+                TinyHorizontalSpacer()
 
-                    SecondaryButton(
-                        modifier = Modifier.weight(1F),
-                        text = stringResource(id = com.blockchain.stringResources.R.string.common_add),
-                        icon = ImageResource.Local(
-                            com.blockchain.componentlib.icons.R.drawable.receive_off,
-                            colorFilter = ColorFilter.tint(Color.White)
-                        ),
-                        onClick = { state.account?.let { onDepositPressed(it as EarnRewardsAccount.Interest) } },
-                        state = if (state.canDeposit) ButtonState.Enabled else ButtonState.Disabled
-                    )
-                }
-
-                LargeVerticalSpacer()
+                SecondaryButton(
+                    modifier = Modifier.weight(1F),
+                    text = stringResource(id = com.blockchain.stringResources.R.string.common_add),
+                    icon = ImageResource.Local(
+                        com.blockchain.componentlib.icons.R.drawable.receive_off,
+                        colorFilter = ColorFilter.tint(Color.White)
+                    ),
+                    onClick = { state.account?.let { onDepositPressed(it as EarnRewardsAccount.Interest) } },
+                    state = if (state.canDeposit) ButtonState.Enabled else ButtonState.Disabled
+                )
             }
         }
     }

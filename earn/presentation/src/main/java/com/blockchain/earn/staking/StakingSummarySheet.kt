@@ -11,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -48,12 +49,14 @@ import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.theme.TinyHorizontalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
+import com.blockchain.componentlib.theme.topOnly
 import com.blockchain.earn.common.EarnFieldExplainer
 import com.blockchain.earn.common.EarnPendingWithdrawals
 import com.blockchain.earn.domain.models.EarnRewardsFrequency
 import com.blockchain.earn.staking.viewmodel.StakingError
 import com.blockchain.earn.staking.viewmodel.StakingSummaryViewState
 import com.blockchain.extensions.safeLet
+import com.blockchain.stringResources.R
 import kotlinx.coroutines.delay
 
 @Composable
@@ -65,11 +68,16 @@ fun StakingSummarySheet(
     onExplainerClicked: (EarnFieldExplainer) -> Unit,
     onClosePressed: () -> Unit
 ) {
-    Box {
+    var withdrawalsLocked by remember { mutableStateOf(false) }
+
+    Surface(
+        color = AppColors.background,
+        shape = AppTheme.shapes.large.topOnly()
+    ) {
         Column {
             SheetHeader(
                 title = stringResource(
-                    id = com.blockchain.stringResources.R.string.staking_summary_title,
+                    id = R.string.staking_summary_title,
                     state.balanceCrypto?.currency?.networkTicker.orEmpty()
                 ),
                 startImage = StackedIcon.SingleIcon(
@@ -82,7 +90,6 @@ fun StakingSummarySheet(
 
             Column(
                 modifier = Modifier
-                    .background(color = AppColors.background)
                     .fillMaxWidth()
                     .padding(horizontal = AppTheme.dimensions.smallSpacing)
                     .verticalScroll(rememberScrollState()),
@@ -122,7 +129,7 @@ fun StakingSummarySheet(
                         safeLet(state.earnedFiat, state.earnedCrypto) { earnedFiat, earnedCrypto ->
                             TextWithTooltipTableRow(
                                 startText = stringResource(
-                                    com.blockchain.stringResources.R.string.staking_summary_total_earned
+                                    R.string.staking_summary_total_earned
                                 ),
                                 endTitle = earnedFiat.toStringWithSymbol(),
                                 endSubtitle = earnedCrypto.toStringWithSymbol()
@@ -134,7 +141,7 @@ fun StakingSummarySheet(
                         }
 
                         TextWithTooltipTableRow(
-                            startText = stringResource(com.blockchain.stringResources.R.string.rewards_summary_rate),
+                            startText = stringResource(R.string.rewards_summary_rate),
                             endTitle = "${state.stakingRate}%",
                             onClick = {
                                 onExplainerClicked(EarnFieldExplainer.StakingEarnRate)
@@ -146,26 +153,26 @@ fun StakingSummarySheet(
                         TinyVerticalSpacer()
 
                         TextWithTooltipTableRow(
-                            startText = stringResource(com.blockchain.stringResources.R.string.earn_payment_frequency),
+                            startText = stringResource(R.string.earn_payment_frequency),
                             endTitle = when (state.earnFrequency) {
                                 EarnRewardsFrequency.Daily ->
                                     stringResource(
-                                        id = com.blockchain.stringResources.R.string.earn_payment_frequency_daily
+                                        id = R.string.earn_payment_frequency_daily
                                     )
 
                                 EarnRewardsFrequency.Weekly ->
                                     stringResource(
-                                        id = com.blockchain.stringResources.R.string.earn_payment_frequency_weekly
+                                        id = R.string.earn_payment_frequency_weekly
                                     )
 
                                 EarnRewardsFrequency.Monthly ->
                                     stringResource(
-                                        id = com.blockchain.stringResources.R.string.earn_payment_frequency_monthly
+                                        id = R.string.earn_payment_frequency_monthly
                                     )
 
                                 else ->
                                     stringResource(
-                                        id = com.blockchain.stringResources.R.string.earn_payment_frequency_unknown
+                                        id = R.string.earn_payment_frequency_unknown
                                     )
                             }
                         )
@@ -179,8 +186,6 @@ fun StakingSummarySheet(
                 val hasPendingWithdrawals by remember(state.pendingWithdrawals) {
                     mutableStateOf(state.pendingWithdrawals.isNotEmpty())
                 }
-
-                var withdrawalsLocked by remember { mutableStateOf(false) }
 
                 if (state.shouldShowWithdrawWarning()) {
                     StakingWithdrawalNotice(onLearnMorePressed = withdrawDisabledLearnMore)
@@ -226,7 +231,7 @@ fun StakingSummarySheet(
                             progress = progress,
                             text = stringResource(
                                 id =
-                                com.blockchain.stringResources.R
+                                R
                                     .string.earn_staking_withdrawal_locked_countdown_message,
                                 formatDuration(timeUntilUnlock.longValue)
                             )
@@ -236,43 +241,46 @@ fun StakingSummarySheet(
                         withdrawalsLocked = false
                     }
                 }
+            }
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    SecondaryButton(
-                        modifier = Modifier.weight(1F),
-                        text = stringResource(id = com.blockchain.stringResources.R.string.common_withdraw),
-                        icon = ImageResource.Local(
-                            com.blockchain.componentlib.icons.R.drawable.send_off,
-                            colorFilter = ColorFilter.tint(Color.White)
-                        ),
-                        state = if (state.canWithdraw && !withdrawalsLocked) {
-                            ButtonState.Enabled
-                        } else ButtonState.Disabled,
-                        onClick = {
-                            safeLet(state.account, state.tradingAccount) { account, tradingAccount ->
-                                onWithdrawPressed(account, tradingAccount)
-                            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = AppColors.backgroundSecondary,
+                        shape = AppTheme.shapes.large.topOnly()
+                    )
+                    .padding(AppTheme.dimensions.smallSpacing)
+            ) {
+                SecondaryButton(
+                    modifier = Modifier.weight(1F),
+                    text = stringResource(id = R.string.common_withdraw),
+                    icon = ImageResource.Local(
+                        com.blockchain.componentlib.icons.R.drawable.send_off,
+                        colorFilter = ColorFilter.tint(Color.White)
+                    ),
+                    state = if (state.canWithdraw && !withdrawalsLocked) {
+                        ButtonState.Enabled
+                    } else ButtonState.Disabled,
+                    onClick = {
+                        safeLet(state.account, state.tradingAccount) { account, tradingAccount ->
+                            onWithdrawPressed(account, tradingAccount)
                         }
-                    )
+                    }
+                )
 
-                    TinyHorizontalSpacer()
+                TinyHorizontalSpacer()
 
-                    SecondaryButton(
-                        modifier = Modifier.weight(1F),
-                        text = stringResource(id = com.blockchain.stringResources.R.string.common_add),
-                        icon = ImageResource.Local(
-                            com.blockchain.componentlib.icons.R.drawable.receive_off,
-                            colorFilter = ColorFilter.tint(Color.White)
-                        ),
-                        onClick = { state.account?.let { onDepositPressed(it as EarnRewardsAccount.Staking) } },
-                        state = if (state.canDeposit) ButtonState.Enabled else ButtonState.Disabled
-                    )
-                }
-
-                LargeVerticalSpacer()
+                SecondaryButton(
+                    modifier = Modifier.weight(1F),
+                    text = stringResource(id = R.string.common_add),
+                    icon = ImageResource.Local(
+                        com.blockchain.componentlib.icons.R.drawable.receive_off,
+                        colorFilter = ColorFilter.tint(Color.White)
+                    ),
+                    onClick = { state.account?.let { onDepositPressed(it as EarnRewardsAccount.Staking) } },
+                    state = if (state.canDeposit) ButtonState.Enabled else ButtonState.Disabled
+                )
             }
         }
     }
