@@ -6,7 +6,6 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.componentlib.viewextensions.gone
-import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType

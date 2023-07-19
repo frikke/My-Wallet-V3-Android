@@ -26,14 +26,12 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.MinimalPrimarySmallButton
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.White
 import com.blockchain.domain.paymentmethods.model.FundsLock
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.stringResources.R
