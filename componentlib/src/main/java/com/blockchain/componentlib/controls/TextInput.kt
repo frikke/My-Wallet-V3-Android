@@ -54,13 +54,12 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Dark200
 import com.blockchain.componentlib.theme.Dark600
 import com.blockchain.componentlib.theme.Dark700
 import com.blockchain.componentlib.theme.Grey000
-import com.blockchain.componentlib.theme.Grey600
 
 sealed class TextInputState(val message: String? = null) {
     data class Default(val defaultMessage: String? = null) : TextInputState(defaultMessage)
@@ -163,11 +162,7 @@ fun TextInput(
     val enabled = state !is TextInputState.Disabled
 
     val assistiveTextColor = when (state) {
-        is TextInputState.Default, is TextInputState.Disabled -> if (!isSystemInDarkTheme()) {
-            Grey600
-        } else {
-            Color.White
-        }
+        is TextInputState.Default, is TextInputState.Disabled -> AppColors.body
         is TextInputState.Error -> AppTheme.colors.error
         is TextInputState.Success -> AppTheme.colors.success
     }
@@ -191,7 +186,7 @@ fun TextInput(
     val textColor = if (enabled) {
         AppTheme.colors.title
     } else {
-        Grey600
+        AppColors.body
     }
 
     val backgroundColor = if (enabled) {
@@ -204,11 +199,7 @@ fun TextInput(
         }
     }
 
-    val placeholderColor = if (!isSystemInDarkTheme()) {
-        Grey600
-    } else {
-        Dark200
-    }
+    val placeholderColor = AppColors.body
 
     val newTextFieldValue = if (maxLength != Int.MAX_VALUE) {
         val newValueString = value.annotatedString.subSequence(

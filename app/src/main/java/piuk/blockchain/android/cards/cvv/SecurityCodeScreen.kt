@@ -50,7 +50,6 @@ import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -148,7 +147,7 @@ fun SecurityCodeScreen(
                 maxLength = state.cvvLength,
                 trailingIcon = ImageResource.Local(
                     id = R.drawable.ic_lock,
-                    colorFilter = ColorFilter.tint(Grey400),
+                    colorFilter = ColorFilter.tint(AppColors.muted),
                     size = 20.dp
                 ),
                 onValueChange = {

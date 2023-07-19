@@ -20,7 +20,6 @@ import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey000
-import com.blockchain.componentlib.theme.Grey600
 
 @Composable
 fun CircularProgressBar(
@@ -129,7 +128,7 @@ fun CircularProgressBarWithSmallText(
                     }
                 },
                 style = fontStyle,
-                color = Grey600
+                color = AppColors.body
             )
         }
     }

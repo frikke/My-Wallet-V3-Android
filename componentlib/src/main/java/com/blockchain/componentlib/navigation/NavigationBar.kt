@@ -50,7 +50,6 @@ import com.blockchain.componentlib.icons.MenuKebabVertical
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.clickableWithIndication
 import com.blockchain.componentlib.theme.topOnly
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
@@ -63,7 +62,7 @@ import org.koin.androidx.compose.get
 sealed class NavigationBarButton(val onClick: () -> Unit) {
     data class Icon(
         val drawable: Int,
-        val color: Color? = Grey400,
+        val color: Color? = null,
         @DimenRes val size: Int = com.blockchain.componentlib.R.dimen.standard_spacing,
         @StringRes val contentDescription: Int,
         val onIconClick: () -> Unit
@@ -254,7 +253,7 @@ fun NavigationBar(
                                 modifier = Modifier.size(dimensionResource(it.size)),
                                 painter = painterResource(id = it.drawable),
                                 contentDescription = stringResource(id = it.contentDescription),
-                                colorFilter = if (it.color != null) ColorFilter.tint(it.color) else null
+                                colorFilter = ColorFilter.tint(it.color ?: AppColors.muted)
                             )
                         }
 
@@ -326,7 +325,7 @@ fun RowScope.StartButton(button: NavigationBarButton.Icon) {
         Image(
             painter = painterResource(id = button.drawable),
             contentDescription = stringResource(id = button.contentDescription),
-            colorFilter = if (button.color != null) ColorFilter.tint(button.color) else null
+            colorFilter = ColorFilter.tint(button.color ?: AppColors.muted)
         )
     }
     Spacer(modifier = Modifier.width(dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)))

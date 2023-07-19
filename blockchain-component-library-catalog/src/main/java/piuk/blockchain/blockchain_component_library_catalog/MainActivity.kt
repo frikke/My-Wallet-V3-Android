@@ -18,14 +18,12 @@ import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vie
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.PagerActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.PrimaryButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ProgressActivity
-import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SectionHeadersActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SimpleImageViewActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SimpleTextViewActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SmallSecondaryButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SnackbarsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SpacingActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SwitcherActivity
-import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TabLayoutActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TextInputActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TypographyActivity
 
@@ -78,12 +76,6 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.pager).setOnClickListener {
             startActivity(Intent(this@MainActivity, PagerActivity::class.java))
-        }
-        findViewById<MaterialButton>(R.id.tabs).setOnClickListener {
-            startActivity(Intent(this@MainActivity, TabLayoutActivity::class.java))
-        }
-        findViewById<MaterialButton>(R.id.section_headers).setOnClickListener {
-            startActivity(Intent(this@MainActivity, SectionHeadersActivity::class.java))
         }
         findViewById<MaterialButton>(R.id.section_switchers).setOnClickListener {
             startActivity(Intent(this@MainActivity, SwitcherActivity::class.java))

@@ -45,8 +45,6 @@ import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey300
-import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.topOnly
 import com.blockchain.earn.EarnAnalytics
 import com.blockchain.nabu.BlockedReason
@@ -59,7 +57,6 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewAnalytics
 import piuk.blockchain.android.ui.coinview.presentation.CoinViewNetwork
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
@@ -264,18 +261,19 @@ class AccountActionsBottomSheet : ThemedBottomSheetFragment() {
         )
     }
 
+    @Composable
     private fun getStateActionData(state: ActionState): ActionData =
         when (state) {
             ActionState.Available -> ActionData(
                 state = state,
                 hasWarning = false,
-                imageResource = Icons.ChevronRight.withTint(Grey400)
+                imageResource = Icons.ChevronRight.withTint(AppColors.muted)
             )
 
             else -> ActionData(
                 state = state,
                 hasWarning = false,
-                imageResource = Icons.Filled.Lock.withTint(Grey300)
+                imageResource = Icons.Filled.Lock.withTint(AppColors.muted)
             )
         }
 

@@ -18,8 +18,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.utils.clickableNoEffect
 
 @Composable
@@ -61,7 +61,7 @@ fun TagButton(
                         if (selected) {
                             AppTheme.colors.title
                         } else {
-                            Grey400
+                            AppColors.muted
                         }
                     )
                 )

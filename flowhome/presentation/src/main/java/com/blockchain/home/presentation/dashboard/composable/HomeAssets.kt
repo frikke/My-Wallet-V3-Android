@@ -27,7 +27,6 @@ import com.blockchain.componentlib.tablerow.MaskableBalanceChangeTableRow
 import com.blockchain.componentlib.tablerow.TableRowHeader
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.data.map
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.home.presentation.allassets.CustodialAssetState
@@ -64,7 +63,7 @@ private fun FundLocksData(
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
 
-            Image(Icons.QuestionOff.withTint(Grey400).withSize(14.dp))
+            Image(Icons.QuestionOff.withTint(AppColors.muted).withSize(14.dp))
 
             Spacer(modifier = Modifier.weight(1F))
 

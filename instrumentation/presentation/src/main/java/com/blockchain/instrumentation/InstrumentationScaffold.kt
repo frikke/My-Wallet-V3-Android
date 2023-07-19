@@ -51,7 +51,6 @@ import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
 import com.blockchain.componentlib.theme.Grey000
-import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import java.util.UUID
@@ -190,7 +189,7 @@ private fun Request(
         ) {
             if (item.canPassThrough) {
                 item {
-                    Response("network", Grey700, skipClicked)
+                    Response("network", AppColors.body, skipClicked)
                 }
             }
             items(item.responses) {

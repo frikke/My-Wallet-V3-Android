@@ -23,9 +23,9 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.sheets.SheetHeader
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
-import com.blockchain.componentlib.theme.Grey700
 import piuk.blockchain.android.BuildConfig
 
 @Composable
@@ -90,7 +90,7 @@ fun CustomerSupportScreen(
             ),
             style = AppTheme.typography.caption1,
             textAlign = TextAlign.Center,
-            color = Grey700,
+            color = AppColors.body,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
@@ -132,7 +132,7 @@ fun CustomerSupportScreen(
                 text = "commit hash: ${BuildConfig.COMMIT_HASH} (click to copy)",
                 style = AppTheme.typography.caption1,
                 textAlign = TextAlign.Center,
-                color = Grey700,
+                color = AppColors.body,
                 modifier = Modifier
                     .clickable { copyCommitHash(BuildConfig.COMMIT_HASH) }
                     .padding(

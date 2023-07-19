@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ColorFilter
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Info
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey300
@@ -22,11 +23,6 @@ class SmallInfoWithIconView @JvmOverloads constructor(
 
     var iconUrl: String? by mutableStateOf(null)
     var text: String by mutableStateOf("")
-    var trailingIcon: ImageResource by mutableStateOf(
-        Icons.Filled.Info.copy(
-            colorFilter = ColorFilter.tint(Grey300)
-        )
-    )
 
     @Composable
     override fun Content() {
@@ -35,7 +31,9 @@ class SmallInfoWithIconView @JvmOverloads constructor(
                 SmallInfoWithIcon(
                     iconUrl = iconUrl,
                     text = text,
-                    trailingIcon = trailingIcon
+                    trailingIcon = Icons.Filled.Info.copy(
+                        colorFilter = ColorFilter.tint(AppColors.muted)
+                    )
                 )
             }
         }

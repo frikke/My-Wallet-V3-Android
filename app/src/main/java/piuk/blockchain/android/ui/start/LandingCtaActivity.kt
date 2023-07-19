@@ -31,7 +31,6 @@ class LandingCtaActivity : BlockchainActivity() {
             startNavigationButton = NavigationBarButton.Icon(
                 drawable = com.blockchain.common.R.drawable.ic_close_circle_v2,
                 contentDescription = com.blockchain.stringResources.R.string.accessibility_close,
-                color = null,
                 onIconClick = {
                     onboardingPrefs.isLandingCtaDismissed = true
                     onBackPressedDispatcher.onBackPressed()

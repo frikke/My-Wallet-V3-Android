@@ -25,12 +25,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.annotation.ExperimentalCoilApi
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.basic.CloseIcon
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey800
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
@@ -147,9 +147,8 @@ fun CustomBackgroundCard(
                 }
 
                 if (isCloseable) {
-                    CardCloseButton(
+                    CloseIcon(
                         modifier = Modifier.align(Alignment.Top),
-                        backgroundColor = Grey800,
                         onClick = onClose
                     )
                 }
