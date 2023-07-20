@@ -33,6 +33,7 @@ import com.blockchain.componentlib.icons.Gas
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.tablerow.BalanceTableRow
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.extensions.safeLet
@@ -71,7 +72,8 @@ fun TokenAllowanceBottomSheet(
     ) {
         SheetHeader(
             onClosePress = closeClicked,
-            shouldShowDivider = false
+            shouldShowDivider = false,
+            backgroundSecondary = false
         )
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
@@ -203,7 +205,7 @@ private fun AllowanceFee(
     estimatedCryptoFee: String
 ) {
     BalanceTableRow(
-        startImageResource = Icons.Gas,
+        startImageResource = Icons.Gas.withTint(AppColors.title),
         titleStart = buildAnnotatedString {
             append(stringResource(id = com.blockchain.stringResources.R.string.estimated_fees))
         },

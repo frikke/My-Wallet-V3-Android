@@ -22,6 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/standard_spacing"
+        android:textColor="@color/title"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -46,19 +47,19 @@
         android:id="@+id/text"
         style="@style/TextAppearance.Blockchain.Paragraph1"
         android:layout_width="match_parent"
+        android:textColor="@color/body"
         android:layout_height="0dp"
         android:layout_margin="@dimen/standard_spacing"
         android:text="@string/funds_locked_summary_text"
         android:textAlignment="center"
         app:layout_constraintTop_toBottomOf="@id/title" />
 
-    <View
+    <com.blockchain.componentlib.basic.AppDividerView
         android:id="@+id/sep1"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="@dimen/standard_spacing"
-        android:background="@color/grey_000"
-        app:layout_constraintTop_toBottomOf="@+id/text" />
+        app:layout_constraintTop_toBottomOf="@+id/text"/>
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/available_title"
@@ -82,12 +83,11 @@
         app:layout_constraintTop_toBottomOf="@id/sep1"
         tools:text="$100" />
 
-    <View
+    <com.blockchain.componentlib.basic.AppDividerView
         android:id="@+id/sep2"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="@dimen/small_spacing"
-        android:background="@color/grey_000"
         app:layout_constraintTop_toBottomOf="@+id/available_title" />
 
     <com.blockchain.componentlib.button.MinimalPrimaryButtonView

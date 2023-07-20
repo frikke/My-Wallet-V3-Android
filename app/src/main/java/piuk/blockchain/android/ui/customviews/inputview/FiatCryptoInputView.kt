@@ -6,6 +6,8 @@ import android.text.method.DigitsKeyListener
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.blockchain.componentlib.tag.TagType
+import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.afterMeasured
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
@@ -13,6 +15,7 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.stringResources.R
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.ExchangeRate
@@ -215,17 +218,6 @@ class FiatCryptoInputView(
             Money.fromMajor(configuration.inputCurrency, enterAmount)
         } ?: Money.zero(configuration.inputCurrency)
 
-    @Deprecated("Error messages arent part of the input")
-    fun showError(errorMessage: String, shouldDisableInput: Boolean = false) {
-        with(binding) {
-            error.text = errorMessage
-            error.visible()
-            info.gone()
-            hideExchangeAmount()
-            exchangeAmount.isEnabled = !shouldDisableInput
-        }
-    }
-
     fun onAmountValidationUpdated(isValid: Boolean) {
         val colour = if (isValid) com.blockchain.componentlib.R.color.title else
             com.blockchain.componentlib.R.color.error
@@ -235,12 +227,12 @@ class FiatCryptoInputView(
 
     fun showInfo(infoMessage: String, onClick: () -> Unit) {
         with(binding) {
-            info.text = infoMessage
-            error.gone()
+            info.tag = TagViewState(
+                value = infoMessage,
+                type = TagType.InfoAlt(),
+                onClick = onClick
+            )
             info.visible()
-            info.setOnClickListener {
-                onClick()
-            }
             hideExchangeAmount()
         }
     }

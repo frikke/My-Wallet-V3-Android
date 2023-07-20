@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.fiat.LinkedBankAccount
+import com.blockchain.componentlib.tag.TagType
+import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.visible
@@ -17,7 +19,6 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewAccountBankOverviewBinding
-import piuk.blockchain.android.ui.customviews.StatusPill
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
@@ -104,27 +105,27 @@ class AccountInfoBank @JvmOverloads constructor(
                     onSuccess = {
                         bankStatusFee.visible()
                         if (it.fee.isZero) {
-                            bankStatusFee.update(
-                                context.getString(com.blockchain.stringResources.R.string.common_free),
-                                StatusPill.StatusType.UPSELL
+                            bankStatusFee.tag = TagViewState(
+                                value = context.getString(com.blockchain.stringResources.R.string.common_free),
+                                type = TagType.Success()
                             )
                         } else {
-                            bankStatusFee.update(
-                                context.getString(
+                            bankStatusFee.tag = TagViewState(
+                                value = context.getString(
                                     com.blockchain.stringResources.R.string.bank_wire_transfer_fee,
                                     it.fee.toStringWithSymbol()
                                 ),
-                                StatusPill.StatusType.WARNING
+                                type = TagType.Warning()
                             )
                         }
                         if (!it.minLimit.isZero) {
                             bankStatusMin.visible()
-                            bankStatusMin.update(
-                                context.getString(
+                            bankStatusMin.tag = TagViewState(
+                                value = context.getString(
                                     com.blockchain.stringResources.R.string.bank_wire_transfer_min_withdrawal,
                                     it.minLimit.toStringWithSymbol()
                                 ),
-                                StatusPill.StatusType.LABEL
+                                type = TagType.Default()
                             )
                         }
                     },
@@ -162,6 +163,7 @@ class AccountInfoBank @JvmOverloads constructor(
                         }
                     }
                 }
+
             AssetAction.FiatWithdraw ->
                 if (state.selectedTarget is LinkedBankAccount) {
                     updateAccount(false, state.selectedTarget, state.action) {
@@ -170,6 +172,7 @@ class AccountInfoBank @JvmOverloads constructor(
                         }
                     }
                 }
+
             else -> {
                 // do nothing
             }

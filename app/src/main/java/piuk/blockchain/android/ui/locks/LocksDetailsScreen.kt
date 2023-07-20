@@ -2,6 +2,8 @@ package piuk.blockchain.android.ui.locks
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,12 +26,12 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.MinimalPrimarySmallButton
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.divider.HorizontalDivider
+import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.tablerow.TableRow
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.White
 import com.blockchain.domain.paymentmethods.model.FundsLock
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.stringResources.R
@@ -72,7 +74,7 @@ private fun LocksDetailsScreen(
     Column(
         Modifier
             .fillMaxSize()
-            .background(White)
+            .background(AppColors.background)
     ) {
         Column(
             Modifier
@@ -81,9 +83,8 @@ private fun LocksDetailsScreen(
         ) {
             NavigationBar(
                 modeColor = modeColor,
-                mutedBackground = false,
-                title = stringResource(com.blockchain.stringResources.R.string.funds_locked_details_toolbar),
-                onBackButtonClick = backClicked
+                title = stringResource(R.string.funds_locked_details_toolbar),
+                onBackButtonClick = backClicked,
             )
 
             SimpleText(
@@ -91,7 +92,7 @@ private fun LocksDetailsScreen(
                     top = AppTheme.dimensions.standardSpacing,
                     start = AppTheme.dimensions.smallSpacing
                 ),
-                text = stringResource(com.blockchain.stringResources.R.string.funds_locked_details_title),
+                text = stringResource(R.string.funds_locked_details_title),
                 style = ComposeTypographies.Caption2,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Start
@@ -107,18 +108,18 @@ private fun LocksDetailsScreen(
                 gravity = ComposeGravities.Start
             )
 
-            HorizontalDivider(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(top = AppTheme.dimensions.standardSpacing)
-            )
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
             LazyColumn(
                 Modifier.weight(1f, fill = false)
             ) {
-                items(locks.locks) { item ->
+                paddedRoundedCornersItems(
+                    items = locks.locks,
+                    paddingValues = {
+                        PaddingValues(horizontal = AppTheme.dimensions.smallSpacing)
+                    }
+                ) { item ->
                     Item(item)
-                    HorizontalDivider(Modifier.fillMaxWidth())
                 }
             }
 
@@ -130,7 +131,7 @@ private fun LocksDetailsScreen(
                         start = AppTheme.dimensions.smallSpacing,
                         end = AppTheme.dimensions.smallSpacing
                     ),
-                text = stringResource(com.blockchain.stringResources.R.string.funds_locked_summary_text),
+                text = stringResource(R.string.funds_locked_summary_text),
                 style = ComposeTypographies.Caption1,
                 color = ComposeColors.Body,
                 gravity = ComposeGravities.Start
@@ -138,7 +139,7 @@ private fun LocksDetailsScreen(
 
             MinimalPrimarySmallButton(
                 modifier = Modifier.padding(AppTheme.dimensions.smallSpacing),
-                text = stringResource(com.blockchain.stringResources.R.string.common_learn_more),
+                text = stringResource(R.string.common_learn_more),
                 onClick = learnMoreClicked
             )
         }
@@ -147,7 +148,7 @@ private fun LocksDetailsScreen(
             MinimalPrimaryButton(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = AppTheme.dimensions.standardSpacing),
+                    .padding(horizontal = AppTheme.dimensions.smallSpacing),
                 text = stringResource(R.string.contact_support),
                 onClick = contactSupportClicked
             )
@@ -156,10 +157,10 @@ private fun LocksDetailsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                        horizontal = AppTheme.dimensions.standardSpacing,
+                        horizontal = AppTheme.dimensions.smallSpacing,
                         vertical = AppTheme.dimensions.smallSpacing
                     ),
-                text = stringResource(com.blockchain.stringResources.R.string.common_ok),
+                text = stringResource(R.string.common_ok),
                 onClick = okClicked
             )
         }
@@ -191,11 +192,11 @@ private fun Item(
             ) {
                 val actionText = item.buyAmount?.currency?.name?.let {
                     stringResource(
-                        com.blockchain.stringResources.R.string.funds_locked_details_item_action_buy_title,
+                        R.string.funds_locked_details_item_action_buy_title,
                         it
                     )
                 } ?: stringResource(
-                    com.blockchain.stringResources.R.string.funds_locked_details_item_action_deposit_title,
+                    R.string.funds_locked_details_item_action_deposit_title,
                     item.amount.currency.name
                 )
                 SimpleText(
@@ -210,7 +211,7 @@ private fun Item(
                 SimpleText(
                     modifier = Modifier.padding(top = AppTheme.dimensions.smallestSpacing),
                     text = stringResource(
-                        com.blockchain.stringResources.R.string.funds_locked_details_item_action_available,
+                        R.string.funds_locked_details_item_action_available,
                         dateString
                     ),
                     style = ComposeTypographies.Paragraph1,

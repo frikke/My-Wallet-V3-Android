@@ -13,14 +13,15 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <View
+    <com.blockchain.componentlib.basic.AppDividerSecondaryView
         android:id="@+id/amount_sheet_separator"
-        style="@style/SeparatorWithoutMargins"
-        android:background="@color/light"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
         android:layout_marginTop="@dimen/small_spacing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/frame_upper_slot" />
+        app:layout_constraintTop_toBottomOf="@id/frame_upper_slot"
+        />
 
     <include
         android:id="@+id/on_hold_cell"
@@ -31,15 +32,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/amount_sheet_separator" />
 
-    <View
+    <com.blockchain.componentlib.basic.AppDividerSecondaryView
         android:id="@+id/on_hold_cell_separator"
-        style="@style/SeparatorWithoutMargins"
-        android:background="@color/grey_100"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/on_hold_cell"
-        tools:visibility="visible" />
+        tools:visibility="visible"
+        />
 
     <FrameLayout
         android:id="@+id/frame_upper_second_slot"
