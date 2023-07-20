@@ -1,17 +1,18 @@
 package com.blockchain.earn.domain.models.active
 
+import com.blockchain.earn.domain.models.EarnAccountBalance
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 
 data class ActiveRewardsAccountBalance(
-    val totalBalance: Money,
+    override val totalBalance: Money,
     val lockedBalance: Money,
     val pendingDeposit: Money,
     val pendingWithdrawal: Money,
     val totalRewards: Money,
     val earningBalance: Money,
     val bondingDeposits: Money
-) {
+) : EarnAccountBalance {
     val availableBalance = totalBalance - lockedBalance
 
     companion object {
