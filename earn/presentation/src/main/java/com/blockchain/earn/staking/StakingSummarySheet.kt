@@ -90,6 +90,7 @@ fun StakingSummarySheet(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .weight(1F)
                     .padding(horizontal = AppTheme.dimensions.smallSpacing)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
