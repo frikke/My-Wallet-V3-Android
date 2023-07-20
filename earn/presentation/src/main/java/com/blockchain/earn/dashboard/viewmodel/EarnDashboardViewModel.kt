@@ -283,7 +283,6 @@ class EarnDashboardViewModel(
                 asset.networkTicker
             }?.get(assetTicker)?.cryptoBalance?.totalBalance
 
-
             if (tradingAccount.balance().firstOrNull()?.total?.isPositive == true ||
                 pkwAccountsBalance > BigDecimal.ZERO ||
                 earnBalance?.isPositive == true
@@ -740,7 +739,8 @@ class EarnDashboardViewModel(
                     interestBalancesWithFiat = data[3] as Map<AssetInfo, EarnBalanceWithFiat.InterestBalanceWithFiat>,
                     interestEligibility = data[4] as Map<AssetInfo, EarnRewardsEligibility>,
                     interestRates = data[5] as Map<AssetInfo, Double>,
-                    activeRewardsBalancesWithFiat = data[6] as Map<AssetInfo, EarnBalanceWithFiat.ActiveRewardsBalanceWithFiat>,
+                    activeRewardsBalancesWithFiat = data[6]
+                        as Map<AssetInfo, EarnBalanceWithFiat.ActiveRewardsBalanceWithFiat>,
                     activeRewardsEligibility = data[7] as Map<AssetInfo, EarnRewardsEligibility>,
                     activeRewardsRates = data[8] as Map<AssetInfo, Double>,
                     interestFeatureAccess = accessMap[Feature.DepositInterest]!!,

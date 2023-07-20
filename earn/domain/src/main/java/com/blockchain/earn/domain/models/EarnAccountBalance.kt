@@ -2,6 +2,6 @@ package com.blockchain.earn.domain.models
 
 import info.blockchain.balance.Money
 
-interface EarnAccountBalance{
+interface EarnAccountBalance {
     val totalBalance: Money
 }

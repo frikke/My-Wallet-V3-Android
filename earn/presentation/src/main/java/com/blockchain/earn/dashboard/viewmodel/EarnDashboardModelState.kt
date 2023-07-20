@@ -60,7 +60,3 @@ sealed interface EarnBalanceWithFiat {
         override val totalFiat: Money
     ) : EarnBalanceWithFiat
 }
-
-
-
-
