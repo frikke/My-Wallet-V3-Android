@@ -1,12 +1,12 @@
-package com.blockchain.home.presentation.onboarding.defi
+package com.blockchain.home.presentation.onboarding.custodial
 
 import androidx.lifecycle.ViewModel
 import com.blockchain.preferences.WalletStatusPrefs
 
-class DeFiOnboardingViewModel(
+class CustodialIntroViewModel(
     private val walletStatusPrefs: WalletStatusPrefs
 ) : ViewModel() {
     fun markAsSeen() {
-        walletStatusPrefs.hasSeenDefiOnboarding = true
+        walletStatusPrefs.hasSeenCustodialOnboarding = true
     }
 }

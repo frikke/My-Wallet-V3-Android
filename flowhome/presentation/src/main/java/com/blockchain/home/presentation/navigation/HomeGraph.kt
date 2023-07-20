@@ -8,14 +8,13 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.commonarch.presentation.mvi_v2.compose.getComposeArgument
-import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.home.presentation.activity.detail.composable.ActivityDetail
 import com.blockchain.home.presentation.activity.list.composable.Activity
 import com.blockchain.home.presentation.allassets.composable.CryptoAssets
 import com.blockchain.home.presentation.failedbalances.composable.FailedBalances
 import com.blockchain.home.presentation.fiat.fundsdetail.composable.FiatFundDetail
-import com.blockchain.home.presentation.onboarding.defi.composable.DeFiOnboarding
-import com.blockchain.home.presentation.onboarding.introduction.composable.IntroductionScreens
+import com.blockchain.home.presentation.onboarding.custodial.composable.CustodialIntroScreen
+import com.blockchain.home.presentation.onboarding.defi.composable.DefiIntroScreen
 import com.blockchain.home.presentation.quickactions.MoreActions
 import com.blockchain.home.presentation.recurringbuy.detail.composable.RecurringBuyDetail
 import com.blockchain.home.presentation.recurringbuy.list.composable.RecurringBuyDashboard
@@ -34,27 +33,17 @@ fun NavGraphBuilder.homeGraph(
     assetActionsNavigation: AssetActionsNavigation,
     onBackPressed: () -> Unit
 ) {
-    composable(navigationEvent = HomeDestination.Introduction) { backStackEntry ->
-        val walletMode = backStackEntry.arguments?.getString(ARG_WALLET_MODE)?.run {
-            WalletMode.values().firstOrNull { it.name == this }
-        }
-
-        ChromeSingleScreen(backgroundColor = ModeBackgroundColor.None) {
-            IntroductionScreens(triggeredBy = walletMode, launchApp = launchApp, close = onBackPressed)
-        }
+    composable(navigationEvent = HomeDestination.CustodialIntro) {
+        CustodialIntroScreen(launchApp = launchApp)
     }
 
-    composable(navigationEvent = HomeDestination.DefiOnboarding) { backStackEntry ->
+    composable(navigationEvent = HomeDestination.DefiIntro) { backStackEntry ->
         val isFromModeSwitch = backStackEntry.arguments?.getComposeArgument(ARG_IS_FROM_MODE_SWITCH)
             ?.toBoolean() ?: false
 
-        ChromeSingleScreen(backgroundColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL)) {
-            DeFiOnboarding(
-                showCloseIcon = isFromModeSwitch,
-                closeOnClick = if (isFromModeSwitch) onBackPressed else launchApp,
-                enableDeFiOnClick = if (isFromModeSwitch) onBackPressed else launchApp
-            )
-        }
+        DefiIntroScreen(
+            enableDeFiOnClick = if (isFromModeSwitch) onBackPressed else launchApp
+        )
     }
 
     composable(navigationEvent = HomeDestination.EmailVerification) {

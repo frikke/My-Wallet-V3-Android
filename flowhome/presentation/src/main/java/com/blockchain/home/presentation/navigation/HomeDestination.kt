@@ -13,8 +13,8 @@ const val ARG_QUICK_ACTION_VM_KEY = "ARG_QUICK_ACTION_VM_KEY"
 sealed class HomeDestination(
     override val route: String
 ) : ComposeNavigationDestination {
-    object Introduction : HomeDestination("Introduction/${ARG_WALLET_MODE.wrappedArg()}")
-    object DefiOnboarding : HomeDestination("DefiOnboarding/${ARG_IS_FROM_MODE_SWITCH.wrappedArg()}")
+    object CustodialIntro : HomeDestination("CustodialIntro")
+    object DefiIntro : HomeDestination("DefiIntro/${ARG_IS_FROM_MODE_SWITCH.wrappedArg()}")
     object EmailVerification : HomeDestination("EmailVerification")
     object FailedBalances : HomeDestination("FailedBalances")
     object CryptoAssets : HomeDestination("AllAssets")

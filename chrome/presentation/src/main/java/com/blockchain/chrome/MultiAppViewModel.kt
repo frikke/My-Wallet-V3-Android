@@ -100,8 +100,13 @@ class MultiAppViewModel(
             is MultiAppIntents.WalletModeSelected -> {
                 walletModeService.updateEnabledWalletMode(intent.walletMode)
 
-                if (intent.walletMode == WalletMode.NON_CUSTODIAL && shouldOnboardWalletForMode(intent.walletMode)) {
-                    navigate(MultiAppNavigationEvent.DefiOnboarding)
+                if (shouldOnboardWalletForMode(intent.walletMode)) {
+                    navigate(
+                        when (intent.walletMode) {
+                            WalletMode.CUSTODIAL -> MultiAppNavigationEvent.CustodialIntro
+                            WalletMode.NON_CUSTODIAL -> MultiAppNavigationEvent.DefiIntro
+                        }
+                    )
                 }
             }
 
@@ -170,6 +175,21 @@ class MultiAppViewModel(
                 .first()
                 .let {
                     updateState {
+                        copy(custodialBalance = custodialBalance.updateDataWith(it))
+                    }
+                }
+        }
+
+        viewModelScope.launch {
+            walletModeBalanceService.balanceFor(
+                walletMode = WalletMode.NON_CUSTODIAL,
+                freshnessStrategy =
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
+            )
+                .filterNot { it is DataResource.Loading }
+                .first()
+                .let {
+                    updateState {
                         copy(defiBalance = defiBalance.updateDataWith(it))
                     }
                 }
@@ -177,16 +197,15 @@ class MultiAppViewModel(
     }
 
     private fun shouldOnboardWalletForMode(walletMode: WalletMode): Boolean {
-        val isWalletEligibleForActivation = when (walletMode) {
+        val noBalance = when (walletMode) {
             WalletMode.NON_CUSTODIAL -> {
                 (modelState.defiBalance as? DataResource.Data)?.data?.isZero == true
             }
-
-            else -> {
-                false
+            WalletMode.CUSTODIAL -> {
+                (modelState.custodialBalance as? DataResource.Data)?.data?.isZero == true
             }
         }
-        return isWalletEligibleForActivation &&
+        return noBalance &&
             !walletStatusPrefs.hasSeenDefiOnboarding &&
             !walletModePrefs.userDefaultedToPKW
     }

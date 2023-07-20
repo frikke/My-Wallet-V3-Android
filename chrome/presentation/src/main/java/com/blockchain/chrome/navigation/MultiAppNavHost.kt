@@ -31,7 +31,6 @@ import com.blockchain.componentlib.theme.topOnly
 import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.home.presentation.navigation.ARG_IS_FROM_MODE_SWITCH
 import com.blockchain.home.presentation.navigation.ARG_RECURRING_BUY_ID
-import com.blockchain.home.presentation.navigation.ARG_WALLET_MODE
 import com.blockchain.home.presentation.navigation.HomeDestination
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.homeGraph
@@ -47,6 +46,7 @@ import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletconnect.ui.navigation.WalletConnectV2Navigation
 import com.blockchain.walletconnect.ui.navigation.walletConnectGraph
+import com.blockchain.walletmode.WalletMode
 import com.dex.presentation.graph.dexGraph
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
@@ -123,16 +123,16 @@ fun MultiAppNavHost(
             NavHost(
                 navController = navController,
                 startDestination = when {
-                    !superAppMvpPrefs.hasSeenEducationalWalletMode && !walletModePrefs.userDefaultedToPKW -> {
+                    !walletStatusPrefs.hasSeenCustodialOnboarding && !walletModePrefs.userDefaultedToPKW -> {
                         // has not seen wallets intro && was not defaulted to defi
-                        popupRoute = HomeDestination.Introduction.route
-                        HomeDestination.Introduction
+                        popupRoute = HomeDestination.CustodialIntro.route
+                        HomeDestination.CustodialIntro
                     }
 
                     !walletStatusPrefs.hasSeenDefiOnboarding && walletModePrefs.userDefaultedToPKW -> {
                         // was defaulted to defi && has not seen defi onboarding
-                        popupRoute = HomeDestination.DefiOnboarding.route
-                        HomeDestination.DefiOnboarding
+                        popupRoute = HomeDestination.DefiIntro.route
+                        HomeDestination.DefiIntro
                     }
 
                     else -> {
@@ -217,15 +217,29 @@ private fun NavGraphBuilder.chrome(
         MultiAppChrome(
             viewModel = viewModel,
             onModeLongClicked = { walletMode ->
-                navController.navigate(
-                    HomeDestination.Introduction,
-                    listOf(NavArgument(key = ARG_WALLET_MODE, value = walletMode))
-                )
+                when (walletMode) {
+                    WalletMode.CUSTODIAL -> {
+                        navController.navigate(
+                            HomeDestination.CustodialIntro,
+                        )
+                    }
+                    WalletMode.NON_CUSTODIAL -> {
+                        navController.navigate(
+                            HomeDestination.DefiIntro,
+                        )
+                    }
+                }
             },
             startPhraseRecovery = startPhraseRecovery,
-            showDefiOnboarding = {
+            showDefiIntro = {
                 navController.navigate(
-                    destination = HomeDestination.DefiOnboarding,
+                    destination = HomeDestination.DefiIntro,
+                    args = listOf(NavArgument(ARG_IS_FROM_MODE_SWITCH, true))
+                )
+            },
+            showCustodialIntro = {
+                navController.navigate(
+                    destination = HomeDestination.CustodialIntro,
                     args = listOf(NavArgument(ARG_IS_FROM_MODE_SWITCH, true))
                 )
             },

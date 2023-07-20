@@ -111,7 +111,8 @@ fun MultiAppChrome(
     viewModel: MultiAppViewModel,
     analytics: Analytics = get(),
     onModeLongClicked: (WalletMode) -> Unit,
-    showDefiOnboarding: () -> Unit,
+    showDefiIntro: () -> Unit,
+    showCustodialIntro: () -> Unit,
     startPhraseRecovery: () -> Unit,
     showAppRating: () -> Unit,
     qrScanNavigation: QrScanNavigation,
@@ -136,7 +137,8 @@ fun MultiAppChrome(
     LaunchedEffect(key1 = viewModel) {
         navEventsFlowLifecycleAware.collectLatest {
             when (it) {
-                is MultiAppNavigationEvent.DefiOnboarding -> showDefiOnboarding()
+                is MultiAppNavigationEvent.DefiIntro -> showDefiIntro()
+                is MultiAppNavigationEvent.CustodialIntro -> showCustodialIntro()
                 is MultiAppNavigationEvent.AppRating -> showAppRating()
             }
         }

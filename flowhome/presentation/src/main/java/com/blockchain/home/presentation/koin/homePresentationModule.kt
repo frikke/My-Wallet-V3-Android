@@ -14,8 +14,8 @@ import com.blockchain.home.presentation.fiat.actions.FiatActionsNavigator
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailViewModel
 import com.blockchain.home.presentation.handhold.HandholdViewModel
 import com.blockchain.home.presentation.news.NewsViewModel
-import com.blockchain.home.presentation.onboarding.defi.DeFiOnboardingViewModel
-import com.blockchain.home.presentation.onboarding.introduction.IntroScreensViewModel
+import com.blockchain.home.presentation.onboarding.custodial.CustodialIntroViewModel
+import com.blockchain.home.presentation.onboarding.defi.DefiIntroViewModel
 import com.blockchain.home.presentation.quickactions.QuickActionsViewModel
 import com.blockchain.home.presentation.recurringbuy.detail.RecurringBuysDetailViewModel
 import com.blockchain.home.presentation.recurringbuy.list.RecurringBuysViewModel
@@ -32,12 +32,12 @@ import org.koin.dsl.module
 
 val homePresentationModule = module {
     viewModel {
-        IntroScreensViewModel(educationalScreensPrefs = get())
+        CustodialIntroViewModel(walletStatusPrefs = get())
     }
 
     scope(payloadScopeQualifier) {
         viewModel {
-            DeFiOnboardingViewModel(walletStatusPrefs = get())
+            DefiIntroViewModel(walletStatusPrefs = get())
         }
 
         viewModel {

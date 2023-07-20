@@ -3070,14 +3070,18 @@ If you want to know more about our verification process visit our <annotation li
     <string name="defi_onboarding_intro_description">Use Bitcoin and DeFi, all in on place.</string>
     <string name="defi_onboarding_intro_property1_title">Self-custody your assets</string>
     <string name="defi_onboarding_intro_property1_subtitle">Your DeFi Wallet is on chain</string>
-    <string name="defi_onboarding_intro_property2_title">Multi-chain support</string>
+    <string name="defi_onboarding_intro_property2_title">Use multiple chains</string>
     <string name="defi_onboarding_intro_property2_subtitle">Manage your assets across multiple chains</string>
-    <string name="defi_onboarding_intro_property3_title">Connect to DeFi</string>
+    <string name="defi_onboarding_intro_property3_title">Connect to Dapps and\nsign transactions</string>
     <string name="defi_onboarding_intro_property3_subtitle">Log into DApps and sign transactions</string>
     <string name="defi_onboarding_intro_cta">Go to DeFi Wallet</string>
 
     <string name="defi_onboarding_complete_title">Welcome to Your %1$s</string>
     <string name="defi_onboarding_complete_description">Your DeFi Wallet was successfully created. You DeFi wallet supports Bitcoin, Bitcoin Cash, Ethereum, |etc| and 1500 tokens.</string>
+
+    <string name="custodial_onboarding_intro_property1_title">Buy, sell and trade crypto</string>
+    <string name="custodial_onboarding_intro_property2_title">Fund your account with a card\nor bank account</string>
+    <string name="custodial_onboarding_intro_property3_title">Earn rewards by putting your\ncrypto to work</string>
     <!-- Blockchain Card -->
     <string name="order_my_card">Order My Card</string>
     <string name="order_card_intro">Spend your crypto or cash without fees.¹ Earn 1\u0025 back in crypto.²</string>
@@ -3716,4 +3720,10 @@ If you want to know more about our verification process visit our <annotation li
     <string name="password_input_instruction_length">" and be at least 8 characters long."</string>
     <string name="biometric_request_dialog_title">Allow Biometric Credentials</string>
     <string name="biometric_request_dialog_body">Log into your Wallet and approve transactions with a single tap.</string>
+    <string name="defi_intro_title">Introducing the \nDeFi Wallet</string>
+    <string name="defi_intro_description">With a DeFi Wallet, only you have access to your crypto assets - not us.\n Your keys, your crypto.</string>
+    <string name="defi_intro_custodial_disclaimer">If you would like Blockchain.com to custody your funds, use our Blockchain.com Account.</string>
+    <string name="custodial_intro_defi_disclaimer">If you would like Blockchain.com to custody your funds, use our Blockchain.com Account.</string>
+    <string name="custodial_intro_title">Welcome to your\nBlockchain.com Account</string>
+    <string name="custodial_intro_description">With the Blockchain.com Account, your funds are held in our custody system.</string>
 </resources>
