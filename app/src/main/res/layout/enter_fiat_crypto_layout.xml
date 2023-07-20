@@ -66,23 +66,7 @@
         app:srcCompat="@drawable/ic_currency_type_swap"
         tools:visibility="visible" />
 
-    <piuk.blockchain.android.ui.customviews.StatusPill
-        android:id="@+id/error"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/epic_spacing"
-        android:layout_marginTop="@dimen/tiny_spacing"
-        android:layout_marginEnd="@dimen/epic_spacing"
-        android:visibility="gone"
-        app:layout_constrainedWidth="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/enter_amount"
-        app:status_type="error"
-        tools:text="Not enough BTC in your wallet to send with current network fees."
-        tools:visibility="visible" />
-
-    <piuk.blockchain.android.ui.customviews.StatusPill
+    <com.blockchain.componentlib.tag.TagView
         android:id="@+id/info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -95,8 +79,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/enter_amount"
-        app:status_type="info"
-        tools:text="Tap here to trade more"
-        tools:visibility="visible" />
+        tools:visibility="visible"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -187,7 +187,10 @@ fun FiatFundDetailScreenData(
 
                 when (data) {
                     DataResource.Loading -> {
-                        ShimmerLoadingCard(showEndBlocks = false)
+                        ShimmerLoadingCard(
+                            modifier = Modifier.padding(horizontal = AppTheme.dimensions.smallSpacing),
+                            showEndBlocks = false
+                        )
                     }
 
                     is DataResource.Data -> {
