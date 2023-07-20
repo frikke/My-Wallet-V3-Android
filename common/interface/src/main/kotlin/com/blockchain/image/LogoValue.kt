@@ -32,5 +32,5 @@ sealed interface LogoValueSource {
 }
 
 enum class LocalLogo {
-    Buy, Sell, Send, Receive, Swap, Rewards
+    Buy, Sell, Send, Receive, Swap, PassiveRewards, StakingRewards, ActiveRewards
 }

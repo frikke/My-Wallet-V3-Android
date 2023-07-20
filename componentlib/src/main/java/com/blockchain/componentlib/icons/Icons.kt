@@ -15,7 +15,7 @@ object Icons {
 @Composable
 fun ImageResource.Local.withBackground(
     backgroundColor: Color = AppTheme.colors.light,
-    iconSize: Dp = AppTheme.dimensions.standardSpacing,
+    iconSize: Dp = size ?: AppTheme.dimensions.standardSpacing,
     backgroundSize: Dp = AppTheme.dimensions.xHugeSpacing,
     shape: Shape? = null
 ): ImageResource.LocalWithBackground = ImageResource.LocalWithBackground(

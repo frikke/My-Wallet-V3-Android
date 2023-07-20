@@ -403,7 +403,7 @@ class CoinviewViewModel(
                 com.blockchain.stringResources.R.string.coinview_interest_no_balance,
                 listOf(DecimalFormat("0.#").format(cvAccount.stakingRate))
             ),
-            logo = LogoValue.SingleIcon(LocalLogo.Rewards)
+            logo = LogoValue.SingleIcon(LocalLogo.StakingRewards)
         )
 
     private fun makeUnavailableActiveRewardsAccount(cvAccount: CoinviewAccount.Custodial.ActiveRewards) =
@@ -414,7 +414,7 @@ class CoinviewViewModel(
                 com.blockchain.stringResources.R.string.coinview_interest_no_balance,
                 listOf(DecimalFormat("0.#").format(cvAccount.activeRewardsRate))
             ),
-            logo = LogoValue.SingleIcon(LocalLogo.Rewards)
+            logo = LogoValue.SingleIcon(LocalLogo.ActiveRewards)
         )
 
     private fun makeUnavailableInterestAccount(cvAccount: CoinviewAccount.Custodial.Interest) =
@@ -425,7 +425,7 @@ class CoinviewViewModel(
                 com.blockchain.stringResources.R.string.coinview_interest_no_balance,
                 listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
             ),
-            logo = LogoValue.SingleIcon(LocalLogo.Rewards)
+            logo = LogoValue.SingleIcon(LocalLogo.PassiveRewards)
         )
 
     private fun makeUnavailableTradingAccount(
@@ -469,7 +469,7 @@ class CoinviewViewModel(
         ),
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
-        logo = LogoValue.SingleIcon(LocalLogo.Rewards),
+        logo = LogoValue.SingleIcon(LocalLogo.StakingRewards),
         assetColor = asset.currency.colour
     )
 
@@ -485,7 +485,7 @@ class CoinviewViewModel(
         ),
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
-        logo = LogoValue.SingleIcon(LocalLogo.Rewards),
+        logo = LogoValue.SingleIcon(LocalLogo.ActiveRewards),
         assetColor = asset.currency.colour
     )
 
@@ -501,7 +501,7 @@ class CoinviewViewModel(
         ),
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
         fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
-        logo = LogoValue.SingleIcon(LocalLogo.Rewards),
+        logo = LogoValue.SingleIcon(LocalLogo.PassiveRewards),
         assetColor = asset.currency.colour
     )
 

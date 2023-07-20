@@ -189,7 +189,7 @@ fun AssetAccountsData(
                                 ActionTableRow(
                                     title = account.title,
                                     subtitle = account.subtitle.value(),
-                                    icon = account.logo.toIcon(color = null),
+                                    icon = account.logo.toIcon(AppColors.muted),
                                     actionIcon = Icons.Filled.Lock,
                                     onClick = { onLockedAccountClick() }
                                 )
@@ -297,7 +297,7 @@ fun PreviewAssetAccounts_Data() {
                         subtitle = TextValue.StringValue("ETH"),
                         cryptoBalance = "0.90349281 ETH",
                         fiatBalance = "$2,000.00",
-                        logo = LogoValue.SingleIcon(LocalLogo.Rewards),
+                        logo = LogoValue.SingleIcon(LocalLogo.PassiveRewards),
                         assetColor = "#324921"
                     ),
                     CoinviewAccountsState.CoinviewAccountState.Available(
@@ -306,14 +306,14 @@ fun PreviewAssetAccounts_Data() {
                         subtitle = TextValue.StringValue("ETH"),
                         cryptoBalance = "0.90349281 ETH",
                         fiatBalance = "$2,000.00",
-                        logo = LogoValue.SingleIcon(LocalLogo.Rewards),
+                        logo = LogoValue.SingleIcon(LocalLogo.ActiveRewards),
                         assetColor = "#324921"
                     ),
                     CoinviewAccountsState.CoinviewAccountState.Unavailable(
                         cvAccount = previewCvAccount,
                         title = "Ethereum 2",
                         subtitle = TextValue.StringValue("ETH"),
-                        logo = LogoValue.SingleIcon(LocalLogo.Rewards),
+                        logo = LogoValue.SingleIcon(LocalLogo.StakingRewards),
                     )
                 ),
                 assetName = "Ethereum"

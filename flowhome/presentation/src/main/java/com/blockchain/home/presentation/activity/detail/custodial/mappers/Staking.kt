@@ -25,11 +25,11 @@ internal fun CustodialStakingActivitySummaryItem.iconDetail(): LocalLogo {
     return when (state) {
         EarnRewardsState.COMPLETE -> when (type) {
             TransactionSummary.TransactionType.DEPOSIT -> LocalLogo.Buy
-            TransactionSummary.TransactionType.INTEREST_EARNED -> LocalLogo.Rewards
+            TransactionSummary.TransactionType.INTEREST_EARNED -> LocalLogo.StakingRewards
             TransactionSummary.TransactionType.WITHDRAW -> LocalLogo.Sell
             else -> LocalLogo.Buy
         }
-        else -> LocalLogo.Rewards
+        else -> LocalLogo.StakingRewards
     }
 }
 
