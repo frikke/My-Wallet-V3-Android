@@ -59,14 +59,14 @@ private val AlertBackgroundNight = Color(0XFF000000)
 private val Scrim = Color(0XA3121D33)
 private val ScrimNight = Color(0XCC121D33)
 
-private val BackgroundCustodialStart = Color(0XFFFF0095)
-private val BackgroundCustodialStartNight = Color(0XFFFF0095)
-private val BackgroundCustodialEnd = Color(0XFF7C33B9)
-private val BackgroundCustodialEndNight = Color(0XFF7C33B9)
-private val BackgroundDefiStart = Color(0XFF7137BB)
-private val BackgroundDefiStartNight = Color(0XFF7137BB)
-private val BackgroundDefiEnd = Color(0XFF2960D0)
-private val BackgroundDefiEndNight = Color(0XFF2960D0)
+private val CustodialStartBackground = Color(0XFFFF0095)
+private val CustodialStartBackgroundNight = Color(0XFFFF0095)
+private val CustodialEndBackground = Color(0XFF7C33B9)
+private val CustodialEndBackgroundNight = Color(0XFF7C33B9)
+private val DefiStartBackground = Color(0XFF7137BB)
+private val DefiStartBackgroundNight = Color(0XFF7137BB)
+private val DefiEndBackground = Color(0XFF2960D0)
+private val DefiEndBackgroundNight = Color(0XFF2960D0)
 
 val defLightColors = SemanticColors(
     title = Title, //
@@ -95,10 +95,10 @@ val defLightColors = SemanticColors(
     semidark = SemiDark,
     explorer = ExplorerLight,
     scrim = Scrim, //
-    backgroundCustodialStart = BackgroundCustodialStart, //
-    backgroundCustodialEnd = BackgroundCustodialEnd, //
-    backgroundDefiStart = BackgroundDefiStart, //
-    backgroundDefiEnd = BackgroundDefiEnd, //
+    custodialStartBackground = CustodialStartBackground, //
+    custodialEndBackground = CustodialEndBackground, //
+    defiStartBackground = DefiStartBackground, //
+    defiEndBackground = DefiEndBackground, //
     isLight = true
 )
 
@@ -129,10 +129,10 @@ val defDarkColors = SemanticColors(
     semidark = SemiDarkNight,
     explorer = ExplorerNight,
     scrim = ScrimNight,
-    backgroundCustodialStart = BackgroundCustodialStartNight,
-    backgroundCustodialEnd = BackgroundCustodialEndNight,
-    backgroundDefiStart = BackgroundDefiStartNight,
-    backgroundDefiEnd = BackgroundDefiEndNight,
+    custodialStartBackground = CustodialStartBackgroundNight,
+    custodialEndBackground = CustodialEndBackgroundNight,
+    defiStartBackground = DefiStartBackgroundNight,
+    defiEndBackground = DefiEndBackgroundNight,
     isLight = false,
 )
 

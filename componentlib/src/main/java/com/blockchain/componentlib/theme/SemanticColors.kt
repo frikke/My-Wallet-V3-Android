@@ -32,10 +32,10 @@ class SemanticColors(
     negativeMuted: Color,
     explorer: Color,
     scrim: Color,
-    backgroundCustodialStart: Color,
-    backgroundCustodialEnd: Color,
-    backgroundDefiStart: Color,
-    backgroundDefiEnd: Color,
+    custodialStartBackground: Color,
+    custodialEndBackground: Color,
+    defiStartBackground: Color,
+    defiEndBackground: Color,
     isLight: Boolean
 ) {
 
@@ -91,13 +91,13 @@ class SemanticColors(
         private set
     var scrim by mutableStateOf(scrim)
         private set
-    var backgroundCustodialStart by mutableStateOf(backgroundCustodialStart)
+    var custodialStartBackground by mutableStateOf(custodialStartBackground)
         private set
-    var backgroundCustodialEnd by mutableStateOf(backgroundCustodialEnd)
+    var custodialEndBackground by mutableStateOf(custodialEndBackground)
         private set
-    var backgroundDefiStart by mutableStateOf(backgroundDefiStart)
+    var defiStartBackground by mutableStateOf(defiStartBackground)
         private set
-    var backgroundDefiEnd by mutableStateOf(backgroundDefiEnd)
+    var defiEndBackground by mutableStateOf(defiEndBackground)
         private set
     var isLight by mutableStateOf(isLight)
         private set
@@ -128,10 +128,10 @@ class SemanticColors(
         negativeMuted: Color = this.negativeMuted,
         explorer: Color = this.explorer,
         scrim: Color = this.scrim,
-        backgroundCustodialStart: Color = this.backgroundCustodialStart,
-        backgroundCustodialEnd: Color = this.backgroundCustodialEnd,
-        backgroundDefiStart: Color = this.backgroundDefiStart,
-        backgroundDefiEnd: Color = this.backgroundDefiEnd,
+        custodialStartBackground: Color = this.custodialStartBackground,
+        custodialEndBackground: Color = this.custodialEndBackground,
+        defiStartBackground: Color = this.defiStartBackground,
+        defiEndBackground: Color = this.defiEndBackground,
         isLight: Boolean = this.isLight
     ) = SemanticColors(
         title = title,
@@ -160,10 +160,10 @@ class SemanticColors(
         negativeMuted = negativeMuted,
         explorer = explorer,
         scrim = scrim,
-        backgroundCustodialStart = backgroundCustodialStart,
-        backgroundCustodialEnd = backgroundCustodialEnd,
-        backgroundDefiStart = backgroundDefiStart,
-        backgroundDefiEnd = backgroundDefiEnd,
+        custodialStartBackground = custodialStartBackground,
+        custodialEndBackground = custodialEndBackground,
+        defiStartBackground = defiStartBackground,
+        defiEndBackground = defiEndBackground,
         isLight = isLight,
     )
 
@@ -193,10 +193,10 @@ class SemanticColors(
         negativeMuted = colors.negativeMuted
         explorer = colors.explorer
         scrim = colors.scrim
-        backgroundCustodialStart = colors.backgroundCustodialStart
-        backgroundCustodialEnd = colors.backgroundCustodialEnd
-        backgroundDefiStart = colors.backgroundDefiStart
-        backgroundDefiEnd = colors.backgroundDefiEnd
+        custodialStartBackground = colors.custodialStartBackground
+        custodialEndBackground = colors.custodialEndBackground
+        defiStartBackground = colors.defiStartBackground
+        defiEndBackground = colors.defiEndBackground
 
         isLight = colors.isLight
     }

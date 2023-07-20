@@ -17,12 +17,12 @@ sealed interface ChromeBackgroundColors {
     fun asList() = listOf(startColor, endColor)
 
     object Trading : ChromeBackgroundColors {
-        override val startColor: Color @Composable get() = AppColors.backgroundCustodialStart
-        override val endColor: Color @Composable get() = AppColors.backgroundCustodialEnd
+        override val startColor: Color @Composable get() = AppColors.custodialStartBackground
+        override val endColor: Color @Composable get() = AppColors.custodialEndBackground
     }
 
     object DeFi : ChromeBackgroundColors {
-        override val startColor: Color @Composable get() = AppColors.backgroundDefiStart
-        override val endColor: Color @Composable get() = AppColors.backgroundDefiEnd
+        override val startColor: Color @Composable get() = AppColors.defiStartBackground
+        override val endColor: Color @Composable get() = AppColors.defiEndBackground
     }
 }

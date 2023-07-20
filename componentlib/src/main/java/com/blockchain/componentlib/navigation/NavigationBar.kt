@@ -174,13 +174,13 @@ fun NavigationBar(
                 when (walletMode) {
                     WalletMode.CUSTODIAL -> Modifier.background(
                         brush = Brush.horizontalGradient(
-                            colors = listOf(AppColors.backgroundCustodialStart, AppColors.backgroundCustodialEnd)
+                            colors = listOf(AppColors.custodialStartBackground, AppColors.custodialEndBackground)
                         )
                     )
 
                     WalletMode.NON_CUSTODIAL -> Modifier.background(
                         brush = Brush.horizontalGradient(
-                            colors = listOf(AppColors.backgroundDefiStart, AppColors.backgroundDefiEnd)
+                            colors = listOf(AppColors.defiStartBackground, AppColors.defiEndBackground)
                         )
                     )
 
