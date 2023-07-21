@@ -18,5 +18,5 @@ sealed class EarnDashboardNavigationEvent : NavigationEvent {
     class OpenReceive(val networkTicker: String) : EarnDashboardNavigationEvent()
     class OpenBuy(val assetInfo: AssetInfo) : EarnDashboardNavigationEvent()
     object OpenKyc : EarnDashboardNavigationEvent()
-    class OpenProductComparator(val earnProducts: List<EarnType>) : EarnDashboardNavigationEvent()
+    class OpenProductComparator(val earnProducts: Map<EarnType, Double>) : EarnDashboardNavigationEvent()
 }

@@ -6,26 +6,27 @@ import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.earn.dashboard.viewmodel.EarnType
 import com.blockchain.presentation.urllinks.EARN_LEARN_MORE_URL
 
-class EarnProductComparatorBottomSheet(private val earnProducts: List<EarnType>) : ComposeModalBottomDialog() {
+class EarnProductComparatorBottomSheet(private val earnProducts: Map<EarnType, Double>) : ComposeModalBottomDialog() {
 
     @Composable
     override fun Sheet() {
         EarnProductComparator(
-            products = earnProducts.map { it.toUiElement() },
+            products = earnProducts.map { it.toPair().toUiElement() },
             onLearnMore = { context?.openUrl(EARN_LEARN_MORE_URL) },
             onClose = { dismiss() }
         )
     }
 
-    private fun EarnType.toUiElement() =
-        when (this) {
-            EarnType.Passive -> EarnProductUiElement.PassiveRewardsUiElement
-            EarnType.Staking -> EarnProductUiElement.StakingRewardsUiElement
-            EarnType.Active -> EarnProductUiElement.ActiveRewardsUiElement
+    private fun Pair<EarnType, Double>.toUiElement() = this.let { (earnType, rate) ->
+        when (earnType) {
+            EarnType.Passive -> EarnProductUiElement.PassiveRewardsUiElement(rate = rate)
+            EarnType.Staking -> EarnProductUiElement.StakingRewardsUiElement(rate = rate)
+            EarnType.Active -> EarnProductUiElement.ActiveRewardsUiElement(rate = rate)
         }
+    }
 
     companion object {
-        fun newInstance(earnProducts: List<EarnType>) =
+        fun newInstance(earnProducts: Map<EarnType, Double>) =
             EarnProductComparatorBottomSheet(earnProducts)
     }
 }

@@ -28,5 +28,5 @@ interface EarnNavigation {
 
     fun startKycClicked()
 
-    fun openProductComparatorBottomSheet(earnProducts: List<EarnType>)
+    fun openProductComparatorBottomSheet(earnProducts: Map<EarnType, Double>)
 }
