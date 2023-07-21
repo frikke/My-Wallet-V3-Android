@@ -24,11 +24,9 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.R
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Green600
-import com.blockchain.componentlib.theme.Grey400
 
 // This composable assumes the first item given is the Live item
 @Composable
@@ -81,7 +79,7 @@ private fun LiveTabLayoutItem(
                 modifier = Modifier
                     .size(dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing))
                     .background(
-                        color = if (isSelected) Green600 else Grey400,
+                        color = if (isSelected) AppColors.success else AppColors.muted,
                         shape = CircleShape
                     )
                     .align(Alignment.CenterVertically)
@@ -104,7 +102,7 @@ private fun TabLayoutItem(
 ) {
     Text(
         text = itemName,
-        color = if (isSelected) AppTheme.colors.title else Grey400,
+        color = if (isSelected) AppTheme.colors.title else AppColors.muted,
         style = AppTheme.typography.paragraph2,
         modifier = modifier,
         textAlign = TextAlign.Center

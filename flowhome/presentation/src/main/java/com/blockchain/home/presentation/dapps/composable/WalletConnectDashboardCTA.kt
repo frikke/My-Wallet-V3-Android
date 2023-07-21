@@ -25,8 +25,8 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.tablerow.TableRow
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey800
 import com.blockchain.walletconnect.R
 
 @Composable
@@ -80,7 +80,7 @@ fun WalletConnectDashboardCTA(
                         // analytics.logEvent(DashboardAnalyticsEvents.EarnGetStartedClicked) TODO ANALYTICS
                     },
                     shape = CircleShape,
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Grey800)
+                    colors = ButtonDefaults.buttonColors(backgroundColor = AppColors.body)
                 )
             }
         )

@@ -19,9 +19,8 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.ChevronRight
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Info
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue400
-import com.blockchain.componentlib.theme.Dark600
 import com.blockchain.componentlib.utils.conditional
 
 @Composable
@@ -95,8 +94,8 @@ fun ClickableTagLargeText() {
         text = "There is a notice up on our status page. Full wallet functionality might not be available. " +
             "Rest assured that your funds are safe. Learn more",
         size = TagSize.Primary,
-        backgroundColor = Dark600,
-        textColor = Blue400,
+        backgroundColor = AppColors.background,
+        textColor = AppColors.title,
         onClick = { }
     )
 }
@@ -107,8 +106,8 @@ fun ClickableTag() {
     Tag(
         text = "Clickable",
         size = TagSize.Primary,
-        backgroundColor = Dark600,
-        textColor = Blue400,
+        backgroundColor = AppColors.background,
+        textColor = AppColors.title,
         onClick = { }
     )
 }
@@ -119,8 +118,8 @@ fun NonClickableTag() {
     Tag(
         text = "Dummy",
         size = TagSize.Primary,
-        backgroundColor = Dark600,
-        textColor = Blue400,
+        backgroundColor = AppColors.background,
+        textColor = AppColors.title,
         onClick = null
     )
 }

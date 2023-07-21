@@ -22,9 +22,8 @@ import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Unlock
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey400
-import com.blockchain.componentlib.theme.Pink600
 import com.blockchain.componentlib.utils.ImageValue
 import com.blockchain.componentlib.utils.value
 import com.blockchain.home.presentation.accouncement.LocalAnnouncement
@@ -97,7 +96,7 @@ fun AnnouncementCard(
                     },
                     text = title,
                     style = AppTheme.typography.caption1,
-                    color = Grey400
+                    color = AppColors.body
                 )
                 Text(
                     modifier = Modifier.graphicsLayer {
@@ -118,7 +117,7 @@ fun PreviewAnnouncementCard() {
     AnnouncementCard(
         title = "Secure your wallets",
         subtitle = "Backup your Seed Phrase to keep your DeFi Wallet safe",
-        icon = StackedIcon.SingleIcon(Icons.Filled.Unlock.withTint(Pink600).withSize(40.dp)),
+        icon = StackedIcon.SingleIcon(Icons.Filled.Unlock.withTint(AppColors.negative).withSize(40.dp)),
         onClick = {}
     )
 }

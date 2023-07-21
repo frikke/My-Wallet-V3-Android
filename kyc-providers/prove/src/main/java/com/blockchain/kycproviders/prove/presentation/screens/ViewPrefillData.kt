@@ -1,5 +1,6 @@
 package com.blockchain.kycproviders.prove.presentation.screens
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -47,10 +48,8 @@ import com.blockchain.componentlib.icons.ChevronDown
 import com.blockchain.componentlib.icons.ChevronUp
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.User
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey900
-import com.blockchain.componentlib.theme.White
-import com.blockchain.kycproviders.prove.R
 import com.blockchain.kycproviders.prove.presentation.ProvePrefillIntent
 import com.blockchain.kycproviders.prove.presentation.ProvePrefillViewState
 import com.blockchain.kycproviders.prove.presentation.defaultViewState
@@ -68,7 +67,7 @@ internal fun ViewPrefillData(
     val localFocusManager = LocalFocusManager.current
 
     Column(
-        Modifier.background(White)
+        Modifier.background(AppColors.background)
     ) {
         Column(
             modifier = Modifier
@@ -165,8 +164,8 @@ internal fun ViewPrefillData(
             ) {
                 val icon = when {
                     addresses.size <= 1 -> ImageResource.None
-                    state.isAddressDropdownOpen -> Icons.ChevronUp.withTint(Grey900)
-                    else -> Icons.ChevronDown.withTint(Grey900)
+                    state.isAddressDropdownOpen -> Icons.ChevronUp.withTint(AppColors.title)
+                    else -> Icons.ChevronDown.withTint(AppColors.title)
                 }
                 // We're hiding the label because otherwise the placeholder would not show up and we want it to show up when
                 // the field is empty, placeholder only shows when focused, and this view because it's viewonly cannot be focused
@@ -364,6 +363,12 @@ private fun PreviewMultipleAddressesUnselected() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewMultipleAddressesUnselectedDark() {
+    PreviewMultipleAddressesUnselected()
+}
+
 @Preview
 @Composable
 private fun PreviewMultipleAddressesUnselectedDropdownOpen() {
@@ -381,6 +386,12 @@ private fun PreviewMultipleAddressesUnselectedDropdownOpen() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewMultipleAddressesUnselectedDropdownOpenDark() {
+    PreviewMultipleAddressesUnselectedDropdownOpen()
+}
+
 @Preview
 @Composable
 private fun PreviewMultipleAddressesWithSelected() {
@@ -395,6 +406,12 @@ private fun PreviewMultipleAddressesWithSelected() {
         ),
         onIntent = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewMultipleAddressesWithSelectedDark() {
+    PreviewMultipleAddressesWithSelected()
 }
 
 @Preview
@@ -415,6 +432,12 @@ private fun PreviewOnlyOneAddress() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewOnlyOneAddressDark() {
+    PreviewOnlyOneAddress()
+}
+
 @Preview
 @Composable
 private fun PreviewNoAddresses() {
@@ -428,6 +451,12 @@ private fun PreviewNoAddresses() {
         ),
         onIntent = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewNoAddressesDark() {
+    PreviewNoAddresses()
 }
 
 @Preview
@@ -447,6 +476,12 @@ private fun PreviewComplete() {
         ),
         onIntent = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewCompleteDark() {
+    PreviewComplete()
 }
 
 private val address1 = AddressDetails(

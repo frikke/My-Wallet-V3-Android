@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.composables
 
+import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,9 +26,8 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.MinimalErrorButton
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue600
-import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.domain.paymentmethods.model.YapilyInstitution
 import java.net.URL
 import piuk.blockchain.android.urllinks.URL_OPEN_BANKING_PRIVACY_POLICY
@@ -42,6 +43,7 @@ fun OpenBankingPermissionScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(AppColors.background)
             .padding(
                 horizontal = dimensionResource(com.blockchain.componentlib.R.dimen.huge_spacing),
                 vertical = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)
@@ -63,7 +65,7 @@ fun OpenBankingPermissionScreen(
         Text(
             modifier = Modifier.fillMaxWidth(),
             style = AppTheme.typography.title3,
-            color = Grey900,
+            color = AppColors.title,
             textAlign = TextAlign.Center,
             text = stringResource(
                 id = com.blockchain.stringResources.R.string.open_banking_permission_link_to_bank,
@@ -104,7 +106,7 @@ private fun TermAndPrivacyText(
     val tosTag = "TOS"
     val privacyTag = "PRIVACY"
     val annotatedText = buildAnnotatedString {
-        withStyle(style = SpanStyle(color = Grey900)) {
+        withStyle(style = SpanStyle(color = AppColors.body)) {
             append(stringResource(id = com.blockchain.stringResources.R.string.open_banking_permission_confirmation))
         }
 
@@ -114,7 +116,7 @@ private fun TermAndPrivacyText(
             tag = tosTag,
             annotation = termsOfServiceLink
         )
-        withStyle(style = SpanStyle(color = Blue600)) {
+        withStyle(style = SpanStyle(color = AppColors.primary)) {
             append(stringResource(id = com.blockchain.stringResources.R.string.open_banking_permission_terms_service))
         }
         pop()
@@ -125,7 +127,7 @@ private fun TermAndPrivacyText(
             tag = privacyTag,
             annotation = URL_OPEN_BANKING_PRIVACY_POLICY
         )
-        withStyle(style = SpanStyle(color = Blue600)) {
+        withStyle(style = SpanStyle(color = AppColors.primary)) {
             append(stringResource(id = com.blockchain.stringResources.R.string.open_banking_permission_privacy_policy))
         }
         pop()
@@ -155,7 +157,7 @@ private fun TermAndPrivacyText(
     )
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 private fun PreviewOpenBankingPermissionScreen() {
     OpenBankingPermissionScreen(
@@ -170,4 +172,10 @@ private fun PreviewOpenBankingPermissionScreen() {
         approveOnClick = {},
         denyOnClick = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewOpenBankingPermissionScreenDark() {
+    PreviewOpenBankingPermissionScreen()
 }

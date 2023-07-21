@@ -1,5 +1,6 @@
 package com.blockchain.kycproviders.prove.presentation.screens
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,9 +23,8 @@ import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.controls.OutlinedTextInput
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.User
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.White
-import com.blockchain.kycproviders.prove.R
 import com.blockchain.kycproviders.prove.presentation.ProvePrefillIntent
 import com.blockchain.kycproviders.prove.presentation.ProvePrefillViewState
 import com.blockchain.kycproviders.prove.presentation.defaultViewState
@@ -39,7 +39,7 @@ internal fun MobileAuthDobEntry(
     showDatePicker: () -> Unit
 ) {
     Column(
-        Modifier.background(White)
+        Modifier.background(AppColors.background)
     ) {
         Column(
             modifier = Modifier
@@ -154,6 +154,12 @@ private fun PreviewEmpty() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewEmptyDark() {
+    PreviewEmpty()
+}
+
 @Preview
 @Composable
 private fun PreviewFilled() {
@@ -166,4 +172,10 @@ private fun PreviewFilled() {
         onIntent = {},
         showDatePicker = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewFilledDark() {
+    PreviewFilled()
 }

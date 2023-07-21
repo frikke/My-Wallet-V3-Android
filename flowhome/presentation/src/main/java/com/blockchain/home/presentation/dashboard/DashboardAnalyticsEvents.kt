@@ -4,7 +4,6 @@ import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.coincore.AssetAction
 import com.blockchain.home.presentation.dashboard.composable.DashboardState
-import com.blockchain.home.presentation.earn.EarnType
 import com.blockchain.walletmode.WalletMode
 
 sealed class DashboardAnalyticsEvents(
@@ -69,25 +68,6 @@ sealed class DashboardAnalyticsEvents(
         params = mapOf(CURRENCY to ticker)
     )
 
-    object EarnGetStartedClicked : DashboardAnalyticsEvents(
-        event = AnalyticsNames.SUPERAPP_EARN_GET_STARTED_CLICKED.eventName
-    )
-
-    object EarnManageClicked : DashboardAnalyticsEvents(
-        event = AnalyticsNames.SUPERAPP_EARN_MANAGE_CLICKED.eventName
-    )
-
-    data class EarnAssetClicked(
-        val currency: String,
-        val product: EarnType
-    ) : DashboardAnalyticsEvents(
-        event = AnalyticsNames.SUPERAPP_EARN_ASSET_CLICKED.eventName,
-        params = mapOf(
-            CURRENCY to currency,
-            EARN_PRODUCT to product.name
-        )
-    )
-
     object ActivitySeeAllClicked : DashboardAnalyticsEvents(
         event = AnalyticsNames.SUPERAPP_ACTIVITY_SEE_ALL_CLICKED.eventName
     )
@@ -97,11 +77,8 @@ sealed class DashboardAnalyticsEvents(
     )
 
     companion object {
-        private const val BTC_BUY_QUICK_FILL_AMOUNT = "quick_fill_amount"
-        private const val BTC_BUY_OTHER_AMOUNT = "OTHER"
         private const val ASSETS_COUNT = "number_assets"
         private const val CURRENCY = "currency"
-        private const val EARN_PRODUCT = "earn_product"
         private const val DASHBOARD_STATE = "dashboard_state"
         private const val PERCENTAGE_MOVE = "percentage_move"
         private const val POSITION = "position"

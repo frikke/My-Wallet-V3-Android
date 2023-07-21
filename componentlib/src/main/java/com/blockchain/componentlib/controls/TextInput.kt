@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -54,13 +53,9 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Dark200
-import com.blockchain.componentlib.theme.Dark600
-import com.blockchain.componentlib.theme.Dark700
-import com.blockchain.componentlib.theme.Grey000
-import com.blockchain.componentlib.theme.Grey600
 
 sealed class TextInputState(val message: String? = null) {
     data class Default(val defaultMessage: String? = null) : TextInputState(defaultMessage)
@@ -72,6 +67,7 @@ sealed class TextInputState(val message: String? = null) {
 @Composable
 fun TextInput(
     modifier: Modifier = Modifier,
+    secondaryBackground: Boolean = false, // relying on this for bg while we change some remaining screens bg
     value: String,
     onValueChange: (String) -> Unit,
     autoSize: Boolean = false,
@@ -105,6 +101,7 @@ fun TextInput(
 
     TextInput(
         modifier = modifier,
+        secondaryBackground = secondaryBackground,
         value = textFieldValue,
         onValueChange = { newTextFieldValueState ->
             textFieldValueState = newTextFieldValueState
@@ -135,10 +132,10 @@ fun TextInput(
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun TextInput(
     modifier: Modifier = Modifier,
+    secondaryBackground: Boolean = false, // relying on this for bg while we change some remaining screens bg
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     autoSize: Boolean = false,
@@ -161,21 +158,13 @@ fun TextInput(
     val enabled = state !is TextInputState.Disabled
 
     val assistiveTextColor = when (state) {
-        is TextInputState.Default, is TextInputState.Disabled -> if (!isSystemInDarkTheme()) {
-            Grey600
-        } else {
-            Color.White
-        }
+        is TextInputState.Default, is TextInputState.Disabled -> AppColors.body
         is TextInputState.Error -> AppTheme.colors.error
         is TextInputState.Success -> AppTheme.colors.success
     }
 
     val unfocusedColor = when (state) {
-        is TextInputState.Default, is TextInputState.Disabled -> if (!isSystemInDarkTheme()) {
-            Grey000
-        } else {
-            Dark600
-        }
+        is TextInputState.Default, is TextInputState.Disabled -> AppColors.medium
         is TextInputState.Error -> AppTheme.colors.error
         is TextInputState.Success -> AppTheme.colors.success
     }
@@ -189,24 +178,16 @@ fun TextInput(
     val textColor = if (enabled) {
         AppTheme.colors.title
     } else {
-        Grey600
+        AppColors.body
     }
 
     val backgroundColor = if (enabled) {
-        AppTheme.colors.light
+        if (secondaryBackground) AppTheme.colors.backgroundSecondary else AppTheme.colors.background
     } else {
-        if (!isSystemInDarkTheme()) {
-            Grey000
-        } else {
-            Dark700
-        }
+        AppColors.medium
     }
 
-    val placeholderColor = if (!isSystemInDarkTheme()) {
-        Grey600
-    } else {
-        Dark200
-    }
+    val placeholderColor = AppColors.body
 
     val newTextFieldValue = if (maxLength != Int.MAX_VALUE) {
         val newValueString = value.annotatedString.subSequence(

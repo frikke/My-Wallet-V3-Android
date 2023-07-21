@@ -19,8 +19,6 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey000
-import com.blockchain.componentlib.theme.Grey600
 
 @Composable
 fun CircularProgressBar(
@@ -29,7 +27,7 @@ fun CircularProgressBar(
     progress: Float? = null
 ) {
     val color = AppTheme.colors.primary
-    val backgroundColor = Grey000
+    val backgroundColor = AppColors.medium
     val fontStyle = AppTheme.typography.body1
 
     val textHeight = with(LocalDensity.current) {
@@ -84,7 +82,7 @@ fun CircularProgressBarWithSmallText(
     progress: Float? = null
 ) {
     val color = AppTheme.colors.primary
-    val backgroundColor = Grey000
+    val backgroundColor = AppColors.medium
     val fontStyle = AppTheme.typography.micro1
 
     val textHeight = with(LocalDensity.current) {
@@ -129,7 +127,7 @@ fun CircularProgressBarWithSmallText(
                     }
                 },
                 style = fontStyle,
-                color = Grey600
+                color = AppColors.body
             )
         }
     }

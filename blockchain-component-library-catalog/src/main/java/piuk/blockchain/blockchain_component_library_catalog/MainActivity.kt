@@ -12,21 +12,18 @@ import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vie
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ChartsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ColorsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ControlsActivity
-import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DatePickerActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.DividerActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ExpandablesActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.NavigationActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.PagerActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.PrimaryButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ProgressActivity
-import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SectionHeadersActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SimpleImageViewActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SimpleTextViewActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SmallSecondaryButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SnackbarsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SpacingActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SwitcherActivity
-import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TabLayoutActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TextInputActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TypographyActivity
 
@@ -80,12 +77,6 @@ class MainActivity : ComponentActivity() {
         findViewById<MaterialButton>(R.id.pager).setOnClickListener {
             startActivity(Intent(this@MainActivity, PagerActivity::class.java))
         }
-        findViewById<MaterialButton>(R.id.tabs).setOnClickListener {
-            startActivity(Intent(this@MainActivity, TabLayoutActivity::class.java))
-        }
-        findViewById<MaterialButton>(R.id.section_headers).setOnClickListener {
-            startActivity(Intent(this@MainActivity, SectionHeadersActivity::class.java))
-        }
         findViewById<MaterialButton>(R.id.section_switchers).setOnClickListener {
             startActivity(Intent(this@MainActivity, SwitcherActivity::class.java))
         }
@@ -100,9 +91,6 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.progress).setOnClickListener {
             startActivity(Intent(this@MainActivity, ProgressActivity::class.java))
-        }
-        findViewById<MaterialButton>(R.id.date_picker).setOnClickListener {
-            startActivity(Intent(this@MainActivity, DatePickerActivity::class.java))
         }
         findViewById<MaterialButton>(R.id.snackbars).setOnClickListener {
             startActivity(Intent(this@MainActivity, SnackbarsActivity::class.java))

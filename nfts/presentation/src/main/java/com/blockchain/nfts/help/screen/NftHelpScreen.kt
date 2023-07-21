@@ -29,9 +29,8 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.common.ButtonIconColor
 import com.blockchain.componentlib.sheets.SheetNub
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey400
-import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.nfts.R
 
 @Composable
@@ -84,7 +83,7 @@ fun NftHelpScreen(onBuyClick: () -> Unit) {
             Text(
                 text = stringResource(com.blockchain.stringResources.R.string.nft_help_buy_description),
                 style = AppTheme.typography.paragraph1,
-                color = Grey700
+                color = AppColors.body
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
@@ -179,7 +178,7 @@ fun InstructionItem(
                 .clip(CircleShape)
                 .background(AppTheme.colors.light),
             style = AppTheme.typography.body2,
-            color = Grey400,
+            color = AppColors.muted,
             text = number.toString(),
             textAlign = TextAlign.Center
         )
@@ -199,7 +198,7 @@ fun InstructionItem(
                 Text(
                     text = description,
                     style = AppTheme.typography.paragraph1,
-                    color = Grey700
+                    color = AppColors.body
                 )
             }
         }

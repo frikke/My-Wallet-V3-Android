@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -21,21 +20,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.Check
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey100
-import com.blockchain.componentlib.theme.Red000
-import com.blockchain.componentlib.theme.Red900
-import com.blockchain.componentlib.theme.White
 
 @Composable
 fun NoPaddingRadio(
@@ -43,14 +38,12 @@ fun NoPaddingRadio(
     state: RadioButtonState,
     onSelectedChanged: ((Boolean) -> Unit)? = null,
     enabled: Boolean = true,
-    isDarkMode: Boolean = isSystemInDarkTheme()
 ) {
     Radio(
         state = state,
         onSelectedChanged = onSelectedChanged,
         modifier = modifier,
         enabled = enabled,
-        isDarkMode = isDarkMode,
         withPadding = false
     )
 }
@@ -61,14 +54,12 @@ fun Radio(
     onSelectedChanged: ((Boolean) -> Unit)? = null,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    isDarkMode: Boolean = isSystemInDarkTheme()
 ) {
     Radio(
         state = state,
         onSelectedChanged = onSelectedChanged,
         modifier = modifier,
         enabled = enabled,
-        isDarkMode = isDarkMode,
         withPadding = true
     )
 }
@@ -79,13 +70,12 @@ private fun Radio(
     onSelectedChanged: ((Boolean) -> Unit)? = null,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    isDarkMode: Boolean = isSystemInDarkTheme(),
     withPadding: Boolean = true
 ) {
     val selectedColor = AppTheme.colors.primary
     val unselectedColor = AppTheme.colors.medium
     val errorColor = AppTheme.colors.error
-    val errorFillColor = if (isDarkMode) Red900 else Red000
+    val errorFillColor = AppTheme.colors.errorLight
 
     var radioRingColor by remember(
         state,
@@ -267,30 +257,19 @@ fun RadioCheckMark(state: RadioButtonState, onSelectedChanged: () -> Unit, modif
         contentAlignment = Alignment.Center
     ) {
         if (state == RadioButtonState.Selected) {
-            Box(
+            Image(
+                imageResource = Icons.Filled.Check
+                    .withTint(AppColors.primary),
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(CircleShape)
-                    .background(AppTheme.colors.primary),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    imageResource = ImageResource.Local(
-                        R.drawable.ic_check_green,
-                        colorFilter = ColorFilter.tint(White)
-                    ),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(AppTheme.dimensions.smallestSpacing)
-                )
-            }
+            )
         } else {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .border(
                         width = AppTheme.dimensions.composeSmallestSpacing,
-                        color = Grey100,
+                        color = AppColors.medium,
                         shape = CircleShape
                     )
             )

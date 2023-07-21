@@ -35,7 +35,6 @@ import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
@@ -146,7 +145,7 @@ private fun SwapOptionCell(
                 Image(
                     imageResource = ImageResource.Local(
                         id = com.blockchain.componentlib.R.drawable.ic_chevron_end,
-                        colorFilter = ColorFilter.tint(Grey400)
+                        colorFilter = ColorFilter.tint(AppColors.muted)
                     ),
                     modifier = Modifier.requiredSizeIn(
                         maxWidth = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing),

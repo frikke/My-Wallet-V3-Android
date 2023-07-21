@@ -2,7 +2,6 @@ package com.blockchain.componentlib.control
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Surface
@@ -18,10 +17,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey400
-import com.blockchain.componentlib.theme.Grey600
 
 @Composable
 fun TabLayoutLarge(
@@ -74,7 +72,7 @@ private fun TabLayoutItem(
         color = if (isSelected) {
             AppTheme.colors.primary
         } else {
-            if (isSystemInDarkTheme()) Grey400 else Grey600
+            AppColors.body
         },
         style = AppTheme.typography.body2,
         modifier = modifier,

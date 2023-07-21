@@ -1,6 +1,7 @@
 package com.blockchain.addressverification.ui
 
 import android.content.Context
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,7 +37,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
-import com.blockchain.addressverification.R
 import com.blockchain.addressverification.domain.model.AutocompleteAddress
 import com.blockchain.addressverification.domain.model.AutocompleteAddressType
 import com.blockchain.commonarch.presentation.mvi_v2.compose.bindViewModel
@@ -60,7 +60,6 @@ import com.blockchain.componentlib.system.DialogueButton
 import com.blockchain.componentlib.system.DialogueCard
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.utils.BackHandlerCallback
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.componentlib.utils.rememberFlow
@@ -453,7 +452,7 @@ fun AutoCompleteItem(
             )
             Image(
                 modifier = Modifier.padding(start = AppTheme.dimensions.smallSpacing),
-                imageResource = Icons.ChevronRight.withTint(Grey400)
+                imageResource = Icons.ChevronRight.withTint(AppColors.muted)
             )
         } else {
             // Always put the loading in the screen and change the alpha so the space is reserved
@@ -474,7 +473,7 @@ private fun AddressVerificationError.errorMessage(context: Context): String = wh
     )
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun PreviewSearchScreen() {
     val suggestions = listOf(
@@ -545,6 +544,12 @@ fun PreviewSearchScreen() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewSearchScreenDark() {
+    PreviewSearchScreen()
+}
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewSearchScreenEmptyState() {
@@ -577,7 +582,13 @@ fun PreviewSearchScreenEmptyState() {
     )
 }
 
-@Preview(showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewSearchScreenEmptyStateDark() {
+    PreviewSearchScreenEmptyState()
+}
+
+@Preview
 @Composable
 fun PreviewDetailsScreen() {
     val state = AddressVerificationState(
@@ -607,6 +618,12 @@ fun PreviewDetailsScreen() {
         isVerifyAddressLoadingOverride = false,
         onIntent = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewDetailsScreenDark() {
+    PreviewDetailsScreen()
 }
 
 @Preview(showBackground = true)

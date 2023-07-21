@@ -20,8 +20,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.utils.clickableNoEffect
 
 @Composable
@@ -54,7 +54,7 @@ fun ExpandableItemBordered(
             Text(
                 text = title,
                 style = AppTheme.typography.body2,
-                color = Grey700
+                color = AppColors.body
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))

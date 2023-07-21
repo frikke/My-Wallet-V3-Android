@@ -26,8 +26,6 @@ import com.blockchain.componentlib.icon.CustomStackedIcon
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Dark200
-import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.theme.topOnly
 
 @Composable
@@ -124,7 +122,7 @@ private fun SheetHeaderTitle(
             Text(
                 text = byline,
                 style = AppTheme.typography.paragraph1,
-                color = if (isDarkMode) Dark200 else Grey700,
+                color = AppColors.body,
                 textAlign = TextAlign.Center
             )
         }

@@ -106,7 +106,7 @@ fun <TNavEvent : NavigationEvent> MviBottomSheetNavHost(
             topStart = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)
         ),
         sheetBackgroundColor = AppTheme.colors.backgroundSecondary,
-        scrimColor = AppTheme.colors.overlay
+        scrimColor = AppTheme.colors.scrim
     ) {
         NavHost(
             navigationRouter.navController,

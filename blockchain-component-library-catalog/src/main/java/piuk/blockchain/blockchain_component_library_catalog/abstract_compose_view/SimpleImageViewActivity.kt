@@ -7,7 +7,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleImageView
-import com.blockchain.componentlib.theme.Blue600
 import piuk.blockchain.blockchain_component_library_catalog.R
 
 class SimpleImageViewActivity : AppCompatActivity() {
@@ -27,7 +26,7 @@ class SimpleImageViewActivity : AppCompatActivity() {
         findViewById<SimpleImageView>(R.id.local_image_w_bkgd_view).apply {
             image = ImageResource.LocalWithBackground(
                 id = com.blockchain.componentlib.R.drawable.ic_blockchain,
-                iconColor = Blue600,
+                iconColor = Color.Blue,
                 backgroundColor = Color.Black,
                 contentDescription = "",
                 size = Dp(32f),

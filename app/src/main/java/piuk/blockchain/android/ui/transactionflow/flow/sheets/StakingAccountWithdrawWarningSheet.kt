@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.transactionflow.flow.sheets
 
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,9 +36,8 @@ import com.blockchain.componentlib.button.MinimalPrimarySmallButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.control.PagerIndicatorDots
 import com.blockchain.componentlib.sheets.SheetHeader
-import com.blockchain.componentlib.theme.AppSurface
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.White
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -133,7 +133,7 @@ fun StakingAccountInfo(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.background(White)
+        modifier = Modifier.background(AppColors.background)
     ) {
         SheetHeader(
             onClosePress = {
@@ -141,7 +141,8 @@ fun StakingAccountInfo(
                 dismiss()
             },
             title = stringResource(id = com.blockchain.stringResources.R.string.default_label_staking_wallet),
-            shouldShowDivider = false
+            shouldShowDivider = false,
+            backgroundSecondary = false,
         )
 
         Spacer(modifier = Modifier.size(dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing)))
@@ -256,17 +257,19 @@ private data class InfoItem(
 @Preview
 @Composable
 fun StakingInfo() {
-    AppTheme {
-        AppSurface {
-            StakingAccountInfo(
-                {},
-                {},
-                {},
-                {},
-                ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_blockchain),
-                ImageResource.Local(R.drawable.ic_staking_explainer),
-                42
-            )
-        }
-    }
+    StakingAccountInfo(
+        {},
+        {},
+        {},
+        {},
+        ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_blockchain),
+        ImageResource.Local(R.drawable.ic_staking_explainer),
+        42
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun StakingInfoDark() {
+    StakingInfo()
 }

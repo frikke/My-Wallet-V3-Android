@@ -9,6 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.AnalyticsEvents
+import com.blockchain.componentlib.icons.Close
+import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
@@ -19,7 +21,6 @@ import com.blockchain.outcome.doOnSuccess
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.awaitOutcome
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
@@ -58,10 +59,8 @@ class TierCurrentStateFragment : Fragment() {
         progressListener.setupHostToolbar(
             title = null,
             navigationBarButtons = listOf(
-                NavigationBarButton.Icon(
-                    drawable = com.blockchain.componentlib.R.drawable.ic_close_circle,
-                    color = null,
-                    contentDescription = com.blockchain.stringResources.R.string.accessibility_close,
+                NavigationBarButton.IconResource(
+                    image = Icons.Filled.Close,
                     onIconClick = ::finish
                 )
             )

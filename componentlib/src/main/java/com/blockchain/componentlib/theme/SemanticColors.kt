@@ -7,8 +7,8 @@ import androidx.compose.ui.graphics.Color
 
 class SemanticColors(
     title: Color,
+    titleSecondary: Color,
     body: Color,
-    overlay: Color,
     muted: Color,
     dark: Color,
     semidark: Color,
@@ -16,6 +16,7 @@ class SemanticColors(
     light: Color,
     background: Color,
     backgroundSecondary: Color,
+    alertBackground: Color,
     primary: Color,
     primaryMuted: Color,
     primaryLight: Color,
@@ -31,14 +32,18 @@ class SemanticColors(
     negativeMuted: Color,
     explorer: Color,
     scrim: Color,
+    custodialStartBackground: Color,
+    custodialEndBackground: Color,
+    defiStartBackground: Color,
+    defiEndBackground: Color,
     isLight: Boolean
 ) {
 
     var title by mutableStateOf(title)
         private set
-    var body by mutableStateOf(body)
+    var titleSecondary by mutableStateOf(titleSecondary)
         private set
-    var overlay by mutableStateOf(overlay)
+    var body by mutableStateOf(body)
         private set
     var muted by mutableStateOf(muted)
         private set
@@ -53,6 +58,8 @@ class SemanticColors(
     var backgroundSecondary by mutableStateOf(backgroundSecondary)
         private set
     var background by mutableStateOf(background)
+        private set
+    var alertBackground by mutableStateOf(alertBackground)
         private set
     var primary by mutableStateOf(primary)
         private set
@@ -84,19 +91,28 @@ class SemanticColors(
         private set
     var scrim by mutableStateOf(scrim)
         private set
+    var custodialStartBackground by mutableStateOf(custodialStartBackground)
+        private set
+    var custodialEndBackground by mutableStateOf(custodialEndBackground)
+        private set
+    var defiStartBackground by mutableStateOf(defiStartBackground)
+        private set
+    var defiEndBackground by mutableStateOf(defiEndBackground)
+        private set
     var isLight by mutableStateOf(isLight)
         private set
 
     fun copy(
         title: Color = this.title,
+        titleSecondary: Color = this.titleSecondary,
         body: Color = this.body,
-        overlay: Color = this.overlay,
         muted: Color = this.muted,
         dark: Color = this.dark,
         medium: Color = this.medium,
         light: Color = this.light,
         background: Color = this.backgroundSecondary,
         backgroundMuted: Color = this.background,
+        alertBackground: Color = this.alertBackground,
         primary: Color = this.primary,
         primaryMuted: Color = this.primaryMuted,
         primaryLight: Color = this.primaryLight,
@@ -112,11 +128,15 @@ class SemanticColors(
         negativeMuted: Color = this.negativeMuted,
         explorer: Color = this.explorer,
         scrim: Color = this.scrim,
+        custodialStartBackground: Color = this.custodialStartBackground,
+        custodialEndBackground: Color = this.custodialEndBackground,
+        defiStartBackground: Color = this.defiStartBackground,
+        defiEndBackground: Color = this.defiEndBackground,
         isLight: Boolean = this.isLight
     ) = SemanticColors(
         title = title,
+        titleSecondary = titleSecondary,
         body = body,
-        overlay = overlay,
         muted = muted,
         dark = dark,
         medium = medium,
@@ -124,6 +144,7 @@ class SemanticColors(
         semidark = semidark,
         backgroundSecondary = background,
         background = backgroundMuted,
+        alertBackground = alertBackground,
         primary = primary,
         primaryMuted = primaryMuted,
         primaryLight = primaryLight,
@@ -139,19 +160,24 @@ class SemanticColors(
         negativeMuted = negativeMuted,
         explorer = explorer,
         scrim = scrim,
+        custodialStartBackground = custodialStartBackground,
+        custodialEndBackground = custodialEndBackground,
+        defiStartBackground = defiStartBackground,
+        defiEndBackground = defiEndBackground,
         isLight = isLight,
     )
 
     fun updateColorsFrom(colors: SemanticColors) {
         title = colors.title
+        titleSecondary = colors.titleSecondary
         body = colors.body
-        overlay = colors.overlay
         muted = colors.muted
         dark = colors.dark
         medium = colors.medium
         light = colors.light
         backgroundSecondary = colors.backgroundSecondary
         background = colors.background
+        alertBackground = colors.alertBackground
         primary = colors.primary
         primaryMuted = colors.primaryMuted
         primaryLight = colors.primaryLight
@@ -167,6 +193,10 @@ class SemanticColors(
         negativeMuted = colors.negativeMuted
         explorer = colors.explorer
         scrim = colors.scrim
+        custodialStartBackground = colors.custodialStartBackground
+        custodialEndBackground = colors.custodialEndBackground
+        defiStartBackground = colors.defiStartBackground
+        defiEndBackground = colors.defiEndBackground
 
         isLight = colors.isLight
     }

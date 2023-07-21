@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -48,12 +47,8 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue400
-import com.blockchain.componentlib.theme.Dark800
-import com.blockchain.componentlib.theme.Grey000
-import com.blockchain.componentlib.theme.Grey700
-import com.blockchain.componentlib.theme.White
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import java.util.UUID
 
@@ -110,8 +105,8 @@ private fun BoxScope.Panel(
         verticalAlignment = Alignment.CenterVertically
     ) {
         val fabColor by rememberInfiniteTransition().animateColor(
-            initialValue = White,
-            targetValue = Blue400,
+            initialValue = AppColors.backgroundSecondary,
+            targetValue = AppColors.primary,
             animationSpec = infiniteRepeatable(
                 animation = tween(500, easing = LinearEasing),
                 repeatMode = RepeatMode.Reverse
@@ -168,7 +163,7 @@ private fun Request(
     skipClicked: () -> Unit,
     responseClicked: (InstrumentedResponse) -> Unit
 ) {
-    val background = if (index % 2 == 0) Grey000 else White
+    val background = if (index % 2 == 0) AppColors.medium else AppColors.backgroundSecondary
     Column(
         modifier = Modifier
             .background(background)
@@ -191,7 +186,7 @@ private fun Request(
         ) {
             if (item.canPassThrough) {
                 item {
-                    Response("network", Grey700, skipClicked)
+                    Response("network", AppColors.body, skipClicked)
                 }
             }
             items(item.responses) {
@@ -206,7 +201,7 @@ private fun Request(
 @Composable
 private fun Response(
     label: String,
-    backgroundColor: Color = Dark800,
+    backgroundColor: Color = Color(0XFF20242C),
     onClick: () -> Unit
 ) {
     Box(
@@ -218,7 +213,10 @@ private fun Response(
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Text(modifier = Modifier.fillMaxWidth(), text = label, textAlign = TextAlign.Center, color = White)
+        Text(
+            modifier = Modifier.fillMaxWidth(), text = label, textAlign = TextAlign.Center,
+            color = AppColors.backgroundSecondary
+        )
     }
 }
 
@@ -229,7 +227,7 @@ fun PreviewScaffold() {
         Box(
             Modifier
                 .fillMaxSize()
-                .background(White)
+                .background(AppColors.backgroundSecondary)
         ) {
             SimpleText(
                 text = "Lorem ispum Lorem ispum Lorem ispum Lorem ispum Lorem ispum",

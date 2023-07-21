@@ -25,7 +25,6 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.dex.presentation.R
 import com.blockchain.preferences.DexPrefs
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -112,7 +111,7 @@ private fun DexIntroductionScreen(
                 modifier = Modifier.padding(AppTheme.dimensions.smallestSpacing),
                 pagerState = pagerState,
                 activeColor = AppTheme.colors.primary,
-                inactiveColor = Grey100
+                inactiveColor = AppColors.medium
             )
 
             PrimaryButton(

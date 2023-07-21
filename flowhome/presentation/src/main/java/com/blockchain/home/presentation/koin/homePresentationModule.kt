@@ -8,7 +8,6 @@ import com.blockchain.home.presentation.activity.list.privatekey.PrivateKeyActiv
 import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.home.presentation.allassets.EmptyScreenViewModel
 import com.blockchain.home.presentation.dapps.HomeDappsViewModel
-import com.blockchain.home.presentation.earn.EarnViewModel
 import com.blockchain.home.presentation.failedbalances.FailedBalancesViewModel
 import com.blockchain.home.presentation.fiat.actions.FiatActionsNavigator
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetailViewModel
@@ -156,17 +155,6 @@ val homePresentationModule = module {
                 userFeaturePermissionService = get(),
                 dispatcher = Dispatchers.IO,
                 handholdService = get()
-            )
-        }
-
-        viewModel {
-            EarnViewModel(
-                walletModeService = get(),
-                stakingService = get(),
-                exchangeRates = get(),
-                coincore = get(),
-                interestService = get(),
-                activeRewardsService = get(),
             )
         }
 

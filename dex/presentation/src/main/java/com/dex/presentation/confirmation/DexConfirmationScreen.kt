@@ -50,7 +50,6 @@ import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.extensions.safeLet
@@ -642,7 +641,7 @@ private fun ExtraInfoIndicator(
         modifier = Modifier
             .padding(horizontal = AppTheme.dimensions.smallestSpacing)
             .clickableNoEffect { onClick() },
-        imageResource = Icons.Question.withTint(Grey400).withSize(14.dp)
+        imageResource = Icons.Question.withTint(AppColors.muted).withSize(14.dp)
     )
 }
 

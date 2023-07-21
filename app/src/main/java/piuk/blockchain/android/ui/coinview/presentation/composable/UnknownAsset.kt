@@ -18,8 +18,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey700
 import piuk.blockchain.android.R
 
 @Composable
@@ -52,7 +52,7 @@ fun UnknownAsset(
         val descriptionAnnotation = buildAnnotatedString {
             withStyle(
                 style = SpanStyle(
-                    color = Grey700
+                    color = AppColors.body
                 )
             ) {
                 append(stringResource(id = com.blockchain.stringResources.R.string.coinview_no_asset_blurb_1))

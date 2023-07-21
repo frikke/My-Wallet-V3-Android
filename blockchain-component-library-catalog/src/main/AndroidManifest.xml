@@ -13,13 +13,7 @@
             android:name=".abstract_compose_view.ExpandablesActivity"
             android:exported="false" />
         <activity
-            android:name=".abstract_compose_view.SectionHeadersActivity"
-            android:exported="false" />
-        <activity
             android:name=".abstract_compose_view.SwitcherActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.TabLayoutActivity"
             android:exported="false" />
         <activity
             android:name=".abstract_compose_view.PagerActivity"
@@ -65,9 +59,6 @@
             android:exported="false" />
         <activity
             android:name=".abstract_compose_view.ProgressActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.DatePickerActivity"
             android:exported="false" />
         <activity
             android:name=".abstract_compose_view.SimpleTextViewActivity"

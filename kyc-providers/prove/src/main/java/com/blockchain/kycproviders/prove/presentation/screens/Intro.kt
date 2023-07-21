@@ -1,5 +1,6 @@
 package com.blockchain.kycproviders.prove.presentation.screens
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,9 +20,8 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.divider.HorizontalDivider
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.White
-import com.blockchain.kycproviders.prove.R
 import com.blockchain.kycproviders.prove.presentation.ProvePrefillIntent
 import com.blockchain.kycproviders.prove.presentation.ProvePrefillViewState
 import com.blockchain.kycproviders.prove.presentation.defaultViewState
@@ -32,7 +32,7 @@ internal fun Intro(
     onIntent: (ProvePrefillIntent) -> Unit
 ) {
     Column(
-        Modifier.background(White)
+        Modifier.background(AppColors.background)
     ) {
         Column(
             modifier = Modifier
@@ -102,9 +102,15 @@ internal fun Intro(
 
 @Preview
 @Composable
-private fun Preview() {
+private fun PreviewIntro() {
     Intro(
         state = defaultViewState,
         onIntent = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewIntroDark() {
+    PreviewIntro()
 }

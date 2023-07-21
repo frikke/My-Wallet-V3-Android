@@ -33,7 +33,7 @@ fun BottomSheetHostLayout(
             topStart = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)
         ),
         sheetContent = sheetContent,
-        scrimColor = AppTheme.colors.overlay
+        scrimColor = AppTheme.colors.scrim
     ) {
         content()
     }

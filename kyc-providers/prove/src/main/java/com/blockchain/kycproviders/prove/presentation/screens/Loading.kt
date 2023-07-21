@@ -1,5 +1,6 @@
 package com.blockchain.kycproviders.prove.presentation.screens
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,18 +15,20 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.system.CircularProgressBar
+import com.blockchain.componentlib.loader.LoadingIndicator
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.White
 
 @Composable
 internal fun Loading(description: String? = null) {
     Column(
-        modifier = Modifier.fillMaxSize().background(White),
+        modifier = Modifier.fillMaxSize().background(AppColors.background),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        CircularProgressBar()
+        LoadingIndicator(
+            color = AppColors.primary
+        )
 
         if (description != null) {
             SimpleText(
@@ -47,12 +50,24 @@ internal fun Loading(description: String? = null) {
 
 @Preview
 @Composable
-private fun Preview() {
+private fun PreviewLoading() {
     Loading()
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewLoadingDark() {
+    PreviewLoading()
 }
 
 @Preview
 @Composable
 private fun PreviewDescription() {
     Loading("Verifying information")
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewDescriptionDark() {
+    PreviewDescription()
 }

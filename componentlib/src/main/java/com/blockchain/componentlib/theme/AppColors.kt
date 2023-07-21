@@ -3,86 +3,138 @@ package com.blockchain.componentlib.theme
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-val START_TRADING = Color(0XFFFF0095)
-val END_TRADING = Color(0XFF7C33B9)
-val START_DEFI = Color(0XFF7137BB)
-val END_DEFI = Color(0XFF2960D0)
+private val Title = Color(0XFF121D33)
+private val TitleNight = Color(0XFFFFFFFF)
+private val TitleSecondary = Color(0XFFFFFFFF)
+private val TitleSecondaryNight = Color(0XFF121D33)
+private val Body = Color(0XFF50596B)
+private val BodyNight = Color(0XFF989BA1)
+private val Muted = Color(0XFF98A1B2)
+private val MutedNight = Color(0XFF63676F)
 
-val BackgroundMuted = Color(0XFFF1F2F7)
-val BasePrimaryMuted = Color(0XFF65A5FF)
+private val Primary = Color(0XFF0C6CF2)
+private val PrimaryNight = Color(0XFF65A5FF)
+private val PrimaryMuted = Color(0XFF65A5FF)
+private val PrimaryMutedNight = Color(0XFF1656B9)
+private val PrimaryLight = Color(0XFFECF5FE)
+private val PrimaryLightNight = Color(0XFF65A5FF) // missing
+private val Light = Color(0XFFF0F2F7)
+private val LightNight = Color(0XFF2C3038)
+private val Dark = Color(0XFFB1B8C7)
+private val DarkNight = Color(0XFF98A1B2)
+private val SemiDark = Color(0XFF98A1B2)
+private val SemiDarkNight = Color(0XFF353F52)
+private val Medium = Color(0XFFDFE3EB)
+private val MediumNight = Color(0XFF3B3E46)
+private val Success = Color(0XFF00B083)
+private val SuccessNight = Color(0XFF69ECCA)
+private val SuccessMuted = Color(0XFF69ECCA)
+private val SuccessMutedNight = Color(0XFF69ECCA) // missing
+private val Negative = Color(0XFFF00699)
+private val NegativeNight = Color(0XFFFF55B8)
+private val Warning = Color(0XFFD46A00)
+private val WarningNight = Color(0XFFFFA133)
+private val WarningMuted = Color(0XFFFFA133)
+private val WarningMutedNight = Color(0XFFFFA133) // missing
+private val WarningLight = Color(0XFFFFECD6)
+private val WarningLightNight = Color(0XFFFFECD6) // missing
+private val Error = Color(0XFFCF1726)
+private val ErrorNight = Color(0XFFFF3344)
+private val ErrorLight = Color(0XFFFFECEB)
+private val ErrorLightNight = Color(0XFF790606)
+private val ErrorMuted = Color(0XFFFF3344)
+private val ErrorMutedNight = Color(0XFFFF3344) // missing
 
-val GOOGLE_PAY_BUTTON_BORDER = Color(0x7FFFFFFF)
-val GOOGLE_PAY_BUTTON_DIVIDER = Color(0xFF3C4043)
+private val ExplorerLight = Color(0XFF5322E5)
+private val ExplorerNight = Color(0XFF9080FF) // missing
 
-val Blue700 = Color(0XFF1656B9)
-val Blue600 = Color(0XFF0C6CF2)
-val Blue400 = Color(0XFF619FF7)
-val Blue200 = Color(0XFFBBDBFC)
-val Blue000 = Color(0XFFECF5FE)
+private val Background = Color(0XFFF1F2F7)
+private val BackgroundNight = Color(0XFF07080D)
+private val BackgroundSecondary = Color(0XFFFFFFFF)
+private val BackgroundSecondaryNight = Color(0XFF20242C)
 
-val Purple0000 = Color(0XFF5322E5)
+private val AlertBackground = Color(0XFF20242C)
+private val AlertBackgroundNight = Color(0XFF000000)
 
-val Green900 = Color(0XFF003319)
-val Green800 = Color(0XFF0C8868)
-val Green700 = Color(0XFF00B083)
-val Green600 = Color(0XFF06D6A0)
-val Green400 = Color(0XFF17CE73)
-val Green300 = Color(0XFF69ECCA)
-val Green100 = Color(0XFFD1F0DB)
-val Green000 = Color(0xFFEDFFFA)
+private val Scrim = Color(0XA3121D33)
+private val ScrimNight = Color(0XCC121D33)
 
-val Red900 = Color(0XFF790606)
-val Red700 = Color(0XFFA50D0D)
-val Red600 = Color(0XFFCF1726)
-val Red400 = Color(0XFFFF3344)
-val Red100 = Color(0XFFFFD9D6)
-val Red000 = Color(0XFFFFECEB)
+private val CustodialStartBackground = Color(0XFFFF0095)
+private val CustodialStartBackgroundNight = Color(0XFFFF0095)
+private val CustodialEndBackground = Color(0XFF7C33B9)
+private val CustodialEndBackgroundNight = Color(0XFF7C33B9)
+private val DefiStartBackground = Color(0XFF7137BB)
+private val DefiStartBackgroundNight = Color(0XFF7137BB)
+private val DefiEndBackground = Color(0XFF2960D0)
+private val DefiEndBackgroundNight = Color(0XFF2960D0)
 
-val Pink700 = Color(0XFFDE0082)
-val Pink600 = Color(0XFFF00699)
+val defLightColors = SemanticColors(
+    title = Title, //
+    titleSecondary = TitleSecondary, //
+    body = Body, //
+    muted = Muted, //
+    dark = Dark, //
+    medium = Medium, //
+    light = Light, //
+    background = Background, //
+    backgroundSecondary = BackgroundSecondary, //
+    alertBackground = AlertBackground, //
+    primary = Primary, //
+    primaryMuted = PrimaryMuted, //
+    primaryLight = PrimaryLight, // missing dark
+    success = Success, //
+    successMuted = SuccessMuted,
+    warning = Warning, //
+    warningMuted = WarningMuted, // missing dark
+    warningLight = WarningLight, // missing dark
+    error = Error, // missing dark
+    errorMuted = ErrorMuted,
+    errorLight = ErrorLight,
+    negative = Negative, //
+    negativeMuted = Negative,
+    semidark = SemiDark,
+    explorer = ExplorerLight,
+    scrim = Scrim, //
+    custodialStartBackground = CustodialStartBackground, //
+    custodialEndBackground = CustodialEndBackground, //
+    defiStartBackground = DefiStartBackground, //
+    defiEndBackground = DefiEndBackground, //
+    isLight = true
+)
 
-val Orange600 = Color(0XFFD46A00)
-val Orange500 = Color(0XFFFFA133)
-val Orange400 = Color(0XFFFFA133)
-val Orange100 = Color(0XFFFFECD6)
-val Orange000 = Color(0XFFFFF6EB)
-
-val Grey900 = Color(0XFF121D33)
-val Grey800 = Color(0XFF353F52)
-val Grey700 = Color(0XFF50596B)
-val Grey600 = Color(0XFF677184)
-val Grey500 = Color(0XFF828B9E)
-val Grey400 = Color(0XFF98A1B2)
-val Grey300 = Color(0XFFB1B8C7)
-val Grey200 = Color(0XFFCCD2DE)
-val Grey100 = Color(0XFFDFE3EB)
-val Grey000 = Color(0XFFF0F2F7)
-
-val White = Color(0xFFFFFFFF)
-
-val Dark900 = Color(0XFF0E121B)
-val Dark800 = Color(0XFF20242C)
-val Dark700 = Color(0XFF2C3038)
-val Dark600 = Color(0XFF3B3E46)
-val Dark500 = Color(0XFF4D515B)
-val Dark400 = Color(0XFF63676F)
-val Dark300 = Color(0XFF797D84)
-val Dark200 = Color(0XFF989BA1)
-val Dark100 = Color(0XFFB8B9BD)
-val Dark000 = Color(0XFFD2D4D6)
-
-val TierGold = Color(0XFFF5B73D)
-val TierSilver = Color(0XFFC2C9D6)
-
-val Overlay800 = Dark800.copy(0.8f)
-val Overlay600 = Dark600.copy(0.64f)
-val Overlay400 = Dark400.copy(0.4f)
-
-val White600 = Color.White.copy(0.6f)
-val White800 = Color.White.copy(0.8f)
-
-val UltraLight = Color(0XFFFAFBFF)
-val CowboysDark = Color(0XFF07080D)
+val defDarkColors = SemanticColors(
+    title = TitleNight,
+    titleSecondary = TitleSecondaryNight,
+    body = BodyNight,
+    muted = MutedNight,
+    dark = DarkNight,
+    medium = MediumNight,
+    light = LightNight,
+    background = BackgroundNight,
+    backgroundSecondary = BackgroundSecondaryNight,
+    alertBackground = AlertBackgroundNight,
+    primary = PrimaryNight,
+    primaryMuted = PrimaryMutedNight,
+    primaryLight = PrimaryLightNight,
+    success = SuccessNight,
+    successMuted = SuccessMutedNight,
+    warning = WarningNight,
+    warningMuted = WarningMutedNight,
+    warningLight = WarningLightNight,
+    error = ErrorNight,
+    errorMuted = ErrorMutedNight,
+    errorLight = ErrorLightNight,
+    negative = NegativeNight,
+    negativeMuted = NegativeNight,
+    semidark = SemiDarkNight,
+    explorer = ExplorerNight,
+    scrim = ScrimNight,
+    custodialStartBackground = CustodialStartBackgroundNight,
+    custodialEndBackground = CustodialEndBackgroundNight,
+    defiStartBackground = DefiStartBackgroundNight,
+    defiEndBackground = DefiEndBackgroundNight,
+    isLight = false,
+)
 
 val LocalLightColors = compositionLocalOf { defLightColors }
 val LocalDarkColors = compositionLocalOf { defDarkColors }

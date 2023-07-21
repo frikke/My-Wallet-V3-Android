@@ -9,7 +9,6 @@ import com.blockchain.componentlib.theme.AppTheme
 enum class ComposeColors {
     Title,
     Body,
-    Overlay,
     Muted,
     Dark,
     Medium,
@@ -24,7 +23,6 @@ enum class ComposeColors {
         when (this) {
             Title -> AppTheme.colors.title
             Body -> AppTheme.colors.body
-            Overlay -> AppTheme.colors.overlay
             Muted -> AppTheme.colors.muted
             Dark -> AppTheme.colors.dark
             Medium -> AppTheme.colors.medium

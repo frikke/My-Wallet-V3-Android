@@ -2,7 +2,6 @@ package com.dex.presentation
 
 import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -35,15 +34,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.layout
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.anim.AnimatedAmountCounter
 import com.blockchain.componentlib.basic.ComposeColors
@@ -58,9 +53,6 @@ import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.withBackground
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.BackgroundMuted
-import com.blockchain.componentlib.theme.Grey700
-import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.dex.presentation.R
 import com.blockchain.utils.removeLeadingZeros
@@ -446,45 +438,6 @@ private fun CurrencySelection(
 }
 
 @Composable
-private fun MaskedCircleArrow(parentSize: IntSize) {
-    var boxSize by remember { mutableStateOf(IntSize.Zero) }
-    Box(
-        modifier = Modifier
-            .wrapContentSize()
-            .onGloballyPositioned { coordinates ->
-                boxSize = coordinates.size
-            }
-            .layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints)
-                layout(placeable.width, placeable.height) {
-                    placeable.place(
-                        x = (parentSize.width / 2).minus(boxSize.width / 2),
-                        y = parentSize.height.minus(boxSize.height / 2)
-                    )
-                }
-            },
-        contentAlignment = Alignment.Center
-    ) {
-        Canvas(
-            modifier = Modifier
-                .size(dimensionResource(id = com.blockchain.componentlib.R.dimen.xlarge_spacing)),
-            onDraw = {
-                drawCircle(
-                    color = BackgroundMuted
-                )
-            }
-        )
-        Image(
-            imageResource = Icons.ArrowDown.withBackground(
-                backgroundColor = Color.White,
-                backgroundSize = AppTheme.dimensions.standardSpacing,
-                iconSize = AppTheme.dimensions.standardSpacing
-            )
-        )
-    }
-}
-
-@Composable
 private fun RowScope.MaxAmount(maxAvailable: Money, maxClick: () -> Unit) {
     Row(
         modifier = Modifier
@@ -539,13 +492,13 @@ private fun RowScope.Balance() {
         Text(
             text = stringResource(id = com.blockchain.stringResources.R.string.common_balance),
             style = AppTheme.typography.micro2,
-            color = Grey700
+            color = AppColors.body
         )
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
         Text(
             text = "",
             style = AppTheme.typography.micro2,
-            color = Grey900
+            color = AppColors.title
         )
     }
 }
