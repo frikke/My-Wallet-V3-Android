@@ -411,7 +411,7 @@ class CoinviewViewModel(
             cvAccount = cvAccount,
             title = labels.getDefaultActiveRewardsWalletLabel(),
             subtitle = TextValue.IntResValue(
-                com.blockchain.stringResources.R.string.coinview_interest_no_balance,
+                com.blockchain.stringResources.R.string.coinview_active_rewards_no_balance,
                 listOf(DecimalFormat("0.#").format(cvAccount.activeRewardsRate))
             ),
             logo = LogoValue.SingleIcon(LocalLogo.ActiveRewards)
@@ -480,7 +480,7 @@ class CoinviewViewModel(
         cvAccount = cvAccount,
         title = labels.getDefaultActiveRewardsWalletLabel(),
         subtitle = TextValue.IntResValue(
-            com.blockchain.stringResources.R.string.coinview_interest_with_balance,
+            com.blockchain.stringResources.R.string.coinview_active_rewards_with_balance,
             listOf(DecimalFormat("0.#").format(cvAccount.activeRewardsRate))
         ),
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
