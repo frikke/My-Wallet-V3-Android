@@ -3015,9 +3015,9 @@
     <string name="earn_product_asset_availability_all">Todos os ativos disponíveis</string>
     <string name="earn_product_asset_availability_ethereum">Disponível no Ethereum</string>
     <string name="earn_product_asset_availability_bitcoin">Disponível no Bitcoin</string>
-    <string name="earn_passive_rate_label" formatted="false">Até 10% anualmente</string>
-    <string name="earn_staking_rate_label" formatted="false">Até 4% anualmente</string>
-    <string name="earn_active_rate_label" formatted="false">Até 8% anualmente</string>
+    <string name="earn_passive_rate_label" formatted="false">Até %1$s%% anualmente</string>
+    <string name="earn_staking_rate_label" formatted="false">Até %1$s%% anualmente</string>
+    <string name="earn_active_rate_label" formatted="false">Até %1$s%% anualmente</string>
     <string name="earn_rate_update_frequency_weekly">Variável semanalmente</string>
     <string name="earn_rate_update_frequency_monthly">Atualizado mensalmente</string>
     <string name="earn_rate_update_frequency_variable">Variável por rede</string>

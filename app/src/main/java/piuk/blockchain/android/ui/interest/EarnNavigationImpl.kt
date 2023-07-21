@@ -106,7 +106,7 @@ class EarnNavigationImpl(
         activity?.showBottomSheet(EarnAccessBlockedBottomSheet.newInstance(title, paragraph))
     }
 
-    override fun openProductComparatorBottomSheet(earnProducts: List<EarnType>) {
+    override fun openProductComparatorBottomSheet(earnProducts: Map<EarnType, Double>) {
         activity?.showBottomSheet(EarnProductComparatorBottomSheet.newInstance(earnProducts))
     }
 

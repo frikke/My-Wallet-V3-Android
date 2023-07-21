@@ -136,15 +136,18 @@ class EarnDashboardViewModel(
 
             is EarnDashboardIntent.LaunchProductComparator -> {
                 modelState.earnData?.let {
-                    val earnProducts = mutableListOf<EarnType>().apply {
+                    val earnProducts = mutableMapOf<EarnType, Double>().apply {
                         if (it.interestEligibility.any { it.value == EarnRewardsEligibility.Eligible }) {
-                            add(EarnType.Passive)
+                            val maxPassiveRate = it.interestRates.maxBy { it.value }
+                            put(EarnType.Passive, maxPassiveRate.value)
                         }
                         if (it.stakingEligibility.any { it.value == EarnRewardsEligibility.Eligible }) {
-                            add(EarnType.Staking)
+                            val maxStakingRate = it.stakingRates.maxBy { it.value }
+                            put(EarnType.Staking, maxStakingRate.value)
                         }
                         if (it.activeRewardsEligibility.any { it.value == EarnRewardsEligibility.Eligible }) {
-                            add(EarnType.Active)
+                            val maxActiveRewardsRate = it.activeRewardsRates.maxBy { it.value }
+                            put(EarnType.Active, maxActiveRewardsRate.value)
                         }
                     }
 

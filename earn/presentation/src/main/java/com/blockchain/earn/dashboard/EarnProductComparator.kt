@@ -24,6 +24,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.LargeVerticalSpacer
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.topOnly
+import com.blockchain.componentlib.utils.value
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
@@ -129,8 +130,8 @@ fun EarnProductComparatorPage(product: EarnProductUiElement, modifier: Modifier 
                 border = BorderStroke(1.dp, AppColors.medium),
             ) {
                 SingleIconTableRow(
-                    primaryText = stringResource(id = product.header.primaryTextId),
-                    secondaryText = product.header.secondaryTextId?.let { stringResource(id = it) },
+                    primaryText = product.header.primaryText.value(),
+                    secondaryText = product.header.secondaryText?.value(),
                     imageResource = product.header.imageResource,
                     tint = AppColors.primary,
                     backgroundColor = Color.Transparent
@@ -138,33 +139,33 @@ fun EarnProductComparatorPage(product: EarnProductUiElement, modifier: Modifier 
             }
 
             SingleIconTableRow(
-                primaryText = stringResource(id = product.targetAudience.primaryTextId),
+                primaryText = product.targetAudience.primaryText.value(),
                 imageResource = product.targetAudience.imageResource
             )
 
             SingleIconTableRow(
-                primaryText = stringResource(id = product.availableAssets.primaryTextId),
+                primaryText = product.availableAssets.primaryText.value(),
                 imageResource = product.availableAssets.imageResource
             )
 
             SingleIconTableRow(
-                primaryText = stringResource(id = product.earnRate.primaryTextId),
-                secondaryText = product.earnRate.secondaryTextId?.let { stringResource(id = it) },
+                primaryText = product.earnRate.primaryText.value(),
+                secondaryText = product.earnRate.secondaryText?.value(),
                 imageResource = product.earnRate.imageResource
             )
 
             SingleIconTableRow(
-                primaryText = stringResource(id = product.earnFrequency.primaryTextId),
+                primaryText = product.earnFrequency.primaryText.value(),
                 imageResource = product.earnFrequency.imageResource
             )
 
             SingleIconTableRow(
-                primaryText = stringResource(id = product.payoutFrequency.primaryTextId),
+                primaryText = product.payoutFrequency.primaryText.value(),
                 imageResource = product.payoutFrequency.imageResource
             )
 
             SingleIconTableRow(
-                primaryText = stringResource(id = product.withdrawalFrequency.primaryTextId),
+                primaryText = product.withdrawalFrequency.primaryText.value(),
                 imageResource = product.withdrawalFrequency.imageResource
             )
 
@@ -178,9 +179,9 @@ fun EarnProductComparatorPage(product: EarnProductUiElement, modifier: Modifier 
 fun EarnProductComparatorPreview() {
     EarnProductComparator(
         products = listOf(
-            EarnProductUiElement.PassiveRewardsUiElement,
-            EarnProductUiElement.StakingRewardsUiElement,
-            EarnProductUiElement.ActiveRewardsUiElement
+            EarnProductUiElement.PassiveRewardsUiElement(7.1),
+            EarnProductUiElement.StakingRewardsUiElement(7.1),
+            EarnProductUiElement.ActiveRewardsUiElement(7.1)
         ),
         onLearnMore = {},
         onClose = {}
@@ -197,6 +198,6 @@ private fun EarnProductComparatorPreviewDark() {
 @Composable
 fun EarnProductComparatorPagePreview() {
     AppTheme {
-        EarnProductComparatorPage(EarnProductUiElement.PassiveRewardsUiElement)
+        EarnProductComparatorPage(EarnProductUiElement.PassiveRewardsUiElement(7.1))
     }
 }

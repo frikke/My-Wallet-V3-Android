@@ -3575,9 +3575,9 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_product_asset_availability_all">All assets available</string>
     <string name="earn_product_asset_availability_ethereum">Available on Ethereum</string>
     <string name="earn_product_asset_availability_bitcoin">Available on Bitcoin</string>
-    <string name="earn_passive_rate_label" formatted="false">Up to 10% annually</string>
-    <string name="earn_staking_rate_label" formatted="false">Up to 4% annually</string>
-    <string name="earn_active_rate_label" formatted="false">Up to 8% annually</string>
+    <string name="earn_passive_rate_label" formatted="false">Up to %1$s%% annually</string>
+    <string name="earn_staking_rate_label" formatted="false">Up to %1$s%% annually</string>
+    <string name="earn_active_rate_label" formatted="false">Up to %1$s%% annually</string>
     <string name="earn_rate_update_frequency_weekly">Variable weekly</string>
     <string name="earn_rate_update_frequency_monthly">Updated monthly</string>
     <string name="earn_rate_update_frequency_variable">Variable by network</string>

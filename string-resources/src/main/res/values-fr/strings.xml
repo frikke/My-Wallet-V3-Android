@@ -3017,9 +3017,9 @@
     <string name="earn_product_asset_availability_all">Tous les actifs disponibles</string>
     <string name="earn_product_asset_availability_ethereum">Disponible sur Ethereum</string>
     <string name="earn_product_asset_availability_bitcoin">Disponible sur Bitcoin</string>
-    <string name="earn_passive_rate_label" formatted="false">Jusqu\'à 10 % par an</string>
-    <string name="earn_staking_rate_label" formatted="false">Jusqu\'à 4 % par an</string>
-    <string name="earn_active_rate_label" formatted="false">Jusqu\'à 8 % par an</string>
+    <string name="earn_passive_rate_label" formatted="false">Jusqu\'à %1$s %% par an</string>
+    <string name="earn_staking_rate_label" formatted="false">Jusqu\'à %1$s %% par an</string>
+    <string name="earn_active_rate_label" formatted="false">Jusqu\'à %1$s %% par an</string>
     <string name="earn_rate_update_frequency_weekly">Variable hebdomadaire</string>
     <string name="earn_rate_update_frequency_monthly">Mise à jour mensuelle</string>
     <string name="earn_rate_update_frequency_variable">Variable selon le réseau</string>

@@ -3020,9 +3020,9 @@
     <string name="earn_product_asset_availability_all">Все активы доступны</string>
     <string name="earn_product_asset_availability_ethereum">Доступно на Ethereum</string>
     <string name="earn_product_asset_availability_bitcoin">Доступно на Bitcoin</string>
-    <string name="earn_passive_rate_label" formatted="false">До 10% годовых</string>
-    <string name="earn_staking_rate_label" formatted="false">До 4% годовых</string>
-    <string name="earn_active_rate_label" formatted="false">До 8% годовых</string>
+    <string name="earn_passive_rate_label" formatted="false">До %1$s%% годовых</string>
+    <string name="earn_staking_rate_label" formatted="false">До %1$s%% годовых</string>
+    <string name="earn_active_rate_label" formatted="false">До %1$s%% годовых</string>
     <string name="earn_rate_update_frequency_weekly">Меняется еженедельно</string>
     <string name="earn_rate_update_frequency_monthly">Обновляется ежемесячно</string>
     <string name="earn_rate_update_frequency_variable">Меняется по сети</string>
