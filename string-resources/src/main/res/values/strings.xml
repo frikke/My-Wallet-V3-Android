@@ -2860,8 +2860,10 @@ If you want to know more about our verification process visit our <annotation li
     <string name="beta" translatable="false">beta</string>
 
     <!-- CoinView -->
-    <string name="coinview_interest_with_balance">Earning up to %1$s%%</string>
-    <string name="coinview_interest_no_balance">Earn up to %1$s%% rate</string>
+    <string name="coinview_interest_with_balance">Earning %1$s%%</string>
+    <string name="coinview_interest_no_balance">Earn %1$s%% rate</string>
+    <string name="coinview_active_rewards_with_balance">Earning up to %1$s%%</string>
+    <string name="coinview_active_rewards_no_balance">Earn up to %1$s%% rate</string>
     <string name="coinview_nc_desc">Non-custodial</string>
     <string name="coinview_multi_nc_desc">%s Network</string>
     <string name="coinview_c_unavailable_desc">Buy &amp; Sell %1$s</string>
