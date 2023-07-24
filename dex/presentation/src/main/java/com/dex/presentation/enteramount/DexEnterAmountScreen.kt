@@ -557,8 +557,6 @@ fun InputScreen(
             settingsOnClick = settingsOnClick
         )
         Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
-        println("eeeee ${viewState.sellAmount?.toStringWithSymbol()}")
-        println("eeeee ${viewState.buyAmount?.toStringWithSymbol()}")
         SendAndReceiveAmountFields(
             sendAmountFieldConfig = AmountFieldConfig(
                 isReadOnly = false,

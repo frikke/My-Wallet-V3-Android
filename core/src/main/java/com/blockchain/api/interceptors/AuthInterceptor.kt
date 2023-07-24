@@ -5,9 +5,12 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.logging.Logger
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
+import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
 import com.blockchain.network.interceptor.AuthenticationNotRequired
 import com.blockchain.network.interceptor.CustomAuthentication
 import okhttp3.Interceptor
+import okhttp3.Request
 import okhttp3.Response
 import okhttp3.internal.closeQuietly
 import org.koin.core.component.KoinComponent
@@ -47,9 +50,8 @@ class AuthInterceptor : Interceptor, KoinComponent {
         }
 
         val sessionToken = try {
-            nabuDataManager.currentToken(offlineToken).blockingGet()
-        } catch (ex: Exception) {
-            Logger.e("currentToken failed ${originalRequest.url} $ex")
+            currentToken(offlineToken)
+        } catch (e: Exception) {
             return chain.proceed(originalRequest)
         }
 
@@ -60,20 +62,44 @@ class AuthInterceptor : Interceptor, KoinComponent {
         val response = chain.proceed(request)
 
         return if (response.code == NabuErrorStatusCodes.TokenExpired.code) {
-            response.body?.closeQuietly()
-            nabuDataManager.clearAccessToken()
-            try {
-                val refreshedToken = nabuDataManager.refreshToken(offlineToken).blockingGet()
-                val newRequest = request
-                    .newBuilder()
-                    .header("authorization", refreshedToken.authHeader)
-                    .build()
-                chain.proceed(newRequest)
-            } catch (_: Exception) {
-                response
+            synchronized(this) {
+                try {
+                    val currentToken = currentToken(offlineToken)
+                    if (!currentToken.hasExpired()) {
+                        val newRequest = request
+                            .newBuilder()
+                            .header("authorization", currentToken.authHeader)
+                            .build()
+                        return chain.proceed(newRequest)
+                    } else {
+                        val newRequest = requestWitRefreshedToken(request, response, offlineToken)
+                        chain.proceed(newRequest)
+                    }
+                } catch (_: Exception) {
+                    response
+                }
             }
         } else {
             response
         }
+    }
+
+    @Synchronized
+    private fun currentToken(offlineToken: NabuOfflineToken): NabuSessionTokenResponse {
+        return nabuDataManager.currentToken(offlineToken).blockingGet()
+    }
+
+    private fun requestWitRefreshedToken(
+        request: Request,
+        response: Response,
+        offlineToken: NabuOfflineToken
+    ): Request {
+        response.body?.closeQuietly()
+        nabuDataManager.clearAccessToken()
+        val refreshedToken = nabuDataManager.refreshToken(offlineToken).blockingGet()
+        return request
+            .newBuilder()
+            .header("authorization", refreshedToken.authHeader)
+            .build()
     }
 }
