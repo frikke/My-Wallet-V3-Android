@@ -1,5 +1,6 @@
 package com.blockchain.home.presentation.onboarding.custodial.composable
 
+import android.content.res.Configuration
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -17,7 +18,9 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.PrimaryButton
@@ -36,6 +40,7 @@ import com.blockchain.componentlib.icons.Cart
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Interest
 import com.blockchain.componentlib.system.ClippedShadow
+import com.blockchain.componentlib.system.ShimmerLoadingCard
 import com.blockchain.componentlib.tag.Tag
 import com.blockchain.componentlib.tag.TagSize
 import com.blockchain.componentlib.theme.AppColors
@@ -43,26 +48,37 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
-import com.blockchain.home.presentation.R
+import com.blockchain.data.DataResource
+import com.blockchain.data.dataOrElse
+import com.blockchain.home.presentation.onboarding.custodial.CustodialIntroIntent
 import com.blockchain.home.presentation.onboarding.custodial.CustodialIntroViewModel
+import com.blockchain.koin.payloadScope
 import com.blockchain.stringResources.R.string
 import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun CustodialIntroScreen(
-    viewModel: CustodialIntroViewModel = getViewModel(),
+    viewModel: CustodialIntroViewModel = getViewModel(scope = payloadScope),
     launchApp: () -> Unit,
 ) {
+
+    DisposableEffect(key1 = viewModel) {
+        viewModel.onIntent(CustodialIntroIntent.LoadData)
+        viewModel.markAsSeen()
+        onDispose { }
+    }
+
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     CustodialIntro(
         onGetStartedClicked = {
-            viewModel.markAsSeen()
             launchApp()
-        }
+        },
+        isEligibleForEarnData = viewState.isEligibleForEarn
     )
 }
 
 @Composable
-fun CustodialIntro(onGetStartedClicked: () -> Unit) {
+fun CustodialIntro(onGetStartedClicked: () -> Unit, isEligibleForEarnData: DataResource<Boolean>) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -94,7 +110,6 @@ fun CustodialIntro(onGetStartedClicked: () -> Unit) {
         val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(
@@ -119,7 +134,7 @@ fun CustodialIntro(onGetStartedClicked: () -> Unit) {
                 text = stringResource(string.custodial_intro_title),
                 style = AppTheme.typography.title1,
                 color = Color.White,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Start
             )
 
             SmallVerticalSpacer()
@@ -128,84 +143,96 @@ fun CustodialIntro(onGetStartedClicked: () -> Unit) {
                 text = stringResource(string.custodial_intro_description), // TODO add bold
                 style = AppTheme.typography.body1,
                 color = Color.White,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Start
             )
 
             StandardVerticalSpacer()
 
-            ClippedShadow(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = AppTheme.dimensions.mediumElevation,
-                shape = RoundedCornerShape(AppTheme.dimensions.tinySpacing),
-                backgroundColor = AppTheme.colors.backgroundSecondary.copy(alpha = 0.97F)
-            ) {
-                Row(
-                    modifier = Modifier.padding(
-                        horizontal = AppTheme.dimensions.smallSpacing, vertical = AppTheme.dimensions.standardSpacing
-                    ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(Icons.Cart)
-
-                    SmallHorizontalSpacer()
-
-                    Text(
-                        text = stringResource(string.custodial_onboarding_intro_property1_title),
-                        style = AppTheme.typography.paragraph2,
-                        color = AppTheme.colors.title
-                    )
+            when (isEligibleForEarnData) {
+                is DataResource.Loading -> {
+                    ShimmerLoadingCard()
                 }
-            }
+                else -> {
+                    ClippedShadow(
+                        modifier = Modifier.fillMaxWidth(),
+                        elevation = AppTheme.dimensions.mediumElevation,
+                        shape = RoundedCornerShape(AppTheme.dimensions.tinySpacing),
+                        backgroundColor = AppTheme.colors.backgroundSecondary.copy(alpha = 0.90F)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(
+                                horizontal = AppTheme.dimensions.smallSpacing,
+                                vertical = AppTheme.dimensions.standardSpacing
+                            ),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(Icons.Cart.withTint(AppTheme.colors.title))
 
-            SmallVerticalSpacer()
+                            SmallHorizontalSpacer()
 
-            ClippedShadow(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = AppTheme.dimensions.mediumElevation,
-                shape = RoundedCornerShape(AppTheme.dimensions.tinySpacing),
-                backgroundColor = AppTheme.colors.backgroundSecondary.copy(alpha = 0.97F)
-            ) {
-                Row(
-                    modifier = Modifier.padding(
-                        horizontal = AppTheme.dimensions.smallSpacing, vertical = AppTheme.dimensions.standardSpacing
-                    ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(Icons.Bank)
+                            Text(
+                                text = stringResource(string.custodial_onboarding_intro_property1_title),
+                                style = AppTheme.typography.paragraph2,
+                                color = AppTheme.colors.title
+                            )
+                        }
+                    }
 
-                    SmallHorizontalSpacer()
+                    SmallVerticalSpacer()
 
-                    Text(
-                        text = stringResource(string.custodial_onboarding_intro_property2_title),
-                        style = AppTheme.typography.paragraph2,
-                        color = AppTheme.colors.title
-                    )
-                }
-            }
+                    ClippedShadow(
+                        modifier = Modifier.fillMaxWidth(),
+                        elevation = AppTheme.dimensions.mediumElevation,
+                        shape = RoundedCornerShape(AppTheme.dimensions.tinySpacing),
+                        backgroundColor = AppTheme.colors.backgroundSecondary.copy(alpha = 0.90F)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(
+                                horizontal = AppTheme.dimensions.smallSpacing,
+                                vertical = AppTheme.dimensions.standardSpacing
+                            ),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(Icons.Bank.withTint(AppTheme.colors.title))
 
-            SmallVerticalSpacer()
+                            SmallHorizontalSpacer()
 
-            ClippedShadow(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = AppTheme.dimensions.mediumElevation,
-                shape = RoundedCornerShape(AppTheme.dimensions.tinySpacing),
-                backgroundColor = AppTheme.colors.backgroundSecondary.copy(alpha = 0.97F)
-            ) {
-                Row(
-                    modifier = Modifier.padding(
-                        horizontal = AppTheme.dimensions.smallSpacing, vertical = AppTheme.dimensions.standardSpacing
-                    ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(Icons.Interest)
+                            Text(
+                                text = stringResource(string.custodial_onboarding_intro_property2_title),
+                                style = AppTheme.typography.paragraph2,
+                                color = AppTheme.colors.title
+                            )
+                        }
+                    }
 
-                    SmallHorizontalSpacer()
+                    if (isEligibleForEarnData.dataOrElse(false)) {
+                        SmallVerticalSpacer()
 
-                    Text(
-                        text = stringResource(string.custodial_onboarding_intro_property3_title),
-                        style = AppTheme.typography.paragraph2,
-                        color = AppTheme.colors.title
-                    )
+                        ClippedShadow(
+                            modifier = Modifier.fillMaxWidth(),
+                            elevation = AppTheme.dimensions.mediumElevation,
+                            shape = RoundedCornerShape(AppTheme.dimensions.tinySpacing),
+                            backgroundColor = AppTheme.colors.backgroundSecondary.copy(alpha = 0.90F)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(
+                                    horizontal = AppTheme.dimensions.smallSpacing,
+                                    vertical = AppTheme.dimensions.standardSpacing
+                                ),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Image(Icons.Interest.withTint(AppTheme.colors.title))
+
+                                SmallHorizontalSpacer()
+
+                                Text(
+                                    text = stringResource(string.custodial_onboarding_intro_property3_title),
+                                    style = AppTheme.typography.paragraph2,
+                                    color = AppTheme.colors.title
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
@@ -252,5 +279,11 @@ fun CustodialIntro(onGetStartedClicked: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewCustodialOnboardingScreen() {
-    CustodialIntro(onGetStartedClicked = {})
+    CustodialIntro(onGetStartedClicked = {}, DataResource.Data(true))
+}
+
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun PreviewCustodialOnboardingScreenDark() {
+    PreviewCustodialOnboardingScreen()
 }

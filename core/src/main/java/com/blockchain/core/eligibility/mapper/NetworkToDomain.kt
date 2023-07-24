@@ -29,6 +29,7 @@ fun ProductEligibilityResponse.toDomain(): List<ProductEligibility> =
         depositFiat?.toProductEligibility(EligibleProduct.DEPOSIT_FIAT),
         depositCrypto?.toProductEligibility(EligibleProduct.DEPOSIT_CRYPTO),
         depositInterest?.toProductEligibility(EligibleProduct.DEPOSIT_INTEREST),
+        depositEarnCC1W?.toProductEligibility(EligibleProduct.DEPOSIT_EARN_CC1W),
         withdrawFiat?.toProductEligibility(EligibleProduct.WITHDRAW_FIAT),
         depositStaking?.toProductEligibility(EligibleProduct.DEPOSIT_STAKING),
         kycVerification?.toProductEligibility(EligibleProduct.KYC)

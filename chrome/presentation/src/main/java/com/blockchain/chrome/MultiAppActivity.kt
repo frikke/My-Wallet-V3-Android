@@ -66,7 +66,6 @@ import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.sheets.NoBalanceActionBottomSheet
 import com.blockchain.walletconnect.domain.WalletConnectSession
-import com.blockchain.walletconnect.domain.WalletConnectV2Service
 import com.blockchain.walletconnect.ui.networks.NetworkInfo
 import com.blockchain.walletconnect.ui.networks.SelectNetworkBottomSheet
 import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet
@@ -112,8 +111,6 @@ class MultiAppActivity :
     private val deeplinkNavigationHandler: DeeplinkNavigationHandler by viewModel()
     private val walletModeService: WalletModeService by scopedInject()
     private val secureChannelService: SecureChannelService by scopedInject()
-
-    private val walletConnectV2Service: WalletConnectV2Service by scopedInject()
 
     private val fiatActionsNavigator: FiatActionsNavigator = payloadScope.get {
         parametersOf(lifecycleScope)

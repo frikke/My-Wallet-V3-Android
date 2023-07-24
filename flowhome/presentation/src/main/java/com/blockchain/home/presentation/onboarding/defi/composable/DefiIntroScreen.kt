@@ -1,5 +1,6 @@
 package com.blockchain.home.presentation.onboarding.defi.composable
 
+import android.content.res.Configuration
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -48,7 +49,6 @@ import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.utils.openUrl
-import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.onboarding.defi.DefiIntroViewModel
 import com.blockchain.home.presentation.onboarding.defi.OnboardingAnalyticsEvents
 import com.blockchain.koin.payloadScope
@@ -117,7 +117,6 @@ fun DefiIntro(onLearnMoreClicked: () -> Unit, onGetStartedClicked: () -> Unit) {
         val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(
@@ -141,7 +140,7 @@ fun DefiIntro(onLearnMoreClicked: () -> Unit, onGetStartedClicked: () -> Unit) {
                 text = stringResource(string.defi_intro_title),
                 style = AppTheme.typography.title1,
                 color = Color.White,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Start
             )
 
             SmallVerticalSpacer()
@@ -150,7 +149,7 @@ fun DefiIntro(onLearnMoreClicked: () -> Unit, onGetStartedClicked: () -> Unit) {
                 text = stringResource(string.defi_intro_description), // TODO add bold
                 style = AppTheme.typography.body1,
                 color = Color.White,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Start
             )
 
             StandardVerticalSpacer()
@@ -159,7 +158,7 @@ fun DefiIntro(onLearnMoreClicked: () -> Unit, onGetStartedClicked: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
                 elevation = AppTheme.dimensions.mediumElevation,
                 shape = RoundedCornerShape(AppTheme.dimensions.tinySpacing),
-                backgroundColor = AppTheme.colors.backgroundSecondary.copy(alpha = 0.97F)
+                backgroundColor = AppTheme.colors.backgroundSecondary.copy(alpha = 0.90F)
             ) {
                 Row(
                     modifier = Modifier.padding(
@@ -167,7 +166,7 @@ fun DefiIntro(onLearnMoreClicked: () -> Unit, onGetStartedClicked: () -> Unit) {
                     ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(Icons.Lock)
+                    Image(Icons.Lock.withTint(AppTheme.colors.title))
 
                     SmallHorizontalSpacer()
 
@@ -185,7 +184,7 @@ fun DefiIntro(onLearnMoreClicked: () -> Unit, onGetStartedClicked: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
                 elevation = AppTheme.dimensions.mediumElevation,
                 shape = RoundedCornerShape(AppTheme.dimensions.tinySpacing),
-                backgroundColor = AppTheme.colors.backgroundSecondary.copy(alpha = 0.97F)
+                backgroundColor = AppTheme.colors.backgroundSecondary.copy(alpha = 0.90F)
             ) {
                 Row(
                     modifier = Modifier.padding(
@@ -193,7 +192,7 @@ fun DefiIntro(onLearnMoreClicked: () -> Unit, onGetStartedClicked: () -> Unit) {
                     ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(Icons.ChartsBubble)
+                    Image(Icons.ChartsBubble.withTint(AppTheme.colors.title))
 
                     SmallHorizontalSpacer()
 
@@ -215,7 +214,7 @@ fun DefiIntro(onLearnMoreClicked: () -> Unit, onGetStartedClicked: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
                 elevation = AppTheme.dimensions.mediumElevation,
                 shape = RoundedCornerShape(AppTheme.dimensions.tinySpacing),
-                backgroundColor = AppTheme.colors.backgroundSecondary.copy(alpha = 0.97F)
+                backgroundColor = AppTheme.colors.backgroundSecondary.copy(alpha = 0.90F)
             ) {
                 Row(
                     modifier = Modifier.padding(
@@ -223,7 +222,7 @@ fun DefiIntro(onLearnMoreClicked: () -> Unit, onGetStartedClicked: () -> Unit) {
                     ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(Icons.Link)
+                    Image(Icons.Link.withTint(AppTheme.colors.title))
 
                     SmallHorizontalSpacer()
 
@@ -290,4 +289,10 @@ fun DefiIntro(onLearnMoreClicked: () -> Unit, onGetStartedClicked: () -> Unit) {
 @Composable
 fun PreviewDefiOnboardingScreen() {
     DefiIntro(onLearnMoreClicked = {}, onGetStartedClicked = {})
+}
+
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun PreviewDefiOnboardingScreenDark() {
+    PreviewDefiOnboardingScreen()
 }

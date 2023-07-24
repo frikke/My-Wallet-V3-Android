@@ -30,11 +30,14 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val homePresentationModule = module {
-    viewModel {
-        CustodialIntroViewModel(walletStatusPrefs = get())
-    }
-
     scope(payloadScopeQualifier) {
+        viewModel {
+            CustodialIntroViewModel(
+                walletStatusPrefs = get(),
+                userFeaturePermissionService = get()
+            )
+        }
+
         viewModel {
             DefiIntroViewModel(walletStatusPrefs = get())
         }
