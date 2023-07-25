@@ -14,14 +14,12 @@ class AnnouncementsApiService internal constructor(
         email: String,
         count: Int,
         platform: String,
-        sdkVersion: String,
         packageName: String
     ): Single<AnnouncementsDto> = api.getAnnouncements(
         apiKey = apiKey,
         email = email,
         count = count,
         platform = platform,
-        sdkVersion = sdkVersion,
         packageName = packageName
     )
 

@@ -15,7 +15,6 @@ interface AnnouncementsApi {
         @Query("email") email: String,
         @Query("count") count: Int,
         @Query("platform") platform: String = "Android",
-        @Query("SDKVersion") sdkVersion: String,
         @Query("packageName") packageName: String
     ): Single<AnnouncementsDto>
 

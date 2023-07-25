@@ -17,7 +17,6 @@ interface AnnouncementsCredentials {
     suspend fun email(): String
     val count: Int
     val platform: String
-    suspend fun sdkVersion(): String
     val packageName: String
     val deviceId: String
     val deviceInfo: DeviceInfo
@@ -46,10 +45,6 @@ class AnnouncementsCredentialsImpl internal constructor(
 
     override val platform: String
         get() = "Android"
-
-    override suspend fun sdkVersion(): String {
-        return "6.2.17"
-    }
 
     override val packageName: String
         get() = environmentConfig.applicationId

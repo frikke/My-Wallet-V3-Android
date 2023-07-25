@@ -21,7 +21,6 @@ class AnnouncementsStore(
                 email = announcementsCredentials.email(),
                 count = announcementsCredentials.count,
                 platform = announcementsCredentials.platform,
-                sdkVersion = announcementsCredentials.sdkVersion(),
                 packageName = announcementsCredentials.packageName
             )
         },
