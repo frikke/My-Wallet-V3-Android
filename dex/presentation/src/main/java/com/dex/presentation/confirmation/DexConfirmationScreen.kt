@@ -173,7 +173,6 @@ fun DexConfirmationScreen(
                 ) {
                     item {
                         SendAndReceiveAmountFields(
-                            reset = false,
                             sendAmountFieldConfig = AmountFieldConfig(
                                 isReadOnly = true,
                                 onValueChanged = { },

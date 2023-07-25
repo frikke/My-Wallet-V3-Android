@@ -49,6 +49,17 @@ fun String.stripThousandSeparators(): String {
     return this.replace(decimalFormatSymbols.groupingSeparator.toString(), "")
 }
 
+fun String.replaceGroupingSeparatorWithDecimal(): String {
+    val decimalSeparator = DecimalFormatSymbols(Locale.getDefault()).decimalSeparator
+    val groupingSeparator = DecimalFormatSymbols(Locale.getDefault()).groupingSeparator
+    // Check if the string contains none decimal separator and exactly one grouping
+    if (!this.contains(decimalSeparator) && this.count { it == groupingSeparator } == 1) {
+        // Replace thousands separator with decimal separator
+        return this.replace(groupingSeparator, decimalSeparator)
+    }
+    return this // Return the original string if it contains any of the separators
+}
+
 fun String.toBigDecimalFromLocalisedInput(): BigDecimal {
     toBigDecimalOrNull()?.let {
         return it

@@ -56,6 +56,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.dex.presentation.R
 import com.blockchain.utils.removeLeadingZeros
+import com.blockchain.utils.replaceGroupingSeparatorWithDecimal
 import com.blockchain.utils.stripThousandSeparators
 import com.blockchain.utils.toBigDecimalOrNullFromLocalisedInput
 import info.blockchain.balance.CryptoCurrency
@@ -66,7 +67,6 @@ import java.text.DecimalFormatSymbols
 @Composable
 fun SendAndReceiveAmountFields(
     modifier: Modifier = Modifier,
-    reset: Boolean,
     sendAmountFieldConfig: AmountFieldConfig,
     receiveAmountFieldConfig: AmountFieldConfig
 ) {
@@ -98,7 +98,6 @@ fun SendAndReceiveAmountFields(
                             fieldConfig = sendAmountFieldConfig,
                             isActiveTyping = lastInputField == 0,
                             internalValueChange = { lastInputField = 0 },
-                            reset = reset,
                             applyMax = applyMax
                         )
                     }
@@ -147,7 +146,6 @@ fun SendAndReceiveAmountFields(
                         AmountAndCurrencySelection(
                             fieldConfig = receiveAmountFieldConfig,
                             isActiveTyping = lastInputField == 1,
-                            reset = reset,
                             applyMax = false,
                             internalValueChange = { lastInputField = 1 },
                         )
@@ -247,7 +245,6 @@ private fun ReadOnlyAmount(
 private fun AmountAndCurrencySelection(
     fieldConfig: AmountFieldConfig,
     isActiveTyping: Boolean,
-    reset: Boolean,
     applyMax: Boolean,
     internalValueChange: () -> Unit,
 ) {
@@ -260,12 +257,6 @@ private fun AmountAndCurrencySelection(
             )
         )
     }
-
-    LaunchedEffect(key1 = reset, block = {
-        if (reset) {
-            input = TextFieldValue()
-        }
-    })
 
     LaunchedEffect(key1 = applyMax, block = {
         if (applyMax) {
@@ -305,16 +296,23 @@ private fun AmountAndCurrencySelection(
             enabled = fieldConfig.isEnabled,
             readOnly = fieldConfig.isReadOnly,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            onValueChange = {
-                if ((it.text.isEmpty() || it.text.stripThousandSeparators().isValidDecimalNumber())) {
-                    if (input.text != it.text) {
+            onValueChange = { original ->
+                val localisedValue = original.copy(
+                    text = original.text.replaceGroupingSeparatorWithDecimal()
+                )
+                if ((
+                    localisedValue.text.isEmpty() || localisedValue.text.stripThousandSeparators()
+                        .isValidDecimalNumber()
+                    )
+                ) {
+                    if (input.text != localisedValue.text) {
                         fieldConfig.onValueChanged(
-                            it.text.takeIf { text -> text.isNotEmpty() }
+                            localisedValue.text.takeIf { text -> text.isNotEmpty() }
                                 ?.toBigDecimalOrNullFromLocalisedInput()?.toString() ?: ""
                         )
                     }
                     internalValueChange()
-                    input = it.copy(text = it.text.removeLeadingZeros())
+                    input = localisedValue.copy(text = localisedValue.text.removeLeadingZeros())
                 }
             },
             maxLines = 1,
@@ -524,7 +522,6 @@ private fun PreviewSendAndReceiveAmountFields() {
             canChangeCurrency = true, amount = moneyPreview, exchange = moneyPreview, currency = CryptoCurrency.BTC,
             balance = moneyPreview, max = moneyPreview
         ),
-        reset = false,
         receiveAmountFieldConfig = AmountFieldConfig(
             isEnabled = true, shouldAnimateChanges = false, isReadOnly = false, onCurrencyClicked = {},
             canChangeCurrency = true, amount = moneyPreview, exchange = moneyPreview, currency = CryptoCurrency.BTC,
