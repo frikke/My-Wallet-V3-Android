@@ -73,9 +73,11 @@ class DexConfirmationViewModel(
             sellAccountBalance = transaction.sourceAccount.balance,
             operationInProgress = operationInProgress,
             buyAccountBalance = transaction.destinationAccount?.balance,
-            dexExchangeRate = transaction.quote?.price?.toBigDecimal()?.setScale(2, RoundingMode.HALF_UP)?.max(
-                BigDecimal("0.001")
-            ),
+            dexExchangeRate = safeLet(buyAmount, sellAmount) { bAmount, sAmount ->
+                bAmount.toBigDecimal().divide(sAmount.toBigDecimal(), 2, RoundingMode.HALF_UP).max(
+                    BigDecimal("0.001")
+                )
+            },
             slippage = transaction.slippage,
             minAmount = safeLet(
                 minAmount,

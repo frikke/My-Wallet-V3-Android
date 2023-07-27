@@ -53,9 +53,13 @@ fun String.replaceGroupingSeparatorWithDecimal(): String {
     val decimalSeparator = DecimalFormatSymbols(Locale.getDefault()).decimalSeparator
     val groupingSeparator = DecimalFormatSymbols(Locale.getDefault()).groupingSeparator
     // Check if the string contains none decimal separator and exactly one grouping
-    if (!this.contains(decimalSeparator) && this.count { it == groupingSeparator } == 1) {
+    if (this.contains(decimalSeparator)) return this
+    if (this.count { it == groupingSeparator } == 1) {
         // Replace thousands separator with decimal separator
         return this.replace(groupingSeparator, decimalSeparator)
+    }
+    if (this.count { !it.isDigit() } == 1) {
+        return this.replaceFirst(Regex("\\D"), decimalSeparator.toString())
     }
     return this // Return the original string if it contains any of the separators
 }

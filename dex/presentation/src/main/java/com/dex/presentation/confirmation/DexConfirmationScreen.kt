@@ -59,8 +59,8 @@ import com.dex.presentation.DexAnalyticsEvents
 import com.dex.presentation.DexTxSubscribeScreen
 import com.dex.presentation.SendAndReceiveAmountFields
 import com.dex.presentation.graph.DexDestination
-import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import info.blockchain.balance.isLayer2Token
 import java.math.BigDecimal
@@ -770,8 +770,8 @@ private fun Double.toPercentageString(): String {
 
 private data class ConfirmationExchangeRate(
     val rate: BigDecimal,
-    val inputCurrency: AssetInfo,
-    val outputCurrency: AssetInfo
+    val inputCurrency: Currency,
+    val outputCurrency: Currency
 )
 
 private data class AnimatedConfirmationState(

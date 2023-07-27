@@ -850,36 +850,13 @@ private fun getRoundedFiatAndCryptoValues(
         )
     }
 
-    val lowestPrefillRoundedFiat = when (
-        prefillFiatParts.major.filterNot {
-            it == prefillFiatParts.groupingSeparator
-        }.length
-    ) {
-        0,
-        1 -> {
-            roundToNearest(prefillFiat, roundingValues[0])
-        }
+    val length = prefillFiatParts.major.filterNot {
+        it == prefillFiatParts.groupingSeparator
+    }.length
 
-        2 -> {
-            roundToNearest(prefillFiat, roundingValues[1])
-        }
+    val index = length.coerceIn(0, 5)
 
-        3 -> {
-            roundToNearest(prefillFiat, roundingValues[2])
-        }
-
-        4 -> {
-            roundToNearest(prefillFiat, roundingValues[3])
-        }
-
-        5 -> {
-            roundToNearest(prefillFiat, roundingValues[4])
-        }
-
-        else -> {
-            roundToNearest(prefillFiat, roundingValues[5])
-        }
-    } as FiatValue
+    val lowestPrefillRoundedFiat = roundToNearest(prefillFiat, roundingValues[index]) as FiatValue
 
     val lowestPrefillRoundedCrypto =
         cryptoToFiatExchangeRate.inverse().convert(lowestPrefillRoundedFiat) as CryptoValue
