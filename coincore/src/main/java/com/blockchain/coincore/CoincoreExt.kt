@@ -21,7 +21,11 @@ fun SingleAccountList.filterByActionAndState(
     states: List<ActionState>
 ): Single<SingleAccountList> =
     Single.zip(
-        this.map { account -> account.stateOfAction(action).map { actionState -> account to actionState } }
+        this.map { account ->
+            account.stateOfAction(action)
+                .onErrorReturn { ActionState.Unavailable }
+                .map { actionState -> account to actionState }
+        }
     ) { result: Array<Any> ->
         result.filterIsInstance<Pair<SingleAccount, ActionState>>()
             .filter { (account, actionState) ->
