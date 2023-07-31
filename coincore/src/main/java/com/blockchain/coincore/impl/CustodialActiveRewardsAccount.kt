@@ -150,6 +150,7 @@ class CustodialActiveRewardsAccount(
             return@zip when (tier) {
                 KycTier.BRONZE,
                 KycTier.SILVER -> emptySet()
+
                 KycTier.GOLD -> setOf(
                     StateAwareAction(
                         when (depositInterestEligibility) {
@@ -169,8 +170,26 @@ class CustodialActiveRewardsAccount(
         }
 
     override fun stateOfAction(assetAction: AssetAction): Single<ActionState> {
-        return stateAwareActions.map { set ->
-            set.firstOrNull { it.action == assetAction }?.state ?: ActionState.Unavailable
+        return when (assetAction) {
+            AssetAction.ViewActivity,
+            AssetAction.ActiveRewardsWithdraw,
+            AssetAction.ViewStatement -> Single.just(ActionState.Available)
+            AssetAction.Send,
+            AssetAction.Swap,
+            AssetAction.Sell,
+            AssetAction.Buy,
+            AssetAction.FiatWithdraw,
+            AssetAction.FiatDeposit,
+            AssetAction.Sign,
+            AssetAction.StakingWithdraw,
+            AssetAction.InterestWithdraw,
+            AssetAction.StakingDeposit,
+            AssetAction.Receive -> Single.just(ActionState.Unavailable)
+
+            AssetAction.InterestDeposit,
+            AssetAction.ActiveRewardsDeposit -> stateAwareActions.map { set ->
+                set.firstOrNull { it.action == assetAction }?.state ?: ActionState.Unavailable
+            }
         }
     }
 

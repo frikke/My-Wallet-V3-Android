@@ -166,8 +166,25 @@ class CustodialStakingAccount(
         }
 
     override fun stateOfAction(assetAction: AssetAction): Single<ActionState> {
-        return stateAwareActions.map { set ->
-            set.firstOrNull { it.action == assetAction }?.state ?: ActionState.Unavailable
+        return when (assetAction) {
+            AssetAction.ViewActivity,
+            AssetAction.ViewStatement -> Single.just(ActionState.Available)
+            AssetAction.Send,
+            AssetAction.Swap,
+            AssetAction.Sell,
+            AssetAction.Buy,
+            AssetAction.FiatWithdraw,
+            AssetAction.FiatDeposit,
+            AssetAction.Sign,
+            AssetAction.InterestWithdraw,
+            AssetAction.InterestDeposit,
+            AssetAction.StakingWithdraw,
+            AssetAction.ActiveRewardsDeposit,
+            AssetAction.ActiveRewardsWithdraw,
+            AssetAction.Receive -> Single.just(ActionState.Unavailable)
+            AssetAction.StakingDeposit -> stateAwareActions.map { set ->
+                set.firstOrNull { it.action == assetAction }?.state ?: ActionState.Unavailable
+            }
         }
     }
 
